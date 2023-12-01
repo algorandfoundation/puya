@@ -1,0 +1,3 @@
+# vim:fileencoding=iso-8859-7
+
+OMEGA = "Ù".encode("iso-8859-7")

@@ -1,0 +1,92 @@
+ZERO = 0
+ZER0 = 0
+ONE = 1
+
+subroutine get_banned(): algopy.Address
+{
+  addr: algopy.Address = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
+  return addr
+}
+
+subroutine add_one(x: algopy.UInt64): algopy.UInt64
+{
+  new_value: algopy.UInt64 = x
+  one: algopy.UInt64 = 1u
+  new_value += one
+  return new_value
+}
+
+contract Everything extends (examples.everything.my_base::MyMiddleBase, examples.everything.my_base::MyBase)
+{
+  globals {
+    ['counter']: algopy.UInt64
+  }
+  locals {
+    ['name']: algopy.arc4.String
+  }
+  
+  constructor()
+  {
+  }
+  
+  clear_state_program(): bool
+  {
+    this::_remove_sender()
+    return true
+  }
+  
+  abimethod create(): None
+  {
+    this::_check_ban_list()
+    this::remember_creator()
+    this.globals['counter']: algopy.UInt64 = 0u
+  }
+  
+  abimethod register(name: algopy.arc4.String): None
+  {
+    this::_check_ban_list()
+    if (txn<OnCompletion>() == OptIn) {
+      (sender_name, sender_name_existed): tuple[algopy.arc4.String, bool] = app_local_get_ex(0u, 0u, 'name')
+      if (!(sender_name_existed)) {
+        this.globals['counter'] += examples.everything.my_base::multiplicative_identity()
+      }
+    }
+    this.locals['name'].account[0u]: algopy.arc4.String = name
+  }
+  
+  abimethod say_hello(): algopy.arc4.String
+  {
+    this::_check_ban_list()
+    (name, exists): tuple[algopy.arc4.String, bool] = app_local_get_ex(0u, 0u, 'name')
+    if (!(exists)) {
+      return abi_constant('\x00\x0fHowdy stranger!', algopy.arc4.String)
+    }
+    return abi_encode('Hello, ' + abi_decode(name, algopy.Bytes) + '!', algopy.arc4.String)
+  }
+  
+  abimethod calculate(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  {
+    c: algopy.UInt64 = examples.everything.my_base::MyMiddleBase::calculate(a, b)
+    return c * b
+  }
+  
+  abimethod close_out(): None
+  {
+    this::_remove_sender()
+  }
+  
+  subroutine _check_ban_list(): None
+  {
+    assert(txn<Sender>() != examples.everything.contract::get_banned(), comment="You are banned, goodbye")
+  }
+  
+  subroutine _remove_sender(): None
+  {
+    this.globals['counter'] -= examples.everything.contract::positive_one()
+  }
+}
+
+subroutine positive_one(): algopy.UInt64
+{
+  return 1u
+}

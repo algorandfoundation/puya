@@ -1,0 +1,110 @@
+ADD = 1
+SUB = 2
+MUL = 3
+DIV = 4
+
+subroutine itoa(i: algopy.UInt64): algopy.Bytes
+{
+  digits: algopy.Bytes = '0123456789'
+  radix: algopy.UInt64 = len(digits)
+  if (i < radix) {
+    return digits[i]
+  }
+  return examples.calculator.contract::itoa(i // radix) + digits[i % radix]
+}
+
+contract MyContract
+{
+  approval_program(): algopy.UInt64
+  {
+    num_args: algopy.UInt64 = txn<NumAppArgs>()
+    if (num_args == 0u) {
+      a: algopy.UInt64 = 0u
+      b: algopy.UInt64 = 0u
+      action: algopy.UInt64 = 0u
+      log(itob(a))
+      log(itob(b))
+    } else {
+      assert(num_args == 3u, comment="Expected 3 args")
+      action_b: algopy.Bytes = txna<ApplicationArgs, 0>()
+      action: algopy.UInt64 = btoi(action_b)
+      a_bytes: algopy.Bytes = txna<ApplicationArgs, 1>()
+      b_bytes: algopy.Bytes = txna<ApplicationArgs, 2>()
+      log(a_bytes)
+      log(b_bytes)
+      a: algopy.UInt64 = btoi(a_bytes)
+      b: algopy.UInt64 = btoi(b_bytes)
+    }
+    result: algopy.UInt64 = this::do_calc(action, a, b)
+    result_b: algopy.Bytes = examples.calculator.contract::itoa(a) + this::op(action) + examples.calculator.contract::itoa(b) + ' = ' + examples.calculator.contract::itoa(result)
+    log(result_b)
+    return 1u
+  }
+  
+  clear_state_program(): algopy.UInt64
+  {
+    return 1u
+  }
+  
+  subroutine op(action: algopy.UInt64): algopy.Bytes
+  {
+    if (action == 1u) {
+      return ' + '
+    } else {
+      if (action == 2u) {
+        return ' - '
+      } else {
+        if (action == 3u) {
+          return ' * '
+        } else {
+          if (action == 4u) {
+            return ' // '
+          } else {
+            return ' - '
+          }
+        }
+      }
+    }
+  }
+  
+  subroutine do_calc(maybe_action: algopy.UInt64, a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  {
+    if (maybe_action == 1u) {
+      return this::add(a, b)
+    } else {
+      if (maybe_action == 2u) {
+        return this::sub(a, b)
+      } else {
+        if (maybe_action == 3u) {
+          return this::mul(a, b)
+        } else {
+          if (maybe_action == 4u) {
+            return this::div(a, b)
+          } else {
+            assert(false, comment="unknown operation")
+          }
+        }
+      }
+    }
+  }
+  
+  subroutine add(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  {
+    return a + b
+  }
+  
+  subroutine sub(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  {
+    return a - b
+  }
+  
+  subroutine mul(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  {
+    return a * b
+  }
+  
+  subroutine div(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  {
+    return a // b
+  }
+}

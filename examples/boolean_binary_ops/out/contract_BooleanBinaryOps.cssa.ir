@@ -1,0 +1,143 @@
+contract examples.boolean_binary_ops.contract.BooleanBinaryOps:
+    program approval:
+        subroutine examples.boolean_binary_ops.contract.BooleanBinaryOps.approval_program() -> uint64:
+            block@0: // L5
+                examples.boolean_binary_ops.contract.test_boolean_binary_ops(1u, 0u)
+                examples.boolean_binary_ops.contract.test_boolean_shortcircuit_binary_ops()
+                return 1u
+        
+        subroutine examples.boolean_binary_ops.contract.test_boolean_binary_ops(true: uint64, false: uint64) -> void:
+            block@0: // L15
+                let tmp%0#0: uint64 = (&& true#0 false#0)
+                let tmp%1#0: uint64 = (! tmp%0#0)
+                (assert tmp%1#0)
+                let tmp%2#0: uint64 = (&& false#0 true#0)
+                let tmp%3#0: uint64 = (! tmp%2#0)
+                (assert tmp%3#0)
+                let tmp%4#0: uint64 = (&& true#0 true#0)
+                (assert tmp%4#0)
+                let tmp%5#0: uint64 = (&& false#0 false#0)
+                let tmp%6#0: uint64 = (! tmp%5#0)
+                (assert tmp%6#0)
+                let tmp%7#0: uint64 = (|| true#0 false#0)
+                (assert tmp%7#0)
+                let tmp%8#0: uint64 = (|| false#0 true#0)
+                (assert tmp%8#0)
+                let tmp%9#0: uint64 = (|| true#0 true#0)
+                (assert tmp%9#0)
+                let tmp%10#0: uint64 = (|| false#0 false#0)
+                let tmp%11#0: uint64 = (! tmp%10#0)
+                (assert tmp%11#0)
+                return 
+        
+        subroutine examples.boolean_binary_ops.contract.test_boolean_shortcircuit_binary_ops() -> void:
+            block@0: // L33
+                let tuple_index%0#0: uint64 = 0u
+                let lhs#0: uint64 = 1u
+                let (tuple_index%0#9: uint64, lhs#4: uint64) = (tuple_index%0#0, lhs#0)
+                goto block@3
+            block@2: // for_header_1_L34
+                let lhs#1: uint64 = 0u
+                let (tuple_index%0#10: uint64, lhs#5: uint64) = (tuple_index%0#8, lhs#1)
+                goto block@3
+            block@3: // for_body_L34
+                let lhs#6: uint64 = φ(lhs#4 <- block@0, lhs#5 <- block@2)
+                let tuple_index%0#11: uint64 = φ(tuple_index%0#9 <- block@0, tuple_index%0#10 <- block@2)
+                let (tuple_index%0#5: uint64, lhs#3: uint64) = (tuple_index%0#11, lhs#6)
+                let tuple_index%1#0: uint64 = 0u
+                let rhs#0: uint64 = 1u
+                let (tuple_index%1#8: uint64, rhs#3: uint64) = (tuple_index%1#0, rhs#0)
+                goto block@6
+            block@5: // for_header_1_L35
+                let rhs#1: uint64 = 0u
+                let (tuple_index%1#9: uint64, rhs#4: uint64) = (tuple_index%1#7, rhs#1)
+                goto block@6
+            block@6: // for_body_L35
+                let rhs#5: uint64 = φ(rhs#3 <- block@3, rhs#4 <- block@5)
+                let tuple_index%1#10: uint64 = φ(tuple_index%1#8 <- block@3, tuple_index%1#9 <- block@5)
+                let (tuple_index%1#4: uint64, rhs#2: uint64) = (tuple_index%1#10, rhs#5)
+                let tmp%2#0: bytes = examples.boolean_binary_ops.contract.bool_to_bytes(lhs#3)
+                let tmp%3#0: bytes = (concat "_" tmp%2#0)
+                let tmp%4#0: bytes = (concat tmp%3#0 "_and_")
+                let tmp%5#0: bytes = examples.boolean_binary_ops.contract.bool_to_bytes(rhs#2)
+                let and_msg#0: bytes = (concat tmp%4#0 tmp%5#0)
+                let tmp%6#0: bytes = (concat "lhs" and_msg#0)
+                let tmp%7#0: uint64 = examples.boolean_binary_ops.contract.log_and_return(lhs#3, tmp%6#0)
+                goto tmp%7#0 ? block@7 : block@9
+            block@7: // and_contd_L37
+                let tmp%8#0: bytes = (concat "rhs" and_msg#0)
+                let tmp%9#0: uint64 = examples.boolean_binary_ops.contract.log_and_return(rhs#2, tmp%8#0)
+                goto tmp%9#0 ? block@8 : block@9
+            block@8: // bool_true_L37
+                let and_result%10#0: uint64 = 1u
+                let and_result%10#2: uint64 = and_result%10#0
+                goto block@10
+            block@9: // bool_false_L37
+                let and_result%10#1: uint64 = 0u
+                let and_result%10#3: uint64 = and_result%10#1
+                goto block@10
+            block@10: // bool_merge_L37
+                let and_result#1: uint64 = φ(and_result%10#2 <- block@8, and_result%10#3 <- block@9)
+                let and_result#0: uint64 = and_result#1
+                let tmp%11#0: uint64 = (&& lhs#3 rhs#2)
+                let tmp%12#0: uint64 = (== and_result#0 tmp%11#0)
+                (assert tmp%12#0)
+                let tmp%13#0: bytes = examples.boolean_binary_ops.contract.bool_to_bytes(lhs#3)
+                let tmp%14#0: bytes = (concat "_" tmp%13#0)
+                let tmp%15#0: bytes = (concat tmp%14#0 "_or_")
+                let tmp%16#0: bytes = examples.boolean_binary_ops.contract.bool_to_bytes(rhs#2)
+                let or_msg#0: bytes = (concat tmp%15#0 tmp%16#0)
+                let tmp%17#0: bytes = (concat "lhs" or_msg#0)
+                let tmp%18#0: uint64 = examples.boolean_binary_ops.contract.log_and_return(lhs#3, tmp%17#0)
+                goto tmp%18#0 ? block@12 : block@11
+            block@11: // or_contd_L42
+                let tmp%19#0: bytes = (concat "rhs" or_msg#0)
+                let tmp%20#0: uint64 = examples.boolean_binary_ops.contract.log_and_return(rhs#2, tmp%19#0)
+                goto tmp%20#0 ? block@12 : block@13
+            block@12: // bool_true_L42
+                let or_result%21#0: uint64 = 1u
+                let or_result%21#2: uint64 = or_result%21#0
+                goto block@14
+            block@13: // bool_false_L42
+                let or_result%21#1: uint64 = 0u
+                let or_result%21#3: uint64 = or_result%21#1
+                goto block@14
+            block@14: // bool_merge_L42
+                let or_result#1: uint64 = φ(or_result%21#2 <- block@12, or_result%21#3 <- block@13)
+                let or_result#0: uint64 = or_result#1
+                let tmp%22#0: uint64 = (|| lhs#3 rhs#2)
+                let tmp%23#0: uint64 = (== or_result#0 tmp%22#0)
+                (assert tmp%23#0)
+                let tuple_index%1#7: uint64 = (+ tuple_index%1#4 1u)
+                goto [block@5, ...block@16][tuple_index%1#4]
+            block@16: // after_for_L35
+                let tuple_index%0#8: uint64 = (+ tuple_index%0#5 1u)
+                goto [block@2, ...block@18][tuple_index%0#5]
+            block@18: // after_for_L34
+                return 
+        
+        subroutine examples.boolean_binary_ops.contract.bool_to_bytes(x: uint64) -> bytes:
+            block@0: // L28
+                goto x#0 ? block@1 : block@2
+            block@1: // ternary_true_L29
+                let ternary_result%0#0: bytes = "true"
+                let ternary_result%0#3: bytes = ternary_result%0#0
+                goto block@3
+            block@2: // ternary_false_L29
+                let ternary_result%0#1: bytes = "false"
+                let ternary_result%0#4: bytes = ternary_result%0#1
+                goto block@3
+            block@3: // ternary_merge_L29
+                let ternary_result%0#5: bytes = φ(ternary_result%0#3 <- block@1, ternary_result%0#4 <- block@2)
+                let ternary_result%0#2: bytes = ternary_result%0#5
+                return ternary_result%0#2
+        
+        subroutine examples.boolean_binary_ops.contract.log_and_return(x: uint64, msg: bytes) -> uint64:
+            block@0: // L49
+                (log msg#0)
+                return x#0
+    
+    program clear-state:
+        subroutine examples.boolean_binary_ops.contract.BooleanBinaryOps.clear_state_program() -> uint64:
+            block@0: // L10
+                return 1u

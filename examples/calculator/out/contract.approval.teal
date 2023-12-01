@@ -1,0 +1,261 @@
+#pragma version 8
+
+// examples.calculator.contract.MyContract.approval_program() -> uint64:
+main:
+        byte ""
+        dup
+
+main_block@0:
+        txn NumAppArgs
+        dup
+        cover 1
+        !
+        bz main_else_body@2
+
+main_if_body@1:
+        int 0
+        bury 3
+        int 0
+        int 0
+        bury 3
+        int 0
+        itob
+        log
+        int 0
+        itob
+        log
+        b main_after_if_else@3
+
+main_else_body@2:
+        dup
+        int 3
+        ==
+        assert
+        txna ApplicationArgs 0
+        btoi
+        bury 2
+        txna ApplicationArgs 1
+        txna ApplicationArgs 2
+        cover 1
+        dup
+        log
+        dig 1
+        log
+        btoi
+        bury 4
+        btoi
+
+main_after_if_else@3:
+        dig 2
+        dup
+        dig 5
+        dup
+        cover 2
+        uncover 4
+        dup
+        cover 5
+        callsub do_calc
+        cover 3
+        callsub itoa
+        uncover 1
+        callsub op
+        concat
+        uncover 1
+        callsub itoa
+        concat
+        byte " = "
+        concat
+        uncover 1
+        callsub itoa
+        concat
+        log
+        int 1
+        return
+
+
+// examples.calculator.contract.MyContract.do_calc(maybe_action#0: uint64, a#0: uint64, b#0: uint64) -> uint64:
+do_calc:
+        proto 3 1
+
+do_calc_block@0:
+        frame_dig -3
+        int 1
+        ==
+        bz do_calc_else_body@2
+
+do_calc_if_body@1:
+        frame_dig -2
+        frame_dig -1
+        callsub add
+        retsub
+
+do_calc_else_body@2:
+        frame_dig -3
+        int 2
+        ==
+        bz do_calc_else_body@4
+
+do_calc_if_body@3:
+        frame_dig -2
+        frame_dig -1
+        callsub sub
+        retsub
+
+do_calc_else_body@4:
+        frame_dig -3
+        int 3
+        ==
+        bz do_calc_else_body@6
+
+do_calc_if_body@5:
+        frame_dig -2
+        frame_dig -1
+        callsub mul
+        retsub
+
+do_calc_else_body@6:
+        frame_dig -3
+        int 4
+        ==
+        bz do_calc_else_body@8
+
+do_calc_if_body@7:
+        frame_dig -2
+        frame_dig -1
+        callsub div
+        retsub
+
+do_calc_else_body@8:
+        err // unknown operation
+
+
+// examples.calculator.contract.MyContract.add(a#0: uint64, b#0: uint64) -> uint64:
+add:
+        proto 2 1
+
+add_block@0:
+        frame_dig -2
+        frame_dig -1
+        +
+        retsub
+
+
+// examples.calculator.contract.MyContract.sub(a#0: uint64, b#0: uint64) -> uint64:
+sub:
+        proto 2 1
+
+sub_block@0:
+        frame_dig -2
+        frame_dig -1
+        -
+        retsub
+
+
+// examples.calculator.contract.MyContract.mul(a#0: uint64, b#0: uint64) -> uint64:
+mul:
+        proto 2 1
+
+mul_block@0:
+        frame_dig -2
+        frame_dig -1
+        *
+        retsub
+
+
+// examples.calculator.contract.MyContract.div(a#0: uint64, b#0: uint64) -> uint64:
+div:
+        proto 2 1
+
+div_block@0:
+        frame_dig -2
+        frame_dig -1
+        /
+        retsub
+
+
+// examples.calculator.contract.itoa(i#0: uint64) -> bytes:
+itoa:
+        proto 1 1
+
+itoa_block@0:
+        frame_dig -1
+        int 10
+        <
+        bz itoa_after_if_else@2
+
+itoa_if_body@1:
+        frame_dig -1
+        int 1
+        +
+        byte "0123456789"
+        frame_dig -1
+        uncover 2
+        substring3
+        retsub
+
+itoa_after_if_else@2:
+        frame_dig -1
+        int 10
+        /
+        callsub itoa
+        frame_dig -1
+        int 10
+        %
+        dup
+        int 1
+        +
+        byte "0123456789"
+        cover 2
+        substring3
+        concat
+        retsub
+
+
+// examples.calculator.contract.MyContract.op(action#0: uint64) -> bytes:
+op:
+        proto 1 1
+
+op_block@0:
+        frame_dig -1
+        int 1
+        ==
+        bz op_else_body@2
+
+op_if_body@1:
+        byte " + "
+        retsub
+
+op_else_body@2:
+        frame_dig -1
+        int 2
+        ==
+        bz op_else_body@4
+
+op_if_body@3:
+        byte " - "
+        retsub
+
+op_else_body@4:
+        frame_dig -1
+        int 3
+        ==
+        bz op_else_body@6
+
+op_if_body@5:
+        byte " * "
+        retsub
+
+op_else_body@6:
+        frame_dig -1
+        int 4
+        ==
+        bz op_else_body@8
+
+op_if_body@7:
+        byte " // "
+        retsub
+
+op_else_body@8:
+        byte " - "
+        retsub
+

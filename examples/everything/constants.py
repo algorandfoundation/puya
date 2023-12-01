@@ -1,0 +1,13 @@
+import typing as t
+
+__all__ = [
+    "BANNED",
+]
+__all__ += [
+    "EXT_ZERO",
+    "EXT_ONE",
+]
+
+BANNED = HACKER = "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"
+EXT_ZERO: t.Final = 0
+EXT_ONE = 1

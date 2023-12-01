@@ -1,0 +1,32 @@
+## case: contains_expression
+from algopy import UInt64, subroutine
+
+@subroutine
+def one() -> UInt64:
+    return UInt64(1)
+
+@subroutine
+def two() -> UInt64:
+    return UInt64(2)
+
+@subroutine
+def test() -> bool:
+    a = UInt64(42)
+
+    return a in (one(), two())
+## expected: awst
+subroutine one(): algopy.UInt64
+{
+  return 1u
+}
+
+subroutine two(): algopy.UInt64
+{
+  return 2u
+}
+
+subroutine test(): bool
+{
+  a: algopy.UInt64 = 42u
+  return a IS IN (contains_expression::one(), contains_expression::two())
+}

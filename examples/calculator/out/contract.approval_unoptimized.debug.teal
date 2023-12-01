@@ -1,0 +1,287 @@
+// Op                                                    // Op Description                               Stack (out)                                                          X stack  Source code                                                              Source line
+
+#pragma version 8
+
+// examples.calculator.contract.MyContract.approval_program() -> uint64:
+main:
+        byte ""
+        dup                                              // allocate 2 to stack                          (𝕗) a#0,action#0 |
+
+main_block@0:
+        txn NumAppArgs                                   //                                              (𝕗) a#0,action#0 | {txn}                                                      Transaction.num_app_args()                                               File "calculator/contract.py", line 20
+        dup                                              // store num_args#0 to l-stack (copy)           (𝕗) a#0,action#0 | num_args#0,num_args#0                                      num_args                                                                 File "calculator/contract.py", line 20
+        cover 1                                          // store num_args#0 to f-stack                  (𝕗) a#0,action#0,num_args#0 | num_args#0                                      num_args                                                                 File "calculator/contract.py", line 20
+        int 0                                            //                                              (𝕗) a#0,action#0,num_args#0 | num_args#0,0                                    0                                                                        File "calculator/contract.py", line 21
+        ==                                               //                                              (𝕗) a#0,action#0,num_args#0 | {==}                                            num_args == UInt64(0):                                                   File "calculator/contract.py", line 21
+        bz main_else_body@2                              //                                              (𝕗) a#0,action#0,num_args#0 |                                                 if num_args == UInt64(0):                                                File "calculator/contract.py", line 21
+        // Implicit fall through to main_if_body@1       //                                              (𝕗) a#0,action#0,num_args#0 |                                                 if num_args == UInt64(0):                                                File "calculator/contract.py", line 21
+
+main_if_body@1:
+        int 0                                            //                                              (𝕗) a#0,action#0,num_args#0 | 0                                               0                                                                        File "calculator/contract.py", line 22
+        dup                                              // store a#0 to l-stack (copy)                  (𝕗) a#0,action#0,num_args#0 | a#0,a#0                                         a                                                                        File "calculator/contract.py", line 22
+        bury 4                                           // store a#0 to f-stack                         (𝕗) a#0,action#0,num_args#0 | a#0                                             a                                                                        File "calculator/contract.py", line 22
+        int 0                                            //                                              (𝕗) a#0,action#0,num_args#0 | a#0,0                                           0                                                                        File "calculator/contract.py", line 23
+        dup
+        cover 2                                          // store b#0 to l-stack (copy)                  (𝕗) a#0,action#0,num_args#0 | b#0,a#0,b#0                                     b                                                                        File "calculator/contract.py", line 23
+        cover 2                                          // store b#0 to x-stack (no copy)               (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | b#0,a#0                               b                                                                        File "calculator/contract.py", line 23
+        int 0                                            //                                              (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | b#0,a#0,0                             0                                                                        File "calculator/contract.py", line 24
+        bury 5                                           // store action#0 to f-stack                    (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | b#0,a#0                               action                                                                   File "calculator/contract.py", line 24
+        itob                                             //                                              (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | b#0,{itob}                            itob(a)                                                                  File "calculator/contract.py", line 25
+        log                                              //                                              (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | b#0                                   log(itob(a))                                                             File "calculator/contract.py", line 25
+        itob                                             //                                              (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | {itob}                                itob(b)                                                                  File "calculator/contract.py", line 26
+        log                                              //                                              (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 |                                       log(itob(b))                                                             File "calculator/contract.py", line 26
+        b main_after_if_else@3                           //                                              (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 |                              b#0
+
+main_else_body@2:
+        dup                                              // load num_args#0 from f-stack                 (𝕗) a#0,action#0,num_args#0 | num_args#0                                      num_args                                                                 File "calculator/contract.py", line 20
+        int 3                                            //                                              (𝕗) a#0,action#0,num_args#0 | num_args#0,3                                    3                                                                        File "calculator/contract.py", line 28
+        ==                                               //                                              (𝕗) a#0,action#0,num_args#0 | {==}                                            num_args == 3, "Expected 3 args"                                         File "calculator/contract.py", line 28
+        assert                                           //                                              (𝕗) a#0,action#0,num_args#0 |                                                 assert num_args == 3, "Expected 3 args"                                  File "calculator/contract.py", line 28
+        txna ApplicationArgs 0                           //                                              (𝕗) a#0,action#0,num_args#0 | {txna}                                          Transaction.application_args(0)                                          File "calculator/contract.py", line 29
+        btoi                                             //                                              (𝕗) a#0,action#0,num_args#0 | {btoi}                                          btoi(action_b)                                                           File "calculator/contract.py", line 30
+        bury 2                                           // store action#0 to f-stack                    (𝕗) a#0,action#0,num_args#0 |                                                 action                                                                   File "calculator/contract.py", line 24
+        txna ApplicationArgs 1                           //                                              (𝕗) a#0,action#0,num_args#0 | {txna}                                          Transaction.application_args(1)                                          File "calculator/contract.py", line 31
+        txna ApplicationArgs 2                           //                                              (𝕗) a#0,action#0,num_args#0 | a_bytes#0,{txna}                                Transaction.application_args(2)                                          File "calculator/contract.py", line 32
+        cover 1                                          // store b_bytes#0 to l-stack (no copy)         (𝕗) a#0,action#0,num_args#0 | b_bytes#0,a_bytes#0                             b_bytes                                                                  File "calculator/contract.py", line 32
+        dup                                              // load a_bytes#0 from l-stack (copy)           (𝕗) a#0,action#0,num_args#0 | b_bytes#0,a_bytes#0,a_bytes#0                   a_bytes                                                                  File "calculator/contract.py", line 31
+        log                                              //                                              (𝕗) a#0,action#0,num_args#0 | b_bytes#0,a_bytes#0                             log(a_bytes)                                                             File "calculator/contract.py", line 33
+        dig 1                                            // load b_bytes#0 from l-stack (copy)           (𝕗) a#0,action#0,num_args#0 | b_bytes#0,a_bytes#0,b_bytes#0                   b_bytes                                                                  File "calculator/contract.py", line 32
+        log                                              //                                              (𝕗) a#0,action#0,num_args#0 | b_bytes#0,a_bytes#0                             log(b_bytes)                                                             File "calculator/contract.py", line 34
+        btoi                                             //                                              (𝕗) a#0,action#0,num_args#0 | b_bytes#0,{btoi}                                btoi(a_bytes)                                                            File "calculator/contract.py", line 35
+        bury 4                                           // store a#0 to f-stack                         (𝕗) a#0,action#0,num_args#0 | b_bytes#0                                       a                                                                        File "calculator/contract.py", line 22
+        btoi                                             //                                              (𝕗) a#0,action#0,num_args#0 | {btoi}                                          btoi(b_bytes)                                                            File "calculator/contract.py", line 36
+        // Implicit fall through to main_after_if_else@3 //                                              (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 |                              b#0
+
+main_after_if_else@3:
+        dig 2                                            // load action#0 from f-stack                   (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | action#0                     b#0      action                                                                   File "calculator/contract.py", line 24
+        dup                                              // store action#0 to l-stack (copy)             (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | action#0,action#0                     action                                                                   File "calculator/contract.py", line 24
+        dig 5                                            // load a#0 from f-stack                        (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | action#0,action#0,a#0                 a                                                                        File "calculator/contract.py", line 22
+        dup
+        cover 2                                          // store a#0 to l-stack (copy)                  (𝕗) a#0,action#0,num_args#0 | (𝕏) b#0 | action#0,a#0,action#0,a#0             a                                                                        File "calculator/contract.py", line 22
+        uncover 4                                        // load b#0 from x-stack                        (𝕗) a#0,action#0,num_args#0 | action#0,a#0,action#0,a#0,b#0                   b                                                                        File "calculator/contract.py", line 23
+        dup
+        cover 5                                          // store b#0 to l-stack (copy)                  (𝕗) a#0,action#0,num_args#0 | b#0,action#0,a#0,action#0,a#0,b#0               b                                                                        File "calculator/contract.py", line 23
+        callsub do_calc                                  //                                              (𝕗) a#0,action#0,num_args#0 | b#0,action#0,a#0,{do_calc}                      self.do_calc(action, a, b)                                               File "calculator/contract.py", line 38
+        cover 3                                          // store result#0 to l-stack (no copy)          (𝕗) a#0,action#0,num_args#0 | result#0,b#0,action#0,a#0                       result                                                                   File "calculator/contract.py", line 38
+        callsub itoa                                     //                                              (𝕗) a#0,action#0,num_args#0 | result#0,b#0,action#0,{itoa}                    itoa(a)                                                                  File "calculator/contract.py", line 39
+        uncover 1                                        // load action#0 from l-stack (no copy)         (𝕗) a#0,action#0,num_args#0 | result#0,b#0,tmp%4#0,action#0                   action                                                                   File "calculator/contract.py", line 24
+        callsub op                                       //                                              (𝕗) a#0,action#0,num_args#0 | result#0,b#0,tmp%4#0,{op}                       self.op(action)                                                          File "calculator/contract.py", line 39
+        concat                                           //                                              (𝕗) a#0,action#0,num_args#0 | result#0,b#0,{concat}                           itoa(a) + self.op(action)                                                File "calculator/contract.py", line 39
+        uncover 1                                        // load b#0 from l-stack (no copy)              (𝕗) a#0,action#0,num_args#0 | result#0,tmp%6#0,b#0                            b                                                                        File "calculator/contract.py", line 23
+        callsub itoa                                     //                                              (𝕗) a#0,action#0,num_args#0 | result#0,tmp%6#0,{itoa}                         itoa(b)                                                                  File "calculator/contract.py", line 39
+        concat                                           //                                              (𝕗) a#0,action#0,num_args#0 | result#0,{concat}                               itoa(a) + self.op(action) + itoa(b)                                      File "calculator/contract.py", line 39
+        byte " = "                                       //                                              (𝕗) a#0,action#0,num_args#0 | result#0,tmp%8#0," = "                          b" = "                                                                   File "calculator/contract.py", line 39
+        concat                                           //                                              (𝕗) a#0,action#0,num_args#0 | result#0,{concat}                               itoa(a) + self.op(action) + itoa(b) + b" = "                             File "calculator/contract.py", line 39
+        uncover 1                                        // load result#0 from l-stack (no copy)         (𝕗) a#0,action#0,num_args#0 | tmp%9#0,result#0                                result                                                                   File "calculator/contract.py", line 38
+        callsub itoa                                     //                                              (𝕗) a#0,action#0,num_args#0 | tmp%9#0,{itoa}                                  itoa(result)                                                             File "calculator/contract.py", line 39
+        concat                                           //                                              (𝕗) a#0,action#0,num_args#0 | {concat}                                        itoa(a) + self.op(action) + itoa(b) + b" = " + itoa(result)              File "calculator/contract.py", line 39
+        log                                              //                                              (𝕗) a#0,action#0,num_args#0 |                                                 log(result_b)                                                            File "calculator/contract.py", line 40
+        int 1                                            //                                              (𝕗) a#0,action#0,num_args#0 | 1                                               1                                                                        File "calculator/contract.py", line 41
+        return                                           //                                              (𝕗) a#0,action#0,num_args#0 |                                                 return UInt64(1)                                                         File "calculator/contract.py", line 41
+
+
+// examples.calculator.contract.MyContract.do_calc(maybe_action#0: uint64, a#0: uint64, b#0: uint64) -> uint64:
+do_calc:
+        proto 3 1                                        //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  def do_calc(self, maybe_action: UInt64, a: UInt64, b: UInt64) -> UInt64: File "calculator/contract.py", line 57
+
+do_calc_block@0:
+        frame_dig -3                                     // load maybe_action#0 from parameters          (𝕡) maybe_action#0,a#0,b#0 | maybe_action#0                                   maybe_action: UInt64                                                     File "calculator/contract.py", line 57
+        int 1                                            //                                              (𝕡) maybe_action#0,a#0,b#0 | maybe_action#0,1                                 ADD                                                                      File "calculator/contract.py", line 58
+        ==                                               //                                              (𝕡) maybe_action#0,a#0,b#0 | {==}                                             maybe_action == ADD:                                                     File "calculator/contract.py", line 58
+        bz do_calc_else_body@2                           //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  if maybe_action == ADD:                                                  File "calculator/contract.py", line 58
+        // Implicit fall through to do_calc_if_body@1    //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  if maybe_action == ADD:                                                  File "calculator/contract.py", line 58
+
+do_calc_if_body@1:
+        frame_dig -2                                     // load a#0 from parameters                     (𝕡) maybe_action#0,a#0,b#0 | a#0                                              a: UInt64                                                                File "calculator/contract.py", line 57
+        frame_dig -1                                     // load b#0 from parameters                     (𝕡) maybe_action#0,a#0,b#0 | a#0,b#0                                          b: UInt64                                                                File "calculator/contract.py", line 57
+        callsub add                                      //                                              (𝕡) maybe_action#0,a#0,b#0 | {add}                                            self.add(a, b)                                                           File "calculator/contract.py", line 59
+        retsub                                           //                                              tmp%1#0                                                                       return self.add(a, b)                                                    File "calculator/contract.py", line 59
+
+do_calc_else_body@2:
+        frame_dig -3                                     // load maybe_action#0 from parameters          (𝕡) maybe_action#0,a#0,b#0 | maybe_action#0                                   maybe_action: UInt64                                                     File "calculator/contract.py", line 57
+        int 2                                            //                                              (𝕡) maybe_action#0,a#0,b#0 | maybe_action#0,2                                 SUB                                                                      File "calculator/contract.py", line 60
+        ==                                               //                                              (𝕡) maybe_action#0,a#0,b#0 | {==}                                             maybe_action == SUB:                                                     File "calculator/contract.py", line 60
+        bz do_calc_else_body@4                           //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  elif maybe_action == SUB:                                                File "calculator/contract.py", line 60
+        // Implicit fall through to do_calc_if_body@3    //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  elif maybe_action == SUB:                                                File "calculator/contract.py", line 60
+
+do_calc_if_body@3:
+        frame_dig -2                                     // load a#0 from parameters                     (𝕡) maybe_action#0,a#0,b#0 | a#0                                              a: UInt64                                                                File "calculator/contract.py", line 57
+        frame_dig -1                                     // load b#0 from parameters                     (𝕡) maybe_action#0,a#0,b#0 | a#0,b#0                                          b: UInt64                                                                File "calculator/contract.py", line 57
+        callsub sub                                      //                                              (𝕡) maybe_action#0,a#0,b#0 | {sub}                                            self.sub(a, b)                                                           File "calculator/contract.py", line 61
+        retsub                                           //                                              tmp%3#0                                                                       return self.sub(a, b)                                                    File "calculator/contract.py", line 61
+
+do_calc_else_body@4:
+        frame_dig -3                                     // load maybe_action#0 from parameters          (𝕡) maybe_action#0,a#0,b#0 | maybe_action#0                                   maybe_action: UInt64                                                     File "calculator/contract.py", line 57
+        int 3                                            //                                              (𝕡) maybe_action#0,a#0,b#0 | maybe_action#0,3                                 MUL                                                                      File "calculator/contract.py", line 62
+        ==                                               //                                              (𝕡) maybe_action#0,a#0,b#0 | {==}                                             maybe_action == MUL:                                                     File "calculator/contract.py", line 62
+        bz do_calc_else_body@6                           //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  elif maybe_action == MUL:                                                File "calculator/contract.py", line 62
+        // Implicit fall through to do_calc_if_body@5    //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  elif maybe_action == MUL:                                                File "calculator/contract.py", line 62
+
+do_calc_if_body@5:
+        frame_dig -2                                     // load a#0 from parameters                     (𝕡) maybe_action#0,a#0,b#0 | a#0                                              a: UInt64                                                                File "calculator/contract.py", line 57
+        frame_dig -1                                     // load b#0 from parameters                     (𝕡) maybe_action#0,a#0,b#0 | a#0,b#0                                          b: UInt64                                                                File "calculator/contract.py", line 57
+        callsub mul                                      //                                              (𝕡) maybe_action#0,a#0,b#0 | {mul}                                            self.mul(a, b)                                                           File "calculator/contract.py", line 63
+        retsub                                           //                                              tmp%5#0                                                                       return self.mul(a, b)                                                    File "calculator/contract.py", line 63
+
+do_calc_else_body@6:
+        frame_dig -3                                     // load maybe_action#0 from parameters          (𝕡) maybe_action#0,a#0,b#0 | maybe_action#0                                   maybe_action: UInt64                                                     File "calculator/contract.py", line 57
+        int 4                                            //                                              (𝕡) maybe_action#0,a#0,b#0 | maybe_action#0,4                                 DIV                                                                      File "calculator/contract.py", line 64
+        ==                                               //                                              (𝕡) maybe_action#0,a#0,b#0 | {==}                                             maybe_action == DIV:                                                     File "calculator/contract.py", line 64
+        bz do_calc_else_body@8                           //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  elif maybe_action == DIV:                                                File "calculator/contract.py", line 64
+        // Implicit fall through to do_calc_if_body@7    //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  elif maybe_action == DIV:                                                File "calculator/contract.py", line 64
+
+do_calc_if_body@7:
+        frame_dig -2                                     // load a#0 from parameters                     (𝕡) maybe_action#0,a#0,b#0 | a#0                                              a: UInt64                                                                File "calculator/contract.py", line 57
+        frame_dig -1                                     // load b#0 from parameters                     (𝕡) maybe_action#0,a#0,b#0 | a#0,b#0                                          b: UInt64                                                                File "calculator/contract.py", line 57
+        callsub div                                      //                                              (𝕡) maybe_action#0,a#0,b#0 | {div}                                            self.div(a, b)                                                           File "calculator/contract.py", line 65
+        retsub                                           //                                              tmp%7#0                                                                       return self.div(a, b)                                                    File "calculator/contract.py", line 65
+
+do_calc_else_body@8:
+        err // unknown operation                         //                                              (𝕡) maybe_action#0,a#0,b#0 |                                                  assert False, "unknown operation"                                        File "calculator/contract.py", line 67
+
+
+// examples.calculator.contract.MyContract.add(a#0: uint64, b#0: uint64) -> uint64:
+add:
+        proto 2 1                                        //                                              (𝕡) a#0,b#0 |                                                                 def add(self, a: UInt64, b: UInt64) -> UInt64:                           File "calculator/contract.py", line 70
+
+add_block@0:
+        frame_dig -2                                     // load a#0 from parameters                     (𝕡) a#0,b#0 | a#0                                                             a: UInt64                                                                File "calculator/contract.py", line 70
+        frame_dig -1                                     // load b#0 from parameters                     (𝕡) a#0,b#0 | a#0,b#0                                                         b: UInt64                                                                File "calculator/contract.py", line 70
+        +                                                //                                              (𝕡) a#0,b#0 | {+}                                                             a + b                                                                    File "calculator/contract.py", line 71
+        retsub                                           //                                              tmp%0#0                                                                       return a + b                                                             File "calculator/contract.py", line 71
+
+
+// examples.calculator.contract.MyContract.sub(a#0: uint64, b#0: uint64) -> uint64:
+sub:
+        proto 2 1                                        //                                              (𝕡) a#0,b#0 |                                                                 def sub(self, a: UInt64, b: UInt64) -> UInt64:                           File "calculator/contract.py", line 74
+
+sub_block@0:
+        frame_dig -2                                     // load a#0 from parameters                     (𝕡) a#0,b#0 | a#0                                                             a: UInt64                                                                File "calculator/contract.py", line 74
+        frame_dig -1                                     // load b#0 from parameters                     (𝕡) a#0,b#0 | a#0,b#0                                                         b: UInt64                                                                File "calculator/contract.py", line 74
+        -                                                //                                              (𝕡) a#0,b#0 | {-}                                                             a - b                                                                    File "calculator/contract.py", line 75
+        retsub                                           //                                              tmp%0#0                                                                       return a - b                                                             File "calculator/contract.py", line 75
+
+
+// examples.calculator.contract.MyContract.mul(a#0: uint64, b#0: uint64) -> uint64:
+mul:
+        proto 2 1                                        //                                              (𝕡) a#0,b#0 |                                                                 def mul(self, a: UInt64, b: UInt64) -> UInt64:                           File "calculator/contract.py", line 78
+
+mul_block@0:
+        frame_dig -2                                     // load a#0 from parameters                     (𝕡) a#0,b#0 | a#0                                                             a: UInt64                                                                File "calculator/contract.py", line 78
+        frame_dig -1                                     // load b#0 from parameters                     (𝕡) a#0,b#0 | a#0,b#0                                                         b: UInt64                                                                File "calculator/contract.py", line 78
+        *                                                //                                              (𝕡) a#0,b#0 | {*}                                                             a * b                                                                    File "calculator/contract.py", line 79
+        retsub                                           //                                              tmp%0#0                                                                       return a * b                                                             File "calculator/contract.py", line 79
+
+
+// examples.calculator.contract.MyContract.div(a#0: uint64, b#0: uint64) -> uint64:
+div:
+        proto 2 1                                        //                                              (𝕡) a#0,b#0 |                                                                 def div(self, a: UInt64, b: UInt64) -> UInt64:                           File "calculator/contract.py", line 82
+
+div_block@0:
+        frame_dig -2                                     // load a#0 from parameters                     (𝕡) a#0,b#0 | a#0                                                             a: UInt64                                                                File "calculator/contract.py", line 82
+        frame_dig -1                                     // load b#0 from parameters                     (𝕡) a#0,b#0 | a#0,b#0                                                         b: UInt64                                                                File "calculator/contract.py", line 82
+        /                                                //                                              (𝕡) a#0,b#0 | {/}                                                             a // b                                                                   File "calculator/contract.py", line 83
+        retsub                                           //                                              tmp%0#0                                                                       return a // b                                                            File "calculator/contract.py", line 83
+
+
+// examples.calculator.contract.itoa(i#0: uint64) -> bytes:
+itoa:
+        proto 1 1                                        //                                              (𝕡) i#0 |                                                                     def itoa(i: UInt64) -> Bytes:                                            File "calculator/contract.py", line 10
+
+itoa_block@0:
+        byte "0123456789"                                //                                              (𝕡) i#0 | "0123456789"                                                        b"0123456789"                                                            File "calculator/contract.py", line 11
+        dup                                              // store digits#0 to l-stack (copy)             (𝕡) i#0 | digits#0,digits#0                                                   digits                                                                   File "calculator/contract.py", line 11
+        cover 1                                          // store digits#0 to x-stack (no copy)          (𝕡) i#0 | (𝕏) digits#0 | digits#0                                             digits                                                                   File "calculator/contract.py", line 11
+        len                                              //                                              (𝕡) i#0 | (𝕏) digits#0 | {len}                                                digits.length                                                            File "calculator/contract.py", line 12
+        dup                                              // store radix#0 to l-stack (copy)              (𝕡) i#0 | (𝕏) digits#0 | radix#0,radix#0                                      radix                                                                    File "calculator/contract.py", line 12
+        cover 2                                          // store radix#0 to f-stack                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0                                radix                                                                    File "calculator/contract.py", line 12
+        frame_dig -1                                     // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0,i#0                            i: UInt64                                                                File "calculator/contract.py", line 10
+        >                                                //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | {>}                                    i < radix:                                                               File "calculator/contract.py", line 13
+        bz itoa_after_if_else@2                          //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 |                                        if i < radix:                                                            File "calculator/contract.py", line 13
+        // Implicit fall through to itoa_if_body@1       //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 |                               digits#0 if i < radix:                                                            File "calculator/contract.py", line 13
+
+itoa_if_body@1:
+        frame_dig -1                                     // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | i#0                           digits#0 i: UInt64                                                                File "calculator/contract.py", line 10
+        int 1                                            //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | i#0,1                                  digits[i]                                                                File "calculator/contract.py", line 14
+        +                                                //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | {+}                                    digits[i]                                                                File "calculator/contract.py", line 14
+        uncover 1                                        // load digits#0 from x-stack                   (𝕡) i#0 | (𝕗) radix#0 | index_plus_1%1#0,digits#0                             digits                                                                   File "calculator/contract.py", line 11
+        frame_dig -1                                     // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | index_plus_1%1#0,digits#0,i#0                         i: UInt64                                                                File "calculator/contract.py", line 10
+        uncover 2                                        // load index_plus_1%1#0 from l-stack (no copy) (𝕡) i#0 | (𝕗) radix#0 | digits#0,i#0,index_plus_1%1#0                         digits[i]                                                                File "calculator/contract.py", line 14
+        substring3                                       //                                              (𝕡) i#0 | (𝕗) radix#0 | {substring3}                                          digits[i]                                                                File "calculator/contract.py", line 14
+        uncover 1
+        retsub                                           //                                              tmp%2#0                                                                       return digits[i]                                                         File "calculator/contract.py", line 14
+
+itoa_after_if_else@2:
+        frame_dig -1                                     // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | i#0                           digits#0 i: UInt64                                                                File "calculator/contract.py", line 10
+        frame_dig 0                                      // load radix#0 from f-stack                    (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | i#0,radix#0                            radix                                                                    File "calculator/contract.py", line 12
+        dup
+        cover 2                                          // store radix#0 to l-stack (copy)              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0,i#0,radix#0                    radix                                                                    File "calculator/contract.py", line 12
+        /                                                //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0,{/}                            i // radix                                                               File "calculator/contract.py", line 15
+        callsub itoa                                     //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0,{itoa}                         itoa(i // radix)                                                         File "calculator/contract.py", line 15
+        cover 1                                          // store tmp%4#0 to l-stack (no copy)           (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,radix#0                        itoa(i // radix)                                                         File "calculator/contract.py", line 15
+        frame_dig -1                                     // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,radix#0,i#0                    i: UInt64                                                                File "calculator/contract.py", line 10
+        uncover 1                                        // load radix#0 from l-stack (no copy)          (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,i#0,radix#0                    radix                                                                    File "calculator/contract.py", line 12
+        %                                                //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,{%}                            i % radix                                                                File "calculator/contract.py", line 15
+        dup                                              // load tmp%5#0 from l-stack (copy)             (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,tmp%5#0,tmp%5#0                i % radix                                                                File "calculator/contract.py", line 15
+        int 1                                            //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,tmp%5#0,tmp%5#0,1              digits[i % radix]                                                        File "calculator/contract.py", line 15
+        +                                                //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,tmp%5#0,{+}                    digits[i % radix]                                                        File "calculator/contract.py", line 15
+        uncover 3                                        // load digits#0 from x-stack                   (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,tmp%5#0,index_plus_1%6#0,digits#0             digits                                                                   File "calculator/contract.py", line 11
+        cover 2                                          // virtual: 2 ops                               (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,digits#0,tmp%5#0,index_plus_1%6#0             digits[i % radix]                                                        File "calculator/contract.py", line 15
+        substring3                                       //                                              (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,{substring3}                                  digits[i % radix]                                                        File "calculator/contract.py", line 15
+        concat                                           //                                              (𝕡) i#0 | (𝕗) radix#0 | {concat}                                              itoa(i // radix) + digits[i % radix]                                     File "calculator/contract.py", line 15
+        uncover 1
+        retsub                                           //                                              tmp%8#0                                                                       return itoa(i // radix) + digits[i % radix]                              File "calculator/contract.py", line 15
+
+
+// examples.calculator.contract.MyContract.op(action#0: uint64) -> bytes:
+op:
+        proto 1 1                                        //                                              (𝕡) action#0 |                                                                def op(self, action: UInt64) -> Bytes:                                   File "calculator/contract.py", line 44
+
+op_block@0:
+        frame_dig -1                                     // load action#0 from parameters                (𝕡) action#0 | action#0                                                       action: UInt64                                                           File "calculator/contract.py", line 44
+        int 1                                            //                                              (𝕡) action#0 | action#0,1                                                     ADD                                                                      File "calculator/contract.py", line 45
+        ==                                               //                                              (𝕡) action#0 | {==}                                                           action == ADD:                                                           File "calculator/contract.py", line 45
+        bz op_else_body@2                                //                                              (𝕡) action#0 |                                                                if action == ADD:                                                        File "calculator/contract.py", line 45
+        // Implicit fall through to op_if_body@1         //                                              (𝕡) action#0 |                                                                if action == ADD:                                                        File "calculator/contract.py", line 45
+
+op_if_body@1:
+        byte " + "                                       //                                              (𝕡) action#0 | " + "                                                          b" + "                                                                   File "calculator/contract.py", line 46
+        retsub                                           //                                              " + "                                                                         return Bytes(b" + ")                                                     File "calculator/contract.py", line 46
+
+op_else_body@2:
+        frame_dig -1                                     // load action#0 from parameters                (𝕡) action#0 | action#0                                                       action: UInt64                                                           File "calculator/contract.py", line 44
+        int 2                                            //                                              (𝕡) action#0 | action#0,2                                                     SUB                                                                      File "calculator/contract.py", line 47
+        ==                                               //                                              (𝕡) action#0 | {==}                                                           action == SUB:                                                           File "calculator/contract.py", line 47
+        bz op_else_body@4                                //                                              (𝕡) action#0 |                                                                elif action == SUB:                                                      File "calculator/contract.py", line 47
+        // Implicit fall through to op_if_body@3         //                                              (𝕡) action#0 |                                                                elif action == SUB:                                                      File "calculator/contract.py", line 47
+
+op_if_body@3:
+        byte " - "                                       //                                              (𝕡) action#0 | " - "                                                          b" - "                                                                   File "calculator/contract.py", line 48
+        retsub                                           //                                              " - "                                                                         return Bytes(b" - ")                                                     File "calculator/contract.py", line 48
+
+op_else_body@4:
+        frame_dig -1                                     // load action#0 from parameters                (𝕡) action#0 | action#0                                                       action: UInt64                                                           File "calculator/contract.py", line 44
+        int 3                                            //                                              (𝕡) action#0 | action#0,3                                                     MUL                                                                      File "calculator/contract.py", line 49
+        ==                                               //                                              (𝕡) action#0 | {==}                                                           action == MUL:                                                           File "calculator/contract.py", line 49
+        bz op_else_body@6                                //                                              (𝕡) action#0 |                                                                elif action == MUL:                                                      File "calculator/contract.py", line 49
+        // Implicit fall through to op_if_body@5         //                                              (𝕡) action#0 |                                                                elif action == MUL:                                                      File "calculator/contract.py", line 49
+
+op_if_body@5:
+        byte " * "                                       //                                              (𝕡) action#0 | " * "                                                          b" * "                                                                   File "calculator/contract.py", line 50
+        retsub                                           //                                              " * "                                                                         return Bytes(b" * ")                                                     File "calculator/contract.py", line 50
+
+op_else_body@6:
+        frame_dig -1                                     // load action#0 from parameters                (𝕡) action#0 | action#0                                                       action: UInt64                                                           File "calculator/contract.py", line 44
+        int 4                                            //                                              (𝕡) action#0 | action#0,4                                                     DIV                                                                      File "calculator/contract.py", line 51
+        ==                                               //                                              (𝕡) action#0 | {==}                                                           action == DIV:                                                           File "calculator/contract.py", line 51
+        bz op_else_body@8                                //                                              (𝕡) action#0 |                                                                elif action == DIV:                                                      File "calculator/contract.py", line 51
+        // Implicit fall through to op_if_body@7         //                                              (𝕡) action#0 |                                                                elif action == DIV:                                                      File "calculator/contract.py", line 51
+
+op_if_body@7:
+        byte " // "                                      //                                              (𝕡) action#0 | " // "                                                         b" // "                                                                  File "calculator/contract.py", line 52
+        retsub                                           //                                              " // "                                                                        return Bytes(b" // ")                                                    File "calculator/contract.py", line 52
+
+op_else_body@8:
+        byte " - "                                       //                                              (𝕡) action#0 | " - "                                                          b" - "                                                                   File "calculator/contract.py", line 54
+        retsub                                           //                                              " - "                                                                         return Bytes(b" - ")                                                     File "calculator/contract.py", line 54
+

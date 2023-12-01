@@ -1,0 +1,25 @@
+struct NamedUInt64 {
+  name: algopy.Bytes
+  value: algopy.UInt64
+}
+
+struct NamedBigUInt {
+  name: algopy.Bytes
+  value: algopy.BigUInt
+}
+
+struct AllMyData {
+  names: algopy.Array[algopy.Bytes]
+  smalls: algopy.Array[examples.with_structs.NamedUInt64]
+  bigs: algopy.Array[examples.with_structs.NamedBigUInt]
+  array2d: algopy.Array[algopy.Array[algopy.UInt64]]
+}
+
+subroutine transform(src: algopy.Array[examples.with_structs.NamedUInt64]): algopy.Array[examples.with_structs.NamedBigUInt]
+{
+  dst: algopy.Array[examples.with_structs.NamedBigUInt] = new examples.with_structs.NamedBigUInt[]()
+  for item in src {
+    dst.append(new examples.with_structs.NamedBigUInt(name=item.name, value=itob(item.value)))
+  }
+  return dst
+}

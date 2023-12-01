@@ -1,0 +1,129 @@
+TOTAL_SUPPLY = 10000000000
+SCALE = 1000
+FEE = 5
+FACTOR = 995
+
+contract ConstantProductionAMM
+{
+  globals {
+    ['asset_a']: algopy.UInt64
+    ['asset_b']: algopy.UInt64
+    ['pool_token']: algopy.UInt64
+    ['governor']: algopy.Address
+    ['ratio']: algopy.UInt64
+  }
+  
+  constructor()
+  {
+    this.globals['asset_a']: algopy.UInt64 = 0u
+    this.globals['asset_b']: algopy.UInt64 = 0u
+    this.globals['pool_token']: algopy.UInt64 = 0u
+    this.globals['governor']: algopy.Address = txn<Sender>()
+  }
+  
+  abimethod create(): None
+  {
+  }
+  
+  subroutine _check_bootstrapped(): None
+  {
+    assert(this.globals['pool_token'] != 0u, comment="bootstrap method needs to be called first")
+  }
+  
+  subroutine _update_ratio(): None
+  {
+    a_balance: algopy.UInt64 = this::_current_a_balance()
+    b_balance: algopy.UInt64 = this::_current_b_balance()
+    this.globals['ratio']: algopy.UInt64 = a_balance * 1000u // b_balance
+  }
+  
+  subroutine _check_is_governor(): None
+  {
+    assert(txn<Sender>() == this.globals['governor'], comment="Only the account set in global_state.governor may call this method")
+  }
+  
+  subroutine _create_pool_token(): None
+  {
+    (unit_a, unit_a_exists): tuple[algopy.Bytes, bool] = asset_params_get<AssetUnitName>(this.globals['asset_a'])
+    assert(unit_a_exists)
+    (unit_b, unit_b_exists): tuple[algopy.Bytes, bool] = asset_params_get<AssetUnitName>(this.globals['asset_b'])
+    assert(unit_b_exists)
+    itxn_begin()
+    itxn_field<TypeEnum>(acfg)
+    itxn_field<ConfigAssetName>('DPT-' + unit_a + '-' + unit_b)
+    itxn_field<ConfigAssetUnitName>('dpt')
+    itxn_field<ConfigAssetTotal>(10000000000u)
+    itxn_field<ConfigAssetDecimals>(3u)
+    itxn_field<ConfigAssetManager>(global<CurrentApplicationAddress>())
+    itxn_field<ConfigAssetReserve>(global<CurrentApplicationAddress>())
+    itxn_field<Fee>(0u)
+    itxn_submit()
+    this.globals['pool_token']: algopy.UInt64 = itxn<CreatedAssetID>()
+  }
+  
+  subroutine _do_opt_in(asset_id: algopy.UInt64): None
+  {
+    examples.amm.contract::do_asset_transfer(receiver=global<CurrentApplicationAddress>(), asset_id=asset_id, amount=0u)
+  }
+  
+  subroutine _current_pool_balance(): algopy.UInt64
+  {
+    (balance, has_balance): tuple[algopy.UInt64, bool] = asset_holding_get<AssetBalance>(global<CurrentApplicationAddress>(), this.globals['pool_token'])
+    assert(has_balance)
+    return balance
+  }
+  
+  subroutine _current_a_balance(): algopy.UInt64
+  {
+    (balance, has_balance): tuple[algopy.UInt64, bool] = asset_holding_get<AssetBalance>(global<CurrentApplicationAddress>(), this.globals['asset_a'])
+    assert(has_balance)
+    return balance
+  }
+  
+  subroutine _current_b_balance(): algopy.UInt64
+  {
+    (balance, has_balance): tuple[algopy.UInt64, bool] = asset_holding_get<AssetBalance>(global<CurrentApplicationAddress>(), this.globals['asset_b'])
+    assert(has_balance)
+    return balance
+  }
+}
+
+subroutine tokens_to_mint(pool_balance: algopy.UInt64, a_balance: algopy.UInt64, b_balance: algopy.UInt64, a_amount: algopy.UInt64, b_amount: algopy.UInt64): algopy.UInt64
+{
+  is_initial_mint: bool = a_balance == a_amount and b_balance == b_amount
+  if (is_initial_mint) {
+    return sqrt(a_amount * b_amount) - 1000u
+  }
+  issued: algopy.UInt64 = 10000000000u - pool_balance
+  a_ratio: algopy.UInt64 = 1000u * a_amount // a_balance - a_amount
+  b_ratio: algopy.UInt64 = 1000u * b_amount // b_balance - b_amount
+  if (a_ratio < b_ratio) {
+    return a_ratio * issued // 1000u
+  } else {
+    return b_ratio * issued // 1000u
+  }
+}
+
+subroutine tokens_to_burn(pool_balance: algopy.UInt64, supply: algopy.UInt64, amount: algopy.UInt64): algopy.UInt64
+{
+  issued: algopy.UInt64 = 10000000000u - pool_balance - amount
+  return supply * amount // issued
+}
+
+subroutine tokens_to_swap(in_amount: algopy.UInt64, in_supply: algopy.UInt64, out_supply: algopy.UInt64): algopy.UInt64
+{
+  in_total: algopy.UInt64 = 1000u * in_supply - in_amount + in_amount * 995u
+  out_total: algopy.UInt64 = in_amount * 995u * out_supply
+  return out_total // in_total
+}
+
+subroutine do_asset_transfer(receiver: algopy.Address, asset_id: algopy.UInt64, amount: algopy.UInt64): None
+{
+  itxn_begin()
+  itxn_field<TypeEnum>(axfer)
+  itxn_field<XferAsset>(asset_id)
+  itxn_field<AssetAmount>(amount)
+  itxn_field<AssetReceiver>(receiver)
+  itxn_field<Fee>(0u)
+  itxn_submit()
+}

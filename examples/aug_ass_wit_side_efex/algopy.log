@@ -1,0 +1,38 @@
+>> poetry run algopy -O1 --output-ssa-ir --output-optimization-ir --output-final-ir --output-cssa-ir --output-post-ssa-ir --output-parallel-copies-ir --out-dir=out --debug-level=1 aug_ass_wit_side_efex
+info: Building AWST for __init__.py
+info: Building AWST for aug_ass_wit_side_efex
+info: Building AWST for aug_ass_wit_side_efex/lol.py
+aug_ass_wit_side_efex/lol.py:8 error: UNEXPECTED 
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<git root>/src/wyvern/__main__.py", line 91, in main
+    compile_to_teal(options)
+  File "<git root>/src/wyvern/compile.py", line 143, in compile_to_teal
+    compiled_contracts_by_source_path = awst_to_teal(context, awst)
+  File "<git root>/src/wyvern/compile.py", line 75, in awst_to_teal
+    build_ir(context, node, module_asts)
+  File "<git root>/src/wyvern/ir/main.py", line 42, in build_ir
+    return _build_ir(ctx, contract)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<git root>/src/wyvern/ir/main.py", line 61, in _build_ir
+    approval_subs_srefs = SubroutineCollector.collect(ctx, start=folded.approval_program.body)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<git root>/src/wyvern/ir/main.py", line 219, in collect
+    start.accept(collector)
+  File "<git root>/src/wyvern/awst/nodes.py", line 136, in accept
+    return visitor.visit_block(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<git root>/src/wyvern/awst/function_traverser.py", line 147, in visit_block
+    stmt.accept(self)
+  File "<git root>/src/wyvern/awst/nodes.py", line 545, in accept
+    return visitor.visit_assignment_statement(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<git root>/src/wyvern/awst/function_traverser.py", line 15, in visit_assignment_statement
+    statement.value.accept(self)
+  File "<git root>/src/wyvern/awst/nodes.py", line 945, in accept
+    return visitor.visit_new_struct(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<git root>/src/wyvern/awst/visitors.py", line 202, in visit_new_struct
+    raise NotImplementedError
+<git root>/examples/aug_ass_wit_side_efex/lol.py:8: NotImplementedError: 
+>> exit code = 2

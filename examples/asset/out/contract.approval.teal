@@ -1,0 +1,102 @@
+#pragma version 8
+
+// examples.asset.contract.Reference.approval_program() -> uint64:
+main_block@0:
+        txn ApplicationID
+        bnz main_entrypoint@2
+
+main_on_create@1:
+        callsub __init__
+
+main_entrypoint@2:
+        txn NumAppArgs
+        int 1
+        ==
+        bz main_after_if_else@10
+
+main_if_body@3:
+        txna ApplicationArgs 0
+        byte "opt_in"
+        ==
+        bz main_else_body@5
+
+main_if_body@4:
+        txna Assets 0
+        callsub opt_into_asset
+        b main_after_if_else@10
+
+main_else_body@5:
+        txna ApplicationArgs 0
+        byte "is_opted_in"
+        ==
+        bz main_else_body@7
+
+main_if_body@6:
+        txna Assets 0
+        callsub is_opted_asset
+        b main_after_if_else@10
+
+main_else_body@7:
+        err // Expected opt_in or is_opted_in
+
+main_after_if_else@10:
+        int 1
+        return
+
+
+// examples.asset.contract.Reference.opt_into_asset(asset#0: uint64) -> :
+opt_into_asset:
+        proto 1 0
+
+opt_into_asset_block@0:
+        txn Sender
+        global CreatorAddress
+        ==
+        assert
+        int 0
+        byte "asa"
+        app_global_get_ex
+        assert
+        !
+        assert
+        byte "asa"
+        frame_dig -1
+        app_global_put
+        itxn_begin
+        int axfer
+        itxn_field TypeEnum
+        int 0
+        itxn_field Fee
+        global CurrentApplicationAddress
+        itxn_field AssetReceiver
+        frame_dig -1
+        itxn_field XferAsset
+        itxn_submit
+        retsub
+
+
+// examples.asset.contract.Reference.is_opted_asset(asset#0: uint64) -> :
+is_opted_asset:
+        proto 1 0
+
+is_opted_asset_block@0:
+        int 0
+        byte "asa"
+        app_global_get_ex
+        assert
+        frame_dig -1
+        ==
+        assert
+        retsub
+
+
+// examples.asset.contract.Reference.__init__() -> :
+__init__:
+        proto 0 0
+
+__init___block@0:
+        byte "asa"
+        int 0
+        app_global_put
+        retsub
+

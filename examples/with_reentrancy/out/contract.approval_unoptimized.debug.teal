@@ -1,0 +1,192 @@
+// Op                                                      // Op Description                               Stack (out)                                                          X stack  Source code                                 Source line
+
+#pragma version 8
+
+// examples.with_reentrancy.contract.WithReentrancy.approval_program() -> uint64:
+main_block@0:
+        int 5                                              //                                              5                                                                             5                                           File "with_reentrancy/contract.py", line 8
+        callsub fibonacci                                  //                                              {fibonacci}                                                                   fibonacci(UInt64(5))                        File "with_reentrancy/contract.py", line 8
+        itob                                               //                                              {itob}                                                                        itob(fibonacci(UInt64(5)))                  File "with_reentrancy/contract.py", line 8
+        log                                                //                                                                                                                            log(itob(fibonacci(UInt64(5))))             File "with_reentrancy/contract.py", line 8
+        int 2                                              //                                              2                                                                             2                                           File "with_reentrancy/contract.py", line 9
+        callsub silly                                      //                                              {silly}                                                                       silly(UInt64(2))                            File "with_reentrancy/contract.py", line 9
+        pop                                                //
+        int 1                                              //                                              1                                                                             True                                        File "with_reentrancy/contract.py", line 10
+        return                                             //                                                                                                                            return True                                 File "with_reentrancy/contract.py", line 10
+
+
+// examples.with_reentrancy.contract.fibonacci(n#0: uint64) -> uint64:
+fibonacci:
+        proto 1 1                                          //                                              (𝕡) n#0 |                                                                     def fibonacci(n: UInt64) -> UInt64:         File "with_reentrancy/contract.py", line 26
+
+fibonacci_block@0:
+        frame_dig -1                                       // load n#0 from parameters                     (𝕡) n#0 | n#0                                                                 n: UInt64                                   File "with_reentrancy/contract.py", line 26
+        int 1                                              //                                              (𝕡) n#0 | n#0,1                                                               1                                           File "with_reentrancy/contract.py", line 27
+        <=                                                 //                                              (𝕡) n#0 | {<=}                                                                n <= 1:                                     File "with_reentrancy/contract.py", line 27
+        bz fibonacci_after_if_else@2                       //                                              (𝕡) n#0 |                                                                     if n <= 1:                                  File "with_reentrancy/contract.py", line 27
+        // Implicit fall through to fibonacci_if_body@1    //                                              (𝕡) n#0 |                                                                     if n <= 1:                                  File "with_reentrancy/contract.py", line 27
+
+fibonacci_if_body@1:
+        frame_dig -1                                       // load n#0 from parameters                     (𝕡) n#0 | n#0                                                                 n: UInt64                                   File "with_reentrancy/contract.py", line 26
+        retsub                                             //                                              n#0                                                                           return n                                    File "with_reentrancy/contract.py", line 28
+
+fibonacci_after_if_else@2:
+        frame_dig -1                                       // load n#0 from parameters                     (𝕡) n#0 | n#0                                                                 n: UInt64                                   File "with_reentrancy/contract.py", line 26
+        int 1                                              //                                              (𝕡) n#0 | n#0,1                                                               1                                           File "with_reentrancy/contract.py", line 29
+        -                                                  //                                              (𝕡) n#0 | {-}                                                                 n - 1                                       File "with_reentrancy/contract.py", line 29
+        callsub fibonacci                                  //                                              (𝕡) n#0 | {fibonacci}                                                         fibonacci(n - 1)                            File "with_reentrancy/contract.py", line 29
+        frame_dig -1                                       // load n#0 from parameters                     (𝕡) n#0 | tmp%2#0,n#0                                                         n: UInt64                                   File "with_reentrancy/contract.py", line 26
+        int 2                                              //                                              (𝕡) n#0 | tmp%2#0,n#0,2                                                       2                                           File "with_reentrancy/contract.py", line 29
+        -                                                  //                                              (𝕡) n#0 | tmp%2#0,{-}                                                         n - 2                                       File "with_reentrancy/contract.py", line 29
+        callsub fibonacci                                  //                                              (𝕡) n#0 | tmp%2#0,{fibonacci}                                                 fibonacci(n - 2)                            File "with_reentrancy/contract.py", line 29
+        +                                                  //                                              (𝕡) n#0 | {+}                                                                 fibonacci(n - 1) + fibonacci(n - 2)         File "with_reentrancy/contract.py", line 29
+        retsub                                             //                                              tmp%5#0                                                                       return fibonacci(n - 1) + fibonacci(n - 2)  File "with_reentrancy/contract.py", line 29
+
+
+// examples.with_reentrancy.contract.silly(x#0: uint64) -> uint64:
+silly:
+        proto 1 1                                          //                                              (𝕡) x#0 |                                                                     def silly(x: UInt64) -> UInt64:             File "with_reentrancy/contract.py", line 33
+
+silly_block@0:
+        frame_dig -1                                       // load x#0 from parameters                     (𝕡) x#0 | x#0                                                                 x: UInt64                                   File "with_reentrancy/contract.py", line 33
+        int 1                                              //                                              (𝕡) x#0 | x#0,1                                                               1                                           File "with_reentrancy/contract.py", line 34
+        +                                                  //                                              (𝕡) x#0 | {+}                                                                 x + 1                                       File "with_reentrancy/contract.py", line 34
+        dup
+        frame_bury -1                                      // store x#0 to parameters (copy)               (𝕡) x#0 | x#0                                                                 x: UInt64                                   File "with_reentrancy/contract.py", line 33
+        callsub silly2                                     //                                              (𝕡) x#0 | {silly2}                                                            silly2(x)                                   File "with_reentrancy/contract.py", line 35
+        frame_dig -1                                       // load x#0 from parameters                     (𝕡) x#0 | result#0,x#0                                                        x: UInt64                                   File "with_reentrancy/contract.py", line 33
+        callsub itoa                                       //                                              (𝕡) x#0 | result#0,{itoa}                                                     itoa(x)                                     File "with_reentrancy/contract.py", line 36
+        byte "silly = "                                    //                                              (𝕡) x#0 | result#0,tmp%0#0,"silly = "                                         b"silly = "                                 File "with_reentrancy/contract.py", line 36
+        uncover 1                                          // load tmp%0#0 from l-stack (no copy)          (𝕡) x#0 | result#0,"silly = ",tmp%0#0                                         itoa(x)                                     File "with_reentrancy/contract.py", line 36
+        concat                                             //                                              (𝕡) x#0 | result#0,{concat}                                                   Bytes(b"silly = ") + itoa(x)                File "with_reentrancy/contract.py", line 36
+        log                                                //                                              (𝕡) x#0 | result#0                                                            log(Bytes(b"silly = ") + itoa(x))           File "with_reentrancy/contract.py", line 36
+        retsub                                             //                                              result#0                                                                      return result                               File "with_reentrancy/contract.py", line 37
+
+
+// examples.with_reentrancy.contract.silly2(x#0: uint64) -> uint64:
+silly2:
+        proto 1 1                                          //                                              (𝕡) x#0 |                                                                     def silly2(x: UInt64) -> UInt64:            File "with_reentrancy/contract.py", line 41
+
+silly2_block@0:
+        frame_dig -1                                       // load x#0 from parameters                     (𝕡) x#0 | x#0                                                                 x: UInt64                                   File "with_reentrancy/contract.py", line 41
+        int 2                                              //                                              (𝕡) x#0 | x#0,2                                                               2                                           File "with_reentrancy/contract.py", line 42
+        +                                                  //                                              (𝕡) x#0 | {+}                                                                 x + 2                                       File "with_reentrancy/contract.py", line 42
+        dup
+        frame_bury -1                                      // store x#0 to parameters (copy)               (𝕡) x#0 | x#0                                                                 x: UInt64                                   File "with_reentrancy/contract.py", line 41
+        callsub silly3                                     //                                              (𝕡) x#0 | {silly3}                                                            silly3(x)                                   File "with_reentrancy/contract.py", line 43
+        frame_dig -1                                       // load x#0 from parameters                     (𝕡) x#0 | result#0,x#0                                                        x: UInt64                                   File "with_reentrancy/contract.py", line 41
+        callsub itoa                                       //                                              (𝕡) x#0 | result#0,{itoa}                                                     itoa(x)                                     File "with_reentrancy/contract.py", line 44
+        byte "silly2 = "                                   //                                              (𝕡) x#0 | result#0,tmp%0#0,"silly2 = "                                        b"silly2 = "                                File "with_reentrancy/contract.py", line 44
+        uncover 1                                          // load tmp%0#0 from l-stack (no copy)          (𝕡) x#0 | result#0,"silly2 = ",tmp%0#0                                        itoa(x)                                     File "with_reentrancy/contract.py", line 44
+        concat                                             //                                              (𝕡) x#0 | result#0,{concat}                                                   Bytes(b"silly2 = ") + itoa(x)               File "with_reentrancy/contract.py", line 44
+        log                                                //                                              (𝕡) x#0 | result#0                                                            log(Bytes(b"silly2 = ") + itoa(x))          File "with_reentrancy/contract.py", line 44
+        retsub                                             //                                              result#0                                                                      return result                               File "with_reentrancy/contract.py", line 45
+
+
+// examples.with_reentrancy.contract.silly3(x#0: uint64) -> uint64:
+silly3:
+        proto 1 1                                          //                                              (𝕡) x#0 |                                                                     def silly3(x: UInt64) -> UInt64:            File "with_reentrancy/contract.py", line 49
+        byte ""                                            // allocate 1 to stack                          (𝕡) x#0 | (𝕗) result#0 |
+
+silly3_block@0:
+        frame_dig -1                                       // load x#0 from parameters                     (𝕡) x#0 | (𝕗) result#0 | x#0                                                  x: UInt64                                   File "with_reentrancy/contract.py", line 49
+        int 2                                              //                                              (𝕡) x#0 | (𝕗) result#0 | x#0,2                                                2                                           File "with_reentrancy/contract.py", line 50
+        %                                                  //                                              (𝕡) x#0 | (𝕗) result#0 | {%}                                                  x % 2                                       File "with_reentrancy/contract.py", line 50
+        int 0                                              //                                              (𝕡) x#0 | (𝕗) result#0 | tmp%0#0,0                                            0                                           File "with_reentrancy/contract.py", line 50
+        ==                                                 //                                              (𝕡) x#0 | (𝕗) result#0 | {==}                                                 x % 2 == 0                                  File "with_reentrancy/contract.py", line 50
+        dup                                                // store is_even#0 to l-stack (copy)            (𝕡) x#0 | (𝕗) result#0 | is_even#0,is_even#0                                  is_even                                     File "with_reentrancy/contract.py", line 50
+        cover 1                                            // store is_even#0 to f-stack                   (𝕡) x#0 | (𝕗) result#0,is_even#0 | is_even#0                                  is_even                                     File "with_reentrancy/contract.py", line 50
+        frame_dig -1                                       // load x#0 from parameters                     (𝕡) x#0 | (𝕗) result#0,is_even#0 | is_even#0,x#0                              x: UInt64                                   File "with_reentrancy/contract.py", line 49
+        int 2                                              //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0 | is_even#0,x#0,2                            2                                           File "with_reentrancy/contract.py", line 51
+        +                                                  //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0 | is_even#0,{+}                              x + 2                                       File "with_reentrancy/contract.py", line 51
+        cover 1                                            // store a#0 to f-stack                         (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | is_even#0                              a                                           File "with_reentrancy/contract.py", line 51
+        bz silly3_else_body@2                              //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |                                        if is_even:                                 File "with_reentrancy/contract.py", line 52
+        // Implicit fall through to silly3_if_body@1       //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |                                        if is_even:                                 File "with_reentrancy/contract.py", line 52
+
+silly3_if_body@1:
+        frame_dig 2                                        // load a#0 from f-stack                        (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | a#0                                    a                                           File "with_reentrancy/contract.py", line 51
+        int 2                                              //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | a#0,2                                  2                                           File "with_reentrancy/contract.py", line 53
+        *                                                  //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | {*}                                    a * 2                                       File "with_reentrancy/contract.py", line 53
+        dup                                                // store result#0 to l-stack (copy)             (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | result#0,result#0                      result                                      File "with_reentrancy/contract.py", line 53
+        frame_bury 0                                       // store result#0 to f-stack                    (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | result#0                               result                                      File "with_reentrancy/contract.py", line 53
+        int 2                                              //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | result#0,2                             2                                           File "with_reentrancy/contract.py", line 54
+        /                                                  //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | {/}                                    result // 2                                 File "with_reentrancy/contract.py", line 54
+        int 2                                              //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | tmp%1#0,2                              2                                           File "with_reentrancy/contract.py", line 54
+        -                                                  //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | {-}                                    result // 2 - 2                             File "with_reentrancy/contract.py", line 54
+        frame_bury 2                                       // store a#0 to f-stack                         (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |                                        a                                           File "with_reentrancy/contract.py", line 51
+        b silly3_after_if_else@3                           //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |
+
+silly3_else_body@2:
+        frame_dig -1                                       // load x#0 from parameters                     (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | x#0                                    x: UInt64                                   File "with_reentrancy/contract.py", line 49
+        callsub silly                                      //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | {silly}                                silly(x)                                    File "with_reentrancy/contract.py", line 56
+        frame_bury 0                                       // store result#0 to f-stack                    (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |                                        result                                      File "with_reentrancy/contract.py", line 53
+        // Implicit fall through to silly3_after_if_else@3 //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |
+
+silly3_after_if_else@3:
+        frame_dig 1                                        // load is_even#0 from f-stack                  (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | is_even#0                              is_even                                     File "with_reentrancy/contract.py", line 50
+        bz silly3_after_if_else@5                          //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |                                        if is_even:                                 File "with_reentrancy/contract.py", line 58
+        // Implicit fall through to silly3_if_body@4       //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |                                        if is_even:                                 File "with_reentrancy/contract.py", line 58
+
+silly3_if_body@4:
+        frame_dig 2                                        // load a#0 from f-stack                        (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | a#0                                    a                                           File "with_reentrancy/contract.py", line 51
+        frame_bury 0                                       // store result#0 to f-stack                    (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |                                        result                                      File "with_reentrancy/contract.py", line 53
+        // Implicit fall through to silly3_after_if_else@5 //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |
+
+silly3_after_if_else@5:
+        frame_dig -1                                       // load x#0 from parameters                     (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | x#0                                    x: UInt64                                   File "with_reentrancy/contract.py", line 49
+        callsub itoa                                       //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | {itoa}                                 itoa(x)                                     File "with_reentrancy/contract.py", line 60
+        byte "silly3 = "                                   //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | tmp%2#0,"silly3 = "                    b"silly3 = "                                File "with_reentrancy/contract.py", line 60
+        uncover 1                                          // load tmp%2#0 from l-stack (no copy)          (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | "silly3 = ",tmp%2#0                    itoa(x)                                     File "with_reentrancy/contract.py", line 60
+        concat                                             //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | {concat}                               Bytes(b"silly3 = ") + itoa(x)               File "with_reentrancy/contract.py", line 60
+        log                                                //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |                                        log(Bytes(b"silly3 = ") + itoa(x))          File "with_reentrancy/contract.py", line 60
+        retsub                                             // virtual: 2 ops                               result#0                                                                      result = a * 2                              File "with_reentrancy/contract.py", line 53
+
+
+// examples.with_reentrancy.contract.itoa(i#0: uint64) -> bytes:
+itoa:
+        proto 1 1                                          //                                              (𝕡) i#0 |                                                                     def itoa(i: UInt64) -> Bytes:               File "with_reentrancy/contract.py", line 17
+
+itoa_block@0:
+        byte "0123456789"                                  //                                              (𝕡) i#0 | "0123456789"                                                        b"0123456789"                               File "with_reentrancy/contract.py", line 18
+        dup                                                // store digits#0 to l-stack (copy)             (𝕡) i#0 | digits#0,digits#0                                                   digits                                      File "with_reentrancy/contract.py", line 18
+        cover 1                                            // store digits#0 to x-stack (no copy)          (𝕡) i#0 | (𝕏) digits#0 | digits#0                                             digits                                      File "with_reentrancy/contract.py", line 18
+        len                                                //                                              (𝕡) i#0 | (𝕏) digits#0 | {len}                                                digits.length                               File "with_reentrancy/contract.py", line 19
+        dup                                                // store radix#0 to l-stack (copy)              (𝕡) i#0 | (𝕏) digits#0 | radix#0,radix#0                                      radix                                       File "with_reentrancy/contract.py", line 19
+        cover 2                                            // store radix#0 to f-stack                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0                                radix                                       File "with_reentrancy/contract.py", line 19
+        frame_dig -1                                       // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0,i#0                            i: UInt64                                   File "with_reentrancy/contract.py", line 17
+        >                                                  //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | {>}                                    i < radix:                                  File "with_reentrancy/contract.py", line 20
+        bz itoa_after_if_else@2                            //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 |                                        if i < radix:                               File "with_reentrancy/contract.py", line 20
+        // Implicit fall through to itoa_if_body@1         //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 |                               digits#0 if i < radix:                               File "with_reentrancy/contract.py", line 20
+
+itoa_if_body@1:
+        frame_dig -1                                       // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | i#0                           digits#0 i: UInt64                                   File "with_reentrancy/contract.py", line 17
+        int 1                                              //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | i#0,1                                  digits[i]                                   File "with_reentrancy/contract.py", line 21
+        +                                                  //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | {+}                                    digits[i]                                   File "with_reentrancy/contract.py", line 21
+        uncover 1                                          // load digits#0 from x-stack                   (𝕡) i#0 | (𝕗) radix#0 | index_plus_1%1#0,digits#0                             digits                                      File "with_reentrancy/contract.py", line 18
+        frame_dig -1                                       // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | index_plus_1%1#0,digits#0,i#0                         i: UInt64                                   File "with_reentrancy/contract.py", line 17
+        uncover 2                                          // load index_plus_1%1#0 from l-stack (no copy) (𝕡) i#0 | (𝕗) radix#0 | digits#0,i#0,index_plus_1%1#0                         digits[i]                                   File "with_reentrancy/contract.py", line 21
+        substring3                                         //                                              (𝕡) i#0 | (𝕗) radix#0 | {substring3}                                          digits[i]                                   File "with_reentrancy/contract.py", line 21
+        uncover 1
+        retsub                                             //                                              tmp%2#0                                                                       return digits[i]                            File "with_reentrancy/contract.py", line 21
+
+itoa_after_if_else@2:
+        frame_dig -1                                       // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | i#0                           digits#0 i: UInt64                                   File "with_reentrancy/contract.py", line 17
+        frame_dig 0                                        // load radix#0 from f-stack                    (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | i#0,radix#0                            radix                                       File "with_reentrancy/contract.py", line 19
+        dup
+        cover 2                                            // store radix#0 to l-stack (copy)              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0,i#0,radix#0                    radix                                       File "with_reentrancy/contract.py", line 19
+        /                                                  //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0,{/}                            i // radix                                  File "with_reentrancy/contract.py", line 22
+        callsub itoa                                       //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | radix#0,{itoa}                         itoa(i // radix)                            File "with_reentrancy/contract.py", line 22
+        cover 1                                            // store tmp%4#0 to l-stack (no copy)           (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,radix#0                        itoa(i // radix)                            File "with_reentrancy/contract.py", line 22
+        frame_dig -1                                       // load i#0 from parameters                     (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,radix#0,i#0                    i: UInt64                                   File "with_reentrancy/contract.py", line 17
+        uncover 1                                          // load radix#0 from l-stack (no copy)          (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,i#0,radix#0                    radix                                       File "with_reentrancy/contract.py", line 19
+        %                                                  //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,{%}                            i % radix                                   File "with_reentrancy/contract.py", line 22
+        dup                                                // load tmp%5#0 from l-stack (copy)             (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,tmp%5#0,tmp%5#0                i % radix                                   File "with_reentrancy/contract.py", line 22
+        int 1                                              //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,tmp%5#0,tmp%5#0,1              digits[i % radix]                           File "with_reentrancy/contract.py", line 22
+        +                                                  //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,tmp%5#0,{+}                    digits[i % radix]                           File "with_reentrancy/contract.py", line 22
+        uncover 3                                          // load digits#0 from x-stack                   (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,tmp%5#0,index_plus_1%6#0,digits#0             digits                                      File "with_reentrancy/contract.py", line 18
+        cover 2                                            // virtual: 2 ops                               (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,digits#0,tmp%5#0,index_plus_1%6#0             digits[i % radix]                           File "with_reentrancy/contract.py", line 22
+        substring3                                         //                                              (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,{substring3}                                  digits[i % radix]                           File "with_reentrancy/contract.py", line 22
+        concat                                             //                                              (𝕡) i#0 | (𝕗) radix#0 | {concat}                                              itoa(i // radix) + digits[i % radix]        File "with_reentrancy/contract.py", line 22
+        uncover 1
+        retsub                                             //                                              tmp%8#0                                                                       return itoa(i // radix) + digits[i % radix] File "with_reentrancy/contract.py", line 22
+

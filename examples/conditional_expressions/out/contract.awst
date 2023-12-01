@@ -1,0 +1,37 @@
+contract MyContract
+{
+  approval_program(): algopy.UInt64
+  {
+    a: algopy.UInt64 = 1u
+    b: algopy.UInt64 = 2u
+    c: algopy.UInt64 = reinterpret_cast<bool>(a) ? a : b
+    d: algopy.UInt64 = !(reinterpret_cast<bool>(b)) ? b : a
+    e: algopy.UInt64 = reinterpret_cast<bool>(tmp$0: algopy.UInt64 := this::expensive_op(0u)) ? tmp$0 : this::side_effecting_op(1u)
+    f: algopy.UInt64 = reinterpret_cast<bool>(tmp$1: algopy.UInt64 := this::expensive_op(3u)) ? tmp$1 : this::side_effecting_op(42u)
+    g: algopy.UInt64 = !(reinterpret_cast<bool>(tmp$2: algopy.UInt64 := this::side_effecting_op(0u))) ? tmp$2 : this::expensive_op(42u)
+    h: algopy.UInt64 = !(reinterpret_cast<bool>(tmp$3: algopy.UInt64 := this::side_effecting_op(2u))) ? tmp$3 : this::expensive_op(3u)
+    i: algopy.UInt64 = b < c ? a : d + e
+    result: algopy.UInt64 = a * b * c * d * f * h - e - g + i
+    log(itob(result))
+    return result
+  }
+  
+  clear_state_program(): algopy.UInt64
+  {
+    return 0u
+  }
+  
+  subroutine expensive_op(val: algopy.UInt64): algopy.UInt64
+  {
+    assert(val != 42u, comment="Can't be 42")
+    log('expensive_op')
+    return val
+  }
+  
+  subroutine side_effecting_op(val: algopy.UInt64): algopy.UInt64
+  {
+    assert(val != 42u, comment="Can't be 42")
+    log('side_effecting_op')
+    return val
+  }
+}

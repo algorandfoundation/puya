@@ -1,0 +1,181 @@
+[tool.poetry]
+name = "algopy"
+version = "0.1.0"
+description = ""
+authors = ["Adam Chidlow <achidlow@users.noreply.github.com>"]
+readme = "README.md"
+packages = [
+    { include = "wyvern", from = "src" },
+    { include = "algopy-stubs", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+typing-extensions = "^4.8.0"
+attrs = "^23.1.0"
+structlog = "^23.2.0"
+networkx = "^3.1"
+# vendored mypy dependencies
+mypy_extensions = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+black = {extras = ["d"], version = "^23.10.1"}
+mypy = "1.7.0"
+ruff = "^0.1.3"
+pre-commit = "^3.3.3"
+pytest = "^7.4.0"
+pytest-xdist = {extras = ["psutil"], version = "^3.3.1"}
+cattrs = "^23.1.2"
+py-algorand-sdk = "^2.4.0"
+ruff-lsp = "^0.0.45"
+pytest-cov = "^4.1.0"
+pip-audit = "^2.6.1"
+algokit-utils = "^1.3.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+algopy = "wyvern.__main__:main"
+
+[tool.pytest.ini_options]
+addopts = "-n auto --cov-config=.coveragerc"
+testpaths = [
+    "tests"
+]
+
+[tool.black]
+line-length = 99
+force-exclude = "src/wyvern/(_typeshed|_vendor)"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+exclude = [
+    "src/wyvern/_typeshed",
+    "src/wyvern/_vendor",
+]
+
+[[tool.mypy.overrides]]
+module = ["algopy", "algopy.*"]
+disallow_any_unimported = true
+disallow_any_expr = true
+disallow_any_decorated = true
+disallow_any_explicit = true
+
+[[tool.mypy.overrides]]
+module = ["algosdk", "algosdk.*"]
+disallow_untyped_calls = false
+
+[tool.ruff]
+line-length = 99
+select = [
+      # all possible codes as of this ruff version are listed here,
+      # ones we don't want/need are commented out to make it clear
+      # which have been omitted on purpose vs which ones get added
+      # in new ruff releases and should be considered for enabling
+      "F",      # pyflakes
+      "E", "W", # pycodestyle
+      "C90",    # mccabe
+      "I",      # isort
+      "N",      # PEP8 naming
+      "UP",     # pyupgrade
+      "YTT",    # flake8-2020
+      "ANN",    # flake8-annotations
+      # "S",    # flake8-bandit
+      # "BLE",  # flake8-blind-except
+      "FBT",    # flake8-boolean-trap
+      "B",      # flake8-bugbear
+      "A",      # flake8-builtins
+      # "COM",  # flake8-commas
+      "C4",     # flake8-comprehensions
+      "DTZ",    # flake8-datetimez
+      "T10",    # flake8-debugger
+      # "DJ",   # flake8-django
+      # "EM",   # flake8-errmsg
+      # "EXE",  # flake8-executable
+      "ISC",    # flake8-implicit-str-concat
+      "ICN",    # flake8-import-conventions
+      # "G",    # flake8-logging-format
+      # "INP",  # flake8-no-pep420
+      "PIE",    # flake8-pie
+      "T20",    # flake8-print
+      "PYI",    # flake8-pyi
+      "PT",     # flake8-pytest-style
+      "Q",      # flake8-quotes
+      "RSE",    # flake8-raise
+      # "RET",    # flake8-return
+      "SLF",    # flake8-self
+      "SIM",    # flake8-simplify
+      "TID",    # flake8-tidy-imports
+      "TCH",    # flake8-type-checking
+      "ARG",    # flake8-unused-arguments
+      "PTH",    # flake8-use-pathlib
+      "ERA",    # eradicate
+      # "PD",   # pandas-vet
+      "PGH",    # pygrep-hooks
+      "PL",     # pylint
+      # "TRY",  # tryceratops
+      # "NPY",  # NumPy-specific rules
+      "RUF",    # Ruff-specific rules
+]
+ignore = [
+    "ANN101",  # no type for self
+    "ANN102",  # no type for cls
+    "SIM108",  # allow if-else in place of ternary
+    "PLR2004", # magic values... can't configure to ignore simple low value ints like 2
+    "PLW2901", # allow updating loop value...
+    "PYI025",  # I can tell the difference between set and Set thank you very much
+    # TODO: REMOVE ALL THE BELOW vvv
+    "ERA001",  # don't automatically remove commented out code
+    "T201",    # allow prints (FOR NOW)
+    # TODO: REMOVE ALL THE BELOW AFTER REFACTORING BUILDING CODE vvv
+    "C901", # is too complex (> 10)
+    "PLR0911", # Too many return statements (> 6)
+    "PLR0912", # Too many branches (> 12)
+    "PLR0913", # Too many arguments to function call (> 5)
+    "PLR0915", # Too many statements (> 50)
+
+]
+unfixable = [
+    # TODO: REMOVE THE BELOW
+    # "ERA001", # don't automatically remove commented out code
+    "F841", # don't delete unused local variables automatically
+    "B011", # don't automatically convert assert False -> raise AssertionError - we want the former
+            # in any smart contracts in this repo
+]
+extend-exclude = [
+    "src/wyvern/_typeshed",
+    "src/wyvern/_vendor",
+]
+[tool.ruff.per-file-ignores]
+"src/**" = [
+    "PT",       # no pytest rules
+]
+"src/algopy-stubs/**" = [
+    "PYI021",   # allow docstrings in stubs
+    "PYI053",   # allow "docstrings" in overloads
+    # TODO: remove the below
+    "E501",
+]
+"examples/**" = [
+    "PT",       # no pytest rules
+    "B011",     # allow assert False, "msg"
+]
+"src/wyvern/awst_build/eb/**" = [
+    # TODO: remove the below
+    "ARG002",
+]
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true
+suppress-none-returning = true
+mypy-init-return = true
+
+[tool.ruff.isort]
+combine-as-imports = true
+force-wrap-aliases = true
+
+[tool.ruff.flake8-builtins]
+builtins-ignorelist = ["id"]

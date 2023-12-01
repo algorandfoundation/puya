@@ -1,0 +1,40 @@
+WAVE = b'\xf0\x9f\x91\x8b'
+
+abstract contract BaseContract
+{
+  globals {
+    ['state1']: algopy.Bytes
+    ['state2']: algopy.Bytes
+  }
+  
+  constructor()
+  {
+    this.globals['state2']: algopy.Bytes = tmp$0: algopy.Bytes := examples.chained_assignment.contract::join_log_and_return(right='\xf0\x9f\x91\x8b', left='Hello, world!')
+    this.globals['state1']: algopy.Bytes = tmp$0
+  }
+}
+
+contract ChainedAssignment extends (examples.chained_assignment.contract::BaseContract)
+{
+  constructor()
+  {
+    examples.chained_assignment.contract::BaseContract::__init__()
+  }
+  
+  approval_program(): bool
+  {
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine join_log_and_return(left: algopy.Bytes, right: algopy.Bytes): algopy.Bytes
+{
+  result: algopy.Bytes = left + ' ' + right
+  log(result)
+  return result
+}

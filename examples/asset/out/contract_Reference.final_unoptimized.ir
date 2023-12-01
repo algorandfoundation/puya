@@ -1,0 +1,75 @@
+contract examples.asset.contract.Reference:
+    program approval:
+        subroutine examples.asset.contract.Reference.approval_program() -> uint64:
+            block@0: // L17
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L14
+                examples.asset.contract.Reference.__init__()
+                goto block@2
+            block@2: // entrypoint_L14
+                let tmp%1#0: uint64 = (txn NumAppArgs)
+                let tmp%2#0: uint64 = (== tmp%1#0 1u)
+                goto tmp%2#0 ? block@3 : block@10
+            block@3: // if_body_L18
+                let tmp%3#0: bytes = (txna ApplicationArgs 0)
+                let tmp%4#0: uint64 = (== tmp%3#0 "opt_in")
+                goto tmp%4#0 ? block@4 : block@5
+            block@4: // if_body_L19
+                let asset#0: uint64 = (txna Assets 0)
+                examples.asset.contract.Reference.opt_into_asset(asset#0)
+                goto block@9
+            block@5: // else_body_L19
+                let tmp%5#0: bytes = (txna ApplicationArgs 0)
+                let tmp%6#0: uint64 = (== tmp%5#0 "is_opted_in")
+                goto tmp%6#0 ? block@6 : block@7
+            block@6: // if_body_L22
+                let asset#0: uint64 = (txna Assets 0)
+                examples.asset.contract.Reference.is_opted_asset(asset#0)
+                goto block@8
+            block@7: // else_body_L22
+                fail // Expected opt_in or is_opted_in
+            block@8: // after_if_else_L22
+                goto block@9
+            block@9: // after_if_else_L19
+                goto block@10
+            block@10: // after_if_else_L18
+                return 1u
+        
+        subroutine examples.asset.contract.Reference.opt_into_asset(asset: uint64) -> void:
+            block@0: // L33
+                let tmp%0#0: bytes = (txn Sender)
+                let tmp%1#0: bytes = (global CreatorAddress)
+                let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
+                (assert tmp%2#0) // Only creator can opt in to ASA
+                let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asa")
+                (assert app_global_get_ex_did_exist%4#0) // check value exists
+                let tmp%5#0: uint64 = (! app_global_get_ex_value%3#0)
+                (assert tmp%5#0) // ASA already opted in
+                (app_global_put "asa" asset#0)
+                itxn_begin
+                ((itxn_field TypeEnum) axfer)
+                ((itxn_field Fee) 0u)
+                let tmp%6#0: bytes = (global CurrentApplicationAddress)
+                ((itxn_field AssetReceiver) tmp%6#0)
+                ((itxn_field XferAsset) asset#0)
+                itxn_submit
+                return 
+        
+        subroutine examples.asset.contract.Reference.is_opted_asset(asset: uint64) -> void:
+            block@0: // L50
+                let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "asa")
+                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                let tmp%2#0: uint64 = (== app_global_get_ex_value%0#0 asset#0)
+                (assert tmp%2#0) // asset self.asa == asset
+                return 
+        
+        subroutine examples.asset.contract.Reference.__init__() -> void:
+            block@0: // L14
+                (app_global_put "asa" 0u)
+                return 
+    
+    program clear-state:
+        subroutine examples.asset.contract.Reference.clear_state_program() -> uint64:
+            block@0: // L29
+                return 1u

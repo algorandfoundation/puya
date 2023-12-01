@@ -1,0 +1,40 @@
+contract MyContract
+{
+  approval_program(): algopy.UInt64
+  {
+    not_ten: algopy.UInt64 = 15u
+    one_true: bool = this::is_in_tuple_1(10u, (10u, not_ten, 'five'))
+    one_false: bool = this::is_in_tuple_1(5u, (10u, not_ten, 'five'))
+    assert(one_true, comment="Should be true")
+    assert(!(one_false), comment="Should be false")
+    two_true: bool = this::is_in_tuple_2('hello', ('hello', 0u, 'bonjour'))
+    two_false: bool = this::is_in_tuple_2('ciao', ('hello', 0u, 'bonjour'))
+    assert(two_true, comment="Should be true")
+    assert(!(two_false), comment="Should be false")
+    three_true: bool = this::is_in_tuple_3(32323423423423n, (32323423423423n, 8439439483934n))
+    three_false: bool = this::is_in_tuple_3(32323423423423n b+ 32323423423423n, (32323423423423n, 8439439483934n))
+    assert(three_true, comment="Should be true")
+    assert(!(three_false), comment="Should be false")
+    return 1u
+  }
+  
+  clear_state_program(): algopy.UInt64
+  {
+    return 1u
+  }
+  
+  subroutine is_in_tuple_1(x: algopy.UInt64, y: tuple[algopy.UInt64, algopy.UInt64, algopy.Bytes]): bool
+  {
+    return x IS IN y
+  }
+  
+  subroutine is_in_tuple_2(x: algopy.Bytes, y: tuple[algopy.Bytes, algopy.UInt64, algopy.Bytes]): bool
+  {
+    return x IS IN y
+  }
+  
+  subroutine is_in_tuple_3(x: algopy.BigUInt, y: tuple[algopy.BigUInt, algopy.BigUInt]): bool
+  {
+    return x IS IN y
+  }
+}

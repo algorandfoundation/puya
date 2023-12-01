@@ -1,0 +1,68 @@
+#pragma version 8
+
+// examples.string_ops.contract.MyContract.approval_program() -> uint64:
+main_block@0:
+        byte "brown fox"
+        byte "The quick brown fox jumped over the lazy dog"
+        callsub is_in_str
+        assert
+        byte "red fox"
+        byte "The quick brown fox jumped over the lazy dog"
+        callsub is_in_str
+        !
+        assert
+        int 1
+        return
+
+
+// examples.string_ops.contract.is_in_str(a#0: bytes, b#0: bytes) -> uint64:
+is_in_str:
+        proto 2 1
+        byte ""
+        dup
+
+is_in_str_block@0:
+        int 0
+        frame_dig -1
+        len
+        frame_dig -2
+        len
+        int 0
+
+is_in_str_substr_header@1:
+        frame_dig 5
+        frame_dig 4
+        +
+        dup
+        frame_bury 1
+        frame_dig 3
+        >
+        bnz is_in_str_substr_after@4
+
+is_in_str_substr_body@2:
+        frame_dig -1
+        frame_dig 5
+        frame_dig 1
+        substring3
+        frame_dig -2
+        ==
+        dup
+        frame_bury 0
+        dup
+        frame_bury 2
+        bnz is_in_str_substr_after@4
+
+is_in_str_substr_footer@3:
+        frame_dig 5
+        int 1
+        +
+        frame_bury 5
+        frame_dig 0
+        frame_bury 2
+        b is_in_str_substr_header@1
+
+is_in_str_substr_after@4:
+        frame_dig 2
+        frame_bury 0
+        retsub
+

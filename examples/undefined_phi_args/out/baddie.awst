@@ -1,0 +1,95 @@
+contract Baddie
+{
+  approval_program(): bool
+  {
+    test_case: algopy.Bytes = txna<ApplicationArgs, 0>()
+    invert_second_condition: bool = txn<NumAppArgs>() > 1u and btoi(txna<ApplicationArgs, 1>()) > 0u
+    if (invert_second_condition) {
+      if (test_case == 'uint') {
+        assert(examples.undefined_phi_args.baddie::test_uint_undefined(true, false) == 10u)
+        assert(examples.undefined_phi_args.baddie::test_uint_undefined(false, true) == 8u)
+      } else {
+        if (test_case == 'bytes') {
+          assert(examples.undefined_phi_args.baddie::test_bytes_undefined(true, false) == 10n)
+          assert(examples.undefined_phi_args.baddie::test_bytes_undefined(false, true) == 8n)
+        } else {
+          assert(examples.undefined_phi_args.baddie::test_mixed_undefined(true, false) == 10n)
+          assert(examples.undefined_phi_args.baddie::test_mixed_undefined(false, true) == 8n)
+        }
+      }
+    } else {
+      if (test_case == 'uint') {
+        assert(examples.undefined_phi_args.baddie::test_uint_undefined(true, true) == 8u)
+        assert(examples.undefined_phi_args.baddie::test_uint_undefined(false, false) == 10u)
+      } else {
+        if (test_case == 'bytes') {
+          assert(examples.undefined_phi_args.baddie::test_bytes_undefined(true, true) == 8n)
+          assert(examples.undefined_phi_args.baddie::test_bytes_undefined(false, false) == 10n)
+        } else {
+          assert(examples.undefined_phi_args.baddie::test_mixed_undefined(true, true) == 8n)
+          assert(examples.undefined_phi_args.baddie::test_mixed_undefined(false, false) == 10n)
+        }
+      }
+    }
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine test_uint_undefined(x: bool, y: bool): algopy.UInt64
+{
+  if (x) {
+    a: algopy.UInt64 = 7u
+  }
+  if (x) {
+    b: algopy.UInt64 = 11u
+  } else {
+    b: algopy.UInt64 = 11u
+  }
+  if (y) {
+    c: algopy.UInt64 = a + 1u
+  } else {
+    c: algopy.UInt64 = b - 1u
+  }
+  return c
+}
+
+subroutine test_bytes_undefined(x: bool, y: bool): algopy.BigUInt
+{
+  if (x) {
+    a: algopy.BigUInt = 7n
+  }
+  if (x) {
+    b: algopy.BigUInt = 11n
+  } else {
+    b: algopy.BigUInt = 11n
+  }
+  if (y) {
+    c: algopy.BigUInt = a b+ 1n
+  } else {
+    c: algopy.BigUInt = b b- 1n
+  }
+  return c
+}
+
+subroutine test_mixed_undefined(x: bool, y: bool): algopy.BigUInt
+{
+  if (x) {
+    a: algopy.UInt64 = 7u
+  }
+  if (x) {
+    b: algopy.BigUInt = 11n
+  } else {
+    b: algopy.BigUInt = 11n
+  }
+  if (y) {
+    c: algopy.BigUInt = itob(a) b+ 1n
+  } else {
+    c: algopy.BigUInt = b b- 1n
+  }
+  return c
+}

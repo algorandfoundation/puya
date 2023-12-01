@@ -1,0 +1,109 @@
+// Op                                                 // Op Description               Stack (out)                                                  Source code                                                                               Source line
+
+#pragma version 8
+
+// examples.asset.contract.Reference.approval_program() -> uint64:
+main_block@0:
+        txn ApplicationID                             //                              {txn}
+        bnz main_entrypoint@2                         //
+        // Implicit fall through to main_on_create@1  //
+
+main_on_create@1:
+        callsub __init__                              //
+        // Implicit fall through to main_entrypoint@2 //
+
+main_entrypoint@2:
+        txn NumAppArgs                                //                              {txn}                                                        Transaction.num_app_args()                                                                File "asset/contract.py", line 18
+        int 1                                         //                              tmp%1#0,1                                                    1                                                                                         File "asset/contract.py", line 18
+        ==                                            //                              {==}                                                         Transaction.num_app_args() == 1:                                                          File "asset/contract.py", line 18
+        bz main_after_if_else@10                      //                                                                                           if Transaction.num_app_args() == 1:                                                       File "asset/contract.py", line 18
+        // Implicit fall through to main_if_body@3    //                                                                                           if Transaction.num_app_args() == 1:                                                       File "asset/contract.py", line 18
+
+main_if_body@3:
+        txna ApplicationArgs 0                        //                              {txna}                                                       Transaction.application_args(0)                                                           File "asset/contract.py", line 19
+        byte "opt_in"                                 //                              tmp%3#0,"opt_in"                                             b"opt_in"                                                                                 File "asset/contract.py", line 19
+        ==                                            //                              {==}                                                         Transaction.application_args(0) == b"opt_in":                                             File "asset/contract.py", line 19
+        bz main_else_body@5                           //                                                                                           if Transaction.application_args(0) == b"opt_in":                                          File "asset/contract.py", line 19
+        // Implicit fall through to main_if_body@4    //                                                                                           if Transaction.application_args(0) == b"opt_in":                                          File "asset/contract.py", line 19
+
+main_if_body@4:
+        txna Assets 0                                 //                              {txna}                                                       Transaction.assets(0)                                                                     File "asset/contract.py", line 20
+        callsub opt_into_asset                        //                                                                                           self.opt_into_asset(asset)                                                                File "asset/contract.py", line 21
+        b main_after_if_else@10                       //
+
+main_else_body@5:
+        txna ApplicationArgs 0                        //                              {txna}                                                       Transaction.application_args(0)                                                           File "asset/contract.py", line 22
+        byte "is_opted_in"                            //                              tmp%5#0,"is_opted_in"                                        b"is_opted_in"                                                                            File "asset/contract.py", line 22
+        ==                                            //                              {==}                                                         Transaction.application_args(0) == b"is_opted_in":                                        File "asset/contract.py", line 22
+        bz main_else_body@7                           //                                                                                           elif Transaction.application_args(0) == b"is_opted_in":                                   File "asset/contract.py", line 22
+        // Implicit fall through to main_if_body@6    //                                                                                           elif Transaction.application_args(0) == b"is_opted_in":                                   File "asset/contract.py", line 22
+
+main_if_body@6:
+        txna Assets 0                                 //                              {txna}                                                       Transaction.assets(0)                                                                     File "asset/contract.py", line 23
+        callsub is_opted_asset                        //                                                                                           self.is_opted_asset(asset)                                                                File "asset/contract.py", line 24
+        b main_after_if_else@10                       //
+
+main_else_body@7:
+        err // Expected opt_in or is_opted_in         //                                                                                           assert False, "Expected opt_in or is_opted_in"                                            File "asset/contract.py", line 26
+
+main_after_if_else@10:
+        int 1                                         //                              1                                                            True                                                                                      File "asset/contract.py", line 27
+        return                                        //                                                                                           return True                                                                               File "asset/contract.py", line 27
+
+
+// examples.asset.contract.Reference.opt_into_asset(asset#0: uint64) -> :
+opt_into_asset:
+        proto 1 0                                     //                              (𝕡) asset#0 |                                                def opt_into_asset(self, asset: Asset) -> None:                                           File "asset/contract.py", line 33
+
+opt_into_asset_block@0:
+        txn Sender                                    //                              (𝕡) asset#0 | {txn}                                          Transaction.sender()                                                                      File "asset/contract.py", line 35
+        global CreatorAddress                         //                              (𝕡) asset#0 | tmp%0#0,{global}                               Global.creator_address()                                                                  File "asset/contract.py", line 35
+        ==                                            //                              (𝕡) asset#0 | {==}                                           Transaction.sender() == Global.creator_address(), "Only creator can opt in to ASA"        File "asset/contract.py", line 35
+        assert                                        //                              (𝕡) asset#0 |                                                assert Transaction.sender() == Global.creator_address(), "Only creator can opt in to ASA" File "asset/contract.py", line 35
+        int 0                                         //                              (𝕡) asset#0 | 0                                              self.asa                                                                                  File "asset/contract.py", line 37
+        byte "asa"                                    //                              (𝕡) asset#0 | 0,"asa"                                        self.asa                                                                                  File "asset/contract.py", line 37
+        app_global_get_ex                             //                              (𝕡) asset#0 | {app_global_get_ex}.0,{app_global_get_ex}.1    self.asa                                                                                  File "asset/contract.py", line 37
+        assert                                        //                              (𝕡) asset#0 | app_global_get_ex_value%3#0                    self.asa                                                                                  File "asset/contract.py", line 37
+        !                                             //                              (𝕡) asset#0 | {!}                                            not self.asa                                                                              File "asset/contract.py", line 37
+        assert                                        //                              (𝕡) asset#0 |                                                assert not self.asa, "ASA already opted in"                                               File "asset/contract.py", line 37
+        byte "asa"                                    //                              (𝕡) asset#0 | "asa"                                          self.asa                                                                                  File "asset/contract.py", line 39
+        frame_dig -1                                  // load asset#0 from parameters (𝕡) asset#0 | "asa",asset#0                                  asset: Asset                                                                              File "asset/contract.py", line 33
+        app_global_put                                //                              (𝕡) asset#0 |                                                self.asa = asset                                                                          File "asset/contract.py", line 39
+        itxn_begin                                    //                              (𝕡) asset#0 |                                                CreateInnerTransaction.begin()                                                            File "asset/contract.py", line 42
+        int axfer                                     //                              (𝕡) asset#0 | axfer                                          TransactionType.AssetTransfer                                                             File "asset/contract.py", line 43
+        itxn_field TypeEnum                           //                              (𝕡) asset#0 |                                                CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)                       File "asset/contract.py", line 43
+        int 0                                         //                              (𝕡) asset#0 | 0                                              0                                                                                         File "asset/contract.py", line 44
+        itxn_field Fee                                //                              (𝕡) asset#0 |                                                CreateInnerTransaction.set_fee(UInt64(0))                                                 File "asset/contract.py", line 44
+        global CurrentApplicationAddress              //                              (𝕡) asset#0 | {global}                                       Global.current_application_address()                                                      File "asset/contract.py", line 45
+        itxn_field AssetReceiver                      //                              (𝕡) asset#0 |                                                CreateInnerTransaction.set_asset_receiver(Global.current_application_address())           File "asset/contract.py", line 45
+        frame_dig -1                                  // load asset#0 from parameters (𝕡) asset#0 | asset#0                                        asset: Asset                                                                              File "asset/contract.py", line 33
+        itxn_field XferAsset                          //                              (𝕡) asset#0 |                                                CreateInnerTransaction.set_xfer_asset(asset.asset_id)                                     File "asset/contract.py", line 46
+        itxn_submit                                   //                              (𝕡) asset#0 |                                                CreateInnerTransaction.submit()                                                           File "asset/contract.py", line 47
+        retsub                                        //
+
+
+// examples.asset.contract.Reference.is_opted_asset(asset#0: uint64) -> :
+is_opted_asset:
+        proto 1 0                                     //                              (𝕡) asset#0 |                                                def is_opted_asset(self, asset: Asset) -> None:                                           File "asset/contract.py", line 50
+
+is_opted_asset_block@0:
+        int 0                                         //                              (𝕡) asset#0 | 0                                              self.asa                                                                                  File "asset/contract.py", line 51
+        byte "asa"                                    //                              (𝕡) asset#0 | 0,"asa"                                        self.asa                                                                                  File "asset/contract.py", line 51
+        app_global_get_ex                             //                              (𝕡) asset#0 | {app_global_get_ex}.0,{app_global_get_ex}.1    self.asa                                                                                  File "asset/contract.py", line 51
+        assert                                        //                              (𝕡) asset#0 | app_global_get_ex_value%0#0                    self.asa                                                                                  File "asset/contract.py", line 51
+        frame_dig -1                                  // load asset#0 from parameters (𝕡) asset#0 | app_global_get_ex_value%0#0,asset#0            asset: Asset                                                                              File "asset/contract.py", line 50
+        ==                                            //                              (𝕡) asset#0 | {==}                                           self.asa == asset, "asset self.asa == asset"                                              File "asset/contract.py", line 51
+        assert                                        //                              (𝕡) asset#0 |                                                assert self.asa == asset, "asset self.asa == asset"                                       File "asset/contract.py", line 51
+        retsub                                        //
+
+
+// examples.asset.contract.Reference.__init__() -> :
+__init__:
+        proto 0 0                                     //                                                                                           def __init__(self) -> None:                                                               File "asset/contract.py", line 14
+
+__init___block@0:
+        byte "asa"                                    //                              "asa"                                                        self.asa                                                                                  File "asset/contract.py", line 15
+        int 0                                         //                              "asa",0                                                      0                                                                                         File "asset/contract.py", line 15
+        app_global_put                                //                                                                                           self.asa = Asset(0)                                                                       File "asset/contract.py", line 15
+        retsub                                        //
+

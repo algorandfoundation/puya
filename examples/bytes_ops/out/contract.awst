@@ -1,0 +1,42 @@
+contract BiguintBinaryOps
+{
+  approval_program(): bool
+  {
+    examples.bytes_ops.contract::do_some_ops(left=Bytes.from_base16("FF"), right=Bytes.from_base16("0F"), concat=Bytes.from_base16("FF0F"), bitwise_or=Bytes.from_base16("FF"), bitwise_xor=Bytes.from_base16("F0"), bitwise_and=Bytes.from_base16("0F"))
+    examples.bytes_ops.contract::do_augmented_assignment_ops(Bytes.from_base16("FF"))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine do_some_ops(left: algopy.Bytes, right: algopy.Bytes, concat: algopy.Bytes, bitwise_or: algopy.Bytes, bitwise_xor: algopy.Bytes, bitwise_and: algopy.Bytes): None
+{
+  result: algopy.Bytes = left + right
+  assert(result == concat)
+  result: algopy.Bytes = left | right
+  assert(result == bitwise_or)
+  result: algopy.Bytes = left ^ right
+  assert(result == bitwise_xor)
+  result: algopy.Bytes = left & right
+  assert(result == bitwise_and)
+}
+
+subroutine do_augmented_assignment_ops(seed: algopy.Bytes): None
+{
+  seed &= Bytes.from_base16("00")
+  assert(seed == Bytes.from_base16("00"))
+  five: algopy.Bytes = Bytes.from_base16("05")
+  seed |= five
+  assert(seed == five)
+  sixteen: algopy.Bytes = Bytes.from_base16("10")
+  seed ^= sixteen
+  assert(seed == Bytes.from_base16("15"))
+  seed ^= five
+  assert(seed == sixteen)
+  seed += five
+  assert(seed == Bytes.from_base16("1005"))
+}

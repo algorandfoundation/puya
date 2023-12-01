@@ -1,0 +1,52 @@
+contract Reference
+{
+  globals {
+    ['asa']: algopy._primitives.Asset
+  }
+  
+  constructor()
+  {
+    this.globals['asa']: algopy._primitives.Asset = reinterpret_cast<algopy._primitives.Asset>(0u)
+  }
+  
+  approval_program(): bool
+  {
+    if (txn<NumAppArgs>() == 1u) {
+      if (txna<ApplicationArgs, 0>() == 'opt_in') {
+        asset: algopy._primitives.Asset = reinterpret_cast<algopy._primitives.Asset>(txna<Assets, 0>())
+        this::opt_into_asset(asset)
+      } else {
+        if (txna<ApplicationArgs, 0>() == 'is_opted_in') {
+          asset: algopy._primitives.Asset = reinterpret_cast<algopy._primitives.Asset>(txna<Assets, 0>())
+          this::is_opted_asset(asset)
+        } else {
+          assert(false, comment="Expected opt_in or is_opted_in")
+        }
+      }
+    }
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine opt_into_asset(asset: algopy._primitives.Asset): None
+  {
+    assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
+    assert(!(reinterpret_cast<bool>(this.globals['asa'])), comment="ASA already opted in")
+    this.globals['asa']: algopy._primitives.Asset = asset
+    itxn_begin()
+    itxn_field<TypeEnum>(axfer)
+    itxn_field<Fee>(0u)
+    itxn_field<AssetReceiver>(global<CurrentApplicationAddress>())
+    itxn_field<XferAsset>(reinterpret_cast<algopy.UInt64>(asset))
+    itxn_submit()
+  }
+  
+  subroutine is_opted_asset(asset: algopy._primitives.Asset): None
+  {
+    assert(reinterpret_cast<algopy.UInt64>(this.globals['asa']) == reinterpret_cast<algopy.UInt64>(asset), comment="asset self.asa == asset")
+  }
+}

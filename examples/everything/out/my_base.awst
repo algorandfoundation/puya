@@ -1,0 +1,24 @@
+abstract contract MyBase
+{
+  globals {
+    ['creator']: algopy.Address
+  }
+  
+  subroutine remember_creator(): None
+  {
+    this.globals['creator']: algopy.Address = txn<Sender>()
+  }
+}
+
+abstract contract MyMiddleBase extends (examples.everything.my_base::MyBase)
+{
+  subroutine calculate(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  {
+    return a + b
+  }
+}
+
+subroutine multiplicative_identity(): algopy.UInt64
+{
+  return 1u
+}

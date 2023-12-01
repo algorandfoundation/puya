@@ -1,0 +1,75 @@
+ONE = 1
+HELLO = b'\xf0\x9f\x91\x8b'
+
+subroutine three(): algopy.UInt64
+{
+  a: algopy.UInt64 = 1u + 1u
+  b: algopy.UInt64 = a + 1u
+  return b
+}
+
+subroutine hello_world(): algopy.Bytes
+{
+  hello: algopy.Bytes = '\xf0\x9f\x91\x8b'
+  comma: algopy.Bytes = Bytes.from_base64("4aCI")
+  world: algopy.Bytes = ' world'
+  return hello + comma + world
+}
+
+subroutine safe_add(x: algopy.UInt64, y: algopy.UInt64): tuple[algopy.UInt64, bool]
+{
+  (hi, lo): tuple[algopy.UInt64, algopy.UInt64] = addw(x, y)
+  did_overflow: bool = hi > 0u
+  return (lo, did_overflow)
+}
+
+subroutine safe_six(): tuple[algopy.UInt64, bool]
+{
+  return examples.mylib.simple_functions::safe_add(examples.mylib.simple_functions::three(), examples.mylib.simple_functions::three())
+}
+
+subroutine itoa(i: algopy.UInt64): algopy.Bytes
+{
+  digits: algopy.Bytes = '0123456789'
+  radix: algopy.UInt64 = len(digits)
+  if (i < radix) {
+    return digits[i]
+  }
+  return examples.mylib.simple_functions::itoa(i // radix) + digits[i % radix]
+}
+
+subroutine itoa_loop(num: algopy.UInt64): algopy.Bytes
+{
+  digits: algopy.Bytes = '0123456789'
+  result: algopy.Bytes = ''
+  while (num >= 10u) {
+    result: algopy.Bytes = digits[num % 10u] + result
+    num //= 10u
+  }
+  result: algopy.Bytes = digits[num] + result
+  return result
+}
+
+subroutine inefficient_multiply(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+{
+  if (a == 0u or b == 0u) {
+    return a
+  }
+  if (a < b) {
+    smaller: algopy.UInt64 = a
+    bigger: algopy.UInt64 = b
+  } else {
+    smaller: algopy.UInt64 = b
+    bigger: algopy.UInt64 = a
+  }
+  result: algopy.UInt64 = 0u
+  for _i in range(0u, smaller, 1u) {
+    result += bigger
+  }
+  return result
+}
+
+subroutine test_and_uint64(): algopy.UInt64
+{
+  return !(reinterpret_cast<bool>(1u)) ? 1u : 2u
+}

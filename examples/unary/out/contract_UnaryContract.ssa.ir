@@ -1,0 +1,64 @@
+contract examples.unary.contract.UnaryContract:
+    program approval:
+        subroutine examples.unary.contract.UnaryContract.approval_program() -> uint64:
+            block@0: // L14
+                examples.unary.contract.uint_unary()
+                examples.unary.contract.biguint_unary()
+                examples.unary.contract.bytes_unary()
+                return 1u
+        
+        subroutine examples.unary.contract.uint_unary() -> void:
+            block@0: // L26
+                let tmp%0#0: uint64 = (! 0u)
+                (assert tmp%0#0) // not uint
+                goto block@1
+            block@1: // for_header_0_L31
+                let tuple_index%1#0: uint64 = 0u
+                let i#0: uint64 = 1u
+                goto block@5
+            block@2: // for_header_1_L31
+                let i#1: uint64 = 2u
+                goto block@5
+            block@3: // for_header_2_L31
+                let i#2: uint64 = 150u
+                goto block@5
+            block@4: // for_header_3_L31
+                let i#3: uint64 = 18446744073709551615u
+                goto block@5
+            block@5: // for_body_L31
+                let i#4: uint64 = φ(i#0 <- block@1, i#1 <- block@2, i#2 <- block@3, i#3 <- block@4)
+                let tuple_index%1#1: uint64 = φ(tuple_index%1#0 <- block@1, tuple_index%1#5 <- block@2, tuple_index%1#5 <- block@3, tuple_index%1#5 <- block@4)
+                let tmp%2#0: uint64 = (- 18446744073709551615u i#4)
+                let tmp%3#0: uint64 = (~ tmp%2#0)
+                let tmp%4#0: uint64 = (== tmp%3#0 i#4)
+                (assert tmp%4#0) // ~ uint
+                goto block@6
+            block@6: // for_footer_L31
+                let tuple_index%1#5: uint64 = (+ tuple_index%1#1 1u)
+                goto [block@2, block@3, block@4, ...block@7][tuple_index%1#1]
+            block@7: // after_for_L31
+                return 
+        
+        subroutine examples.unary.contract.biguint_unary() -> void:
+            block@0: // L36
+                let tmp%0#0: uint64 = (b== 0b 0b)
+                (assert tmp%0#0) // not biguint
+                return 
+        
+        subroutine examples.unary.contract.bytes_unary() -> void:
+            block@0: // L42
+                let tmp%0#0: uint64 = (len "")
+                let tmp%1#0: uint64 = (! tmp%0#0)
+                (assert tmp%1#0) // not bytes
+                let tmp%2#0: bytes = (b~ 0xff)
+                let tmp%3#0: uint64 = (== tmp%2#0 0x00)
+                (assert tmp%3#0) // ~ bytes
+                let tmp%4#0: bytes = (b~ 0x0000)
+                let tmp%5#0: uint64 = (== tmp%4#0 0xffff)
+                (assert tmp%5#0) // ~ bytes
+                return 
+    
+    program clear-state:
+        subroutine examples.unary.contract.UnaryContract.clear_state_program() -> uint64:
+            block@0: // L21
+                return 1u

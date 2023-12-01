@@ -1,0 +1,321 @@
+#pragma version 8
+
+// examples.enumeration.contract.EnumerationContract.approval_program() -> uint64:
+main_block@0:
+        int 10
+        int 21
+        int 5
+        callsub enumerate_urange
+        cover 2
+        cover 1
+        int 6
+        ==
+        assert
+        int 90
+        ==
+        assert
+        int 3
+        ==
+        assert
+        byte "How"
+        byte "Now"
+        byte "Brown"
+        byte "Cow"
+        callsub enumerate_tuple
+        cover 2
+        cover 1
+        int 8
+        ==
+        assert
+        byte "HowNowBrownCowHowNowBrownCow"
+        ==
+        assert
+        int 6
+        ==
+        assert
+        byte "abcdefg"
+        callsub enumerate_bytes
+        cover 2
+        cover 1
+        int 14
+        ==
+        assert
+        byte "abcdefgabcdefg"
+        ==
+        assert
+        int 21
+        ==
+        assert
+        int 1
+        return
+
+
+// examples.enumeration.contract.enumerate_urange(start#0: uint64, stop#0: uint64, step#0: uint64) -> uint64, uint64, uint64:
+enumerate_urange:
+        proto 3 3
+        byte ""
+
+enumerate_urange_block@0:
+        int 0
+        int 0
+        int 0
+        frame_dig -3
+
+enumerate_urange_for_header@1:
+        frame_dig 4
+        frame_dig -2
+        <
+        bz enumerate_urange_after_for@4
+
+enumerate_urange_for_body@2:
+        frame_dig 1
+        int 1
+        +
+        frame_bury 1
+        frame_dig 2
+        frame_dig 4
+        dup
+        cover 2
+        +
+        frame_bury 2
+        frame_dig -1
+        +
+        frame_bury 4
+        b enumerate_urange_for_header@1
+
+enumerate_urange_after_for@4:
+        int 0
+        frame_dig -3
+        frame_bury 4
+        frame_bury 0
+
+enumerate_urange_for_header@5:
+        frame_dig 4
+        frame_dig -2
+        <
+        bz enumerate_urange_after_for@8
+
+enumerate_urange_for_body@6:
+        frame_dig 1
+        int 1
+        +
+        frame_bury 1
+        frame_dig 2
+        frame_dig 4
+        dup
+        cover 2
+        +
+        frame_bury 2
+        frame_dig 3
+        frame_dig 0
+        dup
+        cover 3
+        +
+        frame_bury 3
+        frame_dig -1
+        +
+        uncover 1
+        int 1
+        +
+        uncover 1
+        frame_bury 4
+        frame_bury 0
+        b enumerate_urange_for_header@5
+
+enumerate_urange_after_for@8:
+        frame_dig 1
+        frame_dig 2
+        frame_dig 3
+        frame_bury 2
+        frame_bury 1
+        frame_bury 0
+        retsub
+
+
+// examples.enumeration.contract.enumerate_tuple(tup.0#0: bytes, tup.1#0: bytes, tup.2#0: bytes, tup.3#0: bytes) -> uint64, bytes, uint64:
+enumerate_tuple:
+        proto 4 3
+        byte ""
+        dup
+
+enumerate_tuple_block@0:
+        int 0
+        byte ""
+        int 0
+        int 0
+        frame_dig -4
+        cover 1
+        b enumerate_tuple_for_body@5
+
+enumerate_tuple_for_header_1@2:
+        frame_dig -3
+        frame_bury 5
+        frame_dig 0
+        b enumerate_tuple_for_body@5
+
+enumerate_tuple_for_header_2@3:
+        frame_dig -2
+        frame_bury 5
+        frame_dig 0
+        b enumerate_tuple_for_body@5
+
+enumerate_tuple_for_header_3@4:
+        frame_dig -1
+        frame_bury 5
+        frame_dig 0
+
+enumerate_tuple_for_body@5:
+        frame_dig 2
+        int 1
+        +
+        frame_bury 2
+        frame_dig 3
+        frame_dig 5
+        concat
+        frame_bury 3
+        dup
+        int 1
+        +
+        frame_bury 0
+        switch enumerate_tuple_for_header_1@2 enumerate_tuple_for_header_2@3 enumerate_tuple_for_header_3@4
+
+enumerate_tuple_after_for@7:
+        int 0
+        frame_dig -4
+        frame_bury 5
+        b enumerate_tuple_for_body@12
+
+enumerate_tuple_for_header_1@9:
+        frame_dig 1
+        frame_dig -3
+        frame_bury 5
+        b enumerate_tuple_for_body@12
+
+enumerate_tuple_for_header_2@10:
+        frame_dig 1
+        frame_dig -2
+        frame_bury 5
+        b enumerate_tuple_for_body@12
+
+enumerate_tuple_for_header_3@11:
+        frame_dig 1
+        frame_dig -1
+        frame_bury 5
+
+enumerate_tuple_for_body@12:
+        frame_dig 2
+        int 1
+        +
+        frame_bury 2
+        frame_dig 3
+        frame_dig 5
+        concat
+        frame_bury 3
+        frame_dig 4
+        uncover 1
+        dup
+        cover 2
+        +
+        frame_bury 4
+        dup
+        int 1
+        +
+        frame_bury 1
+        switch enumerate_tuple_for_header_1@9 enumerate_tuple_for_header_2@10 enumerate_tuple_for_header_3@11
+
+enumerate_tuple_after_for@14:
+        frame_dig 2
+        frame_dig 3
+        frame_dig 4
+        frame_bury 2
+        frame_bury 1
+        frame_bury 0
+        retsub
+
+
+// examples.enumeration.contract.enumerate_bytes(bytes#0: bytes) -> uint64, bytes, uint64:
+enumerate_bytes:
+        proto 1 3
+        byte ""
+        dup
+
+enumerate_bytes_block@0:
+        int 0
+        byte ""
+        int 0
+        frame_dig -1
+        len
+        int 0
+
+enumerate_bytes_for_header@1:
+        frame_dig 6
+        frame_dig 5
+        <
+        bz enumerate_bytes_after_for@4
+
+enumerate_bytes_for_body@2:
+        frame_dig -1
+        frame_dig 6
+        dup
+        cover 2
+        int 1
+        extract3
+        frame_dig 2
+        int 1
+        +
+        frame_bury 2
+        frame_dig 3
+        uncover 1
+        concat
+        frame_bury 3
+        int 1
+        +
+        frame_bury 6
+        b enumerate_bytes_for_header@1
+
+enumerate_bytes_after_for@4:
+        frame_dig -1
+        len
+        frame_bury 0
+        int 0
+        frame_bury 1
+
+enumerate_bytes_for_header@5:
+        frame_dig 1
+        frame_dig 0
+        <
+        bz enumerate_bytes_after_for@8
+
+enumerate_bytes_for_body@6:
+        frame_dig -1
+        frame_dig 1
+        dup
+        cover 2
+        int 1
+        extract3
+        frame_dig 2
+        int 1
+        +
+        frame_bury 2
+        frame_dig 3
+        uncover 1
+        concat
+        frame_bury 3
+        frame_dig 4
+        dig 1
+        +
+        frame_bury 4
+        int 1
+        +
+        frame_bury 1
+        b enumerate_bytes_for_header@5
+
+enumerate_bytes_after_for@8:
+        frame_dig 2
+        frame_dig 3
+        frame_dig 4
+        frame_bury 2
+        frame_bury 1
+        frame_bury 0
+        retsub
+

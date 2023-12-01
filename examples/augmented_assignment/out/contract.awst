@@ -1,0 +1,40 @@
+contract Augmented
+{
+  globals {
+    ['global_uint']: algopy.UInt64
+    ['global_bytes']: algopy.Bytes
+  }
+  locals {
+    ['my_uint']: algopy.UInt64
+    ['my_bytes']: algopy.Bytes
+  }
+  
+  constructor()
+  {
+    this.globals['global_uint']: algopy.UInt64 = 0u
+    this.globals['global_bytes']: algopy.Bytes = ''
+  }
+  
+  approval_program(): bool
+  {
+    me: algopy.Address = txn<Sender>()
+    if (txn<OnCompletion>() == OptIn) {
+      this.locals['my_uint'].account[me]: algopy.UInt64 = 0u
+      this.locals['my_bytes'].account[me]: algopy.Bytes = ''
+    }
+    if (txn<ApplicationID>() > 0u) {
+      n: algopy.UInt64 = txn<NumAppArgs>()
+      bytes_to_add: algopy.Bytes = reinterpret_cast<algopy.Bytes>(itob(n))
+      this.locals['my_uint'].account[me] += n
+      this.locals['my_bytes'].account[me] += bytes_to_add
+      this.globals['global_uint'] += n
+      this.globals['global_bytes'] += bytes_to_add
+    }
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}

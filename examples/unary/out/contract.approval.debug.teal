@@ -1,0 +1,95 @@
+// Op                                                                                        // Op Description                          Stack (out)                                                                     X stack         Source code                                                         Source line
+
+#pragma version 8
+
+// examples.unary.contract.UnaryContract.approval_program() -> uint64:
+main_block@0:
+        callsub uint_unary                                                                   //                                                                                                                                         uint_unary()                                                        File "unary/contract.py", line 15
+        callsub biguint_unary                                                                //                                                                                                                                         biguint_unary()                                                     File "unary/contract.py", line 16
+        callsub bytes_unary                                                                  //                                                                                                                                         bytes_unary()                                                       File "unary/contract.py", line 17
+        int 1                                                                                //                                         1                                                                                               True                                                                File "unary/contract.py", line 19
+        return                                                                               //                                                                                                                                         return True                                                         File "unary/contract.py", line 19
+
+
+// examples.unary.contract.uint_unary() -> :
+uint_unary:
+        proto 0 0                                                                            //                                                                                                                                         def uint_unary() -> None:                                           File "unary/contract.py", line 26
+        byte ""                                                                              // allocate 1 to stack                     (𝕗) tuple_index%1#5 |
+
+uint_unary_block@0:
+        int 1                                                                                //                                         (𝕗) tuple_index%1#5 | 1                                                                         not UInt64(0)                                                       File "unary/contract.py", line 28
+        assert                                                                               //                                         (𝕗) tuple_index%1#5 |                                                                           assert not UInt64(0), "not uint"                                    File "unary/contract.py", line 28
+        int 0                                                                                //                                         (𝕗) tuple_index%1#5 | 0
+        int 1                                                                                //                                         (𝕗) tuple_index%1#5 | (𝕏) tuple_index%1#0 | 1                                                   1                                                                   File "unary/contract.py", line 31
+        cover 1                                                                              // store i#0 to f-stack                    (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 |                                                 i                                                                   File "unary/contract.py", line 31
+        b uint_unary_for_body@5                                                              //                                         (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 |                                 tuple_index%1#0
+
+uint_unary_for_header_1@2:
+        int 2                                                                                //                                         (𝕗) tuple_index%1#5,i#0 | 2                                                                     2                                                                   File "unary/contract.py", line 31
+        frame_bury 1                                                                         // store i#0 to f-stack                    (𝕗) tuple_index%1#5,i#0 |                                                                       i                                                                   File "unary/contract.py", line 31
+        frame_dig 0                                                                          // load tuple_index%1#5 from f-stack       (𝕗) tuple_index%1#5,i#0 | tuple_index%1#5
+        b uint_unary_for_body@5                                                              //                                         (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 |                                 tuple_index%1#0
+
+uint_unary_for_header_2@3:
+        int 150                                                                              //                                         (𝕗) tuple_index%1#5,i#0 | 150                                                                   150                                                                 File "unary/contract.py", line 31
+        frame_bury 1                                                                         // store i#0 to f-stack                    (𝕗) tuple_index%1#5,i#0 |                                                                       i                                                                   File "unary/contract.py", line 31
+        frame_dig 0                                                                          // load tuple_index%1#5 from f-stack       (𝕗) tuple_index%1#5,i#0 | tuple_index%1#5
+        b uint_unary_for_body@5                                                              //                                         (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 |                                 tuple_index%1#0
+
+uint_unary_for_header_3@4:
+        int 18446744073709551615                                                             //                                         (𝕗) tuple_index%1#5,i#0 | 18446744073709551615                                                  MAX_UINT64                                                          File "unary/contract.py", line 31
+        frame_bury 1                                                                         // store i#0 to f-stack                    (𝕗) tuple_index%1#5,i#0 |                                                                       i                                                                   File "unary/contract.py", line 31
+        frame_dig 0                                                                          // load tuple_index%1#5 from f-stack       (𝕗) tuple_index%1#5,i#0 | tuple_index%1#5
+        // Implicit fall through to uint_unary_for_body@5                                    //                                         (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 |                                 tuple_index%1#0
+
+uint_unary_for_body@5:
+        int 18446744073709551615                                                             //                                         (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 | 18446744073709551615            tuple_index%1#0 MAX_UINT64                                                          File "unary/contract.py", line 32
+        frame_dig 1                                                                          // load i#0 from f-stack                   (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 | 18446744073709551615,i#0                        i                                                                   File "unary/contract.py", line 31
+        dup
+        cover 2                                                                              // store i#0 to l-stack (copy)             (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 | i#0,18446744073709551615,i#0                    i                                                                   File "unary/contract.py", line 31
+        -                                                                                    //                                         (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 | i#0,{-}                                         MAX_UINT64 - i                                                      File "unary/contract.py", line 32
+        ~                                                                                    //                                         (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 | i#0,{~}                                         ~(MAX_UINT64 - i)                                                   File "unary/contract.py", line 32
+        ==                                                                                   //                                         (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 | {==}                                            ~(MAX_UINT64 - i) == i, "~ uint"                                    File "unary/contract.py", line 32
+        assert                                                                               //                                         (𝕗) tuple_index%1#5,i#0 | (𝕏) tuple_index%1#0 |                                                 assert ~(MAX_UINT64 - i) == i, "~ uint"                             File "unary/contract.py", line 32
+        dup                                                                                  // store tuple_index%1#0 to l-stack (copy) (𝕗) tuple_index%1#5,i#0 | tuple_index%1#0,tuple_index%1#0
+        int 1                                                                                //                                         (𝕗) tuple_index%1#5,i#0 | tuple_index%1#0,tuple_index%1#0,1
+        +                                                                                    //                                         (𝕗) tuple_index%1#5,i#0 | tuple_index%1#0,{+}
+        frame_bury 0                                                                         // store tuple_index%1#5 to f-stack        (𝕗) tuple_index%1#5,i#0 | tuple_index%1#0
+        switch uint_unary_for_header_1@2 uint_unary_for_header_2@3 uint_unary_for_header_3@4 //                                         (𝕗) tuple_index%1#5,i#0 |                                                                       for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):   File "unary/contract.py", line 31
+        // Implicit fall through to uint_unary_after_for@7                                   //                                         (𝕗) tuple_index%1#5,i#0 |                                                                       for i in (UInt64(1), UInt64(2), UInt64(150), UInt64(MAX_UINT64)):   File "unary/contract.py", line 31
+
+uint_unary_after_for@7:
+        retsub                                                                               //
+
+
+// examples.unary.contract.biguint_unary() -> :
+biguint_unary:
+        proto 0 0                                                                            //                                                                                                                                         def biguint_unary() -> None:                                        File "unary/contract.py", line 36
+
+biguint_unary_block@0:
+        byte 0x                                                                              //                                         0x                                                                                              0                                                                   File "unary/contract.py", line 38
+        byte 0x                                                                              //                                         0x,0x                                                                                           not BigUInt(0)                                                      File "unary/contract.py", line 38
+        b==                                                                                  //                                         {b==}                                                                                           not BigUInt(0)                                                      File "unary/contract.py", line 38
+        assert                                                                               //                                                                                                                                         assert not BigUInt(0), "not biguint"                                File "unary/contract.py", line 38
+        retsub                                                                               //
+
+
+// examples.unary.contract.bytes_unary() -> :
+bytes_unary:
+        proto 0 0                                                                            //                                                                                                                                         def bytes_unary() -> None:                                          File "unary/contract.py", line 42
+
+bytes_unary_block@0:
+        int 1                                                                                //                                         1                                                                                               not Bytes(b"")                                                      File "unary/contract.py", line 44
+        assert                                                                               //                                                                                                                                         assert not Bytes(b""), "not bytes"                                  File "unary/contract.py", line 44
+        byte 0xff                                                                            //                                         0xff                                                                                            Bytes.from_hex("FF")                                                File "unary/contract.py", line 47
+        b~                                                                                   //                                         {b~}                                                                                            ~Bytes.from_hex("FF")                                               File "unary/contract.py", line 47
+        byte 0x00                                                                            //                                         tmp%2#0,0x00                                                                                    Bytes.from_hex("00")                                                File "unary/contract.py", line 47
+        ==                                                                                   //                                         {==}                                                                                            ~Bytes.from_hex("FF") == Bytes.from_hex("00"), "~ bytes"            File "unary/contract.py", line 47
+        assert                                                                               //                                                                                                                                         assert ~Bytes.from_hex("FF") == Bytes.from_hex("00"), "~ bytes"     File "unary/contract.py", line 47
+        byte 0x0000                                                                          //                                         0x0000                                                                                          Bytes.from_hex("0000")                                              File "unary/contract.py", line 48
+        b~                                                                                   //                                         {b~}                                                                                            ~Bytes.from_hex("0000")                                             File "unary/contract.py", line 48
+        byte 0xffff                                                                          //                                         tmp%4#0,0xffff                                                                                  Bytes.from_hex("FFFF")                                              File "unary/contract.py", line 48
+        ==                                                                                   //                                         {==}                                                                                            ~Bytes.from_hex("0000") == Bytes.from_hex("FFFF"), "~ bytes"        File "unary/contract.py", line 48
+        assert                                                                               //                                                                                                                                         assert ~Bytes.from_hex("0000") == Bytes.from_hex("FFFF"), "~ bytes" File "unary/contract.py", line 48
+        retsub                                                                               //
+

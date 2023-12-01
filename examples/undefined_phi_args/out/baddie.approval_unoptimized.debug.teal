@@ -1,0 +1,327 @@
+// Op                                                                    // Op Description                Stack (out)                                 X stack        Source code                                                                  Source line
+
+#pragma version 8
+
+// examples.undefined_phi_args.baddie.Baddie.approval_program() -> uint64:
+main_block@0:
+        txna ApplicationArgs 0                                           //                               {txna}                                                     Transaction.application_args(0)                                              File "undefined_phi_args/baddie.py", line 6
+        txn NumAppArgs                                                   //                               (𝕗) test_case#0 | {txn}                                    Transaction.num_app_args()                                                   File "undefined_phi_args/baddie.py", line 8
+        int 1                                                            //                               (𝕗) test_case#0 | tmp%0#0,1                                1                                                                            File "undefined_phi_args/baddie.py", line 8
+        >                                                                //                               (𝕗) test_case#0 | {>}                                      Transaction.num_app_args() > 1 and btoi(Transaction.application_args(1)) > 0 File "undefined_phi_args/baddie.py", line 8
+        bz main_bool_false@3                                             //                               (𝕗) test_case#0 |                                          Transaction.num_app_args() > 1 and btoi(Transaction.application_args(1)) > 0 File "undefined_phi_args/baddie.py", line 8
+        // Implicit fall through to main_and_contd@1                     //                               (𝕗) test_case#0 |                                          Transaction.num_app_args() > 1 and btoi(Transaction.application_args(1)) > 0 File "undefined_phi_args/baddie.py", line 8
+
+main_and_contd@1:
+        txna ApplicationArgs 1                                           //                               (𝕗) test_case#0 | {txna}                                   Transaction.application_args(1)                                              File "undefined_phi_args/baddie.py", line 8
+        btoi                                                             //                               (𝕗) test_case#0 | {btoi}                                   btoi(Transaction.application_args(1))                                        File "undefined_phi_args/baddie.py", line 8
+        int 0                                                            //                               (𝕗) test_case#0 | tmp%3#0,0                                0                                                                            File "undefined_phi_args/baddie.py", line 8
+        >                                                                //                               (𝕗) test_case#0 | {>}                                      btoi(Transaction.application_args(1)) > 0                                    File "undefined_phi_args/baddie.py", line 8
+        bz main_bool_false@3                                             //                               (𝕗) test_case#0 |                                          Transaction.num_app_args() > 1 and btoi(Transaction.application_args(1)) > 0 File "undefined_phi_args/baddie.py", line 8
+        // Implicit fall through to main_bool_true@2                     //                               (𝕗) test_case#0 |                                          Transaction.num_app_args() > 1 and btoi(Transaction.application_args(1)) > 0 File "undefined_phi_args/baddie.py", line 8
+
+main_bool_true@2:
+        int 1                                                            //                               (𝕗) test_case#0 | 1
+        b main_bool_merge@4                                              //                               (𝕗) test_case#0 | (𝕏) and_result%5#0 |      and_result%5#0
+
+main_bool_false@3:
+        int 0                                                            //                               (𝕗) test_case#0 | 0
+        // Implicit fall through to main_bool_merge@4                    //                               (𝕗) test_case#0 | (𝕏) and_result%5#0 |      and_result%5#0
+
+main_bool_merge@4:
+        bz main_else_body@12                                             //                               (𝕗) test_case#0 |                           and_result%5#0 if invert_second_condition:                                                  File "undefined_phi_args/baddie.py", line 11
+        // Implicit fall through to main_if_body@5                       //                               (𝕗) test_case#0 |                                          if invert_second_condition:                                                  File "undefined_phi_args/baddie.py", line 11
+
+main_if_body@5:
+        dup                                                              // load test_case#0 from f-stack (𝕗) test_case#0 | test_case#0                              test_case                                                                    File "undefined_phi_args/baddie.py", line 6
+        byte "uint"                                                      //                               (𝕗) test_case#0 | test_case#0,"uint"                       b"uint"                                                                      File "undefined_phi_args/baddie.py", line 12
+        ==                                                               //                               (𝕗) test_case#0 | {==}                                     test_case == b"uint":                                                        File "undefined_phi_args/baddie.py", line 12
+        bz main_else_body@7                                              //                               (𝕗) test_case#0 |                                          if test_case == b"uint":                                                     File "undefined_phi_args/baddie.py", line 12
+        // Implicit fall through to main_if_body@6                       //                               (𝕗) test_case#0 |                                          if test_case == b"uint":                                                     File "undefined_phi_args/baddie.py", line 12
+
+main_if_body@6:
+        int 1                                                            //                               (𝕗) test_case#0 | 1                                        True                                                                         File "undefined_phi_args/baddie.py", line 13
+        int 0                                                            //                               (𝕗) test_case#0 | 1,0                                      False                                                                        File "undefined_phi_args/baddie.py", line 13
+        callsub test_uint_undefined                                      //                               (𝕗) test_case#0 | {test_uint_undefined}                    test_uint_undefined(True, False)                                             File "undefined_phi_args/baddie.py", line 13
+        int 10                                                           //                               (𝕗) test_case#0 | tmp%7#0,10                               10                                                                           File "undefined_phi_args/baddie.py", line 13
+        ==                                                               //                               (𝕗) test_case#0 | {==}                                     test_uint_undefined(True, False) == 10                                       File "undefined_phi_args/baddie.py", line 13
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_uint_undefined(True, False) == 10                                File "undefined_phi_args/baddie.py", line 13
+        int 0                                                            //                               (𝕗) test_case#0 | 0                                        False                                                                        File "undefined_phi_args/baddie.py", line 14
+        int 1                                                            //                               (𝕗) test_case#0 | 0,1                                      True                                                                         File "undefined_phi_args/baddie.py", line 14
+        callsub test_uint_undefined                                      //                               (𝕗) test_case#0 | {test_uint_undefined}                    test_uint_undefined(False, True)                                             File "undefined_phi_args/baddie.py", line 14
+        int 8                                                            //                               (𝕗) test_case#0 | tmp%9#0,8                                8                                                                            File "undefined_phi_args/baddie.py", line 14
+        ==                                                               //                               (𝕗) test_case#0 | {==}                                     test_uint_undefined(False, True) == 8  # 💥                                   File "undefined_phi_args/baddie.py", line 14
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_uint_undefined(False, True) == 8                                 File "undefined_phi_args/baddie.py", line 14
+        b main_after_if_else@11                                          //                               (𝕗) test_case#0 |
+
+main_else_body@7:
+        dup                                                              // load test_case#0 from f-stack (𝕗) test_case#0 | test_case#0                              test_case                                                                    File "undefined_phi_args/baddie.py", line 6
+        byte "bytes"                                                     //                               (𝕗) test_case#0 | test_case#0,"bytes"                      b"bytes"                                                                     File "undefined_phi_args/baddie.py", line 15
+        ==                                                               //                               (𝕗) test_case#0 | {==}                                     test_case == b"bytes":                                                       File "undefined_phi_args/baddie.py", line 15
+        bz main_else_body@9                                              //                               (𝕗) test_case#0 |                                          elif test_case == b"bytes":                                                  File "undefined_phi_args/baddie.py", line 15
+        // Implicit fall through to main_if_body@8                       //                               (𝕗) test_case#0 |                                          elif test_case == b"bytes":                                                  File "undefined_phi_args/baddie.py", line 15
+
+main_if_body@8:
+        int 1                                                            //                               (𝕗) test_case#0 | 1                                        True                                                                         File "undefined_phi_args/baddie.py", line 16
+        int 0                                                            //                               (𝕗) test_case#0 | 1,0                                      False                                                                        File "undefined_phi_args/baddie.py", line 16
+        callsub test_bytes_undefined                                     //                               (𝕗) test_case#0 | {test_bytes_undefined}                   test_bytes_undefined(True, False)                                            File "undefined_phi_args/baddie.py", line 16
+        byte 0x0a                                                        //                               (𝕗) test_case#0 | tmp%12#0,0x0a                            10                                                                           File "undefined_phi_args/baddie.py", line 16
+        b==                                                              //                               (𝕗) test_case#0 | {b==}                                    test_bytes_undefined(True, False) == 10                                      File "undefined_phi_args/baddie.py", line 16
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_bytes_undefined(True, False) == 10                               File "undefined_phi_args/baddie.py", line 16
+        int 0                                                            //                               (𝕗) test_case#0 | 0                                        False                                                                        File "undefined_phi_args/baddie.py", line 17
+        int 1                                                            //                               (𝕗) test_case#0 | 0,1                                      True                                                                         File "undefined_phi_args/baddie.py", line 17
+        callsub test_bytes_undefined                                     //                               (𝕗) test_case#0 | {test_bytes_undefined}                   test_bytes_undefined(False, True)                                            File "undefined_phi_args/baddie.py", line 17
+        byte 0x08                                                        //                               (𝕗) test_case#0 | tmp%14#0,0x08                            8                                                                            File "undefined_phi_args/baddie.py", line 17
+        b==                                                              //                               (𝕗) test_case#0 | {b==}                                    test_bytes_undefined(False, True) == 8  # 💥                                  File "undefined_phi_args/baddie.py", line 17
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_bytes_undefined(False, True) == 8                                File "undefined_phi_args/baddie.py", line 17
+        b main_after_if_else@10                                          //                               (𝕗) test_case#0 |
+
+main_else_body@9:
+        int 1                                                            //                               (𝕗) test_case#0 | 1                                        True                                                                         File "undefined_phi_args/baddie.py", line 19
+        int 0                                                            //                               (𝕗) test_case#0 | 1,0                                      False                                                                        File "undefined_phi_args/baddie.py", line 19
+        callsub test_mixed_undefined                                     //                               (𝕗) test_case#0 | {test_mixed_undefined}                   test_mixed_undefined(True, False)                                            File "undefined_phi_args/baddie.py", line 19
+        byte 0x0a                                                        //                               (𝕗) test_case#0 | tmp%16#0,0x0a                            10                                                                           File "undefined_phi_args/baddie.py", line 19
+        b==                                                              //                               (𝕗) test_case#0 | {b==}                                    test_mixed_undefined(True, False) == 10                                      File "undefined_phi_args/baddie.py", line 19
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_mixed_undefined(True, False) == 10                               File "undefined_phi_args/baddie.py", line 19
+        int 0                                                            //                               (𝕗) test_case#0 | 0                                        False                                                                        File "undefined_phi_args/baddie.py", line 20
+        int 1                                                            //                               (𝕗) test_case#0 | 0,1                                      True                                                                         File "undefined_phi_args/baddie.py", line 20
+        callsub test_mixed_undefined                                     //                               (𝕗) test_case#0 | {test_mixed_undefined}                   test_mixed_undefined(False, True)                                            File "undefined_phi_args/baddie.py", line 20
+        byte 0x08                                                        //                               (𝕗) test_case#0 | tmp%18#0,0x08                            8                                                                            File "undefined_phi_args/baddie.py", line 20
+        b==                                                              //                               (𝕗) test_case#0 | {b==}                                    test_mixed_undefined(False, True) == 8  # 💥                                  File "undefined_phi_args/baddie.py", line 20
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_mixed_undefined(False, True) == 8                                File "undefined_phi_args/baddie.py", line 20
+        // Implicit fall through to main_after_if_else@10                //                               (𝕗) test_case#0 |
+
+main_after_if_else@10:
+        // Implicit fall through to main_after_if_else@11                //                               (𝕗) test_case#0 |
+
+main_after_if_else@11:
+        b main_after_if_else@19                                          //                               (𝕗) test_case#0 |
+
+main_else_body@12:
+        dup                                                              // load test_case#0 from f-stack (𝕗) test_case#0 | test_case#0                              test_case                                                                    File "undefined_phi_args/baddie.py", line 6
+        byte "uint"                                                      //                               (𝕗) test_case#0 | test_case#0,"uint"                       b"uint"                                                                      File "undefined_phi_args/baddie.py", line 22
+        ==                                                               //                               (𝕗) test_case#0 | {==}                                     test_case == b"uint":                                                        File "undefined_phi_args/baddie.py", line 22
+        bz main_else_body@14                                             //                               (𝕗) test_case#0 |                                          if test_case == b"uint":                                                     File "undefined_phi_args/baddie.py", line 22
+        // Implicit fall through to main_if_body@13                      //                               (𝕗) test_case#0 |                                          if test_case == b"uint":                                                     File "undefined_phi_args/baddie.py", line 22
+
+main_if_body@13:
+        int 1                                                            //                               (𝕗) test_case#0 | 1                                        True                                                                         File "undefined_phi_args/baddie.py", line 23
+        int 1                                                            //                               (𝕗) test_case#0 | 1,1                                      True                                                                         File "undefined_phi_args/baddie.py", line 23
+        callsub test_uint_undefined                                      //                               (𝕗) test_case#0 | {test_uint_undefined}                    test_uint_undefined(True, True)                                              File "undefined_phi_args/baddie.py", line 23
+        int 8                                                            //                               (𝕗) test_case#0 | tmp%21#0,8                               8                                                                            File "undefined_phi_args/baddie.py", line 23
+        ==                                                               //                               (𝕗) test_case#0 | {==}                                     test_uint_undefined(True, True) == 8                                         File "undefined_phi_args/baddie.py", line 23
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_uint_undefined(True, True) == 8                                  File "undefined_phi_args/baddie.py", line 23
+        int 0                                                            //                               (𝕗) test_case#0 | 0                                        False                                                                        File "undefined_phi_args/baddie.py", line 24
+        int 0                                                            //                               (𝕗) test_case#0 | 0,0                                      False                                                                        File "undefined_phi_args/baddie.py", line 24
+        callsub test_uint_undefined                                      //                               (𝕗) test_case#0 | {test_uint_undefined}                    test_uint_undefined(False, False)                                            File "undefined_phi_args/baddie.py", line 24
+        int 10                                                           //                               (𝕗) test_case#0 | tmp%23#0,10                              10                                                                           File "undefined_phi_args/baddie.py", line 24
+        ==                                                               //                               (𝕗) test_case#0 | {==}                                     test_uint_undefined(False, False) == 10                                      File "undefined_phi_args/baddie.py", line 24
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_uint_undefined(False, False) == 10                               File "undefined_phi_args/baddie.py", line 24
+        b main_after_if_else@18                                          //                               (𝕗) test_case#0 |
+
+main_else_body@14:
+        dup                                                              // load test_case#0 from f-stack (𝕗) test_case#0 | test_case#0                              test_case                                                                    File "undefined_phi_args/baddie.py", line 6
+        byte "bytes"                                                     //                               (𝕗) test_case#0 | test_case#0,"bytes"                      b"bytes"                                                                     File "undefined_phi_args/baddie.py", line 25
+        ==                                                               //                               (𝕗) test_case#0 | {==}                                     test_case == b"bytes":                                                       File "undefined_phi_args/baddie.py", line 25
+        bz main_else_body@16                                             //                               (𝕗) test_case#0 |                                          elif test_case == b"bytes":                                                  File "undefined_phi_args/baddie.py", line 25
+        // Implicit fall through to main_if_body@15                      //                               (𝕗) test_case#0 |                                          elif test_case == b"bytes":                                                  File "undefined_phi_args/baddie.py", line 25
+
+main_if_body@15:
+        int 1                                                            //                               (𝕗) test_case#0 | 1                                        True                                                                         File "undefined_phi_args/baddie.py", line 26
+        int 1                                                            //                               (𝕗) test_case#0 | 1,1                                      True                                                                         File "undefined_phi_args/baddie.py", line 26
+        callsub test_bytes_undefined                                     //                               (𝕗) test_case#0 | {test_bytes_undefined}                   test_bytes_undefined(True, True)                                             File "undefined_phi_args/baddie.py", line 26
+        byte 0x08                                                        //                               (𝕗) test_case#0 | tmp%26#0,0x08                            8                                                                            File "undefined_phi_args/baddie.py", line 26
+        b==                                                              //                               (𝕗) test_case#0 | {b==}                                    test_bytes_undefined(True, True) == 8                                        File "undefined_phi_args/baddie.py", line 26
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_bytes_undefined(True, True) == 8                                 File "undefined_phi_args/baddie.py", line 26
+        int 0                                                            //                               (𝕗) test_case#0 | 0                                        False                                                                        File "undefined_phi_args/baddie.py", line 27
+        int 0                                                            //                               (𝕗) test_case#0 | 0,0                                      False                                                                        File "undefined_phi_args/baddie.py", line 27
+        callsub test_bytes_undefined                                     //                               (𝕗) test_case#0 | {test_bytes_undefined}                   test_bytes_undefined(False, False)                                           File "undefined_phi_args/baddie.py", line 27
+        byte 0x0a                                                        //                               (𝕗) test_case#0 | tmp%28#0,0x0a                            10                                                                           File "undefined_phi_args/baddie.py", line 27
+        b==                                                              //                               (𝕗) test_case#0 | {b==}                                    test_bytes_undefined(False, False) == 10                                     File "undefined_phi_args/baddie.py", line 27
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_bytes_undefined(False, False) == 10                              File "undefined_phi_args/baddie.py", line 27
+        b main_after_if_else@17                                          //                               (𝕗) test_case#0 |
+
+main_else_body@16:
+        int 1                                                            //                               (𝕗) test_case#0 | 1                                        True                                                                         File "undefined_phi_args/baddie.py", line 29
+        int 1                                                            //                               (𝕗) test_case#0 | 1,1                                      True                                                                         File "undefined_phi_args/baddie.py", line 29
+        callsub test_mixed_undefined                                     //                               (𝕗) test_case#0 | {test_mixed_undefined}                   test_mixed_undefined(True, True)                                             File "undefined_phi_args/baddie.py", line 29
+        byte 0x08                                                        //                               (𝕗) test_case#0 | tmp%30#0,0x08                            8                                                                            File "undefined_phi_args/baddie.py", line 29
+        b==                                                              //                               (𝕗) test_case#0 | {b==}                                    test_mixed_undefined(True, True) == 8                                        File "undefined_phi_args/baddie.py", line 29
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_mixed_undefined(True, True) == 8                                 File "undefined_phi_args/baddie.py", line 29
+        int 0                                                            //                               (𝕗) test_case#0 | 0                                        False                                                                        File "undefined_phi_args/baddie.py", line 30
+        int 0                                                            //                               (𝕗) test_case#0 | 0,0                                      False                                                                        File "undefined_phi_args/baddie.py", line 30
+        callsub test_mixed_undefined                                     //                               (𝕗) test_case#0 | {test_mixed_undefined}                   test_mixed_undefined(False, False)                                           File "undefined_phi_args/baddie.py", line 30
+        byte 0x0a                                                        //                               (𝕗) test_case#0 | tmp%32#0,0x0a                            10                                                                           File "undefined_phi_args/baddie.py", line 30
+        b==                                                              //                               (𝕗) test_case#0 | {b==}                                    test_mixed_undefined(False, False) == 10                                     File "undefined_phi_args/baddie.py", line 30
+        assert                                                           //                               (𝕗) test_case#0 |                                          assert test_mixed_undefined(False, False) == 10                              File "undefined_phi_args/baddie.py", line 30
+        // Implicit fall through to main_after_if_else@17                //                               (𝕗) test_case#0 |
+
+main_after_if_else@17:
+        // Implicit fall through to main_after_if_else@18                //                               (𝕗) test_case#0 |
+
+main_after_if_else@18:
+        // Implicit fall through to main_after_if_else@19                //                               (𝕗) test_case#0 |
+
+main_after_if_else@19:
+        int 1                                                            //                               (𝕗) test_case#0 | 1                                        True                                                                         File "undefined_phi_args/baddie.py", line 31
+        return                                                           //                               (𝕗) test_case#0 |                                          return True                                                                  File "undefined_phi_args/baddie.py", line 31
+
+
+// examples.undefined_phi_args.baddie.test_uint_undefined(x#0: uint64, y#0: uint64) -> uint64:
+test_uint_undefined:
+        proto 2 1                                                        //                               (𝕡) x#0,y#0 |                                              def test_uint_undefined(x: bool, y: bool) -> UInt64:                         File "undefined_phi_args/baddie.py", line 38
+        byte ""
+        dup                                                              // allocate 2 to stack           (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |
+
+test_uint_undefined_block@0:
+        frame_dig -2                                                     // load x#0 from parameters      (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | x#0                            x: bool                                                                      File "undefined_phi_args/baddie.py", line 38
+        bz test_uint_undefined_after_if_else@2                           //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 39
+        // Implicit fall through to test_uint_undefined_if_body@1        //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 39
+
+test_uint_undefined_if_body@1:
+        int 7                                                            //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | 7                              7                                                                            File "undefined_phi_args/baddie.py", line 40
+        frame_bury 0                                                     // store a#0 to f-stack          (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                a                                                                            File "undefined_phi_args/baddie.py", line 40
+        // Implicit fall through to test_uint_undefined_after_if_else@2  //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |
+
+test_uint_undefined_after_if_else@2:
+        frame_dig -2                                                     // load x#0 from parameters      (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | x#0                            x: bool                                                                      File "undefined_phi_args/baddie.py", line 38
+        bz test_uint_undefined_else_body@4                               //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 41
+        // Implicit fall through to test_uint_undefined_if_body@3        //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 41
+
+test_uint_undefined_if_body@3:
+        int 11                                                           //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | 11                             11                                                                           File "undefined_phi_args/baddie.py", line 42
+        frame_bury 1                                                     // store b#0 to f-stack          (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                b                                                                            File "undefined_phi_args/baddie.py", line 42
+        b test_uint_undefined_after_if_else@5                            //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |
+
+test_uint_undefined_else_body@4:
+        int 11                                                           //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | 11                             11                                                                           File "undefined_phi_args/baddie.py", line 44
+        frame_bury 1                                                     // store b#0 to f-stack          (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                b                                                                            File "undefined_phi_args/baddie.py", line 42
+        // Implicit fall through to test_uint_undefined_after_if_else@5  //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |
+
+test_uint_undefined_after_if_else@5:
+        frame_dig -1                                                     // load y#0 from parameters      (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | y#0                            y: bool                                                                      File "undefined_phi_args/baddie.py", line 38
+        bz test_uint_undefined_else_body@7                               //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if y:                                                                        File "undefined_phi_args/baddie.py", line 45
+        // Implicit fall through to test_uint_undefined_if_body@6        //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if y:                                                                        File "undefined_phi_args/baddie.py", line 45
+
+test_uint_undefined_if_body@6:
+        frame_dig 0                                                      // load a#0 from f-stack         (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | a#0                            a                                                                            File "undefined_phi_args/baddie.py", line 40
+        int 1                                                            //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | a#0,1                          1                                                                            File "undefined_phi_args/baddie.py", line 49
+        +                                                                //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | {+}                            a                                                                            File "undefined_phi_args/baddie.py", line 47
+        b test_uint_undefined_after_if_else@8                            //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | (𝕏) c#0 |       c#0
+
+test_uint_undefined_else_body@7:
+        frame_dig 1                                                      // load b#0 from f-stack         (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | b#0                            b                                                                            File "undefined_phi_args/baddie.py", line 42
+        int 1                                                            //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | b#0,1                          1                                                                            File "undefined_phi_args/baddie.py", line 52
+        -                                                                //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | {-}                            b - 1                                                                        File "undefined_phi_args/baddie.py", line 52
+        // Implicit fall through to test_uint_undefined_after_if_else@8  //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | (𝕏) c#0 |       c#0
+
+test_uint_undefined_after_if_else@8:
+        frame_bury 0
+        retsub                                                           //                               c#0                                         c#0            return c                                                                     File "undefined_phi_args/baddie.py", line 53
+
+
+// examples.undefined_phi_args.baddie.test_bytes_undefined(x#0: uint64, y#0: uint64) -> bytes:
+test_bytes_undefined:
+        proto 2 1                                                        //                               (𝕡) x#0,y#0 |                                              def test_bytes_undefined(x: bool, y: bool) -> BigUInt:                       File "undefined_phi_args/baddie.py", line 57
+        int 0
+        dup                                                              // allocate 2 to stack           (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |
+
+test_bytes_undefined_block@0:
+        frame_dig -2                                                     // load x#0 from parameters      (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | x#0                            x: bool                                                                      File "undefined_phi_args/baddie.py", line 57
+        bz test_bytes_undefined_after_if_else@2                          //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 58
+        // Implicit fall through to test_bytes_undefined_if_body@1       //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 58
+
+test_bytes_undefined_if_body@1:
+        byte 0x07                                                        //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | 0x07                           7                                                                            File "undefined_phi_args/baddie.py", line 59
+        frame_bury 0                                                     // store a#0 to f-stack          (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                a                                                                            File "undefined_phi_args/baddie.py", line 59
+        // Implicit fall through to test_bytes_undefined_after_if_else@2 //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |
+
+test_bytes_undefined_after_if_else@2:
+        frame_dig -2                                                     // load x#0 from parameters      (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | x#0                            x: bool                                                                      File "undefined_phi_args/baddie.py", line 57
+        bz test_bytes_undefined_else_body@4                              //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 60
+        // Implicit fall through to test_bytes_undefined_if_body@3       //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 60
+
+test_bytes_undefined_if_body@3:
+        byte 0x0b                                                        //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | 0x0b                           11                                                                           File "undefined_phi_args/baddie.py", line 61
+        frame_bury 1                                                     // store b#0 to f-stack          (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                b                                                                            File "undefined_phi_args/baddie.py", line 61
+        b test_bytes_undefined_after_if_else@5                           //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |
+
+test_bytes_undefined_else_body@4:
+        byte 0x0b                                                        //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | 0x0b                           11                                                                           File "undefined_phi_args/baddie.py", line 63
+        frame_bury 1                                                     // store b#0 to f-stack          (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                b                                                                            File "undefined_phi_args/baddie.py", line 61
+        // Implicit fall through to test_bytes_undefined_after_if_else@5 //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |
+
+test_bytes_undefined_after_if_else@5:
+        frame_dig -1                                                     // load y#0 from parameters      (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | y#0                            y: bool                                                                      File "undefined_phi_args/baddie.py", line 57
+        bz test_bytes_undefined_else_body@7                              //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if y:                                                                        File "undefined_phi_args/baddie.py", line 64
+        // Implicit fall through to test_bytes_undefined_if_body@6       //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 |                                if y:                                                                        File "undefined_phi_args/baddie.py", line 64
+
+test_bytes_undefined_if_body@6:
+        frame_dig 0                                                      // load a#0 from f-stack         (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | a#0                            a                                                                            File "undefined_phi_args/baddie.py", line 59
+        byte 0x01                                                        //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | a#0,0x01                       1                                                                            File "undefined_phi_args/baddie.py", line 68
+        b+                                                               //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | {b+}                           a                                                                            File "undefined_phi_args/baddie.py", line 66
+        b test_bytes_undefined_after_if_else@8                           //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | (𝕏) c#0 |       c#0
+
+test_bytes_undefined_else_body@7:
+        frame_dig 1                                                      // load b#0 from f-stack         (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | b#0                            b                                                                            File "undefined_phi_args/baddie.py", line 61
+        byte 0x01                                                        //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | b#0,0x01                       1                                                                            File "undefined_phi_args/baddie.py", line 71
+        b-                                                               //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | {b-}                           b - 1                                                                        File "undefined_phi_args/baddie.py", line 71
+        // Implicit fall through to test_bytes_undefined_after_if_else@8 //                               (𝕡) x#0,y#0 | (𝕗) a#0,b#0 | (𝕏) c#0 |       c#0
+
+test_bytes_undefined_after_if_else@8:
+        frame_bury 0
+        retsub                                                           //                               c#0                                         c#0            return c                                                                     File "undefined_phi_args/baddie.py", line 72
+
+
+// examples.undefined_phi_args.baddie.test_mixed_undefined(x#0: uint64, y#0: uint64) -> bytes:
+test_mixed_undefined:
+        proto 2 1                                                        //                               (𝕡) x#0,y#0 |                                              def test_mixed_undefined(x: bool, y: bool) -> BigUInt:                       File "undefined_phi_args/baddie.py", line 76
+        int 0
+        byte ""                                                          // allocate 2 to stack           (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |
+
+test_mixed_undefined_block@0:
+        frame_dig -2                                                     // load x#0 from parameters      (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | x#0                            x: bool                                                                      File "undefined_phi_args/baddie.py", line 76
+        bz test_mixed_undefined_after_if_else@2                          //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 77
+        // Implicit fall through to test_mixed_undefined_if_body@1       //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 77
+
+test_mixed_undefined_if_body@1:
+        int 7                                                            //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | 7                              7                                                                            File "undefined_phi_args/baddie.py", line 78
+        frame_bury 1                                                     // store a#0 to f-stack          (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |                                a                                                                            File "undefined_phi_args/baddie.py", line 78
+        // Implicit fall through to test_mixed_undefined_after_if_else@2 //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |
+
+test_mixed_undefined_after_if_else@2:
+        frame_dig -2                                                     // load x#0 from parameters      (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | x#0                            x: bool                                                                      File "undefined_phi_args/baddie.py", line 76
+        bz test_mixed_undefined_else_body@4                              //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 79
+        // Implicit fall through to test_mixed_undefined_if_body@3       //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |                                if x:                                                                        File "undefined_phi_args/baddie.py", line 79
+
+test_mixed_undefined_if_body@3:
+        byte 0x0b                                                        //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | 0x0b                           11                                                                           File "undefined_phi_args/baddie.py", line 80
+        frame_bury 0                                                     // store b#0 to f-stack          (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |                                b                                                                            File "undefined_phi_args/baddie.py", line 80
+        b test_mixed_undefined_after_if_else@5                           //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |
+
+test_mixed_undefined_else_body@4:
+        byte 0x0b                                                        //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | 0x0b                           11                                                                           File "undefined_phi_args/baddie.py", line 82
+        frame_bury 0                                                     // store b#0 to f-stack          (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |                                b                                                                            File "undefined_phi_args/baddie.py", line 80
+        // Implicit fall through to test_mixed_undefined_after_if_else@5 //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |
+
+test_mixed_undefined_after_if_else@5:
+        frame_dig -1                                                     // load y#0 from parameters      (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | y#0                            y: bool                                                                      File "undefined_phi_args/baddie.py", line 76
+        bz test_mixed_undefined_else_body@7                              //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |                                if y:                                                                        File "undefined_phi_args/baddie.py", line 83
+        // Implicit fall through to test_mixed_undefined_if_body@6       //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 |                                if y:                                                                        File "undefined_phi_args/baddie.py", line 83
+
+test_mixed_undefined_if_body@6:
+        frame_dig 1                                                      // load a#0 from f-stack         (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | a#0                            a                                                                            File "undefined_phi_args/baddie.py", line 78
+        itob                                                             //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | {itob}                         BigUInt(                                                                     File "undefined_phi_args/baddie.py", line 84
+        byte 0x01                                                        //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | tmp%0#0,0x01                   1                                                                            File "undefined_phi_args/baddie.py", line 87
+        b+                                                               //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | {b+}                           BigUInt(                                                                     File "undefined_phi_args/baddie.py", line 84
+        b test_mixed_undefined_after_if_else@8                           //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | (𝕏) c#0 |       c#0
+
+test_mixed_undefined_else_body@7:
+        frame_dig 0                                                      // load b#0 from f-stack         (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | b#0                            b                                                                            File "undefined_phi_args/baddie.py", line 80
+        byte 0x01                                                        //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | b#0,0x01                       1                                                                            File "undefined_phi_args/baddie.py", line 89
+        b-                                                               //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | {b-}                           b - 1                                                                        File "undefined_phi_args/baddie.py", line 89
+        // Implicit fall through to test_mixed_undefined_after_if_else@8 //                               (𝕡) x#0,y#0 | (𝕗) b#0,a#0 | (𝕏) c#0 |       c#0
+
+test_mixed_undefined_after_if_else@8:
+        frame_bury 0
+        retsub                                                           //                               c#0                                         c#0            return c                                                                     File "undefined_phi_args/baddie.py", line 90
+

@@ -1,0 +1,207 @@
+#pragma version 8
+
+// examples.tuple_support.TupleSupport.approval_program() -> uint64:
+main_block@0:
+        txn ApplicationID
+        bnz main_entrypoint@2
+
+main_on_create@1:
+        callsub __init__
+
+main_entrypoint@2:
+        int 101
+        int 102
+        int 103
+        callsub add_three_values
+        itob
+        log
+        int 1
+        int 2
+        addw
+        byte "state"
+        uncover 1
+        app_global_put
+        !
+        assert
+        int 1
+        int 2
+        addw
+        pop
+        !
+        assert
+        int 1
+        assert
+        int 1
+        assert
+        int 1
+        assert
+        int 1
+        assert
+        byte "Hello, "
+        byte "world!"
+        callsub bytes_combine
+        log
+        int 18446744073709551615
+        int 18446744073709551615
+        addw
+        cover 1
+        int 1
+        int 2
+        addw
+        cover 1
+        uncover 2
+        uncover 3
+        uncover 2
+        uncover 3
+        callsub addw2
+        cover 2
+        cover 1
+        itob
+        log
+        itob
+        log
+        itob
+        log
+        byte "na"
+        int 5
+        callsub bytes_multiply
+        log
+        int 0
+        callsub test_tuple_swap
+        int 3
+        return
+
+
+// examples.tuple_support.add_three_values(values.0#0: uint64, values.1#0: uint64, values.2#0: uint64) -> uint64:
+add_three_values:
+        proto 3 1
+        byte ""
+
+add_three_values_block@0:
+        int 0
+        int 0
+        frame_dig -3
+        b add_three_values_for_body@4
+
+add_three_values_for_header_1@2:
+        frame_dig -2
+        frame_dig 0
+        frame_bury 2
+        b add_three_values_for_body@4
+
+add_three_values_for_header_2@3:
+        frame_dig -1
+        frame_dig 0
+        frame_bury 2
+
+add_three_values_for_body@4:
+        frame_dig 1
+        +
+        frame_bury 1
+        frame_dig 2
+        dup
+        int 1
+        +
+        frame_bury 0
+        switch add_three_values_for_header_1@2 add_three_values_for_header_2@3
+
+add_three_values_after_for@6:
+        frame_dig 1
+        frame_bury 0
+        retsub
+
+
+// examples.tuple_support.bytes_combine(arg.0#0: bytes, arg.1#0: bytes) -> bytes:
+bytes_combine:
+        proto 2 1
+
+bytes_combine_block@0:
+        frame_dig -2
+        frame_dig -1
+        concat
+        retsub
+
+
+// examples.tuple_support.addw2(a.0#0: uint64, a.1#0: uint64, b.0#0: uint64, b.1#0: uint64) -> uint64, uint64, uint64:
+addw2:
+        proto 4 3
+
+addw2_block@0:
+        frame_dig -3
+        frame_dig -1
+        addw
+        cover 1
+        frame_dig -4
+        frame_dig -2
+        addw
+        uncover 2
+        addw
+        cover 2
+        addw
+        cover 1
+        !
+        assert
+        uncover 1
+        uncover 2
+        retsub
+
+
+// examples.tuple_support.bytes_multiply(arg.0#0: bytes, arg.1#0: uint64) -> bytes:
+bytes_multiply:
+        proto 2 1
+
+bytes_multiply_block@0:
+        byte ""
+        int 0
+
+bytes_multiply_for_header@1:
+        frame_dig 1
+        frame_dig -1
+        <
+        bz bytes_multiply_after_for@4
+
+bytes_multiply_for_body@2:
+        frame_dig 0
+        frame_dig -2
+        concat
+        frame_bury 0
+        frame_dig 1
+        int 1
+        +
+        frame_bury 1
+        b bytes_multiply_for_header@1
+
+bytes_multiply_after_for@4:
+        retsub
+
+
+// examples.tuple_support.test_tuple_swap(zero#0: uint64) -> :
+test_tuple_swap:
+        proto 1 0
+
+test_tuple_swap_block@0:
+        frame_dig -1
+        int 1
+        +
+        frame_dig -1
+        int 2
+        +
+        int 2
+        ==
+        assert
+        int 1
+        ==
+        assert
+        retsub
+
+
+// examples.tuple_support.TupleSupport.__init__() -> :
+__init__:
+        proto 0 0
+
+__init___block@0:
+        byte "state"
+        int 0
+        app_global_put
+        retsub
+
