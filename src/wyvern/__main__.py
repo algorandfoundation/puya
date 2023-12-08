@@ -24,7 +24,7 @@ def main() -> None:
         "--optimization-level",
         type=int,
         choices=[0, 1, 2],
-        default=0,
+        default=1,
         help="set optimization level",
     )
     parser.add_argument(
