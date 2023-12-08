@@ -140,9 +140,9 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
     teal_files_written = re.findall(r"info: Writing (.+\.teal)", result.stdout)
     if write_logs:
         if p.is_dir():
-            log_path = p / "algopy.log"
+            log_path = p / "puya.log"
         else:
-            log_path = p.with_suffix(".algopy.log")
+            log_path = p.with_suffix(".puya.log")
 
         log_txt = "\n".join(
             [
