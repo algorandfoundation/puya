@@ -3,7 +3,8 @@
 ```shell
 poetry install
 poetry shell
-python -m src.wyvern
+# Run the compiler
+algopy
 # OR compile all examples
 python -m scripts.compile_all_examples
 # OR run tests
