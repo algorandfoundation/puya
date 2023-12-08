@@ -133,6 +133,7 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
         stderr=subprocess.STDOUT,
         text=True,
         env=ENV_WITH_NO_COLOR,
+        encoding="utf-8",
     )
     final_ir_written = re.findall(r"debug: Output IR to (.+\.final\.ir)", result.stdout)
     final_ir_written += re.findall(r"debug: Output IR to (.+\.final_par\.ir)", result.stdout)
