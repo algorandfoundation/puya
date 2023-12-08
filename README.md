@@ -1,3 +1,17 @@
+# Puya - Algorand TEAL compiler + Python language bindings
+
+```shell
+poetry install
+poetry shell
+python -m src.wyvern
+# OR compile all examples
+python -m scripts.compile_all_examples
+# OR run tests
+pytest
+```
+
+## Existing README stuff - needs clean up
+
 TODO:
 How to handle identity for compound objects i.e. dataclasses so that semantic compatability is retained
     Ideas:
