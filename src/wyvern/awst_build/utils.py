@@ -1,6 +1,8 @@
 import typing
+from collections.abc import Iterable, Sequence
 from typing import Iterator
 
+import attrs
 import mypy.build
 import mypy.nodes
 import structlog
@@ -9,6 +11,7 @@ from mypy.types import get_proper_type, is_named_instance
 from wyvern.awst import wtypes
 from wyvern.awst.nodes import (
     AddressConstant,
+    AssignmentExpression,
     BigUIntConstant,
     BoolConstant,
     BytesConstant,
@@ -16,6 +19,7 @@ from wyvern.awst.nodes import (
     ContractReference,
     Expression,
     Literal,
+    TemporaryVariable,
     UInt64Constant,
 )
 from wyvern.awst_build import constants
@@ -63,11 +67,23 @@ def refers_to_fullname(ref_expr: mypy.nodes.RefExpr, *fullnames: str) -> bool:
 
 
 def get_unaliased_fullname(ref_expr: mypy.nodes.RefExpr) -> str:
+    alias = get_aliased_instance(ref_expr)
+    if alias:
+        return alias.type.fullname
+    return ref_expr.fullname
+
+
+def get_aliased_instance(ref_expr: mypy.nodes.RefExpr) -> mypy.types.Instance | None:
     if isinstance(ref_expr.node, mypy.nodes.TypeAlias):
         t = get_proper_type(ref_expr.node.target)
         if isinstance(t, mypy.types.Instance):
-            return t.type.fullname
-    return ref_expr.fullname
+            return t
+        if (
+            isinstance(t, mypy.types.TupleType)
+            and t.partial_fallback.type.fullname != "builtins.tuple"
+        ):
+            return t.partial_fallback
+    return None
 
 
 def get_decorators_by_fullname(
@@ -204,7 +220,7 @@ def convert_literal(
             return BigUIntConstant(value=literal_value, source_location=loc)
         case wtypes.bytes_wtype:
             return BytesConstant(value=literal_value, source_location=loc)
-        case wtypes.address_wtype:
+        case wtypes.account_wtype:
             return AddressConstant(value=literal_value, source_location=loc)
         case _:
             raise CodeError(
@@ -264,3 +280,42 @@ def extract_bytes_literal_from_mypy(expr: mypy.nodes.BytesExpr) -> bytes:
         bytes_literal = 'b"' + bytes_str + '"'
     bytes_const: bytes = ast.literal_eval(bytes_literal)
     return bytes_const
+
+
+@attrs.define(kw_only=True)
+class TemporaryAssignmentExpr:
+    define: AssignmentExpression
+    read: TemporaryVariable
+
+
+def create_temporary_assignment(
+    value: Expression, location: SourceLocation | None = None
+) -> TemporaryAssignmentExpr:
+    read_expr = TemporaryVariable(value)
+    define_expr = AssignmentExpression(
+        target=read_expr,
+        value=value,
+        source_location=location or value.source_location,
+    )
+    return TemporaryAssignmentExpr(define=define_expr, read=read_expr)
+
+
+T = typing.TypeVar("T")
+
+
+def get_arg_mapping(
+    positional_arg_names: Sequence[str],
+    args: Iterable[tuple[str | None, T]],
+    location: SourceLocation,
+) -> dict[str, T]:
+    arg_mapping = dict[str, T]()
+    for arg_idx, (supplied_arg_name, arg) in enumerate(args):
+        if supplied_arg_name is not None:
+            arg_name = supplied_arg_name
+        else:
+            try:
+                arg_name = positional_arg_names[arg_idx]
+            except IndexError as ex:
+                raise CodeError("Too many positional arguments", location) from ex
+        arg_mapping[arg_name] = arg
+    return arg_mapping

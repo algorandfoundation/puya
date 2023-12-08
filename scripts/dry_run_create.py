@@ -37,7 +37,7 @@ def dryrun_create(
     atc = AtomicTransactionComposer()
     atc.add_transaction(
         TransactionWithSigner(
-            txn=ApplicationCallTxn(  # type: ignore[no-untyped-call]
+            txn=ApplicationCallTxn(
                 sender=account.address,
                 sp=algod.suggested_params(),
                 index=0,
@@ -54,7 +54,7 @@ def dryrun_create(
     signed = atc.gather_signatures()
     dryrun_request = create_dryrun(algod, signed)
 
-    return algod.dryrun(dryrun_request.dictify())  # type: ignore[no-untyped-call]
+    return algod.dryrun(dryrun_request.dictify())
 
 
 @dataclass(kw_only=True)
@@ -80,7 +80,7 @@ def get_accounts(
 ) -> list[LocalAccount]:
     """gets all the accounts in the localnet kmd, defaults
     to the `unencrypted-default-wallet` created on private networks automatically"""
-    kmd = KMDClient(kmd_token, kmd_address)  # type: ignore[no-untyped-call]
+    kmd = KMDClient(kmd_token, kmd_address)
     with wallet_handle_by_name(kmd, wallet_name, wallet_password) as wallet_handle:
         return [
             LocalAccount(
@@ -89,15 +89,15 @@ def get_accounts(
                     wallet_handle,
                     wallet_password,
                     address,
-                ),  # type: ignore[no-untyped-call]
+                ),
             )
-            for address in kmd.list_keys(wallet_handle)  # type: ignore[no-untyped-call]
+            for address in kmd.list_keys(wallet_handle)
         ]
 
 
 @contextlib.contextmanager
 def wallet_handle_by_name(kmd: KMDClient, wallet_name: str, wallet_password: str) -> Iterator[str]:
-    wallets = kmd.list_wallets()  # type: ignore[no-untyped-call]
+    wallets = kmd.list_wallets()
 
     try:
         wallet_id = next(iter(w["id"] for w in wallets if w["name"] == wallet_name))
@@ -107,11 +107,11 @@ def wallet_handle_by_name(kmd: KMDClient, wallet_name: str, wallet_password: str
     wallet_handle = kmd.init_wallet_handle(
         wallet_id,
         wallet_password,
-    )  # type: ignore[no-untyped-call]
+    )
     try:
         yield wallet_handle
     finally:
-        kmd.release_wallet_handle(wallet_handle)  # type: ignore[no-untyped-call]
+        kmd.release_wallet_handle(wallet_handle)
 
 
 if __name__ == "__main__":

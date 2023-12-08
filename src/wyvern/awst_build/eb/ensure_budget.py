@@ -10,6 +10,7 @@ from wyvern.awst.nodes import (
     FreeSubroutineTarget,
     Literal,
     SubroutineCallExpression,
+    UInt64Constant,
 )
 from wyvern.awst_build.eb.base import (
     ExpressionBuilder,
@@ -17,6 +18,7 @@ from wyvern.awst_build.eb.base import (
     TypeClassExpressionBuilder,
 )
 from wyvern.awst_build.eb.var_factory import var_expression
+from wyvern.awst_build.utils import expect_operand_wtype, get_arg_mapping
 from wyvern.errors import CodeError
 
 if TYPE_CHECKING:
@@ -36,15 +38,46 @@ class EnsureBudgetBuilder(IntermediateExpressionBuilder):
         location: SourceLocation,
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
-        call_args: Sequence[CallArg]
-        match args:
-            case [_required_budget, _fee_source]:
-                call_args = []
-            case [_required_budget]:
-                call_args = []
-            case _:
-                raise CodeError("Incorrect args", location)
+        required_budget_arg_name = "required_budget"
+        fee_source_arg_name = "fee_source"
+        arg_mapping = get_arg_mapping(
+            positional_arg_names=[required_budget_arg_name, fee_source_arg_name],
+            args=zip(arg_names, args, strict=True),
+            location=location,
+        )
+        try:
+            required_budget = arg_mapping.pop(required_budget_arg_name)
+        except KeyError:
+            raise CodeError(
+                f"Missing required argument '{required_budget_arg_name}'", location
+            ) from None
 
+        call_args = [
+            CallArg(
+                name=required_budget_arg_name,
+                value=expect_operand_wtype(required_budget, wtypes.uint64_wtype),
+            )
+        ]
+
+        match arg_mapping.pop(fee_source_arg_name, None):
+            case Literal(
+                value=int(fee_source_value), source_location=fee_source_loc
+            ) if 0 <= fee_source_value <= 2:
+                fee_source_expr = UInt64Constant(
+                    value=fee_source_value, source_location=fee_source_loc
+                )
+            case None:
+                fee_source_expr = UInt64Constant(value=2, source_location=location)
+            case _:
+                raise CodeError(f"Invalid argument value for {fee_source_arg_name}", location)
+        call_args.append(
+            CallArg(
+                name=fee_source_arg_name,
+                value=fee_source_expr,
+            )
+        )
+        if arg_mapping:
+            raise CodeError(f"Unexpected arguments: {', '.join(arg_mapping)}", location)
         call_expr = SubroutineCallExpression(
             source_location=location,
             target=FreeSubroutineTarget(module_name="algopy", name="ensure_budget"),

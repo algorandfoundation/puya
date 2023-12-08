@@ -16,7 +16,7 @@ logger = structlog.get_logger(__name__)
 @attrs.define(eq=False, repr=False)
 class BlockRecord:
     block: ops.MemoryBasicBlock
-    local_references: list[ops.StoreScratch | ops.LoadScratch]
+    local_references: list[ops.StoreVirtual | ops.LoadVirtual]
     live_in: Set[str]
     live_out: Set[str]
     children: "list[BlockRecord]" = attrs.field(factory=list)
@@ -49,10 +49,10 @@ def sort_by_appearance(
     appearance = list[str]()
     block_ops = block.ops if load else reversed(block.ops)
     if load:
-        scratch_ops = (o.local_id for o in block_ops if isinstance(o, ops.LoadScratch))
+        virtual_ops = (o.local_id for o in block_ops if isinstance(o, ops.LoadVirtual))
     else:
-        scratch_ops = (o.local_id for o in block_ops if isinstance(o, ops.StoreScratch))
-    for local_id in scratch_ops:
+        virtual_ops = (o.local_id for o in block_ops if isinstance(o, ops.StoreVirtual))
+    for local_id in virtual_ops:
         if local_id in variables and local_id not in appearance:
             appearance.append(local_id)
             # don't keep searching once we are done
@@ -90,14 +90,14 @@ def find_shared_x_stack(x_stack_candidates: Sequence[Sequence[str]]) -> Sequence
     return shared
 
 
-def get_x_stack_load_ops(record: BlockRecord) -> set[ops.LoadScratch]:
+def get_x_stack_load_ops(record: BlockRecord) -> set[ops.LoadVirtual]:
     block = record.block
     assert block.x_stack_in is not None
 
     remaining = set(block.x_stack_in)
     load_ops = []
     for ref in record.local_references:
-        if isinstance(ref, ops.LoadScratch) and ref.local_id in remaining:
+        if isinstance(ref, ops.LoadVirtual) and ref.local_id in remaining:
             remaining.remove(ref.local_id)
             load_ops.append(ref)
 
@@ -110,14 +110,14 @@ def get_x_stack_load_ops(record: BlockRecord) -> set[ops.LoadScratch]:
     return set(load_ops)
 
 
-def get_x_stack_store_ops(record: BlockRecord) -> set[ops.StoreScratch]:
+def get_x_stack_store_ops(record: BlockRecord) -> set[ops.StoreVirtual]:
     block = record.block
     assert block.x_stack_out is not None
 
     remaining = set(block.x_stack_out)
     store_ops = []
     for ref in reversed(record.local_references):
-        if isinstance(ref, ops.StoreScratch) and ref.local_id in remaining:
+        if isinstance(ref, ops.StoreVirtual) and ref.local_id in remaining:
             remaining.remove(ref.local_id)
             store_ops.append(ref)
 
@@ -138,7 +138,7 @@ def add_x_stack_ops(record: BlockRecord) -> None:
 
     for op in block.ops[:]:  # using a copy as the list will have insertions
         if op in store_ops:
-            assert isinstance(op, ops.StoreScratch)
+            assert isinstance(op, ops.StoreVirtual)
             index = block.ops.index(op)  # recalculate index due to inserts
             new_op = ops.StoreXStack(
                 local_id=op.local_id,
@@ -147,7 +147,7 @@ def add_x_stack_ops(record: BlockRecord) -> None:
             )
             block.ops.insert(index, new_op)
         elif op in load_ops:
-            assert isinstance(op, ops.LoadScratch)
+            assert isinstance(op, ops.LoadVirtual)
             index = block.ops.index(op)
             block.ops[index] = ops.LoadXStack(
                 local_id=op.local_id,
@@ -194,7 +194,7 @@ def get_edge_sets(subroutine: ops.MemorySubroutine) -> Sequence[EdgeSet]:
         block: BlockRecord(
             block=block,
             local_references=[
-                op for op in block.ops if isinstance(op, ops.StoreScratch | ops.LoadScratch)
+                op for op in block.ops if isinstance(op, ops.StoreVirtual | ops.LoadVirtual)
             ],
             live_in=vla.get_live_in_variables(block.ops[0]),
             live_out=vla.get_live_out_variables(block.ops[-1]),
@@ -315,8 +315,8 @@ def schedule_sets(edge_sets: Sequence[EdgeSet], vla: VariableLifetimeAnalysis) -
 
     if variables_successfully_scheduled:
         logger.debug(
-            f"Eliminated scratch slots for {len(variables_successfully_scheduled)} "
-            f"variable/s: {', '.join(variables_successfully_scheduled)}"
+            f"Allocated {len(variables_successfully_scheduled)} "
+            f"variable/s to x-stack: {', '.join(variables_successfully_scheduled)}"
         )
 
 
@@ -332,7 +332,7 @@ def validate_pair(parent: BlockRecord, child: BlockRecord) -> bool:
         )
         return False
     if parent_x:
-        logger.info(f"shared x-stack for {parent.block} -> {child.block}: {', '.join(parent_x)}")
+        logger.debug(f"shared x-stack for {parent.block} -> {child.block}: {', '.join(parent_x)}")
     return True
 
 

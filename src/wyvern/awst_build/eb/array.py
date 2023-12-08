@@ -29,7 +29,7 @@ class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
     def produces(self) -> wtypes.WType:
         if self._storage is None:
             raise CodeError("A type parameter is required at this location", self.source_location)
-        return self._storage
+        return wtypes.WArray.from_element_type(self._storage)
 
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation

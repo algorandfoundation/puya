@@ -4,11 +4,13 @@ from collections.abc import Iterable, Iterator, Sequence
 
 import attrs
 
+from wyvern.avm_type import AVMType
 from wyvern.errors import CodeError, InternalError
 from wyvern.ir.avm_ops import AVMOp
 from wyvern.ir.avm_ops_models import OpSignature
-from wyvern.ir.types_ import AVMBytesEncoding, AVMType, stack_type_to_avm_type
+from wyvern.ir.types_ import AVMBytesEncoding, stack_type_to_avm_type
 from wyvern.ir.visitor import IRVisitor
+from wyvern.metadata import ContractMetaData
 from wyvern.parse import SourceLocation
 
 T = t.TypeVar("T")
@@ -197,6 +199,18 @@ class AddressConstant(Constant):
 
 
 @attrs.define(eq=False)
+class MethodConstant(Constant):
+    """Constant for method literals"""
+
+    atype: AVMType = attrs.field(default=AVMType.bytes, init=False)
+
+    value: str
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_method_constant(self)
+
+
+@attrs.define(eq=False)
 class Intrinsic(Op, ValueProvider):
     """Any TEAL op (or pseudo-op) that doesn't interrupt control flow, in the "basic block" sense.
 
@@ -207,6 +221,8 @@ class Intrinsic(Op, ValueProvider):
 
     op: AVMOp
     # TODO: validation for immediates && args
+    # TODO: consider treating ops with no args (only immediates) as Value types
+    #       e.g. `txn NumAppArgs` or `txna ApplicationArgs 0`
     immediates: list[str | int] = attrs.field(factory=list)
     args: list[Value] = attrs.field(factory=list)
     comment: str | None = None  # used e.g. for asserts
@@ -647,30 +663,11 @@ class Program(Context):
 
 
 @attrs.define(eq=False)
-class ContractState(Context):
-    source_location: SourceLocation
-    key: bytes
-    type: AVMType  # noqa: A003
-    description: str | None
-
-
-@attrs.define(eq=False)
 class Contract(Context):
     source_location: SourceLocation
-    module_name: str
-    class_name: str
     approval_program: Program
     clear_program: Program
-
-    # metadata fields below
-    name_override: str | None
-    description: str | None
-    global_state: Sequence[ContractState]
-    local_state: Sequence[ContractState]
-
-    @property
-    def full_name(self) -> str:
-        return ".".join((self.module_name, self.class_name))
+    metadata: ContractMetaData
 
     def all_subroutines(self) -> Iterable[Subroutine]:
         from itertools import chain

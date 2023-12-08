@@ -3,17 +3,17 @@ from collections.abc import Sequence
 import attrs
 import structlog
 
+from wyvern.avm_type import AVMType
 from wyvern.codegen import ops
 from wyvern.codegen.context import ProgramCodeGenContext
 from wyvern.codegen.stack_koopmans import peephole_optimization
 from wyvern.codegen.vla import VariableLifetimeAnalysis
-from wyvern.ir.types_ import AVMType
 
 logger = structlog.get_logger(__name__)
 
 
-def get_lazy_fstack(subroutine: ops.MemorySubroutine) -> list[ops.StoreScratch]:
-    result = list[ops.StoreScratch]()
+def get_lazy_fstack(subroutine: ops.MemorySubroutine) -> list[ops.StoreVirtual]:
+    result = list[ops.StoreVirtual]()
     seen_local_ids = set[str]()
     # TODO: consider more than the entry block
     entry = subroutine.body[0]
@@ -21,7 +21,7 @@ def get_lazy_fstack(subroutine: ops.MemorySubroutine) -> list[ops.StoreScratch]:
     if entry.predecessors:
         return result
     for op in entry.ops:
-        if isinstance(op, ops.StoreScratch) and op.local_id not in seen_local_ids:
+        if isinstance(op, ops.StoreVirtual) and op.local_id not in seen_local_ids:
             seen_local_ids.add(op.local_id)
             result.append(op)
     return result
@@ -31,7 +31,7 @@ def get_local_id_types(subroutine: ops.MemorySubroutine) -> dict[str, AVMType]:
     variable_mapping = dict[str, AVMType]()
     for block in subroutine.all_blocks:
         for op in block.ops:
-            if isinstance(op, ops.StoreScratch):
+            if isinstance(op, ops.StoreVirtual):
                 try:
                     existing_type = variable_mapping[op.local_id]
                 except KeyError:
@@ -98,7 +98,7 @@ def allocate_locals_on_stack(
     for block in subroutine.body:
         for index, op in enumerate(block.ops):
             match op:
-                case ops.StoreScratch(
+                case ops.StoreVirtual(
                     local_id=local_id, source_location=src_location, atype=atype
                 ):
                     block.ops[index] = ops.StoreFStack(
@@ -107,7 +107,7 @@ def allocate_locals_on_stack(
                         insert=op in first_store_ops,
                         atype=atype,
                     )
-                case ops.LoadScratch(
+                case ops.LoadVirtual(
                     local_id=local_id,
                     source_location=src_location,
                     atype=atype,

@@ -1,0 +1,103 @@
+contract Reference
+{
+  globals {
+    ['asa']: algopy.Asset
+    ['an_int']: algopy.UInt64
+    ['some_bytes']: algopy.arc4.StaticArray[algopy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]]
+    ['creator']: algopy.Account
+    ['app']: algopy.Application
+  }
+  
+  constructor()
+  {
+    this.globals['asa']: algopy.Asset = reinterpret_cast<algopy.Asset>(123u)
+    this.globals['an_int']: algopy.UInt64 = 2u
+    this.globals['some_bytes']: algopy.arc4.StaticArray[algopy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]] = arc4_array_encode([7arc4u8, 8arc4u8, 9arc4u8], algopy.arc4.StaticArray[algopy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]])
+    this.globals['creator']: algopy.Account = txn<Sender>()
+    this.globals['app']: algopy.Application = reinterpret_cast<algopy.Application>(123u)
+  }
+  
+  abimethod noop_with_uint64(a: algopy.arc4.UIntN[typing.Literal[64]]): algopy.arc4.UIntN[typing.Literal[8]]
+  {
+    result: algopy.UInt64 = 1u + arc4_decode(a, algopy.UInt64)
+    return arc4_encode(result, algopy.arc4.UIntN[typing.Literal[8]])
+  }
+  
+  abimethod[name_override=all_the_things] full_abi_config(a: algopy.arc4.UIntN[typing.Literal[64]]): algopy.arc4.UIntN[typing.Literal[8]]
+  {
+    result: algopy.UInt64 = 1u + arc4_decode(a, algopy.UInt64)
+    return arc4_encode(result, algopy.arc4.UIntN[typing.Literal[8]])
+  }
+  
+  abimethod mixed_oca(a: algopy.arc4.UIntN[typing.Literal[64]]): algopy.arc4.UIntN[typing.Literal[8]]
+  {
+    result: algopy.UInt64 = 1u + arc4_decode(a, algopy.UInt64)
+    return arc4_encode(result, algopy.arc4.UIntN[typing.Literal[8]])
+  }
+  
+  abimethod bare_abi_config(): None
+  {
+    log('Hello World')
+  }
+  
+  abimethod opt_into_asset(asset: algopy.Asset): None
+  {
+    assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
+    assert(!(reinterpret_cast<bool>(this.globals['asa'])), comment="ASA already opted in")
+    this.globals['asa']: algopy.Asset = asset
+    itxn_begin()
+    itxn_field<TypeEnum>(axfer)
+    itxn_field<Fee>(0u)
+    itxn_field<AssetReceiver>(global<CurrentApplicationAddress>())
+    itxn_field<XferAsset>(reinterpret_cast<algopy.UInt64>(asset))
+    itxn_submit()
+  }
+  
+  abimethod with_transactions(asset: algopy.Asset, an_int: algopy.arc4.UIntN[typing.Literal[64]], pay: algopy.PaymentTransaction, another_int: algopy.arc4.UIntN[typing.Literal[64]]): None
+  {
+    assert(this.globals['asa'] == asset, comment="is correct asset")
+    assert(arc4_decode(an_int, algopy.UInt64) == 1u, comment="is correct int")
+    assert(gtxns<Receiver>(pay) == global<CurrentApplicationAddress>(), comment="is payment to app")
+    assert(arc4_decode(another_int, algopy.UInt64) == 2u, comment="is correct int")
+  }
+  
+  abimethod compare_assets(asset_a: algopy.Asset, asset_b: algopy.Asset): None
+  {
+    assert(asset_a == asset_b, comment="asset a == b")
+  }
+  
+  abimethod get_address(): algopy.arc4.StaticArray[algopy.arc4.UIntN[typing.Literal[8]], typing.Literal[32]]
+  {
+    return reinterpret_cast<algopy.arc4.StaticArray[algopy.arc4.UIntN[typing.Literal[8]], typing.Literal[32]]>(reinterpret_cast<algopy.Bytes>(global<ZeroAddress>()))
+  }
+  
+  abimethod get_asset(): algopy.arc4.UIntN[typing.Literal[64]]
+  {
+    return 456arc4u64
+  }
+  
+  abimethod[name_override=get_application] get_app(): algopy.arc4.UIntN[typing.Literal[64]]
+  {
+    return 456arc4u64
+  }
+  
+  abimethod[name_override=get_an_int] get_a_int(): algopy.arc4.UIntN[typing.Literal[64]]
+  {
+    return 3arc4u64
+  }
+  
+  abimethod method_with_default_args(asset_from_storage: algopy.Asset, asset_from_function: algopy.Asset, account_from_storage: algopy.Account, account_from_function: algopy.Account, application_from_storage: algopy.Application, application_from_function: algopy.Application, bytes_from_storage: algopy.arc4.StaticArray[algopy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]], int_from_storage: algopy.arc4.UIntN[typing.Literal[64]], int_from_function: algopy.arc4.UIntN[typing.Literal[64]]): None
+  {
+    assert(asset_from_storage == reinterpret_cast<algopy.Asset>(123u), comment="wrong asset from storage")
+    assert(asset_from_function == reinterpret_cast<algopy.Asset>(456u), comment="wrong asset from function")
+    assert(account_from_storage == global<CreatorAddress>(), comment="wrong account from storage")
+    assert(account_from_function == global<ZeroAddress>(), comment="wrong account from function")
+    assert(application_from_storage == reinterpret_cast<algopy.Application>(123u), comment="wrong application from storage")
+    assert(application_from_function == reinterpret_cast<algopy.Application>(456u), comment="wrong application from function")
+    assert(reinterpret_cast<algopy.Bytes>(bytes_from_storage[0u]) == reinterpret_cast<algopy.Bytes>(7arc4u8), comment="wrong 0th byte from storage")
+    assert(reinterpret_cast<algopy.Bytes>(bytes_from_storage[1u]) == reinterpret_cast<algopy.Bytes>(8arc4u8), comment="wrong 1st byte from storage")
+    assert(reinterpret_cast<algopy.Bytes>(bytes_from_storage[2u]) == reinterpret_cast<algopy.Bytes>(9arc4u8), comment="wrong 2nd byte from storage")
+    assert(arc4_decode(int_from_storage, algopy.UInt64) == 2u, comment="wrong int from storage")
+    assert(arc4_decode(int_from_function, algopy.UInt64) == 3u, comment="wrong int from function")
+  }
+}

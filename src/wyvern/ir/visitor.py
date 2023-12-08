@@ -37,6 +37,10 @@ class IRVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
+    def visit_method_constant(self, const: wyvern.ir.models.MethodConstant) -> T:
+        ...
+
+    @abstractmethod
     def visit_phi(self, phi: wyvern.ir.models.Phi) -> T:
         ...
 
@@ -115,6 +119,9 @@ class IRTraverser(IRVisitor[None]):
         pass
 
     def visit_address_constant(self, const: wyvern.ir.models.AddressConstant) -> None:
+        pass
+
+    def visit_method_constant(self, const: wyvern.ir.models.MethodConstant) -> None:
         pass
 
     def visit_phi(self, phi: wyvern.ir.models.Phi) -> None:

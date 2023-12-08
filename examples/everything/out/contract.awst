@@ -2,9 +2,9 @@ ZERO = 0
 ZER0 = 0
 ONE = 1
 
-subroutine get_banned(): algopy.Address
+subroutine get_banned(): algopy.Account
 {
-  addr: algopy.Address = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
+  addr: algopy.Account = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
   return addr
 }
 
@@ -59,15 +59,15 @@ contract Everything extends (examples.everything.my_base::MyMiddleBase, examples
     this::_check_ban_list()
     (name, exists): tuple[algopy.arc4.String, bool] = app_local_get_ex(0u, 0u, 'name')
     if (!(exists)) {
-      return abi_constant('\x00\x0fHowdy stranger!', algopy.arc4.String)
+      return arc4_encode('Howdy stranger!', algopy.arc4.String)
     }
-    return abi_encode('Hello, ' + abi_decode(name, algopy.Bytes) + '!', algopy.arc4.String)
+    return arc4_encode('Hello, ' + arc4_decode(name, algopy.Bytes) + '!', algopy.arc4.String)
   }
   
-  abimethod calculate(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  abimethod calculate(a: algopy.arc4.UIntN[typing.Literal[64]], b: algopy.arc4.UIntN[typing.Literal[64]]): algopy.arc4.UIntN[typing.Literal[64]]
   {
-    c: algopy.UInt64 = examples.everything.my_base::MyMiddleBase::calculate(a, b)
-    return c * b
+    c: algopy.arc4.UIntN[typing.Literal[64]] = examples.everything.my_base::MyMiddleBase::calculate(a, b)
+    return arc4_encode(arc4_decode(c, algopy.UInt64) * arc4_decode(b, algopy.UInt64), algopy.arc4.UIntN[typing.Literal[64]])
   }
   
   abimethod close_out(): None

@@ -1,10 +1,12 @@
+import decimal
 import enum
 import typing as t
 from abc import ABC, abstractmethod
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
 
 import attrs
+from immutabledict import immutabledict
 
 from wyvern.awst import wtypes
 from wyvern.awst.visitors import (
@@ -14,6 +16,7 @@ from wyvern.awst.visitors import (
 )
 from wyvern.awst.wtypes import WType
 from wyvern.errors import CodeError, InternalError
+from wyvern.metadata import ARC4MethodConfig
 from wyvern.parse import SourceLocation
 
 T = t.TypeVar("T")
@@ -55,7 +58,8 @@ class ExpressionStatement(Statement):
 
 @attrs.frozen(repr=False)
 class _ExpressionHasWType:
-    one_of_these: tuple[WType, ...]
+    instances: tuple[WType, ...]
+    types: tuple[type[WType], ...]
 
     def __call__(
         self,
@@ -66,21 +70,84 @@ class _ExpressionHasWType:
         """
         We use a callable class to be able to change the ``__repr__``.
         """
-        if value.wtype not in self.one_of_these:
-            raise InternalError(
-                f"{type(inst).__name__}.{attr.name}: expression of WType {value.wtype} received,"
-                f" expected {' or '.join(map(str, self.one_of_these))}"
-            )
-
-    def __repr__(self) -> str:
-        return (
-            f"<expression_has_wtype validator"
-            f" for type {' | '.join(map(str, self.one_of_these))}>"
+        wtype = value.wtype
+        if wtype in self.instances:
+            return
+        for allowed_t in self.types:
+            if isinstance(wtype, allowed_t):
+                return
+        raise InternalError(
+            f"{type(inst).__name__}.{attr.name}: expression of WType {wtype} received,"
+            f" expected {' or '.join(self._names)}"
         )
 
+    def __repr__(self) -> str:
+        return f"<expression_has_wtype validator for type {' | '.join(self._names)}>"
 
-def expression_has_wtype(*one_of_these: WType) -> _ExpressionHasWType:
-    return _ExpressionHasWType(one_of_these)
+    @property
+    def _names(self) -> Iterator[str]:
+        for inst in self.instances:
+            yield inst.name
+        for typ in self.types:
+            yield typ.__name__
+
+
+def expression_has_wtype(*one_of_these: WType | type[WType]) -> _ExpressionHasWType:
+    instances = []
+    types = list[type[WType]]()
+    for item in one_of_these:
+        if isinstance(item, type):
+            types.append(item)
+        else:
+            instances.append(item)
+    return _ExpressionHasWType(instances=tuple(instances), types=tuple(types))
+
+
+@attrs.frozen(repr=False)
+class _WTypeIsOneOf:
+    instances: tuple[WType, ...]
+    types: tuple[type[WType], ...]
+
+    def __call__(
+        self,
+        inst: Node,
+        attr: attrs.Attribute,  # type: ignore[type-arg]
+        value: WType,
+    ) -> None:
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        wtype = value
+        if wtype in self.instances:
+            return
+        for allowed_t in self.types:
+            if isinstance(wtype, allowed_t):
+                return
+        raise InternalError(
+            f"{type(inst).__name__}.{attr.name}: set to {wtype},"
+            f" expected {' or '.join(self._names)}"
+        )
+
+    def __repr__(self) -> str:
+        return f"<expression_has_wtype validator for type {' | '.join(self._names)}>"
+
+    @property
+    def _names(self) -> Iterator[str]:
+        for inst in self.instances:
+            yield inst.name
+        for typ in self.types:
+            yield typ.__name__
+
+
+def wtype_is_one_of(*one_of_these: WType | type[WType]) -> _WTypeIsOneOf:
+    instances = []
+    types = list[type[WType]]()
+    for item in one_of_these:
+        if isinstance(item, type):
+            types.append(item)
+        else:
+            instances.append(item)
+    return _WTypeIsOneOf(instances=tuple(instances), types=tuple(types))
 
 
 wtype_is_uint64 = expression_has_wtype(wtypes.uint64_wtype)
@@ -131,6 +198,7 @@ class Literal(Node):
 @attrs.frozen
 class Block(Statement):
     body: Sequence[Statement] = attrs.field(converter=tuple[Statement, ...])
+    description: str | None = attrs.field(default=None)
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_block(self)
@@ -144,6 +212,16 @@ class IfElse(Statement):
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_if_else(self)
+
+
+@attrs.frozen
+class Switch(Statement):
+    value: Expression
+    cases: Mapping[Expression, Block] = attrs.field(converter=immutabledict)
+    default_case: Block | None
+
+    def accept(self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_switch(self)
 
 
 @attrs.frozen
@@ -184,35 +262,76 @@ class ReturnStatement(Statement):
         return visitor.visit_return_statement(self)
 
 
+def _validate_literal(value: object, wtype: WType, source_location: SourceLocation) -> None:
+    if not wtype.is_valid_literal(value):
+        raise CodeError(f"Invalid {wtype} value: {value}", source_location)
+
+
 def literal_validator(wtype: WType) -> t.Callable[[Node, object, t.Any], None]:
     def validate(node: Node, _attribute: object, value: object) -> None:
         if not isinstance(node, Node):
             raise InternalError(
                 f"literal_validator used on type {type(node).__name__}, expected Node"
             )
-        if not wtype.is_valid_literal(value):
-            raise CodeError(f"Invalid {wtype} value: {value}", node.source_location)
+        _validate_literal(value, wtype, node.source_location)
 
     return validate
 
 
-@attrs.frozen
-class UInt64Constant(Expression):
-    wtype: WType = attrs.field(default=wtypes.uint64_wtype, init=False)
-    value: int = attrs.field(validator=[literal_validator(wtypes.uint64_wtype)])
+@attrs.frozen(kw_only=True)
+class IntegerConstant(Expression):
+    wtype: WType = attrs.field(
+        validator=[
+            wtype_is_one_of(
+                wtypes.uint64_wtype,
+                wtypes.biguint_wtype,
+                wtypes.ARC4UIntN,
+            )
+        ]
+    )
+    value: int = attrs.field()
     teal_alias: str | None = attrs.field(default=None)
 
+    @value.validator
+    def check(self, _attribute: object, value: int) -> None:
+        _validate_literal(value, self.wtype, self.source_location)
+
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_uint64_constant(self)
+        return visitor.visit_integer_constant(self)
 
 
 @attrs.frozen
-class BigUIntConstant(Expression):
-    wtype: WType = attrs.field(default=wtypes.biguint_wtype, init=False)
-    value: int = attrs.field(validator=[literal_validator(wtypes.biguint_wtype)])
+class DecimalConstant(Expression):
+    wtype: wtypes.ARC4UFixedNxM
+    value: decimal.Decimal = attrs.field()
+
+    @value.validator
+    def check(self, _attribute: object, value: int) -> None:
+        _validate_literal(value, self.wtype, self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_biguint_constant(self)
+        return visitor.visit_decimal_constant(self)
+
+
+def UInt64Constant(  # noqa: N802
+    *, source_location: SourceLocation, value: int, teal_alias: str | None = None
+) -> IntegerConstant:
+    return IntegerConstant(
+        source_location=source_location,
+        value=value,
+        wtype=wtypes.uint64_wtype,
+        teal_alias=teal_alias,
+    )
+
+
+def BigUIntConstant(  # noqa: N802
+    *, source_location: SourceLocation, value: int
+) -> IntegerConstant:
+    return IntegerConstant(
+        source_location=source_location,
+        value=value,
+        wtype=wtypes.biguint_wtype,
+    )
 
 
 @attrs.frozen
@@ -224,89 +343,75 @@ class BoolConstant(Expression):
         return visitor.visit_bool_constant(self)
 
 
+class BytesEncoding(enum.StrEnum):
+    base16 = enum.auto()
+    base32 = enum.auto()
+    base64 = enum.auto()
+    utf8 = enum.auto()
+
+
 @attrs.frozen
 class BytesConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
     value: bytes = attrs.field(validator=[literal_validator(wtypes.bytes_wtype)])
+    encoding: BytesEncoding = attrs.field(default=BytesEncoding.utf8)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
 
 
 @attrs.frozen
+class MethodConstant(Expression):
+    wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
+    value: str
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_method_constant(self)
+
+
+@attrs.frozen
 class AddressConstant(Expression):
-    wtype: WType = attrs.field(default=wtypes.address_wtype, init=False)
-    value: str = attrs.field(validator=[literal_validator(wtypes.address_wtype)])
+    wtype: WType = attrs.field(default=wtypes.account_wtype, init=False)
+    value: str = attrs.field(validator=[literal_validator(wtypes.account_wtype)])
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_address_constant(self)
 
 
-class BytesEncoding(enum.StrEnum):
-    base16 = enum.auto()
-    base32 = enum.auto()
-    base64 = enum.auto()
-    method = enum.auto()
-    utf8 = enum.auto()
-
-
 @attrs.frozen
-class BytesDecode(Expression):
-    value: str  # TODO: validator
-    encoding: BytesEncoding
-    wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
-    # TODO: add evaluation to get bytes
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_bytes_decode(self)
-
-
-@attrs.frozen
-class AbiEncode(Expression):
+class ARC4Encode(Expression):
     value: Expression
     wtype: WType
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_abi_encode(self)
+        return visitor.visit_arc4_encode(self)
 
 
 @attrs.frozen
-class AbiDecode(Expression):
+class ARC4ArrayEncode(Expression):
+    values: Sequence[Expression]
+    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray = attrs.field()
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_arc4_array_encode(self)
+
+
+@attrs.frozen
+class ARC4Decode(Expression):
     value: Expression
     wtype: WType
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_abi_decode(self)
-
-
-@attrs.frozen
-class AbiConstant(Expression):
-    value: bytes
-    wtype: WType
-    bytes_encoding: BytesEncoding = attrs.field(default=BytesEncoding.base16)
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_abi_constant(self)
-
-
-@attrs.frozen
-class NewAbiArray(Expression):
-    elements: tuple[Expression, ...] = attrs.field()
-    wtype: wtypes.AbiDynamicArray | wtypes.AbiStaticArray
-
-    @elements.validator
-    def check(self, _attribute: object, value: tuple[Expression, ...]) -> None:
-        if any(expr.wtype != self.wtype.element_type for expr in value):
-            raise ValueError(
-                f"All array elements should have array type: {self.wtype.element_type}"
-            )
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_new_abi_array(self)
+        return visitor.visit_arc4_decode(self)
 
 
 CompileTimeConstantExpression: t.TypeAlias = (
-    UInt64Constant | BigUIntConstant | BoolConstant | BytesConstant | AddressConstant | BytesDecode
+    IntegerConstant
+    | DecimalConstant
+    | BoolConstant
+    | BytesConstant
+    | AddressConstant
+    | MethodConstant
 )
 
 
@@ -331,6 +436,34 @@ class IntrinsicCall(Expression):
         )
 
 
+@attrs.define(init=False)
+class CheckedMaybe(Expression):
+    """Allows evaluating a maybe type i.e. tuple[_T, bool] as _T, but with the assertion that
+    the 2nd bool element is true"""
+
+    expr: Expression = attrs.field()
+    comment: str | None
+
+    def __init__(self, expr: Expression, comment: str | None = None) -> None:
+        match expr.wtype:
+            case wtypes.WTuple(types=(wtype, wtypes.bool_wtype)):
+                pass
+            case _:
+                raise InternalError(
+                    f"{type(self).__name__}.expr: expression of WType {expr.wtype} received,"
+                    f" expected tuple[_T, bool]"
+                )
+        self.__attrs_init__(
+            source_location=expr.source_location,
+            expr=expr,
+            comment=comment,
+            wtype=wtype,
+        )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_checked_maybe(self)
+
+
 def lvalue_expr_validator(_instance: object, _attribute: object, value: Expression) -> None:
     if not value.wtype.lvalue:
         raise CodeError(
@@ -343,6 +476,16 @@ def lvalue_expr_validator(_instance: object, _attribute: object, value: Expressi
 class TupleExpression(Expression):
     items: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
     wtype: wtypes.WTuple
+
+    @classmethod
+    def from_items(
+        cls, items: Sequence[Expression], location: SourceLocation
+    ) -> "TupleExpression":
+        return cls(
+            items=items,
+            wtype=wtypes.WTuple.from_types(i.wtype for i in items),
+            source_location=location,
+        )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_tuple_expression(self)
@@ -433,7 +576,7 @@ class AppAccountStateExpression(Expression):
     key: bytes
     key_encoding: BytesEncoding
     account: Expression = attrs.field(
-        validator=[expression_has_wtype(wtypes.address_wtype, wtypes.uint64_wtype)]
+        validator=[expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)]
     )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -597,7 +740,11 @@ class NumericComparison(enum.StrEnum):
 
 
 numeric_comparable = expression_has_wtype(
-    wtypes.uint64_wtype, wtypes.biguint_wtype, wtypes.bool_wtype
+    wtypes.uint64_wtype,
+    wtypes.biguint_wtype,
+    wtypes.bool_wtype,
+    wtypes.asset_wtype,
+    wtypes.application_wtype,
 )
 
 
@@ -613,6 +760,7 @@ class NumericComparisonExpression(Expression):
 
     wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
 
+    # TODO: make these names consistent with other expressions
     lhs: Expression = attrs.field(validator=[numeric_comparable])
     operator: NumericComparison
     rhs: Expression = attrs.field(validator=[numeric_comparable])
@@ -629,7 +777,7 @@ class NumericComparisonExpression(Expression):
         return visitor.visit_numeric_comparison_expression(self)
 
 
-bytes_comparable = expression_has_wtype(wtypes.bytes_wtype, wtypes.address_wtype)
+bytes_comparable = expression_has_wtype(wtypes.bytes_wtype, wtypes.account_wtype)
 
 
 @attrs.frozen
@@ -639,6 +787,14 @@ class BytesComparisonExpression(Expression):
     lhs: Expression = attrs.field(validator=[bytes_comparable])
     operator: EqualityComparison
     rhs: Expression = attrs.field(validator=[bytes_comparable])
+
+    def __attrs_post_init__(self) -> None:
+        if self.lhs.wtype != self.rhs.wtype:
+            raise InternalError(
+                "bytes comparison between different wtypes:"
+                f" {self.lhs.wtype} and {self.rhs.wtype}",
+                self.source_location,
+            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_comparison_expression(self)
@@ -854,19 +1010,6 @@ class Contains(Expression):
         return visitor.visit_contains_expression(self)
 
 
-wtype_is_bytes = expression_has_wtype(wtypes.bytes_wtype)
-
-
-@attrs.frozen
-class IsSubstring(Expression):
-    item: Expression = attrs.field(validator=[wtype_is_bytes])
-    sequence: Expression = attrs.field(validator=[wtype_is_bytes])
-    wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_is_substring(self)
-
-
 @attrs.frozen
 class UInt64AugmentedAssignment(Statement):
     target: Lvalue = attrs.field(validator=[wtype_is_uint64])
@@ -979,12 +1122,6 @@ class SubroutineArgument(Node):
 
 
 @attrs.frozen
-class ABIMethodConfig(Node):
-    name_override: str | None
-    # TODO: the rest
-
-
-@attrs.frozen
 class Function(ModuleStatement, ABC):
     module_name: str
     args: Sequence[SubroutineArgument] = attrs.field(converter=tuple[SubroutineArgument, ...])
@@ -1011,7 +1148,7 @@ class Subroutine(Function):
 @attrs.frozen
 class ContractMethod(Function):
     class_name: str
-    abimethod_config: ABIMethodConfig | None
+    abimethod_config: ARC4MethodConfig | None
 
     @property
     def full_name(self) -> str:

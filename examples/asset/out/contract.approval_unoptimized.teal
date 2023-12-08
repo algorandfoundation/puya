@@ -48,7 +48,7 @@ main_after_if_else@10:
         return
 
 
-// examples.asset.contract.Reference.opt_into_asset(asset#0: uint64) -> :
+// examples.asset.contract.Reference.opt_into_asset(asset#0: uint64) -> void:
 opt_into_asset:
         proto 1 0
 
@@ -56,13 +56,13 @@ opt_into_asset_block@0:
         txn Sender
         global CreatorAddress
         ==
-        assert
+        assert // Only creator can opt in to ASA
         int 0
         byte "asa"
         app_global_get_ex
-        assert
+        assert // check value exists
         !
-        assert
+        assert // ASA already opted in
         byte "asa"
         frame_dig -1
         app_global_put
@@ -79,7 +79,7 @@ opt_into_asset_block@0:
         retsub
 
 
-// examples.asset.contract.Reference.is_opted_asset(asset#0: uint64) -> :
+// examples.asset.contract.Reference.is_opted_asset(asset#0: uint64) -> void:
 is_opted_asset:
         proto 1 0
 
@@ -87,14 +87,86 @@ is_opted_asset_block@0:
         int 0
         byte "asa"
         app_global_get_ex
-        assert
+        assert // check value exists
         frame_dig -1
         ==
-        assert
+        assert // asset self.asa == asset
+        frame_dig -1
+        asset_params_get AssetTotal
+        assert // asset exists
+        int 10000000
+        ==
+        assert // total
+        frame_dig -1
+        asset_params_get AssetDecimals
+        assert // asset exists
+        int 0
+        ==
+        assert // decimals
+        frame_dig -1
+        asset_params_get AssetDefaultFrozen
+        assert // asset exists
+        !
+        assert // default frozen
+        frame_dig -1
+        asset_params_get AssetUnitName
+        assert // asset exists
+        byte "a"
+        ==
+        assert // unit_name
+        frame_dig -1
+        asset_params_get AssetName
+        assert // asset exists
+        byte "asset a"
+        ==
+        assert // name
+        frame_dig -1
+        asset_params_get AssetURL
+        assert // asset exists
+        byte ""
+        ==
+        assert // URL
+        frame_dig -1
+        asset_params_get AssetMetadataHash
+        assert // asset exists
+        int 32
+        bzero
+        ==
+        assert // hash
+        frame_dig -1
+        asset_params_get AssetManager
+        assert // asset exists
+        global ZeroAddress
+        ==
+        assert // manager
+        frame_dig -1
+        asset_params_get AssetReserve
+        assert // asset exists
+        global ZeroAddress
+        ==
+        assert // reserve
+        frame_dig -1
+        asset_params_get AssetFreeze
+        assert // asset exists
+        global ZeroAddress
+        ==
+        assert // freeze
+        frame_dig -1
+        asset_params_get AssetClawback
+        assert // asset exists
+        global ZeroAddress
+        ==
+        assert // clawback
+        frame_dig -1
+        asset_params_get AssetCreator
+        assert // asset exists
+        global CreatorAddress
+        ==
+        assert // creator
         retsub
 
 
-// examples.asset.contract.Reference.__init__() -> :
+// examples.asset.contract.Reference.__init__() -> void:
 __init__:
         proto 0 0
 

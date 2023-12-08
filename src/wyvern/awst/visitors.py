@@ -19,6 +19,10 @@ class StatementVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
+    def visit_switch(self, statement: wyvern.awst.nodes.Switch) -> T:
+        ...
+
+    @abstractmethod
     def visit_while_loop(self, statement: wyvern.awst.nodes.WhileLoop) -> T:
         ...
 
@@ -105,11 +109,11 @@ class ExpressionVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
-    def visit_uint64_constant(self, expr: wyvern.awst.nodes.UInt64Constant) -> T:
+    def visit_integer_constant(self, expr: wyvern.awst.nodes.IntegerConstant) -> T:
         ...
 
     @abstractmethod
-    def visit_biguint_constant(self, expr: wyvern.awst.nodes.BigUIntConstant) -> T:
+    def visit_decimal_constant(self, expr: wyvern.awst.nodes.DecimalConstant) -> T:
         ...
 
     @abstractmethod
@@ -139,19 +143,19 @@ class ExpressionVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
-    def visit_bytes_decode(self, expr: wyvern.awst.nodes.BytesDecode) -> T:
+    def visit_checked_maybe(self, call: wyvern.awst.nodes.CheckedMaybe) -> T:
         ...
 
     @abstractmethod
-    def visit_abi_decode(self, expr: wyvern.awst.nodes.AbiDecode) -> T:
+    def visit_arc4_decode(self, expr: wyvern.awst.nodes.ARC4Decode) -> T:
         ...
 
     @abstractmethod
-    def visit_abi_constant(self, expr: wyvern.awst.nodes.AbiConstant) -> T:
+    def visit_arc4_encode(self, expr: wyvern.awst.nodes.ARC4Encode) -> T:
         ...
 
     @abstractmethod
-    def visit_abi_encode(self, expr: wyvern.awst.nodes.AbiEncode) -> T:
+    def visit_arc4_array_encode(self, expr: wyvern.awst.nodes.ARC4ArrayEncode) -> T:
         ...
 
     @abstractmethod
@@ -242,13 +246,9 @@ class ExpressionVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
-    def visit_is_substring(self, expr: wyvern.awst.nodes.IsSubstring) -> T:
-        ...
-
-    @abstractmethod
     def visit_enumeration(self, expr: wyvern.awst.nodes.Enumeration) -> T:
         ...
 
     @abstractmethod
-    def visit_new_abi_array(self, expr: wyvern.awst.nodes.NewAbiArray) -> T:
+    def visit_method_constant(self, expr: wyvern.awst.nodes.MethodConstant) -> T:
         ...

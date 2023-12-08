@@ -50,6 +50,22 @@ class ProgramSizes:
                 case [".approval_unoptimized", ".teal"]:
                     self.unoptimized_sizes[name] = get_program_size(teal)
 
+    @classmethod
+    def read_file(cls, path: Path) -> "ProgramSizes":
+        lines = path.read_text("utf-8").splitlines()
+        program_sizes = ProgramSizes()
+        for line in lines[1:]:
+            name, unoptimized, optimized = line.rsplit(maxsplit=3)
+            program_sizes.unoptimized_sizes[name] = int(unoptimized)
+            program_sizes.sizes[name] = int(optimized)
+        return program_sizes
+
+    def update(self, other: "ProgramSizes") -> "ProgramSizes":
+        return ProgramSizes(
+            sizes={**self.sizes, **other.sizes},
+            unoptimized_sizes={**self.unoptimized_sizes, **other.unoptimized_sizes},
+        )
+
     def __str__(self) -> str:
         writer = AlignedWriter()
         writer.add_header("Name")
@@ -74,13 +90,16 @@ class CompilationResult:
 
 
 def get_program_size(path: Path) -> int:
-    program = algokit_utils.Program(path.read_text("utf-8"), ALGOD_CLIENT)
-    return len(program.raw_binary)
+    try:
+        program = algokit_utils.Program(path.read_text("utf-8"), ALGOD_CLIENT)
+        return len(program.raw_binary)
+    except Exception as e:
+        raise Exception(f"Error compiling teal application: {path}") from e
 
 
 def _stabilise_logs(stdout: str) -> list[str]:
     return [
-        line.replace(str(GIT_ROOT), "<git root>").replace("\\", "/")
+        line.replace("\\", "/").replace(str(GIT_ROOT).replace("\\", "/"), "<git root>")
         for line in stdout.splitlines()
         if not line.startswith(
             (
@@ -103,6 +122,7 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
         *flags,
         "--out-dir=out",
         "--debug-level=1",
+        "--log-level=debug",
         rel_path,
     ]
     result = subprocess.run(
@@ -134,8 +154,8 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
     return CompilationResult(
         rel_path=rel_path,
         ok=result.returncode == 0,
-        teal_files=list(map(Path, teal_files_written)),
-        final_ir_files=list(map(Path, final_ir_written)),
+        teal_files=[EXAMPLES_DIR / p for p in teal_files_written],
+        final_ir_files=[EXAMPLES_DIR / p for p in final_ir_written],
     )
 
 
@@ -190,15 +210,16 @@ def main(*limit_to: str) -> None:
     else:
         for item in EXAMPLES_DIR.iterdir():
             if item.is_dir():
-                if any(item.glob("*.py")):
+                if any(item.rglob("*.py")):
                     to_compile.append(item)
             elif item.is_file() and item.suffix == ".py" and item.name != "__init__.py":
                 to_compile.append(item)
     if not limit_to:
         print("Cleaning up prior runs")
-        for f in EXAMPLES_DIR.rglob("**/out/*"):
-            if f.is_file():
-                f.unlink()
+        for ext in (".teal", ".awst", ".ir"):
+            for f in EXAMPLES_DIR.rglob(f"**/out/*{ext}"):
+                if f.is_file():
+                    f.unlink()
 
     program_sizes = ProgramSizes()
     opt_success = set()
@@ -227,9 +248,10 @@ def main(*limit_to: str) -> None:
         print("The following had different success outcomes depending on optimization flag: ")
         for name in sorted(success_differs):
             print(" - " + name)
-    if not limit_to:
-        # TODO: incremental updates
-        SIZE_TALLY_PATH.write_text(str(program_sizes))
+    if limit_to:
+        existing = ProgramSizes.read_file(SIZE_TALLY_PATH)
+        program_sizes = existing.update(program_sizes)
+    SIZE_TALLY_PATH.write_text(str(program_sizes))
 
 
 if __name__ == "__main__":

@@ -7,8 +7,10 @@ from algopy._contract import *
 from algopy._gen import *
 from algopy._hints import *
 from algopy._primitives import *
+from algopy._reference import *
 from algopy._storage import *
 from algopy._struct import *
+from algopy._transactions import *
 from algopy._unsigned_builtins import *
 from algopy._util import *
 from algopy.arc4 import (

@@ -19,8 +19,8 @@ logger = structlog.get_logger(__name__)
 
 @attrs.define
 class UsagePair:
-    a: ops.LoadScratch | ops.StoreScratch
-    b: ops.LoadScratch
+    a: ops.LoadVirtual | ops.StoreVirtual
+    b: ops.LoadVirtual
     a_index: int
     b_index: int
 
@@ -34,16 +34,16 @@ def find_usage_pairs(block: ops.MemoryBasicBlock) -> list[UsagePair]:
     # the first element of the pair is an op that defines or uses a variable
     # the second element of the pair is an op that uses the variable
     # return pairs in ascending order, based on the number of instruction between each pair
-    variables = dict[str, list[tuple[int, ops.StoreScratch | ops.LoadScratch]]]()
+    variables = dict[str, list[tuple[int, ops.StoreVirtual | ops.LoadVirtual]]]()
     for index, op in enumerate(block.ops):
         match op:
-            case ops.StoreScratch(local_id=local_id) | ops.LoadScratch(local_id=local_id):
+            case ops.StoreVirtual(local_id=local_id) | ops.LoadVirtual(local_id=local_id):
                 variables.setdefault(local_id, []).append((index, op))
 
     pairs = list[UsagePair]()
     for uses in variables.values():
         for (a_index, a), (b_index, b) in itertools.pairwise(uses):
-            if isinstance(b, ops.StoreScratch):
+            if isinstance(b, ops.StoreVirtual):
                 continue  # skip redefines, if they are used they will be picked up in next pair
             pairs.append(UsagePair(a=a, b=b, a_index=a_index, b_index=b_index))
 
@@ -87,7 +87,7 @@ def copy_usage_pairs(
         a_index = block.ops.index(a)
 
         # insert replacement before store, or after load
-        insert_index = a_index if isinstance(a, ops.StoreScratch) else a_index + 1
+        insert_index = a_index if isinstance(a, ops.StoreVirtual) else a_index + 1
         # determine stack height at point of insertion
         insert_stack_in = _get_stack_after_op(subroutine, block, insert_index - 1)
 
@@ -192,7 +192,7 @@ def optimize_pair(
     """Given a pair of ops, returns which ops should be kept including replacements"""
 
     match a, b:
-        case ops.StoreLStack(copy=True) | ops.StoreXStack(copy=True) as cover, ops.StoreScratch(
+        case ops.StoreLStack(copy=True) | ops.StoreXStack(copy=True) as cover, ops.StoreVirtual(
             local_id=local_id
         ) if local_id not in vla.get_live_out_variables(
             b
@@ -203,7 +203,7 @@ def optimize_pair(
             # If it is a dead store, then the 1st scenario is no longer needed
             # and instead just need to ensure the value is copied to the bottom of the stack
             return (attrs.evolve(cover, copy=False),)
-        case _, ops.StoreScratch(local_id=local_id) if local_id not in vla.get_live_out_variables(
+        case _, ops.StoreVirtual(local_id=local_id) if local_id not in vla.get_live_out_variables(
             b
         ):  # aka dead store removal
             return a, ops.Pop(n=1, source_location=b.source_location)
@@ -254,8 +254,8 @@ def optimize_pair(
                 return (new_b,)
             return ops.VirtualStackOp(a_mem), new_b
         case (
-            ops.LoadScratch() as load,
-            ops.StoreScratch() as store,
+            ops.LoadVirtual() as load,
+            ops.StoreVirtual() as store,
         ) if load.local_id == store.local_id:
             return ()
         case (

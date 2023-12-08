@@ -12,6 +12,7 @@ from wyvern.ir.optimize.assignments import copy_propagation
 from wyvern.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from wyvern.ir.optimize.constant_propagation import (
     constant_replacer,
+    intrinsic_simplifier,
     simplify_conditional_branches,
 )
 from wyvern.ir.optimize.dead_code_elimination import (
@@ -53,6 +54,7 @@ def get_all_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(arithmetic_simplification, loop=True),
         SubroutineOptimization.from_function(constant_replacer, loop=True),
         SubroutineOptimization.from_function(copy_propagation),
+        SubroutineOptimization.from_function(intrinsic_simplifier),
         SubroutineOptimization.from_function(remove_unused_variables),
         SubroutineOptimization.from_function(simplify_conditional_branches),
         SubroutineOptimization.from_function(remove_linear_jump),

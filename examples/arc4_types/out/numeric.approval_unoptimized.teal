@@ -1,0 +1,197 @@
+#pragma version 8
+
+// examples.arc4_types.numeric.Arc4NumericTypesContract.approval_program() -> uint64:
+main:
+        byte ""
+        dupn 3
+
+main_block@0:
+        int 255
+        dup
+        itob
+        extract 7 1
+        btoi
+        ==
+        assert
+        byte 0x7fffffffffffffff00
+        dup
+        swap
+        len
+        dup
+        swap
+        int 1
+        >
+        bz main_ternary_false@2
+
+main_ternary_true@1:
+        int 1
+        b main_ternary_merge@3
+
+main_ternary_false@2:
+        dup
+
+main_ternary_merge@3:
+        dig 2
+        dup
+        int 0
+        uncover 3
+        substring3
+        btoi
+        int 127
+        ==
+        assert
+        len
+        dup
+        bury 4
+        int 3
+        >
+        bz main_ternary_false@5
+
+main_ternary_true@4:
+        int 3
+        b main_ternary_merge@6
+
+main_ternary_false@5:
+        dig 2
+
+main_ternary_merge@6:
+        dig 2
+        dup
+        int 0
+        uncover 3
+        substring3
+        btoi
+        int 8388607
+        ==
+        assert
+        len
+        dup
+        bury 7
+        int 2
+        >
+        bz main_ternary_false@8
+
+main_ternary_true@7:
+        int 2
+        b main_ternary_merge@9
+
+main_ternary_false@8:
+        dig 5
+
+main_ternary_merge@9:
+        dig 2
+        dup
+        int 0
+        uncover 3
+        substring3
+        btoi
+        int 32767
+        ==
+        assert
+        len
+        dup
+        bury 6
+        int 4
+        >
+        bz main_ternary_false@11
+
+main_ternary_true@10:
+        int 4
+        b main_ternary_merge@12
+
+main_ternary_false@11:
+        dig 4
+
+main_ternary_merge@12:
+        dig 2
+        dup
+        int 0
+        uncover 3
+        substring3
+        btoi
+        int 2147483647
+        ==
+        assert
+        len
+        dup
+        bury 5
+        int 8
+        >
+        bz main_ternary_false@14
+
+main_ternary_true@13:
+        int 8
+        b main_ternary_merge@15
+
+main_ternary_false@14:
+        dig 3
+
+main_ternary_merge@15:
+        dig 2
+        int 0
+        uncover 2
+        substring3
+        btoi
+        int 9223372036854775807
+        ==
+        assert
+        byte 0x0000015333430684
+        len
+        int 8
+        ==
+        assert
+        byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        dup
+        len
+        int 64
+        ==
+        assert
+        dup
+        len
+        int 64
+        <=
+        assert // overflow
+        int 64
+        bzero
+        dig 1
+        b|
+        ==
+        assert
+        byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        len
+        int 64
+        <=
+        assert // overflow
+        int 64
+        bzero
+        byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        b|
+        byte 0x01
+        byte 0x00000000000000000000000000000001
+        swap
+        dup
+        byte 0x01
+        b+
+        dup
+        len
+        int 16
+        <=
+        assert // overflow
+        int 16
+        bzero
+        b|
+        swap
+        uncover 2
+        b==
+        assert
+        len
+        int 16
+        ==
+        assert
+        len
+        int 64
+        ==
+        assert
+        int 1
+        return
+

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 from typing import TYPE_CHECKING
 
 import mypy.nodes
@@ -12,18 +13,24 @@ from wyvern.awst.nodes import (
     BytesBinaryOperator,
     BytesComparisonExpression,
     BytesConstant,
-    BytesDecode,
     BytesEncoding,
     BytesUnaryOperation,
     BytesUnaryOperator,
+    CallArg,
+    ConditionalExpression,
     EqualityComparison,
     Expression,
+    FreeSubroutineTarget,
     IndexExpression,
     IntrinsicCall,
-    IsSubstring,
     Literal,
+    NumericComparison,
+    NumericComparisonExpression,
     SliceExpression,
     Statement,
+    SubroutineCallExpression,
+    UInt64BinaryOperation,
+    UInt64BinaryOperator,
     UInt64Constant,
 )
 from wyvern.awst_build.constants import CLS_BYTES_ALIAS
@@ -37,7 +44,11 @@ from wyvern.awst_build.eb.base import (
     ValueExpressionBuilder,
 )
 from wyvern.awst_build.eb.var_factory import var_expression
-from wyvern.awst_build.utils import convert_literal_to_expr, expect_operand_wtype
+from wyvern.awst_build.utils import (
+    convert_literal_to_expr,
+    create_temporary_assignment,
+    expect_operand_wtype,
+)
 from wyvern.errors import CodeError, InternalError
 
 if TYPE_CHECKING:
@@ -63,6 +74,9 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
+            case []:
+                const = BytesConstant(value=b"", source_location=location)
+                return var_expression(const)
             case [Literal(value=bytes(bytes_val), source_location=loc)]:
                 # TODO: replace loc with location
                 const = BytesConstant(value=bytes_val, source_location=loc)
@@ -107,21 +121,24 @@ class BytesFromEncodedStrBuilder(IntermediateExpressionBuilder):
             case BytesEncoding.base64:
                 if not wtypes.valid_base64(encoded_value):
                     raise CodeError("Invalid base64 value", location)
+                bytes_value = base64.b64decode(encoded_value)
             case BytesEncoding.base32:
                 if not wtypes.valid_base32(encoded_value):
                     raise CodeError("Invalid base32 value", location)
+                bytes_value = base64.b32decode(encoded_value)
             case BytesEncoding.base16:
                 encoded_value = encoded_value.upper()
                 if not wtypes.valid_base16(encoded_value):
                     raise CodeError("Invalid base16 value", location)
+                bytes_value = base64.b16decode(encoded_value)
             case _:
                 raise InternalError(
                     f"Unhandled bytes encoding for constant construction: {self.encoding}",
                     location,
                 )
-        expr = BytesDecode(
+        expr = BytesConstant(
             source_location=location,
-            value=encoded_value,
+            value=bytes_value,
             encoding=self.encoding,
         )
         return var_expression(expr)
@@ -159,30 +176,95 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         if stride is not None:
             raise CodeError("Stride is not supported", location=stride.source_location)
 
+        base = self.expr
+        fixed_length = len(base.value) if isinstance(base, BytesConstant) else None
+        len_expr = (
+            UInt64Constant(value=fixed_length, source_location=location)
+            if fixed_length
+            else IntrinsicCall.bytes_len(self.expr, source_location=location)
+        )
+
         def eval_slice_component(
             val: ExpressionBuilder | Literal | None,
         ) -> Expression | None:
             match val:
                 case Literal(value=int(int_lit)):
                     if int_lit >= 0:
-                        return UInt64Constant(
-                            value=int_lit,
-                            source_location=val.source_location,
-                        )
-                    else:
-                        return IntrinsicCall(
-                            wtype=wtypes.uint64_wtype,
-                            op_code="-",
-                            stack_args=[
-                                IntrinsicCall.bytes_len(self.expr, val.source_location),
-                                UInt64Constant(
-                                    value=abs(int_lit), source_location=val.source_location
+                        if fixed_length:
+                            return UInt64Constant(
+                                value=min(int_lit, fixed_length),
+                                source_location=val.source_location,
+                            )
+                        else:
+                            temp_len = create_temporary_assignment(len_expr, location)
+                            return ConditionalExpression(
+                                condition=NumericComparisonExpression(
+                                    lhs=UInt64Constant(
+                                        value=int_lit,
+                                        source_location=val.source_location,
+                                    ),
+                                    rhs=temp_len.define,
+                                    operator=NumericComparison.lt,
+                                    source_location=location,
                                 ),
-                            ],
-                            source_location=val.source_location,
+                                true_expr=UInt64Constant(
+                                    value=int_lit,
+                                    source_location=val.source_location,
+                                ),
+                                false_expr=temp_len.read,
+                                wtype=wtypes.uint64_wtype,
+                                source_location=location,
+                            )
+                    else:
+                        if fixed_length:
+                            return UInt64Constant(
+                                value=max(fixed_length - abs(int_lit), 0),
+                                source_location=val.source_location,
+                            )
+                        temp_len = create_temporary_assignment(len_expr, location)
+
+                        return ConditionalExpression(
+                            condition=NumericComparisonExpression(
+                                lhs=UInt64Constant(
+                                    value=abs(int_lit),
+                                    source_location=val.source_location,
+                                ),
+                                rhs=temp_len.define,
+                                operator=NumericComparison.lt,
+                                source_location=val.source_location,
+                            ),
+                            true_expr=UInt64BinaryOperation(
+                                op=UInt64BinaryOperator.sub,
+                                left=temp_len.read,
+                                right=UInt64Constant(
+                                    value=abs(int_lit),
+                                    source_location=val.source_location,
+                                ),
+                                source_location=val.source_location,
+                            ),
+                            false_expr=UInt64Constant(
+                                value=0, source_location=val.source_location
+                            ),
+                            wtype=wtypes.uint64_wtype,
+                            source_location=location,
                         )
                 case ExpressionBuilder() as eb:
-                    return eb.rvalue()
+                    temp_len = create_temporary_assignment(len_expr, location)
+                    temp_index = create_temporary_assignment(
+                        expect_operand_wtype(eb, wtypes.uint64_wtype)
+                    )
+                    return ConditionalExpression(
+                        condition=NumericComparisonExpression(
+                            lhs=temp_index.define,
+                            rhs=temp_len.define,
+                            operator=NumericComparison.lt,
+                            source_location=location,
+                        ),
+                        true_expr=temp_index.read,
+                        false_expr=temp_len.read,
+                        wtype=wtypes.uint64_wtype,
+                        source_location=location,
+                    )
                 case None:
                     return None
                 case _:
@@ -219,8 +301,11 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         self, item: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
         item_expr = expect_operand_wtype(item, wtypes.bytes_wtype)
-        is_substring_expr = IsSubstring(
-            source_location=location, item=item_expr, sequence=self.expr
+        is_substring_expr = SubroutineCallExpression(
+            target=FreeSubroutineTarget(module_name="algopy", name="is_substring"),
+            args=[CallArg(value=item_expr, name=None), CallArg(value=self.expr, name=None)],
+            wtype=wtypes.bool_wtype,
+            source_location=location,
         )
         return var_expression(is_substring_expr)
 
@@ -228,6 +313,8 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
         other_expr = convert_literal_to_expr(other, self.wtype)
+        if other_expr.wtype != self.wtype:
+            return NotImplemented
         cmp_expr = BytesComparisonExpression(
             source_location=location,
             lhs=self.expr,

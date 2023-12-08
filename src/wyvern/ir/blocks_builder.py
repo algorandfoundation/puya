@@ -33,12 +33,8 @@ class BlocksBuilder:
         blocks = [BasicBlock(id=0, source_location=context.function.source_location)]
         self._blocks = blocks
         # initialize ssa
-        self.ssa = BraunSSA(blocks)
+        self.ssa = BraunSSA(blocks, context.subroutine.parameters, self.active_block)
         self.ssa.seal_block(self.active_block)
-        for parameter in context.subroutine.parameters:
-            self.ssa.write_variable(parameter.name, self.active_block, parameter)
-            # TODO: FIX THE BELOW, SHOULD BE DONE AS PART OF SSA INIT
-            self.ssa._variable_versions[parameter.name] = 1  # noqa: SLF001
 
     @property
     def blocks(self) -> Sequence[BasicBlock]:

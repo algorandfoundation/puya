@@ -2,11 +2,11 @@ contract BytesContract
 {
   approval_program(): algopy.UInt64
   {
-    base_64: algopy.Bytes = Bytes.from_base64("QmFzZSA2NCBlbmNvZGVk")
+    base_64: algopy.Bytes = b64<"QmFzZSA2NCBlbmNvZGVk">
     assert(base_64 == 'Base 64 encoded')
-    base_32: algopy.Bytes = Bytes.from_base32("IJQXGZJAGMZCAZLOMNXWIZLE")
+    base_32: algopy.Bytes = b32<"IJQXGZJAGMZCAZLOMNXWIZLE">
     assert(base_32 == 'Base 32 encoded')
-    base_16: algopy.Bytes = Bytes.from_base16("4261736520313620656E636F646564")
+    base_16: algopy.Bytes = hex<"4261736520313620656E636F646564">
     assert(base_16 == 'Base 16 encoded')
     empty: algopy.Bytes = ''
     assert(reinterpret_cast<bool>(len(base_64)), comment="Non empty bytes should be Truthy")
@@ -17,26 +17,27 @@ contract BytesContract
     assert(c == 'cd')
     abc: algopy.Bytes = 'abc'
     assert(abc[0u] == 'a')
-    assert(abc[1u:] == 'bc')
-    assert(abc[1u:1u] == '')
-    assert(abc[:1u] == 'a')
-    assert(abc[:-(len(abc), 1u)] == 'ab')
-    assert(abc[-(len(abc), 2u):] == 'bc')
-    assert(abc[-(len(abc), 2u):-(len(abc), 1u)] == 'b')
-    assert('1234567'[1u:-(len('1234567'), 1u)] == '23456')
+    assert(abc[(1u < tmp$0: algopy.UInt64 := len(abc)) ? (1u) : (tmp$0):] == 'bc')
+    assert(abc[(1u < tmp$1: algopy.UInt64 := len(abc)) ? (1u) : (tmp$1):(1u < tmp$1: algopy.UInt64 := len(abc)) ? (1u) : (tmp$1)] == '')
+    assert(abc[:(1u < tmp$2: algopy.UInt64 := len(abc)) ? (1u) : (tmp$2)] == 'a')
+    assert(abc[:(1u < tmp$3: algopy.UInt64 := len(abc)) ? (tmp$3 - 1u) : (0u)] == 'ab')
+    assert(abc[(2u < tmp$4: algopy.UInt64 := len(abc)) ? (tmp$4 - 2u) : (0u):] == 'bc')
+    assert(abc[(2u < tmp$5: algopy.UInt64 := len(abc)) ? (tmp$5 - 2u) : (0u):(1u < tmp$5: algopy.UInt64 := len(abc)) ? (tmp$5 - 1u) : (0u)] == 'b')
+    assert('1234567'[1u:6u] == '23456')
+    assert(abc[(10u < tmp$6: algopy.UInt64 := len(abc)) ? (tmp$6 - 10u) : (0u):(10u < tmp$6: algopy.UInt64 := len(abc)) ? (10u) : (tmp$6)] == 'abc')
     true: algopy.Bytes = '1'
     false: algopy.Bytes = ''
-    x: bool = !(reinterpret_cast<bool>(len(true))) ? true : true == true
+    x: bool = (!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true
     assert(x)
-    assert(!(reinterpret_cast<bool>(len(true))) ? true : true == true)
-    assert(!(reinterpret_cast<bool>(len(true))) ? true : false == false)
-    assert(!(reinterpret_cast<bool>(len(false))) ? false : true == false)
-    assert(!(reinterpret_cast<bool>(len(false))) ? false : false == false)
-    assert(reinterpret_cast<bool>(len(true)) ? true : true == true)
-    assert(reinterpret_cast<bool>(len(true)) ? true : false == true)
-    assert(reinterpret_cast<bool>(len(false)) ? false : true == true)
-    assert(reinterpret_cast<bool>(len(false)) ? false : false == false)
-    (a, b, c, d): tuple[algopy.Bytes, algopy.Bytes, algopy.Bytes, algopy.Bytes] = (Bytes.from_base16("00"), Bytes.from_base16("0F"), Bytes.from_base16("F0"), Bytes.from_base16("FF"))
+    assert((!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true)
+    assert((!(reinterpret_cast<bool>(len(true)))) ? (true) : (false) == false)
+    assert((!(reinterpret_cast<bool>(len(false)))) ? (false) : (true) == false)
+    assert((!(reinterpret_cast<bool>(len(false)))) ? (false) : (false) == false)
+    assert((reinterpret_cast<bool>(len(true))) ? (true) : (true) == true)
+    assert((reinterpret_cast<bool>(len(true))) ? (true) : (false) == true)
+    assert((reinterpret_cast<bool>(len(false))) ? (false) : (true) == true)
+    assert((reinterpret_cast<bool>(len(false))) ? (false) : (false) == false)
+    (a, b, c, d): tuple[algopy.Bytes, algopy.Bytes, algopy.Bytes, algopy.Bytes] = (hex<"00">, hex<"0F">, hex<"F0">, hex<"FF">)
     assert(a & b == a)
     assert(b | c == d)
     assert(b ^ d == c)

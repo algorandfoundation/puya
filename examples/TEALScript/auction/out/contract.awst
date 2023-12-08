@@ -1,0 +1,103 @@
+contract Auction
+{
+  globals {
+    ['auction_end']: algopy.UInt64
+    ['previous_bid']: algopy.UInt64
+    ['asa_amount']: algopy.UInt64
+    ['asa']: algopy.Asset
+    ['previous_bidder']: algopy.Account
+  }
+  locals {
+    ['claimable_amount']: algopy.UInt64
+  }
+  
+  constructor()
+  {
+    this.globals['auction_end']: algopy.UInt64 = 0u
+    this.globals['previous_bid']: algopy.UInt64 = 0u
+    this.globals['asa_amount']: algopy.UInt64 = 0u
+    this.globals['asa']: algopy.Asset = reinterpret_cast<algopy.Asset>(0u)
+    this.globals['previous_bidder']: algopy.Account = global<ZeroAddress>()
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod opt_into_asset(asset: algopy.Asset): None
+  {
+    assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
+    assert(reinterpret_cast<algopy.UInt64>(this.globals['asa']) == 0u, comment="ASA already opted in")
+    this.globals['asa']: algopy.Asset = asset
+    itxn_begin()
+    itxn_field<TypeEnum>(axfer)
+    itxn_field<Fee>(0u)
+    itxn_field<AssetReceiver>(global<CurrentApplicationAddress>())
+    itxn_field<XferAsset>(reinterpret_cast<algopy.UInt64>(asset))
+    itxn_submit()
+  }
+  
+  abimethod start_auction(starting_price: algopy.arc4.UIntN[typing.Literal[64]], length: algopy.arc4.UIntN[typing.Literal[64]], axfer: algopy.AssetTransferTransaction): None
+  {
+    assert(txn<Sender>() == global<CreatorAddress>(), comment="auction must be started by creator")
+    assert(this.globals['auction_end'] == 0u, comment="auction already started")
+    assert(gtxns<AssetReceiver>(axfer) == global<CurrentApplicationAddress>(), comment="axfer must transfer to this app")
+    this.globals['asa_amount']: algopy.UInt64 = gtxns<AssetAmount>(axfer)
+    this.globals['auction_end']: algopy.UInt64 = global<LatestTimestamp>() + arc4_decode(length, algopy.UInt64)
+    this.globals['previous_bid']: algopy.UInt64 = arc4_decode(starting_price, algopy.UInt64)
+  }
+  
+  abimethod opt_in(): None
+  {
+  }
+  
+  abimethod bid(pay: algopy.PaymentTransaction): None
+  {
+    assert(global<LatestTimestamp>() < this.globals['auction_end'], comment="auction has ended")
+    assert(gtxns<Sender>(pay) == txn<Sender>(), comment="payment sender must match transaction sender")
+    assert(gtxns<Amount>(pay) > this.globals['previous_bid'], comment="Bid must be higher than previous bid")
+    this.globals['previous_bid']: algopy.UInt64 = gtxns<Amount>(pay)
+    this.globals['previous_bidder']: algopy.Account = gtxns<Sender>(pay)
+    this.locals['claimable_amount'].account[txn<Sender>()]: algopy.UInt64 = gtxns<Amount>(pay)
+  }
+  
+  abimethod claim_bids(): None
+  {
+    original_amount: algopy.UInt64 = this.locals['claimable_amount'].account[txn<Sender>()]
+    amount: algopy.UInt64 = original_amount
+    if (txn<Sender>() == this.globals['previous_bidder']) {
+      amount -= this.globals['previous_bid']
+    }
+    itxn_begin()
+    itxn_field<TypeEnum>(pay)
+    itxn_field<Fee>(0u)
+    itxn_field<Receiver>(txn<Sender>())
+    itxn_field<AssetAmount>(amount)
+    itxn_submit()
+    this.locals['claimable_amount'].account[txn<Sender>()]: algopy.UInt64 = original_amount - amount
+  }
+  
+  abimethod claim_asset(asset: algopy.Asset): None
+  {
+    assert(global<LatestTimestamp>() > this.globals['auction_end'], comment="auction has not ended")
+    itxn_begin()
+    itxn_field<TypeEnum>(axfer)
+    itxn_field<Fee>(0u)
+    itxn_field<AssetReceiver>(this.globals['previous_bidder'])
+    itxn_field<XferAsset>(reinterpret_cast<algopy.UInt64>(asset))
+    itxn_field<AssetAmount>(this.globals['asa_amount'])
+    itxn_field<AssetCloseTo>(this.globals['previous_bidder'])
+    itxn_submit()
+  }
+  
+  subroutine delete_application(): None
+  {
+    itxn_begin()
+    itxn_field<TypeEnum>(pay)
+    itxn_field<Fee>(0u)
+    itxn_field<Receiver>(global<CreatorAddress>())
+    itxn_field<CloseRemainderTo>(global<CreatorAddress>())
+    itxn_submit()
+  }
+}

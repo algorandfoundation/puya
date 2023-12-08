@@ -1,0 +1,34 @@
+contract Arc4TuplesTypeContract
+{
+  approval_program(): bool
+  {
+    my_tuple: algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.String, algopy.arc4.String, algopy.arc4.UIntN[typing.Literal[8]]] = arc4_encode((1arc4u8, 2arc4u8, arc4_encode('hello', algopy.arc4.String), arc4_encode('world', algopy.arc4.String), 255arc4u8), algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.String, algopy.arc4.String, algopy.arc4.UIntN[typing.Literal[8]]])
+    assert(reinterpret_cast<algopy.Bytes>(my_tuple) == reinterpret_cast<algopy.Bytes>(reinterpret_cast<algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.String, algopy.arc4.String, algopy.arc4.UIntN[typing.Literal[8]]]>(hex<"01020007000EFF000568656C6C6F0005776F726C64">)))
+    boolean_packing: algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.UIntN[typing.Literal[8]]] = arc4_encode((4arc4u8, arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), 16arc4u8), algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.UIntN[typing.Literal[8]]])
+    assert(reinterpret_cast<algopy.Bytes>(boolean_packing) == hex<"04BD8010">)
+    (a, b, c, d, e, f, g, h, i, j, k): tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.UIntN[typing.Literal[8]]] = arc4_decode(boolean_packing, tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.UIntN[typing.Literal[8]]])
+    assert(reinterpret_cast<algopy.Bytes>(boolean_packing[10u]) == reinterpret_cast<algopy.Bytes>(k))
+    assert(arc4_decode(a, algopy.UInt64) == 4u, comment="a is 4")
+    assert(reinterpret_cast<algopy.Bytes>((reinterpret_cast<algopy.Bytes>(b) == hex<"00">) ? (b) : ((reinterpret_cast<algopy.Bytes>(d) == hex<"00">) ? (d) : ((reinterpret_cast<algopy.Bytes>(e) == hex<"00">) ? (e) : ((reinterpret_cast<algopy.Bytes>(f) == hex<"00">) ? (f) : ((reinterpret_cast<algopy.Bytes>(g) == hex<"00">) ? (g) : ((reinterpret_cast<algopy.Bytes>(i) == hex<"00">) ? (i) : (j))))))) != hex<"00">, comment="b,d,e,f,g,i,j are true")
+    assert(reinterpret_cast<algopy.Bytes>((reinterpret_cast<algopy.Bytes>(c) != hex<"00">) ? (c) : (h)) == hex<"00">, comment="c and h are false")
+    assert(arc4_decode(k, algopy.UInt64) == 16u, comment="k is 16")
+    assert(reinterpret_cast<algopy.Bytes>(boolean_packing) == reinterpret_cast<algopy.Bytes>(arc4_encode(arc4_decode(boolean_packing, tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.UIntN[typing.Literal[8]]]), algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.UIntN[typing.Literal[8]]])))
+    (total, concat): tuple[algopy.UInt64, algopy.arc4.String] = this::test_stuff(my_tuple)
+    assert(arc4_decode(concat, algopy.Bytes) == 'hello world')
+    assert(total == 258u)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_stuff(test_tuple: algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.String, algopy.arc4.String, algopy.arc4.UIntN[typing.Literal[8]]]): tuple[algopy.UInt64, algopy.arc4.String]
+  {
+    (a, b, c, d, e): tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.String, algopy.arc4.String, algopy.arc4.UIntN[typing.Literal[8]]] = arc4_decode(test_tuple, tuple[algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.UIntN[typing.Literal[8]], algopy.arc4.String, algopy.arc4.String, algopy.arc4.UIntN[typing.Literal[8]]])
+    total: algopy.UInt64 = arc4_decode(a, algopy.UInt64) + arc4_decode(b, algopy.UInt64) + arc4_decode(e, algopy.UInt64)
+    text: algopy.Bytes = arc4_decode(c, algopy.Bytes) + ' ' + arc4_decode(d, algopy.Bytes)
+    return (total, arc4_encode(text, algopy.arc4.String))
+  }
+}

@@ -1,4 +1,4 @@
-from algopy import Contract, subroutine, log, Transaction, Address, Bytes, Struct, UInt64, itob
+from algopy import Contract, Struct, UInt64, itob, log, subroutine
 
 
 class MyData(Struct):

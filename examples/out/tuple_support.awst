@@ -41,6 +41,7 @@ contract TupleSupport
     log(itob(lo))
     log(examples.tuple_support::bytes_multiply(('na', 5u)))
     examples.tuple_support::test_tuple_swap(zero=0u)
+    examples.tuple_support::slicing((1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u))
     return a + b
   }
   
@@ -62,7 +63,7 @@ subroutine bytes_multiply(arg: tuple[algopy.Bytes, algopy.UInt64]): algopy.Bytes
   (b, count): tuple[algopy.Bytes, algopy.UInt64] = arg
   result: algopy.Bytes = ''
   for _i in range(0u, count, 1u) {
-    result: algopy.Bytes = result + b
+    result += b
   }
   return result
 }
@@ -95,4 +96,11 @@ subroutine test_tuple_swap(zero: algopy.UInt64): None
   (a, b): tuple[algopy.UInt64, algopy.UInt64] = (b, a)
   assert(a == 2u, comment="a should be two")
   assert(b == 1u, comment="b should be one")
+}
+
+subroutine slicing(values: tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64, algopy.UInt64]): None
+{
+  one_to_three: tuple[algopy.UInt64, algopy.UInt64, algopy.UInt64] = values[0u:3u]
+  assert(examples.tuple_support::add_three_values(one_to_three) == values[0] + values[1] + values[2])
+  assert(one_to_three[1u:2u][0] == one_to_three[1])
 }

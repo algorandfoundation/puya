@@ -1,4 +1,3 @@
-import base64
 import itertools
 import typing
 from collections.abc import Iterator, Sequence
@@ -6,17 +5,22 @@ from collections.abc import Iterator, Sequence
 import structlog
 
 import wyvern.awst.visitors
+from wyvern.avm_type import AVMType
 from wyvern.awst import (
     nodes as awst_nodes,
     wtypes,
 )
 from wyvern.awst.nodes import (
     BigUIntBinaryOperator,
-    BytesEncoding,
     Expression,
     UInt64BinaryOperator,
 )
 from wyvern.errors import CodeError, InternalError, TodoError
+from wyvern.ir.arc4_util import (
+    determine_arc4_tuple_head_size,
+    get_arc4_fixed_bit_size,
+    is_arc4_dynamic_size,
+)
 from wyvern.ir.avm_ops import AVMOp
 from wyvern.ir.blocks_builder import BlocksBuilder
 from wyvern.ir.context import IRBuildContext, IRFunctionBuildContext
@@ -31,11 +35,13 @@ from wyvern.ir.models import (
     GotoNth,
     Intrinsic,
     InvokeSubroutine,
+    MethodConstant,
     Op,
     ProgramExit,
     Register,
     Subroutine,
     SubroutineReturn,
+    Switch,
     UInt64Constant,
     Value,
     ValueProvider,
@@ -44,11 +50,11 @@ from wyvern.ir.models import (
 from wyvern.ir.ssa import BraunSSA
 from wyvern.ir.types_ import (
     AVMBytesEncoding,
-    AVMType,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_avm_type,
 )
 from wyvern.parse import SourceLocation
+from wyvern.utils import bits_to_bytes, lazy_setdefault
 
 TExpression: typing.TypeAlias = ValueProvider | None
 TStatement: typing.TypeAlias = None
@@ -111,7 +117,7 @@ class FunctionIRBuilder(
         (app_id_r,) = self.assign(
             source=txn_app_id_intrinsic, temp_description="app_id", source_location=None
         )
-        on_create_block, entrypoint_block = self._mkblocks(
+        on_create_block, entrypoint_block = mkblocks(
             to.source_location or self.context.function.source_location, "on_create", "entrypoint"
         )
         self.block_builder.terminate(
@@ -156,10 +162,6 @@ class FunctionIRBuilder(
         name = self._next_tmp_name("awst_tmp")
         self._awst_temp_var_names[tmp_var] = name
         return name
-
-    def _mkblocks(self, loc: SourceLocation, *comments: str | None) -> Iterator[BasicBlock]:
-        for c in comments:
-            yield BasicBlock(comment=c, source_location=loc)
 
     def _visit_and_materialise_single(self, expr: awst_nodes.Expression) -> Value:
         """Translate an AWST Expression into a single Value"""
@@ -258,6 +260,16 @@ class FunctionIRBuilder(
 
         return targets
 
+    def _reassign(
+        self, reg: Register, source: ValueProvider, source_location: SourceLocation | None
+    ) -> Register:
+        (updated,) = self.assign(
+            source=source,
+            names=[(reg.name, reg.source_location)],
+            source_location=source_location,
+        )
+        return updated
+
     def _assign_targets(
         self,
         source: ValueProvider,
@@ -270,218 +282,100 @@ class FunctionIRBuilder(
             Assignment(targets=targets, source=source, source_location=assignment_location)
         )
 
-    def visit_is_substring(self, expr: awst_nodes.IsSubstring) -> TExpression:
+    def _refresh_mutated_variable(self, reg: Register) -> Register:
         """
-        Search for a shorter string in a larger one.
+        Given a register pointing to an underlying root operand (ie name) that is mutated,
+        do an SSA read in the current block.
 
-        search_start = 0
-        found = 0
-        while (search_start + len(item) <= len_sequence):
-            found = item == substr(sequence, search_start, search_start + len(item))
-            if found:
-                break
-            search_start += 1
-        return found
+        This is *only* required when there is control flow involved in the generated IR,
+        if it's only the builder that needs to loop then it should usually have an updated
+        reference to the most recent assigned register which will still be valid because it's
+        within the same block.
         """
-        src_loc = expr.source_location
+        return self.ssa.read_variable(reg.name, reg.atype, self.block_builder.active_block)
 
-        header, body, footer, next_block = self._mkblocks(
-            src_loc,
-            "substr_header",
-            "substr_body",
-            "substr_footer",
-            "substr_after",
-        )
-        item = self._visit_and_materialise_single(expr.item)
-        sequence = self._visit_and_materialise_single(expr.sequence)
-        (found,) = self.assign(
-            temp_description="found",
-            source=UInt64Constant(value=0, source_location=src_loc),
-            source_location=src_loc,
-        )
-        (len_sequence,) = self.assign(
-            temp_description="len_sequence",
-            source=Intrinsic(op=AVMOp.len_, args=[sequence], source_location=src_loc),
-            source_location=src_loc,
-        )
-        (len_item,) = self.assign(
-            temp_description="len_item",
-            source=Intrinsic(
-                op=AVMOp.len_,
-                args=[item],
-                source_location=src_loc,
-            ),
-            source_location=src_loc,
-        )
-        (search_start,) = self.assign(
-            temp_description="search_start",
-            source=UInt64Constant(value=0, source_location=src_loc),
-            source_location=src_loc,
-        )
-        self.block_builder.goto_and_activate(header)
-
-        (search_end,) = self.assign(
-            temp_description="search_end",
-            source_location=src_loc,
-            source=Intrinsic(
-                op=AVMOp.add,
-                args=[
-                    self.ssa.read_register(search_start, header),
-                    self.ssa.read_register(len_item, header),
-                ],
-                source_location=src_loc,
-            ),
-        )
-
-        (cant_find,) = self.assign(
-            temp_description="cant_find",
-            source=Intrinsic(
-                op=AVMOp.gt,
-                args=[self.ssa.read_register(search_end, header), len_sequence],
-                source_location=src_loc,
-            ),
-            source_location=src_loc,
-        )
-
-        self.block_builder.terminate(
-            ConditionalBranch(
-                condition=cant_find,
-                non_zero=next_block,
-                zero=body,
-                source_location=src_loc,
-            )
-        )
-        self.block_builder.activate_block(body)
-        self._seal(body)
-
-        (substr,) = self.assign(
-            temp_description="substr",
-            source=Intrinsic(
-                op=AVMOp.substring3,
-                args=[
-                    sequence,
-                    self.ssa.read_register(search_start, body),
-                    self.ssa.read_register(search_end, body),
-                ],
-                source_location=src_loc,
-            ),
-            source_location=src_loc,
-        )
-        self.assign(
-            names=[(found.name, src_loc)],
-            source=Intrinsic(
-                op=AVMOp.eq,
-                args=[
-                    self.ssa.read_register(substr, body),
-                    item,
-                ],
-                source_location=src_loc,
-            ),
-            source_location=src_loc,
-        )
-
-        self.block_builder.terminate(
-            ConditionalBranch(
-                condition=self.ssa.read_register(found, body),
-                zero=footer,
-                non_zero=next_block,
-                source_location=src_loc,
-            )
-        )
-        self.block_builder.activate_block(footer)
-
-        self.assign(
-            names=[(search_start.name, src_loc)],
-            source=Intrinsic(
-                op=AVMOp.add,
-                args=[
-                    self.ssa.read_register(search_start, footer),
-                    UInt64Constant(
-                        value=1,
-                        source_location=src_loc,
-                    ),
-                ],
-                source_location=src_loc,
-            ),
-            source_location=src_loc,
-        )
-
-        self.block_builder.goto(header)
-
-        self._seal(footer)
-        self._seal(header)
-        self.block_builder.activate_block(next_block)
-        self._seal(next_block)
-
-        return self.ssa.read_register(found, next_block)
-
-    def visit_abi_decode(self, expr: awst_nodes.AbiDecode) -> TExpression:
+    def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> TExpression:
         value = self._visit_and_materialise_single(expr.value)
         match expr.value.wtype:
-            case wtypes.AbiUIntN(n=scale):
-                match scale:
-                    case 8:
-                        op = AVMOp.getbyte
-                    case 16:
-                        op = AVMOp.extract_uint16
-                    case 32:
-                        op = AVMOp.extract_uint32
-                    case 64:
-                        op = AVMOp.extract_uint64
-                    case _:
-                        (integer_bytes,) = self.assign(
-                            source=Intrinsic(
-                                op=AVMOp.extract3,
-                                args=[
-                                    value,
-                                    UInt64Constant(value=0, source_location=expr.source_location),
-                                    UInt64Constant(
-                                        value=scale // 8,
-                                        source_location=expr.source_location,
-                                    ),
-                                ],
-                                source_location=expr.source_location,
-                            ),
-                            temp_description="integer_bytes",
-                            source_location=expr.source_location,
-                        )
-                        return Intrinsic(
-                            op=AVMOp.btoi,
-                            args=[
-                                self.ssa.read_register(
-                                    integer_bytes, self.block_builder.active_block
-                                ),
-                            ],
-                            source_location=expr.source_location,
-                        )
-
+            case wtypes.ARC4UIntN(n=scale) | wtypes.ARC4UFixedNxM(n=scale):
+                if scale > 64:
+                    return value
+                else:
+                    return Intrinsic(
+                        op=AVMOp.btoi,
+                        args=[value],
+                        source_location=expr.source_location,
+                    )
+            case wtypes.arc4_bool_wtype:
                 return Intrinsic(
-                    op=op,
-                    args=[value, UInt64Constant(value=0, source_location=expr.source_location)],
+                    op=AVMOp.getbit,
+                    args=[value, UInt64Constant(value=0, source_location=None)],
                     source_location=expr.source_location,
                 )
-            case wtypes.abi_string_wtype:
+            case wtypes.arc4_string_wtype:
                 return Intrinsic(
                     op=AVMOp.extract,
                     immediates=[2, 0],
                     args=[value],
                     source_location=expr.source_location,
                 )
+            case wtypes.ARC4Tuple() as arc4_tuple:
+                return self._visit_arc4_tuple_decode(
+                    arc4_tuple, value, source_location=expr.source_location
+                )
             case _:
-                raise TodoError(expr.source_location, "TODO: visit_abi_decode")
+                raise InternalError(
+                    f"Unsupported wtype for ARC4Decode: {expr.value.wtype}",
+                    location=expr.source_location,
+                )
 
-    def visit_abi_constant(self, expr: awst_nodes.AbiConstant) -> TExpression:
-        return BytesConstant(
-            source_location=expr.source_location,
-            encoding=bytes_enc_to_avm_bytes_enc(expr.bytes_encoding),
-            value=expr.value,
-        )
+    def _visit_arc4_tuple_decode(
+        self,
+        wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
+        value: Value,
+        source_location: SourceLocation,
+    ) -> ValueProvider:
+        items = list[Value]()
 
-    def visit_abi_encode(self, expr: awst_nodes.AbiEncode) -> TExpression:
-        value = self._visit_and_materialise_single(expr.value)
+        for index in range(len(wtype.types)):
+            index_const = UInt64Constant(value=index, source_location=source_location)
+            item_value = self._read_nth_item_of_arc4_heterogeneous_container(
+                array_bytes_sans_length_header=value,
+                tuple_type=wtype,
+                index=index_const,
+                source_location=source_location,
+            )
+            (item,) = self.assign(
+                temp_description=f"item{index}",
+                source=item_value,
+                source_location=source_location,
+            )
 
+            items.append(item)
+        return ValueTuple(source_location=source_location, values=items)
+
+    def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         match expr.wtype:
-            case wtypes.abi_string_wtype:
+            case wtypes.arc4_bool_wtype:
+                value = self._visit_and_materialise_single(expr.value)
+                return encode_arc4_bool(value, expr.source_location)
+            case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM() as wt:
+                value = self._visit_and_materialise_single(expr.value)
+                num_bytes = wt.n // 8
+                return self._itob_fixed(value, num_bytes, expr.source_location)
+            case wtypes.ARC4Tuple(types=item_types) | wtypes.ARC4Struct(types=item_types):
+                return self._visit_arc4_tuple_encode(expr, item_types)
+            case wtypes.arc4_string_wtype:
+                if isinstance(expr.value, awst_nodes.BytesConstant):
+                    ir_const = self.visit_bytes_constant(expr.value)
+                    prefix = len(ir_const.value).to_bytes(2, "big")
+                    value_prefixed = prefix + ir_const.value
+                    return BytesConstant(
+                        source_location=expr.source_location,
+                        value=value_prefixed,
+                        encoding=ir_const.encoding,
+                    )
+                value = self._visit_and_materialise_single(expr.value)
                 (length,) = self.assign(
                     temp_description="length",
                     source_location=expr.source_location,
@@ -493,34 +387,83 @@ class FunctionIRBuilder(
                 )
                 return Intrinsic(
                     op=AVMOp.concat,
-                    args=[
-                        self._value_as_uint16(length, expr.source_location),
-                        value,
-                    ],
+                    args=[self._value_as_uint16(length), value],
                     source_location=expr.source_location,
                 )
-            case wtypes.AbiUIntN(n=scale) if scale <= 64:
-                (val_as_bytes,) = self.assign(
-                    temp_description="val_as_bytes",
-                    source_location=expr.source_location,
-                    source=Intrinsic(
-                        op=AVMOp.itob, args=[value], source_location=expr.source_location
-                    ),
+            case wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray():
+                raise InternalError(
+                    "ARC4ArrayEncode should be used instead of ARC4Encode for arrays",
+                    expr.source_location,
                 )
-                scale_bytes = scale // 8
+            case _:
+                raise InternalError(
+                    f"Unsupported wtype for ARC4Encode: {expr.wtype}",
+                    location=expr.source_location,
+                )
 
+    def _itob_fixed(
+        self, value: Value, num_bytes: int, source_location: SourceLocation
+    ) -> ValueProvider:
+        if value.atype == AVMType.uint64:
+            (val_as_bytes,) = self.assign(
+                temp_description="val_as_bytes",
+                source=Intrinsic(op=AVMOp.itob, args=[value], source_location=source_location),
+                source_location=source_location,
+            )
+
+            if num_bytes == 8:
+                return val_as_bytes
+            if num_bytes < 8:
                 return Intrinsic(
-                    op=AVMOp.substring3,
-                    args=[
-                        val_as_bytes,
-                        UInt64Constant(
-                            value=8 - scale_bytes, source_location=expr.source_location
-                        ),
-                        UInt64Constant(value=8, source_location=expr.source_location),
-                    ],
-                    source_location=expr.source_location,
+                    op=AVMOp.extract,
+                    immediates=[8 - num_bytes, num_bytes],
+                    args=[val_as_bytes],
+                    source_location=source_location,
                 )
-        raise TodoError(expr.source_location, "TODO: Handle wtype")
+            bytes_value: Value = val_as_bytes
+        else:
+            (len_,) = self.assign(
+                temp_description="len_",
+                source=Intrinsic(op=AVMOp.len_, args=[value], source_location=source_location),
+                source_location=source_location,
+            )
+            (no_overflow,) = self.assign(
+                temp_description="no_overflow",
+                source=Intrinsic(
+                    op=AVMOp.lte,
+                    args=[
+                        len_,
+                        UInt64Constant(value=num_bytes, source_location=source_location),
+                    ],
+                    source_location=source_location,
+                ),
+                source_location=source_location,
+            )
+
+            self.block_builder.add(
+                Intrinsic(
+                    op=AVMOp.assert_,
+                    args=[no_overflow],
+                    source_location=source_location,
+                    comment="overflow",
+                )
+            )
+            bytes_value = value
+
+        (b_zeros,) = self.assign(
+            temp_description="b_zeros",
+            source=Intrinsic(
+                op=AVMOp.bzero,
+                args=[UInt64Constant(value=num_bytes, source_location=source_location)],
+                source_location=source_location,
+            ),
+            source_location=source_location,
+        )
+        return Intrinsic(
+            op=AVMOp.bitwise_or_bytes,
+            args=[bytes_value, b_zeros],
+            source_location=source_location,
+        )
 
     def visit_assignment_statement(self, stmt: awst_nodes.AssignmentStatement) -> TStatement:
         self._handle_assignment_expr(
@@ -638,57 +581,17 @@ class FunctionIRBuilder(
                     f" {type(target).__name__}",
                 )
 
-    @staticmethod
-    def _create_uint64_binary_op(
-        op: UInt64BinaryOperator, left: Value, right: Value, source_location: SourceLocation
-    ) -> Intrinsic:
-        avm_op: AVMOp
-        match op:
-            case UInt64BinaryOperator.floor_div:
-                avm_op = AVMOp.div_floor
-            case UInt64BinaryOperator.pow:
-                avm_op = AVMOp.exp
-            case UInt64BinaryOperator.lshift:
-                avm_op = AVMOp.shl
-            case UInt64BinaryOperator.rshift:
-                avm_op = AVMOp.shr
-            case _:
-                try:
-                    avm_op = AVMOp(op.value)
-                except ValueError as ex:
-                    raise InternalError(
-                        f"Unhandled uint64 binary operator: {op}", source_location
-                    ) from ex
-        return Intrinsic(op=avm_op, args=[left, right], source_location=source_location)
-
-    @staticmethod
-    def _create_biguint_binary_op(
-        op: BigUIntBinaryOperator, left: Value, right: Value, source_location: SourceLocation
-    ) -> Intrinsic:
-        avm_op: AVMOp
-        match op:
-            case BigUIntBinaryOperator.floor_div:
-                avm_op = AVMOp.div_floor_bytes
-            case _:
-                try:
-                    avm_op = AVMOp("b" + op.value)
-                except ValueError as ex:
-                    raise InternalError(
-                        f"Unhandled uint64 binary operator: {op}", source_location
-                    ) from ex
-        return Intrinsic(op=avm_op, args=[left, right], source_location=source_location)
-
     def visit_uint64_binary_operation(self, expr: awst_nodes.UInt64BinaryOperation) -> TExpression:
         left = self._visit_and_materialise_single(expr.left)
         right = self._visit_and_materialise_single(expr.right)
-        return self._create_uint64_binary_op(expr.op, left, right, expr.source_location)
+        return create_uint64_binary_op(expr.op, left, right, expr.source_location)
 
     def visit_biguint_binary_operation(
         self, expr: awst_nodes.BigUIntBinaryOperation
     ) -> TExpression:
         left = self._visit_and_materialise_single(expr.left)
         right = self._visit_and_materialise_single(expr.right)
-        return self._create_biguint_binary_op(expr.op, left, right, expr.source_location)
+        return create_biguint_binary_op(expr.op, left, right, expr.source_location)
 
     def visit_uint64_unary_operation(self, expr: awst_nodes.UInt64UnaryOperation) -> TExpression:
         return Intrinsic(
@@ -704,21 +607,52 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
-    def visit_uint64_constant(self, expr: awst_nodes.UInt64Constant) -> TExpression:
-        return UInt64Constant(
-            value=expr.value, source_location=expr.source_location, teal_alias=expr.teal_alias
-        )
+    def visit_integer_constant(self, expr: awst_nodes.IntegerConstant) -> TExpression:
+        match expr.wtype:
+            case wtypes.uint64_wtype:
+                return UInt64Constant(
+                    value=expr.value,
+                    source_location=expr.source_location,
+                    teal_alias=expr.teal_alias,
+                )
+            case wtypes.biguint_wtype:
+                return BigUIntConstant(value=expr.value, source_location=expr.source_location)
+            case wtypes.ARC4UIntN(n=bit_size):
+                num_bytes = bit_size // 8
+                return BytesConstant(
+                    source_location=expr.source_location,
+                    encoding=AVMBytesEncoding.base16,
+                    value=expr.value.to_bytes(num_bytes, "big", signed=False),
+                )
+            case _:
+                raise InternalError(
+                    f"Unhandled wtype {expr.wtype} for integer constant {expr.value}",
+                    expr.source_location,
+                )
 
-    def visit_biguint_constant(self, expr: awst_nodes.BigUIntConstant) -> TExpression:
-        return BigUIntConstant(value=expr.value, source_location=expr.source_location)
+    def visit_decimal_constant(self, expr: awst_nodes.DecimalConstant) -> TExpression:
+        match expr.wtype:
+            case wtypes.ARC4UFixedNxM(n=bit_size):
+                num_bytes = bit_size // 8
+                adjusted_int = int(str(expr.value).replace(".", ""))
+                return BytesConstant(
+                    source_location=expr.source_location,
+                    encoding=AVMBytesEncoding.base16,
+                    value=adjusted_int.to_bytes(num_bytes, "big", signed=False),
+                )
+            case _:
+                raise InternalError(
+                    f"Unhandled wtype {expr.wtype} for decimal constant {expr.value}",
+                    expr.source_location,
+                )
 
     def visit_bool_constant(self, expr: awst_nodes.BoolConstant) -> TExpression:
         return UInt64Constant(value=int(expr.value), source_location=expr.source_location)
 
-    def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> TExpression:
+    def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
         return BytesConstant(
             value=expr.value,
-            encoding=AVMBytesEncoding.utf8,
+            encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),
             source_location=expr.source_location,
         )
 
@@ -733,14 +667,18 @@ class FunctionIRBuilder(
     ) -> TExpression:
         left = self._visit_and_materialise_single(expr.lhs)
         right = self._visit_and_materialise_single(expr.rhs)
-        if left.atype != right.atype:
+        if not (left.atype & right.atype):
             raise InternalError(
                 "Numeric comparison between different numeric types", expr.source_location
             )
-        if left.atype == AVMType.any:
+        if left.atype != AVMType.any:
+            atype = left.atype
+        elif right.atype != AVMType.any:
+            atype = right.atype
+        else:
             raise InternalError("Numeric comparison mapped to any type", expr.source_location)
         op_code = expr.operator.value
-        if left.atype == AVMType.bytes:
+        if atype == AVMType.bytes:
             op_code = "b" + op_code
 
         try:
@@ -755,6 +693,35 @@ class FunctionIRBuilder(
             args=[left, right],
             source_location=expr.source_location,
         )
+
+    def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> TExpression:
+        value_atype = wtype_to_avm_type(expr.wtype)
+        value_tmp = self._mktemp(
+            atype=value_atype,
+            source_location=expr.source_location,
+            description="maybe_value",
+        )
+        did_exist_tmp = self._mktemp(
+            atype=AVMType.uint64,
+            source_location=expr.source_location,
+            description="maybe_value_did_exist",
+        )
+        maybe_value = self._visit_expr(expr.expr)
+        self._assign_targets(
+            source=maybe_value,
+            targets=[value_tmp, did_exist_tmp],
+            assignment_location=expr.source_location,
+        )
+        self.block_builder.add(
+            Intrinsic(
+                op=AVMOp.assert_,
+                args=[did_exist_tmp],
+                comment=expr.comment or "check value exists",
+                source_location=expr.source_location,
+            )
+        )
+
+        return value_tmp
 
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
         if isinstance(expr.wtype, wtypes.WTuple):
@@ -797,29 +764,16 @@ class FunctionIRBuilder(
                     immediates=list(call.immediates),
                 )
 
-    def visit_bytes_decode(self, expr: awst_nodes.BytesDecode) -> TExpression:
-        match expr.encoding:
-            case BytesEncoding.base16:
-                value = base64.b16decode(expr.value)
-                encoding = AVMBytesEncoding.base16
-            case BytesEncoding.base32:
-                value = base64.b32decode(expr.value)
-                encoding = AVMBytesEncoding.base32
-            case BytesEncoding.base64:
-                value = base64.b64decode(expr.value)
-                encoding = AVMBytesEncoding.base64
-            case BytesEncoding.method:
-                raise TodoError(expr.source_location, f"TODO: support encoding {expr.encoding}")
-            case _:
-                raise InternalError("Unsupported bytes encoding")
-        return BytesConstant(value=value, encoding=encoding, source_location=expr.source_location)
+    def visit_method_constant(self, expr: wyvern.awst.nodes.MethodConstant) -> TExpression:
+        return MethodConstant(value=expr.value, source_location=expr.source_location)
 
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> TExpression:
         items = []
         for item in expr.items:
             try:
+                # TODO: don't rely on a pure function's side effects (raising) for validation
                 wtype_to_avm_type(item)
-            except InternalError:  # TODO: UNYUCK THIS FUCK
+            except InternalError:
                 raise CodeError(
                     "Nested tuples or other compound types are not supported yet",
                     item.source_location,
@@ -837,124 +791,178 @@ class FunctionIRBuilder(
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
         raise TodoError(expr.source_location, "TODO: IR building: visit_field_expression")
 
-    def visit_slice_expression(self, expr: wyvern.awst.nodes.SliceExpression) -> TExpression:
-        """
-        Slices an enumerable type.
-
-
-        """
-        if expr.base.wtype == wtypes.bytes_wtype:
+    def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> TExpression:
+        """Slices an enumerable type."""
+        if isinstance(expr.wtype, wtypes.WTuple):
+            values = list(self._visit_and_materialise(expr.base))
+            start_i = extract_const_int(expr.begin_index)
+            end_i = extract_const_int(expr.end_index)
+            return ValueTuple(source_location=expr.source_location, values=values[start_i:end_i])
+        elif expr.base.wtype == wtypes.bytes_wtype:
             base = self._visit_and_materialise_single(expr.base)
+            if expr.begin_index is None and expr.end_index is None:
+                return base
 
-            # For certain constant values we can use the immediate version of extract/substring
-            match (base, expr.begin_index, expr.end_index):
-                case (
-                    _,
-                    wyvern.awst.nodes.UInt64Constant() as start,
-                    wyvern.awst.nodes.UInt64Constant() as stop,
-                ):
-                    return self._extract_with_constants(
-                        AVMOp.substring, base, start.value, stop.value, expr.source_location
-                    )
-                case (_, wyvern.awst.nodes.UInt64Constant() as start, None):
-                    return self._extract_with_constants(
-                        AVMOp.extract, base, start.value, 0, expr.source_location
-                    )
-                case (_, None, wyvern.awst.nodes.UInt64Constant() as stop):
-                    return self._extract_with_constants(
-                        AVMOp.extract, base, 0, stop.value, expr.source_location
-                    )
+            if expr.begin_index is not None:
+                start_value = self._visit_and_materialise_single(expr.begin_index)
+            else:
+                start_value = UInt64Constant(value=0, source_location=expr.source_location)
 
-            (base_length,) = self.assign(
-                source_location=expr.source_location,
-                source=Intrinsic(op=AVMOp.len_, args=[base], source_location=expr.source_location),
-                temp_description="base_length",
-            )
-            start_value: Value
-            match expr.begin_index:
-                case None:
-                    start_value = UInt64Constant(value=0, source_location=expr.source_location)
-                case Expression() as begin_expr:
-                    start_value = self._visit_and_materialise_single(begin_expr)
-                case _:
-                    raise InternalError("Shouldn't get here")
-
-            stop_value: Value
-            if expr.end_index:
-                match expr.end_index:
-                    case Expression() as begin_expr:
-                        stop_value = self._visit_and_materialise_single(begin_expr)
-                    case _:
-                        raise InternalError("Shouldn't get here")
-
+            if expr.end_index is not None:
+                stop_value = self._visit_and_materialise_single(expr.end_index)
                 return Intrinsic(
                     op=AVMOp.substring3,
                     args=[base, start_value, stop_value],
                     source_location=expr.source_location,
                 )
-            else:
+            elif isinstance(start_value, UInt64Constant):
+                # we can use extract without computing the length when the start index is
+                # a constant value and the end index is None (ie end of array)
                 return Intrinsic(
-                    op=AVMOp.substring3,
-                    args=[
-                        base,
-                        start_value,
-                        self.ssa.read_register(base_length, self.block_builder.active_block),
-                    ],
+                    op=AVMOp.extract,
+                    immediates=[start_value.value, 0],
+                    args=[base],
                     source_location=expr.source_location,
                 )
-
+            else:
+                (base_length,) = self.assign(
+                    source_location=expr.source_location,
+                    source=Intrinsic(
+                        op=AVMOp.len_, args=[base], source_location=expr.source_location
+                    ),
+                    temp_description="base_length",
+                )
+                return Intrinsic(
+                    op=AVMOp.substring3,
+                    args=[base, start_value, base_length],
+                    source_location=expr.source_location,
+                )
         else:
             raise TodoError(expr.source_location, f"TODO: IR Slice {expr.wtype}")
 
-    @staticmethod
-    def _extract_with_constants(
-        op: typing.Literal[AVMOp.substring, AVMOp.extract],
-        expr: Value,
-        start: int,
-        stop_or_length: int,
-        source_location: SourceLocation,
-    ) -> Intrinsic:
-        return Intrinsic(
-            op=op,
-            args=[expr],
-            immediates=[start, stop_or_length],
+    def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
+        index = self._visit_and_materialise_single(expr.index)
+        base = self._visit_and_materialise_single(expr.base)
+        match expr.index.wtype, expr.base.wtype:
+            case wtypes.uint64_wtype, wtypes.bytes_wtype:
+                # note: the below works because Bytes is immutable, so this index expression
+                # can never appear as an assignment target
+                if isinstance(index, UInt64Constant):
+                    return Intrinsic(
+                        op=AVMOp.extract,
+                        args=[base],
+                        immediates=[index.value, 1],
+                        source_location=expr.source_location,
+                    )
+                (index_plus_1,) = self.assign(
+                    Intrinsic(
+                        op=AVMOp.add,
+                        source_location=expr.source_location,
+                        args=[
+                            index,
+                            UInt64Constant(value=1, source_location=expr.source_location),
+                        ],
+                    ),
+                    temp_description="index_plus_1",
+                    source_location=expr.source_location,
+                )
+                return Intrinsic(
+                    op=AVMOp.substring3,
+                    args=[base, index, index_plus_1],
+                    source_location=expr.source_location,
+                )
+            case wtypes.uint64_wtype, wtypes.ARC4StaticArray(
+                array_size=array_size, element_type=element_type
+            ):
+                self._assert_index_in_bounds(
+                    index=index,
+                    length=UInt64Constant(value=array_size, source_location=expr.source_location),
+                    source_location=expr.source_location,
+                )
+                return self._read_nth_item_of_arc4_homogeneous_container(
+                    source_location=expr.source_location,
+                    array_bytes_sans_length_header=base,
+                    index=index,
+                    item_wtype=element_type,
+                )
+            case wtypes.uint64_wtype, wtypes.ARC4DynamicArray(element_type=element_type):
+                self._assert_index_in_bounds(
+                    index=index,
+                    length=Intrinsic(
+                        op=AVMOp.extract_uint16,
+                        args=[
+                            base,
+                            UInt64Constant(value=0, source_location=expr.source_location),
+                        ],
+                        source_location=expr.source_location,
+                    ),
+                    source_location=expr.source_location,
+                )
+                (array_data_sans_header,) = self.assign(
+                    source_location=expr.source_location,
+                    temp_description="array_data_sans_header",
+                    source=Intrinsic(
+                        op=AVMOp.extract,
+                        args=[base],
+                        immediates=[2, 0],
+                        source_location=expr.source_location,
+                    ),
+                )
+                return self._read_nth_item_of_arc4_homogeneous_container(
+                    source_location=expr.source_location,
+                    array_bytes_sans_length_header=array_data_sans_header,
+                    index=index,
+                    item_wtype=element_type,
+                )
+            case wtypes.uint64_wtype, (wtypes.ARC4Tuple() | wtypes.ARC4Struct()) as tuple_type:
+                if not isinstance(index, UInt64Constant):
+                    raise InternalError("Tuples must be index with a constant value")
+                return self._read_nth_item_of_arc4_heterogeneous_container(
+                    source_location=expr.source_location,
+                    array_bytes_sans_length_header=base,
+                    index=index,
+                    tuple_type=tuple_type,
+                )
+
+        raise TodoError(expr.source_location, "TODO: IR building: visit_index_expression")
+
+    def _assert_index_in_bounds(
+        self, index: Value, length: ValueProvider, source_location: SourceLocation
+    ) -> None:
+        if isinstance(index, UInt64Constant) and isinstance(length, UInt64Constant):
+            if 0 <= index.value < length.value:
+                return
+            raise CodeError("Index access is out of bounds", source_location)
+
+        (array_length,) = self.assign(
             source_location=source_location,
+            temp_description="array_length",
+            source=length,
         )
 
-    def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
-        if expr.base.wtype == wtypes.bytes_wtype and expr.index.wtype == wtypes.uint64_wtype:
-            # note: the below works because Bytes is immutable, so this index expression
-            # can never appear as an assignment target
-            base = self._visit_and_materialise_single(expr.base)
-            index = self._visit_and_materialise_single(expr.index)
-            if isinstance(index, UInt64Constant):
-                return self._extract_with_constants(
-                    AVMOp.extract, base, index.value, 1, expr.source_location
-                )
-            (index_plus_1,) = self.assign(
-                Intrinsic(
-                    op=AVMOp.add,
-                    source_location=expr.source_location,
-                    args=[
-                        index,
-                        UInt64Constant(value=1, source_location=expr.source_location),
-                    ],
-                ),
-                temp_description="index_plus_1",
-                source_location=expr.source_location,
+        (index_is_in_bounds,) = self.assign(
+            source_location=source_location,
+            temp_description="index_is_in_bounds",
+            source=Intrinsic(
+                op=AVMOp.lt,
+                args=[index, array_length],
+                source_location=source_location,
+            ),
+        )
+        self.block_builder.add(
+            Intrinsic(
+                op=AVMOp.assert_,
+                source_location=source_location,
+                args=[index_is_in_bounds],
+                comment="Index access is out of bounds",
             )
-            return Intrinsic(
-                op=AVMOp.substring3,
-                args=[base, index, index_plus_1],
-                source_location=expr.source_location,
-            )
-        raise TodoError(expr.source_location, "TODO: IR building: visit_index_expression")
+        )
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
         # TODO: if expr.true_value and exr.false_value are var expressions,
         #       we can optimize with the `select` op
 
-        true_block, false_block, merge_block = self._mkblocks(
+        true_block, false_block, merge_block = mkblocks(
             expr.source_location, "ternary_true", "ternary_false", "ternary_merge"
         )
         self._process_conditional(
@@ -1098,7 +1106,10 @@ class FunctionIRBuilder(
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         raise TodoError(expr.source_location, "TODO: visit_new_array")
 
-    def _value_as_uint16(self, value: Value, source_location: SourceLocation) -> Value:
+    def _value_as_uint16(
+        self, value: Value, source_location: SourceLocation | None = None
+    ) -> Value:
+        source_location = source_location or value.source_location
         (value_as_bytes,) = self.assign(
             source_location=source_location,
             source=Intrinsic(op=AVMOp.itob, args=[value], source_location=source_location),
@@ -1116,102 +1127,179 @@ class FunctionIRBuilder(
         )
         return value_as_uint16
 
-    def visit_new_abi_array(self, expr: awst_nodes.NewAbiArray) -> TExpression:
-        elements = [self._visit_and_materialise_single(el) for el in expr.elements]
+    def _visit_arc4_tuple_encode(
+        self, expr: awst_nodes.ARC4Encode, tuple_items: Sequence[wtypes.WType]
+    ) -> TExpression:
+        elements = self._visit_and_materialise(expr.value)
+        header_size = determine_arc4_tuple_head_size(tuple_items, round_end_result=True)
+        expr_loc = expr.source_location
 
-        array_data: Register | None = None
+        (current_tail_offset,) = self.assign(
+            temp_description="current_tail_offset",
+            source=UInt64Constant(value=header_size // 8, source_location=expr_loc),
+            source_location=expr_loc,
+        )
 
-        if isinstance(expr.wtype, wtypes.AbiDynamicArray):
-            (array_data,) = self.assign(
-                source_location=expr.source_location,
-                source=BytesConstant(
-                    source_location=expr.source_location,
-                    encoding=AVMBytesEncoding.base16,
-                    value=len(elements).to_bytes(2, "big"),
-                ),
-                temp_description="array_data",
+        (encoded_tuple_buffer,) = self.assign(
+            temp_description="encoded_tuple_buffer",
+            source_location=expr_loc,
+            source=BytesConstant(
+                value=b"", encoding=AVMBytesEncoding.base16, source_location=expr_loc
+            ),
+        )
+
+        def assign_buffer(source: ValueProvider) -> None:
+            nonlocal encoded_tuple_buffer
+            encoded_tuple_buffer = self._reassign(encoded_tuple_buffer, source, expr_loc)
+
+        def append_to_buffer(item: Value) -> None:
+            assign_buffer(
+                Intrinsic(
+                    op=AVMOp.concat, args=[encoded_tuple_buffer, item], source_location=expr_loc
+                )
             )
-        if expr.wtype.element_type == wtypes.abi_string_wtype:
-            (next_offset,) = self.assign(
-                source_location=expr.source_location,
-                source=UInt64Constant(
-                    value=(2 * len(elements)),
-                    source_location=expr.source_location,
-                ),
-                temp_description="next_offset",
-            )
-            for element in elements:
-                if array_data is None:
-                    (array_data,) = self.assign(
-                        source_location=expr.source_location,
-                        source=self._value_as_uint16(
-                            self.ssa.read_register(next_offset, self.block_builder.active_block),
-                            source_location=expr.source_location,
+
+        for index, (element, el_wtype) in enumerate(zip(elements, tuple_items)):
+            if el_wtype == wtypes.arc4_bool_wtype:
+                # Pack boolean
+                before_header = determine_arc4_tuple_head_size(
+                    tuple_items[0:index], round_end_result=False
+                )
+                if before_header % 8 == 0:
+                    append_to_buffer(element)
+                else:
+                    (is_true,) = self.assign(
+                        temp_description="is_true",
+                        source=Intrinsic(
+                            op=AVMOp.getbit,
+                            args=[element, UInt64Constant(value=0, source_location=None)],
+                            source_location=expr_loc,
                         ),
-                        temp_description="array_data",
+                        source_location=expr_loc,
+                    )
+
+                    assign_buffer(
+                        Intrinsic(
+                            op=AVMOp.setbit,
+                            args=[
+                                encoded_tuple_buffer,
+                                UInt64Constant(value=before_header, source_location=expr_loc),
+                                is_true,
+                            ],
+                            source_location=expr_loc,
+                        )
+                    )
+            elif not is_arc4_dynamic_size(el_wtype):
+                # Append value
+                append_to_buffer(element)
+            else:
+                # Append pointer
+                offset_as_uint16b = self._value_as_uint16(current_tail_offset)
+                append_to_buffer(offset_as_uint16b)
+                # Update Pointer
+                (data_length,) = self.assign(
+                    temp_description="data_length",
+                    source=Intrinsic(op=AVMOp.len_, args=[element], source_location=expr_loc),
+                    source_location=expr_loc,
+                )
+                next_tail_offset = Intrinsic(
+                    op=AVMOp.add,
+                    args=[current_tail_offset, data_length],
+                    source_location=expr_loc,
+                )
+                current_tail_offset = self._reassign(
+                    current_tail_offset, next_tail_offset, expr_loc
+                )
+
+        for element, el_wtype in zip(elements, tuple_items):
+            if is_arc4_dynamic_size(el_wtype):
+                append_to_buffer(element)
+        return encoded_tuple_buffer
+
+    def visit_arc4_array_encode(self, expr: awst_nodes.ARC4ArrayEncode) -> TExpression:
+        len_prefix = (
+            len(expr.values).to_bytes(2, "big")
+            if isinstance(expr.wtype, wtypes.ARC4DynamicArray)
+            else b""
+        )
+
+        expr_loc = expr.source_location
+        if not expr.values:
+            return BytesConstant(
+                value=len_prefix, encoding=AVMBytesEncoding.base16, source_location=expr_loc
+            )
+
+        elements = [self._visit_and_materialise_single(value) for value in expr.values]
+        element_type = expr.wtype.element_type
+
+        (array_data,) = self.assign(
+            temp_description="array_data",
+            source=BytesConstant(
+                value=len_prefix, encoding=AVMBytesEncoding.base16, source_location=expr_loc
+            ),
+            source_location=expr_loc,
+        )
+        if element_type == wtypes.arc4_bool_wtype:
+            for index, el in enumerate(elements):
+                if index % 8 == 0:
+                    new_array_data_value = Intrinsic(
+                        op=AVMOp.concat, args=[array_data, el], source_location=expr_loc
                     )
                 else:
-                    (array_data,) = self.assign(
-                        source_location=expr.source_location,
+                    (is_true,) = self.assign(
+                        temp_description="is_true",
                         source=Intrinsic(
-                            op=AVMOp.concat,
-                            args=[
-                                self.ssa.read_register(
-                                    array_data, self.block_builder.active_block
-                                ),
-                                self._value_as_uint16(
-                                    self.ssa.read_register(
-                                        next_offset, self.block_builder.active_block
-                                    ),
-                                    source_location=expr.source_location,
-                                ),
-                            ],
-                            source_location=expr.source_location,
+                            op=AVMOp.getbit,
+                            args=[el, UInt64Constant(value=0, source_location=None)],
+                            source_location=expr_loc,
                         ),
-                        names=[(array_data.name, expr.source_location)],
+                        source_location=expr_loc,
                     )
+                    new_array_data_value = Intrinsic(
+                        op=AVMOp.setbit,
+                        args=[
+                            array_data,
+                            UInt64Constant(
+                                value=index + (len(len_prefix) * 8),
+                                source_location=expr_loc,
+                            ),
+                            is_true,
+                        ],
+                        source_location=expr_loc,
+                    )
+                array_data = self._reassign(array_data, new_array_data_value, expr_loc)
+
+            return array_data
+
+        if is_arc4_dynamic_size(element_type):
+            (next_offset,) = self.assign(
+                temp_description="next_offset",
+                source=UInt64Constant(value=(2 * len(elements)), source_location=expr_loc),
+                source_location=expr_loc,
+            )
+            for element in elements:
+                updated_array_data = Intrinsic(
+                    op=AVMOp.concat,
+                    args=[array_data, self._value_as_uint16(next_offset)],
+                    source_location=expr_loc,
+                )
+                array_data = self._reassign(array_data, updated_array_data, expr_loc)
 
                 (element_length,) = self.assign(
-                    source_location=expr.source_location,
-                    source=Intrinsic(
-                        op=AVMOp.len_, args=[element], source_location=expr.source_location
-                    ),
                     temp_description="element_length",
+                    source=Intrinsic(op=AVMOp.len_, args=[element], source_location=expr_loc),
+                    source_location=expr_loc,
                 )
-                self.assign(
-                    source_location=expr.source_location,
-                    names=[(next_offset.name, expr.source_location)],
-                    source=Intrinsic(
-                        op=AVMOp.add,
-                        args=[
-                            self.ssa.read_register(next_offset, self.block_builder.active_block),
-                            element_length,
-                        ],
-                        source_location=expr.source_location,
-                    ),
+                next_offset_value = Intrinsic(
+                    op=AVMOp.add, args=[next_offset, element_length], source_location=expr_loc
                 )
+                next_offset = self._reassign(next_offset, next_offset_value, expr_loc)
 
         for element in elements:
-            if array_data is None:
-                (array_data,) = self.assign(
-                    source_location=expr.source_location,
-                    source=element,
-                    temp_description="array_data",
-                )
-            else:
-                (array_data,) = self.assign(
-                    source_location=expr.source_location,
-                    source=Intrinsic(
-                        op=AVMOp.concat,
-                        args=[
-                            self.ssa.read_register(array_data, self.block_builder.active_block),
-                            element,
-                        ],
-                        source_location=expr.source_location,
-                    ),
-                    names=[(array_data.name, expr.source_location)],
-                )
-
+            array_data_value = Intrinsic(
+                op=AVMOp.concat, args=[array_data, element], source_location=expr_loc
+            )
+            array_data = self._reassign(array_data, array_data_value, expr_loc)
         return array_data
 
     def visit_bytes_comparison_expression(
@@ -1262,47 +1350,16 @@ class FunctionIRBuilder(
             source_location=expr.source_location, args=resolved_args, target=target
         )
 
-    @staticmethod
-    def _create_bytes_binary_op(
-        op: awst_nodes.BytesBinaryOperator, lhs: Value, rhs: Value, source_location: SourceLocation
-    ) -> ValueProvider:
-        match op:
-            case awst_nodes.BytesBinaryOperator.add:
-                return Intrinsic(
-                    op=AVMOp.concat,
-                    args=[lhs, rhs],
-                    source_location=source_location,
-                )
-            case awst_nodes.BytesBinaryOperator.bit_and:
-                return Intrinsic(
-                    op=AVMOp.bitwise_and_bytes,
-                    args=[lhs, rhs],
-                    source_location=source_location,
-                )
-            case awst_nodes.BytesBinaryOperator.bit_or:
-                return Intrinsic(
-                    op=AVMOp.bitwise_or_bytes,
-                    args=[lhs, rhs],
-                    source_location=source_location,
-                )
-            case awst_nodes.BytesBinaryOperator.bit_xor:
-                return Intrinsic(
-                    op=AVMOp.bitwise_xor_bytes,
-                    args=[lhs, rhs],
-                    source_location=source_location,
-                )
-        raise InternalError("Unsupported BytesBinaryOperator: " + op)
-
     def visit_bytes_binary_operation(self, expr: awst_nodes.BytesBinaryOperation) -> TExpression:
         left = self._visit_and_materialise_single(expr.left)
         right = self._visit_and_materialise_single(expr.right)
-        return self._create_bytes_binary_op(expr.op, left, right, expr.source_location)
+        return create_bytes_binary_op(expr.op, left, right, expr.source_location)
 
     def visit_boolean_binary_operation(
         self, expr: awst_nodes.BooleanBinaryOperation
     ) -> TExpression:
         if not isinstance(expr.right, awst_nodes.VarExpression | awst_nodes.BoolConstant):
-            true_block, false_block, merge_block = self._mkblocks(
+            true_block, false_block, merge_block = mkblocks(
                 expr.source_location, "bool_true", "bool_false", "bool_merge"
             )
 
@@ -1359,24 +1416,6 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
-    def _get_comparison_op_for_wtype(
-        self, numeric_comparison_equivalent: awst_nodes.NumericComparison, wtype: wtypes.WType
-    ) -> AVMOp:
-        match wtype:
-            case wtypes.biguint_wtype:
-                return AVMOp("b" + numeric_comparison_equivalent)
-            case wtypes.uint64_wtype:
-                return AVMOp(numeric_comparison_equivalent)
-            case wtypes.bytes_wtype:
-                match numeric_comparison_equivalent:
-                    case awst_nodes.NumericComparison.eq:
-                        return AVMOp.eq
-                    case awst_nodes.NumericComparison.ne:
-                        return AVMOp.neq
-        raise InternalError(
-            f"Unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
-        )
-
     def visit_contains_expression(self, expr: awst_nodes.Contains) -> TExpression:
         item_register = self._visit_and_materialise_single(expr.item)
 
@@ -1396,9 +1435,7 @@ class FunctionIRBuilder(
         condition = None
         for item in items_sequence:
             equal_i = Intrinsic(
-                op=self._get_comparison_op_for_wtype(
-                    awst_nodes.NumericComparison.eq, expr.item.wtype
-                ),
+                op=get_comparison_op_for_wtype(awst_nodes.NumericComparison.eq, expr.item.wtype),
                 args=[
                     item_register,
                     item,
@@ -1439,8 +1476,11 @@ class FunctionIRBuilder(
 
     def visit_if_else(self, stmt: awst_nodes.IfElse) -> TStatement:
         # else_body might be unused, if so won't be added, so all good
-        if_body, else_body, next_block = self._mkblocks(
-            stmt.source_location, "if_body", "else_body", "after_if_else"
+        if_body, else_body, next_block = mkblocks(
+            stmt.source_location,
+            stmt.if_branch.description or "if_body",
+            (stmt.else_branch and stmt.else_branch.description) or "else_body",
+            "after_if_else",
         )
 
         self._process_conditional(
@@ -1462,6 +1502,53 @@ class FunctionIRBuilder(
                 ast_block=stmt.else_branch,
                 next_ir_block=next_block,
             )
+        if next_block.predecessors:
+            # Activate the "next" block if it is reachable.
+            # This might not be the case if all paths within the "if" and "else" branches
+            # return early.
+            self.block_builder.activate_block(next_block)
+        elif next_block.phis or next_block.ops or next_block.terminated:
+            # here as a sanity - there shouldn't've been any modifications of "next" block contents
+            raise InternalError("next block has no predecessors but does have op(s)")
+        self._seal(next_block)
+
+    def visit_switch(self, statement: awst_nodes.Switch) -> TStatement:
+        case_blocks = dict[Value, BasicBlock]()
+        ir_blocks = dict[awst_nodes.Block, BasicBlock]()
+        for value, block in statement.cases.items():
+            ir_value = self._visit_and_materialise_single(value)
+            case_blocks[ir_value] = lazy_setdefault(
+                ir_blocks,
+                block,
+                lambda b: BasicBlock(
+                    source_location=b.source_location,
+                    comment=b.description or f"switch_case_{len(ir_blocks)}",
+                ),
+            )
+        default_block, next_block = mkblocks(
+            statement.source_location,
+            (statement.default_case and statement.default_case.description)
+            or "switch_case_default",
+            "switch_case_next",
+        )
+
+        self.block_builder.terminate(
+            Switch(
+                value=self._visit_and_materialise_single(statement.value),
+                cases=case_blocks,
+                default=default_block,
+                source_location=statement.source_location,
+            )
+        )
+        for ir_block in (default_block, *ir_blocks.values()):
+            self._seal(ir_block)
+        for block, ir_block in ir_blocks.items():
+            self._branch(ir_block, block, next_block)
+        if statement.default_case:
+            self._branch(default_block, statement.default_case, next_block)
+        else:
+            self.block_builder.activate_block(default_block)
+            self.block_builder.goto(next_block)
         if next_block.predecessors:
             # Activate the "next" block if it is reachable.
             # This might not be the case if all paths within the "if" and "else" branches
@@ -1522,8 +1609,11 @@ class FunctionIRBuilder(
                 )
 
     def visit_while_loop(self, statement: awst_nodes.WhileLoop) -> TStatement:
-        top, body, next_block = self._mkblocks(
-            statement.source_location, "while_top", "while_body", "after_while"
+        top, body, next_block = mkblocks(
+            statement.source_location,
+            "while_top",
+            statement.loop_body.description or "while_body",
+            "after_while",
         )
 
         with self.block_builder.enter_loop(on_continue=top, on_break=next_block):
@@ -1584,12 +1674,9 @@ class FunctionIRBuilder(
                 )
         elif isinstance(result, Op):
             self.block_builder.add(result)
-        else:
-            raise InternalError(
-                "Unexpected IR type for expression statement:"
-                f" {type(result).__name__}, value is {result}",
-                statement.source_location,
-            )
+        # If we get a Value (e.g. a Register or some such) it's something that's being
+        # discarded effectively.
+        # The frontend should have already warned about this
 
     def visit_assert_statement(self, statement: awst_nodes.AssertStatement) -> TStatement:
         condition_value = self._visit_and_materialise_single(statement.condition)
@@ -1617,9 +1704,7 @@ class FunctionIRBuilder(
     ) -> TStatement:
         target_value = self._visit_and_materialise_single(statement.target)
         rhs = self._visit_and_materialise_single(statement.value)
-        expr = self._create_uint64_binary_op(
-            statement.op, target_value, rhs, statement.source_location
-        )
+        expr = create_uint64_binary_op(statement.op, target_value, rhs, statement.source_location)
 
         self._handle_assignment(
             target=statement.target,
@@ -1632,9 +1717,7 @@ class FunctionIRBuilder(
     ) -> TStatement:
         target_value = self._visit_and_materialise_single(statement.target)
         rhs = self._visit_and_materialise_single(statement.value)
-        expr = self._create_biguint_binary_op(
-            statement.op, target_value, rhs, statement.source_location
-        )
+        expr = create_biguint_binary_op(statement.op, target_value, rhs, statement.source_location)
 
         self._handle_assignment(
             target=statement.target,
@@ -1647,9 +1730,7 @@ class FunctionIRBuilder(
     ) -> TStatement:
         target_value = self._visit_and_materialise_single(statement.target)
         rhs = self._visit_and_materialise_single(statement.value)
-        expr = self._create_bytes_binary_op(
-            statement.op, target_value, rhs, statement.source_location
-        )
+        expr = create_bytes_binary_op(statement.op, target_value, rhs, statement.source_location)
 
         self._handle_assignment(
             target=statement.target,
@@ -1668,7 +1749,7 @@ class FunctionIRBuilder(
             ):
                 # TODO: fix this
                 raise CodeError(
-                    "when using enumerate(), loop variables must be an unpacked two item tuple",
+                    "when using uenumerate(), loop variables must be an unpacked two item tuple",
                     statement.sequence.source_location,
                 )
             index_var, item_var = statement.items.items
@@ -1716,32 +1797,250 @@ class FunctionIRBuilder(
                     source_location=statement.source_location,
                 )
 
-                def assign_item_var_from_index(index_register: Register) -> None:
-                    block = self.block_builder.active_block
-                    self._handle_assignment(
-                        target=item_var,
-                        value=Intrinsic(
-                            op=AVMOp.extract3,
-                            args=[
-                                bytes_value,
-                                self.ssa.read_register(index_register, block),
-                                UInt64Constant(value=1, source_location=None),
-                            ],
-                            source_location=item_var.source_location,
-                        ),
-                        assignment_location=item_var.source_location,
+                def get_byte_at_index(index_register: Register) -> ValueProvider:
+                    return Intrinsic(
+                        op=AVMOp.extract3,
+                        args=[
+                            bytes_value,
+                            index_register,
+                            UInt64Constant(value=1, source_location=None),
+                        ],
+                        source_location=item_var.source_location,
                     )
 
                 self._iterate_indexable(
                     loop_body=statement.loop_body,
                     indexable_size=byte_length,
-                    assign_item_var_from_index=assign_item_var_from_index,
+                    get_value_at_index=get_byte_at_index,
+                    item_var=item_var,
                     index_var=index_var,
                     statement_loc=statement.source_location,
                 )
+            case awst_nodes.Expression(
+                wtype=wtypes.ARC4DynamicArray() as dynamic_array_wtype
+            ) as arc4_dynamic_array_expression:
+                array_value_with_length = self._visit_and_materialise_single(
+                    arc4_dynamic_array_expression
+                )
+                (dynamic_array_length,) = self.assign(
+                    temp_description="array_length",
+                    source=Intrinsic(
+                        op=AVMOp.extract_uint16,
+                        args=[
+                            array_value_with_length,
+                            UInt64Constant(value=0, source_location=statement.source_location),
+                        ],
+                        source_location=statement.source_location,
+                    ),
+                    source_location=statement.source_location,
+                )
+                (dynamic_array_value,) = self.assign(
+                    temp_description="array_value",
+                    source=Intrinsic(
+                        op=AVMOp.extract,
+                        args=[array_value_with_length],
+                        immediates=[2, 0],
+                        source_location=statement.source_location,
+                    ),
+                    source_location=statement.source_location,
+                )
 
+                def get_dynamic_array_item_at_index(index_register: Register) -> ValueProvider:
+                    return self._read_nth_item_of_arc4_homogeneous_container(
+                        array_bytes_sans_length_header=dynamic_array_value,
+                        item_wtype=dynamic_array_wtype.element_type,
+                        index=index_register,
+                        source_location=statement.source_location,
+                    )
+
+                self._iterate_indexable(
+                    loop_body=statement.loop_body,
+                    indexable_size=dynamic_array_length,
+                    get_value_at_index=get_dynamic_array_item_at_index,
+                    item_var=item_var,
+                    index_var=index_var,
+                    statement_loc=statement.source_location,
+                )
+            case awst_nodes.Expression(
+                wtype=wtypes.ARC4StaticArray(array_size=array_size) as static_array_wtype
+            ) as arc4_static_array_expression:
+                static_array_value = self._visit_and_materialise_single(
+                    arc4_static_array_expression
+                )
+
+                static_array_length = UInt64Constant(
+                    value=array_size, source_location=statement.source_location
+                )
+
+                def get_static_array_item_at_index(index_register: Register) -> ValueProvider:
+                    return self._read_nth_item_of_arc4_homogeneous_container(
+                        array_bytes_sans_length_header=static_array_value,
+                        item_wtype=static_array_wtype.element_type,
+                        index=index_register,
+                        source_location=statement.source_location,
+                    )
+
+                self._iterate_indexable(
+                    loop_body=statement.loop_body,
+                    indexable_size=static_array_length,
+                    get_value_at_index=get_static_array_item_at_index,
+                    item_var=item_var,
+                    index_var=index_var,
+                    statement_loc=statement.source_location,
+                )
             case _:
                 raise TodoError(statement.source_location, "TODO: IR build support")
+
+    def _read_nth_item_of_arc4_heterogeneous_container(
+        self,
+        *,
+        array_bytes_sans_length_header: Value,
+        tuple_type: wtypes.ARC4Tuple | wtypes.ARC4Struct,
+        index: UInt64Constant,
+        source_location: SourceLocation,
+    ) -> ValueProvider:
+        tuple_item_types = tuple_type.types
+
+        item_wtype = tuple_item_types[index.value]
+        item_bit_size = get_arc4_fixed_bit_size(item_wtype)
+        head_up_to_item = determine_arc4_tuple_head_size(
+            tuple_item_types[0 : index.value], round_end_result=False
+        )
+        if item_bit_size is not None:
+            item_index: Value = UInt64Constant(
+                value=(
+                    head_up_to_item
+                    if item_wtype == wtypes.arc4_bool_wtype
+                    else bits_to_bytes(head_up_to_item)
+                ),
+                source_location=source_location,
+            )
+        else:
+            item_index_value = Intrinsic(
+                op=AVMOp.extract_uint16,
+                args=[
+                    array_bytes_sans_length_header,
+                    UInt64Constant(
+                        value=bits_to_bytes(head_up_to_item), source_location=source_location
+                    ),
+                ],
+                source_location=source_location,
+            )
+            (item_index,) = self.assign(
+                temp_description="item_index",
+                source=item_index_value,
+                source_location=source_location,
+            )
+        return self._read_nth_item_of_arc4_container(
+            data=array_bytes_sans_length_header,
+            index=item_index,
+            item_wtype=item_wtype,
+            item_bit_size=item_bit_size,
+            source_location=source_location,
+        )
+
+    def _read_nth_item_of_arc4_homogeneous_container(
+        self,
+        *,
+        array_bytes_sans_length_header: Value,
+        item_wtype: wtypes.WType,
+        index: Value,
+        source_location: SourceLocation,
+    ) -> ValueProvider:
+        item_bit_size = get_arc4_fixed_bit_size(item_wtype)
+        if item_bit_size is not None:
+            item_index_value = Intrinsic(
+                op=AVMOp.mul,
+                args=[
+                    index,
+                    UInt64Constant(
+                        value=item_bit_size
+                        if item_wtype == wtypes.arc4_bool_wtype
+                        else (item_bit_size // 8),
+                        source_location=source_location,
+                    ),
+                ],
+                source_location=source_location,
+            )
+        else:
+            (item_index_index,) = self.assign(
+                source_location=source_location,
+                temp_description="item_index_index",
+                source=Intrinsic(
+                    source_location=source_location,
+                    op=AVMOp.mul,
+                    args=[index, UInt64Constant(value=2, source_location=source_location)],
+                ),
+            )
+            item_index_value = Intrinsic(
+                source_location=source_location,
+                op=AVMOp.extract_uint16,
+                args=[array_bytes_sans_length_header, item_index_index],
+            )
+
+        (item_index,) = self.assign(
+            temp_description="item_index", source=item_index_value, source_location=source_location
+        )
+
+        return self._read_nth_item_of_arc4_container(
+            data=array_bytes_sans_length_header,
+            index=item_index,
+            item_wtype=item_wtype,
+            item_bit_size=item_bit_size,
+            source_location=source_location,
+        )
+
+    def _read_nth_item_of_arc4_container(
+        self,
+        *,
+        data: Value,
+        index: Value,
+        item_wtype: wtypes.WType,
+        item_bit_size: int | None,
+        source_location: SourceLocation,
+    ) -> ValueProvider:
+        """
+        Reads the nth item of an arc4 array, tuple, or struct
+        """
+        if item_wtype == wtypes.arc4_bool_wtype:
+            # item_index is the bit position
+            (is_true,) = self.assign(
+                temp_description="is_true",
+                source=Intrinsic(
+                    op=AVMOp.getbit, args=[data, index], source_location=source_location
+                ),
+                source_location=source_location,
+            )
+            return encode_arc4_bool(is_true, source_location)
+        if item_bit_size is not None:
+            # item_index is the byte position of our fixed length item
+            end: Value = UInt64Constant(value=item_bit_size // 8, source_location=source_location)
+        else:
+            # item_index is the position of the 'length' bytes of our variable length item
+            (item_length,) = self.assign(
+                temp_description="item_length",
+                source=Intrinsic(
+                    op=AVMOp.extract_uint16,
+                    args=[data, index],
+                    source_location=source_location,
+                ),
+                source_location=source_location,
+            )
+            (end,) = self.assign(
+                temp_description="item_length_plus_2",
+                source=Intrinsic(
+                    op=AVMOp.add,
+                    args=[
+                        item_length,
+                        UInt64Constant(value=2, source_location=source_location),
+                    ],
+                    source_location=source_location,
+                ),
+                source_location=source_location,
+            )
+        return Intrinsic(
+            op=AVMOp.extract3, args=[data, index, end], source_location=source_location
+        )
 
     def _iterate_urange(
         self,
@@ -1755,7 +2054,7 @@ class FunctionIRBuilder(
         range_step: Expression,
         range_loc: SourceLocation,
     ) -> None:
-        header, body, footer, next_block = self._mkblocks(
+        header, body, footer, next_block = mkblocks(
             statement_loc,
             "for_header",
             "for_body",
@@ -1786,7 +2085,7 @@ class FunctionIRBuilder(
             source=(
                 Intrinsic(
                     op=AVMOp("<"),
-                    args=[self.ssa.read_register(range_item, header), stop],
+                    args=[self._refresh_mutated_variable(range_item), stop],
                     source_location=range_loc,
                 )
             ),
@@ -1808,13 +2107,13 @@ class FunctionIRBuilder(
 
         self._handle_assignment(
             target=item_var,
-            value=self.ssa.read_register(range_item, body),
+            value=self._refresh_mutated_variable(range_item),
             assignment_location=item_var.source_location,
         )
         if index_var and range_index:
             self._handle_assignment(
                 target=index_var,
-                value=self.ssa.read_register(range_index, body),
+                value=self._refresh_mutated_variable(range_index),
                 assignment_location=index_var.source_location,
             )
 
@@ -1823,28 +2122,22 @@ class FunctionIRBuilder(
         self.block_builder.goto_and_activate(footer)
         self._seal(footer)
         self._seal(next_block)
-        self.assign(
-            source=Intrinsic(
-                op=AVMOp("+"),
-                args=[self.ssa.read_register(range_item, footer), step],
-                source_location=range_loc,
-            ),
-            names=[(range_item.name, item_var.source_location)],
-            source_location=statement_loc,
+        new_range_item_value = Intrinsic(
+            op=AVMOp("+"),
+            args=[self._refresh_mutated_variable(range_item), step],
+            source_location=range_loc,
         )
+        self._reassign(range_item, new_range_item_value, statement_loc)
         if range_index:
-            self.assign(
-                source=Intrinsic(
-                    op=AVMOp("+"),
-                    args=[
-                        self.ssa.read_register(range_index, footer),
-                        UInt64Constant(value=1, source_location=None),
-                    ],
-                    source_location=None,
-                ),
-                names=[(range_index.name, index_var_src_loc)],
-                source_location=index_var_src_loc,
+            new_rang_index_value = Intrinsic(
+                op=AVMOp("+"),
+                args=[
+                    self._refresh_mutated_variable(range_index),
+                    UInt64Constant(value=1, source_location=None),
+                ],
+                source_location=None,
             )
+            self._reassign(range_index, new_rang_index_value, index_var_src_loc)
 
         self.block_builder.goto(header)
         self._seal(header)
@@ -1855,12 +2148,13 @@ class FunctionIRBuilder(
         self,
         *,
         loop_body: awst_nodes.Block,
+        item_var: Expression,
         index_var: Expression | None,
         statement_loc: SourceLocation,
-        indexable_size: Register,
-        assign_item_var_from_index: typing.Callable[[Register], None],
+        indexable_size: Value,
+        get_value_at_index: typing.Callable[[Register], ValueProvider],
     ) -> None:
-        header, body, footer, next_block = self._mkblocks(
+        header, body, footer, next_block = mkblocks(
             statement_loc,
             "for_header",
             "for_body",
@@ -1878,11 +2172,8 @@ class FunctionIRBuilder(
         (continue_looping,) = self.assign(
             source=(
                 Intrinsic(
-                    op=AVMOp("<"),
-                    args=[
-                        self.ssa.read_register(index_internal, header),
-                        self.ssa.read_register(indexable_size, header),
-                    ],
+                    op=AVMOp.lt,
+                    args=[self._refresh_mutated_variable(index_internal), indexable_size],
                     source_location=statement_loc,
                 )
             ),
@@ -1902,12 +2193,18 @@ class FunctionIRBuilder(
 
         self.block_builder.activate_block(body)
 
-        assign_item_var_from_index(index_internal)
+        current_index_internal = self._refresh_mutated_variable(index_internal)
+        item_value = get_value_at_index(current_index_internal)
+        self._handle_assignment(
+            target=item_var,
+            value=item_value,
+            assignment_location=item_var.source_location,
+        )
 
         if index_var:
             self._handle_assignment(
                 target=index_var,
-                value=self.ssa.read_register(index_internal, body),
+                value=current_index_internal,
                 assignment_location=index_var.source_location,
             )
 
@@ -1916,18 +2213,15 @@ class FunctionIRBuilder(
         self.block_builder.goto_and_activate(footer)
         self._seal(footer)
         self._seal(next_block)
-        self.assign(
-            source=Intrinsic(
-                op=AVMOp("+"),
-                args=[
-                    self.ssa.read_register(index_internal, footer),
-                    UInt64Constant(value=1, source_location=None),
-                ],
-                source_location=None,
-            ),
-            names=[(index_internal.name, None)],
+        new_index_internal_value = Intrinsic(
+            op=AVMOp("+"),
+            args=[
+                self._refresh_mutated_variable(index_internal),
+                UInt64Constant(value=1, source_location=None),
+            ],
             source_location=None,
         )
+        self._reassign(index_internal, new_index_internal_value, source_location=None)
 
         self.block_builder.goto(header)
         self._seal(header)
@@ -1947,7 +2241,7 @@ class FunctionIRBuilder(
             for index, _ in enumerate(tuple_items)
         ]
 
-        body, footer, next_block = self._mkblocks(
+        body, footer, next_block = mkblocks(
             statement_loc,
             "for_body",
             "for_footer",
@@ -2017,5 +2311,130 @@ class FunctionIRBuilder(
         raise TodoError(expr.source_location, "TODO: visit_new_struct")
 
 
+def mkblocks(loc: SourceLocation, *comments: str | None) -> Iterator[BasicBlock]:
+    for c in comments:
+        yield BasicBlock(comment=c, source_location=loc)
+
+
+def create_uint64_binary_op(
+    op: UInt64BinaryOperator, left: Value, right: Value, source_location: SourceLocation
+) -> Intrinsic:
+    avm_op: AVMOp
+    match op:
+        case UInt64BinaryOperator.floor_div:
+            avm_op = AVMOp.div_floor
+        case UInt64BinaryOperator.pow:
+            avm_op = AVMOp.exp
+        case UInt64BinaryOperator.lshift:
+            avm_op = AVMOp.shl
+        case UInt64BinaryOperator.rshift:
+            avm_op = AVMOp.shr
+        case _:
+            try:
+                avm_op = AVMOp(op.value)
+            except ValueError as ex:
+                raise InternalError(
+                    f"Unhandled uint64 binary operator: {op}", source_location
+                ) from ex
+    return Intrinsic(op=avm_op, args=[left, right], source_location=source_location)
+
+
+def create_biguint_binary_op(
+    op: BigUIntBinaryOperator, left: Value, right: Value, source_location: SourceLocation
+) -> Intrinsic:
+    avm_op: AVMOp
+    match op:
+        case BigUIntBinaryOperator.floor_div:
+            avm_op = AVMOp.div_floor_bytes
+        case _:
+            try:
+                avm_op = AVMOp("b" + op.value)
+            except ValueError as ex:
+                raise InternalError(
+                    f"Unhandled uint64 binary operator: {op}", source_location
+                ) from ex
+    return Intrinsic(op=avm_op, args=[left, right], source_location=source_location)
+
+
+def create_bytes_binary_op(
+    op: awst_nodes.BytesBinaryOperator, lhs: Value, rhs: Value, source_location: SourceLocation
+) -> ValueProvider:
+    match op:
+        case awst_nodes.BytesBinaryOperator.add:
+            return Intrinsic(
+                op=AVMOp.concat,
+                args=[lhs, rhs],
+                source_location=source_location,
+            )
+        case awst_nodes.BytesBinaryOperator.bit_and:
+            return Intrinsic(
+                op=AVMOp.bitwise_and_bytes,
+                args=[lhs, rhs],
+                source_location=source_location,
+            )
+        case awst_nodes.BytesBinaryOperator.bit_or:
+            return Intrinsic(
+                op=AVMOp.bitwise_or_bytes,
+                args=[lhs, rhs],
+                source_location=source_location,
+            )
+        case awst_nodes.BytesBinaryOperator.bit_xor:
+            return Intrinsic(
+                op=AVMOp.bitwise_xor_bytes,
+                args=[lhs, rhs],
+                source_location=source_location,
+            )
+    raise InternalError("Unsupported BytesBinaryOperator: " + op)
+
+
 def format_tuple_index(var_name: str, index: int | str) -> str:
     return f"{var_name}.{index}"
+
+
+def encode_arc4_bool(value: Value, source_location: SourceLocation) -> ValueProvider:
+    return Intrinsic(
+        op=AVMOp.setbit,
+        args=[
+            BytesConstant(
+                value=0x00.to_bytes(1, "big"),
+                source_location=source_location,
+                encoding=AVMBytesEncoding.base16,
+            ),
+            UInt64Constant(value=0, source_location=None),
+            value,
+        ],
+        source_location=source_location,
+    )
+
+
+def get_comparison_op_for_wtype(
+    numeric_comparison_equivalent: awst_nodes.NumericComparison, wtype: wtypes.WType
+) -> AVMOp:
+    match wtype:
+        case wtypes.biguint_wtype:
+            return AVMOp("b" + numeric_comparison_equivalent)
+        case wtypes.uint64_wtype:
+            return AVMOp(numeric_comparison_equivalent)
+        case wtypes.bytes_wtype:
+            match numeric_comparison_equivalent:
+                case awst_nodes.NumericComparison.eq:
+                    return AVMOp.eq
+                case awst_nodes.NumericComparison.ne:
+                    return AVMOp.neq
+    raise InternalError(
+        f"Unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
+    )
+
+
+def extract_const_int(expr: awst_nodes.Expression | None) -> int | None:
+    """Check expr is an IntegerConstant or None, and return constant value (or None)"""
+    match expr:
+        case None:
+            return None
+        case awst_nodes.IntegerConstant(value=value):
+            return value
+        case _:
+            raise InternalError(
+                f"Expected either constant or None for index, got {type(expr).__name__}",
+                expr.source_location,
+            )

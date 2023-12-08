@@ -1,14 +1,15 @@
 # WARNING: This code is provided for example only. Do NOT deploy to mainnet.
 
 from algopy import (
-    Address,
+    Account,
     ARC4Contract,
-    AssetHoldingGet,
-    AssetParamsGet,
+    Asset,
+    AssetTransferTransaction,
     Bytes,
     CreateInnerTransaction,
     Global,
     InnerTransaction,
+    PaymentTransaction,
     Transaction,
     TransactionType,
     UInt64,
@@ -16,7 +17,6 @@ from algopy import (
     sqrt,
     subroutine,
 )
-from algopy.arc4 import AssetTransferTransaction, PaymentTransaction
 
 # Total supply of the pool tokens
 TOTAL_SUPPLY = 10_000_000_000
@@ -28,68 +28,78 @@ FEE = 5
 FACTOR = SCALE - FEE
 
 
-class ConstantProductionAMM(ARC4Contract):
+class ConstantProductAMM(ARC4Contract):
     def __init__(self) -> None:
         # init runs whenever the txn's app ID is zero, and runs first
         # so if we have multiple create methods, this can contain common code.
 
         # The asset id of asset A
-        self.asset_a = UInt64(0)
+        self.asset_a = Asset(0)
         # The asset id of asset B
-        self.asset_b = UInt64(0)
-        # The asset id of the Pool Token, used to track share of pool the holder may recover
-        self.pool_token = UInt64(0)
-        # # The ratio between assets (A*Scale/B)
-        # self.ratio: UInt64 | None = None
+        self.asset_b = Asset(0)
         # The current governor of this contract, allowed to do admin type actions
         self.governor = Transaction.sender()
+        # The asset id of the Pool Token, used to track share of pool the holder may recover
+        self.pool_token = Asset(0)
+        # The ratio between assets (A*Scale/B)
+        self.ratio = UInt64(0)
 
-    @arc4.abimethod(create=True)
+    @arc4.baremethod(create=True)
     def create(self) -> None:
         """Allow creates"""
 
     @arc4.abimethod()
-    def set_governor(self, new_governor: arc4.Account) -> None:
+    def set_governor(self, new_governor: Account) -> None:
+        """sets the governor of the contract, may only be called by the current governor"""
         self._check_is_governor()
-        self.governor = new_governor.address
+        self.governor = new_governor
 
     @arc4.abimethod()
-    def bootstrap(self, seed: PaymentTransaction, asset_a: UInt64, asset_b: UInt64) -> UInt64:
+    def bootstrap(self, seed: PaymentTransaction, a_asset: Asset, b_asset: Asset) -> arc4.UInt64:
         """bootstraps the contract by opting into the assets and creating the pool token.
 
-        This method will fail if it is attempted more than once on the same contract.
+        Note this method will fail if it is attempted more than once on the same contract
+        since the assets and pool token application state values are marked as static and
+        cannot be overridden.
 
         Args:
-            seed: Initial Payment transaction to the app account,
-                  so it can opt in to assets and create pool token.
-            asset_a: One of the two assets this pool should allow swapping between.
-                     Must be in the foreign assets array
-            asset_b: The other of the two assets this pool should allow swapping between.
-                     Must be in the foreign assets array
+            seed: Initial Payment transaction to the app account so it can opt in to assets
+                and create pool token.
+            a_asset: One of the two assets this pool should allow swapping between.
+            b_asset: The other of the two assets this pool should allow swapping between.
 
         Returns:
             The asset id of the pool token created.
         """
-        assert self.pool_token == 0, "application has already been bootstrapped"
+        assert not self.pool_token, "application has already been bootstrapped"
         self._check_is_governor()
         assert Global.group_size() == 2, "group size not 2"
         assert seed.receiver == Global.current_application_address(), "receiver not app address"
 
         assert seed.amount >= 300_000, "amount minimum not met"  # 0.3 Algos
-        assert asset_a < asset_b, "asset a must be less than asset b"
-        self.asset_a = asset_a
-        self.asset_b = asset_b
-        self._create_pool_token()
+        assert a_asset.asset_id < b_asset.asset_id, "asset a must be less than asset b"
+        self.asset_a = a_asset
+        self.asset_b = b_asset
+        self.pool_token = self._create_pool_token()
 
         self._do_opt_in(self.asset_a)
         self._do_opt_in(self.asset_b)
-        return self.pool_token
+        return arc4.UInt64.encode(self.pool_token.asset_id)
 
-    @arc4.abimethod()
+    @arc4.abimethod(
+        default_args={
+            "pool_asset": "pool_token",
+            "a_asset": "asset_a",
+            "b_asset": "asset_b",
+        },
+    )
     def mint(
         self,
         a_xfer: AssetTransferTransaction,
         b_xfer: AssetTransferTransaction,
+        pool_asset: Asset,
+        a_asset: Asset,
+        b_asset: Asset,
     ) -> None:
         """mint pool tokens given some amount of asset A and asset B.
 
@@ -97,17 +107,21 @@ class ConstantProductionAMM(ARC4Contract):
         tokens commensurate with the pools current balance and circulating supply of
         pool tokens.
 
-        NOTE: asset_a, asset_b and pool_token must be in the foreign assets array
-
         Args:
             a_xfer: Asset Transfer Transaction of asset A as a deposit to the pool in
                 exchange for pool tokens.
             b_xfer: Asset Transfer Transaction of asset B as a deposit to the pool in
                 exchange for pool tokens.
+            pool_asset: The asset ID of the pool token so that we may distribute it.
+            a_asset: The asset ID of the Asset A so that we may inspect our balance.
+            b_asset: The asset ID of the Asset B so that we may inspect our balance.
         """
         self._check_bootstrapped()
 
         # well-formed mint
+        assert pool_asset == self.pool_token, "asset pool incorrect"
+        assert a_asset == self.asset_a, "asset a incorrect"
+        assert b_asset == self.asset_b, "asset b incorrect"
         assert a_xfer.sender == Transaction.sender(), "sender invalid"
         assert b_xfer.sender == Transaction.sender(), "sender invalid"
 
@@ -122,7 +136,7 @@ class ConstantProductionAMM(ARC4Contract):
         assert (
             b_xfer.asset_receiver == Global.current_application_address()
         ), "receiver not app address"
-        assert b_xfer.xfer_asset == self.asset_a, "asset b incorrect"
+        assert b_xfer.xfer_asset == self.asset_b, "asset b incorrect"
         assert b_xfer.asset_amount > 0, "amount minimum not met"
 
         to_mint = tokens_to_mint(
@@ -135,20 +149,37 @@ class ConstantProductionAMM(ARC4Contract):
         assert to_mint > 0, "send amount too low"
 
         # mint tokens
-        do_asset_transfer(receiver=Transaction.sender(), asset_id=self.pool_token, amount=to_mint)
+        do_asset_transfer(receiver=Transaction.sender(), asset=self.pool_token, amount=to_mint)
         self._update_ratio()
 
-    @arc4.abimethod()
-    def burn(self, pool_xfer: AssetTransferTransaction) -> None:
+    @arc4.abimethod(
+        default_args={
+            "pool_asset": "pool_token",
+            "a_asset": "asset_a",
+            "b_asset": "asset_b",
+        },
+    )
+    def burn(
+        self,
+        pool_xfer: AssetTransferTransaction,
+        pool_asset: Asset,
+        a_asset: Asset,
+        b_asset: Asset,
+    ) -> None:
         """burn pool tokens to get back some amount of asset A and asset B
-
-        NOTE: asset_a, asset_b and pool_token must be in the foreign assets array
 
         Args:
             pool_xfer: Asset Transfer Transaction of the pool token for the amount the
                 sender wishes to redeem
+            pool_asset: Asset ID of the pool token so we may inspect balance.
+            a_asset: Asset ID of Asset A so we may inspect balance and distribute it
+            b_asset: Asset ID of Asset B so we may inspect balance and distribute it
         """
         self._check_bootstrapped()
+
+        assert pool_asset == self.pool_token, "asset pool incorrect"
+        assert a_asset == self.asset_a, "asset a incorrect"
+        assert b_asset == self.asset_b, "asset b incorrect"
 
         assert (
             pool_xfer.asset_receiver == Global.current_application_address()
@@ -172,22 +203,35 @@ class ConstantProductionAMM(ARC4Contract):
         )
 
         # Send back commensurate amt of a
-        do_asset_transfer(receiver=Transaction.sender(), asset_id=self.asset_a, amount=a_amt)
+        do_asset_transfer(receiver=Transaction.sender(), asset=self.asset_a, amount=a_amt)
 
         # Send back commensurate amt of b
-        do_asset_transfer(receiver=Transaction.sender(), asset_id=self.asset_b, amount=b_amt)
+        do_asset_transfer(receiver=Transaction.sender(), asset=self.asset_b, amount=b_amt)
         self._update_ratio()
 
-    @arc4.abimethod()
-    def swap(self, swap_xfer: AssetTransferTransaction) -> None:
+    @arc4.abimethod(
+        default_args={
+            "a_asset": "asset_a",
+            "b_asset": "asset_b",
+        },
+    )
+    def swap(
+        self,
+        swap_xfer: AssetTransferTransaction,
+        a_asset: Asset,
+        b_asset: Asset,
+    ) -> None:
         """Swap some amount of either asset A or asset B for the other
-
-        NOTE: asset_a and asset_b must be in the foreign assets array
 
         Args:
             swap_xfer: Asset Transfer Transaction of either Asset A or Asset B
+            a_asset: Asset ID of asset A so we may inspect balance and possibly transfer it
+            b_asset: Asset ID of asset B so we may inspect balance and possibly transfer it
         """
         self._check_bootstrapped()
+
+        assert a_asset == self.asset_a, "asset a incorrect"
+        assert b_asset == self.asset_b, "asset b incorrect"
 
         assert swap_xfer.asset_amount > 0, "amount minimum not met"
         assert swap_xfer.sender == Transaction.sender(), "sender invalid"
@@ -196,11 +240,11 @@ class ConstantProductionAMM(ARC4Contract):
             case self.asset_a:
                 in_supply = self._current_b_balance()
                 out_supply = self._current_a_balance()
-                out_id = self.asset_a
+                out_asset = self.asset_a
             case self.asset_b:
                 in_supply = self._current_a_balance()
                 out_supply = self._current_b_balance()
-                out_id = self.asset_b
+                out_asset = self.asset_b
             case _:
                 assert False, "asset id incorrect"
 
@@ -209,12 +253,12 @@ class ConstantProductionAMM(ARC4Contract):
         )
         assert to_swap > 0, "send amount too low"
 
-        do_asset_transfer(receiver=Transaction.sender(), asset_id=out_id, amount=to_swap)
+        do_asset_transfer(receiver=Transaction.sender(), asset=out_asset, amount=to_swap)
         self._update_ratio()
 
     @subroutine
     def _check_bootstrapped(self) -> None:
-        assert self.pool_token != 0, "bootstrap method needs to be called first"
+        assert self.pool_token, "bootstrap method needs to be called first"
 
     @subroutine
     def _update_ratio(self) -> None:
@@ -230,17 +274,11 @@ class ConstantProductionAMM(ARC4Contract):
         ), "Only the account set in global_state.governor may call this method"
 
     @subroutine
-    def _create_pool_token(self) -> None:
-        unit_a, unit_a_exists = AssetParamsGet.asset_unit_name(self.asset_a)
-        assert unit_a_exists
-
-        unit_b, unit_b_exists = AssetParamsGet.asset_unit_name(self.asset_b)
-        assert unit_b_exists
-
+    def _create_pool_token(self) -> Asset:
         CreateInnerTransaction.begin()
         CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
         CreateInnerTransaction.set_config_asset_name(
-            Bytes(b"DPT-") + unit_a + Bytes(b"-") + unit_b
+            Bytes(b"DPT-") + self.asset_a.unit_name + Bytes(b"-") + self.asset_b.unit_name
         )
         CreateInnerTransaction.set_config_asset_unit_name(b"dpt")
         CreateInnerTransaction.set_config_asset_total(TOTAL_SUPPLY)
@@ -250,42 +288,27 @@ class ConstantProductionAMM(ARC4Contract):
         CreateInnerTransaction.set_fee(0)
         CreateInnerTransaction.submit()
 
-        self.pool_token = InnerTransaction.created_asset_id()
+        return Asset(InnerTransaction.created_asset_id())
 
     @subroutine
-    def _do_opt_in(self, asset_id: UInt64) -> None:
+    def _do_opt_in(self, asset: Asset) -> None:
         do_asset_transfer(
             receiver=Global.current_application_address(),
-            asset_id=asset_id,
+            asset=asset,
             amount=UInt64(0),
         )
 
     @subroutine
     def _current_pool_balance(self) -> UInt64:
-        balance, has_balance = AssetHoldingGet.asset_balance(
-            Global.current_application_address(),
-            self.pool_token,
-        )
-        assert has_balance
-        return balance
+        return self.pool_token.balance(Global.current_application_address())
 
     @subroutine
     def _current_a_balance(self) -> UInt64:
-        balance, has_balance = AssetHoldingGet.asset_balance(
-            Global.current_application_address(),
-            self.asset_a,
-        )
-        assert has_balance
-        return balance
+        return self.asset_a.balance(Global.current_application_address())
 
     @subroutine
     def _current_b_balance(self) -> UInt64:
-        balance, has_balance = AssetHoldingGet.asset_balance(
-            Global.current_application_address(),
-            self.asset_b,
-        )
-        assert has_balance
-        return balance
+        return self.asset_b.balance(Global.current_application_address())
 
 
 ##############
@@ -341,10 +364,10 @@ def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) 
 
 
 @subroutine
-def do_asset_transfer(*, receiver: Address, asset_id: UInt64, amount: UInt64) -> None:
+def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
     CreateInnerTransaction.begin()
     CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-    CreateInnerTransaction.set_xfer_asset(asset_id)
+    CreateInnerTransaction.set_xfer_asset(asset.asset_id)
     CreateInnerTransaction.set_asset_amount(amount)
     CreateInnerTransaction.set_asset_receiver(receiver)
     CreateInnerTransaction.set_fee(0)

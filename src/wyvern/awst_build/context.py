@@ -1,5 +1,4 @@
 import contextlib
-import typing as t
 from collections.abc import Iterator, Mapping, Sequence
 
 import attrs
@@ -7,10 +6,15 @@ import mypy.nodes
 import mypy.types
 
 from wyvern.awst import wtypes
-from wyvern.awst.nodes import ConstantValue, Module
-from wyvern.awst_build import constants as awst_constants
+from wyvern.awst.nodes import (
+    ConstantValue,
+    Literal as AWSTLiteral,
+    Module,
+)
+from wyvern.awst_build import constants
+from wyvern.awst_build.eb.base import TypeClassExpressionBuilder
 from wyvern.context import CompileContext
-from wyvern.errors import CodeError, InternalError, WyvernError, crash_report
+from wyvern.errors import CodeError, InternalError, WyvernError, log_exceptions
 from wyvern.parse import SourceLocation
 from wyvern.utils import attrs_extend
 
@@ -19,32 +23,6 @@ from wyvern.utils import attrs_extend
 class ASTConversionContext(CompileContext):
     module_asts: Mapping[str, Module]
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
-    type_map: dict[str, wtypes.WType] = attrs.field(
-        # TODO: rm hax?
-        factory=lambda: {
-            awst_constants.CLS_UINT64: wtypes.uint64_wtype,
-            awst_constants.CLS_BIGUINT: wtypes.biguint_wtype,
-            awst_constants.CLS_ADDRESS: wtypes.address_wtype,
-            awst_constants.CLS_BYTES: wtypes.bytes_wtype,
-            awst_constants.CLS_ABI_STRING: wtypes.abi_string_wtype,
-            awst_constants.CLS_ASSET: wtypes.asset_wtype,
-            "builtins.bool": wtypes.bool_wtype,
-        }
-    )
-    generics_type_map: dict[
-        str, t.Callable[[Sequence[wtypes.WType | mypy.types.LiteralValue]], wtypes.WType]
-    ] = attrs.field(
-        factory=lambda: {
-            awst_constants.CLS_ARRAY: lambda args: wtypes.WArray.from_element_type(*args),
-            awst_constants.CLS_ABI_DYNAMIC_ARRAY: (
-                lambda args: wtypes.AbiDynamicArray.from_element_type(*args)
-            ),
-            awst_constants.CLS_ABI_STATIC_ARRAY: (
-                lambda args: wtypes.AbiStaticArray.from_element_type_and_size(*args)
-            ),
-            awst_constants.CLS_ABI_UINTN: (lambda args: wtypes.AbiUIntN.from_scale(*args)),
-        }
-    )
 
     def for_module(self, current_module: mypy.nodes.MypyFile) -> "ASTConversionModuleContext":
         return attrs_extend(ASTConversionModuleContext, self, current_module=current_module)
@@ -53,6 +31,7 @@ class ASTConversionContext(CompileContext):
 @attrs.frozen(kw_only=True)
 class ASTConversionModuleContext(ASTConversionContext):
     current_module: mypy.nodes.MypyFile
+    type_map: dict[str, wtypes.WStructType | wtypes.ARC4Struct] = attrs.field(factory=dict)
 
     @property
     def module_name(self) -> str:
@@ -85,35 +64,40 @@ class ASTConversionModuleContext(ASTConversionContext):
     def log_exceptions(
         self, fallback_location: mypy.nodes.Context | SourceLocation
     ) -> Iterator[None]:
-        try:
+        with log_exceptions(self.errors, self._maybe_convert_location(fallback_location)):
             yield
-        except CodeError as ex:
-            self.error(str(ex), location=ex.location or fallback_location)
-        except InternalError as ex:
-            self.error(f"FATAL {ex!s}", location=ex.location or fallback_location)
-            crash_report(ex.location or self._maybe_convert_location(fallback_location))
-        except Exception as ex:
-            self.error(f"UNEXPECTED {ex!s}", location=fallback_location)
-            crash_report(self._maybe_convert_location(fallback_location))
 
     def type_to_wtype(
         self, typ: mypy.types.Type, *, source_location: SourceLocation | mypy.nodes.Context
     ) -> wtypes.WType:
+        return self._type_to_builder(typ, source_location=source_location).produces()
+
+    def _type_to_builder(
+        self, typ: mypy.types.Type, *, source_location: SourceLocation | mypy.nodes.Context
+    ) -> TypeClassExpressionBuilder:
+        from wyvern.awst_build.eb.arc4.tuple import ARC4TupleClassExpressionBuilder
+        from wyvern.awst_build.eb.tuple import TupleTypeExpressionBuilder
+        from wyvern.awst_build.eb.void import VoidTypeExpressionBuilder
+
         loc = self._maybe_convert_location(source_location)
-        match mypy.types.get_proper_type(typ):
+        proper_type = mypy.types.get_proper_type(typ)
+        match proper_type:
             case mypy.types.NoneType() | mypy.types.PartialType(type=None):
-                return wtypes.void_wtype
+                return VoidTypeExpressionBuilder(loc)
             case mypy.types.LiteralType(fallback=fallback):
-                return self.type_to_wtype(fallback, source_location=loc)
-            case mypy.types.TupleType(items=items):
-                types = [self.type_to_wtype(it, source_location=loc) for it in items]
-                if wtypes.void_wtype in types:
-                    raise CodeError("Tuples cannot contain None values", loc)
-                return wtypes.WTuple.from_types(types)
+                return self._type_to_builder(fallback, source_location=loc)
+            case mypy.types.TupleType(items=items, partial_fallback=true_type):
+                types = [self._type_to_builder(it, source_location=loc) for it in items]
+                tuple_builder: TupleTypeExpressionBuilder | ARC4TupleClassExpressionBuilder
+                if true_type.type.fullname != constants.CLS_ARC4_TUPLE:
+                    tuple_builder = TupleTypeExpressionBuilder(loc)
+                else:
+                    tuple_builder = ARC4TupleClassExpressionBuilder(loc)
+                return tuple_builder.index_multiple(types, loc)
             case mypy.types.Instance(type=mypy.nodes.TypeInfo(is_enum=True, bases=bases)):
                 for base in bases:
                     try:
-                        return self.type_to_wtype(base, source_location=loc)
+                        return self._type_to_builder(base, source_location=loc)
                     except WyvernError:
                         pass
                 raise CodeError("Cannot resolve enum type to an appropriate base type", loc)
@@ -129,7 +113,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                 if not items:
                     raise CodeError("Cannot resolve empty type", loc)
                 elif len(items) == 1:
-                    return self.type_to_wtype(items[0], source_location=loc)
+                    return self._type_to_builder(items[0], source_location=loc)
                 else:
                     raise CodeError("Type unions are unsupported at this location", loc)
             case mypy.types.AnyType():
@@ -142,29 +126,45 @@ class ASTConversionModuleContext(ASTConversionContext):
 
     def resolve_type_from_name_and_args(
         self, type_fullname: str, inst_args: Sequence[mypy.types.Type] | None, loc: SourceLocation
-    ) -> wtypes.WType:
+    ) -> TypeClassExpressionBuilder:
+        from wyvern.awst_build.eb.arc4.struct import ARC4StructClassExpressionBuilder
+        from wyvern.awst_build.eb.struct import StructSubclassExpressionBuilder
+        from wyvern.awst_build.eb.type_registry import get_type_builder
+
+        try:
+            mapped_wtype = self.type_map[type_fullname]
+        except KeyError:
+            pass
+        else:
+            if isinstance(mapped_wtype, wtypes.ARC4Struct):
+                return ARC4StructClassExpressionBuilder(mapped_wtype, loc)
+            else:
+                return StructSubclassExpressionBuilder(mapped_wtype, loc)
+
+        cls_type_builder = get_type_builder(type_fullname, loc)
         if not inst_args:
-            try:
-                return self.type_map[type_fullname]
-            except KeyError as ex:
-                raise CodeError(f"Unsupported type: {type_fullname}", loc) from ex
-        wtype_callable = self.generics_type_map.get(type_fullname)
-        if wtype_callable is None:
-            raise CodeError(f"Unsupported generic type: {type_fullname}", loc)
-        type_args_resolved = [
-            ta.value
+            if not isinstance(cls_type_builder, TypeClassExpressionBuilder):
+                raise CodeError(f"Missing generic type parameter(s) for {type_fullname}", loc)
+            return cls_type_builder
+
+        if any(isinstance(a, mypy.types.AnyType) for a in inst_args):
+            raise CodeError(f"Unresolved generic type parameter for {type_fullname}", loc)
+
+        type_args_resolved: list[TypeClassExpressionBuilder | AWSTLiteral] = [
+            AWSTLiteral(value=ta.value, source_location=loc)  # type: ignore[arg-type]
             if isinstance(ta, mypy.types.LiteralType)
-            else self.type_to_wtype(ta, source_location=loc)
+            else self._type_to_builder(ta, source_location=loc)
             for ta in inst_args
         ]
-        try:
-            return wtype_callable(type_args_resolved)
-        except Exception as ex:
-            raise CodeError(
-                f"Invalid parametrisation of generic type: {type_fullname}"
-                f" with {type_args_resolved}",
-                loc,
-            ) from ex
+        if len(type_args_resolved) == 1:
+            indexed_type = cls_type_builder.index(type_args_resolved[0], loc)
+        else:
+            indexed_type = cls_type_builder.index_multiple(type_args_resolved, loc)
+        if not isinstance(indexed_type, TypeClassExpressionBuilder):
+            raise InternalError(
+                f"Expected TypeClassExpressionBuilder got: {type(indexed_type).__name__}", loc
+            )
+        return indexed_type
 
     def mypy_expr_node_type(self, expr: mypy.nodes.Expression) -> wtypes.WType:
         mypy_type = self.get_mypy_expr_type(expr)

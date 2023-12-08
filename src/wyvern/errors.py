@@ -1,7 +1,10 @@
+import contextlib
 import logging
 import sys
 import traceback
+import typing
 import typing as t
+from collections.abc import Iterator
 
 import structlog
 
@@ -43,26 +46,25 @@ class Errors:
         self.num_errors = 0
         self.num_warnings = 0
 
-    def _report(self, log_level: int, msg: str, location: SourceLocation) -> None:
-        logger.log(
-            log_level,
-            msg,
-            location=location,
-        )
+    def _report(self, log_level: int, msg: str, location: SourceLocation | None) -> None:
+        kwargs: dict[str, typing.Any] = {}
+        if location:
+            kwargs["location"] = location
+        logger.log(log_level, msg, **kwargs)
 
-    def error(self, msg: str, location: SourceLocation) -> None:
+    def error(self, msg: str, location: SourceLocation | None) -> None:
         self._report(logging.ERROR, msg, location)
         self.num_errors += 1
 
-    def warning(self, msg: str, location: SourceLocation) -> None:
+    def warning(self, msg: str, location: SourceLocation | None) -> None:
         self._report(logging.WARNING, msg, location)
         self.num_warnings += 1
 
-    def note(self, msg: str, location: SourceLocation) -> None:
+    def note(self, msg: str, location: SourceLocation | None) -> None:
         self._report(logging.INFO, msg, location)
 
 
-def crash_report(location: SourceLocation) -> t.Never:
+def crash_report(location: SourceLocation | None) -> t.Never:
     # Adapted from report_internal_error in mypy
     err = sys.exc_info()[1]
     tb = traceback.extract_stack()[:-4]
@@ -76,5 +78,22 @@ def crash_report(location: SourceLocation) -> t.Never:
     print("Traceback (most recent call last):")
     for s in traceback.format_list(tb + tb2):
         print(s.rstrip("\n"))
-    print(f"{location.file}:{location.line}: {type(err).__name__}: {err}")
+    if location:
+        print(f"{location.file}:{location.line}: {type(err).__name__}: {err}")
     raise SystemExit(2)
+
+
+@contextlib.contextmanager
+def log_exceptions(
+    errors: Errors, fallback_location: SourceLocation | None = None
+) -> Iterator[None]:
+    try:
+        yield
+    except CodeError as ex:
+        errors.error(str(ex), location=ex.location or fallback_location)
+    except InternalError as ex:
+        errors.error(f"FATAL {ex!s}", location=ex.location or fallback_location)
+        crash_report(ex.location or fallback_location)
+    except Exception as ex:
+        errors.error(f"UNEXPECTED {ex!s}", location=fallback_location)
+        crash_report(fallback_location)

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import typing
 from typing import TYPE_CHECKING, Never
 
 import mypy.nodes
@@ -14,9 +13,11 @@ from wyvern.awst.nodes import (
     Expression,
     IntrinsicCall,
     Literal,
+    MethodConstant,
     Node,
     UInt64Constant,
 )
+from wyvern.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from wyvern.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -24,8 +25,8 @@ from wyvern.awst_build.eb.base import (
 from wyvern.awst_build.eb.var_factory import var_expression
 from wyvern.awst_build.intrinsic_data import ENUM_CLASSES, STUB_TO_AST_MAPPER
 from wyvern.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
-from wyvern.awst_build.utils import require_expression_builder
-from wyvern.errors import CodeError, InternalError, TodoError
+from wyvern.awst_build.utils import get_arg_mapping, require_expression_builder
+from wyvern.errors import CodeError, InternalError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -33,6 +34,27 @@ if TYPE_CHECKING:
     from wyvern.parse import SourceLocation
 
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+
+
+class Arc4SignatureBuilder(IntermediateExpressionBuilder):
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        match args:
+            case [Literal(value=str(str_value))]:
+                return var_expression(
+                    MethodConstant(
+                        value=str_value,
+                        source_location=location,
+                    )
+                )
+            case _:
+                raise CodeError(f"Unexpected args for {ARC4_SIGNATURE_ALIAS}", location)
 
 
 class IntrinsicEnumClassExpressionBuilder(IntermediateExpressionBuilder):
@@ -92,9 +114,7 @@ class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
         ]
         arg_mapping = get_arg_mapping_funcdef(self.func_def, resolved_args, location, arg_names)
         intrinsic_expr = map_call(
-            callee=self.func_def.fullname,
-            node_location=location,
-            args={name: arg for name, (_, arg) in arg_mapping.items()},
+            callee=self.func_def.fullname, node_location=location, args=arg_mapping
         )
         if intrinsic_expr is None:
             raise CodeError(f"Unknown algopy function {self.func_def.fullname}")
@@ -143,73 +163,21 @@ def unwrap_func_def(
             raise InternalError("Call symbol resolved to non-callable", location)
 
 
-def get_func_symbol_node(
-    location: SourceLocation, call: mypy.nodes.CallExpr
-) -> mypy.nodes.SymbolNode | None:
-    match call.callee:
-        case mypy.nodes.NameExpr(node=target):
-            if isinstance(target, mypy.nodes.TypeInfo):  # target is a class, so find init
-                return target["__init__"].node
-            return target
-        case mypy.nodes.MemberExpr(
-            expr=mypy.nodes.NameExpr(node=mypy.nodes.TypeInfo() as typ),
-            name=name,
-        ):
-            # reference to a function via a class (ie staticmethod or classmethod)
-            return typ[name].node
-        case mypy.nodes.MemberExpr(node=mypy.nodes.FuncDef() as func):
-            # reference to a function
-            return func
-        case _:
-            raise TodoError(location)
-
-
-T = typing.TypeVar("T")
-
-
-def get_arg_mapping(
-    call: mypy.nodes.CallExpr,
-    args: Sequence[T],
-    location: SourceLocation,
-) -> dict[str, tuple[int, T]]:
-    func_sym = get_func_symbol_node(location, call)
-    if func_sym is None:
-        raise InternalError("Unable to resolve call symbol", location)
-    func_def = unwrap_func_def(
-        location, func_sym, call.arg_kinds.count(mypy.nodes.ArgKind.ARG_POS)
-    )
-    return get_arg_mapping_funcdef(func_def, args, location, call.arg_names)
-
-
 def get_arg_mapping_funcdef(
     func_def: mypy.nodes.FuncDef,
-    args: Sequence[T],
+    args: Sequence[Expression | Literal],
     location: SourceLocation,
     arg_names: Sequence[str | None],
-) -> dict[str, tuple[int, T]]:
+) -> dict[str, Expression | Literal]:
     func_pos_args = [
         arg.variable.name
         for arg, kind in zip(func_def.arguments, func_def.arg_kinds, strict=True)
         if kind in (mypy.nodes.ArgKind.ARG_POS, mypy.nodes.ArgKind.ARG_OPT)
         and not (arg.variable.is_cls or arg.variable.is_self)
     ]
-    func_name_pos_args = {
-        arg.variable.name: idx
-        for idx, arg in enumerate(
-            a for a in func_def.arguments if not (a.variable.is_cls or a.variable.is_self)
-        )
-    }
-
-    arg_mapping = dict[str, tuple[int, T]]()
-    for arg_idx, (arg_name, arg) in enumerate(zip(arg_names, args, strict=True)):
-        if arg_name is None:
-            if arg_idx < len(func_pos_args):
-                arg_name = func_pos_args[arg_idx]
-                assert arg_idx == func_name_pos_args[arg_name], "bad ju ju"
-            else:
-                raise InternalError("Unexpected callable", location)
-        arg_mapping[arg_name] = (func_name_pos_args[arg_name], arg)
-    return arg_mapping
+    return get_arg_mapping(
+        func_pos_args, args=zip(arg_names, args, strict=True), location=location
+    )
 
 
 def _all_immediates_are_constant(

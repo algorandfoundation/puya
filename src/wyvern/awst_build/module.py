@@ -5,6 +5,7 @@ import mypy.types
 import mypy.visitor
 import structlog
 
+from wyvern.awst import wtypes
 from wyvern.awst.nodes import (
     ConstantDeclaration,
     ConstantValue,
@@ -13,7 +14,6 @@ from wyvern.awst.nodes import (
     StructureDefinition,
     StructureField,
 )
-from wyvern.awst.wtypes import WStructType, WType
 from wyvern.awst_build import constants
 from wyvern.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from wyvern.awst_build.context import ASTConversionContext
@@ -120,6 +120,16 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             )
         if cdef.info.bad_mro:
             self._error("Bad MRO", location=cdef)
+        elif cdef.info.has_base(constants.CLS_ARC4_STRUCT):
+            if [ti.fullname for ti in cdef.info.direct_base_classes()] != [
+                constants.CLS_ARC4_STRUCT
+            ]:
+                # TODO: allow inheritance of arc4.Struct?
+                self._error(
+                    "arc4.Struct classes must only inherit directly from arc4.Struct", cdef
+                )
+            else:
+                self._process_arc4_struct(cdef)
         elif cdef.info.has_base(constants.STRUCT_BASE):
             if [ti.fullname for ti in cdef.info.direct_base_classes()] != [constants.STRUCT_BASE]:
                 # TODO: allow inheritance of Structs?
@@ -162,8 +172,55 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 location=cdef,
             )
 
+    def _process_arc4_struct(self, cdef: mypy.nodes.ClassDef) -> None:
+        field_types = dict[str, wtypes.WType]()
+        field_decls = list[StructureField]()
+        docstring = extract_docstring(cdef)
+
+        for stmt in cdef.defs.body:
+            match stmt:
+                case mypy.nodes.AssignmentStmt(
+                    lvalues=[mypy.nodes.NameExpr(name=field_name)],
+                    rvalue=mypy.nodes.TempNode(),
+                    type=mypy.types.Type() as mypy_type,
+                ):
+                    wtype = self.context.type_to_wtype(mypy_type, source_location=stmt)
+                    if not wtypes.is_arc4_encoded_type(wtype):
+                        raise CodeError(
+                            f"Invalid field type for arc4.Struct: {wtype}", self._location(stmt)
+                        )
+                    field_types[field_name] = wtype
+                    field_decls.append(
+                        StructureField(
+                            source_location=self._location(stmt),
+                            name=field_name,
+                            wtype=wtype,
+                        )
+                    )
+                case mypy.nodes.SymbolNode(name=symbol_name) if (
+                    cdef.info.names[symbol_name].plugin_generated
+                ):
+                    pass
+                case _:
+                    self._error("Unsupported Struct declaration", stmt)
+        if not field_types:
+            raise CodeError("arc4.Struct requires at least one field", self._location(cdef))
+        tuple_wtype = wtypes.ARC4Struct.from_name_and_fields(
+            python_name=cdef.fullname, fields=field_types
+        )
+        self._statements.append(
+            StructureDefinition(
+                name=cdef.name,
+                source_location=self._location(cdef),
+                fields=field_decls,
+                wtype=tuple_wtype,
+                docstring=docstring,
+            )
+        )
+        self.context.type_map[cdef.info.fullname] = tuple_wtype
+
     def _process_struct(self, cdef: mypy.nodes.ClassDef) -> None:
-        field_types = dict[str, WType]()
+        field_types = dict[str, wtypes.WType]()
         field_decls = list[StructureField]()
         docstring = extract_docstring(cdef)
         for stmt in cdef.defs.body:
@@ -174,36 +231,31 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                     type=mypy.types.Type() as mypy_type,
                 ):
                     wtype = self.context.type_to_wtype(mypy_type, source_location=stmt)
-                    # TODO: remove None check since type_to_wtype now raises a CodeError
-                    #  if a valid type can't be found?
-                    if wtype is None:
-                        self._error("unsupported type", stmt)
-                    else:
-                        field_decls.append(
-                            StructureField(
-                                source_location=self._location(stmt),
-                                name=field_name,
-                                wtype=wtype,
-                            )
+                    field_decls.append(
+                        StructureField(
+                            source_location=self._location(stmt),
+                            name=field_name,
+                            wtype=wtype,
                         )
-                        field_types[field_name] = wtype
+                    )
+                    field_types[field_name] = wtype
                 case mypy.nodes.SymbolNode(name=symbol_name) if (
                     cdef.info.names[symbol_name].plugin_generated
                 ):
                     pass
                 case _:
                     self._error("Unsupported Struct declaration", stmt)
-        struct_rtype = WStructType.from_name_and_fields(cdef.fullname, field_types)
+        struct_wtype = wtypes.WStructType.from_name_and_fields(cdef.fullname, field_types)
         self._statements.append(
             StructureDefinition(
                 name=cdef.name,
                 source_location=self._location(cdef),
                 fields=field_decls,
-                wtype=struct_rtype,
+                wtype=struct_wtype,
                 docstring=docstring,
             )
         )
-        self.context.type_map[cdef.info.fullname] = struct_rtype
+        self.context.type_map[cdef.info.fullname] = struct_wtype
 
     def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> None:
         match stmt.lvalue:

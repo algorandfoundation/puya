@@ -1,6 +1,6 @@
 from abc import ABC
 
-from algopy import Contract, Transaction, UInt64, subroutine
+from algopy import Contract, Transaction, subroutine, arc4, UInt64
 
 
 class MyBase(Contract, ABC):
@@ -11,8 +11,8 @@ class MyBase(Contract, ABC):
 
 class MyMiddleBase(MyBase):
     @subroutine
-    def calculate(self, a: UInt64, b: UInt64) -> UInt64:
-        return a + b
+    def calculate(self, a: arc4.UInt64, b: arc4.UInt64) -> arc4.UInt64:
+        return arc4.UInt64(a.decode() + b.decode())
 
 
 @subroutine

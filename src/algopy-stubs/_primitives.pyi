@@ -72,6 +72,9 @@ class UInt64:
     # used to turn this into an index e.g. to a list
 
 class Bytes(t.Iterable[Bytes]):
+    @t.overload
+    def __init__(self) -> None: ...
+    @t.overload
     def __init__(self, value: bytes, /): ...
     @staticmethod
     def from_base32(value: t.LiteralString, /) -> Bytes: ...
@@ -93,8 +96,8 @@ class Bytes(t.Iterable[Bytes]):
     def __iter__(self) -> t.Iterator[Bytes]: ...
     # mypy suggests due to Liskov below should be other: object
     # need to consider ramifications here, ignoring it for now
-    def __eq__(self, other: Bytes | bytes | Address) -> bool: ...  # type: ignore[override]
-    def __ne__(self, other: Bytes | bytes | Address) -> bool: ...  # type: ignore[override]
+    def __eq__(self, other: Bytes | bytes) -> bool: ...  # type: ignore[override]
+    def __ne__(self, other: Bytes | bytes) -> bool: ...  # type: ignore[override]
     # bitwise operators
     # &
     def __and__(self, other: Bytes | bytes) -> Bytes: ...
@@ -168,39 +171,3 @@ class BigUInt:
     @classmethod
     def from_bytes(cls, value: Bytes) -> BigUInt:
         """no validation happens here wrt length"""
-
-class Address:
-    """Address is a Bytes that should be exactly len() == 32
-
-    Note that Bytes are immutable objects, so this being a subclass of Bytes
-     should be okay and won't allow violating this invariant.
-    """
-
-    def __init__(self, value: t.LiteralString, /):
-        """
-        `value` should be a 58 character base32 string,
-         ie a base32 string-encoded 32 bytes public key + 4 bytes checksum
-        """
-    def __eq__(self, other: Address | Bytes | bytes | t.LiteralString) -> bool: ...  # type: ignore[override]
-    def __ne__(self, other: Address | Bytes | bytes | t.LiteralString) -> bool: ...  # type: ignore[override]
-    @property
-    def bytes(self) -> Bytes:
-        """Get the byte[] backing this value. Note that Bytes is immutable"""
-    @staticmethod
-    def from_bytes(value: Bytes) -> Address:
-        """no validation happens here wrt length"""
-
-class Asset:
-    def __init__(self, asset_id: UInt64 | int): ...
-    @property
-    def asset_id(self) -> UInt64: ...
-    def __eq__(self, other: Asset) -> bool: ...  # type: ignore[override]
-    def __ne__(self, other: Asset) -> bool: ...  # type: ignore[override]
-
-    # truthiness
-    def __bool__(self) -> bool: ...  # returns True iff asset_id > 0
-    # @abc.abstractmethod
-    # def holding(self, account: Account) -> AssetHolding: ...
-    # @abc.abstractmethod
-    # @property
-    # def params(self) -> AssetParams: ...

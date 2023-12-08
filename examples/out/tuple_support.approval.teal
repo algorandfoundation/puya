@@ -19,24 +19,16 @@ main_entrypoint@2:
         int 2
         addw
         byte "state"
-        uncover 1
+        swap
         app_global_put
         !
-        assert
+        assert // overflow!
         int 1
         int 2
         addw
         pop
         !
-        assert
-        int 1
-        assert
-        int 1
-        assert
-        int 1
-        assert
-        int 1
-        assert
+        assert // overflow!
         byte "Hello, "
         byte "world!"
         callsub bytes_combine
@@ -44,18 +36,18 @@ main_entrypoint@2:
         int 18446744073709551615
         int 18446744073709551615
         addw
-        cover 1
+        swap
         int 1
         int 2
         addw
-        cover 1
+        swap
         uncover 2
         uncover 3
         uncover 2
         uncover 3
         callsub addw2
         cover 2
-        cover 1
+        swap
         itob
         log
         itob
@@ -68,6 +60,15 @@ main_entrypoint@2:
         log
         int 0
         callsub test_tuple_swap
+        int 1
+        int 2
+        int 3
+        int 4
+        int 5
+        int 6
+        int 7
+        int 8
+        callsub slicing
         int 3
         return
 
@@ -130,7 +131,7 @@ addw2_block@0:
         frame_dig -3
         frame_dig -1
         addw
-        cover 1
+        swap
         frame_dig -4
         frame_dig -2
         addw
@@ -138,10 +139,10 @@ addw2_block@0:
         addw
         cover 2
         addw
-        cover 1
+        swap
         !
-        assert
-        uncover 1
+        assert // is such a thing even possible? 👽
+        swap
         uncover 2
         retsub
 
@@ -175,7 +176,7 @@ bytes_multiply_after_for@4:
         retsub
 
 
-// examples.tuple_support.test_tuple_swap(zero#0: uint64) -> :
+// examples.tuple_support.test_tuple_swap(zero#0: uint64) -> void:
 test_tuple_swap:
         proto 1 0
 
@@ -188,14 +189,33 @@ test_tuple_swap_block@0:
         +
         int 2
         ==
-        assert
+        assert // a should be two
         int 1
+        ==
+        assert // b should be one
+        retsub
+
+
+// examples.tuple_support.slicing(values.0#0: uint64, values.1#0: uint64, values.2#0: uint64, values.3#0: uint64, values.4#0: uint64, values.5#0: uint64, values.6#0: uint64, values.7#0: uint64) -> void:
+slicing:
+        proto 8 0
+
+slicing_block@0:
+        frame_dig -8
+        frame_dig -7
+        frame_dig -6
+        callsub add_three_values
+        frame_dig -8
+        frame_dig -7
+        +
+        frame_dig -6
+        +
         ==
         assert
         retsub
 
 
-// examples.tuple_support.TupleSupport.__init__() -> :
+// examples.tuple_support.TupleSupport.__init__() -> void:
 __init__:
         proto 0 0
 

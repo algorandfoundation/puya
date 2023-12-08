@@ -10,6 +10,7 @@ from wyvern.logging_config import LogLevel
 class WyvernOptions:
     paths: Sequence[Path] = ()
     output_teal: bool = True
+    output_arc32: bool = True
     output_awst: bool = False
     output_ssa_ir: bool = False
     output_optimization_ir: bool = False
@@ -20,4 +21,4 @@ class WyvernOptions:
     out_dir: Path | None = None
     debug_level: int = 0
     optimization_level: int = 0
-    log_level: LogLevel = LogLevel.notset
+    log_level: LogLevel = LogLevel.info

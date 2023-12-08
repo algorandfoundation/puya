@@ -270,7 +270,7 @@ def simplify_rotation_ops(
     n = max(rot_op_ns)
     possible_rotation_ops = get_possible_rotation_ops(n)
 
-    # TODO: improve this as it is stupidly slow
+    # TODO: use a non-bruteforce approach and/or capture common simplifications as data
     for num_rotation_ops in range(len(rot_op_ns)):
         num_possible_ops = num_rotation_ops + len(fixed_ops)
         for maybe_rotation_ops in itertools.permutations(possible_rotation_ops, num_rotation_ops):

@@ -9,16 +9,15 @@ from wyvern.awst.nodes import (
     AppStateDefinition,
     AppStateExpression,
     AppStateKind,
-    AssignmentExpression,
     BytesConstant,
     ConditionalExpression,
     Expression,
     ExpressionStatement,
     InstanceSubroutineTarget,
+    IntegerConstant,
     IntrinsicCall,
     Literal,
     Statement,
-    TemporaryVariable,
     TupleItemExpression,
     UInt64Constant,
 )
@@ -34,7 +33,7 @@ from wyvern.awst_build.eb.base import (
 )
 from wyvern.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from wyvern.awst_build.eb.var_factory import var_expression
-from wyvern.awst_build.utils import expect_operand_wtype
+from wyvern.awst_build.utils import create_temporary_assignment, expect_operand_wtype
 from wyvern.errors import CodeError, InternalError
 from wyvern.parse import SourceLocation
 
@@ -125,16 +124,18 @@ class ContractLocalStateGetMethodBuilder(IntermediateExpressionBuilder):
         else:
             item, default_arg = args
         default_expr = expect_operand_wtype(default_arg, target_wtype=self.state_def.storage_wtype)
-        inner_tmp = _build_app_local_get_ex(self.state_def, item, location)
-        tmp = TemporaryVariable(inner_tmp)
-        app_local_get_ex = AssignmentExpression(
-            value=inner_tmp, target=tmp, source_location=location
+        app_local_get_ex = create_temporary_assignment(
+            _build_app_local_get_ex(self.state_def, item, location), location
         )
         conditional_expr = ConditionalExpression(
             location,
             wtype=self.state_def.storage_wtype,
-            condition=TupleItemExpression(app_local_get_ex, index=1, source_location=location),
-            true_expr=TupleItemExpression(tmp, index=0, source_location=location),
+            condition=TupleItemExpression(
+                app_local_get_ex.define, index=1, source_location=location
+            ),
+            true_expr=TupleItemExpression(
+                app_local_get_ex.read, index=0, source_location=location
+            ),
             false_expr=default_expr,
         )
         return var_expression(conditional_expr)
@@ -193,9 +194,9 @@ def _validated_index_expr(index: ExpressionBuilder | Literal) -> Expression:
             )
         case Literal():
             raise CodeError("Invalid literal, expected an int", index.source_location)
-        case UInt64Constant(value=account_offset) as index_expr:
+        case IntegerConstant(value=account_offset) as index_expr:
             valid_account_offset(account_offset, index.source_location)
-        case Expression(wtype=(wtypes.uint64_wtype | wtypes.address_wtype)) as index_expr:
+        case Expression(wtype=(wtypes.uint64_wtype | wtypes.account_wtype)) as index_expr:
             pass
         case _:
             raise CodeError(

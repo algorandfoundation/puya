@@ -1,0 +1,18 @@
+contract Arc4StringTypesContract
+{
+  approval_program(): bool
+  {
+    some_bytes: algopy.Bytes = 'Hello World!'
+    some_bytes_as_string: algopy.arc4.String = arc4_encode(some_bytes, algopy.arc4.String)
+    some_bytes_as_bytes_again: algopy.Bytes = arc4_decode(some_bytes_as_string, algopy.Bytes)
+    assert(some_bytes != reinterpret_cast<algopy.Bytes>(some_bytes_as_string), comment="Original bytes should not match encoded bytes")
+    assert(some_bytes == reinterpret_cast<algopy.Bytes>(some_bytes_as_string)[(2u < tmp$0: algopy.UInt64 := len(reinterpret_cast<algopy.Bytes>(some_bytes_as_string))) ? (2u) : (tmp$0):], comment="Original bytes should match encoded if we strip the length header")
+    assert(some_bytes == some_bytes_as_bytes_again)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}

@@ -1,26 +1,31 @@
 import itertools
+import typing
 from collections.abc import Iterable, Iterator, Sequence
 
 import attrs
 import structlog
 
+from wyvern import metadata
+from wyvern.avm_type import AVMType
 from wyvern.awst import (
     nodes as awst_nodes,
     wtypes,
 )
 from wyvern.awst.function_traverser import FunctionTraverser
 from wyvern.context import CompileContext
-from wyvern.errors import InternalError, TodoError
+from wyvern.errors import CodeError, InternalError
+from wyvern.ir.arc4_router import create_abi_router, create_default_clear_state
+from wyvern.ir.arc4_util import get_abi_signature
 from wyvern.ir.builder import FunctionIRBuilder, format_tuple_index
 from wyvern.ir.context import IRBuildContext
 from wyvern.ir.models import (
     Contract,
-    ContractState,
     Program,
     Register,
     Subroutine,
 )
-from wyvern.ir.types_ import AVMType, wtype_to_avm_type
+from wyvern.ir.types_ import wtype_to_avm_type
+from wyvern.metadata import ARC4Method, ARC4MethodConfig
 from wyvern.utils import attrs_extend
 
 logger = structlog.get_logger()
@@ -47,16 +52,10 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
         raise InternalError("attempted to compile abstract contract")
     folded = fold_state_and_special_methods(ctx, contract)
     if not (folded.approval_program and folded.clear_program):
-        if contract.is_arc4:
-            raise TodoError(
-                contract.source_location,
-                "TODO: synthesise approval / clear methods for ARC4 contracts",
-            )
         raise InternalError(
             "contract is non abstract but doesn't have approval and clear programs in hierarchy",
             contract.source_location,
         )
-
     # visit call graph starting at entry point(s) to collect all references for each
     approval_subs_srefs = SubroutineCollector.collect(ctx, start=folded.approval_program.body)
     clear_subs_srefs = SubroutineCollector.collect(ctx, start=folded.clear_program.body)
@@ -80,15 +79,36 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
     clear_state_ir = _make_program(ctx, folded.clear_program, clear_subs_srefs, on_create=None)
     result = Contract(
         source_location=contract.source_location,
-        module_name=contract.module_name,
-        class_name=contract.name,
-        name_override=contract.name_override,
-        description=contract.docstring,
-        global_state=folded.global_state,
-        local_state=folded.local_state,
         approval_program=approval_ir,
         clear_program=clear_state_ir,
+        metadata=_create_contract_metadata(
+            contract,
+            folded.global_state,
+            folded.local_state,
+            folded.arc4_methods,
+        ),
     )
+
+    return result
+
+
+def _create_contract_metadata(
+    contract: awst_nodes.ContractFragment,
+    global_state: list[metadata.ContractState],
+    local_state: list[metadata.ContractState],
+    arc4_methods: list[ARC4Method] | None,
+) -> metadata.ContractMetaData:
+    result = metadata.ContractMetaData(
+        description=contract.docstring,
+        name_override=contract.name_override,
+        module_name=contract.module_name,
+        class_name=contract.name,
+        is_arc4=contract.is_arc4,
+        methods=arc4_methods or [],  # TODO: fixme
+        global_state=global_state,
+        local_state=local_state,
+    )
+
     return result
 
 
@@ -172,8 +192,15 @@ class FoldedContract:
     init: awst_nodes.ContractMethod | None = None
     approval_program: awst_nodes.ContractMethod | None = None
     clear_program: awst_nodes.ContractMethod | None = None
-    global_state: list[ContractState] = attrs.field(factory=list)
-    local_state: list[ContractState] = attrs.field(factory=list)
+    global_state: list[metadata.ContractState] = attrs.field(factory=list)
+    local_state: list[metadata.ContractState] = attrs.field(factory=list)
+    arc4_methods: list[ARC4Method] | None = attrs.field(default=None)
+
+
+def wtype_to_storage_type(wtype: wtypes.WType) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
+    atype = wtype_to_avm_type(wtype)
+    assert atype is not AVMType.any
+    return atype
 
 
 def fold_state_and_special_methods(
@@ -181,6 +208,7 @@ def fold_state_and_special_methods(
 ) -> FoldedContract:
     bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
     result = FoldedContract()
+    arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig]]()
     for c in [contract, *bases]:
         if result.init is None:
             result.init = c.init
@@ -189,10 +217,11 @@ def fold_state_and_special_methods(
         if result.clear_program is None:
             result.clear_program = c.clear_program
         for state in c.app_state:
-            translated = ContractState(
+            translated = metadata.ContractState(
+                name=state.member_name,
                 source_location=state.source_location,
                 key=state.key,
-                type=wtype_to_avm_type(state.storage_wtype),
+                storage_type=wtype_to_storage_type(state.storage_wtype),
                 description=None,  # TODO, have some way to provide this
             )
             if state.kind == awst_nodes.AppStateKind.app_global:
@@ -201,6 +230,24 @@ def fold_state_and_special_methods(
                 result.local_state.append(translated)
             else:
                 raise InternalError(f"Unhandled state kind: {state.kind}", state.source_location)
+        for cm in c.subroutines:
+            if cm.abimethod_config:
+                arc4_sig = get_abi_signature(cm, cm.abimethod_config)
+                arc4_method_refs.setdefault(arc4_sig, (cm, cm.abimethod_config))
+    if contract.is_arc4:
+        if result.approval_program:
+            raise CodeError(
+                "approval_program should not be defined for ARC4 contracts",
+                contract.source_location,
+            )
+        result.approval_program, result.arc4_methods = create_abi_router(
+            contract,
+            dict(arc4_method_refs.values()),
+            local_state=result.local_state,
+            global_state=result.global_state,
+        )
+        if not result.clear_program:
+            result.clear_program = create_default_clear_state(contract)
     return result
 
 

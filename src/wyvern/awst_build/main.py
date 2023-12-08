@@ -35,10 +35,12 @@ def transform_ast(
         for module_name in scc_module_names:
             module = ctx.parse_result.manager.modules.get(module_name)
             if module is None:
-                raise InternalError("wtf mypy")
+                raise InternalError(f"mypy failed to parse: {module_name}")
             module_rel_path = make_path_relative_to_cwd(module.path)
             if module_name != module.fullname:
-                raise InternalError("the world is broken")
+                raise InternalError(
+                    f"mypy parsed wrong module, expected '{module_name}': {module.fullname}"
+                )
             if module_name in ("abc", "typing", "collections.abc"):
                 logger.debug(f"Skipping stdlib stub {module_rel_path}")
             elif module_name.startswith("algopy"):
@@ -47,8 +49,13 @@ def transform_ast(
                 logger.debug(f"Skipping typeshed stub {module_rel_path}")
             elif module.is_stub:
                 logger.warning(f"Skipping stub: {module_rel_path}")
+            elif module_name == "_algopy_":
+                logger.debug(f"Building AWST for embedded algopy lib at {module_rel_path}")
+                module._fullname = "algopy"  # noqa: SLF001
+                module_awst = ModuleASTConverter.convert(ctx, module)
+                result[module.name] = module_awst
             else:
-                logger.info(f"Building AWST for {module_rel_path}")
+                logger.debug(f"Building AWST for {module_rel_path}")
                 module_awst = ModuleASTConverter.convert(ctx, module)
                 if ctx.options.output_awst:
                     _output_awst(module_awst, ctx.options)

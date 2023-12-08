@@ -1,3 +1,4 @@
+import base64
 import typing as t
 
 from wyvern.awst import nodes, wtypes
@@ -28,19 +29,15 @@ class ToCodeVisitor(
             result.extend(lines)
         return "\n".join(result).strip()
 
-    def visit_abi_decode(self, expr: nodes.AbiDecode) -> str:
-        return f"abi_decode({expr.value.accept(self)}, {expr.wtype})"
+    def visit_arc4_decode(self, expr: nodes.ARC4Decode) -> str:
+        return f"arc4_decode({expr.value.accept(self)}, {expr.wtype})"
 
-    def visit_abi_encode(self, expr: nodes.AbiEncode) -> str:
-        return f"abi_encode({expr.value.accept(self)}, {expr.wtype})"
+    def visit_arc4_encode(self, expr: nodes.ARC4Encode) -> str:
+        return f"arc4_encode({expr.value.accept(self)}, {expr.wtype})"
 
-    def visit_abi_constant(self, expr: nodes.AbiConstant) -> str:
-        return f"abi_constant({bytes_str(expr.value)}, {expr.wtype})"
-
-    def visit_new_abi_array(self, expr: nodes.NewAbiArray) -> str:
-        args = ", ".join(a.accept(self) for a in expr.elements)
-        array_size = expr.wtype.array_size if isinstance(expr.wtype, wtypes.AbiStaticArray) else ""
-        return f"new {expr.wtype.element_type}[{array_size}]({args})"
+    def visit_arc4_array_encode(self, expr: nodes.ARC4ArrayEncode) -> str:
+        items = ", ".join([value.accept(self) for value in expr.values])
+        return f"arc4_array_encode([{items}], {expr.wtype})"
 
     def visit_contains_expression(self, expr: nodes.Contains) -> str:
         return f"{expr.item.accept(self)} IS IN {expr.sequence.accept(self)}"
@@ -71,9 +68,6 @@ class ToCodeVisitor(
             [(f"{a.name}=" if a.name else "") + a.value.accept(self) for a in expr.args]
         )
         return f"new {expr.wtype}({args})"
-
-    def visit_is_substring(self, expr: nodes.IsSubstring) -> str:
-        return f"{expr.item.accept(self)} in {expr.sequence.accept(self)}"
 
     def visit_enumeration(self, expr: nodes.Enumeration) -> str:
         sequence = (
@@ -251,11 +245,8 @@ class ToCodeVisitor(
         body = statement.body.accept(self)
         args = ", ".join([f"{a.name}: {a.wtype}" for a in statement.args])
         if statement.abimethod_config is not None:
-            abi_spec_parts = []
-            if (name_override := statement.abimethod_config.name_override) is not None:
-                abi_spec_parts.append(f"{name_override=}")
-            if abi_spec_parts:
-                deco = f"abimethod[{', '.join(abi_spec_parts)}]"
+            if statement.abimethod_config.name != statement.name:
+                deco = f"abimethod[name_override={statement.abimethod_config.name}]"
             else:
                 deco = "abimethod"
         else:
@@ -286,17 +277,49 @@ class ToCodeVisitor(
     def visit_bytes_unary_operation(self, expr: nodes.BytesUnaryOperation) -> str:
         return f"b{expr.op.value}({expr.expr.accept(self)})"
 
-    def visit_uint64_constant(self, expr: nodes.UInt64Constant) -> str:
-        return f"{expr.value}u" if not expr.teal_alias else expr.teal_alias
+    def visit_integer_constant(self, expr: nodes.IntegerConstant) -> str:
+        if expr.teal_alias:
+            return expr.teal_alias
+        match expr.wtype:
+            case wtypes.uint64_wtype:
+                suffix = "u"
+            case wtypes.biguint_wtype:
+                suffix = "n"
+            case wtypes.ARC4UIntN(n=n):
+                if n <= 64:
+                    suffix = f"arc4u{n}"
+                else:
+                    suffix = f"arc4n{n}"
+            case _:
+                raise InternalError(
+                    f"Numeric type not implemented: {expr.wtype}", expr.source_location
+                )
+        return f"{expr.value}{suffix}"
 
-    def visit_biguint_constant(self, expr: nodes.BigUIntConstant) -> str:
-        return f"{expr.value}n"
+    def visit_decimal_constant(self, expr: nodes.DecimalConstant) -> str:
+        d = str(expr.value)
+        if expr.wtype.n <= 64:
+            suffix = f"arc4u{expr.wtype.n}x{expr.wtype.m}"
+        else:
+            suffix = f"arc4n{expr.wtype.n}x{expr.wtype.m}"
+        return f"{d}{suffix}"
 
     def visit_bool_constant(self, expr: nodes.BoolConstant) -> str:
         return "true" if expr.value else "false"
 
     def visit_bytes_constant(self, expr: nodes.BytesConstant) -> str:
-        return bytes_str(expr.value)
+        match expr.encoding:
+            case nodes.BytesEncoding.base16:
+                return f'hex<"{expr.value.hex().upper()}">'
+            case nodes.BytesEncoding.base32:
+                return f'b32<"{base64.b32encode(expr.value).decode("ascii")}">'
+            case nodes.BytesEncoding.base64:
+                return f'b64<"{base64.b64encode(expr.value).decode("ascii")}">'
+            case _:
+                return bytes_str(expr.value)
+
+    def visit_method_constant(self, expr: nodes.MethodConstant) -> str:
+        return f'Method("{expr.value}")'
 
     def visit_address_constant(self, expr: nodes.AddressConstant) -> str:
         return f'Address("{expr.value}")'
@@ -305,13 +328,16 @@ class ToCodeVisitor(
         condition = expr.condition.accept(self)
         true = expr.true_expr.accept(self)
         false = expr.false_expr.accept(self)
-        return f"{condition} ? {true} : {false}"
+        return f"({condition}) ? ({true}) : ({false})"
 
     def visit_numeric_comparison_expression(self, expr: nodes.NumericComparisonExpression) -> str:
         return f"{expr.lhs.accept(self)} {expr.operator.value} {expr.rhs.accept(self)}"
 
     def visit_var_expression(self, expr: nodes.VarExpression) -> str:
         return expr.name
+
+    def visit_checked_maybe(self, expr: nodes.CheckedMaybe) -> str:
+        return f"checked_maybe({expr.expr.accept(self)})"
 
     def visit_intrinsic_call(self, expr: nodes.IntrinsicCall) -> str:
         result = expr.op_code
@@ -322,9 +348,6 @@ class ToCodeVisitor(
             result += ", ".join([stack_arg.accept(self) for stack_arg in expr.stack_args])
         result += ")"
         return result
-
-    def visit_bytes_decode(self, expr: nodes.BytesDecode) -> str:
-        return f'Bytes.from_{expr.encoding}("{expr.value}")'
 
     def visit_tuple_expression(self, expr: nodes.TupleExpression) -> str:
         items = ", ".join([item.accept(self) for item in expr.items])
@@ -362,6 +385,34 @@ class ToCodeVisitor(
         else:
             else_block = []
         return [*if_block, *else_block, "}"]
+
+    def visit_switch(self, statement: nodes.Switch) -> list[str]:
+        match_block = [f"switch ({statement.value.accept(self)}) {{"]
+        for case_value, case_block in statement.cases.items():
+            value = case_value.accept(self)
+            block = case_block.accept(self)
+            match_block.extend(
+                _indent(
+                    [
+                        f"case {value}: {{",
+                        *_indent(block),
+                        "}",
+                    ]
+                )
+            )
+        if statement.default_case:
+            default_block = statement.default_case.accept(self)
+            match_block.extend(
+                _indent(
+                    [
+                        "case _: {",
+                        *_indent(default_block),
+                        "}",
+                    ]
+                )
+            )
+        match_block.append("}")
+        return match_block
 
     def visit_while_loop(self, statement: nodes.WhileLoop) -> list[str]:
         loop_body = statement.loop_body.accept(self)

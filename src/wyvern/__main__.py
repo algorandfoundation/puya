@@ -34,6 +34,12 @@ def main() -> None:
         help="Output TEAL",
     )
     parser.add_argument(
+        "--output-arc32",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Output ARC32 application.json",
+    )
+    parser.add_argument(
         "--output-awst",
         action=argparse.BooleanOptionalAction,
         default=False,

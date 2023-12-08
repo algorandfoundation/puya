@@ -33,6 +33,7 @@ __all__ = [
     "ExpressionBuilder",
     "IntermediateExpressionBuilder",
     "TypeClassExpressionBuilder",
+    "GenericClassExpressionBuilder",
     "ValueExpressionBuilder",
 ]
 
@@ -235,6 +236,36 @@ class TypeClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
         ...
 
 
+class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
+    def index(
+        self, index: ExpressionBuilder | Literal, location: SourceLocation
+    ) -> TypeClassExpressionBuilder:
+        return self.index_multiple([index], location)
+
+    @abc.abstractmethod
+    def index_multiple(
+        self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+    ) -> TypeClassExpressionBuilder:
+        ...
+
+    @abc.abstractmethod
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        ...
+
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+        raise CodeError(
+            f"Cannot access member {name} without specifying class type parameters first",
+            location,
+        )
+
+
 class ValueExpressionBuilder(ExpressionBuilder):
     wtype: wtypes.WType
 
@@ -243,14 +274,9 @@ class ValueExpressionBuilder(ExpressionBuilder):
         self.__expr = expr
         if expr.wtype != self.wtype:
             raise InternalError(
-                f"Invalid type of expression for {self.python_type}"
-                f" of {expr.wtype}, expected {self.wtype}",
+                f"Invalid type of expression for {self.wtype}: {expr.wtype}",
                 expr.source_location,
             )
-
-    @property
-    def python_type(self) -> str:
-        return self.wtype.python_type
 
     @property
     def expr(self) -> Expression:
@@ -268,12 +294,12 @@ class ValueExpressionBuilder(ExpressionBuilder):
         return self.wtype
 
     def delete(self, location: SourceLocation) -> Statement:
-        raise CodeError(f"{self.python_type} is not valid as del target", location)
+        raise CodeError(f"{self.wtype} is not valid as del target", location)
 
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        raise CodeError(f"{self.python_type} does not support indexing", location)
+        raise CodeError(f"{self.wtype} does not support indexing", location)
 
     def call(
         self,
@@ -283,43 +309,43 @@ class ValueExpressionBuilder(ExpressionBuilder):
         location: SourceLocation,
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
-        raise CodeError(f"{self.python_type} does not support calling", location)
+        raise CodeError(f"{self.wtype} does not support calling", location)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        raise CodeError(f"Unrecognised member of {self.python_type}: {name}", location)
+        raise CodeError(f"Unrecognised member of {self.wtype}: {name}", location)
 
     def iterate(self) -> Iteration:
         """Produce target of ForInLoop"""
         raise CodeError(f"{type(self).__name__} does not support iteration", self.source_location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        raise CodeError(f"{self.python_type} does not support boolean evaluation", location)
+        raise CodeError(f"{self.wtype} does not support boolean evaluation", location)
 
     def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
-        raise CodeError(f"{self.python_type} does not support unary plus operator", location)
+        raise CodeError(f"{self.wtype} does not support unary plus operator", location)
 
     def unary_minus(self, location: SourceLocation) -> ExpressionBuilder:
-        raise CodeError(f"{self.python_type} does not support unary minus operator", location)
+        raise CodeError(f"{self.wtype} does not support unary minus operator", location)
 
     def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
-        raise CodeError(f"{self.python_type} does not support bitwise inversion", location)
+        raise CodeError(f"{self.wtype} does not support bitwise inversion", location)
 
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        raise CodeError(f"{self.python_type} does not support in/not in checks", location)
+        raise CodeError(f"{self.wtype} does not support in/not in checks", location)
 
 
 def _validate_lvalue(resolved: Expression) -> Lvalue:
     if not (isinstance(resolved, Lvalue) and resolved.wtype.lvalue):  # type: ignore[arg-type,misc]
         raise CodeError(
-            f"{resolved.wtype.python_type} expression is not valid as assignment target",
+            f"{resolved.wtype.stub_name} expression is not valid as assignment target",
             resolved.source_location,
         )
     if isinstance(resolved, IndexExpression | FieldExpression) and resolved.base.wtype.immutable:
         raise CodeError(
             "expression is not valid as assignment target"
-            f" ({resolved.base.wtype.python_type} is immutable)",
+            f" ({resolved.base.wtype.stub_name} is immutable)",
             resolved.source_location,
         )
     elif isinstance(resolved, ReinterpretCast):

@@ -12,7 +12,9 @@ class OpUpFeeSource(Enum):
     #: First the excess will be used, remaining fees will be taken from the app account
     Any = 2
 
-def ensure_budget(required_budget: UInt64 | int, fee_source: OpUpFeeSource = ...) -> None:
+def ensure_budget(
+    required_budget: UInt64 | int, fee_source: OpUpFeeSource = OpUpFeeSource.Any
+) -> None:
     """
     Ensure the available op code budget is greater than or equal to required_budget
     """

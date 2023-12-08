@@ -1,4 +1,4 @@
-from algopy import Address, Bytes, Contract, Local, OnCompleteAction, Transaction, log, subroutine
+from algopy import Account, Bytes, Contract, Local, OnCompleteAction, Transaction, log, subroutine
 
 
 class LocalStorageContract(Contract):
@@ -44,23 +44,23 @@ class LocalStorageContract(Contract):
         return True
 
     @subroutine
-    def get_guaranteed_data(self, for_account: Address) -> Bytes:
+    def get_guaranteed_data(self, for_account: Account) -> Bytes:
         return self.local[for_account]
 
     @subroutine
-    def get_data_with_default(self, for_account: Address, default: Bytes) -> Bytes:
+    def get_data_with_default(self, for_account: Account, default: Bytes) -> Bytes:
         return self.local.get(for_account, default)
 
     @subroutine
-    def get_data_or_assert(self, for_account: Address) -> Bytes:
+    def get_data_or_assert(self, for_account: Account) -> Bytes:
         result, exists = self.local.maybe(for_account)
         assert exists, "no data for account"
         return result
 
     @subroutine
-    def set_data(self, for_account: Address, value: Bytes) -> None:
+    def set_data(self, for_account: Account, value: Bytes) -> None:
         self.local[for_account] = value
 
     @subroutine
-    def delete_data(self, for_account: Address) -> None:
+    def delete_data(self, for_account: Account) -> None:
         del self.local[for_account]

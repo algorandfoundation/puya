@@ -1,0 +1,108 @@
+#pragma version 8
+
+// examples.arc4_types.tuples.Arc4TuplesTypeContract.approval_program() -> uint64:
+main_block@0:
+        int 7
+        itob
+        extract 6 2
+        byte 0x0102
+        swap
+        concat
+        int 14
+        itob
+        extract 6 2
+        concat
+        byte 0xff
+        concat
+        byte "\x00\x05hello"
+        concat
+        byte "\x00\x05world"
+        concat
+        dup
+        byte 0x01020007000eff000568656c6c6f0005776f726c64
+        ==
+        assert
+        byte 0x04
+        btoi
+        int 4
+        ==
+        assert // a is 4
+        byte 0x10
+        btoi
+        int 16
+        ==
+        assert // k is 16
+        callsub test_stuff
+        extract 2 0
+        byte "hello world"
+        ==
+        assert
+        int 258
+        ==
+        assert
+        int 1
+        return
+
+
+// examples.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_tuple#0: bytes) -> uint64, bytes:
+test_stuff:
+        proto 1 2
+
+test_stuff_block@0:
+        frame_dig -1
+        int 0
+        int 1
+        extract3
+        frame_dig -1
+        int 1
+        int 1
+        extract3
+        frame_dig -1
+        int 2
+        extract_uint16
+        frame_dig -1
+        dig 1
+        extract_uint16
+        int 2
+        +
+        frame_dig -1
+        cover 2
+        extract3
+        frame_dig -1
+        int 4
+        extract_uint16
+        frame_dig -1
+        dig 1
+        extract_uint16
+        int 2
+        +
+        frame_dig -1
+        cover 2
+        extract3
+        frame_dig -1
+        int 6
+        int 1
+        extract3
+        uncover 4
+        btoi
+        uncover 4
+        btoi
+        +
+        swap
+        btoi
+        +
+        uncover 2
+        extract 2 0
+        byte " "
+        concat
+        uncover 2
+        extract 2 0
+        concat
+        dup
+        len
+        itob
+        extract 6 2
+        swap
+        concat
+        retsub
+

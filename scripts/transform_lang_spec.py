@@ -12,9 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 STACK_INPUT_NAMES = "ABCDE"
-STACK_OUTPUT_NAMES_FEW = "XYZ"  # 1, 2, 3
-STACK_OUTPUT_NAMES_MANY = "WXYZ"  # many
-# TODO: lots?
+STACK_OUTPUT_NAMES_FEW = "XYZ"  # 3 or less var
+STACK_OUTPUT_NAMES_MANY = "WXYZ"  # 4 var
 
 
 VARIABLE_SIZE_OPCODES = {

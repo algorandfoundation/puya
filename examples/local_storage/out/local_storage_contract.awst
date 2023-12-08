@@ -59,29 +59,29 @@ contract LocalStorageContract
     return true
   }
   
-  subroutine get_guaranteed_data(for_account: algopy.Address): algopy.Bytes
+  subroutine get_guaranteed_data(for_account: algopy.Account): algopy.Bytes
   {
     return this.locals['local'].account[for_account]
   }
   
-  subroutine get_data_with_default(for_account: algopy.Address, default: algopy.Bytes): algopy.Bytes
+  subroutine get_data_with_default(for_account: algopy.Account, default: algopy.Bytes): algopy.Bytes
   {
-    return tmp$0: tuple[algopy.Bytes, bool] := app_local_get_ex(for_account, 0u, 'local')[1] ? tmp$0[0] : default
+    return (tmp$0: tuple[algopy.Bytes, bool] := app_local_get_ex(for_account, 0u, 'local')[1]) ? (tmp$0[0]) : (default)
   }
   
-  subroutine get_data_or_assert(for_account: algopy.Address): algopy.Bytes
+  subroutine get_data_or_assert(for_account: algopy.Account): algopy.Bytes
   {
     (result, exists): tuple[algopy.Bytes, bool] = app_local_get_ex(for_account, 0u, 'local')
     assert(exists, comment="no data for account")
     return result
   }
   
-  subroutine set_data(for_account: algopy.Address, value: algopy.Bytes): None
+  subroutine set_data(for_account: algopy.Account, value: algopy.Bytes): None
   {
     this.locals['local'].account[for_account]: algopy.Bytes = value
   }
   
-  subroutine delete_data(for_account: algopy.Address): None
+  subroutine delete_data(for_account: algopy.Account): None
   {
     app_local_del(for_account, 'local')
   }

@@ -1,23 +1,23 @@
 contract Reference
 {
   globals {
-    ['asa']: algopy._primitives.Asset
+    ['asa']: algopy.Asset
   }
   
   constructor()
   {
-    this.globals['asa']: algopy._primitives.Asset = reinterpret_cast<algopy._primitives.Asset>(0u)
+    this.globals['asa']: algopy.Asset = reinterpret_cast<algopy.Asset>(0u)
   }
   
   approval_program(): bool
   {
     if (txn<NumAppArgs>() == 1u) {
       if (txna<ApplicationArgs, 0>() == 'opt_in') {
-        asset: algopy._primitives.Asset = reinterpret_cast<algopy._primitives.Asset>(txna<Assets, 0>())
+        asset: algopy.Asset = reinterpret_cast<algopy.Asset>(txna<Assets, 0>())
         this::opt_into_asset(asset)
       } else {
         if (txna<ApplicationArgs, 0>() == 'is_opted_in') {
-          asset: algopy._primitives.Asset = reinterpret_cast<algopy._primitives.Asset>(txna<Assets, 0>())
+          asset: algopy.Asset = reinterpret_cast<algopy.Asset>(txna<Assets, 0>())
           this::is_opted_asset(asset)
         } else {
           assert(false, comment="Expected opt_in or is_opted_in")
@@ -32,11 +32,11 @@ contract Reference
     return true
   }
   
-  subroutine opt_into_asset(asset: algopy._primitives.Asset): None
+  subroutine opt_into_asset(asset: algopy.Asset): None
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
     assert(!(reinterpret_cast<bool>(this.globals['asa'])), comment="ASA already opted in")
-    this.globals['asa']: algopy._primitives.Asset = asset
+    this.globals['asa']: algopy.Asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)
     itxn_field<Fee>(0u)
@@ -45,8 +45,20 @@ contract Reference
     itxn_submit()
   }
   
-  subroutine is_opted_asset(asset: algopy._primitives.Asset): None
+  subroutine is_opted_asset(asset: algopy.Asset): None
   {
-    assert(reinterpret_cast<algopy.UInt64>(this.globals['asa']) == reinterpret_cast<algopy.UInt64>(asset), comment="asset self.asa == asset")
+    assert(this.globals['asa'] == asset, comment="asset self.asa == asset")
+    assert(checked_maybe(asset_params_get<AssetTotal>(asset)) == 10000000u, comment="total")
+    assert(checked_maybe(asset_params_get<AssetDecimals>(asset)) == 0u, comment="decimals")
+    assert(!(checked_maybe(asset_params_get<AssetDefaultFrozen>(asset))), comment="default frozen")
+    assert(checked_maybe(asset_params_get<AssetUnitName>(asset)) == 'a', comment="unit_name")
+    assert(checked_maybe(asset_params_get<AssetName>(asset)) == 'asset a', comment="name")
+    assert(checked_maybe(asset_params_get<AssetURL>(asset)) == '', comment="URL")
+    assert(checked_maybe(asset_params_get<AssetMetadataHash>(asset)) == bzero(32u), comment="hash")
+    assert(checked_maybe(asset_params_get<AssetManager>(asset)) == global<ZeroAddress>(), comment="manager")
+    assert(checked_maybe(asset_params_get<AssetReserve>(asset)) == global<ZeroAddress>(), comment="reserve")
+    assert(checked_maybe(asset_params_get<AssetFreeze>(asset)) == global<ZeroAddress>(), comment="freeze")
+    assert(checked_maybe(asset_params_get<AssetClawback>(asset)) == global<ZeroAddress>(), comment="clawback")
+    assert(checked_maybe(asset_params_get<AssetCreator>(asset)) == global<CreatorAddress>(), comment="creator")
   }
 }

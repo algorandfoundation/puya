@@ -42,9 +42,9 @@ class VariableLifetimeAnalysis:
             for op, next_op in itertools.zip_longest(block.ops, block.ops[1:]):
                 used = StableSet[str]()
                 defined = StableSet[str]()
-                if isinstance(op, ops.StoreScratch):
+                if isinstance(op, ops.StoreVirtual):
                     defined.add(op.local_id)
-                elif isinstance(op, ops.LoadScratch):
+                elif isinstance(op, ops.LoadVirtual):
                     used.add(op.local_id)
                 if next_op is None:
                     # for last op, add first op of each successor block

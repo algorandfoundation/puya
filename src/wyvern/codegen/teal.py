@@ -18,7 +18,10 @@ class TealOp:
         return ()
 
     def __str__(self) -> str:
-        teal_args = [self.op_code, *map(str, self.immediates)]
+        return self.teal_str(self.op_code, *self.immediates)
+
+    def teal_str(self, op_code: str, *immediates: int | str) -> str:
+        teal_args = [op_code, *map(str, immediates)]
         if self.comment:
             teal_args.append(f"// {self.comment}")
         return " ".join(teal_args)
@@ -52,10 +55,22 @@ class TealOpN(TealOp):
 class Cover(TealOpN):
     op_code: str = "cover"
 
+    def __str__(self) -> str:
+        if self.n == 1:
+            return self.teal_str("swap")
+        else:
+            return super().__str__()
+
 
 @attrs.frozen
 class Uncover(TealOpN):
     op_code: str = "uncover"
+
+    def __str__(self) -> str:
+        if self.n == 1:
+            return self.teal_str("swap")
+        else:
+            return super().__str__()
 
 
 @attrs.frozen
@@ -76,16 +91,6 @@ class FrameDig(TealOpN):
 @attrs.frozen
 class FrameBury(TealOpN):
     op_code: str = "frame_bury"
-
-
-@attrs.frozen
-class Store(TealOpN):
-    op_code: str = "store"
-
-
-@attrs.frozen
-class Load(TealOpN):
-    op_code: str = "load"
 
 
 @attrs.frozen
@@ -145,6 +150,16 @@ class PushAddress(TealOp):
     @property
     def immediates(self) -> Sequence[int | str]:
         return (self.a,)
+
+
+@attrs.frozen
+class PushMethod(TealOp):
+    a: str
+    op_code: str = "method"
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return (f'"{self.a}"',)
 
 
 @attrs.frozen

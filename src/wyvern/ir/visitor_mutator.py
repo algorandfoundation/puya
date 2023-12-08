@@ -17,6 +17,7 @@ from wyvern.ir.models import (
     GotoNth,
     Intrinsic,
     InvokeSubroutine,
+    MethodConstant,
     Op,
     Phi,
     PhiArgument,
@@ -86,6 +87,9 @@ class IRMutator(IRVisitor[t.Any]):
     def visit_address_constant(self, const: AddressConstant) -> AddressConstant:
         return const
 
+    def visit_method_constant(self, const: MethodConstant) -> MethodConstant:
+        return const
+
     def visit_phi(self, phi: Phi) -> Phi | None:
         with self._enter_target_context():
             phi.register = self.visit_register(phi.register)
@@ -96,7 +100,7 @@ class IRMutator(IRVisitor[t.Any]):
         arg.value = arg.value.accept(self)
         return arg
 
-    def visit_intrinsic_op(self, intrinsic: Intrinsic) -> Intrinsic:
+    def visit_intrinsic_op(self, intrinsic: Intrinsic) -> Intrinsic | None:
         intrinsic.args = [a.accept(self) for a in intrinsic.args]
         return intrinsic
 

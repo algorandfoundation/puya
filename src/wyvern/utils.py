@@ -1,6 +1,7 @@
 import contextlib
 import functools
 import itertools
+import math
 import os
 from collections.abc import Callable, Iterable, MutableMapping, MutableSet, Set
 from pathlib import Path
@@ -11,6 +12,18 @@ import attrs
 from wyvern.options import WyvernOptions
 
 T_A = TypeVar("T_A", bound=attrs.AttrsInstance)
+
+
+def sha512_256_hash(value: bytes) -> bytes:
+    """
+    Returns the SHA512/256 hash of a value. This is the hashing algorithm used
+    to generate address checksums
+    """
+    from Cryptodome.Hash import SHA512
+
+    sha = SHA512.new(truncate="256")
+    sha.update(value)
+    return sha.digest()
 
 
 def attrs_extend(new_type: type[T_A], base_instance: Any, **changes: Any) -> T_A:  # noqa: ANN401
@@ -128,3 +141,19 @@ _INVERT_ORDERED_BINARY_OP = str.maketrans("<>", "><")
 
 def invert_ordered_binary_op(op: str) -> str:
     return op.translate(_INVERT_ORDERED_BINARY_OP)
+
+
+def clamp(value: int, *, low: int, high: int) -> int:
+    if value < low:
+        return low
+    if value > high:
+        return high
+    return value
+
+
+def bits_to_bytes(bit_size: int) -> int:
+    return int(math.ceil(bit_size / 8))
+
+
+def round_bits_to_nearest_bytes(bit_size: int) -> int:
+    return bits_to_bytes(bit_size) * 8

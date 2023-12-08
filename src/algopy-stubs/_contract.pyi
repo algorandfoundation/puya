@@ -1,6 +1,6 @@
 import abc
 
-from algopy._primitives import UInt64
+from algopy import UInt64
 
 class Contract(abc.ABC):
     def __init_subclass__(cls, name: str | None = None, **kwargs: object): ...

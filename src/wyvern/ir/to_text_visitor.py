@@ -4,9 +4,9 @@ from pathlib import Path
 
 import structlog
 
+from wyvern.avm_type import AVMType
 from wyvern.codegen.utils import format_bytes
 from wyvern.ir import models
-from wyvern.ir.types_ import AVMType
 from wyvern.ir.visitor import IRVisitor
 
 logger = structlog.get_logger(__name__)
@@ -34,6 +34,9 @@ class ToTextVisitor(IRVisitor[str]):
 
     def visit_address_constant(self, op: models.AddressConstant) -> str:
         return f"addr {op.value}"
+
+    def visit_method_constant(self, op: models.MethodConstant) -> str:
+        return f'method "{op.value}"'
 
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:
         callee = intrinsic.op.code
@@ -143,7 +146,7 @@ def render_program(emitter: TextEmitter, name: str, program: models.Program) -> 
 
 
 def render_contract(emitter: TextEmitter, contract: models.Contract) -> None:
-    emitter.append(f"contract {contract.full_name}:")
+    emitter.append(f"contract {contract.metadata.full_name}:")
     with emitter.indent():
         render_program(emitter, "approval", contract.approval_program)
         emitter.append("")

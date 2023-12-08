@@ -38,6 +38,18 @@ class TupleSupport(Contract):
         log(itob(lo))
         log(bytes_multiply((Bytes(b"na"), UInt64(5))))
         test_tuple_swap(zero=UInt64(0))
+        slicing(
+            (
+                UInt64(1),
+                UInt64(2),
+                UInt64(3),
+                UInt64(4),
+                UInt64(5),
+                UInt64(6),
+                UInt64(7),
+                UInt64(8),
+            )
+        )
         return a + b
 
     def clear_state_program(self) -> UInt64:
@@ -53,11 +65,10 @@ def bytes_combine(arg: tuple[Bytes, Bytes]) -> Bytes:
 
 @subroutine
 def bytes_multiply(arg: tuple[Bytes, UInt64]) -> Bytes:
-    # TODO: this codgen breaks for some reason, outputs uninitialised variable code
     b, count = arg
     result = Bytes(b"")  # TODO: allow no-args -> empty
     for _i in urange(count):  # TODO: allow _
-        result = result + b  # TODO: replace with and support augmented assignment
+        result += b
     return result
 
 
@@ -91,3 +102,11 @@ def test_tuple_swap(zero: UInt64) -> None:
     (a, b) = (b, a)
     assert a == 2, "a should be two"
     assert b == 1, "b should be one"
+
+
+@subroutine
+def slicing(values: tuple[UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64, UInt64]) -> None:
+    one_to_three = values[0:3]
+    assert add_three_values(one_to_three) == values[0] + values[1] + values[2]
+
+    assert one_to_three[-2:-1][0] == one_to_three[1]

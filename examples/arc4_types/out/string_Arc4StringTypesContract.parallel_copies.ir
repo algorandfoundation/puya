@@ -1,0 +1,34 @@
+contract examples.arc4_types.string.Arc4StringTypesContract:
+    program approval:
+        subroutine examples.arc4_types.string.Arc4StringTypesContract.approval_program() -> uint64:
+            block@0: // L8
+                let value_as_bytes%1#0: bytes = (itob 12u)
+                let value_as_uint16%2#0: bytes = ((extract 6 2) value_as_bytes%1#0)
+                let some_bytes_as_string#0: bytes = (concat value_as_uint16%2#0 "Hello World!")
+                let some_bytes_as_bytes_again#0: bytes = ((extract 2 0) some_bytes_as_string#0)
+                let tmp%3#0: uint64 = (!= "Hello World!" some_bytes_as_string#0)
+                (assert tmp%3#0) // Original bytes should not match encoded bytes
+                let awst_tmp%4#0: uint64 = (len some_bytes_as_string#0)
+                let tmp%5#0: uint64 = (< 2u awst_tmp%4#0)
+                goto tmp%5#0 ? block@1 : block@2
+            block@1: // ternary_true_L20
+                let ternary_result%6#0: uint64 = 2u
+                let ternary_result%6#4: uint64 = ternary_result%6#0
+                goto block@3
+            block@2: // ternary_false_L20
+                let ternary_result%6#4: uint64 = awst_tmp%4#0
+                goto block@3
+            block@3: // ternary_merge_L20
+                let ternary_result%6#2: uint64 = ternary_result%6#4
+                let base_length%7#0: uint64 = (len some_bytes_as_string#0)
+                let tmp%8#0: bytes = (substring3 some_bytes_as_string#0 ternary_result%6#2 base_length%7#0)
+                let tmp%9#0: uint64 = (== "Hello World!" tmp%8#0)
+                (assert tmp%9#0) // Original bytes should match encoded if we strip the length header
+                let tmp%10#0: uint64 = (== "Hello World!" some_bytes_as_bytes_again#0)
+                (assert tmp%10#0)
+                return 1u
+    
+    program clear-state:
+        subroutine examples.arc4_types.string.Arc4StringTypesContract.clear_state_program() -> uint64:
+            block@0: // L27
+                return 1u

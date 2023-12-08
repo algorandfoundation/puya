@@ -11,19 +11,20 @@ import mypy.nodes
 import mypy.options
 import structlog
 
+from wyvern.arc32 import write_arc32
 from wyvern.awst import nodes as awst_nodes
 from wyvern.awst_build.main import transform_ast
 from wyvern.codegen.builder import compile_ir_to_teal
 from wyvern.codegen.emitprogram import CompiledContract
 from wyvern.context import CompileContext
-from wyvern.errors import Errors, InternalError, ParseError
+from wyvern.errors import Errors, InternalError, ParseError, log_exceptions
 from wyvern.ir.destructure.main import destructure_ssa
 from wyvern.ir.main import build_ir
 from wyvern.ir.optimize.main import optimize_contract_ir
 from wyvern.ir.to_text_visitor import output_contract_ir_to_path
 from wyvern.options import WyvernOptions
 from wyvern.parse import TYPESHED_PATH, ParseSource, parse_and_typecheck
-from wyvern.utils import determine_out_dir
+from wyvern.utils import determine_out_dir, make_path_relative_to_cwd
 
 logger = structlog.get_logger(__name__)
 
@@ -91,8 +92,9 @@ def awst_to_teal(
                 logger.warning(f"No contracts found in explicitly named source file: {src.path}")
         else:
             for contract_ir in module_ir:
+                metadata = contract_ir.metadata
                 out_dir = determine_out_dir(src.path.parent, context.options)
-                contract_ir_base_path = out_dir / "_".join((src.path.stem, contract_ir.class_name))
+                contract_ir_base_path = out_dir / "_".join((src.path.stem, metadata.class_name))
                 if context.options.output_ssa_ir:
                     output_contract_ir_to_path(
                         contract_ir, contract_ir_base_path.with_suffix(".ssa.ir")
@@ -100,7 +102,7 @@ def awst_to_teal(
 
                 if context.options.optimization_level > 0:
                     logger.info(
-                        f"Optimizing {contract_ir.full_name}"
+                        f"Optimizing {metadata.full_name}"
                         f" at level {context.options.optimization_level}"
                     )
                     contract_ir = optimize_contract_ir(
@@ -120,6 +122,26 @@ def awst_to_teal(
     return result
 
 
+def write_arc32_application_spec(
+    context: CompileContext,
+    compiled_contracts_by_source_path: dict[ParseSource, list[CompiledContract]],
+) -> None:
+    for src, compiled_contracts in compiled_contracts_by_source_path.items():
+        arc4_contracts = [c for c in compiled_contracts if c.metadata.is_arc4]
+        if not arc4_contracts:
+            continue
+        base_path = determine_out_dir(src.path.parent, context.options)
+        for arc4_contract in arc4_contracts:
+            stem = (
+                "application.json"
+                if len(arc4_contracts) == 1
+                else f"application.{arc4_contract.metadata.full_name}.json"
+            )
+            arc32_path = base_path / stem
+            logger.info(f"Writing {make_path_relative_to_cwd(str(arc32_path))}")
+            write_arc32(arc32_path, arc4_contract)
+
+
 def write_compiled_contracts(
     context: CompileContext,
     compiled_contracts_by_source_path: dict[ParseSource, list[CompiledContract]],
@@ -132,7 +154,7 @@ def write_compiled_contracts(
             for contract in compiled_contracts:
                 base_path = determine_out_dir(src.path.parent, context.options)
 
-                qualified_path = base_path / f"{src.path.stem}_{contract.name}"
+                qualified_path = base_path / f"{src.path.stem}_{contract.metadata.full_name}"
                 write_contract_files(base_path=qualified_path, compiled_contract=contract)
 
 
@@ -140,14 +162,18 @@ def compile_to_teal(wyvern_options: WyvernOptions) -> None:
     """Drive the actual core compilation step."""
     context = parse_with_mypy(wyvern_options)
     awst = transform_ast(context)
-    compiled_contracts_by_source_path = awst_to_teal(context, awst)
-    if compiled_contracts_by_source_path is None:
-        logger.error("Build failed")
-        sys.exit(1)
-    elif not compiled_contracts_by_source_path:
-        logger.error("No contracts discovered in any source files")
-    elif wyvern_options.output_teal:
-        write_compiled_contracts(context, compiled_contracts_by_source_path)
+    with log_exceptions(context.errors):
+        compiled_contracts_by_source_path = awst_to_teal(context, awst)
+        if compiled_contracts_by_source_path is None:
+            logger.error("Build failed")
+            sys.exit(1)
+        elif not compiled_contracts_by_source_path:
+            logger.error("No contracts discovered in any source files")
+        else:
+            if wyvern_options.output_teal:
+                write_compiled_contracts(context, compiled_contracts_by_source_path)
+            if wyvern_options.output_arc32:
+                write_arc32_application_spec(context, compiled_contracts_by_source_path)
 
 
 def get_mypy_options() -> mypy.options.Options:
@@ -204,5 +230,5 @@ def write_contract_files(base_path: Path, compiled_contract: CompiledContract) -
             continue
         output_path = base_path.with_suffix(suffix)
         output_text = "\n".join(src)
-        logger.info(f"Writing {output_path}")
+        logger.info(f"Writing {make_path_relative_to_cwd(str(output_path))}")
         output_path.write_text(output_text, encoding="utf-8")

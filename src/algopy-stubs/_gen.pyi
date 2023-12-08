@@ -1,7 +1,7 @@
 import enum
 from typing import Never
 
-from algopy._primitives import Address, BigUInt, Bytes, UInt64
+from algopy import Account, BigUInt, Bytes, UInt64
 
 class Base64(enum.StrEnum):
     URLEncoding = enum.auto()
@@ -25,7 +25,7 @@ def addw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
 
     """
 
-def app_opted_in(a: Address | UInt64 | int, b: UInt64 | int, /) -> bool:
+def app_opted_in(a: Account | UInt64 | int, b: UInt64 | int, /) -> bool:
     """
     1 if account A is opted in to application B, else 0
     params: Txn.Accounts offset (or, since v4, an _available_ account address), _available_ application id (or, since v4, a Txn.ForeignApps offset). Return: 1 if opted in and 0 otherwise.
@@ -48,7 +48,7 @@ def arg(a: UInt64 | int, /) -> Bytes:
 
     """
 
-def balance(a: Address | UInt64 | int, /) -> UInt64:
+def balance(a: Account | UInt64 | int, /) -> UInt64:
     """
     balance for account A, in microalgos. The balance is observed after the effects of previous transactions in the group, and after the fee for the current transaction is deducted. Changes caused by inner transactions are observable immediately following `itxn_submit`
     params: Txn.Accounts offset (or, since v4, an _available_ account address). Return: value.
@@ -388,7 +388,7 @@ def itob(a: UInt64 | int, /) -> Bytes:
 
     """
 
-def keccak256(a: Bytes | bytes, /) -> Bytes:
+def keccak256(a: Bytes | bytes, /) -> Account:
     """
     Keccak256 hash of value A, yields [32]byte
 
@@ -411,7 +411,7 @@ def log(a: Bytes | bytes, /) -> None:
 
     """
 
-def min_balance(a: Address | UInt64 | int, /) -> UInt64:
+def min_balance(a: Account | UInt64 | int, /) -> UInt64:
     """
     minimum required balance for account A, in microalgos. Required balance is affected by ASA, App, and Box usage. When creating or opting into an app, the minimum balance grows before the app code runs, therefore the increase is visible there. When deleting or closing out, the minimum balance decreases after the app executes. Changes caused by inner transactions or box usage are observable immediately following the opcode effecting the change.
     params: Txn.Accounts offset (or, since v4, an _available_ account address). Return: value.
@@ -481,7 +481,7 @@ def setbyte(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
 
     """
 
-def sha256(a: Bytes | bytes, /) -> Bytes:
+def sha256(a: Bytes | bytes, /) -> Account:
     """
     SHA256 hash of value A, yields [32]byte
 
@@ -503,7 +503,7 @@ def sha3_256(a: Bytes | bytes, /) -> Bytes:
 
     """
 
-def sha512_256(a: Bytes | bytes, /) -> Bytes:
+def sha512_256(a: Bytes | bytes, /) -> Account:
     """
     SHA512_256 hash of value A, yields [32]byte
 
@@ -575,7 +575,7 @@ def vrf_verify(
 
 class AcctParamsGet:
     @staticmethod
-    def acct_balance(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_balance(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -587,7 +587,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: Account balance in microalgos
         """
     @staticmethod
-    def acct_min_balance(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_min_balance(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -599,7 +599,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: Minimum required balance for account, in microalgos
         """
     @staticmethod
-    def acct_auth_addr(a: Address | UInt64 | int, /) -> tuple[Address, bool]:
+    def acct_auth_addr(a: Account | UInt64 | int, /) -> tuple[Account, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -608,10 +608,10 @@ class AcctParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: acct_params_get F
 
-        :returns tuple[Address, bool]: Address the account is rekeyed to.
+        :returns tuple[Account, bool]: Address the account is rekeyed to.
         """
     @staticmethod
-    def acct_total_num_uint(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_total_num_uint(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -623,7 +623,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The total number of uint64 values allocated by this account in Global and Local States.
         """
     @staticmethod
-    def acct_total_num_byte_slice(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_total_num_byte_slice(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -635,7 +635,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The total number of byte array values allocated by this account in Global and Local States.
         """
     @staticmethod
-    def acct_total_extra_app_pages(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_total_extra_app_pages(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -647,7 +647,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The number of extra app code pages used by this account.
         """
     @staticmethod
-    def acct_total_apps_created(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_total_apps_created(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -659,7 +659,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The number of existing apps created by this account.
         """
     @staticmethod
-    def acct_total_apps_opted_in(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_total_apps_opted_in(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -671,7 +671,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The number of apps this account is opted into.
         """
     @staticmethod
-    def acct_total_assets_created(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_total_assets_created(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -683,7 +683,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The number of existing ASAs created by this account.
         """
     @staticmethod
-    def acct_total_assets(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_total_assets(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -695,7 +695,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The numbers of ASAs held by this account (including ASAs this account created).
         """
     @staticmethod
-    def acct_total_boxes(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_total_boxes(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -707,7 +707,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The number of existing boxes created by this account's app.
         """
     @staticmethod
-    def acct_total_box_bytes(a: Address | UInt64 | int, /) -> tuple[UInt64, bool]:
+    def acct_total_box_bytes(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A. Y is 1 if A owns positive algos, else 0
 
@@ -796,7 +796,7 @@ class AppGlobals:
 
 class AppLocals:
     @staticmethod
-    def get_bytes(a: Address | UInt64 | int, b: Bytes | bytes, /) -> Bytes:
+    def get_bytes(a: Account | UInt64 | int, b: Bytes | bytes, /) -> Bytes:
         """
         local state of the key B in the current application in account A
         params: Txn.Accounts offset (or, since v4, an _available_ account address), state key. Return: value. The value is zero (of type uint64) if the key does not exist.
@@ -808,7 +808,7 @@ class AppLocals:
 
         """
     @staticmethod
-    def get_uint64(a: Address | UInt64 | int, b: Bytes | bytes, /) -> UInt64:
+    def get_uint64(a: Account | UInt64 | int, b: Bytes | bytes, /) -> UInt64:
         """
         local state of the key B in the current application in account A
         params: Txn.Accounts offset (or, since v4, an _available_ account address), state key. Return: value. The value is zero (of type uint64) if the key does not exist.
@@ -821,7 +821,7 @@ class AppLocals:
         """
     @staticmethod
     def get_ex_bytes(
-        a: Address | UInt64 | int, b: UInt64 | int, c: Bytes | bytes, /
+        a: Account | UInt64 | int, b: UInt64 | int, c: Bytes | bytes, /
     ) -> tuple[Bytes, bool]:
         """
         X is the local state of application B, key C in account A. Y is 1 if key existed, else 0
@@ -835,7 +835,7 @@ class AppLocals:
         """
     @staticmethod
     def get_ex_uint64(
-        a: Address | UInt64 | int, b: UInt64 | int, c: Bytes | bytes, /
+        a: Account | UInt64 | int, b: UInt64 | int, c: Bytes | bytes, /
     ) -> tuple[UInt64, bool]:
         """
         X is the local state of application B, key C in account A. Y is 1 if key existed, else 0
@@ -848,7 +848,7 @@ class AppLocals:
 
         """
     @staticmethod
-    def delete(a: Address | UInt64 | int, b: Bytes | bytes, /) -> None:
+    def delete(a: Account | UInt64 | int, b: Bytes | bytes, /) -> None:
         """
         delete key B from account A's local state of the current application
         params: Txn.Accounts offset (or, since v4, an _available_ account address), state key.
@@ -863,7 +863,7 @@ class AppLocals:
         """
     @staticmethod
     def put(
-        a: Address | UInt64 | int, b: Bytes | bytes, c: Bytes | bytes | UInt64 | int, /
+        a: Account | UInt64 | int, b: Bytes | bytes, c: Bytes | bytes | UInt64 | int, /
     ) -> None:
         """
         write C to key B in account A's local state of the current application
@@ -969,7 +969,7 @@ class AppParamsGet:
         :returns tuple[UInt64, bool]: Number of Extra Program Pages of code space
         """
     @staticmethod
-    def app_creator(a: UInt64 | int, /) -> tuple[Address, bool]:
+    def app_creator(a: UInt64 | int, /) -> tuple[Account, bool]:
         """
         X is field F from app A. Y is 1 if A exists, else 0
         params: Txn.ForeignApps offset or an _available_ app id. Return: did_exist flag (1 if the application existed and 0 otherwise), value.
@@ -979,10 +979,10 @@ class AppParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: app_params_get F
 
-        :returns tuple[Address, bool]: Creator address
+        :returns tuple[Account, bool]: Creator address
         """
     @staticmethod
-    def app_address(a: UInt64 | int, /) -> tuple[Address, bool]:
+    def app_address(a: UInt64 | int, /) -> tuple[Account, bool]:
         """
         X is field F from app A. Y is 1 if A exists, else 0
         params: Txn.ForeignApps offset or an _available_ app id. Return: did_exist flag (1 if the application existed and 0 otherwise), value.
@@ -992,12 +992,12 @@ class AppParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: app_params_get F
 
-        :returns tuple[Address, bool]: Address for which this application has authority
+        :returns tuple[Account, bool]: Address for which this application has authority
         """
 
 class AssetHoldingGet:
     @staticmethod
-    def asset_balance(a: Address | UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, bool]:
+    def asset_balance(a: Account | UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         X is field F from account A's holding of asset B. Y is 1 if A is opted into B, else 0
         params: Txn.Accounts offset (or, since v4, an _available_ address), asset id (or, since v4, a Txn.ForeignAssets offset). Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1010,7 +1010,7 @@ class AssetHoldingGet:
         :returns tuple[UInt64, bool]: Amount of the asset unit held by this account
         """
     @staticmethod
-    def asset_frozen(a: Address | UInt64 | int, b: UInt64 | int, /) -> tuple[bool, bool]:
+    def asset_frozen(a: Account | UInt64 | int, b: UInt64 | int, /) -> tuple[bool, bool]:
         """
         X is field F from account A's holding of asset B. Y is 1 if A is opted into B, else 0
         params: Txn.Accounts offset (or, since v4, an _available_ address), asset id (or, since v4, a Txn.ForeignAssets offset). Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1103,7 +1103,7 @@ class AssetParamsGet:
         :returns tuple[Bytes, bool]: URL with additional info about the asset
         """
     @staticmethod
-    def asset_metadata_hash(a: UInt64 | int, /) -> tuple[Bytes, bool]:
+    def asset_metadata_hash(a: UInt64 | int, /) -> tuple[Account, bool]:
         """
         X is field F from asset A. Y is 1 if A exists, else 0
         params: Txn.ForeignAssets offset (or, since v4, an _available_ asset id. Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1113,10 +1113,10 @@ class AssetParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: asset_params_get F
 
-        :returns tuple[Bytes, bool]: Arbitrary commitment
+        :returns tuple[Account, bool]: Arbitrary commitment
         """
     @staticmethod
-    def asset_manager(a: UInt64 | int, /) -> tuple[Address, bool]:
+    def asset_manager(a: UInt64 | int, /) -> tuple[Account, bool]:
         """
         X is field F from asset A. Y is 1 if A exists, else 0
         params: Txn.ForeignAssets offset (or, since v4, an _available_ asset id. Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1126,10 +1126,10 @@ class AssetParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: asset_params_get F
 
-        :returns tuple[Address, bool]: Manager address
+        :returns tuple[Account, bool]: Manager address
         """
     @staticmethod
-    def asset_reserve(a: UInt64 | int, /) -> tuple[Address, bool]:
+    def asset_reserve(a: UInt64 | int, /) -> tuple[Account, bool]:
         """
         X is field F from asset A. Y is 1 if A exists, else 0
         params: Txn.ForeignAssets offset (or, since v4, an _available_ asset id. Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1139,10 +1139,10 @@ class AssetParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: asset_params_get F
 
-        :returns tuple[Address, bool]: Reserve address
+        :returns tuple[Account, bool]: Reserve address
         """
     @staticmethod
-    def asset_freeze(a: UInt64 | int, /) -> tuple[Address, bool]:
+    def asset_freeze(a: UInt64 | int, /) -> tuple[Account, bool]:
         """
         X is field F from asset A. Y is 1 if A exists, else 0
         params: Txn.ForeignAssets offset (or, since v4, an _available_ asset id. Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1152,10 +1152,10 @@ class AssetParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: asset_params_get F
 
-        :returns tuple[Address, bool]: Freeze address
+        :returns tuple[Account, bool]: Freeze address
         """
     @staticmethod
-    def asset_clawback(a: UInt64 | int, /) -> tuple[Address, bool]:
+    def asset_clawback(a: UInt64 | int, /) -> tuple[Account, bool]:
         """
         X is field F from asset A. Y is 1 if A exists, else 0
         params: Txn.ForeignAssets offset (or, since v4, an _available_ asset id. Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1165,10 +1165,10 @@ class AssetParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: asset_params_get F
 
-        :returns tuple[Address, bool]: Clawback address
+        :returns tuple[Account, bool]: Clawback address
         """
     @staticmethod
-    def asset_creator(a: UInt64 | int, /) -> tuple[Address, bool]:
+    def asset_creator(a: UInt64 | int, /) -> tuple[Account, bool]:
         """
         X is field F from asset A. Y is 1 if A exists, else 0
         params: Txn.ForeignAssets offset (or, since v4, an _available_ asset id. Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1178,7 +1178,7 @@ class AssetParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: asset_params_get F
 
-        :returns tuple[Address, bool]: Creator address
+        :returns tuple[Account, bool]: Creator address
         """
 
 class Block:
@@ -1325,7 +1325,7 @@ class CreateInnerTransaction:
 
         """
     @staticmethod
-    def set_sender(a: Address, /) -> None:
+    def set_sender(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1335,7 +1335,7 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address
+        :param Account a: 32 byte address
         """
     @staticmethod
     def set_fee(a: UInt64 | int, /) -> None:
@@ -1364,7 +1364,7 @@ class CreateInnerTransaction:
         :param Bytes | bytes a: Any data up to 1024 bytes
         """
     @staticmethod
-    def set_receiver(a: Address, /) -> None:
+    def set_receiver(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1374,7 +1374,7 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address
+        :param Account a: 32 byte address
         """
     @staticmethod
     def set_amount(a: UInt64 | int, /) -> None:
@@ -1390,7 +1390,7 @@ class CreateInnerTransaction:
         :param UInt64 | int a: microalgos
         """
     @staticmethod
-    def set_close_remainder_to(a: Address, /) -> None:
+    def set_close_remainder_to(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1400,10 +1400,10 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address
+        :param Account a: 32 byte address
         """
     @staticmethod
-    def set_vote_pk(a: Bytes | bytes | Address, /) -> None:
+    def set_vote_pk(a: Bytes | bytes | Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1413,10 +1413,10 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Bytes | bytes | Address a: 32 byte address
+        :param Bytes | bytes | Account a: 32 byte address
         """
     @staticmethod
-    def set_selection_pk(a: Bytes | bytes | Address, /) -> None:
+    def set_selection_pk(a: Bytes | bytes | Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1426,7 +1426,7 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Bytes | bytes | Address a: 32 byte address
+        :param Bytes | bytes | Account a: 32 byte address
         """
     @staticmethod
     def set_vote_first(a: UInt64 | int, /) -> None:
@@ -1520,7 +1520,7 @@ class CreateInnerTransaction:
         :param UInt64 | int a: value in Asset's units
         """
     @staticmethod
-    def set_asset_sender(a: Address, /) -> None:
+    def set_asset_sender(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1530,10 +1530,10 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
+        :param Account a: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
         """
     @staticmethod
-    def set_asset_receiver(a: Address, /) -> None:
+    def set_asset_receiver(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1543,10 +1543,10 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address
+        :param Account a: 32 byte address
         """
     @staticmethod
-    def set_asset_close_to(a: Address, /) -> None:
+    def set_asset_close_to(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1556,7 +1556,7 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address
+        :param Account a: 32 byte address
         """
     @staticmethod
     def set_application_id(a: UInt64 | int, /) -> None:
@@ -1598,7 +1598,7 @@ class CreateInnerTransaction:
         :param Bytes | bytes a: Arguments passed to the application in the ApplicationCall transaction
         """
     @staticmethod
-    def set_accounts(a: Address, /) -> None:
+    def set_accounts(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1608,7 +1608,7 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: Accounts listed in the ApplicationCall transaction
+        :param Account a: Accounts listed in the ApplicationCall transaction
         """
     @staticmethod
     def set_approval_program(a: Bytes | bytes, /) -> None:
@@ -1637,7 +1637,7 @@ class CreateInnerTransaction:
         :param Bytes | bytes a: Clear state program
         """
     @staticmethod
-    def set_rekey_to(a: Address, /) -> None:
+    def set_rekey_to(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1647,7 +1647,7 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte Sender's new AuthAddr
+        :param Account a: 32 byte Sender's new AuthAddr
         """
     @staticmethod
     def set_config_asset(a: UInt64 | int, /) -> None:
@@ -1741,7 +1741,7 @@ class CreateInnerTransaction:
         :param Bytes | bytes a: URL
         """
     @staticmethod
-    def set_config_asset_metadata_hash(a: Bytes | bytes | Address, /) -> None:
+    def set_config_asset_metadata_hash(a: Bytes | bytes | Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1751,10 +1751,10 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Bytes | bytes | Address a: 32 byte commitment to unspecified asset metadata
+        :param Bytes | bytes | Account a: 32 byte commitment to unspecified asset metadata
         """
     @staticmethod
-    def set_config_asset_manager(a: Address, /) -> None:
+    def set_config_asset_manager(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1764,10 +1764,10 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address
+        :param Account a: 32 byte address
         """
     @staticmethod
-    def set_config_asset_reserve(a: Address, /) -> None:
+    def set_config_asset_reserve(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1777,10 +1777,10 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address
+        :param Account a: 32 byte address
         """
     @staticmethod
-    def set_config_asset_freeze(a: Address, /) -> None:
+    def set_config_asset_freeze(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1790,10 +1790,10 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address
+        :param Account a: 32 byte address
         """
     @staticmethod
-    def set_config_asset_clawback(a: Address, /) -> None:
+    def set_config_asset_clawback(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1803,7 +1803,7 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address
+        :param Account a: 32 byte address
         """
     @staticmethod
     def set_freeze_asset(a: UInt64 | int, /) -> None:
@@ -1819,7 +1819,7 @@ class CreateInnerTransaction:
         :param UInt64 | int a: Asset ID being frozen or un-frozen
         """
     @staticmethod
-    def set_freeze_asset_account(a: Address, /) -> None:
+    def set_freeze_asset_account(a: Account, /) -> None:
         """
         set field F of the current inner transaction to A
         `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
@@ -1829,7 +1829,7 @@ class CreateInnerTransaction:
         Stack: [..., A] -> [...]
         TEAL: itxn_field F
 
-        :param Address a: 32 byte address of the account whose asset slot is being frozen or un-frozen
+        :param Account a: 32 byte address of the account whose asset slot is being frozen or un-frozen
         """
     @staticmethod
     def set_freeze_asset_frozen(a: bool | UInt64 | int, /) -> None:
@@ -2026,7 +2026,7 @@ class Global:
         :returns UInt64: rounds
         """
     @staticmethod
-    def zero_address() -> Address:
+    def zero_address() -> Account:
         """
         global field F
 
@@ -2035,7 +2035,7 @@ class Global:
         Stack: [...] -> [..., X]
         TEAL: global F
 
-        :returns Address: 32 byte address of all zero bytes
+        :returns Account: 32 byte address of all zero bytes
         """
     @staticmethod
     def group_size() -> UInt64:
@@ -2098,7 +2098,7 @@ class Global:
         :returns UInt64: ID of current application executing. Application mode only.
         """
     @staticmethod
-    def creator_address() -> Address:
+    def creator_address() -> Account:
         """
         global field F
 
@@ -2107,10 +2107,10 @@ class Global:
         Stack: [...] -> [..., X]
         TEAL: global F
 
-        :returns Address: Address of the creator of the current application. Application mode only.
+        :returns Account: Address of the creator of the current application. Application mode only.
         """
     @staticmethod
-    def current_application_address() -> Address:
+    def current_application_address() -> Account:
         """
         global field F
 
@@ -2119,10 +2119,10 @@ class Global:
         Stack: [...] -> [..., X]
         TEAL: global F
 
-        :returns Address: Address that the current application controls. Application mode only.
+        :returns Account: Address that the current application controls. Application mode only.
         """
     @staticmethod
-    def group_id() -> Bytes:
+    def group_id() -> Account:
         """
         global field F
 
@@ -2131,7 +2131,7 @@ class Global:
         Stack: [...] -> [..., X]
         TEAL: global F
 
-        :returns Bytes: ID of the transaction group. 32 zero bytes if the transaction is not part of a group.
+        :returns Account: ID of the transaction group. 32 zero bytes if the transaction is not part of a group.
         """
     @staticmethod
     def opcode_budget() -> UInt64:
@@ -2158,7 +2158,7 @@ class Global:
         :returns UInt64: The application ID of the application that called this application. 0 if this application is at the top-level. Application mode only.
         """
     @staticmethod
-    def caller_application_address() -> Address:
+    def caller_application_address() -> Account:
         """
         global field F
 
@@ -2167,12 +2167,12 @@ class Global:
         Stack: [...] -> [..., X]
         TEAL: global F
 
-        :returns Address: The application address of the application that called this application. ZeroAddress if this application is at the top-level. Application mode only.
+        :returns Account: The application address of the application that called this application. ZeroAddress if this application is at the top-level. Application mode only.
         """
 
 class InnerTransaction:
     @staticmethod
-    def sender() -> Address:
+    def sender() -> Account:
         """
         field F of the last inner transaction
 
@@ -2181,7 +2181,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def fee() -> UInt64:
@@ -2244,7 +2244,7 @@ class InnerTransaction:
         :returns Bytes: Any data up to 1024 bytes
         """
     @staticmethod
-    def lease() -> Bytes:
+    def lease() -> Account:
         """
         field F of the last inner transaction
 
@@ -2253,10 +2253,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Bytes: 32 byte lease value
+        :returns Account: 32 byte lease value
         """
     @staticmethod
-    def receiver() -> Address:
+    def receiver() -> Account:
         """
         field F of the last inner transaction
 
@@ -2265,7 +2265,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def amount() -> UInt64:
@@ -2280,7 +2280,7 @@ class InnerTransaction:
         :returns UInt64: microalgos
         """
     @staticmethod
-    def close_remainder_to() -> Address:
+    def close_remainder_to() -> Account:
         """
         field F of the last inner transaction
 
@@ -2289,10 +2289,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def vote_pk() -> Bytes:
+    def vote_pk() -> Account:
         """
         field F of the last inner transaction
 
@@ -2301,10 +2301,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Bytes: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def selection_pk() -> Bytes:
+    def selection_pk() -> Account:
         """
         field F of the last inner transaction
 
@@ -2313,7 +2313,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Bytes: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def vote_first() -> UInt64:
@@ -2400,7 +2400,7 @@ class InnerTransaction:
         :returns UInt64: value in Asset's units
         """
     @staticmethod
-    def asset_sender() -> Address:
+    def asset_sender() -> Account:
         """
         field F of the last inner transaction
 
@@ -2409,10 +2409,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
+        :returns Account: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
         """
     @staticmethod
-    def asset_receiver() -> Address:
+    def asset_receiver() -> Account:
         """
         field F of the last inner transaction
 
@@ -2421,10 +2421,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def asset_close_to() -> Address:
+    def asset_close_to() -> Account:
         """
         field F of the last inner transaction
 
@@ -2433,7 +2433,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def group_index() -> UInt64:
@@ -2448,7 +2448,7 @@ class InnerTransaction:
         :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
         """
     @staticmethod
-    def tx_id() -> Bytes:
+    def tx_id() -> Account:
         """
         field F of the last inner transaction
 
@@ -2457,7 +2457,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Bytes: The computed ID for this transaction. 32 bytes.
+        :returns Account: The computed ID for this transaction. 32 bytes.
         """
     @staticmethod
     def application_id() -> UInt64:
@@ -2508,7 +2508,7 @@ class InnerTransaction:
         :returns UInt64: Number of ApplicationArgs
         """
     @staticmethod
-    def accounts(a: UInt64 | int, /) -> Address:
+    def accounts(a: UInt64 | int, /) -> Account:
         """
         Ath value of the array field F of the last inner transaction
 
@@ -2517,7 +2517,7 @@ class InnerTransaction:
         Stack: [..., A] -> [..., X]
         TEAL: itxnas F
 
-        :returns Address: Accounts listed in the ApplicationCall transaction
+        :returns Account: Accounts listed in the ApplicationCall transaction
         """
     @staticmethod
     def num_accounts() -> UInt64:
@@ -2556,7 +2556,7 @@ class InnerTransaction:
         :returns Bytes: Clear state program
         """
     @staticmethod
-    def rekey_to() -> Address:
+    def rekey_to() -> Account:
         """
         field F of the last inner transaction
 
@@ -2565,7 +2565,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte Sender's new AuthAddr
+        :returns Account: 32 byte Sender's new AuthAddr
         """
     @staticmethod
     def config_asset() -> UInt64:
@@ -2652,7 +2652,7 @@ class InnerTransaction:
         :returns Bytes: URL
         """
     @staticmethod
-    def config_asset_metadata_hash() -> Bytes:
+    def config_asset_metadata_hash() -> Account:
         """
         field F of the last inner transaction
 
@@ -2661,10 +2661,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Bytes: 32 byte commitment to unspecified asset metadata
+        :returns Account: 32 byte commitment to unspecified asset metadata
         """
     @staticmethod
-    def config_asset_manager() -> Address:
+    def config_asset_manager() -> Account:
         """
         field F of the last inner transaction
 
@@ -2673,10 +2673,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_reserve() -> Address:
+    def config_asset_reserve() -> Account:
         """
         field F of the last inner transaction
 
@@ -2685,10 +2685,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_freeze() -> Address:
+    def config_asset_freeze() -> Account:
         """
         field F of the last inner transaction
 
@@ -2697,10 +2697,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_clawback() -> Address:
+    def config_asset_clawback() -> Account:
         """
         field F of the last inner transaction
 
@@ -2709,7 +2709,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def freeze_asset() -> UInt64:
@@ -2724,7 +2724,7 @@ class InnerTransaction:
         :returns UInt64: Asset ID being frozen or un-frozen
         """
     @staticmethod
-    def freeze_asset_account() -> Address:
+    def freeze_asset_account() -> Account:
         """
         field F of the last inner transaction
 
@@ -2733,7 +2733,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Address: 32 byte address of the account whose asset slot is being frozen or un-frozen
+        :returns Account: 32 byte address of the account whose asset slot is being frozen or un-frozen
         """
     @staticmethod
     def freeze_asset_frozen() -> bool:
@@ -2990,7 +2990,7 @@ class InnerTransaction:
 
 class InnerTransactionGroup:
     @staticmethod
-    def sender(t: int, /) -> Address:
+    def sender(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3000,7 +3000,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def fee(t: int, /) -> UInt64:
@@ -3068,7 +3068,7 @@ class InnerTransactionGroup:
         :returns Bytes: Any data up to 1024 bytes
         """
     @staticmethod
-    def lease(t: int, /) -> Bytes:
+    def lease(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3078,10 +3078,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Bytes: 32 byte lease value
+        :returns Account: 32 byte lease value
         """
     @staticmethod
-    def receiver(t: int, /) -> Address:
+    def receiver(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3091,7 +3091,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def amount(t: int, /) -> UInt64:
@@ -3107,7 +3107,7 @@ class InnerTransactionGroup:
         :returns UInt64: microalgos
         """
     @staticmethod
-    def close_remainder_to(t: int, /) -> Address:
+    def close_remainder_to(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3117,10 +3117,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def vote_pk(t: int, /) -> Bytes:
+    def vote_pk(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3130,10 +3130,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Bytes: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def selection_pk(t: int, /) -> Bytes:
+    def selection_pk(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3143,7 +3143,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Bytes: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def vote_first(t: int, /) -> UInt64:
@@ -3237,7 +3237,7 @@ class InnerTransactionGroup:
         :returns UInt64: value in Asset's units
         """
     @staticmethod
-    def asset_sender(t: int, /) -> Address:
+    def asset_sender(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3247,10 +3247,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
+        :returns Account: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
         """
     @staticmethod
-    def asset_receiver(t: int, /) -> Address:
+    def asset_receiver(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3260,10 +3260,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def asset_close_to(t: int, /) -> Address:
+    def asset_close_to(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3273,7 +3273,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def group_index(t: int, /) -> UInt64:
@@ -3289,7 +3289,7 @@ class InnerTransactionGroup:
         :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
         """
     @staticmethod
-    def tx_id(t: int, /) -> Bytes:
+    def tx_id(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3299,7 +3299,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Bytes: The computed ID for this transaction. 32 bytes.
+        :returns Account: The computed ID for this transaction. 32 bytes.
         """
     @staticmethod
     def application_id(t: int, /) -> UInt64:
@@ -3354,7 +3354,7 @@ class InnerTransactionGroup:
         :returns UInt64: Number of ApplicationArgs
         """
     @staticmethod
-    def accounts(t: int, a: UInt64 | int, /) -> Address:
+    def accounts(t: int, a: UInt64 | int, /) -> Account:
         """
         Ath value of the array field F from the Tth transaction in the last inner group submitted
 
@@ -3364,7 +3364,7 @@ class InnerTransactionGroup:
         TEAL: gitxnas T F
 
         :param int t: transaction group index
-        :returns Address: Accounts listed in the ApplicationCall transaction
+        :returns Account: Accounts listed in the ApplicationCall transaction
         """
     @staticmethod
     def num_accounts(t: int, /) -> UInt64:
@@ -3406,7 +3406,7 @@ class InnerTransactionGroup:
         :returns Bytes: Clear state program
         """
     @staticmethod
-    def rekey_to(t: int, /) -> Address:
+    def rekey_to(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3416,7 +3416,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte Sender's new AuthAddr
+        :returns Account: 32 byte Sender's new AuthAddr
         """
     @staticmethod
     def config_asset(t: int, /) -> UInt64:
@@ -3510,7 +3510,7 @@ class InnerTransactionGroup:
         :returns Bytes: URL
         """
     @staticmethod
-    def config_asset_metadata_hash(t: int, /) -> Bytes:
+    def config_asset_metadata_hash(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3520,10 +3520,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Bytes: 32 byte commitment to unspecified asset metadata
+        :returns Account: 32 byte commitment to unspecified asset metadata
         """
     @staticmethod
-    def config_asset_manager(t: int, /) -> Address:
+    def config_asset_manager(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3533,10 +3533,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_reserve(t: int, /) -> Address:
+    def config_asset_reserve(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3546,10 +3546,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_freeze(t: int, /) -> Address:
+    def config_asset_freeze(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3559,10 +3559,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_clawback(t: int, /) -> Address:
+    def config_asset_clawback(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3572,7 +3572,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def freeze_asset(t: int, /) -> UInt64:
@@ -3588,7 +3588,7 @@ class InnerTransactionGroup:
         :returns UInt64: Asset ID being frozen or un-frozen
         """
     @staticmethod
-    def freeze_asset_account(t: int, /) -> Address:
+    def freeze_asset_account(t: int, /) -> Account:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3598,7 +3598,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Address: 32 byte address of the account whose asset slot is being frozen or un-frozen
+        :returns Account: 32 byte address of the account whose asset slot is being frozen or un-frozen
         """
     @staticmethod
     def freeze_asset_frozen(t: int, /) -> bool:
@@ -3920,7 +3920,7 @@ class JsonRef:
 
 class Transaction:
     @staticmethod
-    def sender() -> Address:
+    def sender() -> Account:
         """
         field F of current transaction
 
@@ -3929,7 +3929,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def fee() -> UInt64:
@@ -3992,7 +3992,7 @@ class Transaction:
         :returns Bytes: Any data up to 1024 bytes
         """
     @staticmethod
-    def lease() -> Bytes:
+    def lease() -> Account:
         """
         field F of current transaction
 
@@ -4001,10 +4001,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Bytes: 32 byte lease value
+        :returns Account: 32 byte lease value
         """
     @staticmethod
-    def receiver() -> Address:
+    def receiver() -> Account:
         """
         field F of current transaction
 
@@ -4013,7 +4013,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def amount() -> UInt64:
@@ -4028,7 +4028,7 @@ class Transaction:
         :returns UInt64: microalgos
         """
     @staticmethod
-    def close_remainder_to() -> Address:
+    def close_remainder_to() -> Account:
         """
         field F of current transaction
 
@@ -4037,10 +4037,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def vote_pk() -> Bytes:
+    def vote_pk() -> Account:
         """
         field F of current transaction
 
@@ -4049,10 +4049,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Bytes: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def selection_pk() -> Bytes:
+    def selection_pk() -> Account:
         """
         field F of current transaction
 
@@ -4061,7 +4061,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Bytes: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def vote_first() -> UInt64:
@@ -4148,7 +4148,7 @@ class Transaction:
         :returns UInt64: value in Asset's units
         """
     @staticmethod
-    def asset_sender() -> Address:
+    def asset_sender() -> Account:
         """
         field F of current transaction
 
@@ -4157,10 +4157,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
+        :returns Account: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
         """
     @staticmethod
-    def asset_receiver() -> Address:
+    def asset_receiver() -> Account:
         """
         field F of current transaction
 
@@ -4169,10 +4169,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def asset_close_to() -> Address:
+    def asset_close_to() -> Account:
         """
         field F of current transaction
 
@@ -4181,7 +4181,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def group_index() -> UInt64:
@@ -4196,7 +4196,7 @@ class Transaction:
         :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
         """
     @staticmethod
-    def tx_id() -> Bytes:
+    def tx_id() -> Account:
         """
         field F of current transaction
 
@@ -4205,7 +4205,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Bytes: The computed ID for this transaction. 32 bytes.
+        :returns Account: The computed ID for this transaction. 32 bytes.
         """
     @staticmethod
     def application_id() -> UInt64:
@@ -4256,7 +4256,7 @@ class Transaction:
         :returns UInt64: Number of ApplicationArgs
         """
     @staticmethod
-    def accounts(a: UInt64 | int, /) -> Address:
+    def accounts(a: UInt64 | int, /) -> Account:
         """
         Ath value of the array field F of the current transaction
 
@@ -4265,7 +4265,7 @@ class Transaction:
         Stack: [..., A] -> [..., X]
         TEAL: txnas F
 
-        :returns Address: Accounts listed in the ApplicationCall transaction
+        :returns Account: Accounts listed in the ApplicationCall transaction
         """
     @staticmethod
     def num_accounts() -> UInt64:
@@ -4304,7 +4304,7 @@ class Transaction:
         :returns Bytes: Clear state program
         """
     @staticmethod
-    def rekey_to() -> Address:
+    def rekey_to() -> Account:
         """
         field F of current transaction
 
@@ -4313,7 +4313,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte Sender's new AuthAddr
+        :returns Account: 32 byte Sender's new AuthAddr
         """
     @staticmethod
     def config_asset() -> UInt64:
@@ -4400,7 +4400,7 @@ class Transaction:
         :returns Bytes: URL
         """
     @staticmethod
-    def config_asset_metadata_hash() -> Bytes:
+    def config_asset_metadata_hash() -> Account:
         """
         field F of current transaction
 
@@ -4409,10 +4409,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Bytes: 32 byte commitment to unspecified asset metadata
+        :returns Account: 32 byte commitment to unspecified asset metadata
         """
     @staticmethod
-    def config_asset_manager() -> Address:
+    def config_asset_manager() -> Account:
         """
         field F of current transaction
 
@@ -4421,10 +4421,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_reserve() -> Address:
+    def config_asset_reserve() -> Account:
         """
         field F of current transaction
 
@@ -4433,10 +4433,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_freeze() -> Address:
+    def config_asset_freeze() -> Account:
         """
         field F of current transaction
 
@@ -4445,10 +4445,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_clawback() -> Address:
+    def config_asset_clawback() -> Account:
         """
         field F of current transaction
 
@@ -4457,7 +4457,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def freeze_asset() -> UInt64:
@@ -4472,7 +4472,7 @@ class Transaction:
         :returns UInt64: Asset ID being frozen or un-frozen
         """
     @staticmethod
-    def freeze_asset_account() -> Address:
+    def freeze_asset_account() -> Account:
         """
         field F of current transaction
 
@@ -4481,7 +4481,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Address: 32 byte address of the account whose asset slot is being frozen or un-frozen
+        :returns Account: 32 byte address of the account whose asset slot is being frozen or un-frozen
         """
     @staticmethod
     def freeze_asset_frozen() -> bool:
@@ -4738,7 +4738,7 @@ class Transaction:
 
 class TransactionGroup:
     @staticmethod
-    def sender(a: UInt64 | int, /) -> Address:
+    def sender(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -4748,7 +4748,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def fee(a: UInt64 | int, /) -> UInt64:
@@ -4816,7 +4816,7 @@ class TransactionGroup:
         :returns Bytes: Any data up to 1024 bytes
         """
     @staticmethod
-    def lease(a: UInt64 | int, /) -> Bytes:
+    def lease(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -4826,10 +4826,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Bytes: 32 byte lease value
+        :returns Account: 32 byte lease value
         """
     @staticmethod
-    def receiver(a: UInt64 | int, /) -> Address:
+    def receiver(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -4839,7 +4839,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def amount(a: UInt64 | int, /) -> UInt64:
@@ -4855,7 +4855,7 @@ class TransactionGroup:
         :returns UInt64: microalgos
         """
     @staticmethod
-    def close_remainder_to(a: UInt64 | int, /) -> Address:
+    def close_remainder_to(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -4865,10 +4865,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def vote_pk(a: UInt64 | int, /) -> Bytes:
+    def vote_pk(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -4878,10 +4878,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Bytes: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def selection_pk(a: UInt64 | int, /) -> Bytes:
+    def selection_pk(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -4891,7 +4891,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Bytes: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def vote_first(a: UInt64 | int, /) -> UInt64:
@@ -4985,7 +4985,7 @@ class TransactionGroup:
         :returns UInt64: value in Asset's units
         """
     @staticmethod
-    def asset_sender(a: UInt64 | int, /) -> Address:
+    def asset_sender(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -4995,10 +4995,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
+        :returns Account: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
         """
     @staticmethod
-    def asset_receiver(a: UInt64 | int, /) -> Address:
+    def asset_receiver(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5008,10 +5008,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def asset_close_to(a: UInt64 | int, /) -> Address:
+    def asset_close_to(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5021,7 +5021,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def group_index(a: UInt64 | int, /) -> UInt64:
@@ -5037,7 +5037,7 @@ class TransactionGroup:
         :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
         """
     @staticmethod
-    def tx_id(a: UInt64 | int, /) -> Bytes:
+    def tx_id(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5047,7 +5047,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Bytes: The computed ID for this transaction. 32 bytes.
+        :returns Account: The computed ID for this transaction. 32 bytes.
         """
     @staticmethod
     def application_id(a: UInt64 | int, /) -> UInt64:
@@ -5101,7 +5101,7 @@ class TransactionGroup:
         :returns UInt64: Number of ApplicationArgs
         """
     @staticmethod
-    def accounts(a: UInt64 | int, b: UInt64 | int, /) -> Address:
+    def accounts(a: UInt64 | int, b: UInt64 | int, /) -> Account:
         """
         Bth value of the array field F from the Ath transaction in the current group
 
@@ -5110,7 +5110,7 @@ class TransactionGroup:
         Stack: [..., A, B] -> [..., X]
         TEAL: gtxnsas F
 
-        :returns Address: Accounts listed in the ApplicationCall transaction
+        :returns Account: Accounts listed in the ApplicationCall transaction
         """
     @staticmethod
     def num_accounts(a: UInt64 | int, /) -> UInt64:
@@ -5152,7 +5152,7 @@ class TransactionGroup:
         :returns Bytes: Clear state program
         """
     @staticmethod
-    def rekey_to(a: UInt64 | int, /) -> Address:
+    def rekey_to(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5162,7 +5162,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte Sender's new AuthAddr
+        :returns Account: 32 byte Sender's new AuthAddr
         """
     @staticmethod
     def config_asset(a: UInt64 | int, /) -> UInt64:
@@ -5256,7 +5256,7 @@ class TransactionGroup:
         :returns Bytes: URL
         """
     @staticmethod
-    def config_asset_metadata_hash(a: UInt64 | int, /) -> Bytes:
+    def config_asset_metadata_hash(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5266,10 +5266,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Bytes: 32 byte commitment to unspecified asset metadata
+        :returns Account: 32 byte commitment to unspecified asset metadata
         """
     @staticmethod
-    def config_asset_manager(a: UInt64 | int, /) -> Address:
+    def config_asset_manager(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5279,10 +5279,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_reserve(a: UInt64 | int, /) -> Address:
+    def config_asset_reserve(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5292,10 +5292,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_freeze(a: UInt64 | int, /) -> Address:
+    def config_asset_freeze(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5305,10 +5305,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
-    def config_asset_clawback(a: UInt64 | int, /) -> Address:
+    def config_asset_clawback(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5318,7 +5318,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address
+        :returns Account: 32 byte address
         """
     @staticmethod
     def freeze_asset(a: UInt64 | int, /) -> UInt64:
@@ -5334,7 +5334,7 @@ class TransactionGroup:
         :returns UInt64: Asset ID being frozen or un-frozen
         """
     @staticmethod
-    def freeze_asset_account(a: UInt64 | int, /) -> Address:
+    def freeze_asset_account(a: UInt64 | int, /) -> Account:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5344,7 +5344,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Address: 32 byte address of the account whose asset slot is being frozen or un-frozen
+        :returns Account: 32 byte address of the account whose asset slot is being frozen or un-frozen
         """
     @staticmethod
     def freeze_asset_frozen(a: UInt64 | int, /) -> bool:

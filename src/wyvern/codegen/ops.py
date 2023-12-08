@@ -11,9 +11,10 @@ from wyvern.codegen.utils import format_bytes
 if t.TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
+    from wyvern.avm_type import AVMType
     from wyvern.codegen.teal import TealOp
     from wyvern.codegen.visitor import MIRVisitor
-    from wyvern.ir.types_ import AVMBytesEncoding, AVMType
+    from wyvern.ir.types_ import AVMBytesEncoding
     from wyvern.parse import SourceLocation
 _T = t.TypeVar("_T")
 
@@ -59,7 +60,18 @@ class PushAddress(BaseOp):
         return visitor.visit_push_address(self)
 
     def __str__(self) -> str:
-        return f"addr {self.value}"
+        return f'addr "{self.value}"'
+
+
+@attrs.frozen(eq=False)
+class PushMethod(BaseOp):
+    value: str
+
+    def accept(self, visitor: MIRVisitor[_T]) -> _T:
+        return visitor.visit_push_method(self)
+
+    def __str__(self) -> str:
+        return f"method {self.value}"
 
 
 @attrs.frozen(eq=False)
@@ -75,7 +87,7 @@ class Comment(BaseOp):
 
 @attrs.frozen(kw_only=True, eq=False)
 class MemoryOp(BaseOp, abc.ABC):
-    """An op that is concerned with manipulating memory (scratch or stack)"""
+    """An op that is concerned with manipulating memory"""
 
 
 @attrs.frozen(kw_only=True, eq=False)
@@ -95,21 +107,21 @@ class LoadOp(MemoryOp, abc.ABC):
 
 
 @attrs.frozen(eq=False)
-class StoreScratch(StoreOp):
+class StoreVirtual(StoreOp):
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_store_scratch(self)
+        return visitor.visit_store_virtual(self)
 
     def __str__(self) -> str:
-        return f"store {self.local_id} to scratch"
+        return f"store {self.local_id}"
 
 
 @attrs.frozen(eq=False)
-class LoadScratch(LoadOp):
+class LoadVirtual(LoadOp):
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        return visitor.visit_load_scratch(self)
+        return visitor.visit_load_virtual(self)
 
     def __str__(self) -> str:
-        return f"load {self.local_id} from scratch"
+        return f"load {self.local_id}"
 
 
 @attrs.frozen(eq=False, kw_only=True)
@@ -292,7 +304,6 @@ class CallSub(BaseOp):
     target: str
     parameters: int
     returns: int
-    save_restore_scratch: bool
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_callsub(self)
@@ -367,7 +378,7 @@ class Signature:
     def __str__(self) -> str:
         params = ", ".join(f"{p.local_id}: {p.atype.name}" for p in self.parameters)
         returns = ", ".join(str(r.name) for r in self.returns)
-        return f"{self.name}({params}) -> {returns}:"
+        return f"{self.name}({params}) -> {returns or 'void'}:"
 
 
 @attrs.define(slots=False)

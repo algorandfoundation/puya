@@ -1,5 +1,9 @@
-from algopy import Address, ARC4Contract, Local, OnCompleteAction, Transaction, UInt64, subroutine
-from algopy.arc4 import String, abimethod
+from algopy import Account, ARC4Contract, Local, OnCompleteAction, Transaction, UInt64, subroutine
+from algopy.arc4 import (
+    String,
+    UInt64 as arc4_UInt64,
+    abimethod,
+)
 
 from examples.everything.constants import BANNED, EXT_ONE
 from examples.everything.my_base import MyMiddleBase, multiplicative_identity
@@ -9,8 +13,8 @@ ONE = ZERO + (ZER0 * 2) + (2 - 1) // EXT_ONE
 
 
 @subroutine
-def get_banned() -> Address:
-    addr = Address(BANNED)
+def get_banned() -> Account:
+    addr = Account(BANNED)
     return addr
 
 
@@ -32,7 +36,7 @@ class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         self.remember_creator()
         self.counter = UInt64(ZERO)
 
-    @abimethod(allow_actions=["no_op", "opt_in"])
+    @abimethod(allow_actions=["NoOp", "OptIn"])
     def register(self, name: String) -> None:
         self._check_ban_list()
         if Transaction.on_completion() == OnCompleteAction.OptIn:
@@ -50,11 +54,11 @@ class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         return String.encode(b"Hello, " + name.decode() + b"!")
 
     @abimethod
-    def calculate(self, a: UInt64, b: UInt64) -> UInt64:
+    def calculate(self, a: arc4_UInt64, b: arc4_UInt64) -> arc4_UInt64:
         c = super().calculate(a, b)
-        return c * b
+        return arc4_UInt64.encode(c.decode() * b.decode())
 
-    @abimethod(allow_actions=["close_out"])
+    @abimethod(allow_actions=["CloseOut"])
     def close_out(self) -> None:
         self._remove_sender()
 

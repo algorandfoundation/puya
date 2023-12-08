@@ -1,0 +1,36 @@
+sixty_four_byte_num = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095
+
+contract Arc4NumericTypesContract
+{
+  approval_program(): bool
+  {
+    uint8: algopy.UInt64 = 255u
+    int8_encoded: algopy.arc4.UIntN[typing.Literal[8]] = arc4_encode(uint8, algopy.arc4.UIntN[typing.Literal[8]])
+    int8_decoded: algopy.UInt64 = arc4_decode(int8_encoded, algopy.UInt64)
+    assert(uint8 == int8_decoded)
+    test_bytes: algopy.Bytes = hex<"7FFFFFFFFFFFFFFF00">
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UIntN[typing.Literal[8]]>(test_bytes[:(1u < tmp$0: algopy.UInt64 := len(test_bytes)) ? (1u) : (tmp$0)]), algopy.UInt64) == 127u)
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UIntN[typing.Literal[24]]>(test_bytes[:(3u < tmp$1: algopy.UInt64 := len(test_bytes)) ? (3u) : (tmp$1)]), algopy.UInt64) == 8388607u)
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UIntN[typing.Literal[16]]>(test_bytes[:(2u < tmp$2: algopy.UInt64 := len(test_bytes)) ? (2u) : (tmp$2)]), algopy.UInt64) == 32767u)
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UIntN[typing.Literal[32]]>(test_bytes[:(4u < tmp$3: algopy.UInt64 := len(test_bytes)) ? (4u) : (tmp$3)]), algopy.UInt64) == 2147483647u)
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UIntN[typing.Literal[64]]>(test_bytes[:(8u < tmp$4: algopy.UInt64 := len(test_bytes)) ? (8u) : (tmp$4)]), algopy.UInt64) == 9223372036854775807u)
+    decimals: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 145.6853943940arc4u64x10
+    assert(len(reinterpret_cast<algopy.Bytes>(decimals)) == 8u)
+    really_big_int: algopy.arc4.BigUIntN[typing.Literal[512]] = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095arc4n512
+    assert(len(reinterpret_cast<algopy.Bytes>(really_big_int)) == 64u)
+    assert(reinterpret_cast<algopy.Bytes>(really_big_int) == reinterpret_cast<algopy.Bytes>(arc4_encode(arc4_decode(really_big_int, algopy.BigUInt), algopy.arc4.BigUIntN[typing.Literal[512]])))
+    really_big_decimal: algopy.arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]] = arc4_encode(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n, algopy.arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]])
+    biguint: algopy.BigUInt = 1n
+    arc4_biguint_const: algopy.arc4.BigUIntN[typing.Literal[128]] = 1arc4n128
+    arc4_biguint_dynamic: algopy.arc4.BigUIntN[typing.Literal[128]] = arc4_encode(biguint b+ 1n, algopy.arc4.BigUIntN[typing.Literal[128]])
+    assert(biguint == arc4_decode(arc4_biguint_const, algopy.BigUInt))
+    assert(len(reinterpret_cast<algopy.Bytes>(arc4_biguint_dynamic)) == 16u)
+    assert(len(reinterpret_cast<algopy.Bytes>(really_big_decimal)) == 64u)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}

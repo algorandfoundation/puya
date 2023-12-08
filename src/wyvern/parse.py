@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Self
 
 import attrs
+import docstring_parser
 import mypy.build
 import mypy.errors
 import mypy.find_sources
@@ -138,6 +139,16 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
                 is_explicit=src_path in resolved_input_paths,
             )
         )
+    # insert embedded lib, after source list that is returned has been constructed,
+    # so we don't try to output it
+    algopy_lib_path = Path(__file__).parent / "lib_embedded" / "_algopy_.py"
+    mypy_build_sources.append(
+        mypy.build.BuildSource(
+            path=str(Path("<poya>") / "algopy.py"),
+            module="_algopy_",
+            text=algopy_lib_path.read_text(),
+        )
+    )
     result = _mypy_build(mypy_build_sources, mypy_options, mypy_fscache)
     missing_module_names = {s.module_name for s in sources} - result.manager.modules.keys()
     if missing_module_names:
@@ -197,3 +208,38 @@ def split_log_message(message: str) -> tuple[str, str, str, str]:
         return f"{drive}:{path}", line, severity, msg
     path, line, severity, msg = message.split(":", maxsplit=3)
     return path, line, severity, msg
+
+
+@attrs.define
+class MethodDocumentation:
+    description: str | None = attrs.field(default=None)
+    args: dict[str, str] = attrs.field(factory=dict)
+    returns: str | None = attrs.field(default=None)
+
+
+def _join_single_new_line(doc: str) -> str:
+    return doc.strip().replace("\n", " ")
+
+
+def parse_docstring(docstring_raw: str | None) -> MethodDocumentation:
+    if docstring_raw is None:
+        return MethodDocumentation()
+    docstring = docstring_parser.parse(docstring_raw)
+    method_desc = "\n".join(
+        _join_single_new_line(line)
+        for lines in filter(None, (docstring.short_description, docstring.long_description))
+        for line in lines.split("\n\n")
+    )
+    return MethodDocumentation(
+        description=method_desc if method_desc else None,
+        args={
+            p.arg_name: _join_single_new_line(p.description)
+            for p in docstring.params
+            if p.description
+        },
+        returns=(
+            _join_single_new_line(docstring.returns.description)
+            if docstring.returns and docstring.returns.description
+            else None
+        ),
+    )

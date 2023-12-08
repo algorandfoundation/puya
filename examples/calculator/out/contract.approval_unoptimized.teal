@@ -8,7 +8,7 @@ main:
 main_block@0:
         txn NumAppArgs
         dup
-        cover 1
+        swap
         int 0
         ==
         bz main_else_body@2
@@ -33,13 +33,13 @@ main_else_body@2:
         dup
         int 3
         ==
-        assert
+        assert // Expected 3 args
         txna ApplicationArgs 0
         btoi
         bury 2
         txna ApplicationArgs 1
         txna ApplicationArgs 2
-        cover 1
+        swap
         dup
         log
         dig 1
@@ -60,15 +60,15 @@ main_after_if_else@3:
         callsub do_calc
         cover 3
         callsub itoa
-        uncover 1
+        swap
         callsub op
         concat
-        uncover 1
+        swap
         callsub itoa
         concat
         byte " = "
         concat
-        uncover 1
+        swap
         callsub itoa
         concat
         log
@@ -183,7 +183,7 @@ itoa:
 itoa_block@0:
         byte "0123456789"
         dup
-        cover 1
+        swap
         len
         dup
         cover 2
@@ -195,11 +195,11 @@ itoa_if_body@1:
         frame_dig -1
         int 1
         +
-        uncover 1
+        swap
         frame_dig -1
         uncover 2
         substring3
-        uncover 1
+        swap
         retsub
 
 itoa_after_if_else@2:
@@ -209,9 +209,9 @@ itoa_after_if_else@2:
         cover 2
         /
         callsub itoa
-        cover 1
+        swap
         frame_dig -1
-        uncover 1
+        swap
         %
         dup
         int 1
@@ -220,7 +220,7 @@ itoa_after_if_else@2:
         cover 2
         substring3
         concat
-        uncover 1
+        swap
         retsub
 
 

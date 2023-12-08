@@ -1,0 +1,192 @@
+VOTE_INDEX_BYTES = 1
+VOTE_COUNT_BYTES = 8
+BOX_FLAT_MIN_BALANCE = 2500
+BOX_BYTE_MIN_BALANCE = 400
+ASSET_MIN_BALANCE = 100000
+TALLY_BOX_KEY = b'V'
+
+struct VotingPreconditions {
+  is_voting_open: algopy.arc4.UIntN[typing.Literal[64]]
+  is_allowed_to_vote: algopy.arc4.UIntN[typing.Literal[64]]
+  has_already_voted: algopy.arc4.UIntN[typing.Literal[64]]
+  current_time: algopy.arc4.UIntN[typing.Literal[64]]
+}
+
+contract VotingRoundApp
+{
+  globals {
+    ['is_bootstrapped']: bool
+    ['voter_count']: algopy.UInt64
+    ['close_time']: algopy.UInt64
+    ['nft_asset_id']: algopy.UInt64
+    ['snapshot_public_key']: algopy.Bytes
+    ['vote_id']: algopy.Bytes
+    ['metadata_ipfs_cid']: algopy.Bytes
+    ['start_time']: algopy.UInt64
+    ['end_time']: algopy.UInt64
+    ['quorum']: algopy.UInt64
+    ['nft_image_url']: algopy.Bytes
+    ['option_counts']: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]]
+    ['total_options']: algopy.UInt64
+  }
+  
+  constructor()
+  {
+    this.globals['is_bootstrapped']: bool = false
+    this.globals['voter_count']: algopy.UInt64 = 0u
+    this.globals['close_time']: algopy.UInt64 = 0u
+    this.globals['nft_asset_id']: algopy.UInt64 = 0u
+    this.globals['snapshot_public_key']: algopy.Bytes = ''
+    this.globals['vote_id']: algopy.Bytes = ''
+    this.globals['metadata_ipfs_cid']: algopy.Bytes = ''
+    this.globals['start_time']: algopy.UInt64 = 0u
+    this.globals['end_time']: algopy.UInt64 = 0u
+    this.globals['quorum']: algopy.UInt64 = 0u
+    this.globals['nft_image_url']: algopy.Bytes = ''
+    this.globals['option_counts']: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]] = arc4_array_encode([], algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]])
+    this.globals['total_options']: algopy.UInt64 = 0u
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod create(vote_id: algopy.arc4.String, snapshot_public_key: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]], metadata_ipfs_cid: algopy.arc4.String, start_time: algopy.arc4.UIntN[typing.Literal[64]], end_time: algopy.arc4.UIntN[typing.Literal[64]], option_counts: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]], quorum: algopy.arc4.UIntN[typing.Literal[64]], nft_image_url: algopy.arc4.String): None
+  {
+    st: algopy.UInt64 = arc4_decode(start_time, algopy.UInt64)
+    et: algopy.UInt64 = arc4_decode(end_time, algopy.UInt64)
+    assert(st < et, comment="End time should be after start time")
+    assert(et >= global<LatestTimestamp>(), comment="End time should be in the future")
+    this.globals['vote_id']: algopy.Bytes = arc4_decode(vote_id, algopy.Bytes)
+    this.globals['snapshot_public_key']: algopy.Bytes = reinterpret_cast<algopy.Bytes>(snapshot_public_key)[(2u < tmp$0: algopy.UInt64 := len(reinterpret_cast<algopy.Bytes>(snapshot_public_key))) ? (2u) : (tmp$0):]
+    this.globals['metadata_ipfs_cid']: algopy.Bytes = arc4_decode(metadata_ipfs_cid, algopy.Bytes)
+    this.globals['start_time']: algopy.UInt64 = st
+    this.globals['end_time']: algopy.UInt64 = et
+    this.globals['quorum']: algopy.UInt64 = arc4_decode(quorum, algopy.UInt64)
+    this.globals['nft_image_url']: algopy.Bytes = arc4_decode(nft_image_url, algopy.Bytes)
+    this::store_option_counts(option_counts)
+  }
+  
+  abimethod bootstrap(fund_min_bal_req: algopy.PaymentTransaction): None
+  {
+    assert(!(this.globals['is_bootstrapped']), comment="Must not be already bootstrapped")
+    this.globals['is_bootstrapped']: bool = true
+    bytes_per_option: algopy.UInt64 = 8u
+    box_cost: algopy.UInt64 = 2900u + this.globals['total_options'] * 400u * bytes_per_option
+    min_balance_req: algopy.UInt64 = 201000u + box_cost
+    assert(gtxns<Receiver>(fund_min_bal_req) == global<CurrentApplicationAddress>(), comment="Payment must be to app address")
+    log(itob(min_balance_req))
+    assert(gtxns<Amount>(fund_min_bal_req) == min_balance_req, comment="Payment must be for the exact min balance requirement")
+    assert(box_create('V', this.globals['total_options'] * 8u))
+  }
+  
+  abimethod close(): None
+  {
+    algopy::ensure_budget(required_budget=20000u, fee_source=0u)
+    assert(this.globals['close_time'] == 0u, comment="Already closed")
+    this.globals['close_time']: algopy.UInt64 = global<LatestTimestamp>()
+    note: algopy.Bytes = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + this.globals['vote_id'] + '.","properties":{"metadata":"ipfs://' + this.globals['metadata_ipfs_cid'] + '","id":"' + this.globals['vote_id'] + '","quorum":' + itob(this.globals['quorum']) + ',"voterCount":' + itob(this.globals['voter_count']) + ',"tallies":['
+    current_index: algopy.UInt64 = 0u
+    for question_index in range(0u, extract_uint16(this.globals['option_counts'], 0u), 1u) {
+      question_options: algopy.UInt64 = arc4_decode(this.globals['option_counts'][question_index], algopy.UInt64)
+      for option_index in range(0u, question_options, 1u) {
+        votes_for_option: algopy.UInt64 = examples.voting.voting::get_vote_from_box(current_index)
+        note += (option_index == 0u) ? ('[') : ((option_index == question_options - 1u) ? ('' + itob(votes_for_option) + ']') : ((question_index == extract_uint16(this.globals['option_counts'], 0u) - 1u) ? (',') : ('')))
+        current_index += 1u
+      }
+    }
+    note += ']}}'
+    itxn_begin()
+    itxn_field<TypeEnum>(acfg)
+    itxn_field<ConfigAssetTotal>(1u)
+    itxn_field<ConfigAssetDecimals>(0u)
+    itxn_field<ConfigAssetDefaultFrozen>(false)
+    itxn_field<ConfigAssetName>('[VOTE RESULT] ' + this.globals['vote_id'])
+    itxn_field<ConfigAssetUnitName>('VOTERSLT')
+    itxn_field<ConfigAssetURL>(this.globals['nft_image_url'])
+    itxn_field<Note>(note)
+    itxn_submit()
+    this.globals['nft_asset_id']: algopy.UInt64 = itxn<CreatedAssetID>()
+  }
+  
+  abimethod get_preconditions(signature: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]]): examples.voting.voting.VotingPreconditions
+  {
+    return arc4_encode((arc4_encode(this::voting_open(), algopy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::allowed_to_vote(reinterpret_cast<algopy.Bytes>(signature)[(2u < tmp$1: algopy.UInt64 := len(reinterpret_cast<algopy.Bytes>(signature))) ? (2u) : (tmp$1):]), algopy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::already_voted(), algopy.arc4.UIntN[typing.Literal[64]]), arc4_encode(global<LatestTimestamp>(), algopy.arc4.UIntN[typing.Literal[64]])), examples.voting.voting.VotingPreconditions)
+  }
+  
+  abimethod vote(fund_min_bal_req: algopy.PaymentTransaction, signature: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]], answer_ids: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]]): None
+  {
+    algopy::ensure_budget(required_budget=7700u, fee_source=0u)
+    assert(this::allowed_to_vote(reinterpret_cast<algopy.Bytes>(signature)[(2u < tmp$2: algopy.UInt64 := len(reinterpret_cast<algopy.Bytes>(signature))) ? (2u) : (tmp$2):]), comment="Not allowed to vote")
+    assert(this::voting_open(), comment="Voting not open")
+    assert(!(this::already_voted()), comment="Already voted")
+    questions_count: algopy.UInt64 = extract_uint16(this.globals['option_counts'], 0u)
+    assert(extract_uint16(answer_ids, 0u) == questions_count, comment="Number of answers incorrect")
+    min_bal_req: algopy.UInt64 = 2500u + 34u + 1u * extract_uint16(answer_ids, 0u) * 400u
+    assert(gtxns<Receiver>(fund_min_bal_req) == global<CurrentApplicationAddress>(), comment="Payment must be to app address")
+    log(itob(min_bal_req))
+    assert(gtxns<Amount>(fund_min_bal_req) == min_bal_req, comment="Payment must be the exact min balance")
+    cumulative_offset: algopy.UInt64 = 0u
+    for question_index in range(0u, questions_count, 1u) {
+      answer_option_index: algopy.arc4.UIntN[typing.Literal[8]] = answer_ids[question_index]
+      options_count: algopy.arc4.UIntN[typing.Literal[8]] = this.globals['option_counts'][question_index]
+      assert(arc4_decode(answer_option_index, algopy.UInt64) < arc4_decode(options_count, algopy.UInt64), comment="Answer option index invalid")
+      examples.voting.voting::increment_vote_in_box(cumulative_offset + arc4_decode(answer_option_index, algopy.UInt64))
+      cumulative_offset += arc4_decode(options_count, algopy.UInt64)
+      box_put(reinterpret_cast<algopy.Bytes>(txn<Sender>()), reinterpret_cast<algopy.Bytes>(answer_ids))
+      this.globals['voter_count'] += 1u
+    }
+  }
+  
+  subroutine voting_open(): bool
+  {
+    return this.globals['is_bootstrapped'] and !(reinterpret_cast<bool>(this.globals['close_time'])) and this.globals['start_time'] <= tmp$3: algopy.UInt64 := global<LatestTimestamp>() and tmp$3 <= this.globals['end_time']
+  }
+  
+  subroutine already_voted(): bool
+  {
+    (votes, exists): tuple[algopy.Bytes, bool] = box_get(reinterpret_cast<algopy.Bytes>(txn<Sender>()))
+    return exists
+  }
+  
+  subroutine store_option_counts(option_counts: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]]): None
+  {
+    assert(reinterpret_cast<bool>(extract_uint16(option_counts, 0u)), comment="option_counts should be non-empty")
+    assert(extract_uint16(option_counts, 0u) <= 112u, comment="Can't have more than 112 questions")
+    this.globals['option_counts']: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]] = option_counts
+    total_options: algopy.UInt64 = this::calculate_total_options_count(option_counts)
+    assert(total_options <= 128u, comment="Can't have more than 128 vote options")
+    this.globals['total_options']: algopy.UInt64 = total_options
+  }
+  
+  subroutine calculate_total_options_count(option_counts: algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]]): algopy.UInt64
+  {
+    total: algopy.UInt64 = 0u
+    for item in option_counts {
+      total += arc4_decode(item, algopy.UInt64)
+    }
+    return total
+  }
+  
+  subroutine allowed_to_vote(signature: algopy.Bytes): bool
+  {
+    algopy::ensure_budget(required_budget=2000u, fee_source=2u)
+    return ed25519verify_bare(reinterpret_cast<algopy.Bytes>(txn<Sender>()), signature, this.globals['snapshot_public_key'])
+  }
+}
+
+subroutine get_vote_from_box(index: algopy.UInt64): algopy.UInt64
+{
+  (box_data, exists): tuple[algopy.Bytes, bool] = box_get('V')
+  assert(exists, comment="Box not created")
+  return btoi(extract3(box_data, index, 8u))
+}
+
+subroutine increment_vote_in_box(index: algopy.UInt64): None
+{
+  (box_data, exists): tuple[algopy.Bytes, bool] = box_get('V')
+  assert(exists, comment="Box not created")
+  current_vote: algopy.UInt64 = btoi(extract3(box_data, index, 8u))
+  box_replace('V', index, itob(current_vote + 1u))
+}

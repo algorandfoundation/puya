@@ -55,11 +55,11 @@ class MIRVisitor(abc.ABC, typing.Generic[_T]):
         ...
 
     @abc.abstractmethod
-    def visit_store_scratch(self, store: ops.StoreScratch) -> _T:
+    def visit_store_virtual(self, store: ops.StoreVirtual) -> _T:
         ...
 
     @abc.abstractmethod
-    def visit_load_scratch(self, load: ops.LoadScratch) -> _T:
+    def visit_load_virtual(self, load: ops.LoadVirtual) -> _T:
         ...
 
     @abc.abstractmethod
@@ -92,4 +92,8 @@ class MIRVisitor(abc.ABC, typing.Generic[_T]):
 
     @abc.abstractmethod
     def visit_push_address(self, addr: ops.PushAddress) -> _T:
+        ...
+
+    @abc.abstractmethod
+    def visit_push_method(self, addr: ops.PushMethod) -> _T:
         ...

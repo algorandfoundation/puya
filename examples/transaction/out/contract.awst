@@ -1,0 +1,104 @@
+contract TransactionContract
+{
+  abimethod create(): None
+  {
+  }
+  
+  subroutine _common_checks(txn: algopy.TransactionBase): None
+  {
+    assert(reinterpret_cast<bool>(len(gtxns<TxID>(txn))), comment="txn_id")
+    assert(gtxns<Sender>(txn) == global<CreatorAddress>(), comment="sender")
+    assert(reinterpret_cast<bool>(gtxns<Fee>(txn)), comment="fee")
+    assert(reinterpret_cast<bool>(gtxns<TypeEnum>(txn)), comment="type")
+    assert(reinterpret_cast<bool>(len(gtxns<Type>(txn))), comment="type_bytes")
+    assert(gtxns<Note>(txn) == '', comment="note")
+    assert(gtxns<GroupIndex>(txn) == 0u, comment="group_index")
+    assert(reinterpret_cast<bool>(gtxns<FirstValid>(txn)), comment="first_valid")
+    assert(reinterpret_cast<bool>(gtxns<FirstValidTime>(txn)), comment="first_valid_time")
+    assert(reinterpret_cast<bool>(gtxns<LastValid>(txn)), comment="last_valid")
+    assert(reinterpret_cast<bool>(len(gtxns<Lease>(txn))), comment="lease")
+    assert(gtxns<RekeyTo>(txn) == global<ZeroAddress>(), comment="rekey_to")
+  }
+  
+  abimethod pay(txn: algopy.PaymentTransaction): None
+  {
+    this::_common_checks(txn)
+    assert(gtxns<Receiver>(txn) == global<CurrentApplicationAddress>(), comment="Payment should be for this app")
+    assert(gtxns<Amount>(txn) > 1000u, comment="Payment should be for >1000 micro algos")
+    assert(gtxns<CloseRemainderTo>(txn) == global<ZeroAddress>(), comment="close_remainder_to")
+  }
+  
+  abimethod key(txn: algopy.KeyRegistrationTransaction): None
+  {
+    this::_common_checks(txn)
+    assert(gtxns<VotePK>(txn) != global<ZeroAddress>(), comment="vote_key")
+    assert(gtxns<SelectionPK>(txn) != global<ZeroAddress>(), comment="selection_key")
+    assert(reinterpret_cast<bool>(gtxns<VoteKeyDilution>(txn)), comment="vote_key_dilution")
+    assert(reinterpret_cast<bool>(gtxns<VoteFirst>(txn)), comment="vote_first")
+    assert(reinterpret_cast<bool>(gtxns<VoteLast>(txn)), comment="vote_last")
+    assert(gtxns<Nonparticipation>(txn), comment="non_participation")
+    assert(reinterpret_cast<bool>(len(gtxns<StateProofPK>(txn))), comment="state_proof_key")
+  }
+  
+  abimethod asset_config(txn: algopy.AssetConfigTransaction): None
+  {
+    this::_common_checks(txn)
+    assert(reinterpret_cast<bool>(gtxns<ConfigAsset>(txn)), comment="config_asset")
+    assert(reinterpret_cast<bool>(gtxns<ConfigAssetTotal>(txn)), comment="total")
+    assert(reinterpret_cast<bool>(gtxns<ConfigAssetDecimals>(txn)), comment="decimals")
+    assert(gtxns<ConfigAssetDefaultFrozen>(txn), comment="default_frozen")
+    assert(reinterpret_cast<bool>(len(gtxns<ConfigAssetUnitName>(txn))), comment="unit_name")
+    assert(reinterpret_cast<bool>(len(gtxns<ConfigAssetName>(txn))), comment="asset_name")
+    assert(reinterpret_cast<bool>(len(gtxns<ConfigAssetURL>(txn))), comment="url")
+    assert(reinterpret_cast<bool>(len(gtxns<ConfigAssetMetadataHash>(txn))), comment="metadata_hash")
+    assert(gtxns<ConfigAssetManager>(txn) != global<ZeroAddress>(), comment="manager")
+    assert(gtxns<ConfigAssetReserve>(txn) != global<ZeroAddress>(), comment="reserve")
+    assert(gtxns<ConfigAssetFreeze>(txn) != global<ZeroAddress>(), comment="freeze")
+    assert(gtxns<ConfigAssetClawback>(txn) != global<ZeroAddress>(), comment="clawback")
+  }
+  
+  abimethod asset_transfer(txn: algopy.AssetTransferTransaction): None
+  {
+    this::_common_checks(txn)
+    assert(reinterpret_cast<bool>(gtxns<XferAsset>(txn)), comment="xfer_asset")
+    assert(reinterpret_cast<bool>(gtxns<AssetAmount>(txn)), comment="asset_amount")
+    assert(gtxns<AssetSender>(txn) != global<ZeroAddress>(), comment="asset_sender")
+    assert(gtxns<AssetReceiver>(txn) != global<ZeroAddress>(), comment="asset_receiver")
+    assert(gtxns<AssetCloseTo>(txn) != global<ZeroAddress>(), comment="asset_close_to")
+  }
+  
+  abimethod asset_freeze(txn: algopy.AssetFreezeTransaction): None
+  {
+    this::_common_checks(txn)
+    assert(reinterpret_cast<bool>(gtxns<FreezeAsset>(txn)), comment="freeze_asset")
+    assert(gtxns<FreezeAssetAccount>(txn) != global<ZeroAddress>(), comment="freeze_account")
+    assert(gtxns<FreezeAssetFrozen>(txn), comment="frozen")
+  }
+  
+  abimethod application_call(txn: algopy.ApplicationCallTransaction): None
+  {
+    this::_common_checks(txn)
+    assert(reinterpret_cast<bool>(gtxns<ApplicationID>(txn)), comment="application_id")
+    assert(reinterpret_cast<bool>(gtxns<OnCompletion>(txn)), comment="on_completion")
+    assert(reinterpret_cast<bool>(gtxns<NumAppArgs>(txn)), comment="num_app_args")
+    assert(reinterpret_cast<bool>(gtxns<NumAccounts>(txn)), comment="num_accounts")
+    assert(reinterpret_cast<bool>(len(gtxns<ApprovalProgram>(txn))), comment="approval_program")
+    assert(reinterpret_cast<bool>(len(gtxns<ClearStateProgram>(txn))), comment="clear_state_program")
+    assert(reinterpret_cast<bool>(gtxns<NumAssets>(txn)), comment="num_assets")
+    assert(reinterpret_cast<bool>(gtxns<NumApplications>(txn)), comment="num_applications")
+    assert(reinterpret_cast<bool>(gtxns<GlobalNumUint>(txn)), comment="global_num_uint")
+    assert(reinterpret_cast<bool>(gtxns<GlobalNumByteSlice>(txn)), comment="global_num_byte_slice")
+    assert(reinterpret_cast<bool>(gtxns<LocalNumUint>(txn)), comment="local_num_uint")
+    assert(reinterpret_cast<bool>(gtxns<LocalNumByteSlice>(txn)), comment="local_num_byte_slice")
+    assert(reinterpret_cast<bool>(gtxns<ExtraProgramPages>(txn)), comment="extra_program_pages")
+    assert(reinterpret_cast<bool>(len(gtxns<LastLog>(txn))), comment="last_log")
+    assert(reinterpret_cast<bool>(gtxns<NumApprovalProgramPages>(txn)), comment="num_approval_program_pages")
+    assert(reinterpret_cast<bool>(gtxns<NumClearStateProgramPages>(txn)), comment="num_clear_state_program_pages")
+    assert(reinterpret_cast<bool>(len(gtxnsas<ApplicationArgs>(txn, 0u))), comment="application_args(0)")
+    assert(gtxnsas<Accounts>(txn, 0u) != global<ZeroAddress>(), comment="accounts(0)")
+    assert(reinterpret_cast<bool>(gtxnsas<Assets>(txn, 0u)), comment="assets(0)")
+    assert(reinterpret_cast<bool>(gtxnsas<Applications>(txn, 0u)), comment="applications(0)")
+    assert(reinterpret_cast<bool>(len(gtxnsas<ApprovalProgramPages>(txn, 0u))), comment="approval_program_pages(0)")
+    assert(reinterpret_cast<bool>(len(gtxnsas<ClearStateProgramPages>(txn, 0u))), comment="clear_state_program_pages(0)")
+  }
+}

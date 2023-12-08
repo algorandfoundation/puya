@@ -5,7 +5,7 @@ import inspect
 import os
 import re
 import typing
-from collections.abc import Sequence
+from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from textwrap import dedent
@@ -19,21 +19,19 @@ from algokit_utils import (
     LogicError,
     Program,
     execute_atc_with_logic_error,
-    get_algod_client,
-    get_default_localnet_config,
-    get_localnet_default_account,
 )
 from algosdk import constants, transaction
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
 from algosdk.transaction import ApplicationCallTxn, ApplicationCreateTxn, OnComplete, StateSchema
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
+from nacl.signing import SigningKey
+from wyvern.avm_type import AVMType
 from wyvern.awst_build.main import transform_ast
 from wyvern.codegen.emitprogram import CompiledContract, CompiledProgram
 from wyvern.codegen.teal_annotaters import AlignedWriter
 from wyvern.compile import awst_to_teal, parse_with_mypy
-from wyvern.ir.models import ContractState
-from wyvern.ir.types_ import AVMType
+from wyvern.metadata import ContractMetaData, ContractState
 from wyvern.options import WyvernOptions
 
 VCS_ROOT = Path(__file__).parent.parent
@@ -77,52 +75,6 @@ def encode_utf8(value: str) -> str:
     return encode_bytes(value.encode("utf8"))
 
 
-@pytest.fixture(scope="session")
-def algod_client() -> AlgodClient:
-    return get_algod_client(get_default_localnet_config("algod"))
-
-
-@pytest.fixture(scope="session")
-def account(algod_client: AlgodClient) -> Account:
-    return get_localnet_default_account(algod_client)
-
-
-@pytest.fixture(scope="session")
-def asset_a(algod_client: AlgodClient, account: Account) -> int:
-    return create_asset(algod_client, account, "a")
-
-
-@pytest.fixture(scope="session")
-def asset_b(algod_client: AlgodClient, account: Account) -> int:
-    return create_asset(algod_client, account, "b")
-
-
-def create_asset(algod_client: AlgodClient, account: Account, asset_unit: str) -> int:
-    sp = algod_client.suggested_params()
-    atc = AtomicTransactionComposer()
-    atc.add_transaction(
-        TransactionWithSigner(
-            transaction.AssetCreateTxn(  # type: ignore[no-untyped-call]
-                account.address,
-                sp,
-                10_000_000,
-                0,
-                default_frozen=False,
-                asset_name=f"asset {asset_unit}",
-                unit_name=asset_unit,
-            ),
-            signer=account.signer,
-        )
-    )
-    response = atc.execute(algod_client, 4)
-    txn_id = response.tx_ids[0]
-    result = algod_client.pending_transaction_info(txn_id)
-    assert isinstance(result, dict)
-    asset_index = result["asset-index"]
-    assert isinstance(asset_index, int)
-    return asset_index
-
-
 @attrs.define(kw_only=True)
 class Compilation:
     contract: CompiledContract
@@ -134,9 +86,9 @@ class Compilation:
 
 def assemble_src(contract: CompiledContract, client: AlgodClient) -> Compilation:
     def state_to_schema(state: Sequence[ContractState]) -> StateSchema:
-        return StateSchema(  # type: ignore[no-untyped-call]
-            num_uints=sum(1 for x in state if x.type == AVMType.uint64),
-            num_byte_slices=sum(1 for x in state if x.type == AVMType.bytes),
+        return StateSchema(
+            num_uints=sum(1 for x in state if x.storage_type is AVMType.uint64),
+            num_byte_slices=sum(1 for x in state if x.storage_type is AVMType.bytes),
         )
 
     assert contract.approval_program.debug_src is not None
@@ -147,8 +99,8 @@ def assemble_src(contract: CompiledContract, client: AlgodClient) -> Compilation
         contract=contract,
         approval=approval_program,
         clear=clear_program,
-        local_schema=state_to_schema(contract.local_state),
-        global_schema=state_to_schema(contract.global_state),
+        local_schema=state_to_schema(contract.metadata.local_state),
+        global_schema=state_to_schema(contract.metadata.global_state),
     )
     return compilation
 
@@ -157,14 +109,22 @@ AppArgs: typing.TypeAlias = int | str | bytes
 
 
 @attrs.frozen
-class AppCallRequest:
+class AppTransactionParameters:
     args: list[AppArgs] = attrs.field(factory=list)
     accounts: list[str] | None = None
     assets: list[int] | None = None
     on_complete: OnComplete = OnComplete.NoOpOC
+    sp: transaction.SuggestedParams | None = None
+
+
+GroupTransactionsProvider: typing.TypeAlias = Callable[[int], Iterable[TransactionWithSigner]]
+
+
+@attrs.frozen
+class AppCallRequest(AppTransactionParameters):
     increase_budget: int = 0
     trace_output: Path | None = None
-    sp: transaction.SuggestedParams | None = None
+    group_transactions: GroupTransactionsProvider | None = None
 
     def get_trace_output_path_for_level(self, opt_level: int) -> Path | None:
         path = self.trace_output
@@ -219,47 +179,50 @@ class ATCRunner:
 
     def add_deployment_transaction(
         self,
-        args: list[AppArgs],
-        accounts: list[str] | None = None,
-        on_complete: OnComplete = OnComplete.NoOpOC,
+        request: AppTransactionParameters,
     ) -> typing.Self:
         self.atc.add_transaction(
             TransactionWithSigner(
-                txn=ApplicationCreateTxn(  # type: ignore[no-untyped-call]
-                    sender=self.sender,
-                    sp=self.sp,
-                    on_complete=on_complete,
-                    accounts=accounts,
+                txn=ApplicationCreateTxn(
                     approval_program=self.compilation.approval.raw_binary,
                     clear_program=self.compilation.clear.raw_binary,
-                    app_args=args,
                     local_schema=self.compilation.local_schema,
                     global_schema=self.compilation.global_schema,
+                    **self._txn_args_from_request(request),
                 ),
                 signer=self.signer,
             )
         )
         return self
 
+    def _txn_args_from_request(self, request: AppTransactionParameters) -> dict[str, object]:
+        return {
+            "sender": self.sender,
+            "sp": request.sp or self.sp,
+            "on_complete": request.on_complete,
+            "accounts": request.accounts,
+            "foreign_assets": request.assets,
+            "app_args": request.args,
+        }
+
+    def add_transactions(
+        self, *, app_id: int, get_group_transactions: GroupTransactionsProvider | None
+    ) -> typing.Self:
+        if get_group_transactions:
+            for txn in get_group_transactions(app_id):
+                self.atc.add_transaction(txn)
+        return self
+
     def add_app_call_transaction(
         self,
         app_id: int,
-        args: list[AppArgs],
-        on_complete: OnComplete,
-        accounts: list[str] | None = None,
-        assets: list[int] | None = None,
-        sp: transaction.SuggestedParams | None = None,
+        request: AppTransactionParameters,
     ) -> typing.Self:
         self.atc.add_transaction(
             TransactionWithSigner(
-                txn=ApplicationCallTxn(  # type: ignore[no-untyped-call]
-                    sender=self.sender,
-                    sp=sp or self.sp,
+                txn=ApplicationCallTxn(
                     index=app_id,
-                    on_complete=on_complete,
-                    app_args=args,
-                    accounts=accounts,
-                    foreign_assets=assets,
+                    **self._txn_args_from_request(request),
                 ),
                 signer=self.signer,
             )
@@ -269,7 +232,7 @@ class ATCRunner:
     def add_fund_transaction(self, app_id: int, micro_algos: int) -> typing.Self:
         self.atc.add_transaction(
             TransactionWithSigner(
-                txn=transaction.PaymentTxn(  # type: ignore[no-untyped-call]
+                txn=transaction.PaymentTxn(
                     sender=self.sender,
                     receiver=algosdk.logic.get_application_address(app_id),
                     amt=micro_algos,
@@ -284,7 +247,11 @@ class ATCRunner:
         for idx in range(count):
             assert self.op_up_app_id is not None
             self.add_app_call_transaction(
-                app_id=self.op_up_app_id, args=[idx], on_complete=OnComplete.NoOpOC
+                app_id=self.op_up_app_id,
+                request=AppTransactionParameters(
+                    args=[idx],
+                    on_complete=OnComplete.NoOpOC,
+                ),
             )
         return self
 
@@ -351,7 +318,17 @@ class ATCRunner:
         def map_stack_addition(value: dict[str, typing.Any]) -> int | str:
             match value["type"]:
                 case 1:
-                    return str(value.get("bytes", "<empty bytes[]>"))
+                    b64 = value.get("bytes")
+                    if b64 is None:
+                        return "0x"
+                    try:
+                        utf8 = decode_utf8(b64)
+                    except UnicodeDecodeError:
+                        pass
+                    else:
+                        if utf8.isprintable():
+                            return f'"{utf8}"'
+                    return "0x" + decode_bytes(b64).hex().upper()
                 case 2:
                     return int(value.get("uint", 0))
                 case _:
@@ -438,9 +415,8 @@ class _TestHarness:
         o_level_deploy_results = {
             o_level: (
                 self._new_runner(compilation)
-                .add_deployment_transaction(
-                    args=request.args, on_complete=request.on_complete, accounts=request.accounts
-                )
+                .add_transactions(app_id=0, get_group_transactions=request.group_transactions)
+                .add_deployment_transaction(request)
                 .add_op_ups(count=request.increase_budget)
                 .run(trace_path=request.get_trace_output_path_for_level(o_level))
             )
@@ -467,13 +443,13 @@ class _TestHarness:
         o_level_results = {
             o_level: (
                 self._new_runner(compilation)
+                .add_transactions(
+                    app_id=self._app_ids_by_level[o_level],
+                    get_group_transactions=request.group_transactions,
+                )
                 .add_app_call_transaction(
                     app_id=self._app_ids_by_level[o_level],
-                    args=request.args,
-                    on_complete=request.on_complete,
-                    accounts=request.accounts,
-                    assets=request.assets,
-                    sp=request.sp,
+                    request=request,
                 )
                 .add_op_ups(count=request.increase_budget)
                 .run(trace_path=request.get_trace_output_path_for_level(o_level))
@@ -514,19 +490,26 @@ def no_op_app_id(algod_client: AlgodClient, account: Account, worker_id: str) ->
         debug_src=src,
     )
     contract = CompiledContract(
-        name="",
         approval_program=teal_always_approve,
         clear_program=teal_always_approve,
-        description=None,
-        name_override=None,
-        global_state=[],
-        local_state=[],
+        metadata=ContractMetaData(
+            module_name="",
+            class_name="",
+            description=None,
+            name_override=None,
+            global_state=[],
+            local_state=[],
+            is_arc4=False,
+            methods=[],
+        ),
     )
     compilation = assemble_src(contract=contract, client=algod_client)
     result = (
         ATCRunner(client=algod_client, account=account, compilation=compilation)
         .add_deployment_transaction(
-            args=[worker_id],  # this ensures a unique instance per parallel test run
+            AppTransactionParameters(
+                args=[worker_id],  # this ensures a unique instance per parallel test run
+            ),
         )
         .run(trace_path=None)
     )
@@ -740,7 +723,7 @@ def test_simplish(harness: _TestHarness) -> None:
 
 def test_address(harness: _TestHarness) -> None:
     result = harness.deploy(EXAMPLES_DIR / "address_constant.py")
-    sender_bytes = algosdk.encoding.decode_address(harness.sender)  # type: ignore[no-untyped-call]
+    sender_bytes = algosdk.encoding.decode_address(harness.sender)
     assert result.decode_logs("b") == [sender_bytes]
 
 
@@ -885,11 +868,51 @@ def test_augmented_assignment_with_side_effects(harness: _TestHarness) -> None:
     assert result.decode_logs("i") == [1]
 
 
-def test_abi(harness: _TestHarness) -> None:
+def test_abi_string(harness: _TestHarness) -> None:
     harness.deploy(
-        EXAMPLES_DIR / "abi_types",
-        AppCallRequest(trace_output=EXAMPLES_DIR / "abi_types" / "out" / "abi_types.log"),
+        EXAMPLES_DIR / "arc4_types" / "string.py",
+        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "string.log"),
     )
+
+
+def test_abi_numeric(harness: _TestHarness) -> None:
+    harness.deploy(
+        EXAMPLES_DIR / "arc4_types" / "numeric.py",
+        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "numeric.log"),
+    )
+
+
+def test_abi_array(harness: _TestHarness) -> None:
+    harness.deploy(
+        EXAMPLES_DIR / "arc4_types" / "array.py",
+        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "array.log"),
+    )
+
+
+def test_abi_bool(harness: _TestHarness) -> None:
+    harness.deploy(
+        EXAMPLES_DIR / "arc4_types" / "bool.py",
+        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "bool.log"),
+    )
+
+
+def test_abi_tuple(harness: _TestHarness) -> None:
+    harness.deploy(
+        EXAMPLES_DIR / "arc4_types" / "tuples.py",
+        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "tuples.log"),
+    )
+
+
+def test_abi_struct(harness: _TestHarness) -> None:
+    result = harness.deploy(
+        EXAMPLES_DIR / "arc4_types" / "structs.py",
+        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "structs.log"),
+    )
+    x, y, z = result.decode_logs("bbb")
+
+    assert x == 0x1079F7E42E.to_bytes(8, "big")
+    assert y == 0x4607097084.to_bytes(8, "big")
+    assert z == 0b10100000.to_bytes()
 
 
 @pytest.mark.parametrize(
@@ -1008,3 +1031,57 @@ def test_asset(harness: _TestHarness, asset_a: int, asset_b: int) -> None:
     harness.call(AppCallRequest(args=[b"is_opted_in"], assets=[asset_a]))
     with pytest.raises(LogicError, match=re.escape("asset self.asa == asset")):
         harness.call(AppCallRequest(args=[b"is_opted_in"], assets=[asset_b]))
+
+
+def test_verify(harness: _TestHarness) -> None:
+    key = SigningKey.generate()
+    data = b"random bytes"
+    sig = key.sign(data).signature
+    public_key = key.verify_key.encode()
+
+    result = harness.deploy(
+        EXAMPLES_DIR / "edverify",
+        AppCallRequest(
+            args=[data, sig, public_key],
+            increase_budget=4,
+        ),
+    )
+    (verify_outcome,) = result.decode_logs("i")
+
+    assert verify_outcome == 1
+
+
+def test_application(harness: _TestHarness) -> None:
+    harness.deploy(EXAMPLES_DIR / "application")
+
+    harness.call(AppCallRequest(args=[b"validate"]))
+
+
+def test_conditional_execution(harness: _TestHarness) -> None:
+    harness.deploy(
+        EXAMPLES_DIR / "conditional_execution",
+        request=AppCallRequest(
+            trace_output=EXAMPLES_DIR / "conditional_execution" / "out" / "trace.log"
+        ),
+    )
+
+
+def test_ignored_value(harness: _TestHarness) -> None:
+    def test() -> None:
+        from algopy import Contract, subroutine
+
+        class Silly(Contract):
+            def approval_program(self) -> bool:
+                True  # noqa: B018
+                self.silly()
+                return True
+
+            @subroutine
+            def silly(self) -> bool:
+                True  # noqa: B018
+                return True
+
+            def clear_state_program(self) -> bool:
+                return True
+
+    harness.deploy_from_closure(test)

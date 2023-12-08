@@ -3,9 +3,9 @@ from collections.abc import Sequence
 import attrs
 import structlog
 
+from wyvern.avm_type import AVMType
 from wyvern.errors import InternalError
 from wyvern.ir import models as ir
-from wyvern.ir.types_ import AVMType
 from wyvern.ir.visitor_mem_replacer import MemoryReplacer
 from wyvern.parse import SourceLocation
 
@@ -23,12 +23,21 @@ class BraunSSA:
     and formally verified.
     """
 
-    def __init__(self, all_blocks: Sequence[ir.BasicBlock]) -> None:
+    def __init__(
+        self,
+        all_blocks: Sequence[ir.BasicBlock],
+        live_variables: Sequence[ir.Register],
+        active_block: ir.BasicBlock,
+    ) -> None:
         self._all_blocks = all_blocks  # note: this is a shared reference with BlocksBuilder
         self._sealed_blocks = set[ir.BasicBlock]()
         self._current_def = dict[str, dict[ir.BasicBlock, ir.Register]]()
         self._incomplete_phis = dict[ir.BasicBlock, list[ir.Phi]]()
         self._variable_versions = dict[str, int]()
+        # initialize any live variables at the start of the subroutines, i.e. parameters
+        for parameter in live_variables:
+            self.write_variable(parameter.name, active_block, parameter)
+            self._variable_versions[parameter.name] = 1
 
     def write_variable(self, variable: str, block: ir.BasicBlock, value: ir.Register) -> None:
         self._current_def.setdefault(variable, {})[block] = value
@@ -47,9 +56,6 @@ class BraunSSA:
         except KeyError:
             result = self._read_variable_recursive(variable, atype, block)
         return result
-
-    def read_register(self, reg: ir.Register, block: ir.BasicBlock) -> ir.Register:
-        return self.read_variable(variable=reg.name, atype=reg.atype, block=block)
 
     def _read_variable_recursive(
         self, variable: str, atype: AVMType, block: ir.BasicBlock

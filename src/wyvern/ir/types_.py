@@ -1,5 +1,6 @@
 import enum
 
+from wyvern.avm_type import AVMType
 from wyvern.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -11,14 +12,7 @@ from wyvern.parse import SourceLocation
 
 
 @enum.unique
-class AVMType(enum.Flag):
-    bytes = enum.auto()  # noqa: A003
-    uint64 = enum.auto()
-    any = bytes | uint64  # noqa: A003
-
-
-@enum.unique
-class AVMBytesEncoding(enum.Enum):
+class AVMBytesEncoding(enum.StrEnum):
     base16 = enum.auto()
     base32 = enum.auto()
     base64 = enum.auto()
@@ -26,17 +20,10 @@ class AVMBytesEncoding(enum.Enum):
 
 
 def bytes_enc_to_avm_bytes_enc(bytes_encoding: BytesEncoding) -> AVMBytesEncoding:
-    match bytes_encoding:
-        case BytesEncoding.base16:
-            return AVMBytesEncoding.base16
-        case BytesEncoding.base32:
-            return AVMBytesEncoding.base32
-        case BytesEncoding.base64:
-            return AVMBytesEncoding.base64
-        case BytesEncoding.utf8:
-            return AVMBytesEncoding.utf8
-        case _:
-            raise InternalError("Unsupported bytes encoding")
+    try:
+        return AVMBytesEncoding(bytes_encoding.value)
+    except ValueError as ex:
+        raise InternalError(f"Unhandled BytesEncoding: {bytes_encoding}") from ex
 
 
 def wtype_to_avm_type(
@@ -51,20 +38,15 @@ def wtype_to_avm_type(
         wtype = expr_or_wtype
     # TODO: compound types 🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔
     match wtype:
-        case wtypes.uint64_wtype | wtypes.bool_wtype | wtypes.asset_wtype:
-            return AVMType.uint64
         case (
-            wtypes.bytes_wtype
-            | wtypes.biguint_wtype
-            | wtypes.address_wtype
-            | wtypes.abi_string_wtype
+            wtypes.uint64_wtype
+            | wtypes.bool_wtype
+            | wtypes.asset_wtype
+            | wtypes.application_wtype
+            | wtypes.WTransaction()
         ):
-            return AVMType.bytes
-        case wtypes.AbiUIntN():
-            return AVMType.bytes
-        case wtypes.AbiDynamicArray():
-            return AVMType.bytes
-        case wtypes.AbiStaticArray():
+            return AVMType.uint64
+        case wtypes.bytes_wtype | wtypes.biguint_wtype | wtypes.account_wtype | wtypes.ARC4Type():
             return AVMType.bytes
         case wtypes.void_wtype:
             raise InternalError("Can't translate void WType to AVMType", source_location)

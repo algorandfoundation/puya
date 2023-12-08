@@ -18,10 +18,6 @@ contract examples.tuple_support.TupleSupport:
                 let (result.0#0: uint64, result.1#0: uint64) = (addw 1u 2u)
                 let tmp%5#0: uint64 = (! result.0#0)
                 (assert tmp%5#0) // overflow!
-                (assert 1u)
-                (assert 1u)
-                (assert 1u)
-                (assert 1u)
                 let tmp%11#0: bytes = examples.tuple_support.bytes_combine("Hello, ", "world!")
                 (log tmp%11#0)
                 let (tmp%12#0: uint64, tmp%13#0: uint64) = (addw 18446744073709551615u 18446744073709551615u)
@@ -36,35 +32,36 @@ contract examples.tuple_support.TupleSupport:
                 let tmp%22#0: bytes = examples.tuple_support.bytes_multiply("na", 5u)
                 (log tmp%22#0)
                 examples.tuple_support.test_tuple_swap(0u)
+                examples.tuple_support.slicing(1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u)
                 return 3u
         
         subroutine examples.tuple_support.add_three_values(values.0: uint64, values.1: uint64, values.2: uint64) -> uint64:
-            block@0: // L65
+            block@0: // L76
                 let total#0: uint64 = 0u
                 let tuple_index%0#0: uint64 = 0u
                 let (tuple_index%0#8: uint64, value#4: uint64, total#8: uint64) = (tuple_index%0#0, values.0#0, total#0)
                 goto block@4
-            block@2: // for_header_1_L67
+            block@2: // for_header_1_L78
                 let (tuple_index%0#8: uint64, value#4: uint64, total#8: uint64) = (tuple_index%0#4, values.1#0, total#4)
                 goto block@4
-            block@3: // for_header_2_L67
+            block@3: // for_header_2_L78
                 let (tuple_index%0#8: uint64, value#4: uint64, total#8: uint64) = (tuple_index%0#4, values.2#0, total#4)
                 goto block@4
-            block@4: // for_body_L67
+            block@4: // for_body_L78
                 let (tuple_index%0#1: uint64, value#3: uint64, total#1: uint64) = (tuple_index%0#8, value#4, total#8)
                 let total#4: uint64 = (+ total#1 value#3)
                 let tuple_index%0#4: uint64 = (+ tuple_index%0#1 1u)
                 goto [block@2, block@3, ...block@6][tuple_index%0#1]
-            block@6: // after_for_L67
+            block@6: // after_for_L78
                 return total#4
         
         subroutine examples.tuple_support.bytes_combine(arg.0: bytes, arg.1: bytes) -> bytes:
-            block@0: // L48
+            block@0: // L60
                 let result#0: bytes = (concat arg.0#0 arg.1#0)
                 return result#0
         
         subroutine examples.tuple_support.addw2(a.0: uint64, a.1: uint64, b.0: uint64, b.1: uint64) -> <uint64, uint64, uint64>:
-            block@0: // L76
+            block@0: // L87
                 let (lo_carry#0: uint64, c_lo#0: uint64) = (addw a.1#0 b.1#0)
                 let (hi_carry1#0: uint64, c_mid#0: uint64) = (addw a.0#0 b.0#0)
                 let (hi_carry2#0: uint64, c_mid#1: uint64) = (addw c_mid#0 lo_carry#0)
@@ -74,31 +71,40 @@ contract examples.tuple_support.TupleSupport:
                 return c_hi#0 c_mid#1 c_lo#0
         
         subroutine examples.tuple_support.bytes_multiply(arg.0: bytes, arg.1: uint64) -> bytes:
-            block@0: // L55
+            block@0: // L67
                 let result#0: bytes = ""
                 let range_item%0#0: uint64 = 0u
                 let (result#5: bytes, _i#1: uint64) = (result#0, range_item%0#0)
                 goto block@1
-            block@1: // for_header_L59
+            block@1: // for_header_L70
                 let (result#1: bytes, _i#0: uint64) = (result#5, _i#1)
                 let continue_looping%1#0: uint64 = (< _i#0 arg.1#0)
                 goto continue_looping%1#0 ? block@2 : block@4
-            block@2: // for_body_L59
+            block@2: // for_body_L70
                 let result#2: bytes = (concat result#1 arg.0#0)
                 let range_item%0#2: uint64 = (+ _i#0 1u)
                 let (result#5: bytes, _i#1: uint64) = (result#2, range_item%0#2)
                 goto block@1
-            block@4: // after_for_L59
+            block@4: // after_for_L70
                 return result#1
         
         subroutine examples.tuple_support.test_tuple_swap(zero: uint64) -> void:
-            block@0: // L88
+            block@0: // L99
                 let a#0: uint64 = (+ zero#0 1u)
                 let b#0: uint64 = (+ zero#0 2u)
                 let tmp%0#0: uint64 = (== b#0 2u)
                 (assert tmp%0#0) // a should be two
                 let tmp%1#0: uint64 = (== a#0 1u)
                 (assert tmp%1#0) // b should be one
+                return 
+        
+        subroutine examples.tuple_support.slicing(values.0: uint64, values.1: uint64, values.2: uint64, values.3: uint64, values.4: uint64, values.5: uint64, values.6: uint64, values.7: uint64) -> void:
+            block@0: // L108
+                let tmp%0#0: uint64 = examples.tuple_support.add_three_values(values.0#0, values.1#0, values.2#0)
+                let tmp%1#0: uint64 = (+ values.0#0 values.1#0)
+                let tmp%2#0: uint64 = (+ tmp%1#0 values.2#0)
+                let tmp%3#0: uint64 = (== tmp%0#0 tmp%2#0)
+                (assert tmp%3#0)
                 return 
         
         subroutine examples.tuple_support.TupleSupport.__init__() -> void:
@@ -108,5 +114,5 @@ contract examples.tuple_support.TupleSupport:
     
     program clear-state:
         subroutine examples.tuple_support.TupleSupport.clear_state_program() -> uint64:
-            block@0: // L43
+            block@0: // L55
                 return 0u

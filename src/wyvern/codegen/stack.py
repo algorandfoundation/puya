@@ -1,3 +1,4 @@
+import contextlib
 import typing
 from collections.abc import Iterable, Iterator
 from copy import deepcopy
@@ -21,12 +22,6 @@ class _StackState:
     """x-stack holds variable that are carried between blocks"""
     l_stack: list[str] = attrs.field(factory=list)
     """l-stack holds variables that are used within a block"""
-    slots: dict[str, int] = attrs.field(factory=dict)
-    slot_counter: Iterator[int] = attrs.field()
-
-    @slot_counter.default
-    def _new_slot_counter(self) -> Iterator[int]:
-        return iter(range(256))
 
     @property
     def full_stack(self) -> Iterable[str]:
@@ -37,7 +32,7 @@ class _StackState:
 
 @attrs.define
 class Stack(MIRVisitor[list[teal.TealOp]]):
-    save_restore_scratch: bool = attrs.field(default=False)
+    allow_virtual: bool = attrs.field(default=True)
     _current_subroutine: ops.MemorySubroutine | None = attrs.field(default=None)
     _use_frame: bool = attrs.field(default=False)
     _vla: VariableLifetimeAnalysis | None = attrs.field(default=None)
@@ -78,10 +73,6 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
     @property
     def _l_stack(self) -> list[str]:
         return self.state.l_stack
-
-    @property
-    def num_slots(self) -> int:
-        return len(self.state.slots)
 
     @property
     def vla(self) -> VariableLifetimeAnalysis:
@@ -142,16 +133,6 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         """Return n value for a (un)cover operation with the l stack"""
         return self.l_stack_height - 1
 
-    def _slot_lookup(self, local_id: str) -> int:
-        # TODO: assign slots based on liveness
-        assert self._current_subroutine
-        global_id = f"{self._current_subroutine.signature.name}.{local_id}"
-        try:
-            slot = self.state.slots[global_id]
-        except KeyError:
-            self.state.slots[global_id] = slot = next(self.state.slot_counter)
-        return slot
-
     def visit_push_int(self, push: ops.PushInt) -> list[teal.TealOp]:
         self._l_stack.append(str(push.value))
         return [teal.PushInt(push.value)]
@@ -164,18 +145,30 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         self._l_stack.append(addr.value)
         return [teal.PushAddress(addr.value)]
 
+    def visit_push_method(self, method: ops.PushMethod) -> list[teal.TealOp]:
+        self._l_stack.append(f'method<"{method.value}">')
+        return [teal.PushMethod(method.value)]
+
     def visit_comment(self, _comment: ops.Comment) -> list[teal.TealOp]:
         return []
 
-    def visit_store_scratch(self, store: ops.StoreScratch) -> list[teal.TealOp]:
+    def visit_store_virtual(self, store: ops.StoreVirtual) -> list[teal.TealOp]:
+        if not self.allow_virtual:
+            raise InternalError(
+                "StoreVirtual op encountered during TEAL generation", store.source_location
+            )
         if not self._l_stack:
-            self._stack_error(f"l-stack too small to store scratch {store.local_id}")
+            self._stack_error(f"l-stack too small to store {store.local_id}")
         self._l_stack.pop()
-        return [teal.Store(n=self._slot_lookup(store.local_id))]
+        return []
 
-    def visit_load_scratch(self, load: ops.LoadScratch) -> list[teal.TealOp]:
+    def visit_load_virtual(self, load: ops.LoadVirtual) -> list[teal.TealOp]:
+        if not self.allow_virtual:
+            raise InternalError(
+                "LoadVirtual op encountered during TEAL generation", load.source_location
+            )
         self._l_stack.append(load.local_id)
-        return [teal.Load(n=self._slot_lookup(load.local_id))]
+        return []
 
     def _store_f_stack(self, value: str) -> teal.Cover | teal.FrameBury | teal.Bury:
         """Updates the stack, and if insert returns the cover value, else the bury value"""
@@ -343,20 +336,7 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             self._l_stack.pop()
         self._l_stack.extend(produces)
 
-        if not callsub.save_restore_scratch or not self.save_restore_scratch:
-            # no need for reentrancy handling, emit op and return
-            return [teal.CallSub(target=callsub.target)]
-
-        save_restore = {
-            save_local_id: self._slot_lookup(save_local_id)
-            for save_local_id in self.vla.get_live_out_variables(callsub)
-        }
-        teal_ops = [
-            *get_scratch_saves(callsub, save_restore),
-            teal.CallSub(target=callsub.target),
-            *get_scratch_restores(callsub, save_restore),
-        ]
-        return teal_ops
+        return [teal.CallSub(target=callsub.target)]
 
     def visit_retsub(self, retsub: ops.RetSub) -> list[teal.TealOp]:
         if self.l_stack_height != retsub.returns:
@@ -410,9 +390,19 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             )
         ]
 
+    @contextlib.contextmanager
+    def _enter_virtual_stack(self) -> Iterator[None]:
+        original_allow_virtual = self.allow_virtual
+        try:
+            self.allow_virtual = True
+            yield
+        finally:
+            self.allow_virtual = original_allow_virtual
+
     def visit_virtual_stack(self, virtual: ops.VirtualStackOp) -> list[teal.TealOp]:
-        for original in virtual.original:
-            original.accept(self)
+        with self._enter_virtual_stack():
+            for original in virtual.original:
+                original.accept(self)
         return [*(virtual.replacement or ())]
 
     def clone(self) -> "Stack":
@@ -423,22 +413,3 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
 
     def __str__(self) -> str:
         return self.full_stack_desc
-
-
-def get_scratch_saves(callsub: ops.CallSub, save_restore: dict[str, int]) -> Iterable[teal.TealOp]:
-    for _save_local_id, save_slot_id in save_restore.items():
-        yield teal.Load(save_slot_id)
-        if callsub.parameters:
-            yield teal.Cover(callsub.parameters)
-        # teal += f" // save {save_local_id}"
-
-
-def get_scratch_restores(
-    callsub: ops.CallSub, save_restore: dict[str, int]
-) -> Iterable[teal.TealOp]:
-    # emit teal to restore scratch from stack
-    for _restore_local_id, restore_slot_id in reversed(save_restore.items()):
-        if callsub.returns:
-            yield teal.Uncover(callsub.returns)
-        yield teal.Store(restore_slot_id)
-        #    teal += f" // restore {restore_local_id}"

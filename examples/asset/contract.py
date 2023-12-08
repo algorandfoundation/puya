@@ -1,5 +1,5 @@
 from algopy import (
-    Asset,
+    Bytes,
     Contract,
     CreateInnerTransaction,
     Global,
@@ -7,7 +7,10 @@ from algopy import (
     TransactionType,
     UInt64,
     subroutine,
+    log,
+    bzero,
 )
+from algopy._reference import Asset
 
 
 class Reference(Contract):
@@ -49,3 +52,15 @@ class Reference(Contract):
     @subroutine
     def is_opted_asset(self, asset: Asset) -> None:
         assert self.asa == asset, "asset self.asa == asset"
+        assert asset.total == 10000000, "total"
+        assert asset.decimals == 0, "decimals"
+        assert not asset.default_frozen, "default frozen"
+        assert asset.unit_name == b"a", "unit_name"
+        assert asset.name == b"asset a", "name"
+        assert asset.url == b"", "URL"
+        assert asset.metadata_hash == bzero(32), "hash"
+        assert asset.manager == Global.zero_address(), "manager"
+        assert asset.reserve == Global.zero_address(), "reserve"
+        assert asset.freeze == Global.zero_address(), "freeze"
+        assert asset.clawback == Global.zero_address(), "clawback"
+        assert asset.creator == Global.creator_address(), "creator"

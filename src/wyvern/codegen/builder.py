@@ -30,7 +30,6 @@ class MemoryIrBuilder(IRVisitor[None]):
     current_subroutine: models.Subroutine
     is_main: bool
     current_ops: list[ops.BaseOp] = attrs.field(factory=list)
-    scratch_allocations: dict[str, int] = attrs.field(factory=dict)
     active_op: models.Op | models.ControlOp | None = None
     next_block: models.BasicBlock | None = None
 
@@ -59,7 +58,7 @@ class MemoryIrBuilder(IRVisitor[None]):
                 param_idx = self.current_subroutine.parameters.index(target)
             except ValueError:
                 self._add_op(
-                    ops.StoreScratch(
+                    ops.StoreVirtual(
                         local_id=target.local_id,
                         source_location=target.source_location,
                         atype=target.atype,
@@ -81,7 +80,7 @@ class MemoryIrBuilder(IRVisitor[None]):
             param_idx = self.current_subroutine.parameters.index(reg)
         except ValueError:
             self._add_op(
-                ops.LoadScratch(
+                ops.LoadVirtual(
                     local_id=reg.local_id,
                     source_location=reg.source_location,
                     atype=reg.atype,
@@ -137,6 +136,14 @@ class MemoryIrBuilder(IRVisitor[None]):
             )
         )
 
+    def visit_method_constant(self, const: models.MethodConstant) -> None:
+        self._add_op(
+            ops.PushMethod(
+                const.value,
+                source_location=const.source_location,
+            )
+        )
+
     def visit_phi(self, phi: models.Phi) -> None:
         raise NotImplementedError
 
@@ -153,6 +160,7 @@ class MemoryIrBuilder(IRVisitor[None]):
                 source_location=intrinsic.source_location,
                 consumes=len(intrinsic.op_signature.args),
                 produces=len(intrinsic.op_signature.returns),
+                comment=intrinsic.comment,
             )
         )
 
@@ -160,18 +168,10 @@ class MemoryIrBuilder(IRVisitor[None]):
         discard_results = callsub is self.active_op
         target = callsub.target
 
-        # determine if scratch vars need to be saved.
-        # this amounts to checking if there is a path in the call-graph
-        # that returns from the target to the current subroutine
-        save_restore_scratch = self.context.call_graph.has_path(
-            from_=target, to=self.current_subroutine
-        )
-
         callsub_op = ops.CallSub(
             target=self._get_subroutine_entry_block_name(target),
             parameters=len(target.parameters),
             returns=len(target.returns),
-            save_restore_scratch=save_restore_scratch,
             source_location=callsub.source_location,
         )
 
@@ -433,11 +433,7 @@ def compile_program_to_teal(
 
 def compile_ir_to_teal(context: CompileContext, ir: models.Contract) -> CompiledContract:
     return CompiledContract(
-        name=ir.full_name,
         approval_program=compile_program_to_teal(context, ir, ir.approval_program),
         clear_program=compile_program_to_teal(context, ir, ir.clear_program),
-        description=ir.description,
-        name_override=ir.name_override,
-        global_state=list(ir.global_state),
-        local_state=list(ir.local_state),
+        metadata=ir.metadata,
     )

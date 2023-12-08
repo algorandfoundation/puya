@@ -1,7 +1,7 @@
 import typing as t
 from collections.abc import Iterable, Sized
 
-from algopy._primitives import UInt64
+from algopy import UInt64
 
 # words = ["help", "me"]
 # AVM:

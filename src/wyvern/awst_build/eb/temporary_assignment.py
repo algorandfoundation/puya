@@ -1,13 +1,12 @@
 from wyvern.awst.nodes import (
-    AssignmentExpression,
     Expression,
     Literal,
     Lvalue,
     Statement,
-    TemporaryVariable,
 )
 from wyvern.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder
 from wyvern.awst_build.eb.var_factory import var_expression
+from wyvern.awst_build.utils import create_temporary_assignment
 from wyvern.errors import InternalError
 from wyvern.parse import SourceLocation
 
@@ -15,12 +14,9 @@ from wyvern.parse import SourceLocation
 class TemporaryAssignmentExpressionBuilder(ExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(expr.source_location)
-        self.target = TemporaryVariable(expr)
-        self.assignment = AssignmentExpression(
-            source_location=expr.source_location,
-            value=expr,
-            target=self.target,
-        )
+        assign_expr = create_temporary_assignment(expr)
+        self.target = assign_expr.read
+        self.assignment = assign_expr.define
         self.is_first_access = True
 
     def lvalue(self) -> Lvalue:

@@ -6,10 +6,6 @@ class FunctionTraverser(
     wyvern.awst.visitors.ExpressionVisitor[None],
     wyvern.awst.visitors.StatementVisitor[None],
 ):
-    def visit_is_substring(self, expr: awst_nodes.IsSubstring) -> None:
-        expr.item.accept(self)
-        expr.sequence.accept(self)
-
     def visit_assignment_statement(self, statement: awst_nodes.AssignmentStatement) -> None:
         statement.target.accept(self)
         statement.value.accept(self)
@@ -26,10 +22,10 @@ class FunctionTraverser(
         expr.left.accept(self)
         expr.right.accept(self)
 
-    def visit_uint64_constant(self, expr: awst_nodes.UInt64Constant) -> None:
+    def visit_integer_constant(self, expr: awst_nodes.IntegerConstant) -> None:
         pass
 
-    def visit_biguint_constant(self, expr: awst_nodes.BigUIntConstant) -> None:
+    def visit_decimal_constant(self, expr: awst_nodes.DecimalConstant) -> None:
         pass
 
     def visit_bool_constant(self, expr: awst_nodes.BoolConstant) -> None:
@@ -38,18 +34,18 @@ class FunctionTraverser(
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> None:
         pass
 
-    def visit_abi_decode(self, expr: awst_nodes.AbiDecode) -> None:
+    def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> None:
         expr.value.accept(self)
 
-    def visit_abi_encode(self, expr: awst_nodes.AbiEncode) -> None:
+    def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> None:
         expr.value.accept(self)
 
-    def visit_abi_constant(self, expr: awst_nodes.AbiConstant) -> None:
+    def visit_arc4_array_encode(self, expr: awst_nodes.ARC4ArrayEncode) -> None:
+        for value in expr.values:
+            value.accept(self)
+
+    def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> None:
         pass
-
-    def visit_new_abi_array(self, expr: awst_nodes.NewAbiArray) -> None:
-        for element in expr.elements:
-            element.accept(self)
 
     def visit_address_constant(self, expr: awst_nodes.AddressConstant) -> None:
         pass
@@ -63,12 +59,12 @@ class FunctionTraverser(
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> None:
         pass
 
+    def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> None:
+        expr.expr.accept(self)
+
     def visit_intrinsic_call(self, call: awst_nodes.IntrinsicCall) -> None:
         for arg in call.stack_args:
             arg.accept(self)
-
-    def visit_bytes_decode(self, expr: awst_nodes.BytesDecode) -> None:
-        pass
 
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> None:
         for item in expr.items:
@@ -151,6 +147,14 @@ class FunctionTraverser(
         statement.if_branch.accept(self)
         if statement.else_branch:
             statement.else_branch.accept(self)
+
+    def visit_switch(self, statement: awst_nodes.Switch) -> None:
+        statement.value.accept(self)
+        for case, block in statement.cases.items():
+            case.accept(self)
+            block.accept(self)
+        if statement.default_case:
+            statement.default_case.accept(self)
 
     def visit_while_loop(self, statement: awst_nodes.WhileLoop) -> None:
         statement.condition.accept(self)

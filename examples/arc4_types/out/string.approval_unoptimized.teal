@@ -1,0 +1,54 @@
+#pragma version 8
+
+// examples.arc4_types.string.Arc4StringTypesContract.approval_program() -> uint64:
+main_block@0:
+        byte "Hello World!"
+        dup
+        swap
+        dup
+        len
+        itob
+        extract 6 2
+        dig 1
+        concat
+        dup
+        cover 2
+        dup
+        extract 2 0
+        cover 2
+        dup
+        cover 2
+        !=
+        assert // Original bytes should not match encoded bytes
+        len
+        dup
+        swap
+        int 2
+        >
+        bz main_ternary_false@2
+
+main_ternary_true@1:
+        int 2
+        b main_ternary_merge@3
+
+main_ternary_false@2:
+        dup
+
+main_ternary_merge@3:
+        dig 3
+        dup
+        len
+        swap
+        cover 2
+        substring3
+        dig 4
+        dup
+        cover 2
+        ==
+        assert // Original bytes should match encoded if we strip the length header
+        dig 2
+        ==
+        assert
+        int 1
+        return
+

@@ -9,7 +9,6 @@ from wyvern.codegen import ops, visitor
 from wyvern.codegen.context import ProgramCodeGenContext
 from wyvern.codegen.source_meta_retriever import SourceMetaRetriever
 from wyvern.codegen.stack import Stack
-from wyvern.codegen.stack_koopmans import find_usage_pairs
 from wyvern.codegen.vla import VariableLifetimeAnalysis
 from wyvern.errors import InternalError
 
@@ -127,7 +126,7 @@ class EmitProgramContext(ProgramCodeGenContext):
 
     @stack.default
     def _stack_factory(self) -> Stack:
-        return Stack(save_restore_scratch=True)
+        return Stack(allow_virtual=False)
 
 
 @attrs.frozen(kw_only=True)
@@ -187,37 +186,6 @@ class StackAnnotation(TealAnnotater):
         return Annotater()
 
 
-class ScratchAnnotation(TealAnnotater):
-    def header(self, writer: AlignedWriter) -> None:
-        writer.add_header("Scr", 0)
-        writer.add_header("atch")  # hmmmm
-        writer.add_header("")
-
-    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
-        def annotater(writer: AlignedWriter, op: ops.BaseOp) -> None:
-            before = after = scratch = ""
-            match op:
-                case ops.StoreScratch(local_id=local_id) | ops.LoadScratch(local_id=local_id):
-                    is_live = local_id in context.vla.get_live_out_variables(op)
-
-                    local_id_desc = local_id if is_live else f"{local_id} (DEAD)"
-
-                    if isinstance(op, ops.StoreScratch):
-                        if is_live:
-                            after = "->"
-                        op_code = "store"
-                    else:
-                        before = "<- "
-                        op_code = "load"
-                    scratch = f"{op_code} {local_id_desc}"
-
-            writer.append(before)
-            writer.append(scratch)
-            writer.append(after)
-
-        return SimpleOpAnnotater(annotater)
-
-
 class VLAAnnotation(TealAnnotater):
     def header(self, writer: AlignedWriter) -> None:
         writer.add_header("Live (out)", 4)
@@ -257,29 +225,6 @@ class SourceAnnotation(TealAnnotater):
         return SimpleOpAnnotater(annotater)
 
 
-class ScratchPairsAnnotation(TealAnnotater):
-    def header(self, writer: AlignedWriter) -> None:
-        writer.add_header("Pairs")
-
-    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
-        pair_labels = dict[ops.BaseOp, dict[int, str]]()
-
-        for block in context.subroutine.body:
-            usage_pairs = find_usage_pairs(block)
-            for pair_num, pair in enumerate(usage_pairs):
-                pair_labels.setdefault(pair.a, {})[pair_num] = f"ꜜ{pair_num + 1}a"
-                pair_labels.setdefault(pair.b, {})[pair_num] = f"ꜛ{pair_num + 1}b"
-
-        def annotater(writer: "AlignedWriter", op: ops.BaseOp) -> None:
-            labels = pair_labels.get(op, {})
-            max_pair = max((-1, *labels))
-
-            pairs_desc = "-".join(labels.get(p, "---") for p in range(max_pair + 1))
-            writer.append(pairs_desc)
-
-        return SimpleOpAnnotater(annotater)
-
-
 class XStack(TealAnnotater):
     def header(self, writer: AlignedWriter) -> None:
         writer.add_header("X stack")
@@ -310,9 +255,7 @@ class XStack(TealAnnotater):
 debug_annotations = [
     OpDescriptionAnnotation(),
     StackAnnotation(),
-    ScratchAnnotation(),
     VLAAnnotation(),
     XStack(),
-    # ScratchPairsAnnotation(), # only useful if usage pairs are not being replaced
     SourceAnnotation(),
 ]

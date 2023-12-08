@@ -1,4 +1,4 @@
-from collections.abc import Iterator
+from collections.abc import Iterator, Set
 from typing import Iterable, Sequence
 
 import attrs
@@ -91,46 +91,36 @@ def remove_unreachable_blocks(_context: CompileContext, subroutine: models.Subro
                 block.predecessors = [b for b in block.predecessors if b in reachable_set]
                 logger.debug(f"Removed unreachable predecessors from {block}")
 
-    unreachable_registers = collect_assignment_registers(unreachable_blocks)
-    if unreachable_registers:
-        logger.debug(
-            f"Found {', '.join(map(str, unreachable_registers))} to remove from Phi nodes"
-        )
-        PhiRegisterRemover.apply(unreachable_registers, reachable_blocks)
+    UnreachablePhiArgsRemover.apply(unreachable_blocks, reachable_blocks)
     subroutine.body = reachable_blocks
     return True
 
 
-def collect_assignment_registers(blocks: Sequence[models.BasicBlock]) -> list[models.Register]:
-    registers = list[models.Register]()
-    for block in blocks:
-        registers.extend(block.get_assigned_registers())
-    return registers
-
-
 @attrs.define
-class PhiRegisterRemover(visitor.IRTraverser):
-    _registers_to_remove: frozenset[models.Register]
+class UnreachablePhiArgsRemover(visitor.IRTraverser):
+    _unreachable_blocks: Set[models.BasicBlock]
     _reachable_blocks: Sequence[models.BasicBlock]
 
     @classmethod
     def apply(
         cls,
-        registers_to_remove: Sequence[models.Register],
+        unreachable_blocks: Sequence[models.BasicBlock],
         reachable_blocks: Sequence[models.BasicBlock],
     ) -> None:
-        collector = cls(frozenset(registers_to_remove), reachable_blocks)
+        collector = cls(frozenset(unreachable_blocks), reachable_blocks)
         collector.visit_all_blocks(reachable_blocks)
 
     def visit_phi(self, phi: models.Phi) -> None:
-        phi.args = [a for a in phi.args if a.value not in self._registers_to_remove]
+        args_to_remove = [a for a in phi.args if a.through in self._unreachable_blocks]
+        if not args_to_remove:
+            return
+        logger.debug(
+            "Removing unreachable phi arguments: " + ", ".join(sorted(map(str, args_to_remove)))
+        )
+        phi.args = [a for a in phi.args if a not in args_to_remove]
         if not phi.non_self_args:
-            raise InternalError(f"undefined phi created when removing {self._registers_to_remove}")
-        TrivialPhiRemover.try_remove(phi, self._reachable_blocks)
-
-    def visit_register(self, reg: models.Register) -> None:
-        if reg in self._registers_to_remove:
             raise InternalError(
-                f"Tried to remove register outside a phi node: {reg} in {self.active_block}",
-                reg.source_location,
+                f"undefined phi created when removing args through "
+                f"{', '.join(map(str, self._unreachable_blocks))}"
             )
+        TrivialPhiRemover.try_remove(phi, self._reachable_blocks)

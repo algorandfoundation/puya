@@ -12,10 +12,11 @@ In top-down order:
 - wyvern/
   - compile.py
   - codegen/ 
-  - irbuild/
   - ir/
+  - awst/
+  - metadata.py
   - parse.py
-  - errors.py
+  - errors.py 
 - algopy/
 
 Nothing should ever import from something higher in the list.

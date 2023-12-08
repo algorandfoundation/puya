@@ -2,6 +2,7 @@
 import enum
 from collections.abc import Sequence
 
+from wyvern.errors import InternalError
 from wyvern.ir.avm_ops_models import (
     AVMOpData,
     DynamicSignatures,
@@ -36,7 +37,10 @@ class AVMOp(enum.StrEnum):
             return self._signature
         im = immediates[self._signature.immediate_index]
         assert isinstance(im, str)
-        return self._signature.signatures[im]
+        try:
+            return self._signature.signatures[im]
+        except KeyError as ex:
+            raise InternalError(f"Unknown immediate for {self.code}: {im}") from ex
 
     acct_params_get = AVMOpData(
         op_code="acct_params_get",

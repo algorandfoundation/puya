@@ -1,0 +1,971 @@
+#pragma version 8
+
+// examples.voting.voting.VotingRoundApp.approval_program() -> uint64:
+main_block@0:
+        txn ApplicationID
+        bnz main_entrypoint@2
+
+main_on_create@1:
+        callsub __init__
+
+main_entrypoint@2:
+        txn NumAppArgs
+        bz main_after_if_else@11
+
+main_abi_routing@3:
+        txna ApplicationArgs 0
+        method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
+        method "bootstrap(pay)void"
+        method "close()void"
+        method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)"
+        method "vote(pay,byte[],uint8[])void"
+        uncover 5
+        match main_create_route@4 main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8
+        b main_switch_case_default@9
+
+main_create_route@4:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        !
+        assert // is creating
+        txna ApplicationArgs 1
+        txna ApplicationArgs 2
+        txna ApplicationArgs 3
+        txna ApplicationArgs 4
+        txna ApplicationArgs 5
+        txna ApplicationArgs 6
+        txna ApplicationArgs 7
+        txna ApplicationArgs 8
+        callsub create
+        int 1
+        return
+
+main_bootstrap_route@5:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txn GroupIndex
+        int 1
+        -
+        dup
+        gtxns TypeEnum
+        int pay
+        ==
+        assert // transaction type is pay
+        callsub bootstrap
+        int 1
+        return
+
+main_close_route@6:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        callsub close
+        int 1
+        return
+
+main_get_preconditions_route@7:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txna ApplicationArgs 1
+        callsub get_preconditions
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_vote_route@8:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txn GroupIndex
+        int 1
+        -
+        dup
+        gtxns TypeEnum
+        int pay
+        ==
+        assert // transaction type is pay
+        txna ApplicationArgs 1
+        txna ApplicationArgs 2
+        callsub vote
+        int 1
+        return
+
+main_switch_case_default@9:
+
+main_switch_case_next@10:
+
+main_after_if_else@11:
+        err // reject transaction
+
+
+// examples.voting.voting.VotingRoundApp.create(vote_id#0: bytes, snapshot_public_key#0: bytes, metadata_ipfs_cid#0: bytes, start_time#0: bytes, end_time#0: bytes, option_counts#0: bytes, quorum#0: bytes, nft_image_url#0: bytes) -> void:
+create:
+        proto 8 0
+
+create_block@0:
+        frame_dig -5
+        btoi
+        dup
+        swap
+        frame_dig -4
+        btoi
+        dup
+        cover 2
+        dup
+        cover 2
+        <
+        assert // End time should be after start time
+        global LatestTimestamp
+        >=
+        assert // End time should be in the future
+        frame_dig -8
+        extract 2 0
+        byte "vote_id"
+        swap
+        app_global_put
+        frame_dig -7
+        len
+        dup
+        swap
+        int 2
+        >
+        bz create_ternary_false@2
+
+create_ternary_true@1:
+        int 2
+        b create_ternary_merge@3
+
+create_ternary_false@2:
+        frame_dig 2
+
+create_ternary_merge@3:
+        frame_dig -7
+        len
+        frame_dig -7
+        cover 2
+        substring3
+        byte "snapshot_public_key"
+        swap
+        app_global_put
+        frame_dig -6
+        extract 2 0
+        byte "metadata_ipfs_cid"
+        swap
+        app_global_put
+        byte "start_time"
+        frame_dig 0
+        app_global_put
+        byte "end_time"
+        frame_dig 1
+        app_global_put
+        frame_dig -2
+        btoi
+        byte "quorum"
+        swap
+        app_global_put
+        frame_dig -1
+        extract 2 0
+        byte "nft_image_url"
+        swap
+        app_global_put
+        frame_dig -3
+        callsub store_option_counts
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.store_option_counts(option_counts#0: bytes) -> void:
+store_option_counts:
+        proto 1 0
+
+store_option_counts_block@0:
+        frame_dig -1
+        int 0
+        extract_uint16
+        assert // option_counts should be non-empty
+        frame_dig -1
+        int 0
+        extract_uint16
+        int 112
+        <=
+        assert // Can't have more than 112 questions
+        byte "option_counts"
+        frame_dig -1
+        app_global_put
+        frame_dig -1
+        callsub calculate_total_options_count
+        dup
+        int 128
+        <=
+        assert // Can't have more than 128 vote options
+        byte "total_options"
+        swap
+        app_global_put
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.calculate_total_options_count(option_counts#0: bytes) -> uint64:
+calculate_total_options_count:
+        proto 1 1
+
+calculate_total_options_count_block@0:
+        int 0
+        frame_dig -1
+        int 0
+        extract_uint16
+        frame_dig -1
+        extract 2 0
+        int 0
+
+calculate_total_options_count_for_header@1:
+        frame_dig 3
+        frame_dig 1
+        <
+        bz calculate_total_options_count_after_for@4
+
+calculate_total_options_count_for_body@2:
+        frame_dig 3
+        int 1
+        *
+        frame_dig 2
+        swap
+        int 1
+        extract3
+        btoi
+        frame_dig 0
+        +
+        frame_bury 0
+
+calculate_total_options_count_for_footer@3:
+        frame_dig 3
+        int 1
+        +
+        frame_bury 3
+        b calculate_total_options_count_for_header@1
+
+calculate_total_options_count_after_for@4:
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req#0: uint64) -> void:
+bootstrap:
+        proto 1 0
+
+bootstrap_block@0:
+        int 0
+        byte "is_bootstrapped"
+        app_global_get_ex
+        assert // check value exists
+        !
+        assert // Must not be already bootstrapped
+        byte "is_bootstrapped"
+        int 1
+        app_global_put
+        int 8
+        int 0
+        byte "total_options"
+        app_global_get_ex
+        assert // check value exists
+        int 400
+        *
+        *
+        int 2900
+        +
+        int 201000
+        +
+        frame_dig -1
+        gtxns Receiver
+        global CurrentApplicationAddress
+        ==
+        assert // Payment must be to app address
+        dup
+        itob
+        log
+        frame_dig -1
+        gtxns Amount
+        ==
+        assert // Payment must be for the exact min balance requirement
+        int 0
+        byte "total_options"
+        app_global_get_ex
+        assert // check value exists
+        int 8
+        *
+        byte "V"
+        swap
+        box_create
+        assert
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.close() -> void:
+close:
+        proto 0 0
+        byte ""
+        dupn 4
+
+close_block@0:
+        int 20000
+        int 0
+        callsub ensure_budget
+        int 0
+        byte "close_time"
+        app_global_get_ex
+        assert // check value exists
+        int 0
+        ==
+        assert // Already closed
+        global LatestTimestamp
+        byte "close_time"
+        swap
+        app_global_put
+        int 0
+        byte "vote_id"
+        app_global_get_ex
+        assert // check value exists
+        byte "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
+        swap
+        concat
+        byte ".\",\"properties\":{\"metadata\":\"ipfs://"
+        concat
+        int 0
+        byte "metadata_ipfs_cid"
+        app_global_get_ex
+        assert // check value exists
+        concat
+        byte "\",\"id\":\""
+        concat
+        int 0
+        byte "vote_id"
+        app_global_get_ex
+        assert // check value exists
+        concat
+        byte "\",\"quorum\":"
+        concat
+        int 0
+        byte "quorum"
+        app_global_get_ex
+        assert // check value exists
+        itob
+        concat
+        byte ",\"voterCount\":"
+        concat
+        int 0
+        byte "voter_count"
+        app_global_get_ex
+        assert // check value exists
+        itob
+        concat
+        byte ",\"tallies\":["
+        concat
+        int 0
+        int 0
+        byte "option_counts"
+        app_global_get_ex
+        assert // check value exists
+        int 0
+        extract_uint16
+        int 0
+
+close_for_header@1:
+        frame_dig 8
+        frame_dig 7
+        <
+        bz close_after_for@17
+
+close_for_body@2:
+        frame_dig 8
+        dup
+        frame_bury 1
+        int 0
+        byte "option_counts"
+        app_global_get_ex
+        assert // check value exists
+        dup
+        int 0
+        extract_uint16
+        dig 2
+        >
+        assert // Index access is out of bounds
+        extract 2 0
+        swap
+        int 1
+        *
+        int 1
+        extract3
+        btoi
+        frame_bury 2
+        int 0
+        frame_bury 3
+
+close_for_header@3:
+        frame_dig 3
+        frame_dig 2
+        <
+        bz close_after_for@15
+
+close_for_body@4:
+        frame_dig 3
+        dup
+        frame_bury 0
+        frame_dig 6
+        callsub get_vote_from_box
+        frame_bury 4
+        int 0
+        ==
+        bz close_ternary_false@6
+
+close_ternary_true@5:
+        byte "["
+        b close_ternary_merge@13
+
+close_ternary_false@6:
+        frame_dig 2
+        int 1
+        -
+        frame_dig 0
+        ==
+        bz close_ternary_false@8
+
+close_ternary_true@7:
+        frame_dig 4
+        itob
+        byte ""
+        swap
+        concat
+        byte "]"
+        concat
+        b close_ternary_merge@12
+
+close_ternary_false@8:
+        int 0
+        byte "option_counts"
+        app_global_get_ex
+        assert // check value exists
+        int 0
+        extract_uint16
+        int 1
+        -
+        frame_dig 1
+        ==
+        bz close_ternary_false@10
+
+close_ternary_true@9:
+        byte ","
+        b close_ternary_merge@11
+
+close_ternary_false@10:
+        byte ""
+
+close_ternary_merge@11:
+
+close_ternary_merge@12:
+
+close_ternary_merge@13:
+        frame_dig 5
+        swap
+        concat
+        frame_bury 5
+        frame_dig 6
+        int 1
+        +
+        frame_bury 6
+
+close_for_footer@14:
+        frame_dig 3
+        int 1
+        +
+        frame_bury 3
+        b close_for_header@3
+
+close_after_for@15:
+
+close_for_footer@16:
+        frame_dig 8
+        int 1
+        +
+        frame_bury 8
+        b close_for_header@1
+
+close_after_for@17:
+        frame_dig 5
+        byte "]}}"
+        concat
+        itxn_begin
+        int acfg
+        itxn_field TypeEnum
+        int 1
+        itxn_field ConfigAssetTotal
+        int 0
+        itxn_field ConfigAssetDecimals
+        int 0
+        itxn_field ConfigAssetDefaultFrozen
+        int 0
+        byte "vote_id"
+        app_global_get_ex
+        assert // check value exists
+        byte "[VOTE RESULT] "
+        swap
+        concat
+        itxn_field ConfigAssetName
+        byte "VOTERSLT"
+        itxn_field ConfigAssetUnitName
+        int 0
+        byte "nft_image_url"
+        app_global_get_ex
+        assert // check value exists
+        itxn_field ConfigAssetURL
+        itxn_field Note
+        itxn_submit
+        itxn CreatedAssetID
+        byte "nft_asset_id"
+        swap
+        app_global_put
+        retsub
+
+
+// algopy.ensure_budget(required_budget#0: uint64, fee_source#0: uint64) -> void:
+ensure_budget:
+        proto 2 0
+
+ensure_budget_block@0:
+        frame_dig -2
+        int 10
+        +
+
+ensure_budget_while_top@1:
+        global OpcodeBudget
+        frame_dig 0
+        <
+        bz ensure_budget_after_while@7
+
+ensure_budget_while_body@2:
+        itxn_begin
+        int appl
+        itxn_field TypeEnum
+        int DeleteApplication
+        itxn_field OnCompletion
+        byte 0x068101
+        itxn_field ApprovalProgram
+        byte 0x068101
+        itxn_field ClearStateProgram
+        int 0
+        int 1
+        frame_dig -1
+        match ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
+        b ensure_budget_switch_case_default@5
+
+ensure_budget_switch_case_0@3:
+        int 0
+        itxn_field Fee
+        b ensure_budget_switch_case_next@6
+
+ensure_budget_switch_case_1@4:
+        global MinTxnFee
+        itxn_field Fee
+        b ensure_budget_switch_case_next@6
+
+ensure_budget_switch_case_default@5:
+
+ensure_budget_switch_case_next@6:
+        itxn_submit
+        b ensure_budget_while_top@1
+
+ensure_budget_after_while@7:
+        retsub
+
+
+// examples.voting.voting.get_vote_from_box(index#0: uint64) -> uint64:
+get_vote_from_box:
+        proto 1 1
+
+get_vote_from_box_block@0:
+        byte "V"
+        box_get
+        assert // Box not created
+        frame_dig -1
+        int 8
+        extract3
+        btoi
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.get_preconditions(signature#0: bytes) -> bytes:
+get_preconditions:
+        proto 1 1
+
+get_preconditions_block@0:
+        callsub voting_open
+        itob
+        frame_dig -1
+        len
+        dup
+        swap
+        int 2
+        >
+        bz get_preconditions_ternary_false@2
+
+get_preconditions_ternary_true@1:
+        int 2
+        b get_preconditions_ternary_merge@3
+
+get_preconditions_ternary_false@2:
+        frame_dig 1
+
+get_preconditions_ternary_merge@3:
+        frame_dig -1
+        len
+        frame_dig -1
+        cover 2
+        substring3
+        callsub allowed_to_vote
+        itob
+        callsub already_voted
+        itob
+        global LatestTimestamp
+        itob
+        int 32
+        pop
+        byte 0x
+        frame_dig 0
+        concat
+        uncover 3
+        concat
+        uncover 2
+        concat
+        swap
+        concat
+        frame_bury 0
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.voting_open() -> uint64:
+voting_open:
+        proto 0 1
+        byte ""
+
+voting_open_block@0:
+        int 0
+        byte "is_bootstrapped"
+        app_global_get_ex
+        assert // check value exists
+        bz voting_open_bool_false@5
+
+voting_open_and_contd@1:
+        int 0
+        byte "close_time"
+        app_global_get_ex
+        assert // check value exists
+        bnz voting_open_bool_false@5
+
+voting_open_and_contd@2:
+        int 0
+        byte "start_time"
+        app_global_get_ex
+        assert // check value exists
+        global LatestTimestamp
+        dup
+        frame_bury 0
+        <=
+        bz voting_open_bool_false@5
+
+voting_open_and_contd@3:
+        int 0
+        byte "end_time"
+        app_global_get_ex
+        assert // check value exists
+        frame_dig 0
+        >=
+        bz voting_open_bool_false@5
+
+voting_open_bool_true@4:
+        int 1
+        b voting_open_bool_merge@6
+
+voting_open_bool_false@5:
+        int 0
+
+voting_open_bool_merge@6:
+        swap
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0: bytes) -> uint64:
+allowed_to_vote:
+        proto 1 1
+
+allowed_to_vote_block@0:
+        int 2000
+        int 2
+        callsub ensure_budget
+        txn Sender
+        int 0
+        byte "snapshot_public_key"
+        app_global_get_ex
+        assert // check value exists
+        swap
+        frame_dig -1
+        uncover 2
+        ed25519verify_bare
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.already_voted() -> uint64:
+already_voted:
+        proto 0 1
+
+already_voted_block@0:
+        txn Sender
+        box_get
+        swap
+        pop
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req#0: uint64, signature#0: bytes, answer_ids#0: bytes) -> void:
+vote:
+        proto 3 0
+        byte ""
+        dupn 2
+
+vote_block@0:
+        int 7700
+        int 0
+        callsub ensure_budget
+        frame_dig -2
+        len
+        dup
+        swap
+        int 2
+        >
+        bz vote_ternary_false@2
+
+vote_ternary_true@1:
+        int 2
+        b vote_ternary_merge@3
+
+vote_ternary_false@2:
+        frame_dig 3
+
+vote_ternary_merge@3:
+        frame_dig -2
+        len
+        frame_dig -2
+        cover 2
+        substring3
+        callsub allowed_to_vote
+        assert // Not allowed to vote
+        callsub voting_open
+        assert // Voting not open
+        callsub already_voted
+        !
+        assert // Already voted
+        int 0
+        byte "option_counts"
+        app_global_get_ex
+        assert // check value exists
+        int 0
+        extract_uint16
+        dup
+        frame_bury 1
+        frame_dig -1
+        int 0
+        extract_uint16
+        ==
+        assert // Number of answers incorrect
+        frame_dig -1
+        int 0
+        extract_uint16
+        int 1
+        *
+        int 34
+        +
+        int 400
+        *
+        int 2500
+        +
+        frame_dig -3
+        gtxns Receiver
+        global CurrentApplicationAddress
+        ==
+        assert // Payment must be to app address
+        dup
+        itob
+        log
+        frame_dig -3
+        gtxns Amount
+        ==
+        assert // Payment must be the exact min balance
+        int 0
+        frame_bury 0
+        int 0
+        frame_bury 2
+
+vote_for_header@4:
+        frame_dig 2
+        frame_dig 1
+        <
+        bz vote_after_for@7
+
+vote_for_body@5:
+        frame_dig 2
+        frame_dig -1
+        int 0
+        extract_uint16
+        dig 1
+        >
+        assert // Index access is out of bounds
+        frame_dig -1
+        extract 2 0
+        dig 1
+        int 1
+        *
+        int 1
+        extract3
+        swap
+        int 0
+        byte "option_counts"
+        app_global_get_ex
+        assert // check value exists
+        dup
+        int 0
+        extract_uint16
+        dig 2
+        >
+        assert // Index access is out of bounds
+        extract 2 0
+        swap
+        int 1
+        *
+        int 1
+        extract3
+        dig 1
+        btoi
+        swap
+        dup
+        btoi
+        uncover 2
+        >
+        assert // Answer option index invalid
+        swap
+        btoi
+        frame_dig 0
+        dup
+        cover 2
+        +
+        callsub increment_vote_in_box
+        swap
+        btoi
+        +
+        frame_bury 0
+        txn Sender
+        frame_dig -1
+        box_put
+        int 0
+        byte "voter_count"
+        app_global_get_ex
+        assert // check value exists
+        int 1
+        +
+        byte "voter_count"
+        swap
+        app_global_put
+
+vote_for_footer@6:
+        frame_dig 2
+        int 1
+        +
+        frame_bury 2
+        b vote_for_header@4
+
+vote_after_for@7:
+        retsub
+
+
+// examples.voting.voting.increment_vote_in_box(index#0: uint64) -> void:
+increment_vote_in_box:
+        proto 1 0
+
+increment_vote_in_box_block@0:
+        byte "V"
+        box_get
+        assert // Box not created
+        frame_dig -1
+        int 8
+        extract3
+        btoi
+        int 1
+        +
+        itob
+        byte "V"
+        frame_dig -1
+        uncover 2
+        box_replace
+        retsub
+
+
+// examples.voting.voting.VotingRoundApp.__init__() -> void:
+__init__:
+        proto 0 0
+
+__init___block@0:
+        byte "is_bootstrapped"
+        int 0
+        app_global_put
+        byte "voter_count"
+        int 0
+        app_global_put
+        byte "close_time"
+        int 0
+        app_global_put
+        byte "nft_asset_id"
+        int 0
+        app_global_put
+        byte "snapshot_public_key"
+        byte ""
+        app_global_put
+        byte "vote_id"
+        byte ""
+        app_global_put
+        byte "metadata_ipfs_cid"
+        byte ""
+        app_global_put
+        byte "start_time"
+        int 0
+        app_global_put
+        byte "end_time"
+        int 0
+        app_global_put
+        byte "quorum"
+        int 0
+        app_global_put
+        byte "nft_image_url"
+        byte ""
+        app_global_put
+        byte "option_counts"
+        byte 0x0000
+        app_global_put
+        byte "total_options"
+        int 0
+        app_global_put
+        retsub
+

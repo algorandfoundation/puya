@@ -11,30 +11,35 @@ contract examples.string_ops.contract.MyContract:
         
         subroutine examples.string_ops.contract.is_in_str(a: bytes, b: bytes) -> uint64:
             block@0: // L20
-                let found%0#0: uint64 = 0u
-                let len_sequence%1#0: uint64 = (len b#0)
-                let len_item%2#0: uint64 = (len a#0)
-                let search_start%3#0: uint64 = 0u
-                let (found%0#6: uint64, search_start%3#6: uint64) = (found%0#0, search_start%3#0)
+                let tmp%0#0: uint64 = algopy.is_substring(a#0, b#0)
+                return tmp%0#0
+        
+        subroutine algopy.is_substring(item: bytes, sequence: bytes) -> uint64:
+            block@0: // L36
+                let start#0: uint64 = 0u
+                let start#5: uint64 = start#0
                 goto block@1
-            block@1: // substr_header_L21
-                let (found%0#3: uint64, search_start%3#1: uint64) = (found%0#6, search_start%3#6)
-                let search_end%4#0: uint64 = (+ search_start%3#1 len_item%2#0)
-                let cant_find%5#0: uint64 = (> search_end%4#0 len_sequence%1#0)
-                let found%0#9: uint64 = found%0#3
-                goto cant_find%5#0 ? block@4 : block@2
-            block@2: // substr_body_L21
-                let substr%6#0: bytes = (substring3 b#0 search_start%3#1 search_end%4#0)
-                let found%0#1: uint64 = (== substr%6#0 a#0)
-                let found%0#9: uint64 = found%0#1
-                goto found%0#1 ? block@4 : block@3
-            block@3: // substr_footer_L21
-                let search_start%3#3: uint64 = (+ search_start%3#1 1u)
-                let (found%0#6: uint64, search_start%3#6: uint64) = (found%0#1, search_start%3#3)
+            block@1: // while_top_L42
+                let start#1: uint64 = start#5
+                let tmp%0#0: uint64 = (len item#0)
+                let tmp%1#0: uint64 = (+ start#1 tmp%0#0)
+                let tmp%2#0: uint64 = (len sequence#0)
+                let tmp%3#0: uint64 = (<= tmp%1#0 tmp%2#0)
+                goto tmp%3#0 ? block@2 : block@5
+            block@2: // while_body_L42
+                let tmp%4#0: uint64 = (len item#0)
+                let tmp%5#0: uint64 = (+ start#1 tmp%4#0)
+                let tmp%6#0: bytes = (substring3 sequence#0 start#1 tmp%5#0)
+                let tmp%7#0: uint64 = (== item#0 tmp%6#0)
+                goto tmp%7#0 ? block@3 : block@4
+            block@3: // if_body_L43
+                return 1u
+            block@4: // after_if_else_L43
+                let start#2: uint64 = (+ start#1 1u)
+                let start#5: uint64 = start#2
                 goto block@1
-            block@4: // substr_after_L21
-                let found%0#2: uint64 = found%0#9
-                return found%0#2
+            block@5: // after_while_L42
+                return 0u
     
     program clear-state:
         subroutine examples.string_ops.contract.MyContract.clear_state_program() -> uint64:

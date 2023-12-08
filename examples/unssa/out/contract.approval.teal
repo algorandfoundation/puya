@@ -10,7 +10,7 @@ main_block@0:
         int 1
         callsub test_swap
         dup
-        cover 1
+        swap
         dup
         itob
         log
@@ -77,7 +77,7 @@ main_bool_merge@8:
         int 200
         int 0
         callsub test_tuple_swap
-        cover 1
+        swap
         int 100
         ==
         assert
@@ -88,7 +88,7 @@ main_bool_merge@8:
         int 200
         int 1
         callsub test_tuple_swap
-        cover 1
+        swap
         int 200
         ==
         assert
@@ -137,7 +137,7 @@ test_self_ref_phi_after_if_else@6:
 
 test_self_ref_phi_after_while@7:
         frame_dig 0
-        uncover 1
+        swap
         retsub
 
 
@@ -148,7 +148,7 @@ test_swap:
 test_swap_block@0:
         int 1
         int 2
-        cover 1
+        swap
 
 test_swap_while_top@1:
         frame_dig -1
@@ -162,12 +162,12 @@ test_swap_while_body@2:
         -
         frame_bury -1
         frame_dig 0
-        cover 1
+        swap
         frame_bury 0
         b test_swap_while_top@1
 
 test_swap_after_while@3:
-        uncover 1
+        swap
         retsub
 
 
@@ -261,7 +261,7 @@ test_param_update_with_reentrant_entry_block_v2_if_body@3:
         retsub
 
 
-// examples.unssa.contract.test_param_update_with_reentrant_entry_block_v3() -> :
+// examples.unssa.contract.test_param_update_with_reentrant_entry_block_v3() -> void:
 test_param_update_with_reentrant_entry_block_v3:
         proto 0 0
 
@@ -282,7 +282,7 @@ one_block@0:
         retsub
 
 
-// examples.unssa.contract.test_swap_args() -> :
+// examples.unssa.contract.test_swap_args() -> void:
 test_swap_args:
         proto 0 0
 
@@ -294,13 +294,13 @@ test_swap_args_block@0:
         int 234
         +
         callsub swap_args
-        cover 1
+        swap
         int 235
         ==
-        assert
+        assert // a == 235
         int 124
         ==
-        assert
+        assert // b = 124
         retsub
 
 
@@ -340,7 +340,7 @@ test_tuple_swap_for_body@2:
 
 test_tuple_swap_after_for@4:
         frame_dig -3
-        uncover 1
+        swap
         uncover 2
         retsub
 

@@ -1,0 +1,54 @@
+contract Reference
+{
+  globals {
+    ['int_1']: algopy.UInt64
+    ['bytes_1']: algopy.Bytes
+    ['bytes_2']: algopy.Bytes
+  }
+  locals {
+    ['int_l1']: algopy.UInt64
+    ['int_l2']: algopy.UInt64
+    ['int_l3']: algopy.UInt64
+    ['bytes_l1']: algopy.Bytes
+    ['bytes_l2']: algopy.Bytes
+    ['bytes_l3']: algopy.Bytes
+    ['bytes_l4']: algopy.Bytes
+  }
+  
+  constructor()
+  {
+    this.globals['int_1']: algopy.UInt64 = 0u
+    this.globals['bytes_1']: algopy.Bytes = ''
+    this.globals['bytes_2']: algopy.Bytes = ''
+  }
+  
+  approval_program(): bool
+  {
+    if (txn<NumAppArgs>() == 1u) {
+      if (txna<ApplicationArgs, 0>() == 'validate') {
+        this::validate_asset(reinterpret_cast<algopy.Application>(global<CurrentApplicationID>()))
+      } else {
+        assert(false, comment="Expected validate")
+      }
+    }
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine validate_asset(app: algopy.Application): None
+  {
+    assert(checked_maybe(app_params_get<AppCreator>(app)) == global<CreatorAddress>(), comment="expected creator")
+    assert(checked_maybe(app_params_get<AppGlobalNumUint>(app)) == 1u, comment="expected global_num_uint")
+    assert(checked_maybe(app_params_get<AppGlobalNumByteSlice>(app)) == 2u, comment="expected global_num_byte_slice")
+    assert(checked_maybe(app_params_get<AppLocalNumUint>(app)) == 3u, comment="expected local_num_uint")
+    assert(checked_maybe(app_params_get<AppLocalNumByteSlice>(app)) == 4u, comment="expected local_num_byte_slice")
+    assert(reinterpret_cast<bool>(len(checked_maybe(app_params_get<AppApprovalProgram>(app)))), comment="expected approval_program")
+    assert(reinterpret_cast<bool>(len(checked_maybe(app_params_get<AppClearStateProgram>(app)))), comment="expected clear_state_program")
+    assert(reinterpret_cast<algopy.UInt64>(app) == global<CurrentApplicationID>(), comment="expected current_application_id")
+    assert(checked_maybe(app_params_get<AppAddress>(app)) == global<CurrentApplicationAddress>(), comment="expected current_application_address")
+  }
+}

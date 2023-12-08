@@ -26,7 +26,7 @@ from scripts.transform_lang_spec import (
 logger = structlog.get_logger(__name__)
 INDENT = " " * 4
 VCS_ROOT = Path(__file__).parent.parent
-CLS_ADDRESS = "Address"
+CLS_ACCOUNT = "Account"
 CLS_BYTES = "Bytes"
 CLS_UINT64 = "UInt64"
 CLS_BIGINT = "BigUInt"
@@ -35,7 +35,7 @@ CLS_MAPPING: dict[str, wtypes.WType | type] = {
     "bytes": bytes,
     "str": str,
     "bool": wtypes.bool_wtype,
-    CLS_ADDRESS: wtypes.address_wtype,
+    CLS_ACCOUNT: wtypes.account_wtype,
     CLS_BYTES: wtypes.bytes_wtype,
     CLS_UINT64: wtypes.uint64_wtype,
     CLS_BIGINT: wtypes.biguint_wtype,
@@ -342,25 +342,25 @@ def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
     uint64 = [CLS_UINT64, UINT64_LITERAL] if covariant else [CLS_UINT64]
     bigint = [CLS_BIGINT] if covariant else [CLS_BIGINT]
     boolean = ["bool"]
-    address = [CLS_ADDRESS]
+    account = [CLS_ACCOUNT]
     sub_types = {
         StackType.bytes: bytes_,
-        StackType.bytes_32: bytes_ + address
-        if covariant
-        else bytes_,  # TODO: maybe only Address and not Bytes?
+        StackType.bytes_32: bytes_ + account if covariant else account,
         StackType.uint64: uint64,
         StackType.bool: boolean + uint64 if covariant else boolean,
         StackType.any: bytes_ + uint64,
         StackType.box_name: bytes_,
-        StackType.address: address,
-        StackType.address_or_index: address + uint64,
+        StackType.address: account,
+        StackType.address_or_index: account + uint64,
         StackType.bigint: bigint,
     }
 
     try:
         return sub_types[type_name]
     except KeyError as ex:
-        raise NotImplementedError("Unsupported type:" + type_name) from ex
+        raise NotImplementedError(
+            f"Could not map stack type {type_name} to an algopy type:" + type_name
+        ) from ex
 
 
 def sub_type(type_name: StackType, *, covariant: bool) -> str:
@@ -425,7 +425,7 @@ def build_stub(
         if arg.doc:
             doc.append(f":param {python_type} {arg.name}: {arg.doc}")
     if function.args:
-        args.append("/")  # TODO: remove once we go big 🧠
+        args.append("/")  # TODO: remove once we support kwargs
     signature.append(", ".join(args))
 
     return_types = [
@@ -794,8 +794,8 @@ def build_wtype(wtype: wtypes.WType) -> str:
             return "wtypes.bool_wtype"
         case wtypes.uint64_wtype:
             return "wtypes.uint64_wtype"
-        case wtypes.address_wtype:
-            return "wtypes.address_wtype"
+        case wtypes.account_wtype:
+            return "wtypes.account_wtype"
         case wtypes.bytes_wtype:
             return "wtypes.bytes_wtype"
         case wtypes.biguint_wtype:
@@ -883,7 +883,7 @@ def output_stub(
         "import enum",
         "from typing import Never",
         "",
-        f"from algopy._primitives import {CLS_ADDRESS}, {CLS_BIGINT}, {CLS_BYTES}, {CLS_UINT64}",
+        f"from algopy import {CLS_ACCOUNT}, {CLS_BIGINT}, {CLS_BYTES}, {CLS_UINT64}",
     ]
 
     for arg_enum in enums:

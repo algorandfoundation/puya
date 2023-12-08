@@ -1,20 +1,20 @@
 abstract contract MyBase
 {
   globals {
-    ['creator']: algopy.Address
+    ['creator']: algopy.Account
   }
   
   subroutine remember_creator(): None
   {
-    this.globals['creator']: algopy.Address = txn<Sender>()
+    this.globals['creator']: algopy.Account = txn<Sender>()
   }
 }
 
 abstract contract MyMiddleBase extends (examples.everything.my_base::MyBase)
 {
-  subroutine calculate(a: algopy.UInt64, b: algopy.UInt64): algopy.UInt64
+  subroutine calculate(a: algopy.arc4.UIntN[typing.Literal[64]], b: algopy.arc4.UIntN[typing.Literal[64]]): algopy.arc4.UIntN[typing.Literal[64]]
   {
-    return a + b
+    return arc4_encode(arc4_decode(a, algopy.UInt64) + arc4_decode(b, algopy.UInt64), algopy.arc4.UIntN[typing.Literal[64]])
   }
 }
 

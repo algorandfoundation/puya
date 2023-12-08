@@ -1,0 +1,237 @@
+#pragma version 8
+
+// examples.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> uint64:
+main:
+        byte ""
+        dup
+
+main_block@0:
+        int 16
+        pop
+        byte 0x
+        byte 0x000000083cfbf217
+        concat
+        byte 0x000000230384b842
+        concat
+        dup
+        swap
+        int 16
+        pop
+        byte 0x
+        byte 0x000000083cfbf217
+        concat
+        byte 0x000000230384b842
+        concat
+        callsub add
+        dup
+        int 0
+        int 8
+        extract3
+        swap
+        int 8
+        int 8
+        extract3
+        swap
+
+main_for_header_0@1:
+        int 0
+        bury 5
+        b main_for_body@3
+
+main_for_header_1@2:
+        dup
+        dig 3
+        bury 5
+
+main_for_body@3:
+        log
+
+main_for_footer@4:
+        dig 3
+        dup
+        int 1
+        +
+        bury 4
+        switch main_for_header_1@2
+
+main_after_for@5:
+        byte 0x00
+        int 0
+        int 1
+        setbit
+        byte 0x00
+        int 0
+        int 0
+        setbit
+        byte 0x00
+        int 0
+        int 1
+        setbit
+        cover 2
+        byte 0x00
+        int 0
+        int 0
+        setbit
+        cover 3
+        int 1
+        pop
+        byte 0x
+        uncover 2
+        concat
+        swap
+        int 0
+        getbit
+        swap
+        int 1
+        uncover 2
+        setbit
+        swap
+        int 0
+        getbit
+        swap
+        int 2
+        uncover 2
+        setbit
+        swap
+        int 0
+        getbit
+        swap
+        int 3
+        uncover 2
+        setbit
+        dup
+        callsub check
+        dup
+        log
+        int 17
+        pop
+        byte 0x
+        dig 3
+        concat
+        swap
+        concat
+        callsub nested_decode
+        int 1
+        return
+
+
+// examples.arc4_types.structs.add(v1#0: bytes, v2#0: bytes) -> bytes:
+add:
+        proto 2 1
+
+add_block@0:
+        frame_dig -2
+        int 0
+        int 8
+        extract3
+        btoi
+        frame_dig -1
+        int 0
+        int 8
+        extract3
+        btoi
+        +
+        itob
+        frame_dig -2
+        int 8
+        int 8
+        extract3
+        btoi
+        frame_dig -1
+        int 8
+        int 8
+        extract3
+        btoi
+        +
+        itob
+        int 16
+        pop
+        byte 0x
+        uncover 2
+        concat
+        swap
+        concat
+        retsub
+
+
+// examples.arc4_types.structs.check(flags#0: bytes) -> void:
+check:
+        proto 1 0
+
+check_block@0:
+        frame_dig -1
+        int 0
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        assert
+        frame_dig -1
+        int 1
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        !
+        assert
+        frame_dig -1
+        int 2
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        assert
+        frame_dig -1
+        int 3
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        !
+        assert
+        retsub
+
+
+// examples.arc4_types.structs.nested_decode(vector_flags#0: bytes) -> void:
+nested_decode:
+        proto 1 0
+
+nested_decode_block@0:
+        frame_dig -1
+        int 0
+        int 16
+        extract3
+        int 0
+        int 8
+        extract3
+        btoi
+        int 35382882839
+        ==
+        assert
+        frame_dig -1
+        int 16
+        int 1
+        extract3
+        int 2
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        assert
+        retsub
+

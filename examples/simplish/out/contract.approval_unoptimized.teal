@@ -33,7 +33,7 @@ main_after_if_else@4:
         dup
         int UpdateApplication
         ==
-        cover 1
+        swap
         int DeleteApplication
         ==
         ||
@@ -49,10 +49,10 @@ main_if_body@6:
         int 0
         byte "counter"
         app_global_get_ex
-        assert
+        assert // check value exists
         callsub itoa
         byte "I was used "
-        uncover 1
+        swap
         concat
         byte " time(s) before I died"
         concat
@@ -106,7 +106,7 @@ main_if_body@15:
         txna ApplicationArgs 0
         dig 3
         callsub call
-        cover 1
+        swap
         bury 7
         bury 1
         b main_after_if_else@23
@@ -121,7 +121,7 @@ main_if_body@17:
         dig 4
         int 0
         asset_holding_get AssetBalance
-        cover 1
+        swap
         bury 5
         bnz main_else_body@19
 
@@ -134,7 +134,7 @@ main_else_body@19:
         dig 3
         callsub itoa
         byte "You have asset balance: "
-        uncover 1
+        swap
         concat
         bury 6
 
@@ -166,7 +166,7 @@ itoa:
 itoa_block@0:
         byte "0123456789"
         dup
-        cover 1
+        swap
         len
         dup
         cover 2
@@ -178,11 +178,11 @@ itoa_if_body@1:
         frame_dig -1
         int 1
         +
-        uncover 1
+        swap
         frame_dig -1
         uncover 2
         substring3
-        uncover 1
+        swap
         retsub
 
 itoa_after_if_else@2:
@@ -192,9 +192,9 @@ itoa_after_if_else@2:
         cover 2
         /
         callsub itoa
-        cover 1
+        swap
         frame_dig -1
-        uncover 1
+        swap
         %
         dup
         int 1
@@ -203,11 +203,11 @@ itoa_after_if_else@2:
         cover 2
         substring3
         concat
-        uncover 1
+        swap
         retsub
 
 
-// examples.simplish.base_class.CallCounter.set_sender_nickname(nickname#0: bytes) -> :
+// examples.simplish.base_class.CallCounter.set_sender_nickname(nickname#0: bytes) -> void:
 set_sender_nickname:
         proto 1 0
 
@@ -228,7 +228,7 @@ call_block@0:
         frame_dig -1
         int 2
         ==
-        assert
+        assert // insufficient arguments
         txna ApplicationArgs 1
         btoi
         int 1
@@ -267,22 +267,22 @@ call_if_body@5:
         frame_dig 1
         dup
         callsub circle_area
-        cover 1
+        swap
         dup
         callsub circle_circumference
         cover 2
         callsub itoa
         byte "Approximate area and circumference of circle with radius "
-        uncover 1
+        swap
         concat
         byte " = "
         concat
-        uncover 1
+        swap
         callsub itoa
         concat
         byte ", "
         concat
-        uncover 1
+        swap
         callsub itoa
         concat
         frame_bury 0
@@ -336,7 +336,7 @@ circle_circumference_block@0:
         retsub
 
 
-// examples.simplish.contract.Simplish.increment_counter() -> :
+// examples.simplish.contract.Simplish.increment_counter() -> void:
 increment_counter:
         proto 0 0
 
@@ -347,7 +347,7 @@ increment_counter_block@0:
         retsub
 
 
-// examples.simplish.base_class.CallCounter.increment_counter() -> :
+// examples.simplish.base_class.CallCounter.increment_counter() -> void:
 CallCounter.increment_counter:
         proto 0 0
 
@@ -355,16 +355,16 @@ CallCounter.increment_counter_block@0:
         int 0
         byte "counter"
         app_global_get_ex
-        assert
+        assert // check value exists
         int 1
         +
         byte "counter"
-        uncover 1
+        swap
         app_global_put
         retsub
 
 
-// examples.simplish.base_class.CallCounter.__init__() -> :
+// examples.simplish.base_class.CallCounter.__init__() -> void:
 __init__:
         proto 0 0
 

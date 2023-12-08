@@ -30,14 +30,13 @@ class BytesContract(Contract):
         assert abc[-2:] == b"bc"
         assert abc[-2:-1] == b"b"
         assert Bytes(b"1234567")[1:-1] == b"23456"
+        assert abc[-10:10] == b"abc"
 
         true = Bytes(b"1")
         false = Bytes(b"")
 
-        # This works
         x = (true and true) == true
         assert x
-        # TODO: The following do not compile
         assert (true and true) == true
         assert (true and false) == false
         assert (false and true) == false
