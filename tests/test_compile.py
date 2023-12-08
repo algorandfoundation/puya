@@ -9,7 +9,7 @@ EXAMPLES_DIR = VCS_ROOT / "examples"
 def run_algopy(
     args: list[str | Path], *, check: bool = True, text: bool = True
 ) -> subprocess.CompletedProcess[str]:
-    algopy = shutil.which("algopy")
+    algopy = shutil.which("puya")
     assert algopy is not None
     result = subprocess.run(
         [

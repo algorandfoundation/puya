@@ -4,7 +4,7 @@
 poetry install
 poetry shell
 # Run the compiler
-algopy
+puya examples/amm
 # OR compile all examples
 python -m scripts.compile_all_examples
 # OR run tests

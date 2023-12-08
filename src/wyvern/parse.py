@@ -144,7 +144,7 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
     algopy_lib_path = Path(__file__).parent / "lib_embedded" / "_algopy_.py"
     mypy_build_sources.append(
         mypy.build.BuildSource(
-            path=str(Path("<poya>") / "algopy.py"),
+            path=str(Path("<puya>") / "algopy.py"),
             module="_algopy_",
             text=algopy_lib_path.read_text(),
         )
