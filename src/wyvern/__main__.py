@@ -8,7 +8,7 @@ from wyvern.options import WyvernOptions
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="algopy",
+        prog="puya",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(

@@ -118,7 +118,7 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
     cmd = [
         "poetry",
         "run",
-        "algopy",
+        "puya",
         *flags,
         "--out-dir=out",
         "--debug-level=1",
