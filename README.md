@@ -8,7 +8,7 @@ Virtual Machine (AVM) with Python syntax.
 
 [Project background and guiding principles](docs/principles.md).
 
-PuyaPy supports a strongly-typed subset of valid Python syntax. Importantly, that subset has 
+PuyaPy supports a statically-typed subset of valid Python syntax. Importantly, that subset has 
 identical semantics when comparing Python behaviour and behaviour of the executed TEAL. 
 For example, `foo = spam() or eggs()` will only execute `eggs()` if `bool(spam())` is `False`.
 
@@ -80,6 +80,10 @@ class Contract(puyapy.Contract):
         return True
 ```
 
+The return value of these methods can be either a `bool` that indicates whether the transaction
+should approve or not, or a `puyapy.UInt64` value, where `UInt64(0)` indicates that the transaction
+should be rejected and any other value indicates that it should be approved.
+
 And here is a valid ARC4 contract:
 
 ```python
@@ -88,7 +92,36 @@ import puyapy
 class ABIContract(puyapy.ARC4Contract):
     """This contract can be created, but otherwise does nothing"""
     pass
+```
 
+### Primitive types
+
+The primitive types of the AVM, `uint64` and `bytes[]` are represented by `puyapy.UInt64` and 
+`puyapy.Bytes` respectively. `puyapy.BigUInt` is also available for AVM supported wide-math 
+(up to 512 bits).
+
+Note that Python builtin types such as `int` cannot be used as variables, for semantic compatibility 
+reasons - however you can define module level constants of this type, and integer literals are 
+permitted in expressions.
+
+For example: 
+
+```python
+from puyapy import UInt64, subroutine
+
+SCALE = 100000
+SCALED_PI = 314159
+
+@subroutine
+def circle_area(radius: UInt64) -> UInt64:
+    scaled_result = SCALED_PI * radius**2
+    result = scaled_result // SCALE
+    return result
+
+
+@subroutine
+def circle_area_100() -> UInt64:
+    return circle_area(UInt64(100))
 ```
 
 ## Examples
