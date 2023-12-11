@@ -1,0 +1,74 @@
+#pragma version 8
+
+// examples.hello_world.arc4_contract.HelloWorldContract.approval_program() -> uint64:
+main_block@0:
+        txn NumAppArgs
+        bz main_bare_routing@5
+
+main_abi_routing@1:
+        txna ApplicationArgs 0
+        method "say_hello(string)string"
+        swap
+        match main_say_hello_route@2
+        b main_switch_case_default@3
+
+main_say_hello_route@2:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txna ApplicationArgs 1
+        callsub say_hello
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_switch_case_default@3:
+
+main_switch_case_next@4:
+        b main_after_if_else@8
+
+main_bare_routing@5:
+        txn OnCompletion
+        int 0
+        swap
+        match main_create@6
+        b main_reject_bare_on_completion@7
+
+main_create@6:
+        txn ApplicationID
+        !
+        assert // is creating
+        int 1
+        return
+
+main_reject_bare_on_completion@7:
+        err // reject transaction
+
+main_after_if_else@8:
+        err // reject transaction
+
+
+// examples.hello_world.arc4_contract.HelloWorldContract.say_hello(name#0: bytes) -> bytes:
+say_hello:
+        proto 1 1
+
+say_hello_block@0:
+        frame_dig -1
+        extract 2 0
+        byte "Hello "
+        swap
+        concat
+        dup
+        len
+        itob
+        extract 6 2
+        swap
+        concat
+        retsub
+
