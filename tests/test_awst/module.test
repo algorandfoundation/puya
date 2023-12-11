@@ -44,10 +44,7 @@ class NotAllowed(typing.NamedTuple): ## E: Unsupported construct ClassDef: Named
     an_int: UInt64
 
 ## case: unsupported_class
-from puyapy import Struct, Contract, UInt64
-
-class AllowedStruct(Struct):
-    a: UInt64
+from puyapy import Contract, UInt64
 
 class AllowedContract(Contract):
 
@@ -59,50 +56,6 @@ class AllowedContract(Contract):
 
 class NotAllowed: ## E: not a subclass of puyapy.Contract or a direct subclass of puyapy.Struct
     pass
-
-## case: indirect_struct_subclass
-from puyapy import Struct, UInt64
-
-class AllowedStruct(Struct):
-    a: UInt64
-
-class NotAllowed(AllowedStruct): ## E: Struct classes must only inherit directly from Struct
-    b: UInt64
-
-## case: allowed_struct_types
-from puyapy import Account, BigUInt, Bytes, Struct, UInt64
-
-class MyStruct(Struct):
-    allowed_uint64: UInt64
-    allowed_Bytes: Bytes
-    allowed_biguint: BigUInt
-    allowed_account: Account
-    allowed_bool: bool
-
-## case: not_allowed_struct_types
-from puyapy import Struct
-
-# TODO: fix error messages for these cases
-class NotAllowedBytes(Struct):
-    not_allowed_bytes: bytes ## E: Unhandled puyapy name: builtins.bytes
-
-class NotAllowedStr(Struct):
-    not_allowed_str: str ## E: Unhandled puyapy name: builtins.str
-
-class NotAllowedFloat(Struct):
-    not_allowed_float: float ## E: Unhandled puyapy name: builtins.float
-
-class NotAllowedInt(Struct):
-    not_allowed_int: int ## E: Unhandled puyapy name: builtins.int
-
-## case: not_allowed_struct_statements
-from puyapy import Struct, UInt64
-
-class NotAllowed(Struct):
-    value: UInt64
-
-    def get_value(self) -> UInt64: ## E: Unsupported Struct declaration
-        return self.value
 
 ## case: all_ignored
 
