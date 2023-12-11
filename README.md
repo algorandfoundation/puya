@@ -16,12 +16,12 @@ For example, `foo = spam() or eggs()` will only execute `eggs()` if `bool(spam()
 
 The minimum supported Python version for running PuyaPy itself is 3.12.
 
-You can install the developer preview of PuyaPy directly from this repo into your project virtualenv:
+You can install the developer preview of PuyaPy from PyPI into your project virtualenv:
 ```shell
-pip install git+https://github.com/algorandfoundation/puya.git
+pip install puya
 ```
-If you're using poetry for dependency and virutalenv management, the above URL should work with
-`poetry add`.
+If you're using poetry for dependency and virutalenv management, you can add it that way with
+`poetry add puya`.
 
 Or if you just want to play with some examples, you can clone the repo and have a poke around.
 
