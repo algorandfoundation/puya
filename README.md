@@ -12,3 +12,10 @@ pytest
 ```
 
 [Project background and guiding principles](docs/principles.md). 
+
+Examples:
+- [voting](examples/voting/voting.py)
+- [AMM](examples/amm/contract.py)
+- [auction](examples/TEALScript/auction/contract.py)
+- [non-ABI calculator](examples/calculator/contract.py)
+- [local storage](examples/local_storage)
