@@ -28,6 +28,9 @@ class LogLevel(IntEnum):
     fatal = logging.FATAL
     critical = logging.CRITICAL
 
+    def __str__(self) -> str:
+        return self.name
+
     @staticmethod
     def from_string(s: str) -> LogLevel:
         try:
