@@ -1,4 +1,4 @@
-from algopy import Contract, subroutine
+from puyapy import Contract, subroutine
 
 
 class ConditionalExecutionContract(Contract):

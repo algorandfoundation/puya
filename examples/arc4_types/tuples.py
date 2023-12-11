@@ -1,7 +1,7 @@
 import typing
 
-from algopy import Bytes, Contract, UInt64, subroutine
-from algopy.arc4 import Bool, String, Tuple, UInt8
+from puyapy import Bytes, Contract, UInt64, subroutine
+from puyapy.arc4 import Bool, String, Tuple, UInt8
 
 TestTuple: typing.TypeAlias = Tuple[UInt8, UInt8, String, String, UInt8]
 

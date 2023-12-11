@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64, err, exit
+from puyapy import Contract, UInt64, err, exit
 
 
 class ContractWithUnreachableCode(Contract):

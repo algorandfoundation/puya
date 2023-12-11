@@ -466,16 +466,16 @@ def main() -> None:
     vcs_root = Path(__file__).parent.parent
     spec_path = vcs_root / "langspec.json"
 
-    output_path = vcs_root / "langspec.wyvern.json"
+    output_path = vcs_root / "langspec.puya.json"
     logger.info(f"Transforming {spec_path} to {output_path}")
 
     lang_spec_json = json.loads(spec_path.read_text(encoding="utf-8"))
     _patch_lang_spec(lang_spec_json)
     lang_spec = typing.cast(AlgorandLanguageSpec, lang_spec_json)
 
-    wyvern_spec = transform_spec(lang_spec)
-    wyvern_json = json.dumps(wyvern_spec.to_json(), indent=4)
-    output_path.write_text(wyvern_json, encoding="utf-8")
+    puya_spec = transform_spec(lang_spec)
+    puya_json = json.dumps(puya_spec.to_json(), indent=4)
+    output_path.write_text(puya_json, encoding="utf-8")
 
 
 if __name__ == "__main__":

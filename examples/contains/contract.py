@@ -1,4 +1,4 @@
-from algopy import BigUInt, Bytes, Contract, UInt64, subroutine
+from puyapy import BigUInt, Bytes, Contract, UInt64, subroutine
 
 
 class MyContract(Contract):

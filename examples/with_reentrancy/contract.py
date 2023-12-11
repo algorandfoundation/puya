@@ -1,4 +1,4 @@
-from algopy import Bytes, Contract, UInt64, itob, log, subroutine
+from puyapy import Bytes, Contract, UInt64, itob, log, subroutine
 
 
 class WithReentrancy(Contract):

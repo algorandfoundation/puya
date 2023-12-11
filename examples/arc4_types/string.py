@@ -1,5 +1,5 @@
-from algopy import Bytes, Contract
-from algopy.arc4 import (
+from puyapy import Bytes, Contract
+from puyapy.arc4 import (
     String,
 )
 

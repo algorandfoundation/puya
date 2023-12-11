@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Contract, arc4, log, subroutine
+from puyapy import Contract, arc4, log, subroutine
 
 Decimal: typing.TypeAlias = arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
 

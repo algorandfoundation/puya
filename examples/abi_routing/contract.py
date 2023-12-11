@@ -1,6 +1,6 @@
 import typing
 
-from algopy import (
+from puyapy import (
     Account,
     Application,
     ARC4Contract,

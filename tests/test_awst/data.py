@@ -9,16 +9,16 @@ from pathlib import Path
 import attrs
 import pytest
 import structlog.testing
-from wyvern.awst.to_code_visitor import ToCodeVisitor
-from wyvern.awst_build.main import transform_ast
-from wyvern.compile import parse_with_mypy
-from wyvern.errors import CodeError, ParseError, WyvernError
-from wyvern.options import WyvernOptions
+from puya.awst.to_code_visitor import ToCodeVisitor
+from puya.awst_build.main import transform_ast
+from puya.compile import parse_with_mypy
+from puya.errors import CodeError, ParseError, PuyaError
+from puya.options import PuyaOptions
 
 if t.TYPE_CHECKING:
     import _pytest._code.code
-    from wyvern.awst.nodes import Module
-    from wyvern.parse import SourceLocation
+    from puya.awst.nodes import Module
+    from puya.parse import SourceLocation
 
 THIS_DIR = Path(__file__).parent
 REPO_DIR = THIS_DIR.parent.parent
@@ -363,7 +363,7 @@ def compile_awst_and_update_cases(cases: list[TestCase]) -> None:
                 file.src_path = tmp_src
                 file.module_name = get_python_module_name(root_dir, tmp_src)
 
-        context = parse_with_mypy(WyvernOptions(paths=srcs))
+        context = parse_with_mypy(PuyaOptions(paths=srcs))
         awst = transform_ast(context)
         awst_repr = modules_to_awst_repr(awst)
         log_items = [event_dict_to_log_item(log) for log in logs]
@@ -538,7 +538,7 @@ class TestFile(pytest.File):
         super().__init__(*args, **kwargs)
         self.cases = list[TestCase]()
         self.preamble = list[str]()
-        self.compile_error: WyvernError | None = None
+        self.compile_error: PuyaError | None = None
         self.auto_update_output = bool(self.config.getoption("test_auto_update"))
         dist_option = self.config.getoption("dist")
         if self.auto_update_output and dist_option and dist_option != "no":
@@ -573,7 +573,7 @@ class TestFile(pytest.File):
             run_compiler_and_handle_parse_errors(self.cases)
         except CodeError:  # expected error when compiling code with errors, we can ignore
             pass
-        except WyvernError as ex:  # other error, probably internal - this indicates a bug
+        except PuyaError as ex:  # other error, probably internal - this indicates a bug
             pytest.fail(f"Unexpected compiler error: {ex}", pytrace=False)
         except ParseError:
             # if code cannot even be parsed then this is a failure with the actual input test case

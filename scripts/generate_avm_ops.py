@@ -7,7 +7,7 @@ from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 import structlog
-from wyvern.ir.avm_ops_models import (
+from puya.ir.avm_ops_models import (
     AVMOpData,
     DynamicSignatures,
     ImmediateKind,
@@ -200,7 +200,8 @@ def generate_file(lang_spec: langspec.LanguageSpec) -> Iterator[str]:
 import enum
 from collections.abc import Sequence
 
-from wyvern.ir.avm_ops_models import (
+from puya.errors import InternalError
+from puya.ir.avm_ops_models import (
     AVMOpData,
     DynamicSignatures,
     ImmediateKind,
@@ -225,7 +226,7 @@ class AVMOp(enum.StrEnum):
         obj._value_ = op_code
         obj.code = op_code
         obj.immediate_types = tuple(data.immediate_types)
-        obj._signature = data.signature
+        obj._signature = data.signature  # noqa: SLF001
         obj.cost = data.cost
         return obj
 
@@ -234,7 +235,10 @@ class AVMOp(enum.StrEnum):
             return self._signature
         im = immediates[self._signature.immediate_index]
         assert isinstance(im, str)
-        return self._signature.signatures[im]
+        try:
+            return self._signature.signatures[im]
+        except KeyError as ex:
+            raise InternalError(f"Unknown immediate for {{self.code}}: {{im}}") from ex
     """
     yield from preamble.strip().splitlines()
     yield ""
@@ -251,14 +255,14 @@ class AVMOp(enum.StrEnum):
 
 
 def main() -> None:
-    spec_path = VCS_ROOT / "langspec.wyvern.json"
+    spec_path = VCS_ROOT / "langspec.puya.json"
 
     lang_spec_json = json.loads(spec_path.read_text(encoding="utf-8"))
     lang_spec = langspec.LanguageSpec.from_json(lang_spec_json)
 
     output = "\n".join(generate_file(lang_spec))
 
-    ast_gen_path = VCS_ROOT / "src" / "wyvern" / "ir" / "avm_ops.py"
+    ast_gen_path = VCS_ROOT / "src" / "puya" / "ir" / "avm_ops.py"
     ast_gen_path.write_text(output, encoding="utf-8")
     subprocess.run(["black", str(ast_gen_path)], check=True, cwd=VCS_ROOT)
 

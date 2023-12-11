@@ -10,22 +10,22 @@ from algosdk import transaction
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
 from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
-from wyvern.arc32 import create_arc32_json
-from wyvern.awst_build.main import transform_ast
-from wyvern.compile import awst_to_teal, parse_with_mypy
-from wyvern.options import WyvernOptions
+from puya.arc32 import create_arc32_json
+from puya.awst_build.main import transform_ast
+from puya.compile import awst_to_teal, parse_with_mypy
+from puya.options import PuyaOptions
 
 VCS_ROOT = Path(__file__).parent.parent
 EXAMPLES_DIR = VCS_ROOT / "examples"
 
 
 def compile_arc32(src_path: Path, optimization_level: int = 1) -> str:
-    wyvern_options = WyvernOptions(
+    puya_options = PuyaOptions(
         paths=[src_path],
         optimization_level=optimization_level,
         debug_level=2,
     )
-    context = parse_with_mypy(wyvern_options)
+    context = parse_with_mypy(puya_options)
     awst = transform_ast(context)
     teal = awst_to_teal(context, awst)
     assert teal is not None, "compile error"

@@ -26,13 +26,13 @@ from algosdk.transaction import ApplicationCallTxn, ApplicationCreateTxn, OnComp
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
-from wyvern.avm_type import AVMType
-from wyvern.awst_build.main import transform_ast
-from wyvern.codegen.emitprogram import CompiledContract, CompiledProgram
-from wyvern.codegen.teal_annotaters import AlignedWriter
-from wyvern.compile import awst_to_teal, parse_with_mypy
-from wyvern.metadata import ContractMetaData, ContractState
-from wyvern.options import WyvernOptions
+from puya.avm_type import AVMType
+from puya.awst_build.main import transform_ast
+from puya.codegen.emitprogram import CompiledContract, CompiledProgram
+from puya.codegen.teal_annotaters import AlignedWriter
+from puya.compile import awst_to_teal, parse_with_mypy
+from puya.metadata import ContractMetaData, ContractState
+from puya.options import PuyaOptions
 
 VCS_ROOT = Path(__file__).parent.parent
 EXAMPLES_DIR = VCS_ROOT / "examples"
@@ -44,10 +44,10 @@ NONE_ACTION = 3
 
 @functools.cache
 def compile_src(src_path: Path, optimization_level: int) -> CompiledContract:
-    wyvern_options = WyvernOptions(
+    puya_options = PuyaOptions(
         paths=[src_path], optimization_level=optimization_level, debug_level=2
     )
-    context = parse_with_mypy(wyvern_options)
+    context = parse_with_mypy(puya_options)
     awst = transform_ast(context)
     teal = awst_to_teal(context, awst)
     assert teal is not None, "compile error"
@@ -576,7 +576,7 @@ def test_calculator(harness: _TestHarness) -> None:
 
 def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import Bytes, Contract, Transaction, log, subroutine
+        from puyapy import Bytes, Contract, Transaction, log, subroutine
 
         class Exclaimer(Contract):
             def approval_program(self) -> bool:
@@ -845,7 +845,7 @@ def test_biguint_stubs(harness: _TestHarness) -> None:
 
 def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import BigUInt, Contract, Transaction, log
+        from puyapy import BigUInt, Contract, Transaction, log
 
         class BigUIntByteTests(Contract):
             def approval_program(self) -> bool:
@@ -1068,7 +1068,7 @@ def test_conditional_execution(harness: _TestHarness) -> None:
 
 def test_ignored_value(harness: _TestHarness) -> None:
     def test() -> None:
-        from algopy import Contract, subroutine
+        from puyapy import Contract, subroutine
 
         class Silly(Contract):
             def approval_program(self) -> bool:

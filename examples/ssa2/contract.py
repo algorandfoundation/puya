@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64, subroutine, urange
+from puyapy import Contract, UInt64, subroutine, urange
 
 
 class MyContract(Contract):

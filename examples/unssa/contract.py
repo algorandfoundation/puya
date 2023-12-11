@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64, itob, log, subroutine, urange
+from puyapy import Contract, UInt64, itob, log, subroutine, urange
 
 
 class UnSSAContract(Contract):

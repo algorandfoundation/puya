@@ -1,4 +1,4 @@
-import algopy as algo
+import puyapy as algo
 
 from examples.simple import subs, pkg_a
 

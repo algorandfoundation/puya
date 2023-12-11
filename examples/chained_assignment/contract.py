@@ -1,4 +1,4 @@
-from algopy import Bytes, Contract, log, subroutine
+from puyapy import Bytes, Contract, log, subroutine
 
 WAVE = "👋".encode()
 

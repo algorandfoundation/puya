@@ -1,4 +1,4 @@
-from algopy import Account, Bytes, Contract, Local, OnCompleteAction, Transaction, log, subroutine
+from puyapy import Account, Bytes, Contract, Local, OnCompleteAction, Transaction, log, subroutine
 
 
 class LocalStorageContract(Contract):

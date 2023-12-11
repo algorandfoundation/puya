@@ -8,7 +8,7 @@ from algokit_utils import (
 from algosdk import transaction
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
 from algosdk.v2client.algod import AlgodClient
-from wyvern.logging_config import LogLevel, configure_logging
+from puya.logging_config import LogLevel, configure_logging
 
 
 @pytest.fixture(autouse=True, scope="session")

@@ -1,4 +1,4 @@
-from algopy import Contract, Struct, UInt64, itob, log, subroutine
+from puyapy import Contract, Struct, UInt64, itob, log, subroutine
 
 
 class MyData(Struct):

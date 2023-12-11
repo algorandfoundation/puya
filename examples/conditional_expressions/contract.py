@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64, itob, log, subroutine
+from puyapy import Contract, UInt64, itob, log, subroutine
 
 
 class MyContract(Contract):

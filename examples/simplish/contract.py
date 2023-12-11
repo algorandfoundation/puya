@@ -1,4 +1,4 @@
-from algopy import (
+from puyapy import (
     AppGlobals,
     AssetHoldingGet,
     Base64,

@@ -1,8 +1,8 @@
 import typing
 import typing as t
 
-from algopy import BigUInt, Bytes, Contract, UInt64
-from algopy.arc4 import (
+from puyapy import BigUInt, Bytes, Contract, UInt64
+from puyapy.arc4 import (
     BigUFixedNxM,
     BigUIntN,
     UFixedNxM,

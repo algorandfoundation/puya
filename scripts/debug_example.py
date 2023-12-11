@@ -1,14 +1,14 @@
 import sys
 from pathlib import Path
 
-from wyvern.compile import compile_to_teal
-from wyvern.logging_config import LogLevel, configure_logging
-from wyvern.options import WyvernOptions
+from puya.compile import compile_to_teal
+from puya.logging_config import LogLevel, configure_logging
+from puya.options import PuyaOptions
 
 
 def main(example: str) -> None:
     configure_logging(min_log_level=LogLevel.debug)
-    options = WyvernOptions()
+    options = PuyaOptions()
 
     options.paths = [Path(example).resolve()]
     options.debug_level = 1

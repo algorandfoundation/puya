@@ -54,7 +54,7 @@ are to "meet developers where they are" and "leverage existing ecosystem".
 Building a compiler that allows developers to write smart contracts using an idiomatic subset of a high level language 
 such as Python would make great strides towards both of these goals.
 
-Wyvern was the original internal code name for just such a compiler (now called Puya), one that will transform Python code into valid TEAL 
+Puya was the original internal code name for just such a compiler (now called Puya), one that will transform Python code into valid TEAL 
 smart contracts. In line with the principle of meeting developers where they are, and recognising the popularity of 
 JavaScript and TypeScript, a parallel initiative to build a TypeScript to TEAL compiler is [also underway](https://tealscript.netlify.app).
 
@@ -145,7 +145,7 @@ there more broadly.
 
 ## Abstraction without obfuscation
 
-AlgoPy is a high level language (like Python), with support for things such as branching logic, operator precedence, etc., 
+PuyaPy is a high level language (like Python), with support for things such as branching logic, operator precedence, etc., 
 and not a set of "macros" for generating TEAL. As such, developers will not be able to directly influence specific TEAL 
 output, if this is desirable a language such as [Tealish](https://tealish.tinyman.org) is more appropriate.
 

@@ -1,4 +1,4 @@
-from algopy import BigUInt, Bytes, Contract, Local, OnCompleteAction, Transaction, UInt64
+from puyapy import BigUInt, Bytes, Contract, Local, OnCompleteAction, Transaction, UInt64
 
 
 class Augmented(Contract):

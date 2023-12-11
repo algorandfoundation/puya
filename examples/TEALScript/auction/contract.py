@@ -1,4 +1,4 @@
-from algopy import (
+from puyapy import (
     ARC4Contract,
     AssetTransferTransaction,
     CreateInnerTransaction,
@@ -11,7 +11,7 @@ from algopy import (
     arc4,
     subroutine,
 )
-from algopy._reference import Asset
+from puyapy._reference import Asset
 
 
 class Auction(ARC4Contract):

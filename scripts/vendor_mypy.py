@@ -22,8 +22,8 @@ def clone_branch(version: str) -> str:
 
 
 def vendor_mypy(version: str) -> None:
-    wyvern_src_dir = VCS_ROOT / "src" / "wyvern"
-    vendor_dir = wyvern_src_dir / "_vendor"
+    puya_src_dir = VCS_ROOT / "src" / "puya"
+    vendor_dir = puya_src_dir / "_vendor"
     mypy_vendor = vendor_dir / "mypy"
     print(f"Vendoring mypy into: {mypy_vendor}")
 
@@ -40,11 +40,11 @@ def vendor_mypy(version: str) -> None:
         shutil.copytree(Path(tmp_dir) / "mypy", mypy_vendor)
         (mypy_vendor / ".version").write_text(f"{version}: {git_hash}")
     print("Updating custom typeshed")
-    update_wyvern_typeshed(mypy_vendor / "typeshed", wyvern_src_dir / "_typeshed")
+    update_puya_typeshed(mypy_vendor / "typeshed", puya_src_dir / "_typeshed")
 
 
-def update_wyvern_typeshed(mypy_typeshed: Path, wyvern_typeshed: Path) -> None:
-    shutil.rmtree(wyvern_typeshed, ignore_errors=True)
+def update_puya_typeshed(mypy_typeshed: Path, puya_typeshed: Path) -> None:
+    shutil.rmtree(puya_typeshed, ignore_errors=True)
 
     stubs = Path("stubs")
     stdlib = Path("stdlib")
@@ -62,15 +62,15 @@ def update_wyvern_typeshed(mypy_typeshed: Path, wyvern_typeshed: Path) -> None:
         stdlib / "types.pyi",
         stdlib / "typing.pyi",
         stdlib / "typing_extensions.pyi",
-        # needed for algopy
+        # needed for puyapy
         stdlib / "enum.pyi",
     ]
 
-    (wyvern_typeshed / stdlib).mkdir(exist_ok=True, parents=True)
-    (wyvern_typeshed / stubs).mkdir(exist_ok=True, parents=True)
+    (puya_typeshed / stdlib).mkdir(exist_ok=True, parents=True)
+    (puya_typeshed / stubs).mkdir(exist_ok=True, parents=True)
     for relative in relative_to_copy:
         copy_src = mypy_typeshed / relative
-        copy_dst = wyvern_typeshed / relative
+        copy_dst = puya_typeshed / relative
         if copy_src.is_dir():
             shutil.copytree(copy_src, copy_dst)
         else:

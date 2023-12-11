@@ -1,7 +1,7 @@
 from typing import TypeAlias
 
-from algopy import UInt64 as MyUInt64
-from algopy._gen import Transaction
+from puyapy import UInt64 as MyUInt64
+from puyapy._gen import Transaction
 
 from . import pkg_1
 

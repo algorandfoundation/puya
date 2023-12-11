@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Account, Bytes, UInt64, subroutine
+from puyapy import Account, Bytes, UInt64, subroutine
 
 SOME_ADDRESS = "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"
 SOME_ADDRESS_PADDED = SOME_ADDRESS + "=="
