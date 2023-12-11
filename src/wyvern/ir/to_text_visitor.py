@@ -87,7 +87,8 @@ class ToTextVisitor(IRVisitor[str]):
         target = f"{r.accept(self)}: {r.atype.name}"
         if op.args:
             args = ", ".join(a.accept(self) for a in op.args)
-            source = f"φ({args})"
+            #source = f"φ({args})" # TODO: restore this once we get UTF-8 on windows working
+            source = f"Phi({args})"
         else:
             source = "undefined"
         return f"let {target} = {source}"
