@@ -1,4 +1,4 @@
-from algopy import *  # noqa: F403 # note: star import here to explicitly test that
+from puyapy import *  # noqa: F403 # note: star import here to explicitly test that
 
 
 class MyContract(Contract):

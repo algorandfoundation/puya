@@ -1,4 +1,4 @@
-from algopy import (
+from puyapy import (
     Bytes,
     Contract,
     CreateInnerTransaction,
@@ -10,7 +10,7 @@ from algopy import (
     log,
     bzero,
 )
-from algopy._reference import Asset
+from puyapy._reference import Asset
 
 
 class Reference(Contract):

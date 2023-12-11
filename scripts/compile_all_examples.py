@@ -8,7 +8,7 @@ from pathlib import Path
 
 import algokit_utils
 import attrs
-from wyvern.codegen.teal_annotaters import AlignedWriter
+from puya.codegen.teal_annotaters import AlignedWriter
 
 SCRIPT_DIR = Path(__file__).parent
 GIT_ROOT = SCRIPT_DIR.parent
@@ -103,7 +103,7 @@ def _stabilise_logs(stdout: str) -> list[str]:
         for line in stdout.splitlines()
         if not line.startswith(
             (
-                "debug: Skipping algopy stub ",
+                "debug: Skipping puyapy stub ",
                 "debug: Skipping typeshed stub ",
                 "warning: Skipping stub: ",
                 "debug: Skipping stdlib stub ",
@@ -118,7 +118,7 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
     cmd = [
         "poetry",
         "run",
-        "puya",
+        "puyapy",
         *flags,
         "--out-dir=out",
         "--debug-level=1",

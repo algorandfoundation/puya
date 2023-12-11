@@ -5,13 +5,13 @@ FLOAT = 0.1 ## E: Unsupported construct FloatExpr: floating point math is not su
 another_float = 1 / 2 ## E: Unsupported construct OpExpr: unsupported result type of float
 
 ## case: no_subroutine_hint
-from algopy import UInt64
+from puyapy import UInt64
 
-def one() -> UInt64: ## E: free functions must be annotated with @algopy.subroutine
+def one() -> UInt64: ## E: free functions must be annotated with @puyapy.subroutine
     return UInt64(1)
 
 ## case: unsupported_decorator
-from algopy import UInt64, arc4, subroutine
+from puyapy import UInt64, arc4, subroutine
 
 @arc4.abimethod ## E: free functions cannot be ARC4 ABI methods
 @subroutine
@@ -19,7 +19,7 @@ def one() -> UInt64:
     return UInt64(1)
 
 ## case: literals_only
-from algopy import UInt64
+from puyapy import UInt64
 
 LITERAL = 123
 STR_LITERAL = "a string"
@@ -30,21 +30,21 @@ MULTIPLIED_STR = "a" * 64
 NOT_A_LITERAL = UInt64(1) ## E: Unsupported construct CallExpr: not supported at module level
 
 ## case: no_typed_dict
-from algopy import UInt64
+from puyapy import UInt64
 import typing
 
 class NotAllowed(typing.TypedDict): ## E: Unsupported construct ClassDef: TypedDict classes are not supported
     an_int: UInt64
 
 ## case: no_named_tuple
-from algopy import UInt64
+from puyapy import UInt64
 import typing
 
 class NotAllowed(typing.NamedTuple): ## E: Unsupported construct ClassDef: NamedTuple classes are not supported
     an_int: UInt64
 
 ## case: unsupported_class
-from algopy import Struct, Contract, UInt64
+from puyapy import Struct, Contract, UInt64
 
 class AllowedStruct(Struct):
     a: UInt64
@@ -57,11 +57,11 @@ class AllowedContract(Contract):
     def clear_state_program(self) -> UInt64:
         return UInt64(1)
 
-class NotAllowed: ## E: not a subclass of algopy.Contract or a direct subclass of algopy.Struct
+class NotAllowed: ## E: not a subclass of puyapy.Contract or a direct subclass of puyapy.Struct
     pass
 
 ## case: indirect_struct_subclass
-from algopy import Struct, UInt64
+from puyapy import Struct, UInt64
 
 class AllowedStruct(Struct):
     a: UInt64
@@ -70,7 +70,7 @@ class NotAllowed(AllowedStruct): ## E: Struct classes must only inherit directly
     b: UInt64
 
 ## case: allowed_struct_types
-from algopy import Account, BigUInt, Bytes, Struct, UInt64
+from puyapy import Account, BigUInt, Bytes, Struct, UInt64
 
 class MyStruct(Struct):
     allowed_uint64: UInt64
@@ -80,23 +80,23 @@ class MyStruct(Struct):
     allowed_bool: bool
 
 ## case: not_allowed_struct_types
-from algopy import Struct
+from puyapy import Struct
 
 # TODO: fix error messages for these cases
 class NotAllowedBytes(Struct):
-    not_allowed_bytes: bytes ## E: Unhandled algopy name: builtins.bytes
+    not_allowed_bytes: bytes ## E: Unhandled puyapy name: builtins.bytes
 
 class NotAllowedStr(Struct):
-    not_allowed_str: str ## E: Unhandled algopy name: builtins.str
+    not_allowed_str: str ## E: Unhandled puyapy name: builtins.str
 
 class NotAllowedFloat(Struct):
-    not_allowed_float: float ## E: Unhandled algopy name: builtins.float
+    not_allowed_float: float ## E: Unhandled puyapy name: builtins.float
 
 class NotAllowedInt(Struct):
-    not_allowed_int: int ## E: Unhandled algopy name: builtins.int
+    not_allowed_int: int ## E: Unhandled puyapy name: builtins.int
 
 ## case: not_allowed_struct_statements
-from algopy import Struct, UInt64
+from puyapy import Struct, UInt64
 
 class NotAllowed(Struct):
     value: UInt64
@@ -116,7 +116,7 @@ FOO = [1] ## E: Unsupported construct ListExpr: not supported at module level
 
 ## case: type_alias_allowed
 import typing
-from algopy import UInt64, subroutine
+from puyapy import UInt64, subroutine
 
 IntAlias: typing.TypeAlias = UInt64
 
@@ -197,7 +197,7 @@ THREE = ONE + pkg.two.TWO
 ## case: imported_contract_test
 ## path: my_contract.py
 import abc
-from algopy import Contract, UInt64, subroutine
+from puyapy import Contract, UInt64, subroutine
 
 class MyContractBase(Contract, abc.ABC):
 
@@ -213,7 +213,7 @@ class MyContractBase(Contract, abc.ABC):
 
 
 ## path: main.py
-from algopy import UInt64, subroutine
+from puyapy import UInt64, subroutine
 from my_contract import MyContractBase
 
 class MyContract(MyContractBase):

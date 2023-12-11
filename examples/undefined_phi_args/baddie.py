@@ -1,4 +1,4 @@
-from algopy import UInt64, BigUInt, subroutine, Contract, Transaction, btoi
+from puyapy import UInt64, BigUInt, subroutine, Contract, Transaction, btoi
 
 
 class Baddie(Contract):

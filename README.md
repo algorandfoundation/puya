@@ -1,4 +1,6 @@
-# Puya - Algorand TEAL compiler + AlgoPy Python language bindings
+# Puya - Algorand TEAL compiler + PuyaPy Python language bindings
+
+Puya is an optimising compiler for high level C-family languages 
 
 [Project background and guiding principles](docs/principles.md).
 

@@ -1,5 +1,5 @@
-from algopy import Account, ARC4Contract, Local, OnCompleteAction, Transaction, UInt64, subroutine
-from algopy.arc4 import (
+from puyapy import Account, ARC4Contract, Local, OnCompleteAction, Transaction, UInt64, subroutine
+from puyapy.arc4 import (
     String,
     UInt64 as arc4_UInt64,
     abimethod,

@@ -13,17 +13,17 @@ contract WithReentrancy
   }
 }
 
-subroutine itoa(i: algopy.UInt64): algopy.Bytes
+subroutine itoa(i: puyapy.UInt64): puyapy.Bytes
 {
-  digits: algopy.Bytes = '0123456789'
-  radix: algopy.UInt64 = len(digits)
+  digits: puyapy.Bytes = '0123456789'
+  radix: puyapy.UInt64 = len(digits)
   if (i < radix) {
     return digits[i]
   }
   return examples.with_reentrancy.contract::itoa(i // radix) + digits[i % radix]
 }
 
-subroutine fibonacci(n: algopy.UInt64): algopy.UInt64
+subroutine fibonacci(n: puyapy.UInt64): puyapy.UInt64
 {
   if (n <= 1u) {
     return n
@@ -31,34 +31,34 @@ subroutine fibonacci(n: algopy.UInt64): algopy.UInt64
   return examples.with_reentrancy.contract::fibonacci(n - 1u) + examples.with_reentrancy.contract::fibonacci(n - 2u)
 }
 
-subroutine silly(x: algopy.UInt64): algopy.UInt64
+subroutine silly(x: puyapy.UInt64): puyapy.UInt64
 {
-  x: algopy.UInt64 = x + 1u
-  result: algopy.UInt64 = examples.with_reentrancy.contract::silly2(x)
+  x: puyapy.UInt64 = x + 1u
+  result: puyapy.UInt64 = examples.with_reentrancy.contract::silly2(x)
   log('silly = ' + examples.with_reentrancy.contract::itoa(x))
   return result
 }
 
-subroutine silly2(x: algopy.UInt64): algopy.UInt64
+subroutine silly2(x: puyapy.UInt64): puyapy.UInt64
 {
-  x: algopy.UInt64 = x + 2u
-  result: algopy.UInt64 = examples.with_reentrancy.contract::silly3(x)
+  x: puyapy.UInt64 = x + 2u
+  result: puyapy.UInt64 = examples.with_reentrancy.contract::silly3(x)
   log('silly2 = ' + examples.with_reentrancy.contract::itoa(x))
   return result
 }
 
-subroutine silly3(x: algopy.UInt64): algopy.UInt64
+subroutine silly3(x: puyapy.UInt64): puyapy.UInt64
 {
   is_even: bool = x % 2u == 0u
-  a: algopy.UInt64 = x + 2u
+  a: puyapy.UInt64 = x + 2u
   if (is_even) {
-    result: algopy.UInt64 = a * 2u
-    a: algopy.UInt64 = result // 2u - 2u
+    result: puyapy.UInt64 = a * 2u
+    a: puyapy.UInt64 = result // 2u - 2u
   } else {
-    result: algopy.UInt64 = examples.with_reentrancy.contract::silly(x)
+    result: puyapy.UInt64 = examples.with_reentrancy.contract::silly(x)
   }
   if (is_even) {
-    result: algopy.UInt64 = a
+    result: puyapy.UInt64 = a
   }
   log('silly3 = ' + examples.with_reentrancy.contract::itoa(x))
   return result

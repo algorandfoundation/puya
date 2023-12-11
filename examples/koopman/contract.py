@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64
+from puyapy import Contract, UInt64
 
 
 class MyContract(Contract):

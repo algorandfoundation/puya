@@ -1,4 +1,4 @@
-from algopy import Bytes, UInt64, addw, subroutine, urange
+from puyapy import Bytes, UInt64, addw, subroutine, urange
 
 ONE = 1
 HELLO = "👋".encode()

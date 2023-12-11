@@ -1,7 +1,7 @@
 contract LocalStorageContract
 {
   locals {
-    ['local']: algopy.Bytes
+    ['local']: puyapy.Bytes
   }
   
   constructor()
@@ -19,8 +19,8 @@ contract LocalStorageContract
     if (txn<NumAppArgs>() < 1u) {
       return false
     }
-    offset: algopy.UInt64 = btoi(txna<ApplicationArgs, 0>())
-    method: algopy.Bytes = txna<ApplicationArgs, 1>()
+    offset: puyapy.UInt64 = btoi(txna<ApplicationArgs, 0>())
+    method: puyapy.Bytes = txna<ApplicationArgs, 1>()
     if (txn<NumAppArgs>() == 2u) {
       if (method == 'get_guaranteed_data') {
         log(this::get_guaranteed_data(offset))
@@ -60,29 +60,29 @@ contract LocalStorageContract
     return true
   }
   
-  subroutine get_guaranteed_data(for_account: algopy.UInt64): algopy.Bytes
+  subroutine get_guaranteed_data(for_account: puyapy.UInt64): puyapy.Bytes
   {
     return this.locals['local'].account[for_account]
   }
   
-  subroutine get_data_with_default(for_account: algopy.UInt64, default: algopy.Bytes): algopy.Bytes
+  subroutine get_data_with_default(for_account: puyapy.UInt64, default: puyapy.Bytes): puyapy.Bytes
   {
-    return (tmp$0: tuple[algopy.Bytes, bool] := app_local_get_ex(for_account, 0u, 'local')[1]) ? (tmp$0[0]) : (default)
+    return (tmp$0: tuple[puyapy.Bytes, bool] := app_local_get_ex(for_account, 0u, 'local')[1]) ? (tmp$0[0]) : (default)
   }
   
-  subroutine get_data_or_assert(for_account: algopy.UInt64): algopy.Bytes
+  subroutine get_data_or_assert(for_account: puyapy.UInt64): puyapy.Bytes
   {
-    (result, exists): tuple[algopy.Bytes, bool] = app_local_get_ex(for_account, 0u, 'local')
+    (result, exists): tuple[puyapy.Bytes, bool] = app_local_get_ex(for_account, 0u, 'local')
     assert(exists, comment="no data for account")
     return result
   }
   
-  subroutine set_data(for_account: algopy.UInt64, value: algopy.Bytes): None
+  subroutine set_data(for_account: puyapy.UInt64, value: puyapy.Bytes): None
   {
-    this.locals['local'].account[for_account]: algopy.Bytes = value
+    this.locals['local'].account[for_account]: puyapy.Bytes = value
   }
   
-  subroutine delete_data(for_account: algopy.UInt64): None
+  subroutine delete_data(for_account: puyapy.UInt64): None
   {
     app_local_del(for_account, 'local')
   }

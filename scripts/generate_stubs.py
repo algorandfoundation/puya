@@ -11,8 +11,8 @@ from pathlib import Path
 
 import attrs
 import structlog
-from wyvern.awst import wtypes
-from wyvern.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
+from puya.awst import wtypes
+from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
 
 from scripts.transform_lang_spec import (
     Immediate,
@@ -293,7 +293,7 @@ class ClassDef:
 
 
 def main() -> None:
-    spec_path = VCS_ROOT / "langspec.wyvern.json"
+    spec_path = VCS_ROOT / "langspec.puya.json"
 
     lang_spec_json = json.loads(spec_path.read_text(encoding="utf-8"))
     lang_spec = LanguageSpec.from_json(lang_spec_json)
@@ -359,7 +359,7 @@ def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
         return sub_types[type_name]
     except KeyError as ex:
         raise NotImplementedError(
-            f"Could not map stack type {type_name} to an algopy type:" + type_name
+            f"Could not map stack type {type_name} to an puyapy type:" + type_name
         ) from ex
 
 
@@ -818,7 +818,7 @@ def build_arg_mapping(arg_mapping: ArgMapping) -> Iterable[str]:
 
 
 def build_op_specification_body(name_suffix: str, function: FunctionDef) -> Iterable[str]:
-    yield f'    "algopy._gen.{name_suffix}": ['
+    yield f'    "puyapy._gen.{name_suffix}": ['
     for op_mapping in function.op_mappings:
         yield "FunctionOpMapping("
         yield f'    op_code="{op_mapping.op_code}",'
@@ -850,12 +850,12 @@ def build_ast_gen(
     function_ops: list[FunctionDef],
     class_ops: list[ClassDef],
 ) -> Iterable[str]:
-    yield "from wyvern.awst import wtypes"
-    yield "from wyvern.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping"
+    yield "from puya.awst import wtypes"
+    yield "from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping"
     yield ""
     yield "ENUM_CLASSES = {"
     for enum_name in enums:
-        yield f'    "algopy._gen.{get_python_enum_class(enum_name)}": {{'
+        yield f'    "puyapy._gen.{get_python_enum_class(enum_name)}": {{'
         for enum_value in lang_spec.arg_enums[enum_name]:
             # enum names currently match enum immediate values
             yield f'    "{enum_value.name}": "{enum_value.name}",'
@@ -883,7 +883,7 @@ def output_stub(
         "import enum",
         "from typing import Never",
         "",
-        f"from algopy import {CLS_ACCOUNT}, {CLS_BIGINT}, {CLS_BYTES}, {CLS_UINT64}",
+        f"from puyapy import {CLS_ACCOUNT}, {CLS_BIGINT}, {CLS_BYTES}, {CLS_UINT64}",
     ]
 
     for arg_enum in enums:
@@ -901,7 +901,7 @@ def output_stub(
     for class_op in class_ops:
         stub.extend(build_stub_class(class_op))
 
-    stub_out_path = VCS_ROOT / "src" / "algopy-stubs" / "_gen.pyi"
+    stub_out_path = VCS_ROOT / "src" / "puyapy-stubs" / "_gen.pyi"
     stub_out_path.write_text("\n".join(stub), encoding="utf-8")
     subprocess.run(["black", str(stub_out_path)], check=True, cwd=VCS_ROOT)
 
@@ -914,7 +914,7 @@ def output_ast_gen(
 ) -> None:
     ast_gen = build_ast_gen(lang_spec, enums, function_ops, class_ops)
 
-    ast_gen_path = VCS_ROOT / "src" / "wyvern" / "awst_build" / "intrinsic_data.py"
+    ast_gen_path = VCS_ROOT / "src" / "puya" / "awst_build" / "intrinsic_data.py"
     ast_gen_path.write_text("\n".join(ast_gen), encoding="utf-8")
     subprocess.run(["black", str(ast_gen_path)], check=True, cwd=VCS_ROOT)
 

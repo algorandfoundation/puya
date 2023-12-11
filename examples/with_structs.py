@@ -1,4 +1,4 @@
-from algopy import Array, BigUInt, Bytes, Struct, UInt64, subroutine
+from puyapy import Array, BigUInt, Bytes, Struct, UInt64, subroutine
 
 
 class NamedUInt64(Struct):

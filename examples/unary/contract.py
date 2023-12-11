@@ -1,4 +1,4 @@
-from algopy import (
+from puyapy import (
     BigUInt,
     Bytes,
     Contract,

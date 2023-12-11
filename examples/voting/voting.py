@@ -1,6 +1,6 @@
 import typing
 
-from algopy import (
+from puyapy import (
     ARC4Contract,
     Box,
     Bytes,

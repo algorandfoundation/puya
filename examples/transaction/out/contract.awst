@@ -4,7 +4,7 @@ contract TransactionContract
   {
   }
   
-  subroutine _common_checks(txn: algopy.TransactionBase): None
+  subroutine _common_checks(txn: puyapy.TransactionBase): None
   {
     assert(reinterpret_cast<bool>(len(gtxns<TxID>(txn))), comment="txn_id")
     assert(gtxns<Sender>(txn) == global<CreatorAddress>(), comment="sender")
@@ -20,7 +20,7 @@ contract TransactionContract
     assert(gtxns<RekeyTo>(txn) == global<ZeroAddress>(), comment="rekey_to")
   }
   
-  abimethod pay(txn: algopy.PaymentTransaction): None
+  abimethod pay(txn: puyapy.PaymentTransaction): None
   {
     this::_common_checks(txn)
     assert(gtxns<Receiver>(txn) == global<CurrentApplicationAddress>(), comment="Payment should be for this app")
@@ -28,7 +28,7 @@ contract TransactionContract
     assert(gtxns<CloseRemainderTo>(txn) == global<ZeroAddress>(), comment="close_remainder_to")
   }
   
-  abimethod key(txn: algopy.KeyRegistrationTransaction): None
+  abimethod key(txn: puyapy.KeyRegistrationTransaction): None
   {
     this::_common_checks(txn)
     assert(gtxns<VotePK>(txn) != global<ZeroAddress>(), comment="vote_key")
@@ -40,7 +40,7 @@ contract TransactionContract
     assert(reinterpret_cast<bool>(len(gtxns<StateProofPK>(txn))), comment="state_proof_key")
   }
   
-  abimethod asset_config(txn: algopy.AssetConfigTransaction): None
+  abimethod asset_config(txn: puyapy.AssetConfigTransaction): None
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<ConfigAsset>(txn)), comment="config_asset")
@@ -57,7 +57,7 @@ contract TransactionContract
     assert(gtxns<ConfigAssetClawback>(txn) != global<ZeroAddress>(), comment="clawback")
   }
   
-  abimethod asset_transfer(txn: algopy.AssetTransferTransaction): None
+  abimethod asset_transfer(txn: puyapy.AssetTransferTransaction): None
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<XferAsset>(txn)), comment="xfer_asset")
@@ -67,7 +67,7 @@ contract TransactionContract
     assert(gtxns<AssetCloseTo>(txn) != global<ZeroAddress>(), comment="asset_close_to")
   }
   
-  abimethod asset_freeze(txn: algopy.AssetFreezeTransaction): None
+  abimethod asset_freeze(txn: puyapy.AssetFreezeTransaction): None
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<FreezeAsset>(txn)), comment="freeze_asset")
@@ -75,7 +75,7 @@ contract TransactionContract
     assert(gtxns<FreezeAssetFrozen>(txn), comment="frozen")
   }
   
-  abimethod application_call(txn: algopy.ApplicationCallTransaction): None
+  abimethod application_call(txn: puyapy.ApplicationCallTransaction): None
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<ApplicationID>(txn)), comment="application_id")

@@ -1,4 +1,4 @@
-from algopy import Bytes, Contract, UInt64, itob, log
+from puyapy import Bytes, Contract, UInt64, itob, log
 
 
 class ByteConstantsContract(Contract):

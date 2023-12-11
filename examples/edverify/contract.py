@@ -1,4 +1,4 @@
-from algopy import Contract, ed25519verify_bare, Transaction, itob, log, UInt64
+from puyapy import Contract, ed25519verify_bare, Transaction, itob, log, UInt64
 
 
 class VerifyContract(Contract):

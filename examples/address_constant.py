@@ -1,4 +1,4 @@
-from algopy import Account, Contract, Transaction, log
+from puyapy import Account, Contract, Transaction, log
 
 SOME_ADDRESS = "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"
 
