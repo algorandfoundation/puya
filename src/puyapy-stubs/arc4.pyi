@@ -45,6 +45,9 @@ def baremethod(
 
 _T = typing.TypeVar("_T")
 
+def arc4_signature(signature: typing.LiteralString) -> puyapy.Bytes:
+    """Returns the ARC4 encoded method selector for the specified signature"""
+
 class _ABIBytesBacked(typing.Protocol):
     @property
     def bytes(self) -> puyapy.Bytes:

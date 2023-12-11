@@ -26,6 +26,8 @@ class Reference(ARC4Contract):
         self.creator = Transaction.sender()
         self.app = Application(123)
 
+        assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
+
     @arc4.abimethod
     def noop_with_uint64(self, a: arc4.UInt64) -> arc4.UInt8:
         result = 1 + a.decode()
