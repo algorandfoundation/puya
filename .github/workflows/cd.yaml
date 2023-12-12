@@ -1,9 +1,6 @@
 name: Continuous Delivery of Python package
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       production_release:
@@ -59,11 +56,21 @@ jobs:
       - name: Set Git user as GitHub actions
         run: git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
 
-      - name: Create Continuous Deployment - Production
+      - name: Update release - Production
         if: steps.get_branch.outputs.branch == 'main' && inputs.production_release
-        run: |
-          poetry build --format wheel
+        run: semantic-release version
 
-      - name: Publish package distributions to PyPI
+      - name: Update release - Prerelease
+        if: steps.get_branch.outputs.branch == 'main' && !inputs.production_release
+        run: semantic-release version --prerelease
+
+      - name: Create Wheel
+        run: poetry build --format wheel
+
+      - name: Publish to GitHub
+        if: steps.get_branch.outputs.branch == 'main'
+        run: semantic-release publish
+
+      - name: Publish to PyPI
         if: steps.get_branch.outputs.branch == 'main' && inputs.production_release
         uses: pypa/gh-action-pypi-publish@release/v1
