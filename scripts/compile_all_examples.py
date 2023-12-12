@@ -15,7 +15,10 @@ GIT_ROOT = SCRIPT_DIR.parent
 EXAMPLES_DIR = GIT_ROOT / "examples"
 SIZE_TALLY_PATH = EXAMPLES_DIR / "sizes.txt"
 ALGOD_CLIENT = algokit_utils.get_algod_client(algokit_utils.get_default_localnet_config("algod"))
-ENV_WITH_NO_COLOR = dict(os.environ) | {"NO_COLOR": "1"}
+ENV_WITH_NO_COLOR = dict(os.environ) | {
+    "NO_COLOR": "1",  # disable colour output
+    "PYTHONUTF8": "1",  # force utf8 on windows
+}
 
 
 def get_unique_name(path: Path) -> str:

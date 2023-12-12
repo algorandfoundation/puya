@@ -124,9 +124,7 @@ class BraunSSA:
                     through=block_pred,
                 )
             )
-            # temporary work around for windows default code page not handling φ
-            phi_str = str(phi).replace("φ", "Phi")
-            logger.debug(f"Added {pred_variable} to Phi node: {phi_str} in {block_pred}")
+            logger.debug(f"Added {pred_variable} to Phi node: {phi} in {block_pred}")
             attrs.validate(phi)
         trivial_replacements = TrivialPhiRemover.try_remove(phi, self._all_blocks)
         if not trivial_replacements:
