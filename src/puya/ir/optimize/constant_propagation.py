@@ -8,6 +8,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Assignment, Intrinsic
 from puya.ir.ssa import TrivialPhiRemover
 from puya.ir.visitor_mutator import IRMutator
+from puya.utils import unique
 
 logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
 
@@ -180,7 +181,7 @@ def simplify_conditional_branches(_context: CompileContext, subroutine: models.S
                 block.terminator = models.Goto(
                     source_location=terminator.source_location, target=goto
                 )
-                for target in terminator.targets():
+                for target in unique(terminator.targets()):
                     if target is not goto:
                         remove_target(block, target)
             # TODO: do these belong in constant_propagation?

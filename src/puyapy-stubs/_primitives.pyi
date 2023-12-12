@@ -69,7 +69,6 @@ class UInt64:
     def __ior__(self, other: UInt64 | int) -> UInt64: ...
     # ~
     def __invert__(self) -> UInt64: ...
-    # used to turn this into an index e.g. to a list
 
 class Bytes(t.Iterable[Bytes]):
     @t.overload

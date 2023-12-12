@@ -438,7 +438,7 @@ class Switch(ControlOp):
 
     @cases.validator
     def _check_cases(self, _attribute: object, cases: dict[Value, BasicBlock]) -> None:
-        if any(case.atype != self.value.atype for case in cases):
+        if not all(case.atype & self.value.atype for case in cases):
             raise CodeError(
                 "Switch cases types mismatch with value to match", self.source_location
             )
