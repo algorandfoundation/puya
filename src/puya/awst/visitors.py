@@ -143,6 +143,10 @@ class ExpressionVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
+    def visit_create_inner_transaction(self, call: puya.awst.nodes.CreateInnerTransaction) -> T:
+        ...
+
+    @abstractmethod
     def visit_checked_maybe(self, call: puya.awst.nodes.CheckedMaybe) -> T:
         ...
 

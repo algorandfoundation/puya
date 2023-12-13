@@ -47,6 +47,7 @@ from puya.awst.wtypes import WType
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.eb import transaction
 from puya.awst_build.eb.arc4 import ARC4StructClassExpressionBuilder
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -727,6 +728,32 @@ class FunctionASTConverter(
                 return EnsureBudgetBuilder(location=location)
             case constants.OP_UP_FEE_SOURCE:
                 return OpUpFeeSourceClassBuilder(location=location)
+            case constants.CREATE_PAYMENT_TRANSACTION:
+                return transaction.CreatePaymentInnerTransactionExpressionBuilder(
+                    location=location
+                )
+            case constants.CREATE_ASSET_TRANSACTION:
+                return transaction.CreateAssetInnerTransactionExpressionBuilder(location=location)
+            case constants.CONFIG_ASSET_TRANSACTION:
+                return transaction.ConfigAssetInnerTransactionExpressionBuilder(location=location)
+            case constants.FREEZE_ASSET_TRANSACTION:
+                return transaction.FreezeAssetInnerTransactionExpressionBuilder(location=location)
+            case constants.TRANSFER_ASSET_TRANSACTION:
+                return transaction.TransferAssetInnerTransactionExpressionBuilder(
+                    location=location
+                )
+            case constants.CREATE_APPLICATION_TRANSACTION:
+                return transaction.CreateCreateApplicationInnerTransactionExpressionBuilder(
+                    location=location
+                )
+            case constants.UPDATE_APPLICATION_TRANSACTION:
+                return transaction.CreateUpdateApplicationInnerTransactionExpressionBuilder(
+                    location=location
+                )
+            case constants.CALL_APPLICATION_TRANSACTION:
+                return transaction.CreateCallApplicationInnerTransactionExpressionBuilder(
+                    location=location
+                )
             case constants.LOCAL_PROXY_CLS:
                 if self.contract_method_info is None:
                     raise CodeError(

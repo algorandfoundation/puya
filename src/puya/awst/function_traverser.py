@@ -66,6 +66,11 @@ class FunctionTraverser(
         for arg in call.stack_args:
             arg.accept(self)
 
+    def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:
+        call.transaction_type.accept(self)
+        for _, expr in call.fields:
+            expr.accept(self)
+
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> None:
         for item in expr.items:
             item.accept(self)

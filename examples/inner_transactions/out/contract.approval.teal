@@ -1,0 +1,56 @@
+#pragma version 8
+
+// examples.inner_transactions.contract.MyContract.approval_program() -> uint64:
+main_block@0:
+        itxn_begin
+        int appl
+        itxn_field TypeEnum
+        byte 0x068101
+        itxn_field ApprovalProgram
+        byte 0x068101
+        itxn_field ClearStateProgram
+        byte "1"
+        itxn_field ApplicationArgs
+        byte "2"
+        itxn_field ApplicationArgs
+        int 0
+        itxn_field Fee
+        itxn_submit
+        itxn CreatedApplicationID
+        itxn_begin
+        int appl
+        itxn_field TypeEnum
+        dup
+        itxn_field ApplicationID
+        byte 0x068101
+        itxn_field ApprovalProgram
+        byte 0x068101
+        itxn_field ClearStateProgram
+        int 0
+        itxn_field Fee
+        itxn_submit
+        itxn_begin
+        int appl
+        itxn_field TypeEnum
+        itxn_field ApplicationID
+        int DeleteApplication
+        itxn_field OnCompletion
+        itxn_submit
+        txn NumAppArgs
+        int 42
+        *
+        itxn_begin
+        int appl
+        itxn_field TypeEnum
+        int 45678
+        itxn_field ApplicationID
+        method "get(uint64)uint64"
+        itxn_field ApplicationArgs
+        itob
+        itxn_field ApplicationArgs
+        int 0
+        itxn_field Fee
+        itxn_submit
+        int 1
+        return
+

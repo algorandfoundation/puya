@@ -167,3 +167,113 @@ class ApplicationCallTransaction(TransactionBase):
 # 59	NumLogs	uint64	v5	Number of Logs (only with itxn in v5). Application mode only
 # 60	CreatedAssetID	uint64	v5	Asset ID allocated by the creation of an ASA (only with itxn in v5). Application mode only
 # 61	CreatedApplicationID	uint64	v5	ApplicationID allocated by the creation of an application (only with itxn in v5). Application mode only
+
+# TODO: group inner transactions
+
+def payment_txn(
+    *,
+    receiver: Account | str,
+    amount: UInt64 | int,
+    close_remainder_to: Account | str = ...,
+    sender: Account | str = ...,
+    fee: UInt64 | int = ...,
+    note: Bytes | bytes = ...,
+    rekey_to: Account | str = ...,
+) -> None: ...
+def create_asset_txn(
+    *,
+    total: UInt64 | int,
+    unit_name: Bytes | bytes,
+    asset_name: Bytes | bytes,
+    decimals: UInt64 | int = ...,
+    default_frozen: bool = ...,
+    url: Bytes | bytes = ...,
+    metadata_hash: Bytes | bytes = ...,
+    manager: Account | str = ...,
+    reserve: Account | str = ...,
+    freeze: Account | str = ...,
+    clawback: Account | str = ...,
+    sender: Account | str = ...,
+    fee: UInt64 | int = ...,
+    note: Bytes | bytes = ...,
+    rekey_to: Account | str = ...,
+) -> Asset: ...
+def config_asset_txn(
+    *,
+    asset: Asset | UInt64 | int,
+    manager: Account | str = ...,
+    reserve: Account | str = ...,
+    freeze: Account | str = ...,
+    clawback: Account | str = ...,
+    sender: Account | str = ...,
+    fee: UInt64 | int = ...,
+    note: Bytes | bytes = ...,
+    rekey_to: Account | str = ...,
+) -> None: ...
+def freeze_asset_txn(
+    *,
+    freeze_asset: Asset | UInt64 | int,
+    freeze_account: Account | str,
+    frozen: bool,
+    sender: Account | str = ...,
+    fee: UInt64 | int = ...,
+    note: Bytes | bytes = ...,
+    rekey_to: Account | str = ...,
+) -> None: ...
+def transfer_asset_txn(
+    *,
+    xfer_asset: Asset | UInt64 | int,
+    asset_amount: UInt64 | int,
+    asset_receiver: Account | str,
+    asset_close_to: Account | str = ...,
+    sender: Account | str = ...,
+    fee: UInt64 | int = ...,
+    note: Bytes | bytes = ...,
+    rekey_to: Account | str = ...,
+) -> None: ...
+def create_application_txn(
+    *,
+    approval_program: Bytes | bytes,
+    clear_state_program: Bytes | bytes,
+    on_completion: OnCompleteAction | UInt64 | int = ...,
+    global_num_uint: UInt64 | int = ...,
+    global_num_byte_slice: UInt64 | int = ...,
+    local_num_uint: UInt64 | int = ...,
+    local_num_byte_slice: UInt64 | int = ...,
+    extra_program_pages: UInt64 | int = ...,
+    application_args: tuple[Bytes, ...] = ...,
+    accounts: tuple[Account, ...] = ...,
+    assets: tuple[Asset, ...] = ...,
+    applications: tuple[Application, ...] = ...,
+    sender: Account | str = ...,
+    fee: UInt64 | int = ...,
+    note: Bytes | bytes = ...,
+    rekey_to: Account | str = ...,
+) -> Application: ...
+def update_application_txn(
+    *,
+    application_id: Application | UInt64 | int,
+    approval_program: Bytes | bytes,
+    clear_state_program: Bytes | bytes,
+    application_args: tuple[Bytes, ...] = ...,
+    accounts: tuple[Account, ...] = ...,
+    assets: tuple[Asset, ...] = ...,
+    applications: tuple[Application, ...] = ...,
+    sender: Account | str = ...,
+    fee: UInt64 | int = ...,
+    note: Bytes | bytes = ...,
+    rekey_to: Account | str = ...,
+) -> None: ...
+def call_application_txn(
+    *,
+    application_id: Application | UInt64 | int,
+    on_completion: OnCompleteAction | UInt64 | int = ...,
+    application_args: tuple[Bytes, ...] = ...,
+    accounts: tuple[Account, ...] = ...,
+    assets: tuple[Asset, ...] = ...,
+    applications: tuple[Application, ...] = ...,
+    sender: Account | str = ...,
+    fee: UInt64 | int = ...,
+    note: Bytes | bytes = ...,
+    rekey_to: Account | str = ...,
+) -> None: ...

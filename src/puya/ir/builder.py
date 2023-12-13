@@ -764,6 +764,48 @@ class FunctionIRBuilder(
                     immediates=list(call.immediates),
                 )
 
+    def visit_create_inner_transaction(
+        self, call: awst_nodes.CreateInnerTransaction
+    ) -> TExpression:
+        self.block_builder.add(
+            Intrinsic(
+                op=AVMOp.itxn_begin,
+                source_location=call.source_location,
+            )
+        )
+        transaction_type = self._visit_and_materialise_single(call.transaction_type)
+        self.block_builder.add(
+            Intrinsic(
+                op=AVMOp.itxn_field,
+                source_location=call.source_location,
+                immediates=["TypeEnum"],
+                args=[transaction_type],
+            )
+        )
+        for immediate, arg_expr in call.fields:
+            arg = self._visit_and_materialise_single(arg_expr)
+            self.block_builder.add(
+                Intrinsic(
+                    op=AVMOp.itxn_field,
+                    source_location=arg_expr.source_location,
+                    immediates=[immediate],
+                    args=[arg],
+                )
+            )
+        self.block_builder.add(
+            Intrinsic(
+                op=AVMOp.itxn_submit,
+                source_location=call.source_location,
+            )
+        )
+        if call.result_field is None:
+            return None
+        return Intrinsic(
+            op=AVMOp.itxn,
+            immediates=[call.result_field],
+            source_location=call.source_location,
+        )
+
     def visit_method_constant(self, expr: puya.awst.nodes.MethodConstant) -> TExpression:
         return MethodConstant(value=expr.value, source_location=expr.source_location)
 

@@ -42,7 +42,7 @@ contract ConstantProductAMM
     assert(reinterpret_cast<puyapy.UInt64>(a_asset) < reinterpret_cast<puyapy.UInt64>(b_asset), comment="asset a must be less than asset b")
     this.globals['asset_a']: puyapy.Asset = a_asset
     this.globals['asset_b']: puyapy.Asset = b_asset
-    this.globals['pool_token']: puyapy.Asset = this::_create_pool_token()
+    this.globals['pool_token']: puyapy.Asset = create_inner_transaction(type_enum=acfg, ConfigAssetName='DPT-' + checked_maybe(asset_params_get<AssetUnitName>(this.globals['asset_a'])) + '-' + checked_maybe(asset_params_get<AssetUnitName>(this.globals['asset_b'])), ConfigAssetUnitName='dpt', ConfigAssetTotal=10000000000u, ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>(), Fee=0u, result_field="CreatedAssetID")
     this::_do_opt_in(this.globals['asset_a'])
     this::_do_opt_in(this.globals['asset_b'])
     return arc4_encode(reinterpret_cast<puyapy.UInt64>(this.globals['pool_token']), puyapy.arc4.UIntN[typing.Literal[64]])
@@ -64,7 +64,7 @@ contract ConstantProductAMM
     assert(gtxns<AssetAmount>(b_xfer) > 0u, comment="amount minimum not met")
     to_mint: puyapy.UInt64 = examples.amm.contract::tokens_to_mint(pool_balance=this::_current_pool_balance(), a_balance=this::_current_a_balance(), b_balance=this::_current_b_balance(), a_amount=gtxns<AssetAmount>(a_xfer), b_amount=gtxns<AssetAmount>(b_xfer))
     assert(to_mint > 0u, comment="send amount too low")
-    examples.amm.contract::do_asset_transfer(receiver=txn<Sender>(), asset=this.globals['pool_token'], amount=to_mint)
+    create_inner_transaction(type_enum=axfer, XferAsset=this.globals['pool_token'], AssetAmount=to_mint, AssetReceiver=txn<Sender>(), Fee=0u)
     this::_update_ratio()
   }
   
@@ -81,8 +81,8 @@ contract ConstantProductAMM
     pool_balance: puyapy.UInt64 = this::_current_pool_balance()
     a_amt: puyapy.UInt64 = examples.amm.contract::tokens_to_burn(pool_balance=pool_balance, supply=this::_current_a_balance(), amount=gtxns<AssetAmount>(pool_xfer))
     b_amt: puyapy.UInt64 = examples.amm.contract::tokens_to_burn(pool_balance=pool_balance, supply=this::_current_b_balance(), amount=gtxns<AssetAmount>(pool_xfer))
-    examples.amm.contract::do_asset_transfer(receiver=txn<Sender>(), asset=this.globals['asset_a'], amount=a_amt)
-    examples.amm.contract::do_asset_transfer(receiver=txn<Sender>(), asset=this.globals['asset_b'], amount=b_amt)
+    create_inner_transaction(type_enum=axfer, XferAsset=this.globals['asset_a'], AssetAmount=a_amt, AssetReceiver=txn<Sender>(), Fee=0u)
+    create_inner_transaction(type_enum=axfer, XferAsset=this.globals['asset_b'], AssetAmount=b_amt, AssetReceiver=txn<Sender>(), Fee=0u)
     this::_update_ratio()
   }
   
@@ -110,7 +110,7 @@ contract ConstantProductAMM
     }
     to_swap: puyapy.UInt64 = examples.amm.contract::tokens_to_swap(in_amount=gtxns<AssetAmount>(swap_xfer), in_supply=in_supply, out_supply=out_supply)
     assert(to_swap > 0u, comment="send amount too low")
-    examples.amm.contract::do_asset_transfer(receiver=txn<Sender>(), asset=out_asset, amount=to_swap)
+    create_inner_transaction(type_enum=axfer, XferAsset=out_asset, AssetAmount=to_swap, AssetReceiver=txn<Sender>(), Fee=0u)
     this::_update_ratio()
   }
   
@@ -131,24 +131,9 @@ contract ConstantProductAMM
     assert(txn<Sender>() == this.globals['governor'], comment="Only the account set in global_state.governor may call this method")
   }
   
-  subroutine _create_pool_token(): puyapy.Asset
-  {
-    itxn_begin()
-    itxn_field<TypeEnum>(acfg)
-    itxn_field<ConfigAssetName>('DPT-' + checked_maybe(asset_params_get<AssetUnitName>(this.globals['asset_a'])) + '-' + checked_maybe(asset_params_get<AssetUnitName>(this.globals['asset_b'])))
-    itxn_field<ConfigAssetUnitName>('dpt')
-    itxn_field<ConfigAssetTotal>(10000000000u)
-    itxn_field<ConfigAssetDecimals>(3u)
-    itxn_field<ConfigAssetManager>(global<CurrentApplicationAddress>())
-    itxn_field<ConfigAssetReserve>(global<CurrentApplicationAddress>())
-    itxn_field<Fee>(0u)
-    itxn_submit()
-    return reinterpret_cast<puyapy.Asset>(itxn<CreatedAssetID>())
-  }
-  
   subroutine _do_opt_in(asset: puyapy.Asset): None
   {
-    examples.amm.contract::do_asset_transfer(receiver=global<CurrentApplicationAddress>(), asset=asset, amount=0u)
+    create_inner_transaction(type_enum=axfer, XferAsset=asset, AssetAmount=0u, AssetReceiver=global<CurrentApplicationAddress>(), Fee=0u)
   }
   
   subroutine _current_pool_balance(): puyapy.UInt64
@@ -194,15 +179,4 @@ subroutine tokens_to_swap(in_amount: puyapy.UInt64, in_supply: puyapy.UInt64, ou
   in_total: puyapy.UInt64 = 1000u * in_supply - in_amount + in_amount * 995u
   out_total: puyapy.UInt64 = in_amount * 995u * out_supply
   return out_total // in_total
-}
-
-subroutine do_asset_transfer(receiver: puyapy.Account, asset: puyapy.Asset, amount: puyapy.UInt64): None
-{
-  itxn_begin()
-  itxn_field<TypeEnum>(axfer)
-  itxn_field<XferAsset>(reinterpret_cast<puyapy.UInt64>(asset))
-  itxn_field<AssetAmount>(amount)
-  itxn_field<AssetReceiver>(receiver)
-  itxn_field<Fee>(0u)
-  itxn_submit()
 }

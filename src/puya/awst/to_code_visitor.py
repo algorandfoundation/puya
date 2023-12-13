@@ -349,6 +349,13 @@ class ToCodeVisitor(
         result += ")"
         return result
 
+    def visit_create_inner_transaction(self, expr: nodes.CreateInnerTransaction) -> str:
+        fields = [f"type_enum={expr.transaction_type.accept(self)}"]
+        fields += [f"{field}={value.accept(self)}" for field, value in expr.fields]
+        if expr.result_field:
+            fields.append(f'result_field="{expr.result_field}"')
+        return f"create_inner_transaction({', '.join(fields)})"
+
     def visit_tuple_expression(self, expr: nodes.TupleExpression) -> str:
         items = ", ".join([item.accept(self) for item in expr.items])
         return f"({items})"

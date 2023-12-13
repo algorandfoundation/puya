@@ -1,0 +1,17 @@
+contract MyContract
+{
+  approval_program(): bool
+  {
+    app: puyapy.Application = create_inner_transaction(type_enum=appl, ApprovalProgram=hex<"068101">, ClearStateProgram=hex<"068101">, ApplicationArgs='1', ApplicationArgs='2', Fee=0u, result_field="CreatedApplicationID")
+    create_inner_transaction(type_enum=appl, ApplicationID=app, ApprovalProgram=hex<"068101">, ClearStateProgram=hex<"068101">, Fee=0u)
+    create_inner_transaction(type_enum=appl, ApplicationID=app, OnCompletion=DeleteApplication)
+    app_arg: puyapy.UInt64 = txn<NumAppArgs>() * 42u
+    create_inner_transaction(type_enum=appl, ApplicationID=reinterpret_cast<puyapy.Application>(45678u), ApplicationArgs=Method("get(uint64)uint64"), ApplicationArgs=reinterpret_cast<puyapy.Bytes>(arc4_encode(app_arg, puyapy.arc4.UIntN[typing.Literal[64]])), Fee=0u)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}

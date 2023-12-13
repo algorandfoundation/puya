@@ -436,6 +436,32 @@ class IntrinsicCall(Expression):
         )
 
 
+@attrs.define
+class CreateInnerTransaction(Expression):
+    transaction_type: IntegerConstant
+    # this is a sequence of tuples because array fields can be set multiple times
+    fields: Sequence[tuple[str, Expression]] = attrs.field(converter=tuple[tuple[str, Expression]])
+    result_field: str | None = attrs.field()
+
+    @result_field.validator
+    def _validate_result(self, _attribute: object, value: str | None) -> None:
+        if value is None:
+            if self.wtype != wtypes.void_wtype:
+                raise InternalError(
+                    f"No result field for create_inner_transaction, "
+                    f"but expected wtype: {self.wtype}",
+                    self.source_location,
+                )
+        elif self.wtype == wtypes.void_wtype:
+            raise InternalError(
+                f"wtype is void but result_field is not None: {self.result_field}",
+                self.source_location,
+            )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_create_inner_transaction(self)
+
+
 @attrs.define(init=False)
 class CheckedMaybe(Expression):
     """Allows evaluating a maybe type i.e. tuple[_T, bool] as _T, but with the assertion that

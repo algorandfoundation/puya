@@ -5,17 +5,15 @@ from puyapy import (
     ARC4Contract,
     Asset,
     AssetTransferTransaction,
-    Bytes,
-    CreateInnerTransaction,
     Global,
-    InnerTransaction,
     PaymentTransaction,
     Transaction,
-    TransactionType,
     UInt64,
     arc4,
+    create_asset_txn,
     sqrt,
     subroutine,
+    transfer_asset_txn,
 )
 
 # Total supply of the pool tokens
@@ -80,7 +78,15 @@ class ConstantProductAMM(ARC4Contract):
         assert a_asset.asset_id < b_asset.asset_id, "asset a must be less than asset b"
         self.asset_a = a_asset
         self.asset_b = b_asset
-        self.pool_token = self._create_pool_token()
+        self.pool_token = create_asset_txn(
+            asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
+            unit_name=b"dpt",
+            total=TOTAL_SUPPLY,
+            decimals=3,
+            manager=Global.current_application_address(),
+            reserve=Global.current_application_address(),
+            fee=0,
+        )
 
         self._do_opt_in(self.asset_a)
         self._do_opt_in(self.asset_b)
@@ -149,7 +155,12 @@ class ConstantProductAMM(ARC4Contract):
         assert to_mint > 0, "send amount too low"
 
         # mint tokens
-        do_asset_transfer(receiver=Transaction.sender(), asset=self.pool_token, amount=to_mint)
+        transfer_asset_txn(
+            xfer_asset=self.pool_token,
+            asset_amount=to_mint,
+            asset_receiver=Transaction.sender(),
+            fee=0,
+        )
         self._update_ratio()
 
     @arc4.abimethod(
@@ -203,10 +214,14 @@ class ConstantProductAMM(ARC4Contract):
         )
 
         # Send back commensurate amt of a
-        do_asset_transfer(receiver=Transaction.sender(), asset=self.asset_a, amount=a_amt)
+        transfer_asset_txn(
+            xfer_asset=self.asset_a, asset_amount=a_amt, asset_receiver=Transaction.sender(), fee=0
+        )
 
         # Send back commensurate amt of b
-        do_asset_transfer(receiver=Transaction.sender(), asset=self.asset_b, amount=b_amt)
+        transfer_asset_txn(
+            xfer_asset=self.asset_b, asset_amount=b_amt, asset_receiver=Transaction.sender(), fee=0
+        )
         self._update_ratio()
 
     @arc4.abimethod(
@@ -253,7 +268,9 @@ class ConstantProductAMM(ARC4Contract):
         )
         assert to_swap > 0, "send amount too low"
 
-        do_asset_transfer(receiver=Transaction.sender(), asset=out_asset, amount=to_swap)
+        transfer_asset_txn(
+            xfer_asset=out_asset, asset_amount=to_swap, asset_receiver=Transaction.sender(), fee=0
+        )
         self._update_ratio()
 
     @subroutine
@@ -274,28 +291,12 @@ class ConstantProductAMM(ARC4Contract):
         ), "Only the account set in global_state.governor may call this method"
 
     @subroutine
-    def _create_pool_token(self) -> Asset:
-        CreateInnerTransaction.begin()
-        CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
-        CreateInnerTransaction.set_config_asset_name(
-            Bytes(b"DPT-") + self.asset_a.unit_name + Bytes(b"-") + self.asset_b.unit_name
-        )
-        CreateInnerTransaction.set_config_asset_unit_name(b"dpt")
-        CreateInnerTransaction.set_config_asset_total(TOTAL_SUPPLY)
-        CreateInnerTransaction.set_config_asset_decimals(3)
-        CreateInnerTransaction.set_config_asset_manager(Global.current_application_address())
-        CreateInnerTransaction.set_config_asset_reserve(Global.current_application_address())
-        CreateInnerTransaction.set_fee(0)
-        CreateInnerTransaction.submit()
-
-        return Asset(InnerTransaction.created_asset_id())
-
-    @subroutine
     def _do_opt_in(self, asset: Asset) -> None:
-        do_asset_transfer(
-            receiver=Global.current_application_address(),
-            asset=asset,
-            amount=UInt64(0),
+        transfer_asset_txn(
+            xfer_asset=asset,
+            asset_amount=0,
+            asset_receiver=Global.current_application_address(),
+            fee=0,
         )
 
     @subroutine
@@ -361,14 +362,3 @@ def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) 
     in_total = SCALE * (in_supply - in_amount) + (in_amount * FACTOR)
     out_total = in_amount * FACTOR * out_supply
     return out_total // in_total
-
-
-@subroutine
-def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
-    CreateInnerTransaction.begin()
-    CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-    CreateInnerTransaction.set_xfer_asset(asset.asset_id)
-    CreateInnerTransaction.set_asset_amount(amount)
-    CreateInnerTransaction.set_asset_receiver(receiver)
-    CreateInnerTransaction.set_fee(0)
-    CreateInnerTransaction.submit()

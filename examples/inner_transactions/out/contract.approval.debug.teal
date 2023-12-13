@@ -1,0 +1,58 @@
+// Op                                // Op Description                 Stack (out)                              Source code                              Source line
+
+#pragma version 8
+
+// examples.inner_transactions.contract.MyContract.approval_program() -> uint64:
+main_block@0:
+        itxn_begin                   //                                                                         create_application_txn(                  File "inner_transactions/contract.py", line 15
+        int appl                     //                                appl                                     create_application_txn(                  File "inner_transactions/contract.py", line 15
+        itxn_field TypeEnum          //                                                                         create_application_txn(                  File "inner_transactions/contract.py", line 15
+        byte 0x068101                //                                0x068101                                 b"\x06\x81\x01"                          File "inner_transactions/contract.py", line 16
+        itxn_field ApprovalProgram   //                                                                         b"\x06\x81\x01"                          File "inner_transactions/contract.py", line 16
+        byte 0x068101                //                                0x068101                                 Bytes.from_hex("068101")                 File "inner_transactions/contract.py", line 17
+        itxn_field ClearStateProgram //                                                                         Bytes.from_hex("068101")                 File "inner_transactions/contract.py", line 17
+        byte "1"                     //                                "1"                                      b"1"                                     File "inner_transactions/contract.py", line 18
+        itxn_field ApplicationArgs   //                                                                         b"1"                                     File "inner_transactions/contract.py", line 18
+        byte "2"                     //                                "2"                                      b"2"                                     File "inner_transactions/contract.py", line 18
+        itxn_field ApplicationArgs   //                                                                         b"2"                                     File "inner_transactions/contract.py", line 18
+        int 0                        //                                0                                        0                                        File "inner_transactions/contract.py", line 19
+        itxn_field Fee               //                                                                         0                                        File "inner_transactions/contract.py", line 19
+        itxn_submit                  //                                                                         create_application_txn(                  File "inner_transactions/contract.py", line 15
+        itxn CreatedApplicationID    //                                {itxn}                                   create_application_txn(                  File "inner_transactions/contract.py", line 15
+        itxn_begin                   //                                app#0                                    update_application_txn(                  File "inner_transactions/contract.py", line 22
+        int appl                     //                                app#0,appl                               update_application_txn(                  File "inner_transactions/contract.py", line 22
+        itxn_field TypeEnum          //                                app#0                                    update_application_txn(                  File "inner_transactions/contract.py", line 22
+        dup                          // load app#0 from l-stack (copy) app#0,app#0                              app                                      File "inner_transactions/contract.py", line 15
+        itxn_field ApplicationID     //                                app#0                                    app                                      File "inner_transactions/contract.py", line 23
+        byte 0x068101                //                                app#0,0x068101                           b"\x06\x81\x01"                          File "inner_transactions/contract.py", line 24
+        itxn_field ApprovalProgram   //                                app#0                                    b"\x06\x81\x01"                          File "inner_transactions/contract.py", line 24
+        byte 0x068101                //                                app#0,0x068101                           Bytes.from_hex("068101")                 File "inner_transactions/contract.py", line 25
+        itxn_field ClearStateProgram //                                app#0                                    Bytes.from_hex("068101")                 File "inner_transactions/contract.py", line 25
+        int 0                        //                                app#0,0                                  0                                        File "inner_transactions/contract.py", line 26
+        itxn_field Fee               //                                app#0                                    0                                        File "inner_transactions/contract.py", line 26
+        itxn_submit                  //                                app#0                                    update_application_txn(                  File "inner_transactions/contract.py", line 22
+        itxn_begin                   //                                app#0                                    call_application_txn(                    File "inner_transactions/contract.py", line 29
+        int appl                     //                                app#0,appl                               call_application_txn(                    File "inner_transactions/contract.py", line 29
+        itxn_field TypeEnum          //                                app#0                                    call_application_txn(                    File "inner_transactions/contract.py", line 29
+        itxn_field ApplicationID     //                                                                         app                                      File "inner_transactions/contract.py", line 30
+        int DeleteApplication        //                                DeleteApplication                        OnCompleteAction.DeleteApplication       File "inner_transactions/contract.py", line 31
+        itxn_field OnCompletion      //                                                                         OnCompleteAction.DeleteApplication       File "inner_transactions/contract.py", line 31
+        itxn_submit                  //                                                                         call_application_txn(                    File "inner_transactions/contract.py", line 29
+        txn NumAppArgs               //                                {txn}                                    Transaction.num_app_args()               File "inner_transactions/contract.py", line 34
+        int 42                       //                                tmp%0#0,42                               42                                       File "inner_transactions/contract.py", line 34
+        *                            //                                {*}                                      Transaction.num_app_args() * 42          File "inner_transactions/contract.py", line 34
+        itxn_begin                   //                                app_arg#0                                call_application_txn(                    File "inner_transactions/contract.py", line 35
+        int appl                     //                                app_arg#0,appl                           call_application_txn(                    File "inner_transactions/contract.py", line 35
+        itxn_field TypeEnum          //                                app_arg#0                                call_application_txn(                    File "inner_transactions/contract.py", line 35
+        int 45678                    //                                app_arg#0,45678                          45678                                    File "inner_transactions/contract.py", line 36
+        itxn_field ApplicationID     //                                app_arg#0                                45678                                    File "inner_transactions/contract.py", line 36
+        method "get(uint64)uint64"   //                                app_arg#0,method<"get(uint64)uint64">    arc4.arc4_signature("get(uint64)uint64") File "inner_transactions/contract.py", line 38
+        itxn_field ApplicationArgs   //                                app_arg#0                                arc4.arc4_signature("get(uint64)uint64") File "inner_transactions/contract.py", line 38
+        itob                         //                                {itob}                                   arc4.UInt64(app_arg)                     File "inner_transactions/contract.py", line 39
+        itxn_field ApplicationArgs   //                                                                         arc4.UInt64(app_arg)                     File "inner_transactions/contract.py", line 39
+        int 0                        //                                0                                        0                                        File "inner_transactions/contract.py", line 41
+        itxn_field Fee               //                                                                         0                                        File "inner_transactions/contract.py", line 41
+        itxn_submit                  //                                                                         call_application_txn(                    File "inner_transactions/contract.py", line 35
+        int 1                        //                                1                                        True                                     File "inner_transactions/contract.py", line 43
+        return                       //                                                                         return True                              File "inner_transactions/contract.py", line 43
+

@@ -245,33 +245,6 @@ bootstrap_block@0:
         byte "asset_b"
         frame_dig -1
         app_global_put
-        callsub _create_pool_token
-        byte "pool_token"
-        swap
-        app_global_put
-        int 0
-        byte "asset_a"
-        app_global_get_ex
-        assert // check value exists
-        callsub _do_opt_in
-        int 0
-        byte "asset_b"
-        app_global_get_ex
-        assert // check value exists
-        callsub _do_opt_in
-        int 0
-        byte "pool_token"
-        app_global_get_ex
-        assert // check value exists
-        itob
-        retsub
-
-
-// examples.amm.contract.ConstantProductAMM._create_pool_token() -> uint64:
-_create_pool_token:
-        proto 0 1
-
-_create_pool_token_block@0:
         itxn_begin
         int acfg
         itxn_field TypeEnum
@@ -308,6 +281,24 @@ _create_pool_token_block@0:
         itxn_field Fee
         itxn_submit
         itxn CreatedAssetID
+        byte "pool_token"
+        swap
+        app_global_put
+        int 0
+        byte "asset_a"
+        app_global_get_ex
+        assert // check value exists
+        callsub _do_opt_in
+        int 0
+        byte "asset_b"
+        app_global_get_ex
+        assert // check value exists
+        callsub _do_opt_in
+        int 0
+        byte "pool_token"
+        app_global_get_ex
+        assert // check value exists
+        itob
         retsub
 
 
@@ -316,26 +307,14 @@ _do_opt_in:
         proto 1 0
 
 _do_opt_in_block@0:
-        global CurrentApplicationAddress
-        frame_dig -1
-        int 0
-        callsub do_asset_transfer
-        retsub
-
-
-// examples.amm.contract.do_asset_transfer(receiver#0: bytes, asset#0: uint64, amount#0: uint64) -> void:
-do_asset_transfer:
-        proto 3 0
-
-do_asset_transfer_block@0:
         itxn_begin
         int axfer
         itxn_field TypeEnum
-        frame_dig -2
-        itxn_field XferAsset
         frame_dig -1
+        itxn_field XferAsset
+        int 0
         itxn_field AssetAmount
-        frame_dig -3
+        global CurrentApplicationAddress
         itxn_field AssetReceiver
         int 0
         itxn_field Fee
@@ -428,13 +407,20 @@ mint_block@0:
         int 0
         >
         assert // send amount too low
-        txn Sender
+        itxn_begin
+        int axfer
+        itxn_field TypeEnum
         int 0
         byte "pool_token"
         app_global_get_ex
         assert // check value exists
-        uncover 2
-        callsub do_asset_transfer
+        itxn_field XferAsset
+        itxn_field AssetAmount
+        txn Sender
+        itxn_field AssetReceiver
+        int 0
+        itxn_field Fee
+        itxn_submit
         callsub _update_ratio
         retsub
 
@@ -658,20 +644,34 @@ burn_block@0:
         gtxns AssetAmount
         callsub tokens_to_burn
         swap
-        txn Sender
+        itxn_begin
+        int axfer
+        itxn_field TypeEnum
         int 0
         byte "asset_a"
         app_global_get_ex
         assert // check value exists
-        uncover 2
-        callsub do_asset_transfer
+        itxn_field XferAsset
+        itxn_field AssetAmount
         txn Sender
+        itxn_field AssetReceiver
+        int 0
+        itxn_field Fee
+        itxn_submit
+        itxn_begin
+        int axfer
+        itxn_field TypeEnum
         int 0
         byte "asset_b"
         app_global_get_ex
         assert // check value exists
-        uncover 2
-        callsub do_asset_transfer
+        itxn_field XferAsset
+        itxn_field AssetAmount
+        txn Sender
+        itxn_field AssetReceiver
+        int 0
+        itxn_field Fee
+        itxn_submit
         callsub _update_ratio
         retsub
 
@@ -774,10 +774,17 @@ swap_switch_case_next@4:
         int 0
         >
         assert // send amount too low
-        txn Sender
+        itxn_begin
+        int axfer
+        itxn_field TypeEnum
         frame_dig 1
-        uncover 2
-        callsub do_asset_transfer
+        itxn_field XferAsset
+        itxn_field AssetAmount
+        txn Sender
+        itxn_field AssetReceiver
+        int 0
+        itxn_field Fee
+        itxn_submit
         callsub _update_ratio
         retsub
 

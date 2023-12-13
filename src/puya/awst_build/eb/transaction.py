@@ -3,9 +3,12 @@ from __future__ import annotations
 import abc
 import typing
 
+import attrs
+
 from puya.awst import wtypes
 from puya.awst.nodes import (
     CheckedMaybe,
+    CreateInnerTransaction,
     Expression,
     IntrinsicCall,
     Literal,
@@ -15,6 +18,7 @@ from puya.awst.nodes import (
     TupleExpression,
     UInt64Constant,
 )
+from puya.awst_build import constants
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -32,22 +36,42 @@ if typing.TYPE_CHECKING:
 
     from puya.parse import SourceLocation
 
-MemberTypeMap = dict[str, tuple[str, wtypes.WType]]
 
-COMMON_TRANSACTION_FIELDS: MemberTypeMap = {
-    "sender": ("Sender", wtypes.account_wtype),
-    "fee": ("Fee", wtypes.uint64_wtype),
-    "first_valid": ("FirstValid", wtypes.uint64_wtype),
-    "first_valid_time": ("FirstValidTime", wtypes.uint64_wtype),
-    "last_valid": ("LastValid", wtypes.uint64_wtype),
-    "note": ("Note", wtypes.bytes_wtype),
-    "lease": ("Lease", wtypes.bytes_wtype),
-    "type_bytes": ("Type", wtypes.bytes_wtype),
-    "type": ("TypeEnum", wtypes.uint64_wtype),
-    "group_index": ("GroupIndex", wtypes.uint64_wtype),
-    "txn_id": ("TxID", wtypes.bytes_wtype),
-    "rekey_to": ("RekeyTo", wtypes.account_wtype),
-}
+@attrs.define
+class TxnField:
+    python_name: str
+    wtype: wtypes.WType
+    immediate: str = attrs.field()
+
+    @immediate.default
+    def _immediate_factory(self) -> str:
+        return "".join(part.capitalize() for part in self.python_name.split("_"))
+
+
+MemberTypeMap = dict[str, TxnField]
+
+COMMON_CREATE_TRANSACTION_FIELDS = [
+    TxnField("sender", wtypes.account_wtype),
+    TxnField("fee", wtypes.uint64_wtype),
+    TxnField("note", wtypes.bytes_wtype),
+    TxnField("rekey_to", wtypes.account_wtype),
+]
+
+COMMON_TRANSACTION_FIELDS = [
+    *COMMON_CREATE_TRANSACTION_FIELDS,
+    TxnField("first_valid", wtypes.uint64_wtype),
+    TxnField("first_valid_time", wtypes.uint64_wtype),
+    TxnField("last_valid", wtypes.uint64_wtype),
+    TxnField("lease", wtypes.bytes_wtype),
+    TxnField("type_bytes", wtypes.bytes_wtype, immediate="Type"),
+    TxnField("type", wtypes.uint64_wtype, immediate="TypeEnum"),
+    TxnField("group_index", wtypes.uint64_wtype),
+    TxnField("txn_id", wtypes.bytes_wtype, immediate="TxID"),
+]
+
+
+def _to_map(*fields: TxnField) -> MemberTypeMap:
+    return {f.python_name: f for f in fields}
 
 
 class _TransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
@@ -55,11 +79,11 @@ class _TransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         try:
-            immediate, wtype = self.transaction_fields_mapping[name]
+            field = self.transaction_fields_mapping[name]
         except KeyError:
             pass
         else:
-            return self.gtxns(immediate, wtype, location)
+            return self.gtxns(field.immediate, field.wtype, location)
         return super().member_access(name, location)
 
     def gtxns(
@@ -162,21 +186,28 @@ class _TypedTransactionClassExpressionBuilder(_TransactionClassExpressionBuilder
 
 class TransactionBaseExpressionBuilder(_TransactionExpressionBuilder):
     wtype: wtypes.WType = wtypes.transaction_base_wtype
-    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = COMMON_TRANSACTION_FIELDS
+    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_TRANSACTION_FIELDS
+    )
 
 
 class TransactionBaseClassExpressionBuilder(_TransactionClassExpressionBuilder):
     expression_builder_type = TransactionBaseExpressionBuilder
 
 
+PAYMENT_INNER_TRANSACTION_FIELDS = [
+    TxnField("receiver", wtypes.account_wtype),
+    TxnField("amount", wtypes.uint64_wtype),
+    TxnField("close_remainder_to", wtypes.account_wtype),
+]
+
+
 class PaymentTransactionExpressionBuilder(_TypedTransactionExpressionBuilder):
     wtype = wtypes.payment_wtype
-    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = {
-        **COMMON_TRANSACTION_FIELDS,
-        "receiver": ("Receiver", wtypes.account_wtype),
-        "amount": ("Amount", wtypes.uint64_wtype),
-        "close_remainder_to": ("CloseRemainderTo", wtypes.account_wtype),
-    }
+    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_TRANSACTION_FIELDS,
+        *PAYMENT_INNER_TRANSACTION_FIELDS,
+    )
 
 
 class PaymentTransactionClassExpressionBuilder(_TransactionClassExpressionBuilder):
@@ -185,69 +216,88 @@ class PaymentTransactionClassExpressionBuilder(_TransactionClassExpressionBuilde
 
 class KeyRegistrationTransactionExpressionBuilder(_TypedTransactionExpressionBuilder):
     wtype = wtypes.key_registration_wtype
-    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = {
-        **COMMON_TRANSACTION_FIELDS,
-        "vote_key": ("VotePK", wtypes.account_wtype),
-        "selection_key": ("SelectionPK", wtypes.account_wtype),
-        "vote_first": ("VoteFirst", wtypes.uint64_wtype),
-        "vote_last": ("VoteLast", wtypes.uint64_wtype),
-        "vote_key_dilution": ("VoteKeyDilution", wtypes.uint64_wtype),
-        "non_participation": ("Nonparticipation", wtypes.bool_wtype),
-        "state_proof_key": ("StateProofPK", wtypes.bytes_wtype),
-    }
+    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_TRANSACTION_FIELDS,
+        TxnField("vote_key", wtypes.account_wtype, immediate="VotePK"),
+        TxnField("selection_key", wtypes.account_wtype, immediate="SelectionPK"),
+        TxnField("vote_first", wtypes.uint64_wtype),
+        TxnField("vote_last", wtypes.uint64_wtype),
+        TxnField("vote_key_dilution", wtypes.uint64_wtype),
+        TxnField("non_participation", wtypes.bool_wtype, immediate="Nonparticipation"),
+        TxnField("state_proof_key", wtypes.bytes_wtype, immediate="StateProofPK"),
+    )
 
 
 class KeyRegistrationTransactionClassExpressionBuilder(_TransactionClassExpressionBuilder):
     expression_builder_type = KeyRegistrationTransactionExpressionBuilder
 
 
+ASSET_CONFIG_INNER_TRANSACTION_FIELDS = [
+    TxnField("manager", wtypes.account_wtype, immediate="ConfigAssetManager"),
+    TxnField("reserve", wtypes.account_wtype, immediate="ConfigAssetReserve"),
+    TxnField("freeze", wtypes.account_wtype, immediate="ConfigAssetFreeze"),
+    TxnField("clawback", wtypes.account_wtype, immediate="ConfigAssetClawback"),
+]
+
+ASSET_CREATE_INNER_TRANSACTION_FIELDS = [
+    TxnField("total", wtypes.uint64_wtype, immediate="ConfigAssetTotal"),
+    TxnField("decimals", wtypes.uint64_wtype, immediate="ConfigAssetDecimals"),
+    TxnField("default_frozen", wtypes.bool_wtype, immediate="ConfigAssetDefaultFrozen"),
+    TxnField("unit_name", wtypes.bytes_wtype, immediate="ConfigAssetUnitName"),
+    TxnField("asset_name", wtypes.bytes_wtype, immediate="ConfigAssetName"),
+    TxnField("url", wtypes.bytes_wtype, immediate="ConfigAssetURL"),
+    TxnField("metadata_hash", wtypes.bytes_wtype, immediate="ConfigAssetMetadataHash"),
+]
+
+
 class AssetConfigTransactionExpressionBuilder(_TypedTransactionExpressionBuilder):
     wtype = wtypes.asset_config_wtype
-    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = {
-        **COMMON_TRANSACTION_FIELDS,
-        "config_asset": ("ConfigAsset", wtypes.uint64_wtype),
-        "total": ("ConfigAssetTotal", wtypes.uint64_wtype),
-        "decimals": ("ConfigAssetDecimals", wtypes.uint64_wtype),
-        "default_frozen": ("ConfigAssetDefaultFrozen", wtypes.bool_wtype),
-        "unit_name": ("ConfigAssetUnitName", wtypes.bytes_wtype),
-        "asset_name": ("ConfigAssetName", wtypes.bytes_wtype),
-        "url": ("ConfigAssetURL", wtypes.bytes_wtype),
-        "metadata_hash": ("ConfigAssetMetadataHash", wtypes.bytes_wtype),
-        "manager": ("ConfigAssetManager", wtypes.account_wtype),
-        "reserve": ("ConfigAssetReserve", wtypes.account_wtype),
-        "freeze": ("ConfigAssetFreeze", wtypes.account_wtype),
-        "clawback": ("ConfigAssetClawback", wtypes.account_wtype),
-    }
+    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_TRANSACTION_FIELDS,
+        TxnField("config_asset", wtypes.asset_wtype),
+        *ASSET_CREATE_INNER_TRANSACTION_FIELDS,
+        *ASSET_CONFIG_INNER_TRANSACTION_FIELDS,
+    )
 
 
 class AssetConfigTransactionClassExpressionBuilder(_TransactionClassExpressionBuilder):
     expression_builder_type = AssetConfigTransactionExpressionBuilder
 
 
+ASSET_TRANSFER_INNER_TRANSACTION_FIELDS = [
+    TxnField("xfer_asset", wtypes.asset_wtype),
+    TxnField("asset_sender", wtypes.account_wtype),
+    TxnField("asset_amount", wtypes.uint64_wtype),
+    TxnField("asset_receiver", wtypes.account_wtype),
+    TxnField("asset_close_to", wtypes.account_wtype),
+]
+
+
 class AssetTransferTransactionExpressionBuilder(_TypedTransactionExpressionBuilder):
     wtype = wtypes.asset_transfer_wtype
-    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = {
-        **COMMON_TRANSACTION_FIELDS,
-        "xfer_asset": ("XferAsset", wtypes.asset_wtype),
-        "asset_amount": ("AssetAmount", wtypes.uint64_wtype),
-        "asset_sender": ("AssetSender", wtypes.account_wtype),
-        "asset_receiver": ("AssetReceiver", wtypes.account_wtype),
-        "asset_close_to": ("AssetCloseTo", wtypes.account_wtype),
-    }
+    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_TRANSACTION_FIELDS,
+        *ASSET_TRANSFER_INNER_TRANSACTION_FIELDS,
+    )
 
 
 class AssetTransferTransactionClassExpressionBuilder(_TransactionClassExpressionBuilder):
     expression_builder_type = AssetTransferTransactionExpressionBuilder
 
 
+FREEZE_ASSET_INNER_TRANSACTION_FIELDS = [
+    TxnField("freeze_asset", wtypes.asset_wtype),
+    TxnField("freeze_account", wtypes.account_wtype, immediate="FreezeAssetAccount"),
+    TxnField("frozen", wtypes.bool_wtype, immediate="FreezeAssetFrozen"),
+]
+
+
 class AssetFreezeTransactionExpressionBuilder(_TypedTransactionExpressionBuilder):
     wtype = wtypes.asset_freeze_wtype
-    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = {
-        **COMMON_TRANSACTION_FIELDS,
-        "freeze_asset": ("FreezeAsset", wtypes.uint64_wtype),
-        "freeze_account": ("FreezeAssetAccount", wtypes.account_wtype),
-        "frozen": ("FreezeAssetFrozen", wtypes.bool_wtype),
-    }
+    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_TRANSACTION_FIELDS,
+        *FREEZE_ASSET_INNER_TRANSACTION_FIELDS,
+    )
 
 
 class AssetFreezeTransactionClassExpressionBuilder(_TransactionClassExpressionBuilder):
@@ -291,47 +341,235 @@ class ApplicationCallTransactionArrayExpressionBuilder(IntermediateExpressionBui
                 raise CodeError("Invalid/unhandled arguments", location)
 
 
+COMMON_APPLICATION_ARRAY_INNER_TRANSACTION_FIELDS = [
+    TxnField("application_args", wtypes.bytes_wtype),
+    TxnField("accounts", wtypes.account_wtype),
+    TxnField("assets", wtypes.asset_wtype),
+    TxnField("applications", wtypes.application_wtype),
+]
+
+UPDATE_AND_CREATE_APPLICATION_INNER_TRANSACTION_FIELDS = [
+    TxnField("approval_program", wtypes.bytes_wtype),
+    TxnField("clear_state_program", wtypes.bytes_wtype),
+]
+
+CREATE_APPLICATION_INNER_TRANSACTION_FIELDS = [
+    TxnField("global_num_uint", wtypes.uint64_wtype),
+    TxnField("global_num_byte_slice", wtypes.uint64_wtype),
+    TxnField("local_num_uint", wtypes.uint64_wtype),
+    TxnField("local_num_byte_slice", wtypes.uint64_wtype),
+    TxnField("extra_program_pages", wtypes.uint64_wtype),
+]
+on_completion_field = TxnField("on_completion", wtypes.uint64_wtype)
+application_id_field = TxnField(
+    "application_id", wtypes.application_wtype, immediate="ApplicationID"
+)
+
+
 class ApplicationCallTransactionExpressionBuilder(_TypedTransactionExpressionBuilder):
     wtype = wtypes.application_call_wtype
-    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = {
-        **COMMON_TRANSACTION_FIELDS,
-        "application_id": ("ApplicationID", wtypes.uint64_wtype),
-        "on_completion": ("OnCompletion", wtypes.uint64_wtype),
-        "num_app_args": ("NumAppArgs", wtypes.uint64_wtype),
-        "num_accounts": ("NumAccounts", wtypes.uint64_wtype),
-        "approval_program": ("ApprovalProgram", wtypes.bytes_wtype),
-        "clear_state_program": ("ClearStateProgram", wtypes.bytes_wtype),
-        "num_assets": ("NumAssets", wtypes.uint64_wtype),
-        "num_applications": ("NumApplications", wtypes.uint64_wtype),
-        "global_num_uint": ("GlobalNumUint", wtypes.uint64_wtype),
-        "global_num_byte_slice": ("GlobalNumByteSlice", wtypes.uint64_wtype),
-        "local_num_uint": ("LocalNumUint", wtypes.uint64_wtype),
-        "local_num_byte_slice": ("LocalNumByteSlice", wtypes.uint64_wtype),
-        "extra_program_pages": ("ExtraProgramPages", wtypes.uint64_wtype),
-        "last_log": ("LastLog", wtypes.bytes_wtype),
-        "num_approval_program_pages": ("NumApprovalProgramPages", wtypes.uint64_wtype),
-        "num_clear_state_program_pages": ("NumClearStateProgramPages", wtypes.uint64_wtype),
-    }
-    transaction_array_method_mapping: typing.ClassVar[MemberTypeMap] = {
-        "application_args": ("ApplicationArgs", wtypes.bytes_wtype),
-        "accounts": ("Accounts", wtypes.account_wtype),
-        "assets": ("Assets", wtypes.asset_wtype),
-        "applications": ("Applications", wtypes.application_wtype),
-        "approval_program_pages": ("ApprovalProgramPages", wtypes.bytes_wtype),
-        "clear_state_program_pages": ("ClearStateProgramPages", wtypes.bytes_wtype),
-    }
+    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_TRANSACTION_FIELDS,
+        *UPDATE_AND_CREATE_APPLICATION_INNER_TRANSACTION_FIELDS,
+        *CREATE_APPLICATION_INNER_TRANSACTION_FIELDS,
+        application_id_field,
+        on_completion_field,
+        TxnField("num_app_args", wtypes.uint64_wtype),
+        TxnField("num_accounts", wtypes.uint64_wtype),
+        TxnField("num_assets", wtypes.uint64_wtype),
+        TxnField("num_applications", wtypes.uint64_wtype),
+        TxnField("last_log", wtypes.bytes_wtype),
+        TxnField("num_approval_program_pages", wtypes.uint64_wtype),
+        TxnField("num_clear_state_program_pages", wtypes.uint64_wtype),
+    )
+    transaction_array_method_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_APPLICATION_ARRAY_INNER_TRANSACTION_FIELDS,
+        TxnField("approval_program_pages", wtypes.bytes_wtype),
+        TxnField("clear_state_program_pages", wtypes.bytes_wtype),
+    )
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         try:
-            immediate, wtype = self.transaction_array_method_mapping[name]
+            field = self.transaction_array_method_mapping[name]
         except KeyError:
             pass
         else:
             return ApplicationCallTransactionArrayExpressionBuilder(
-                self.expr, immediate, wtype, location
+                self.expr, field.immediate, field.wtype, location
             )
         return super().member_access(name, location)
 
 
 class ApplicationCallTransactionClassExpressionBuilder(_TransactionClassExpressionBuilder):
     expression_builder_type = ApplicationCallTransactionExpressionBuilder
+
+
+class CreateInnerTransactionExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
+    keyword_mapping: typing.ClassVar[MemberTypeMap]
+    wtype: wtypes.WType
+    function_name: str
+    transaction_type: constants.TransactionType
+    result_field: str | None = None
+
+    def get_transaction_fields(
+        self, arg_name: str, arg: ExpressionBuilder | Literal
+    ) -> list[tuple[str, Expression]]:
+        try:
+            field = self.keyword_mapping[arg_name]
+        except KeyError as ex:
+            raise CodeError(
+                f"{arg_name} is not a valid keyword argument", arg.source_location
+            ) from ex
+        field_expr = expect_operand_wtype(arg, field.wtype)
+        return [(field.immediate, field_expr)]
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        transaction_fields: list[tuple[str, Expression]] = []
+        for arg_name, arg in zip(arg_names, args, strict=True):
+            if arg_name is None:
+                raise CodeError(
+                    f"Positional arguments are not supported for {self.function_name}", location
+                )
+            transaction_fields.extend(self.get_transaction_fields(arg_name, arg))
+        return var_expression(
+            CreateInnerTransaction(
+                transaction_type=UInt64Constant(
+                    source_location=location,
+                    value=self.transaction_type.value,
+                    teal_alias=self.transaction_type.name,
+                ),
+                wtype=self.wtype,
+                fields=transaction_fields,
+                result_field=self.result_field,
+                source_location=location,
+            )
+        )
+
+
+class CreatePaymentInnerTransactionExpressionBuilder(CreateInnerTransactionExpressionBuilder):
+    keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_CREATE_TRANSACTION_FIELDS,
+        *PAYMENT_INNER_TRANSACTION_FIELDS,
+    )
+    wtype = wtypes.void_wtype
+    function_name: str = "payment_txn"
+    transaction_type = constants.TransactionType.pay
+
+
+class CreateAssetInnerTransactionExpressionBuilder(CreateInnerTransactionExpressionBuilder):
+    keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_CREATE_TRANSACTION_FIELDS,
+        *ASSET_CREATE_INNER_TRANSACTION_FIELDS,
+        *ASSET_CONFIG_INNER_TRANSACTION_FIELDS,
+    )
+    wtype = wtypes.asset_wtype
+    function_name: str = "create_asset_txn"
+    transaction_type = constants.TransactionType.acfg
+    result_field = "CreatedAssetID"
+
+
+class ConfigAssetInnerTransactionExpressionBuilder(CreateInnerTransactionExpressionBuilder):
+    keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_CREATE_TRANSACTION_FIELDS,
+        TxnField("config_asset", wtypes.asset_wtype),
+        *ASSET_CONFIG_INNER_TRANSACTION_FIELDS,
+    )
+    wtype = wtypes.void_wtype
+    function_name: str = "config_asset_txn"
+    transaction_type = constants.TransactionType.acfg
+
+
+class FreezeAssetInnerTransactionExpressionBuilder(CreateInnerTransactionExpressionBuilder):
+    keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_CREATE_TRANSACTION_FIELDS,
+        *FREEZE_ASSET_INNER_TRANSACTION_FIELDS,
+    )
+    wtype = wtypes.void_wtype
+    function_name: str = "freeze_asset_txn"
+    transaction_type = constants.TransactionType.afrz
+
+
+class TransferAssetInnerTransactionExpressionBuilder(CreateInnerTransactionExpressionBuilder):
+    keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_CREATE_TRANSACTION_FIELDS,
+        *ASSET_TRANSFER_INNER_TRANSACTION_FIELDS,
+    )
+    wtype = wtypes.void_wtype
+    function_name: str = "transfer_asset_txn"
+    transaction_type = constants.TransactionType.axfer
+
+
+class _ApplicationInnerTransactionExpressionBuilder(CreateInnerTransactionExpressionBuilder):
+    keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_CREATE_TRANSACTION_FIELDS,
+        *UPDATE_AND_CREATE_APPLICATION_INNER_TRANSACTION_FIELDS,
+        *CREATE_APPLICATION_INNER_TRANSACTION_FIELDS,
+    )
+    array_keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_APPLICATION_ARRAY_INNER_TRANSACTION_FIELDS,
+    )
+    transaction_type = constants.TransactionType.appl
+
+    def get_transaction_fields(
+        self, arg_name: str, arg: ExpressionBuilder | Literal
+    ) -> list[tuple[str, Expression]]:
+        try:
+            field = self.array_keyword_mapping[arg_name]
+        except KeyError:
+            return super().get_transaction_fields(arg_name, arg)
+
+        match arg:
+            case ValueExpressionBuilder(
+                expr=TupleExpression() as expr, wtype=wtypes.WTuple(types=tuple_item_types)
+            ) if all(t == field.wtype for t in tuple_item_types):
+                return [
+                    (field.immediate, expect_operand_wtype(item, field.wtype))
+                    for item in expr.items
+                ]
+
+        raise CodeError(f"{arg_name} should be of type tuple[{field.wtype.stub_name}, ...]")
+
+
+class CreateCreateApplicationInnerTransactionExpressionBuilder(
+    _ApplicationInnerTransactionExpressionBuilder
+):
+    keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_CREATE_TRANSACTION_FIELDS,
+        *UPDATE_AND_CREATE_APPLICATION_INNER_TRANSACTION_FIELDS,
+        *CREATE_APPLICATION_INNER_TRANSACTION_FIELDS,
+        on_completion_field,
+    )
+    wtype = wtypes.application_wtype
+    function_name: str = "create_application_txn"
+    result_field = "CreatedApplicationID"
+
+
+class CreateUpdateApplicationInnerTransactionExpressionBuilder(
+    _ApplicationInnerTransactionExpressionBuilder
+):
+    keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_CREATE_TRANSACTION_FIELDS,
+        *UPDATE_AND_CREATE_APPLICATION_INNER_TRANSACTION_FIELDS,
+        application_id_field,
+    )
+    wtype = wtypes.void_wtype
+    function_name: str = "update_application_txn"
+
+
+class CreateCallApplicationInnerTransactionExpressionBuilder(
+    _ApplicationInnerTransactionExpressionBuilder
+):
+    keyword_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
+        *COMMON_CREATE_TRANSACTION_FIELDS,
+        application_id_field,
+        on_completion_field,
+    )
+    wtype = wtypes.void_wtype
+    function_name: str = "call_application_txn"

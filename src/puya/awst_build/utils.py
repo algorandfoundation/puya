@@ -15,10 +15,12 @@ from puya.awst.nodes import (
     BigUIntConstant,
     BoolConstant,
     BytesConstant,
+    BytesEncoding,
     ConstantValue,
     ContractReference,
     Expression,
     Literal,
+    ReinterpretCast,
     TemporaryVariable,
     UInt64Constant,
 )
@@ -219,9 +221,27 @@ def convert_literal(
         case wtypes.biguint_wtype:
             return BigUIntConstant(value=literal_value, source_location=loc)
         case wtypes.bytes_wtype:
-            return BytesConstant(value=literal_value, source_location=loc)
+            try:
+                literal_value.decode("utf8")
+            except ValueError:
+                encoding = BytesEncoding.base16
+            else:
+                encoding = BytesEncoding.utf8
+            return BytesConstant(value=literal_value, source_location=loc, encoding=encoding)
         case wtypes.account_wtype:
             return AddressConstant(value=literal_value, source_location=loc)
+        case wtypes.asset_wtype | wtypes.application_wtype:
+            return ReinterpretCast(
+                expr=UInt64Constant(value=literal_value, source_location=loc),
+                wtype=target_wtype,
+                source_location=loc,
+            )
+        case wtypes.account_wtype:
+            return ReinterpretCast(
+                expr=BytesConstant(value=literal_value, source_location=loc),
+                wtype=target_wtype,
+                source_location=loc,
+            )
         case _:
             raise CodeError(
                 f"Can't construct {target_wtype} from Python literal {literal_value}", loc
