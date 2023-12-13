@@ -134,6 +134,7 @@ class AppTransactionParameters:
     assets: list[int] | None = None
     on_complete: OnComplete = OnComplete.NoOpOC
     sp: transaction.SuggestedParams | None = None
+    extra_pages: int | None = None
 
 
 GroupTransactionsProvider: typing.TypeAlias = Callable[[int], Iterable[TransactionWithSigner]]
@@ -223,6 +224,7 @@ class ATCRunner:
             "accounts": request.accounts,
             "foreign_assets": request.assets,
             "app_args": request.args,
+            "extra_pages": request.extra_pages,
         }
 
     def add_transactions(
@@ -945,6 +947,17 @@ def test_abi_struct(harness: _TestHarness) -> None:
     assert x == 0x1079F7E42E.to_bytes(8, "big")
     assert y == 0x4607097084.to_bytes(8, "big")
     assert z == 0b10100000.to_bytes()
+
+
+def test_abi_mutations(harness: _TestHarness) -> None:
+    harness.deploy(
+        EXAMPLES_DIR / "arc4_types" / "mutation.py",
+        AppCallRequest(
+            extra_pages=1,
+            trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "mutation.log",
+            increase_budget=15,
+        ),
+    )
 
 
 @pytest.mark.parametrize(

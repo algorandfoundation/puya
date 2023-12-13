@@ -63,7 +63,10 @@ class IRBuildContext(CompileContext):
                             invocation.source_location,
                         )
                 case awst_nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
-                    func = self.module_awsts[module_name].symtable[func_name]
+                    if module_name == "_puyapy_":
+                        func = self.module_awsts["puyapy"].symtable[func_name]
+                    else:
+                        func = self.module_awsts[module_name].symtable[func_name]
                 case _:
                     raise InternalError(
                         f"Unhandled subroutine invocation target: {invocation.target}",

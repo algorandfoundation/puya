@@ -8,21 +8,28 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4ArrayEncode,
+    ArrayExtend,
+    BytesComparisonExpression,
+    EqualityComparison,
     Expression,
     IndexExpression,
     IntrinsicCall,
     Literal,
+    TupleExpression,
     UInt64BinaryOperation,
     UInt64BinaryOperator,
     UInt64Constant,
 )
 from puya.awst_build.eb.arc4.base import (
+    get_bytes_expr,
     get_bytes_expr_builder,
     get_integer_literal_value,
 )
 from puya.awst_build.eb.base import (
+    BuilderComparisonOp,
     ExpressionBuilder,
     GenericClassExpressionBuilder,
+    IntermediateExpressionBuilder,
     Iteration,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -269,6 +276,24 @@ class ARC4ArrayExpressionBuilder(ValueExpressionBuilder, ABC):
             case _:
                 return super().member_access(name, location)
 
+    def compare(
+        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> ExpressionBuilder:
+        if isinstance(other, Literal):
+            raise CodeError(
+                f"Cannot compare arc4 encoded value of {self.wtype} to a literal value", location
+            )
+        other_expr = other.rvalue()
+        if other_expr.wtype != self.wtype:
+            return NotImplemented
+        cmp_expr = BytesComparisonExpression(
+            source_location=location,
+            lhs=get_bytes_expr(self.expr),
+            operator=EqualityComparison(op.value),
+            rhs=get_bytes_expr(other_expr),
+        )
+        return var_expression(cmp_expr)
+
 
 class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
     def __init__(self, expr: Expression):
@@ -287,8 +312,89 @@ class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
                         wtype=wtypes.uint64_wtype,
                     )
                 )
+            case "append":
+                return AppendExpressionBuilder(self.expr, location)
+            case "extend":
+                return ExtendExpressionBuilder(self.expr, location)
             case _:
                 return super().member_access(name, location)
+
+
+class AppendExpressionBuilder(IntermediateExpressionBuilder):
+    def __init__(self, expr: Expression, location: SourceLocation):
+        super().__init__(location)
+        self.expr = expr
+        if not isinstance(expr.wtype, wtypes.ARC4DynamicArray):
+            raise InternalError(
+                "AppendExpressionBuilder can only be instantiated with an arc4.DynamicArray"
+            )
+        self.wtype: wtypes.ARC4DynamicArray = expr.wtype
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        args_expr = [expect_operand_wtype(a, self.wtype.element_type) for a in args]
+        args_tuple = TupleExpression.from_items(args_expr, location)
+        return var_expression(
+            ArrayExtend(
+                base=self.expr,
+                other=args_tuple,
+                source_location=location,
+            )
+        )
+
+
+class ExtendExpressionBuilder(IntermediateExpressionBuilder):
+    def __init__(self, expr: Expression, location: SourceLocation):
+        super().__init__(location)
+        self.expr = expr
+        if not isinstance(expr.wtype, wtypes.ARC4DynamicArray):
+            raise InternalError(
+                "AppendExpressionBuilder can only be instantiated with an arc4.DynamicArray"
+            )
+        self.wtype: wtypes.ARC4DynamicArray = expr.wtype
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        match args:
+            case (ExpressionBuilder() as eb,):
+                expr = eb.rvalue()
+                match expr:
+                    case Expression(wtype=wtypes.ARC4Array() as array_wtype) as array_ex:
+                        if array_wtype.element_type == self.wtype.element_type:
+                            return var_expression(
+                                ArrayExtend(
+                                    base=self.expr,
+                                    other=array_ex,
+                                    source_location=location,
+                                )
+                            )
+                    case Expression(wtype=wtypes.WTuple() as tuple_wtype) as tuple_ex:
+                        if all(et == self.wtype.element_type for et in tuple_wtype.types):
+                            return var_expression(
+                                ArrayExtend(
+                                    base=self.expr,
+                                    other=tuple_ex,
+                                    source_location=location,
+                                )
+                            )
+                raise CodeError(
+                    "Extend expects an arc4.StaticArray or arc4.DynamicArray of the same element "
+                    f"type. Expected array of {self.wtype.element_type}; Received {expr.wtype}"
+                )
+            case _:
+                raise CodeError("Invalid/Unhandled arguments", location)
 
 
 class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):

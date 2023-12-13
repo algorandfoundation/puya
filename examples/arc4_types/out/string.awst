@@ -8,6 +8,13 @@ contract Arc4StringTypesContract
     assert(some_bytes != reinterpret_cast<puyapy.Bytes>(some_bytes_as_string), comment="Original bytes should not match encoded bytes")
     assert(some_bytes == reinterpret_cast<puyapy.Bytes>(some_bytes_as_string)[(2u < tmp$0: puyapy.UInt64 := len(reinterpret_cast<puyapy.Bytes>(some_bytes_as_string))) ? (2u) : (tmp$0):], comment="Original bytes should match encoded if we strip the length header")
     assert(some_bytes == some_bytes_as_bytes_again)
+    hello: puyapy.arc4.String = arc4_encode('Hello', puyapy.arc4.String)
+    space: puyapy.arc4.String = arc4_encode(' ', puyapy.arc4.String)
+    world: puyapy.arc4.String = arc4_encode('World!', puyapy.arc4.String)
+    assert(reinterpret_cast<puyapy.Bytes>(arc4_encode('Hello World!', puyapy.arc4.String)) == reinterpret_cast<puyapy.Bytes>(hello + space + world))
+    thing: puyapy.arc4.String = arc4_encode('hi', puyapy.arc4.String)
+    thing.extend(thing)
+    assert(reinterpret_cast<puyapy.Bytes>(thing) == reinterpret_cast<puyapy.Bytes>(arc4_encode('hihi', puyapy.arc4.String)))
     return true
   }
   

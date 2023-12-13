@@ -16,6 +16,20 @@ class ToCodeVisitor(
     StatementVisitor[list[str]],
     ExpressionVisitor[str],
 ):
+    def visit_array_concat(self, expr: nodes.ArrayConcat) -> str:
+        left = expr.left.accept(self)
+        right = expr.right.accept(self)
+        return f"{left} + {right}"
+
+    def visit_array_extend(self, expr: nodes.ArrayExtend) -> str:
+        base = expr.base.accept(self)
+        value = expr.other.accept(self)
+        return f"{base}.extend({value})"
+
+    def visit_array_pop(self, expr: nodes.ArrayPop) -> str:
+        base = expr.base.accept(self)
+        return f"{base}.pop()"
+
     def __init__(self) -> None:
         self._seen_tmp = dict[nodes.TemporaryVariable, int]()
 
@@ -57,11 +71,6 @@ class ToCodeVisitor(
     def visit_new_array(self, expr: nodes.NewArray) -> str:
         args = ", ".join(a.accept(self) for a in expr.elements)
         return f"new {expr.wtype.element_type}[]({args})"
-
-    def visit_array_append(self, expr: nodes.ArrayAppend) -> str:
-        base = expr.array.accept(self)
-        elem = expr.element.accept(self)
-        return f"{base}.append({elem})"
 
     def visit_new_struct(self, expr: nodes.NewStruct) -> str:
         args = ", ".join(

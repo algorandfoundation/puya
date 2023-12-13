@@ -389,11 +389,46 @@ class ARC4Encode(Expression):
 
 @attrs.frozen
 class ARC4ArrayEncode(Expression):
-    values: Sequence[Expression]
     wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray = attrs.field()
+    values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_array_encode(self)
+
+
+@attrs.frozen
+class ArrayConcat(Expression):
+    left: Expression
+    # todo validator, wtype will be dynamic array - left and right element types must match
+    wtype: wtypes.WType
+    right: Expression
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_concat(self)
+
+
+@attrs.frozen
+class ArrayPop(Expression):
+    base: Expression
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_pop(self)
+
+
+@attrs.frozen
+class ArrayExtend(Expression):
+    base: Expression
+    other: Expression
+    wtype: wtypes.WType = attrs.field(default=wtypes.void_wtype)
+
+    # some_array.extend((a, b, c))  => other = TupleExpression
+    # some_array.append(1) => other = TupleExpression
+    # some_array.extend(other_array) => other = DynamicArrayExpression or static
+    # some_array += other_array
+    # some_array += (a,)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_extend(self)
 
 
 @attrs.frozen
@@ -1086,16 +1121,6 @@ class NewStruct(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_new_struct(self)
-
-
-@attrs.frozen
-class ArrayAppend(Expression):
-    array: Expression
-    element: Expression
-    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_array_append(self)
 
 
 @attrs.frozen

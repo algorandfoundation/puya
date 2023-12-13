@@ -26,9 +26,32 @@ contract examples.arc4_types.string.Arc4StringTypesContract:
                 (assert tmp%9#0) // Original bytes should match encoded if we strip the length header
                 let tmp%10#0: uint64 = (== some_bytes#0 some_bytes_as_bytes_again#0)
                 (assert tmp%10#0)
+                let hello#0: bytes = "\x00\x05Hello"
+                let space#0: bytes = "\x00\x01 "
+                let world#0: bytes = "\x00\x06World!"
+                let len_left%11#0: uint64 = (extract_uint16 hello#0 0u)
+                let len_right%12#0: uint64 = (extract_uint16 space#0 0u)
+                let new_length%13#0: uint64 = (+ len_left%11#0 len_right%12#0)
+                let val_as_bytes%14#0: bytes = (itob new_length%13#0)
+                let result%15#0: bytes = ((extract 6 2) val_as_bytes%14#0)
+                let left_data%16#0: bytes = ((extract 2 0) hello#0)
+                let result%15#0: bytes = (concat result%15#0 left_data%16#0)
+                let right_data%17#0: bytes = ((extract 2 0) space#0)
+                let result%15#0: bytes = (concat result%15#0 right_data%17#0)
+                let len_left%18#0: uint64 = (extract_uint16 result%15#0 0u)
+                let len_right%19#0: uint64 = (extract_uint16 world#0 0u)
+                let new_length%20#0: uint64 = (+ len_left%18#0 len_right%19#0)
+                let val_as_bytes%21#0: bytes = (itob new_length%20#0)
+                let result%22#0: bytes = ((extract 6 2) val_as_bytes%21#0)
+                let left_data%23#0: bytes = ((extract 2 0) result%15#0)
+                let result%22#0: bytes = (concat result%22#0 left_data%23#0)
+                let right_data%24#0: bytes = ((extract 2 0) world#0)
+                let result%22#0: bytes = (concat result%22#0 right_data%24#0)
+                let tmp%25#0: uint64 = (== "\x00\x0cHello World!" result%22#0)
+                (assert tmp%25#0)
                 return 1u
     
     program clear-state:
         subroutine examples.arc4_types.string.Arc4StringTypesContract.clear_state_program() -> uint64:
-            block@0: // L27
+            block@0: // L32
                 return 1u

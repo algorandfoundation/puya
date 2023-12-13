@@ -4,7 +4,7 @@ import mypy.nodes
 import mypy.types
 
 from puya.awst import wtypes
-from puya.awst.nodes import ArrayAppend, Contains, Expression, Literal, NewArray
+from puya.awst.nodes import ArrayExtend, Contains, Expression, Literal, NewArray, TupleExpression
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -113,11 +113,12 @@ class ArrayAppenderExpressionBuilder(IntermediateExpressionBuilder):
         match args:
             case [elem]:
                 elem_expr = require_expression_builder(elem).rvalue()
+
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-        append_expr = ArrayAppend(
+        append_expr = ArrayExtend(
             location,
-            array=self.array,
-            element=elem_expr,
+            base=self.array,
+            other=TupleExpression.from_items([elem_expr], location),
         )
         return var_expression(append_expr)
