@@ -5,6 +5,11 @@ from collections.abc import Iterator, Sequence
 import structlog
 
 import puya.awst.visitors
+from puya.arc4_util import (
+    determine_arc4_tuple_head_size,
+    get_arc4_fixed_bit_size,
+    is_arc4_dynamic_size,
+)
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -13,14 +18,10 @@ from puya.awst import (
 from puya.awst.nodes import (
     BigUIntBinaryOperator,
     Expression,
+    TupleExpression,
     UInt64BinaryOperator,
 )
 from puya.errors import CodeError, InternalError, TodoError
-from puya.ir.arc4_util import (
-    determine_arc4_tuple_head_size,
-    get_arc4_fixed_bit_size,
-    is_arc4_dynamic_size,
-)
 from puya.ir.avm_ops import AVMOp
 from puya.ir.blocks_builder import BlocksBuilder
 from puya.ir.context import IRBuildContext, IRFunctionBuildContext
@@ -78,8 +79,9 @@ class FunctionIRBuilder(
     def ssa(self) -> BraunSSA:
         return self.block_builder.ssa
 
-    def _seal(self, block: BasicBlock) -> None:
-        self.ssa.seal_block(block)
+    def _seal(self, *blocks: BasicBlock) -> None:
+        for block in blocks:
+            self.ssa.seal_block(block)
 
     @classmethod
     def build_body(
@@ -574,6 +576,20 @@ class FunctionIRBuilder(
                     )
                 )
                 return source
+            case awst_nodes.IndexExpression(
+                base=awst_nodes.Expression(
+                    wtype=wtypes.ARC4DynamicArray()
+                    | wtypes.ARC4StaticArray()
+                    | wtypes.ARC4Struct()
+                )
+            ) as ix_expr:
+                return (
+                    self._handle_arc4_assign(
+                        target=ix_expr,
+                        value=value,
+                        source_location=assignment_location,
+                    ),
+                )
             case _:
                 raise TodoError(
                     assignment_location,
@@ -2304,11 +2320,699 @@ class FunctionIRBuilder(
         self._seal(next_block)
         self.block_builder.activate_block(next_block)
 
-    def visit_array_append(self, expr: awst_nodes.ArrayAppend) -> TExpression:
-        raise TodoError(expr.source_location, "TODO: visit_new_struct")
-
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
         raise TodoError(expr.source_location, "TODO: visit_new_struct")
+
+    def _invoke_puya_util_subroutine(
+        self, *, method_name: str, args: list[Value], source_location: SourceLocation
+    ) -> InvokeSubroutine:
+        sub = next(
+            (s for s in self.context.subroutines.values() if s.method_name == method_name), None
+        )
+        if not sub:
+            raise InternalError(f"Could not find subroutine with the name {method_name}")
+        return InvokeSubroutine(
+            source_location=source_location,
+            target=sub,
+            args=args,
+        )
+
+    def visit_array_pop(self, expr: puya.awst.nodes.ArrayPop) -> TExpression:
+        ...
+
+    def visit_array_concat(self, expr: puya.awst.nodes.ArrayConcat) -> TExpression:
+        return self._concat_values(
+            left=expr.left,
+            right=expr.right,
+            source_location=expr.source_location,
+        )
+
+    def visit_array_extend(self, expr: puya.awst.nodes.ArrayExtend) -> TExpression:
+        source_location = expr.source_location
+
+        return self._handle_arc4_assign(
+            target=expr.base,
+            value=self._concat_values(
+                left=expr.base,
+                right=expr.other,
+                source_location=source_location,
+            ),
+            source_location=expr.source_location,
+        )
+
+    def _get_arc4_array_data_and_length(
+        self, expr: Expression, source_location: SourceLocation
+    ) -> tuple[Value, Value]:
+        match expr:
+            case Expression(wtype=wtypes.ARC4DynamicArray(element_type=element_type)):
+                dynamic_array = self._visit_and_materialise_single(expr)
+                (array_length,) = self._assign_intrinsic_op(
+                    target="array_length",
+                    op=AVMOp.extract_uint16,
+                    args=[
+                        dynamic_array,
+                        0,
+                    ],
+                    source_location=source_location,
+                )
+                if get_arc4_fixed_bit_size(element_type) is None:
+                    (start_of_data,) = self._assign_intrinsic_op(
+                        target="start_of_data",
+                        op=AVMOp.mul,
+                        args=[array_length, 2],
+                        source_location=source_location,
+                    )
+                    (start_of_data,) = self._assign_intrinsic_op(
+                        target=start_of_data,
+                        op=AVMOp.add,
+                        args=[start_of_data, 2],
+                        source_location=source_location,
+                    )
+                    (total_length,) = self._assign_intrinsic_op(
+                        target="total_length",
+                        op=AVMOp.len_,
+                        args=[
+                            dynamic_array,
+                        ],
+                        source_location=source_location,
+                    )
+                    (data,) = self._assign_intrinsic_op(
+                        target="data",
+                        op=AVMOp.substring3,
+                        args=[dynamic_array, start_of_data, total_length],
+                        source_location=source_location,
+                    )
+                else:
+                    (data,) = self._assign_intrinsic_op(
+                        target="data",
+                        op=AVMOp.extract,
+                        immediates=[2, 0],
+                        args=[
+                            dynamic_array,
+                        ],
+                        source_location=source_location,
+                    )
+                return data, array_length
+            case Expression(
+                wtype=wtypes.ARC4StaticArray(element_type=element_type, array_size=array_size)
+            ):
+                static_array = self._visit_and_materialise_single(expr)
+                static_array_length = UInt64Constant(
+                    value=array_size, source_location=source_location
+                )
+                if get_arc4_fixed_bit_size(element_type) is None:
+                    (data,) = self._assign_intrinsic_op(
+                        target="data",
+                        op=AVMOp.extract,
+                        immediates=[array_size * 2, 0],
+                        args=[
+                            static_array,
+                        ],
+                        source_location=source_location,
+                    )
+                    return data, static_array_length
+                return static_array, static_array_length
+            case TupleExpression(wtype=wtypes.WTuple()) as tuple_expr:
+                values = self._visit_and_materialise(tuple_expr)
+                tuple_length = UInt64Constant(
+                    value=len(values),
+                    source_location=source_location,
+                )
+                (data,) = self.assign(
+                    temp_description="data",
+                    source_location=source_location,
+                    source=BytesConstant(
+                        value=b"",
+                        source_location=source_location,
+                        encoding=AVMBytesEncoding.base16,
+                    ),
+                )
+                for val in values:
+                    (data,) = self._assign_intrinsic_op(
+                        target=data,
+                        source_location=source_location,
+                        op=AVMOp.concat,
+                        args=[data, val],
+                    )
+                return data, tuple_length
+            case Expression(wtype=wtypes.arc4_string_wtype) as str_expr:
+                str_value = self._visit_and_materialise_single(str_expr)
+                (array_length,) = self._assign_intrinsic_op(
+                    target="array_length",
+                    op=AVMOp.extract_uint16,
+                    args=[
+                        str_value,
+                        0,
+                    ],
+                    source_location=source_location,
+                )
+                (data,) = self._assign_intrinsic_op(
+                    target="data",
+                    op=AVMOp.extract,
+                    immediates=[2, 0],
+                    args=[
+                        str_value,
+                    ],
+                    source_location=source_location,
+                )
+                return data, array_length
+            case _:
+                raise InternalError(f"Unsupported array type: {expr.wtype}")
+
+    def _get_arc4_array_as_dynamic_array(self, expr: Expression) -> Value:
+        match expr:
+            case Expression(wtype=wtypes.ARC4DynamicArray()):
+                return self._visit_and_materialise_single(expr)
+            case Expression(wtype=wtypes.ARC4StaticArray(array_size=array_size)):
+                array_length = BytesConstant(
+                    value=array_size.to_bytes(2, "big"),
+                    encoding=AVMBytesEncoding.base16,
+                    source_location=expr.source_location,
+                )
+                static_array = self._visit_and_materialise_single(expr)
+                (as_dynamic,) = self._assign_intrinsic_op(
+                    target="as_dynamic",
+                    op=AVMOp.concat,
+                    source_location=expr.source_location,
+                    args=[array_length, static_array],
+                )
+                return as_dynamic
+            case _:
+                raise InternalError(f"Unsupported array type: {expr.wtype}")
+
+    def _concat_values(
+        self, left: Expression, right: Expression, source_location: SourceLocation
+    ) -> Value:
+        match (left, right):
+            case (
+                Expression(wtype=wtypes.ARC4Array(element_type=left_element_type)),
+                Expression(wtype=wtypes.ARC4Array(element_type=right_element_type)),
+            ) if left_element_type == right_element_type:
+                element_size = get_arc4_fixed_bit_size(left_element_type)
+                match element_size:
+                    case 1:
+                        method_name = "dynamic_array_concat_bits"
+                        # is_packed = True
+                        additional_args: list[Value] = [
+                            UInt64Constant(value=1, source_location=source_location)
+                        ]
+                    case None:
+                        method_name = "dynamic_array_concat_variable_size"
+                        additional_args = []
+                    case _:
+                        method_name = "dynamic_array_concat_fixed_size"
+                        additional_args = []
+                (r_data, r_length) = self._get_arc4_array_data_and_length(right, source_location)
+                l_value = self._get_arc4_array_as_dynamic_array(left)
+                (concat_result,) = self.assign(
+                    temp_description="concat_result",
+                    source_location=source_location,
+                    source=self._invoke_puya_util_subroutine(
+                        method_name=method_name,
+                        source_location=source_location,
+                        args=[l_value, r_data, r_length, *additional_args],
+                    ),
+                )
+                return concat_result
+            case (
+                Expression(wtype=wtypes.ARC4Array(element_type=left_element_type)),
+                Expression(wtype=wtypes.WTuple(types=tuple_types)),
+            ) if all(t == left_element_type for t in tuple_types):
+                element_size = get_arc4_fixed_bit_size(left_element_type)
+                match element_size:
+                    case 1:
+                        method_name = "dynamic_array_concat_bits"
+                        # is_packed = False
+                        additional_args = [
+                            UInt64Constant(value=0, source_location=source_location)
+                        ]
+                    case None:
+                        method_name = "dynamic_array_concat_variable_size"
+                        additional_args = []
+                    case _:
+                        method_name = "dynamic_array_concat_fixed_size"
+                        additional_args = []
+                (r_data, r_length) = self._get_arc4_array_data_and_length(right, source_location)
+                l_value = self._get_arc4_array_as_dynamic_array(left)
+                (concat_result,) = self.assign(
+                    temp_description="concat_result",
+                    source_location=source_location,
+                    source=self._invoke_puya_util_subroutine(
+                        method_name=method_name,
+                        source_location=source_location,
+                        args=[l_value, r_data, r_length, *additional_args],
+                    ),
+                )
+                return concat_result
+            case (
+                Expression(wtype=wtypes.arc4_string_wtype),
+                Expression(wtype=wtypes.arc4_string_wtype),
+            ):
+                l_value = self._visit_and_materialise_single(left)
+                (r_data, r_length) = self._get_arc4_array_data_and_length(right, source_location)
+                (concat_result,) = self.assign(
+                    temp_description="concat_result",
+                    source_location=source_location,
+                    source=self._invoke_puya_util_subroutine(
+                        method_name="dynamic_array_concat_fixed_size",
+                        source_location=source_location,
+                        args=[l_value, r_data, r_length],
+                    ),
+                )
+                return concat_result
+            # case (
+            #     Expression(wtype=wtypes.WTuple(types=tuple_types)),
+            #     Expression(wtype=wtypes.ARC4Array(element_type=right_element_type)),
+            # ) if all(t == right_element_type for t in tuple_types):
+            #     ...
+            case _:
+                raise TodoError(
+                    source_location, f"Unexpected operand types: {left.wtype} {right.wtype}"
+                )
+
+    def _handle_arc4_assign(
+        self, target: awst_nodes.Expression, value: ValueProvider, source_location: SourceLocation
+    ) -> Value:
+        match target:
+            case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
+                (register,) = self.assign(
+                    source=value,
+                    names=[(var_name, var_loc)],
+                    source_location=source_location,
+                )
+                return register
+            case awst_nodes.IndexExpression(
+                base=awst_nodes.Expression(
+                    wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
+                ) as base_expr,
+                index=index_value,
+            ):
+                return self._handle_arc4_assign(
+                    target=base_expr,
+                    value=self._arc4_replace_array_item(
+                        base_expr=base_expr,
+                        index_value_expr=index_value,
+                        wtype=array_wtype,
+                        value=value,
+                        source_location=source_location,
+                    ),
+                    source_location=source_location,
+                )
+            case awst_nodes.IndexExpression(
+                base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
+                index=index_value,
+            ):
+                return self._handle_arc4_assign(
+                    target=base_expr,
+                    value=self._arc4_replace_struct_item(
+                        base_expr=base_expr,
+                        index_value_expr=index_value,
+                        wtype=struct_wtype,
+                        value=value,
+                        source_location=source_location,
+                    ),
+                    source_location=source_location,
+                )
+
+            case _:
+                raise TodoError(
+                    source_location,
+                    "Handle arc4 assign target",
+                )
+
+    def _arc4_replace_array_item(
+        self,
+        *,
+        base_expr: Expression,
+        index_value_expr: Expression,
+        wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray,
+        value: ValueProvider,
+        source_location: SourceLocation,
+    ) -> Value:
+        base = self._visit_and_materialise_single(base_expr)
+
+        (value,) = self.assign(
+            source_location=source_location, temp_description="assigned_value", source=value
+        )
+
+        index = self._visit_and_materialise_single(index_value_expr)
+
+        element_size = get_arc4_fixed_bit_size(wtype.element_type)
+
+        if not element_size:
+            if isinstance(wtype, wtypes.ARC4DynamicArray):
+                (updated_value,) = self.assign(
+                    temp_description="updated_value",
+                    source=self._invoke_puya_util_subroutine(
+                        method_name="dynamic_array_replace_variable_size",
+                        source_location=source_location,
+                        args=[
+                            base,
+                            value,
+                            index,
+                        ],
+                    ),
+                    source_location=source_location,
+                )
+                return updated_value
+            else:
+                (updated_value,) = self.assign(
+                    temp_description="updated_value",
+                    source=self._invoke_puya_util_subroutine(
+                        method_name="static_array_replace_variable_size",
+                        source_location=source_location,
+                        args=[
+                            base,
+                            value,
+                            index,
+                            UInt64Constant(
+                                value=wtype.array_size, source_location=source_location
+                            ),
+                        ],
+                    ),
+                    source_location=source_location,
+                )
+                return updated_value
+
+        array_length = (
+            UInt64Constant(value=wtype.array_size, source_location=source_location)
+            if isinstance(wtype, wtypes.ARC4StaticArray)
+            else Intrinsic(
+                source_location=source_location,
+                op=AVMOp.extract_uint16,
+                args=[base, UInt64Constant(value=0, source_location=source_location)],
+            )
+        )
+        self._assert_index_in_bounds(
+            index,
+            array_length,
+            source_location,
+        )
+
+        dynamic_offset = 0 if isinstance(wtype, wtypes.ARC4StaticArray) else 2
+        if element_size == 1:
+            dynamic_offset *= 8
+            offset_per_item = element_size
+        else:
+            offset_per_item = element_size // 8
+
+        if isinstance(index_value_expr, awst_nodes.IntegerConstant):
+            write_offset: Value = UInt64Constant(
+                value=index_value_expr.value * offset_per_item + dynamic_offset,
+                source_location=source_location,
+            )
+        else:
+            (write_offset,) = self._assign_intrinsic_op(
+                target="write_offset",
+                op=AVMOp.mul,
+                source_location=source_location,
+                args=[index, offset_per_item],
+            )
+            if dynamic_offset:
+                assert isinstance(write_offset, Register)
+                (write_offset,) = self._assign_intrinsic_op(
+                    target=write_offset,
+                    op=AVMOp.add,
+                    source_location=source_location,
+                    args=[write_offset, dynamic_offset],
+                )
+
+        if element_size == 1:
+            (is_true,) = self._assign_intrinsic_op(
+                target="is_true", source_location=source_location, op=AVMOp.getbit, args=[value, 0]
+            )
+            (updated_target,) = self._assign_intrinsic_op(
+                target="updated_target",
+                source_location=source_location,
+                op=AVMOp.setbit,
+                args=[
+                    base,
+                    write_offset,
+                    is_true,
+                ],
+            )
+        else:
+            (updated_target,) = self._assign_intrinsic_op(
+                target="updated_target",
+                source_location=source_location,
+                op=AVMOp.replace3,
+                args=[
+                    base,
+                    write_offset,
+                    value,
+                ],
+            )
+        return updated_target
+
+    def _assign_intrinsic_op(
+        self,
+        *,
+        target: str | Register,
+        op: AVMOp,
+        args: Sequence[int | bytes | Value],
+        source_location: SourceLocation,
+        immediates: list[int | str] | None = None,
+    ) -> Sequence[Register]:
+        def map_arg(arg: int | bytes | Value) -> Value:
+            match arg:
+                case int(val):
+                    return UInt64Constant(value=val, source_location=source_location)
+                case bytes(b_val):
+                    return BytesConstant(
+                        value=b_val,
+                        source_location=source_location,
+                        encoding=AVMBytesEncoding.base16,
+                    )
+                case _:
+                    return arg
+
+        if isinstance(target, str):
+            return self.assign(
+                temp_description=target,
+                source_location=source_location,
+                source=Intrinsic(
+                    op=op,
+                    immediates=immediates or list[int | str](),
+                    args=[map_arg(a) for a in args],
+                    source_location=source_location,
+                ),
+            )
+        else:
+            return self.assign(
+                names=[(target.name, source_location)],
+                source_location=source_location,
+                source=Intrinsic(
+                    op=op,
+                    immediates=immediates or list[int | str](),
+                    args=[map_arg(a) for a in args],
+                    source_location=source_location,
+                ),
+            )
+
+    def _arc4_replace_struct_item(
+        self,
+        base_expr: Expression,
+        index_value_expr: Expression,
+        wtype: wtypes.ARC4Struct,
+        value: ValueProvider,
+        source_location: SourceLocation,
+    ) -> Value:
+        if not isinstance(wtype, wtypes.ARC4Struct):
+            raise InternalError("Unsupported indexed assignment target", source_location)
+
+        base = self._visit_and_materialise_single(base_expr)
+        (value,) = self.assign(
+            source_location=source_location, temp_description="assigned_value", source=value
+        )
+        if isinstance(index_value_expr, awst_nodes.IntegerConstant):
+            index_int = index_value_expr.value
+            if index_int >= len(wtype.types):
+                raise CodeError("Index access is out of bounds", source_location)
+            element_type = wtype.types[index_int]
+        else:
+            raise CodeError("arc4.Structs cannot be dynamically indexed", source_location)
+
+        element_size = get_arc4_fixed_bit_size(element_type)
+        header_up_to_item = determine_arc4_tuple_head_size(
+            wtype.types[0:index_int],
+            round_end_result=element_size != 1,
+        )
+        if not element_size:
+            dynamic_indices = [
+                index for index, t in enumerate(wtype.types) if not get_arc4_fixed_bit_size(t)
+            ]
+
+            (item_offset,) = self._assign_intrinsic_op(
+                target="item_offset",
+                source_location=source_location,
+                op=AVMOp.extract_uint16,
+                args=[
+                    base,
+                    header_up_to_item // 8,
+                ],
+            )
+            (data_up_to_item,) = self._assign_intrinsic_op(
+                target="data_up_to_item",
+                source_location=source_location,
+                op=AVMOp.extract3,
+                args=[
+                    base,
+                    0,
+                    item_offset,
+                ],
+            )
+            proceeding_dynamic_indices = [i for i in dynamic_indices if i > index_int]
+
+            if not proceeding_dynamic_indices:
+                # This is the last dynamic type in the tuple
+                # No need to update headers - just replace the data
+                (updated_data,) = self._assign_intrinsic_op(
+                    target="updated_data",
+                    source_location=source_location,
+                    op=AVMOp.concat,
+                    args=[data_up_to_item, value],
+                )
+                return updated_data
+            header_up_to_next_dynamic_item = determine_arc4_tuple_head_size(
+                types=wtype.types[0 : proceeding_dynamic_indices[0]],
+                round_end_result=True,
+            )
+
+            (next_item_offset,) = self._assign_intrinsic_op(
+                target="next_item_offset",
+                source_location=source_location,
+                op=AVMOp.extract_uint16,
+                args=[
+                    base,
+                    header_up_to_next_dynamic_item // 8,
+                ],
+            )
+            (total_data_length,) = self._assign_intrinsic_op(
+                target="total_data_length",
+                source_location=source_location,
+                op=AVMOp.len_,
+                args=[
+                    base,
+                ],
+            )
+            (data_beyond_item,) = self._assign_intrinsic_op(
+                target="data_beyond_item",
+                source_location=source_location,
+                op=AVMOp.substring3,
+                args=[
+                    base,
+                    next_item_offset,
+                    total_data_length,
+                ],
+            )
+            (updated_data,) = self._assign_intrinsic_op(
+                target="updated_data",
+                source_location=source_location,
+                op=AVMOp.concat,
+                args=[
+                    data_up_to_item,
+                    value,
+                ],
+            )
+            (updated_data,) = self._assign_intrinsic_op(
+                target=updated_data,
+                source_location=source_location,
+                op=AVMOp.concat,
+                args=[
+                    updated_data,
+                    data_beyond_item,
+                ],
+            )
+
+            (new_value_length,) = self._assign_intrinsic_op(
+                target="new_value_length",
+                source_location=source_location,
+                op=AVMOp.len_,
+                args=[value],
+            )
+            (tail_cursor,) = self._assign_intrinsic_op(
+                target="tail_cursor",
+                source_location=source_location,
+                op=AVMOp.add,
+                args=[
+                    item_offset,
+                    new_value_length,
+                ],
+            )
+            for dynamic_index in proceeding_dynamic_indices:
+                header_up_to_dynamic_item = determine_arc4_tuple_head_size(
+                    types=wtype.types[0:dynamic_index],
+                    round_end_result=True,
+                )
+
+                (updated_header_bytes,) = self._assign_intrinsic_op(
+                    target="updated_header_bytes",
+                    source_location=source_location,
+                    op=AVMOp.itob,
+                    args=[
+                        tail_cursor,
+                    ],
+                )
+                (updated_header_bytes,) = self._assign_intrinsic_op(
+                    target=updated_header_bytes,
+                    source_location=source_location,
+                    op=AVMOp.substring,
+                    immediates=[6, 8],
+                    args=[updated_header_bytes],
+                )
+
+                (updated_data,) = self._assign_intrinsic_op(
+                    target=updated_data,
+                    source_location=source_location,
+                    op=AVMOp.replace2,
+                    immediates=[header_up_to_dynamic_item // 8],
+                    args=[
+                        updated_data,
+                        updated_header_bytes,
+                    ],
+                )
+                if dynamic_index == proceeding_dynamic_indices[-1]:
+                    break
+                (dynamic_item_length,) = self._assign_intrinsic_op(
+                    target="dynamic_item_length",
+                    source_location=source_location,
+                    op=AVMOp.extract_uint16,
+                    args=[updated_data, tail_cursor],
+                )
+                (tail_cursor,) = self._assign_intrinsic_op(
+                    target=tail_cursor,
+                    source_location=source_location,
+                    op=AVMOp.add,
+                    args=[tail_cursor, dynamic_item_length],
+                )
+                (tail_cursor,) = self._assign_intrinsic_op(
+                    target=tail_cursor,
+                    source_location=source_location,
+                    op=AVMOp.add,
+                    args=[tail_cursor, 2],
+                )
+            return updated_data
+        elif element_size == 1:
+            # Use Set bit
+            (is_true,) = self._assign_intrinsic_op(
+                target="is_true", source_location=source_location, op=AVMOp.getbit, args=[value, 0]
+            )
+            (updated_data,) = self._assign_intrinsic_op(
+                target="updated_data",
+                source_location=source_location,
+                op=AVMOp.setbit,
+                args=[base, header_up_to_item, is_true],
+            )
+            return updated_data
+        else:
+            (updated_data,) = self._assign_intrinsic_op(
+                target="updated_data",
+                source_location=source_location,
+                op=AVMOp.replace2,
+                immediates=[header_up_to_item // 8],
+                args=[base, value],
+            )
+            return updated_data
 
 
 def mkblocks(loc: SourceLocation, *comments: str | None) -> Iterator[BasicBlock]:

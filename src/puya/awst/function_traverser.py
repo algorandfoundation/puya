@@ -44,6 +44,17 @@ class FunctionTraverser(
         for value in expr.values:
             value.accept(self)
 
+    def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> None:
+        expr.left.accept(self)
+        expr.right.accept(self)
+
+    def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> None:
+        expr.base.accept(self)
+
+    def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> None:
+        expr.base.accept(self)
+        expr.other.accept(self)
+
     def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> None:
         pass
 
