@@ -49,18 +49,22 @@ class SubroutineOptimization:
         return did_modify
 
 
-def get_all_optimizations() -> Iterable[SubroutineOptimization]:
+def get_subroutine_optimizations(optimization_level: int) -> Iterable[SubroutineOptimization]:
+    if optimization_level:
+        return [
+            SubroutineOptimization.from_function(arithmetic_simplification, loop=True),
+            SubroutineOptimization.from_function(constant_replacer, loop=True),
+            SubroutineOptimization.from_function(copy_propagation),
+            SubroutineOptimization.from_function(intrinsic_simplifier),
+            SubroutineOptimization.from_function(remove_unused_variables),
+            SubroutineOptimization.from_function(simplify_control_ops),
+            SubroutineOptimization.from_function(remove_linear_jump),
+            SubroutineOptimization.from_function(remove_empty_blocks),
+            SubroutineOptimization.from_function(remove_unreachable_blocks),
+            SubroutineOptimization.from_function(repeated_expression_elimination),
+        ]
     return [
-        SubroutineOptimization.from_function(arithmetic_simplification, loop=True),
-        SubroutineOptimization.from_function(constant_replacer, loop=True),
-        SubroutineOptimization.from_function(copy_propagation),
-        SubroutineOptimization.from_function(intrinsic_simplifier),
         SubroutineOptimization.from_function(remove_unused_variables),
-        SubroutineOptimization.from_function(simplify_control_ops),
-        SubroutineOptimization.from_function(remove_linear_jump),
-        SubroutineOptimization.from_function(remove_empty_blocks),
-        SubroutineOptimization.from_function(remove_unreachable_blocks),
-        SubroutineOptimization.from_function(repeated_expression_elimination),
     ]
 
 
@@ -95,7 +99,7 @@ def optimize_contract_ir(
     output_ir_base_path: Path | None = None,
 ) -> models.Contract:
     # TODO: program optimizer for trivial function inliner
-    pipeline = get_all_optimizations()
+    pipeline = get_subroutine_optimizations(context.options.optimization_level)
     if output_ir_base_path:
         existing = list(
             output_ir_base_path.parent.glob(f"{output_ir_base_path.stem}.ssa.opt_pass_*.ir")

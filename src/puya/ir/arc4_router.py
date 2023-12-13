@@ -604,7 +604,7 @@ def map_abi_args(
                 application = application_at(application_index, location)
                 yield application
                 abi_arg_index += 1
-            case wtypes.WTransaction() as txn_wtype:
+            case wtypes.WGroupTransaction() as txn_wtype:
                 transaction_index = uint64_sub(
                     current_group_index(location),
                     constant(

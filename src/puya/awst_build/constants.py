@@ -1,8 +1,28 @@
 import enum
+import typing
+
+import attrs
 
 from puya.models import OnCompletionAction
 
 PUYAPY_PREFIX = "puyapy."
+
+
+@attrs.frozen(kw_only=True)
+class PuyaTypeName:
+    class_name: str
+    qualified_module: str
+    alias_module: str | None = None
+
+    @property
+    def alias(self) -> str:
+        return f"{self.alias_module or self.qualified_module}.{self.class_name}"
+
+    @property
+    def type_name(self) -> str:
+        return f"{self.qualified_module}.{self.class_name}"
+
+
 ARC4_PREFIX = f"{PUYAPY_PREFIX}arc4."
 ARC4_CONTRACT_BASE = f"{ARC4_PREFIX}ARC4Contract"
 # special case for arc4 where puyapy alias is present in puyapy namespace
@@ -25,20 +45,66 @@ CLS_BYTES = f"{PUYAPY_PREFIX}_primitives.Bytes"
 CLS_BYTES_ALIAS = f"{PUYAPY_PREFIX}Bytes"
 CLS_BIGUINT = f"{PUYAPY_PREFIX}_primitives.BigUInt"
 CLS_BIGUINT_ALIAS = f"{PUYAPY_PREFIX}BigUInt"
-CLS_TRANSACTION_BASE = f"{PUYAPY_PREFIX}_transactions.TransactionBase"
-CLS_TRANSACTION_BASE_ALIAS = f"{PUYAPY_PREFIX}TransactionBase"
-CLS_PAYMENT_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.PaymentTransaction"
-CLS_PAYMENT_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}PaymentTransaction"
-CLS_KEY_REGISTRATION_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.KeyRegistrationTransaction"
-CLS_KEY_REGISTRATION_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}KeyRegistrationTransaction"
-CLS_ASSET_CONFIG_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.AssetConfigTransaction"
-CLS_ASSET_CONFIG_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}AssetConfigTransaction"
-CLS_ASSET_TRANSFER_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.AssetTransferTransaction"
-CLS_ASSET_TRANSFER_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}AssetTransferTransaction"
-CLS_ASSET_FREEZE_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.AssetFreezeTransaction"
-CLS_ASSET_FREEZE_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}AssetFreezeTransaction"
-CLS_APPLICATION_CALL_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.ApplicationCallTransaction"
-CLS_APPLICATION_CALL_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}ApplicationCallTransaction"
+CLS_TRANSACTION_BASE = f"{PUYAPY_PREFIX}gtxn.TransactionBase"
+CLS_TRANSACTION_BASE_ALIAS = CLS_TRANSACTION_BASE
+
+
+# values and names are matched to AVM definitions
+class TransactionType(enum.IntEnum):
+    pay = 1
+    keyreg = 2
+    acfg = 3
+    axfer = 4
+    afrz = 5
+    appl = 6
+
+
+@attrs.frozen(kw_only=True)
+class _TransactionTypeNames:
+    transaction_type: TransactionType | None
+    group_transaction: PuyaTypeName
+    inner_transaction: PuyaTypeName
+    inner_transaction_params: PuyaTypeName
+
+    @classmethod
+    def from_name(cls, transaction_type: TransactionType | None, name: str) -> typing.Self:
+        return cls(
+            transaction_type=transaction_type,
+            group_transaction=PuyaTypeName(
+                qualified_module=f"{PUYAPY_PREFIX}gtxn",
+                class_name=f"{name}Transaction",
+            ),
+            inner_transaction=PuyaTypeName(
+                qualified_module=f"{PUYAPY_PREFIX}itxn",
+                class_name=f"{name}InnerTransaction",
+            ),
+            inner_transaction_params=PuyaTypeName(
+                qualified_module=f"{PUYAPY_PREFIX}itxn",
+                class_name=f"{name}TransactionParams",
+            ),
+        )
+
+
+CLS_PAYMENT = _TransactionTypeNames.from_name(TransactionType.pay, "Payment")
+CLS_KEY_REGISTRATION = _TransactionTypeNames.from_name(TransactionType.keyreg, "KeyRegistration")
+CLS_ASSET_CONFIG = _TransactionTypeNames.from_name(TransactionType.acfg, "AssetConfig")
+CLS_ASSET_TRANSFER = _TransactionTypeNames.from_name(TransactionType.axfer, "AssetTransfer")
+CLS_ASSET_FREEZE = _TransactionTypeNames.from_name(TransactionType.afrz, "AssetFreeze")
+CLS_APPLICATION_CALL = _TransactionTypeNames.from_name(TransactionType.appl, "ApplicationCall")
+CLS_ANY_TRANSACTION = _TransactionTypeNames.from_name(None, "Any")
+TRANSACTION_TYPE_TO_CLS = {
+    t.transaction_type: t
+    for t in [
+        CLS_PAYMENT,
+        CLS_KEY_REGISTRATION,
+        CLS_ASSET_CONFIG,
+        CLS_ASSET_TRANSFER,
+        CLS_ASSET_FREEZE,
+        CLS_APPLICATION_CALL,
+        CLS_ANY_TRANSACTION,
+    ]
+}
+
 CLS_LOCAL_STATE = f"{PUYAPY_PREFIX}_state.LocalState"
 CLS_LOCAL_STATE_ALIAS = f"{PUYAPY_PREFIX}.LocalState"
 CLS_GLOBAL_STATE = f"{PUYAPY_PREFIX}_state.GlobalState"
@@ -59,6 +125,7 @@ UENUMERATE = f"{PUYAPY_PREFIX}_unsigned_builtins.uenumerate"
 ENSURE_BUDGET = f"{PUYAPY_PREFIX}_util.ensure_budget"
 LOG = f"{PUYAPY_PREFIX}_util.log"
 OP_UP_FEE_SOURCE = f"{PUYAPY_PREFIX}_util.OpUpFeeSource"
+SUBMIT_INNER_TXN = f"{PUYAPY_PREFIX}itxn.submit_inner_txn"
 
 CLS_ARC4_STRING = "puyapy.arc4.String"
 CLS_ARC4_ADDRESS = "puyapy.arc4.Address"
@@ -88,17 +155,6 @@ KNOWN_METHOD_DECORATORS = [
     ABIMETHOD_DECORATOR,
     BAREMETHOD_DECORATOR,
 ]
-
-
-# values and names are matched to AVM definitions
-class TransactionType(enum.IntEnum):
-    pay = 1
-    keyreg = 2
-    acfg = 3
-    axfer = 4
-    afrz = 5
-    appl = 6
-
 
 ENUM_CLS_ON_COMPLETE_ACTION = f"{PUYAPY_PREFIX}_constants.OnCompleteAction"
 ENUM_CLS_TRANSACTION_TYPE = f"{PUYAPY_PREFIX}_constants.TransactionType"

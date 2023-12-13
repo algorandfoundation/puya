@@ -8,10 +8,11 @@ from puyapy._reference import *
 from puyapy._contract import *
 from puyapy._hints import *
 from puyapy._state import *
-from puyapy._transactions import *
 from puyapy._unsigned_builtins import *
 from puyapy._util import *
 from puyapy import arc4 as arc4
+from puyapy import gtxn as gtxn
+from puyapy import itxn as itxn
 from puyapy import op as op
 from puyapy.arc4 import (
     # this one specially because it's already prefixed with arc4

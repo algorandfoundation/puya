@@ -4,7 +4,7 @@ contract TransactionContract
   {
   }
   
-  subroutine _common_checks(txn: puyapy.TransactionBase): None
+  subroutine _common_checks(txn: puyapy.gtxn.TransactionBase): None
   {
     assert(reinterpret_cast<bool>(len(gtxns<TxID>(txn))), comment="txn_id")
     assert(gtxns<Sender>(txn) == global<CreatorAddress>(), comment="sender")
@@ -19,7 +19,7 @@ contract TransactionContract
     assert(gtxns<RekeyTo>(txn) == global<ZeroAddress>(), comment="rekey_to")
   }
   
-  abimethod pay(txn: puyapy.PaymentTransaction): None
+  abimethod pay(txn: puyapy.gtxn.PaymentTransaction): None
   {
     this::_common_checks(txn)
     assert(gtxns<Receiver>(txn) == global<CurrentApplicationAddress>(), comment="Payment should be for this app")
@@ -27,7 +27,7 @@ contract TransactionContract
     assert(gtxns<CloseRemainderTo>(txn) == global<ZeroAddress>(), comment="close_remainder_to")
   }
   
-  abimethod key(txn: puyapy.KeyRegistrationTransaction): None
+  abimethod key(txn: puyapy.gtxn.KeyRegistrationTransaction): None
   {
     this::_common_checks(txn)
     assert(gtxns<VotePK>(txn) != global<ZeroAddress>(), comment="vote_key")
@@ -39,7 +39,7 @@ contract TransactionContract
     assert(reinterpret_cast<bool>(len(gtxns<StateProofPK>(txn))), comment="state_proof_key")
   }
   
-  abimethod asset_config(txn: puyapy.AssetConfigTransaction): None
+  abimethod asset_config(txn: puyapy.gtxn.AssetConfigTransaction): None
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<ConfigAsset>(txn)), comment="config_asset")
@@ -56,7 +56,7 @@ contract TransactionContract
     assert(gtxns<ConfigAssetClawback>(txn) != global<ZeroAddress>(), comment="clawback")
   }
   
-  abimethod asset_transfer(txn: puyapy.AssetTransferTransaction): None
+  abimethod asset_transfer(txn: puyapy.gtxn.AssetTransferTransaction): None
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<XferAsset>(txn)), comment="xfer_asset")
@@ -66,15 +66,15 @@ contract TransactionContract
     assert(gtxns<AssetCloseTo>(txn) != global<ZeroAddress>(), comment="asset_close_to")
   }
   
-  abimethod asset_freeze(txn: puyapy.AssetFreezeTransaction): None
+  abimethod asset_freeze(txn: puyapy.gtxn.AssetFreezeTransaction): None
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<FreezeAsset>(txn)), comment="freeze_asset")
     assert(gtxns<FreezeAssetAccount>(txn) != global<ZeroAddress>(), comment="freeze_account")
-    assert(gtxns<FreezeAssetFrozen>(txn), comment="frozen")
+    assert(reinterpret_cast<bool>(gtxns<FreezeAssetFrozen>(txn)), comment="frozen")
   }
   
-  abimethod application_call(txn: puyapy.ApplicationCallTransaction): None
+  abimethod application_call(txn: puyapy.gtxn.ApplicationCallTransaction): None
   {
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<ApplicationID>(txn)), comment="application_id")
@@ -99,5 +99,22 @@ contract TransactionContract
     assert(reinterpret_cast<bool>(gtxnsas<Applications>(txn, 0u)), comment="applications(0)")
     assert(reinterpret_cast<bool>(len(gtxnsas<ApprovalProgramPages>(txn, 0u))), comment="approval_program_pages(0)")
     assert(reinterpret_cast<bool>(len(gtxnsas<ClearStateProgramPages>(txn, 0u))), comment="clear_state_program_pages(0)")
+  }
+  
+  abimethod multiple_txns(txn1: puyapy.gtxn.ApplicationCallTransaction, txn2: puyapy.gtxn.ApplicationCallTransaction, txn3: puyapy.gtxn.ApplicationCallTransaction): None
+  {
+    for (index, app) in enumerate((txn1, txn2, txn3)) {
+      assert(gtxns<GroupIndex>(app) == index)
+    }
+  }
+  
+  abimethod any_txn(_txn1: puyapy.gtxn.ApplicationCallTransaction, _txn2: puyapy.gtxn.ApplicationCallTransaction, _txn3: puyapy.gtxn.ApplicationCallTransaction): None
+  {
+    txn1: puyapy.gtxn.AnyTransaction = reinterpret_cast<puyapy.gtxn.AnyTransaction>(0u)
+    txn2: puyapy.gtxn.AnyTransaction = reinterpret_cast<puyapy.gtxn.AnyTransaction>(1u)
+    txn3: puyapy.gtxn.AnyTransaction = reinterpret_cast<puyapy.gtxn.AnyTransaction>(2u)
+    for (index, txn) in enumerate((txn1, txn2, txn3)) {
+      assert(gtxns<GroupIndex>(txn) == index)
+    }
   }
 }

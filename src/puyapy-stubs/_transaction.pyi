@@ -2,10 +2,7 @@ import typing
 
 from puyapy import Account, Application, Asset, Bytes, OnCompleteAction, TransactionType, UInt64
 
-class TransactionBase(typing.Protocol):
-    """Shared transaction properties"""
-
-    def __init__(self, group_index: UInt64 | int): ...
+class SharedTransactionFields(typing.Protocol):
     @property
     def sender(self) -> Account: ...
     @property
@@ -31,9 +28,7 @@ class TransactionBase(typing.Protocol):
     @property
     def rekey_to(self) -> Account: ...
 
-class PaymentTransaction(TransactionBase):
-    """Payment group transaction"""
-
+class PaymentTransactionFields(typing.Protocol):
     @property
     def receiver(self) -> Account: ...
     @property
@@ -41,9 +36,7 @@ class PaymentTransaction(TransactionBase):
     @property
     def close_remainder_to(self) -> Account: ...
 
-class KeyRegistrationTransaction(TransactionBase):
-    """Key registration group transaction"""
-
+class KeyRegistrationTransactionFields(typing.Protocol):
     @property
     def vote_key(self) -> Bytes: ...
     @property
@@ -59,11 +52,9 @@ class KeyRegistrationTransaction(TransactionBase):
     @property
     def state_proof_key(self) -> Bytes: ...
 
-class AssetConfigTransaction(TransactionBase):
-    """Asset config group transaction"""
-
+class AssetConfigTransactionFields(typing.Protocol):
     @property
-    def config_asset(self) -> UInt64: ...
+    def config_asset(self) -> Asset: ...
     @property
     def total(self) -> UInt64: ...
     @property
@@ -87,9 +78,7 @@ class AssetConfigTransaction(TransactionBase):
     @property
     def clawback(self) -> Account: ...
 
-class AssetTransferTransaction(TransactionBase):
-    """Asset transfer group transaction"""
-
+class AssetTransferTransactionFields(typing.Protocol):
     @property
     def xfer_asset(self) -> Asset: ...
     @property
@@ -101,9 +90,7 @@ class AssetTransferTransaction(TransactionBase):
     @property
     def asset_close_to(self) -> Account: ...
 
-class AssetFreezeTransaction(TransactionBase):
-    """Asset freeze group transaction"""
-
+class AssetFreezeTransactionFields(typing.Protocol):
     @property
     def freeze_asset(self) -> Asset: ...
     @property
@@ -111,11 +98,9 @@ class AssetFreezeTransaction(TransactionBase):
     @property
     def frozen(self) -> bool: ...
 
-class ApplicationCallTransaction(TransactionBase):
-    """Application call group transaction"""
-
+class ApplicationCallTransactionFields(typing.Protocol):
     @property
-    def application_id(self) -> UInt64:
+    def application_id(self) -> Application:
         """ApplicationID from ApplicationCall transaction"""
     @property
     def on_completion(self) -> OnCompleteAction:
@@ -175,9 +160,3 @@ class ApplicationCallTransaction(TransactionBase):
         """Approval Program as an array of pages"""
     def clear_state_program_pages(self, index: UInt64 | int) -> Bytes:
         """Clear State Program as an array of pages"""
-
-# TODO: inner transactions
-# 58	Logs	[]byte	v5	Log messages emitted by an application call (only with itxn in v5). Application mode only
-# 59	NumLogs	uint64	v5	Number of Logs (only with itxn in v5). Application mode only
-# 60	CreatedAssetID	uint64	v5	Asset ID allocated by the creation of an ASA (only with itxn in v5). Application mode only
-# 61	CreatedApplicationID	uint64	v5	ApplicationID allocated by the creation of an application (only with itxn in v5). Application mode only

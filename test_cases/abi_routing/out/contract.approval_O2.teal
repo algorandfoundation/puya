@@ -161,7 +161,7 @@ main_with_transactions_route@8:
     return
 
 main_compare_assets_route@9:
-    // abi_routing/contract.py:104
+    // abi_routing/contract.py:108
     // @arc4.abimethod
     txn OnCompletion
     !
@@ -176,14 +176,14 @@ main_compare_assets_route@9:
     txna ApplicationArgs 2
     btoi
     txnas Assets
-    // abi_routing/contract.py:104
+    // abi_routing/contract.py:108
     // @arc4.abimethod
     callsub compare_assets
     int 1
     return
 
 main_get_address_route@10:
-    // abi_routing/contract.py:108
+    // abi_routing/contract.py:112
     // @arc4.abimethod(readonly=True)
     txn OnCompletion
     !
@@ -199,7 +199,7 @@ main_get_address_route@10:
     return
 
 main_get_asset_route@11:
-    // abi_routing/contract.py:112
+    // abi_routing/contract.py:116
     // @arc4.abimethod(readonly=True)
     txn OnCompletion
     !
@@ -215,7 +215,7 @@ main_get_asset_route@11:
     return
 
 main_get_application_route@12:
-    // abi_routing/contract.py:116
+    // abi_routing/contract.py:120
     // @arc4.abimethod(readonly=True, name="get_application")
     txn OnCompletion
     !
@@ -231,7 +231,7 @@ main_get_application_route@12:
     return
 
 main_get_an_int_route@13:
-    // abi_routing/contract.py:120
+    // abi_routing/contract.py:124
     // @arc4.abimethod(readonly=True, name="get_an_int")
     txn OnCompletion
     !
@@ -247,7 +247,7 @@ main_get_an_int_route@13:
     return
 
 main_method_with_default_args_route@14:
-    // abi_routing/contract.py:124-136
+    // abi_routing/contract.py:128-140
     // @arc4.abimethod(
     //     default_args={
     //         "asset_from_storage": "asa",
@@ -289,7 +289,7 @@ main_method_with_default_args_route@14:
     txna ApplicationArgs 7
     txna ApplicationArgs 8
     txna ApplicationArgs 9
-    // abi_routing/contract.py:124-136
+    // abi_routing/contract.py:128-140
     // @arc4.abimethod(
     //     default_args={
     //         "asset_from_storage": "asa",
@@ -308,7 +308,7 @@ main_method_with_default_args_route@14:
     return
 
 main_method_with_more_than_15_args_route@15:
-    // abi_routing/contract.py:161
+    // abi_routing/contract.py:165
     // @arc4.abimethod
     txn OnCompletion
     !
@@ -389,7 +389,7 @@ main_method_with_more_than_15_args_route@15:
     extract 45 8
     txna ApplicationArgs 15
     extract 53 8
-    // abi_routing/contract.py:161
+    // abi_routing/contract.py:165
     // @arc4.abimethod
     callsub method_with_more_than_15_args
     byte 0x151f7c75
@@ -575,13 +575,17 @@ opt_into_asset:
 
 // test_cases.abi_routing.contract.Reference.with_transactions(asset: uint64, an_int: bytes, pay: uint64, another_int: bytes) -> void:
 with_transactions:
-    // abi_routing/contract.py:95-98
+    // abi_routing/contract.py:95-102
     // @arc4.abimethod
     // def with_transactions(
-    //     self, asset: Asset, an_int: arc4.UInt64, pay: PaymentTransaction, another_int: arc4.UInt64
+    //     self,
+    //     asset: Asset,
+    //     an_int: arc4.UInt64,
+    //     pay: gtxn.PaymentTransaction,
+    //     another_int: arc4.UInt64,
     // ) -> None:
     proto 4 0
-    // abi_routing/contract.py:99
+    // abi_routing/contract.py:103
     // assert self.asa == asset, "is correct asset"
     int 0
     byte "asa"
@@ -590,21 +594,21 @@ with_transactions:
     frame_dig -4
     ==
     assert // is correct asset
-    // abi_routing/contract.py:100
+    // abi_routing/contract.py:104
     // assert an_int.decode() == 1, "is correct int"
     frame_dig -3
     btoi
     int 1
     ==
     assert // is correct int
-    // abi_routing/contract.py:101
+    // abi_routing/contract.py:105
     // assert pay.receiver == op.Global.current_application_address, "is payment to app"
     frame_dig -2
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     assert // is payment to app
-    // abi_routing/contract.py:102
+    // abi_routing/contract.py:106
     // assert another_int.decode() == 2, "is correct int"
     frame_dig -1
     btoi
@@ -616,11 +620,11 @@ with_transactions:
 
 // test_cases.abi_routing.contract.Reference.compare_assets(asset_a: uint64, asset_b: uint64) -> void:
 compare_assets:
-    // abi_routing/contract.py:104-105
+    // abi_routing/contract.py:108-109
     // @arc4.abimethod
     // def compare_assets(self, asset_a: Asset, asset_b: Asset) -> None:
     proto 2 0
-    // abi_routing/contract.py:106
+    // abi_routing/contract.py:110
     // assert asset_a == asset_b, "asset a == b"
     frame_dig -2
     frame_dig -1
@@ -631,11 +635,11 @@ compare_assets:
 
 // test_cases.abi_routing.contract.Reference.get_address() -> bytes:
 get_address:
-    // abi_routing/contract.py:108-109
+    // abi_routing/contract.py:112-113
     // @arc4.abimethod(readonly=True)
     // def get_address(self) -> arc4.Address:
     proto 0 1
-    // abi_routing/contract.py:110
+    // abi_routing/contract.py:114
     // return arc4.Address.from_bytes(op.Global.zero_address.bytes)
     global ZeroAddress
     retsub
@@ -643,21 +647,9 @@ get_address:
 
 // test_cases.abi_routing.contract.Reference.get_asset() -> bytes:
 get_asset:
-    // abi_routing/contract.py:112-113
+    // abi_routing/contract.py:116-117
     // @arc4.abimethod(readonly=True)
     // def get_asset(self) -> arc4.UInt64:
-    proto 0 1
-    // abi_routing/contract.py:114
-    // return arc4.UInt64(456)
-    byte 0x00000000000001c8
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_app() -> bytes:
-get_app:
-    // abi_routing/contract.py:116-117
-    // @arc4.abimethod(readonly=True, name="get_application")
-    // def get_app(self) -> arc4.UInt64:
     proto 0 1
     // abi_routing/contract.py:118
     // return arc4.UInt64(456)
@@ -665,13 +657,25 @@ get_app:
     retsub
 
 
+// test_cases.abi_routing.contract.Reference.get_app() -> bytes:
+get_app:
+    // abi_routing/contract.py:120-121
+    // @arc4.abimethod(readonly=True, name="get_application")
+    // def get_app(self) -> arc4.UInt64:
+    proto 0 1
+    // abi_routing/contract.py:122
+    // return arc4.UInt64(456)
+    byte 0x00000000000001c8
+    retsub
+
+
 // test_cases.abi_routing.contract.Reference.get_a_int() -> bytes:
 get_a_int:
-    // abi_routing/contract.py:120-121
+    // abi_routing/contract.py:124-125
     // @arc4.abimethod(readonly=True, name="get_an_int")
     // def get_a_int(self) -> arc4.UInt64:
     proto 0 1
-    // abi_routing/contract.py:122
+    // abi_routing/contract.py:126
     // return arc4.UInt64(3)
     byte 0x0000000000000003
     retsub
@@ -679,7 +683,7 @@ get_a_int:
 
 // test_cases.abi_routing.contract.Reference.method_with_default_args(asset_from_storage: uint64, asset_from_function: uint64, account_from_storage: bytes, account_from_function: bytes, application_from_storage: uint64, application_from_function: uint64, bytes_from_storage: bytes, int_from_storage: bytes, int_from_function: bytes) -> void:
 method_with_default_args:
-    // abi_routing/contract.py:124-148
+    // abi_routing/contract.py:128-152
     // @arc4.abimethod(
     //     default_args={
     //         "asset_from_storage": "asa",
@@ -706,71 +710,71 @@ method_with_default_args:
     //     int_from_function: arc4.UInt64,
     // ) -> None:
     proto 9 0
-    // abi_routing/contract.py:149
+    // abi_routing/contract.py:153
     // assert asset_from_storage == Asset(123), "wrong asset from storage"
     frame_dig -9
     int 123
     ==
     assert // wrong asset from storage
-    // abi_routing/contract.py:150
+    // abi_routing/contract.py:154
     // assert asset_from_function == Asset(456), "wrong asset from function"
     frame_dig -8
     int 456
     ==
     assert // wrong asset from function
-    // abi_routing/contract.py:151
+    // abi_routing/contract.py:155
     // assert account_from_storage == op.Global.creator_address, "wrong account from storage"
     frame_dig -7
     global CreatorAddress
     ==
     assert // wrong account from storage
-    // abi_routing/contract.py:152
+    // abi_routing/contract.py:156
     // assert account_from_function == op.Global.zero_address, "wrong account from function"
     frame_dig -6
     global ZeroAddress
     ==
     assert // wrong account from function
-    // abi_routing/contract.py:153
+    // abi_routing/contract.py:157
     // assert application_from_storage == Application(123), "wrong application from storage"
     frame_dig -5
     int 123
     ==
     assert // wrong application from storage
-    // abi_routing/contract.py:154
+    // abi_routing/contract.py:158
     // assert application_from_function == Application(456), "wrong application from function"
     frame_dig -4
     int 456
     ==
     assert // wrong application from function
-    // abi_routing/contract.py:155
+    // abi_routing/contract.py:159
     // assert bytes_from_storage[0] == arc4.Byte(7), "wrong 0th byte from storage"
     frame_dig -3
     extract 0 1
     byte 0x07
     ==
     assert // wrong 0th byte from storage
-    // abi_routing/contract.py:156
+    // abi_routing/contract.py:160
     // assert bytes_from_storage[1] == arc4.Byte(8), "wrong 1st byte from storage"
     frame_dig -3
     extract 1 1
     byte 0x08
     ==
     assert // wrong 1st byte from storage
-    // abi_routing/contract.py:157
+    // abi_routing/contract.py:161
     // assert bytes_from_storage[2] == arc4.Byte(9), "wrong 2nd byte from storage"
     frame_dig -3
     extract 2 1
     byte 0x09
     ==
     assert // wrong 2nd byte from storage
-    // abi_routing/contract.py:158
+    // abi_routing/contract.py:162
     // assert int_from_storage.decode() == 2, "wrong int from storage"
     frame_dig -2
     btoi
     int 2
     ==
     assert // wrong int from storage
-    // abi_routing/contract.py:159
+    // abi_routing/contract.py:163
     // assert int_from_function.decode() == 3, "wrong int from function"
     frame_dig -1
     btoi
@@ -782,7 +786,7 @@ method_with_default_args:
 
 // test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(a: bytes, b: bytes, c: bytes, d: uint64, asset: uint64, e: bytes, f: bytes, pay: uint64, g: bytes, h: bytes, i: bytes, j: bytes, k: bytes, l: bytes, m: bytes, n: bytes, o: bytes, p: uint64, q: bytes, r: bytes, s: bytes, t: bytes, asset2: uint64, pay2: uint64, u: bytes, v: bytes) -> bytes:
 method_with_more_than_15_args:
-    // abi_routing/contract.py:161-191
+    // abi_routing/contract.py:165-195
     // @arc4.abimethod
     // def method_with_more_than_15_args(
     //     self,
@@ -793,7 +797,7 @@ method_with_more_than_15_args:
     //     asset: Asset,
     //     e: arc4.UInt64,
     //     f: arc4.UInt64,
-    //     pay: PaymentTransaction,
+    //     pay: gtxn.PaymentTransaction,
     //     g: arc4.UInt64,
     //     h: arc4.UInt64,
     //     i: arc4.UInt64,
@@ -810,89 +814,89 @@ method_with_more_than_15_args:
     //     s: Bytes,
     //     t: Bytes,
     //     asset2: Asset,
-    //     pay2: PaymentTransaction,
+    //     pay2: gtxn.PaymentTransaction,
     //     u: arc4.UInt64,
     //     v: arc4.UInt64,
     // ) -> arc4.UInt64:
     proto 26 1
-    // abi_routing/contract.py:196
+    // abi_routing/contract.py:200
     // assert op.Transaction.num_app_args == 16
     txn NumAppArgs
     int 16
     ==
     assert
-    // abi_routing/contract.py:197
+    // abi_routing/contract.py:201
     // assert pay.amount == 100000
     frame_dig -19
     gtxns Amount
     int 100000
     ==
     assert
-    // abi_routing/contract.py:198
+    // abi_routing/contract.py:202
     // assert pay2.amount == 200000
     frame_dig -3
     gtxns Amount
     int 200000
     ==
     assert
-    // abi_routing/contract.py:199
+    // abi_routing/contract.py:203
     // assert asset.asset_id
     frame_dig -22
     assert
-    // abi_routing/contract.py:200
+    // abi_routing/contract.py:204
     // assert asset2.asset_id
     frame_dig -4
     assert
-    // abi_routing/contract.py:202
+    // abi_routing/contract.py:206
     // log(s + t)
     frame_dig -6
     frame_dig -5
     concat
     log
-    // abi_routing/contract.py:205
+    // abi_routing/contract.py:209
     // a.decode()
     frame_dig -26
     btoi
-    // abi_routing/contract.py:206
+    // abi_routing/contract.py:210
     // + b.decode()
     frame_dig -25
     btoi
-    // abi_routing/contract.py:205-206
+    // abi_routing/contract.py:209-210
     // a.decode()
     // + b.decode()
     +
-    // abi_routing/contract.py:207
+    // abi_routing/contract.py:211
     // + c.decode()
     frame_dig -24
     btoi
-    // abi_routing/contract.py:205-207
+    // abi_routing/contract.py:209-211
     // a.decode()
     // + b.decode()
     // + c.decode()
     +
-    // abi_routing/contract.py:205-208
+    // abi_routing/contract.py:209-212
     // a.decode()
     // + b.decode()
     // + c.decode()
     // + d
     frame_dig -23
     +
-    // abi_routing/contract.py:209
+    // abi_routing/contract.py:213
     // + e.decode()
     frame_dig -21
     btoi
-    // abi_routing/contract.py:205-209
+    // abi_routing/contract.py:209-213
     // a.decode()
     // + b.decode()
     // + c.decode()
     // + d
     // + e.decode()
     +
-    // abi_routing/contract.py:210
+    // abi_routing/contract.py:214
     // + f.decode()
     frame_dig -20
     btoi
-    // abi_routing/contract.py:205-210
+    // abi_routing/contract.py:209-214
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -900,11 +904,11 @@ method_with_more_than_15_args:
     // + e.decode()
     // + f.decode()
     +
-    // abi_routing/contract.py:211
+    // abi_routing/contract.py:215
     // + g.decode()
     frame_dig -18
     btoi
-    // abi_routing/contract.py:205-211
+    // abi_routing/contract.py:209-215
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -913,11 +917,11 @@ method_with_more_than_15_args:
     // + f.decode()
     // + g.decode()
     +
-    // abi_routing/contract.py:212
+    // abi_routing/contract.py:216
     // + h.decode()
     frame_dig -17
     btoi
-    // abi_routing/contract.py:205-212
+    // abi_routing/contract.py:209-216
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -927,11 +931,11 @@ method_with_more_than_15_args:
     // + g.decode()
     // + h.decode()
     +
-    // abi_routing/contract.py:213
+    // abi_routing/contract.py:217
     // + i.decode()
     frame_dig -16
     btoi
-    // abi_routing/contract.py:205-213
+    // abi_routing/contract.py:209-217
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -942,11 +946,11 @@ method_with_more_than_15_args:
     // + h.decode()
     // + i.decode()
     +
-    // abi_routing/contract.py:214
+    // abi_routing/contract.py:218
     // + j.decode()
     frame_dig -15
     btoi
-    // abi_routing/contract.py:205-214
+    // abi_routing/contract.py:209-218
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -958,11 +962,11 @@ method_with_more_than_15_args:
     // + i.decode()
     // + j.decode()
     +
-    // abi_routing/contract.py:215
+    // abi_routing/contract.py:219
     // + k.decode()
     frame_dig -14
     btoi
-    // abi_routing/contract.py:205-215
+    // abi_routing/contract.py:209-219
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -975,11 +979,11 @@ method_with_more_than_15_args:
     // + j.decode()
     // + k.decode()
     +
-    // abi_routing/contract.py:216
+    // abi_routing/contract.py:220
     // + l.decode()
     frame_dig -13
     btoi
-    // abi_routing/contract.py:205-216
+    // abi_routing/contract.py:209-220
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -993,11 +997,11 @@ method_with_more_than_15_args:
     // + k.decode()
     // + l.decode()
     +
-    // abi_routing/contract.py:217
+    // abi_routing/contract.py:221
     // + m.decode()
     frame_dig -12
     btoi
-    // abi_routing/contract.py:205-217
+    // abi_routing/contract.py:209-221
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -1012,11 +1016,11 @@ method_with_more_than_15_args:
     // + l.decode()
     // + m.decode()
     +
-    // abi_routing/contract.py:218
+    // abi_routing/contract.py:222
     // + n.decode()
     frame_dig -11
     btoi
-    // abi_routing/contract.py:205-218
+    // abi_routing/contract.py:209-222
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -1032,11 +1036,11 @@ method_with_more_than_15_args:
     // + m.decode()
     // + n.decode()
     +
-    // abi_routing/contract.py:219
+    // abi_routing/contract.py:223
     // + o.decode()
     frame_dig -10
     btoi
-    // abi_routing/contract.py:205-219
+    // abi_routing/contract.py:209-223
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -1053,7 +1057,7 @@ method_with_more_than_15_args:
     // + n.decode()
     // + o.decode()
     +
-    // abi_routing/contract.py:205-220
+    // abi_routing/contract.py:209-224
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -1072,11 +1076,11 @@ method_with_more_than_15_args:
     // + p
     frame_dig -9
     +
-    // abi_routing/contract.py:221
+    // abi_routing/contract.py:225
     // + q.decode()
     frame_dig -8
     btoi
-    // abi_routing/contract.py:205-221
+    // abi_routing/contract.py:209-225
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -1095,11 +1099,11 @@ method_with_more_than_15_args:
     // + p
     // + q.decode()
     +
-    // abi_routing/contract.py:222
+    // abi_routing/contract.py:226
     // + r.decode()
     frame_dig -7
     btoi
-    // abi_routing/contract.py:205-222
+    // abi_routing/contract.py:209-226
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -1119,11 +1123,11 @@ method_with_more_than_15_args:
     // + q.decode()
     // + r.decode()
     +
-    // abi_routing/contract.py:223
+    // abi_routing/contract.py:227
     // + u.decode()
     frame_dig -2
     btoi
-    // abi_routing/contract.py:205-223
+    // abi_routing/contract.py:209-227
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -1144,11 +1148,11 @@ method_with_more_than_15_args:
     // + r.decode()
     // + u.decode()
     +
-    // abi_routing/contract.py:224
+    // abi_routing/contract.py:228
     // + v.decode()
     frame_dig -1
     btoi
-    // abi_routing/contract.py:205-224
+    // abi_routing/contract.py:209-228
     // a.decode()
     // + b.decode()
     // + c.decode()
@@ -1170,7 +1174,7 @@ method_with_more_than_15_args:
     // + u.decode()
     // + v.decode()
     +
-    // abi_routing/contract.py:204-225
+    // abi_routing/contract.py:208-229
     // return arc4.UInt64(
     //     a.decode()
     //     + b.decode()

@@ -59,12 +59,11 @@ def transform_ast(
                 logger.debug(f"Building AWST for {module_rel_path}")
                 errors_before_module = compile_context.errors.num_errors
                 module_awst = ModuleASTConverter.convert(ctx, module)
-                if (
-                    ctx.options.output_awst
-                    and compile_context.errors.num_errors == errors_before_module
-                ):
-                    output_awst(module_awst, ctx.options)
-                result[module_name] = module_awst
+                had_errors = compile_context.errors.num_errors != errors_before_module
+                if not had_errors:
+                    if ctx.options.output_awst:
+                        output_awst(module_awst, ctx.options)
+                    result[module_name] = module_awst
     validate_awst(ctx, result)
     return result
 

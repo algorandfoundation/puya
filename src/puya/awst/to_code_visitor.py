@@ -379,6 +379,30 @@ class ToCodeVisitor(
         result += ")"
         return result
 
+    def visit_create_inner_transaction(self, expr: nodes.CreateInnerTransaction) -> str:
+        fields = []
+        for field, value in expr.fields.items():
+            fields.append(f"{field.immediate}={value.accept(self)}")
+        return f"create_inner_transaction({', '.join(fields)})"
+
+    def visit_update_inner_transaction(self, expr: nodes.UpdateInnerTransaction) -> str:
+        fields = []
+        for field, value in expr.fields.items():
+            fields.append(f"{field.immediate}={value.accept(self)}")
+        return f"update_inner_transaction({expr.itxn.accept(self)},{', '.join(fields)})"
+
+    def visit_submit_inner_transaction(self, call: nodes.SubmitInnerTransaction) -> str:
+        itxns = [p.accept(self) for p in call.itxns]
+        return f"submit_txn({', '.join(itxns)})"
+
+    def visit_inner_transaction_field(self, itxn_field: nodes.InnerTransactionField) -> str:
+        txn = itxn_field.itxn.accept(self)
+        result = f"{txn}.{itxn_field.field.immediate}"
+        if isinstance(itxn_field.array_index, nodes.Expression):
+            index = itxn_field.array_index.accept(self)
+            result = f"{result}[{index}]"
+        return result
+
     def visit_tuple_expression(self, expr: nodes.TupleExpression) -> str:
         items = ", ".join([item.accept(self) for item in expr.items])
         return f"({items})"

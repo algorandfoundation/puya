@@ -45,6 +45,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
+    convert_literal,
     convert_literal_to_expr,
     create_temporary_assignment,
     expect_operand_wtype,
@@ -77,10 +78,8 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
             case []:
                 const = BytesConstant(value=b"", source_location=location)
                 return var_expression(const)
-            case [Literal(value=bytes(bytes_val), source_location=loc)]:
-                # TODO: replace loc with location
-                const = BytesConstant(value=bytes_val, source_location=loc)
-                return var_expression(const)
+            case [Literal(value=bytes()) as literal]:
+                return var_expression(convert_literal(literal, wtypes.bytes_wtype))
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
 

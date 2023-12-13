@@ -1,12 +1,11 @@
 from puyapy import (
     ARC4Contract,
     Asset,
-    AssetTransferTransaction,
     LocalState,
-    PaymentTransaction,
-    TransactionType,
     UInt64,
     arc4,
+    gtxn,
+    itxn,
     op,
     subroutine,
 )
@@ -32,16 +31,18 @@ class Auction(ARC4Contract):
         self.asa = asset
 
         # Submit opt-in transaction: 0 asset transfer to self
-        op.CreateInnerTransaction.begin()
-        op.CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-        op.CreateInnerTransaction.set_fee(0)  # cover fee with outer txn
-        op.CreateInnerTransaction.set_asset_receiver(op.Global.current_application_address)
-        op.CreateInnerTransaction.set_xfer_asset(asset.asset_id)
-        op.CreateInnerTransaction.submit()
+        itxn.AssetTransferTransactionParams(
+            asset_receiver=op.Global.current_application_address,
+            xfer_asset=asset,
+            fee=0,
+        ).submit()
 
     @arc4.abimethod
     def start_auction(
-        self, starting_price: arc4.UInt64, length: arc4.UInt64, axfer: AssetTransferTransaction
+        self,
+        starting_price: arc4.UInt64,
+        length: arc4.UInt64,
+        axfer: gtxn.AssetTransferTransaction,
     ) -> None:
         assert (
             op.Transaction.sender == op.Global.creator_address
@@ -65,7 +66,7 @@ class Auction(ARC4Contract):
         pass
 
     @arc4.abimethod
-    def bid(self, pay: PaymentTransaction) -> None:
+    def bid(self, pay: gtxn.PaymentTransaction) -> None:
         # Ensure auction hasn't ended
         assert op.Global.latest_timestamp < self.auction_end, "auction has ended"
 
@@ -82,45 +83,40 @@ class Auction(ARC4Contract):
 
     @arc4.abimethod
     def claim_bids(self) -> None:
-        original_amount = self.claimable_amount[op.Transaction.sender]
-
-        amount = original_amount
+        amount = original_amount = self.claimable_amount[op.Transaction.sender]
 
         # subtract previous bid if sender is previous bidder
         if op.Transaction.sender == self.previous_bidder:
             amount -= self.previous_bid
 
-        op.CreateInnerTransaction.begin()
-        op.CreateInnerTransaction.set_type_enum(TransactionType.Payment)
-        op.CreateInnerTransaction.set_fee(0)  # cover fee with outer txn
-        op.CreateInnerTransaction.set_receiver(op.Transaction.sender)
-        op.CreateInnerTransaction.set_asset_amount(amount)
-        op.CreateInnerTransaction.submit()
+        itxn.PaymentTransactionParams(
+            fee=0,
+            amount=amount,
+            receiver=op.Transaction.sender,
+        ).submit()
 
         self.claimable_amount[op.Transaction.sender] = original_amount - amount
 
     @arc4.abimethod
     def claim_asset(self, asset: Asset) -> None:
         assert op.Global.latest_timestamp > self.auction_end, "auction has not ended"
-
+        previous_bidder = self.previous_bidder
         # Send ASA to previous bidder
-        op.CreateInnerTransaction.begin()
-        op.CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-        op.CreateInnerTransaction.set_fee(0)  # cover fee with outer txn
-        op.CreateInnerTransaction.set_asset_receiver(self.previous_bidder)
-        op.CreateInnerTransaction.set_xfer_asset(asset.asset_id)
-        op.CreateInnerTransaction.set_asset_amount(self.asa_amount)
-        op.CreateInnerTransaction.set_asset_close_to(self.previous_bidder)
-        op.CreateInnerTransaction.submit()
+        itxn.AssetTransferTransactionParams(
+            fee=0,
+            xfer_asset=asset,
+            asset_close_to=previous_bidder,
+            asset_receiver=previous_bidder,
+            asset_amount=self.asa_amount,
+        ).submit()
 
     @subroutine
     def delete_application(self) -> None:
-        op.CreateInnerTransaction.begin()
-        op.CreateInnerTransaction.set_type_enum(TransactionType.Payment)
-        op.CreateInnerTransaction.set_fee(0)  # cover fee with outer txn
-        op.CreateInnerTransaction.set_receiver(op.Global.creator_address)
-        op.CreateInnerTransaction.set_close_remainder_to(op.Global.creator_address)
-        op.CreateInnerTransaction.submit()
+        itxn.PaymentTransactionParams(
+            fee=0,
+            receiver=op.Global.creator_address,
+            close_remainder_to=op.Global.creator_address,
+        ).submit()
 
     def clear_state_program(self) -> bool:
         return True

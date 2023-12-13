@@ -18,6 +18,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, flow_control
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.iteration import handle_for_in_loop
+from puya.ir.builder.itxn import InnerTransactionBuilder
 from puya.ir.builder.utils import (
     assign,
     assign_targets,
@@ -65,6 +66,7 @@ class FunctionIRBuilder(
         self, context: IRBuildContext, function: awst_nodes.Function, subroutine: Subroutine
     ):
         self.context = context.for_function(function, subroutine, self)
+        self._itxn = InnerTransactionBuilder(self.context)
         self._awst_temp_var_names = dict[awst_nodes.TemporaryVariable, str]()
 
     @classmethod
@@ -115,12 +117,13 @@ class FunctionIRBuilder(
         return arc4.encode_expr(self.context, expr)
 
     def visit_assignment_statement(self, stmt: awst_nodes.AssignmentStatement) -> TStatement:
-        handle_assignment_expr(
-            self.context,
-            target=stmt.target,
-            value=stmt.value,
-            assignment_location=stmt.source_location,
-        )
+        if not self._itxn.handle_inner_transaction_assignments(stmt):
+            handle_assignment_expr(
+                self.context,
+                target=stmt.target,
+                value=stmt.value,
+                assignment_location=stmt.source_location,
+            )
         return None
 
     def visit_assignment_expression(self, expr: awst_nodes.AssignmentExpression) -> TExpression:
@@ -325,6 +328,26 @@ class FunctionIRBuilder(
                     args=args,
                     immediates=list(call.immediates),
                 )
+
+    def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:
+        raise InternalError(
+            "Inner transaction parameters can only be assigned to local variables",
+            call.source_location,
+        )
+
+    def visit_submit_inner_transaction(
+        self, submit: awst_nodes.SubmitInnerTransaction
+    ) -> TExpression:
+        self._itxn.handle_submit_inner_transaction(submit)
+        return None
+
+    def visit_update_inner_transaction(self, call: awst_nodes.UpdateInnerTransaction) -> None:
+        self._itxn.handle_update_inner_transaction(call)
+
+    def visit_inner_transaction_field(
+        self, itxn_field: awst_nodes.InnerTransactionField
+    ) -> TExpression:
+        return self._itxn.handle_inner_transaction_field(itxn_field)
 
     def visit_method_constant(self, expr: puya.awst.nodes.MethodConstant) -> TExpression:
         return MethodConstant(value=expr.value, source_location=expr.source_location)
@@ -788,11 +811,23 @@ class FunctionIRBuilder(
         # NOTE: popping of ignored return values should happen at code gen time
         result = statement.expr.accept(self)
         if result is None:
-            if statement.expr.wtype != wtypes.void_wtype:
-                raise InternalError(
-                    f"Expression statement with type {statement.expr.wtype} generated no result",
-                    statement.source_location,
-                )
+            wtype = statement.expr.wtype
+            match wtype:
+                case wtypes.void_wtype:
+                    pass
+                case _ if (
+                    wtypes.is_inner_transaction_type(wtype)
+                    or wtypes.is_inner_transaction_params_type(wtype)
+                    or wtypes.is_inner_transaction_tuple_type(wtype)
+                ):
+                    # inner transaction wtypes aren't true expressions
+                    pass
+                case _:
+                    raise InternalError(
+                        f"Expression statement with type {statement.expr.wtype} "
+                        f"generated no result",
+                        statement.source_location,
+                    )
         elif isinstance(result, Op):
             self.context.block_builder.add(result)
         # If we get a Value (e.g. a Register or some such) it's something that's being

@@ -6,11 +6,11 @@ from puyapy import (
     Bytes,
     GlobalState,
     OpUpFeeSource,
-    PaymentTransaction,
     TransactionType,
     UInt64,
     arc4,
     ensure_budget,
+    gtxn,
     op,
     subroutine,
     uenumerate,
@@ -74,7 +74,7 @@ class VotingRoundApp(ARC4Contract):
         self.store_option_counts(option_counts.copy())
 
     @arc4.abimethod
-    def bootstrap(self, fund_min_bal_req: PaymentTransaction) -> None:
+    def bootstrap(self, fund_min_bal_req: gtxn.PaymentTransaction) -> None:
         assert not self.is_bootstrapped, "Must not be already bootstrapped"
         self.is_bootstrapped = True
 
@@ -160,7 +160,10 @@ class VotingRoundApp(ARC4Contract):
 
     @arc4.abimethod
     def vote(
-        self, fund_min_bal_req: PaymentTransaction, signature: Bytes, answer_ids: VoteIndexArray
+        self,
+        fund_min_bal_req: gtxn.PaymentTransaction,
+        signature: Bytes,
+        answer_ids: VoteIndexArray,
     ) -> None:
         ensure_budget(7700, fee_source=OpUpFeeSource.GroupCredit)
         # Check voting preconditions

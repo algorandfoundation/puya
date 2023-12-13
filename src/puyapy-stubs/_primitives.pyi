@@ -1,6 +1,7 @@
 # ruff: noqa: PYI034
 import typing
 from collections.abc import Iterator, Reversible
+import typing
 
 class UInt64:
     """A 64-bit unsigned integer, one of the primary data types on the AVM"""

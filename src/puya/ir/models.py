@@ -17,6 +17,24 @@ from puya.utils import unique
 T = t.TypeVar("T")
 
 
+def _check_stack_types(
+    error_format: str,
+    target_types: list[AVMType],
+    source_types: list[AVMType],
+    source_location: SourceLocation | None,
+) -> None:
+    if len(target_types) != len(source_types) or not all(
+        a & b for a, b in zip(target_types, source_types, strict=True)
+    ):
+        raise CodeError(
+            error_format.format(
+                source_types=f"({', '.join(map(str, source_types))})",
+                target_types=f"({', '.join(map(str, target_types))})",
+            ),
+            source_location,
+        )
+
+
 class Context(t.Protocol):
     source_location: SourceLocation | None
 
@@ -230,7 +248,6 @@ class Intrinsic(Op, ValueProvider):
     """
 
     op: AVMOp
-    # TODO: validation for immediates && args
     # TODO: consider treating ops with no args (only immediates) as Value types
     #       e.g. `txn NumAppArgs` or `txna ApplicationArgs 0`
     immediates: list[str | int] = attrs.field(factory=list)
@@ -247,6 +264,20 @@ class Intrinsic(Op, ValueProvider):
     @property
     def op_signature(self) -> OpSignature:
         return self.op.get_signature(self.immediates)
+
+    @args.validator
+    def _validate_args(self, _attribute: object, args: list[Value]) -> None:
+        expected_args = [stack_type_to_avm_type(a) for a in self.op_signature.args]
+        received_args = [a.atype for a in args]
+        desc = f"({self.op} {' '.join(map(str, self.immediates))}): "
+        _check_stack_types(
+            "Incompatible argument types on Intrinsic"
+            + desc
+            + " received = {source_types}, expected = {target_types}",
+            expected_args,
+            received_args,
+            self.source_location,
+        )
 
 
 @attrs.define(eq=False)
@@ -291,14 +322,13 @@ class Assignment(Op):
 
     @source.validator
     def _check_types(self, _attribute: object, source: ValueProvider) -> None:
-        target_type = [target.atype for target in self.targets]
-        source_type = list(source.types)
-        if not all(a & b for a, b in zip(target_type, source_type, strict=True)):
-            raise CodeError(
-                f"Incompatible types on assignment:"
-                f" source = {source_type}, target = {target_type}",
-                self.source_location,
-            )
+        _check_stack_types(
+            "Incompatible types on assignment: "
+            "source = {source_types}, target = {target_types}",
+            [target.atype for target in self.targets],
+            list(source.types),
+            self.source_location,
+        )
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_assignment(self)

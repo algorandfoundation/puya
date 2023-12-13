@@ -231,7 +231,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         f"cannot be both a subroutine and {arc4_decorator_name}", subroutine_dec
                     )
                 *arg_wtypes, ret_wtype = get_func_types(
-                    self.context, func_def, location=arc4_decorator_loc
+                    self.context, func_def, location=self._location(func_def)
                 ).values()
                 arc4_method_config = _get_arc4_method_config(
                     self.context, arc4_decorator, func_def
@@ -523,7 +523,9 @@ def _get_arc4_method_config(
 
             structs = [
                 (n, _wtype_to_struct_def(t))
-                for n, t in get_func_types(context, func_def, dec_loc).items()
+                for n, t in get_func_types(
+                    context, func_def, context.node_location(func_def)
+                ).items()
                 if isinstance(t, wtypes.ARC4Struct)
             ]
 

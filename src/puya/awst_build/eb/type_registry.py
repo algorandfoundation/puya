@@ -60,28 +60,41 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.CLS_ARC4_UINTN: arc4.UIntNClassExpressionBuilder,
     constants.CLS_ACCOUNT: account.AccountClassExpressionBuilder,
     constants.CLS_ARRAY: array.ArrayGenericClassExpressionBuilder,
-    constants.CLS_APPLICATION: application.ApplicationClassExpressionBuilder,
-    constants.CLS_TRANSACTION_BASE: transaction.TransactionBaseClassExpressionBuilder,
-    constants.CLS_APPLICATION_CALL_TRANSACTION: (
-        transaction.ApplicationCallTransactionClassExpressionBuilder
-    ),
     constants.CLS_ASSET: asset.AssetClassExpressionBuilder,
-    constants.CLS_ASSET_CONFIG_TRANSACTION: (
-        transaction.AssetConfigTransactionClassExpressionBuilder
-    ),
-    constants.CLS_ASSET_TRANSFER_TRANSACTION: (
-        transaction.AssetTransferTransactionClassExpressionBuilder
-    ),
-    constants.CLS_ASSET_FREEZE_TRANSACTION: (
-        transaction.AssetFreezeTransactionClassExpressionBuilder
-    ),
+    constants.CLS_APPLICATION: application.ApplicationClassExpressionBuilder,
     constants.CLS_BIGUINT: biguint.BigUIntClassExpressionBuilder,
     constants.CLS_BYTES: bytes_.BytesClassExpressionBuilder,
-    constants.CLS_KEY_REGISTRATION_TRANSACTION: (
-        transaction.KeyRegistrationTransactionClassExpressionBuilder
-    ),
-    constants.CLS_PAYMENT_TRANSACTION: transaction.PaymentTransactionClassExpressionBuilder,
     constants.CLS_UINT64: uint64.UInt64ClassExpressionBuilder,
+    constants.SUBMIT_INNER_TXN: transaction.SubmitInnerTransactionExpressionBuilder,
+    constants.CLS_TRANSACTION_BASE: functools.partial(
+        transaction.GroupTransactionClassExpressionBuilder,
+        wtype=wtypes.WGroupTransaction(
+            transaction_type=None,
+            stub_name=constants.CLS_TRANSACTION_BASE_ALIAS,
+            name="group_transaction_base",
+        ),
+    ),
+    **{
+        t.group_transaction.type_name: functools.partial(
+            transaction.GroupTransactionClassExpressionBuilder,
+            wtype=wtypes.WGroupTransaction.from_type(t.transaction_type),
+        )
+        for t in constants.TRANSACTION_TYPE_TO_CLS.values()
+    },
+    **{
+        t.inner_transaction_params.type_name: functools.partial(
+            transaction.InnerTxnParamsClassExpressionBuilder,
+            wtype=wtypes.WInnerTransactionParams.from_type(t.transaction_type),
+        )
+        for t in constants.TRANSACTION_TYPE_TO_CLS.values()
+    },
+    **{
+        t.inner_transaction.type_name: functools.partial(
+            transaction.InnerTransactionClassExpressionBuilder,
+            wtype=wtypes.WInnerTransaction.from_type(t.transaction_type),
+        )
+        for t in constants.TRANSACTION_TYPE_TO_CLS.values()
+    },
     **{
         enum_name: functools.partial(
             named_int_constants.NamedIntegerConstsTypeBuilder,
@@ -107,19 +120,15 @@ WTYPE_TO_BUILDER: dict[
     wtypes.arc4_string_wtype: arc4.StringExpressionBuilder,
     wtypes.account_wtype: account.AccountExpressionBuilder,
     wtypes.application_wtype: application.ApplicationExpressionBuilder,
-    wtypes.application_call_wtype: transaction.ApplicationCallTransactionExpressionBuilder,
-    wtypes.asset_config_wtype: transaction.AssetConfigTransactionExpressionBuilder,
-    wtypes.asset_transfer_wtype: transaction.AssetTransferTransactionExpressionBuilder,
-    wtypes.asset_freeze_wtype: transaction.AssetFreezeTransactionExpressionBuilder,
-    wtypes.transaction_base_wtype: transaction.TransactionBaseExpressionBuilder,
     wtypes.asset_wtype: asset.AssetExpressionBuilder,
     wtypes.biguint_wtype: biguint.BigUIntExpressionBuilder,
     wtypes.bool_wtype: bool_.BoolExpressionBuilder,
     wtypes.bytes_wtype: bytes_.BytesExpressionBuilder,
-    wtypes.key_registration_wtype: transaction.KeyRegistrationTransactionExpressionBuilder,
-    wtypes.payment_wtype: transaction.PaymentTransactionExpressionBuilder,
     wtypes.uint64_wtype: uint64.UInt64ExpressionBuilder,
     wtypes.void_wtype: void.VoidExpressionBuilder,
+    wtypes.WGroupTransaction: transaction.GroupTransactionExpressionBuilder,
+    wtypes.WInnerTransaction: transaction.InnerTransactionExpressionBuilder,
+    wtypes.WInnerTransactionParams: transaction.InnerTxnParamsExpressionBuilder,
 }
 
 

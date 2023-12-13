@@ -1,0 +1,204 @@
+#pragma version 10
+
+test_cases.inner_transactions.itxn_loop.MyContract.approval_program:
+    int 0
+    dupn 7
+    byte ""
+    // inner_transactions/itxn_loop.py:21
+    // app_params = itxn.ApplicationCallTransactionParams(
+    int 0
+    // inner_transactions/itxn_loop.py:25
+    // note=b"",
+    byte ""
+    // inner_transactions/itxn_loop.py:28
+    // for i in urange(4):
+    int 0
+
+main_for_header@1:
+    // inner_transactions/itxn_loop.py:28
+    // for i in urange(4):
+    dup
+    int 4
+    <
+    bz main_after_for@15
+    // inner_transactions/itxn_loop.py:20
+    // note = Bytes(b"ABCDE")
+    byte "ABCDE"
+    // inner_transactions/itxn_loop.py:29
+    // i_note = op.extract(note, 0, i)
+    int 0
+    dig 2
+    dup
+    cover 3
+    extract3
+    bury 6
+    dig 2
+    bury 7
+    dig 8
+    bury 8
+    dig 10
+    bury 10
+    dig 12
+    bury 12
+    dig 3
+    bury 5
+    // inner_transactions/itxn_loop.py:30-39
+    // match i:
+    //     case UInt64(1):
+    //         app_params.set(note=i_note, application_args=(Bytes(b"1"),))
+    //     case UInt64(2):
+    //         app_params.set(note=i_note, application_args=(Bytes(b"2"), Bytes(b"1")))
+    //     case UInt64(3):
+    //         app_params.set(
+    //             note=i_note,
+    //             application_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
+    //         )
+    switch main_switch_case_default@6 main_switch_case_0@3 main_switch_case_1@4 main_switch_case_2@5
+    b main_switch_case_next@7
+
+main_switch_case_0@3:
+    // inner_transactions/itxn_loop.py:32
+    // app_params.set(note=i_note, application_args=(Bytes(b"1"),))
+    int 1
+    byte "1"
+    dig 6
+    bury 8
+    dig 9
+    bury 9
+    dig 11
+    bury 11
+    bury 12
+    bury 4
+    b main_switch_case_next@7
+
+main_switch_case_1@4:
+    // inner_transactions/itxn_loop.py:34
+    // app_params.set(note=i_note, application_args=(Bytes(b"2"), Bytes(b"1")))
+    byte "2"
+    int 2
+    byte "1"
+    dig 7
+    bury 9
+    dig 10
+    bury 10
+    bury 11
+    swap
+    bury 12
+    bury 4
+    b main_switch_case_next@7
+
+main_switch_case_2@5:
+    // inner_transactions/itxn_loop.py:38
+    // application_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
+    byte "3"
+    int 3
+    byte "2"
+    byte "1"
+    dig 8
+    bury 10
+    bury 10
+    bury 11
+    swap
+    bury 12
+    bury 4
+    b main_switch_case_next@7
+
+main_switch_case_default@6:
+    dig 1
+    bury 6
+    dig 7
+    bury 7
+    dig 9
+    bury 9
+    dig 11
+    bury 11
+    dig 2
+    bury 4
+
+main_switch_case_next@7:
+    dig 5
+    bury 2
+    dig 6
+    bury 8
+    dig 8
+    bury 10
+    dig 10
+    bury 12
+    dig 3
+    dup
+    bury 4
+    // inner_transactions/itxn_loop.py:40
+    // app_txn = app_params.submit()
+    itxn_begin
+    int 1
+    >=
+    bz main_next_field@11
+    dig 11
+    itxn_field ApplicationArgs
+    dig 2
+    int 2
+    >=
+    bz main_next_field@11
+    dig 9
+    itxn_field ApplicationArgs
+    dig 2
+    int 3
+    >=
+    bz main_next_field@11
+    dig 7
+    itxn_field ApplicationArgs
+
+main_next_field@11:
+    // inner_transactions/itxn_loop.py:22
+    // approval_program=programs.ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    // inner_transactions/itxn_loop.py:23
+    // clear_state_program=programs.ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/itxn_loop.py:26
+    // fee=0,
+    int 0
+    itxn_field Fee
+    dig 1
+    itxn_field Note
+    // inner_transactions/itxn_loop.py:24
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
+    itxn_field OnCompletion
+    // inner_transactions/itxn_loop.py:21-27
+    // app_params = itxn.ApplicationCallTransactionParams(
+    //     approval_program=programs.ALWAYS_APPROVE,
+    //     clear_state_program=programs.ALWAYS_APPROVE,
+    //     on_completion=OnCompleteAction.DeleteApplication,
+    //     note=b"",
+    //     fee=0,
+    // )
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/itxn_loop.py:40
+    // app_txn = app_params.submit()
+    itxn_submit
+    itxn NumAppArgs
+    itxn Note
+    // inner_transactions/itxn_loop.py:41
+    // log(app_txn.note)
+    log
+    // inner_transactions/itxn_loop.py:42
+    // log(app_txn.num_app_args)
+    itob
+    log
+    // inner_transactions/itxn_loop.py:28
+    // for i in urange(4):
+    dup
+    int 1
+    +
+    bury 1
+    b main_for_header@1
+
+main_after_for@15:
+    // inner_transactions/itxn_loop.py:44
+    // return True
+    int 1
+    return

@@ -84,6 +84,24 @@ class FunctionTraverser(
         for arg in call.stack_args:
             arg.accept(self)
 
+    def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:
+        for expr in call.fields.values():
+            expr.accept(self)
+
+    def visit_update_inner_transaction(self, call: awst_nodes.UpdateInnerTransaction) -> None:
+        call.itxn.accept(self)
+        for value in call.fields.values():
+            value.accept(self)
+
+    def visit_submit_inner_transaction(self, call: awst_nodes.SubmitInnerTransaction) -> None:
+        for expr in call.itxns:
+            expr.accept(self)
+
+    def visit_inner_transaction_field(self, itxn_field: awst_nodes.InnerTransactionField) -> None:
+        itxn_field.itxn.accept(self)
+        if itxn_field.array_index:
+            itxn_field.array_index.accept(self)
+
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> None:
         for item in expr.items:
             item.accept(self)

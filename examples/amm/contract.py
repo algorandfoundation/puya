@@ -4,11 +4,10 @@ from puyapy import (
     Account,
     ARC4Contract,
     Asset,
-    AssetTransferTransaction,
-    PaymentTransaction,
-    TransactionType,
     UInt64,
     arc4,
+    gtxn,
+    itxn,
     op,
     subroutine,
 )
@@ -46,7 +45,9 @@ class ConstantProductAMM(ARC4Contract):
         self.governor = new_governor
 
     @arc4.abimethod()
-    def bootstrap(self, seed: PaymentTransaction, a_asset: Asset, b_asset: Asset) -> arc4.UInt64:
+    def bootstrap(
+        self, seed: gtxn.PaymentTransaction, a_asset: Asset, b_asset: Asset
+    ) -> arc4.UInt64:
         """bootstraps the contract by opting into the assets and creating the pool token.
 
         Note this method will fail if it is attempted more than once on the same contract
@@ -86,8 +87,8 @@ class ConstantProductAMM(ARC4Contract):
     )
     def mint(
         self,
-        a_xfer: AssetTransferTransaction,
-        b_xfer: AssetTransferTransaction,
+        a_xfer: gtxn.AssetTransferTransaction,
+        b_xfer: gtxn.AssetTransferTransaction,
         pool_asset: Asset,
         a_asset: Asset,
         b_asset: Asset,
@@ -152,7 +153,7 @@ class ConstantProductAMM(ARC4Contract):
     )
     def burn(
         self,
-        pool_xfer: AssetTransferTransaction,
+        pool_xfer: gtxn.AssetTransferTransaction,
         pool_asset: Asset,
         a_asset: Asset,
         b_asset: Asset,
@@ -208,7 +209,7 @@ class ConstantProductAMM(ARC4Contract):
     )
     def swap(
         self,
-        swap_xfer: AssetTransferTransaction,
+        swap_xfer: gtxn.AssetTransferTransaction,
         a_asset: Asset,
         b_asset: Asset,
     ) -> None:
@@ -266,20 +267,19 @@ class ConstantProductAMM(ARC4Contract):
 
     @subroutine
     def _create_pool_token(self) -> Asset:
-        op.CreateInnerTransaction.begin()
-        op.CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
-        op.CreateInnerTransaction.set_config_asset_name(
-            b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name
+        return (
+            itxn.AssetConfigTransactionParams(
+                asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
+                unit_name=b"dbt",
+                total=TOTAL_SUPPLY,
+                decimals=3,
+                manager=op.Global.current_application_address,
+                reserve=op.Global.current_application_address,
+                fee=0,
+            )
+            .submit()
+            .created_asset
         )
-        op.CreateInnerTransaction.set_config_asset_unit_name(b"dpt")
-        op.CreateInnerTransaction.set_config_asset_total(TOTAL_SUPPLY)
-        op.CreateInnerTransaction.set_config_asset_decimals(3)
-        op.CreateInnerTransaction.set_config_asset_manager(op.Global.current_application_address)
-        op.CreateInnerTransaction.set_config_asset_reserve(op.Global.current_application_address)
-        op.CreateInnerTransaction.set_fee(0)
-        op.CreateInnerTransaction.submit()
-
-        return Asset(op.InnerTransaction.created_asset_id())
 
     @subroutine
     def _do_opt_in(self, asset: Asset) -> None:
@@ -356,10 +356,9 @@ def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) 
 
 @subroutine
 def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
-    op.CreateInnerTransaction.begin()
-    op.CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-    op.CreateInnerTransaction.set_xfer_asset(asset.asset_id)
-    op.CreateInnerTransaction.set_asset_amount(amount)
-    op.CreateInnerTransaction.set_asset_receiver(receiver)
-    op.CreateInnerTransaction.set_fee(0)
-    op.CreateInnerTransaction.submit()
+    itxn.AssetTransferTransactionParams(
+        xfer_asset=asset,
+        asset_amount=amount,
+        asset_receiver=receiver,
+        fee=0,
+    ).submit()

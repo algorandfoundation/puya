@@ -7,10 +7,10 @@ from puyapy import (
     Asset,
     Bytes,
     OnCompleteAction,
-    PaymentTransaction,
     TransactionType,
     UInt64,
     arc4,
+    gtxn,
     log,
     op,
 )
@@ -94,7 +94,11 @@ class Reference(ARC4Contract):
 
     @arc4.abimethod
     def with_transactions(
-        self, asset: Asset, an_int: arc4.UInt64, pay: PaymentTransaction, another_int: arc4.UInt64
+        self,
+        asset: Asset,
+        an_int: arc4.UInt64,
+        pay: gtxn.PaymentTransaction,
+        another_int: arc4.UInt64,
     ) -> None:
         assert self.asa == asset, "is correct asset"
         assert an_int.decode() == 1, "is correct int"
@@ -168,7 +172,7 @@ class Reference(ARC4Contract):
         asset: Asset,
         e: arc4.UInt64,
         f: arc4.UInt64,
-        pay: PaymentTransaction,
+        pay: gtxn.PaymentTransaction,
         g: arc4.UInt64,
         h: arc4.UInt64,
         i: arc4.UInt64,
@@ -185,7 +189,7 @@ class Reference(ARC4Contract):
         s: Bytes,
         t: Bytes,
         asset2: Asset,
-        pay2: PaymentTransaction,
+        pay2: gtxn.PaymentTransaction,
         u: arc4.UInt64,
         v: arc4.UInt64,
     ) -> arc4.UInt64:

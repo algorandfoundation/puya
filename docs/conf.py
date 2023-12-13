@@ -37,8 +37,7 @@ nitpick_ignore = [
     ("py:class", "puyapy.arc4.AllowedOnCompletes"),
 ]
 nitpick_ignore_regex = [
-    ("py:class", r"puyapy\._.*"),
-    ("py:class", r"puyapy\.arc4\._.*"),
+    ("py:class", r"puyapy.*\._.*"),
 ]
 
 # -- Options for HTML output -------------------------------------------------
