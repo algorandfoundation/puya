@@ -310,11 +310,14 @@ class ARC4UFixedNxM(ARC4Type):
         )
 
 
-@typing.final
 @attrs.frozen(str=False, kw_only=True)
-class ARC4DynamicArray(ARC4Type):
+class ARC4Array(ARC4Type):
     element_type: WType
 
+
+@typing.final
+@attrs.frozen(str=False, kw_only=True)
+class ARC4DynamicArray(ARC4Array):
     @classmethod
     def from_element_type(cls, element_type: WType) -> typing.Self:
         if not is_arc4_encoded_type(element_type):
@@ -330,8 +333,7 @@ class ARC4DynamicArray(ARC4Type):
 
 @typing.final
 @attrs.frozen(str=False, kw_only=True)
-class ARC4StaticArray(ARC4Type):
-    element_type: WType
+class ARC4StaticArray(ARC4Array):
     array_size: int
 
     @classmethod
@@ -386,7 +388,7 @@ class ARC4Struct(ARC4Type):
             )
             + ">"
         )
-        return cls(name=name, stub_name=python_name, fields=fields)
+        return cls(name=name, stub_name=python_name, fields=fields, immutable=False)
 
 
 arc4_string_wtype: typing.Final = ARC4Type(

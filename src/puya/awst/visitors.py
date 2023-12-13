@@ -159,6 +159,14 @@ class ExpressionVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
+    def visit_array_concat(self, expr: puya.awst.nodes.ArrayConcat) -> T:
+        ...
+
+    @abstractmethod
+    def visit_array_extend(self, expr: puya.awst.nodes.ArrayExtend) -> T:
+        ...
+
+    @abstractmethod
     def visit_tuple_expression(self, expr: puya.awst.nodes.TupleExpression) -> T:
         ...
 
@@ -197,9 +205,6 @@ class ExpressionVisitor(t.Generic[T], ABC):
         ...
 
     def visit_new_array(self, expr: puya.awst.nodes.NewArray) -> T:
-        raise NotImplementedError
-
-    def visit_array_append(self, expr: puya.awst.nodes.ArrayAppend) -> T:
         raise NotImplementedError
 
     def visit_new_struct(self, expr: puya.awst.nodes.NewStruct) -> T:
@@ -251,4 +256,8 @@ class ExpressionVisitor(t.Generic[T], ABC):
 
     @abstractmethod
     def visit_method_constant(self, expr: puya.awst.nodes.MethodConstant) -> T:
+        ...
+
+    @abstractmethod
+    def visit_array_pop(self, expr: puya.awst.nodes.ArrayPop) -> T:
         ...

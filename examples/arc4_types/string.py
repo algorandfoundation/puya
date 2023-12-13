@@ -22,6 +22,15 @@ class Arc4StringTypesContract(Contract):
 
         assert some_bytes == some_bytes_as_bytes_again
 
+        hello = String("Hello")
+        space = String(" ")
+        world = String("World!")
+
+        assert String("Hello World!") == (hello + space + world)
+
+        thing = String("hi")
+        thing += thing
+        assert thing == String("hihi")
         return True
 
     def clear_state_program(self) -> bool:

@@ -7,6 +7,7 @@ import mypy.types
 import mypy.visitor
 
 import puya.metadata
+from puya.arc4_util import wtype_to_arc4
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
@@ -28,7 +29,6 @@ from puya.awst_build.utils import (
     qualified_class_name,
 )
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_util import wtype_to_arc4
 from puya.metadata import ARC4DefaultArgument, ARC4MethodConfig, ARC32StructDef
 from puya.parse import SourceLocation
 

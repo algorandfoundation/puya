@@ -1,6 +1,7 @@
 import itertools
 from typing import Iterable, Sequence
 
+from puya.arc4_util import get_abi_signature, wtype_to_arc4
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -10,7 +11,6 @@ from puya.awst.nodes import NumericComparison, NumericComparisonExpression, UInt
 from puya.awst_build.eb.transaction import check_transaction_type
 from puya.awst_build.utils import create_temporary_assignment
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_util import get_abi_signature, wtype_to_arc4
 from puya.metadata import (
     ARC4Method,
     ARC4MethodArg,

@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 
 import puyapy
 
@@ -65,6 +65,9 @@ class ABIEncoded(_ABIBytesBacked, typing.Protocol[_T]):
 
 class String(ABIEncoded[puyapy.Bytes]):
     def __init__(self, value: typing.LiteralString) -> None: ...
+    def __add__(self, other: String) -> String: ...
+    def __iadd__(self, other: String) -> String: ...
+    def __radd__(self, other: String) -> String: ...
 
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 
@@ -106,7 +109,9 @@ class Bool(ABIEncoded[bool]):
 _TArrayItem = typing.TypeVar("_TArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
 
-class StaticArray(_ABIBytesBacked, typing.Generic[_TArrayItem, _TArrayLength]):
+class StaticArray(
+    _ABIBytesBacked, typing.Generic[_TArrayItem, _TArrayLength], Iterable[_TArrayItem]
+):
     @typing.overload
     def __init__(self) -> None: ...
     @typing.overload
@@ -207,8 +212,9 @@ class StaticArray(_ABIBytesBacked, typing.Generic[_TArrayItem, _TArrayLength]):
     def length(self) -> puyapy.UInt64:
         """Returns the current length of the array"""
     def __getitem__(self, index: puyapy.UInt64 | int | slice) -> _TArrayItem: ...
+    def __setitem__(self, index: puyapy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
 
-class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem]):
+class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem], Iterable[_TArrayItem]):
     def __init__(self, *items: _TArrayItem): ...
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
@@ -216,6 +222,13 @@ class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem]):
     def length(self) -> puyapy.UInt64:
         """Returns the current length of the array"""
     def __getitem__(self, index: puyapy.UInt64 | int | slice) -> _TArrayItem: ...
+    def append(self, item: _TArrayItem) -> None:
+        """Append items to this array"""
+    def extend(self, other: Iterable[_TArrayItem]) -> None:
+        """Extend this array with the contents of another array"""
+    def __setitem__(self, index: puyapy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
+    def __add__(self, other: Iterable[_TArrayItem]) -> DynamicArray[_TArrayItem]: ...
+    def pop(self, item: _TArrayItem) -> _TArrayItem: ...
 
 class Address(StaticArray[Byte, typing.Literal[32]]): ...
 

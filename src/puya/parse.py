@@ -179,6 +179,15 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
             for module in EMBEDDED_MODULES.values()
         ]
     )
+    for util in ["arc4"]:
+        util_path = Path(__file__).parent / "lib_embedded" / f"puya_util_{util}.py"
+        mypy_build_sources.append(
+            mypy.build.BuildSource(
+                path=str(Path("<puya>") / f"puya_util_{util}.py"),
+                module=f"puya_util_{util}",
+                text=util_path.read_text(),
+            )
+        )
     result = _mypy_build(mypy_build_sources, mypy_options, mypy_fscache)
     missing_module_names = {s.module_name for s in sources} - result.manager.modules.keys()
     if missing_module_names:
