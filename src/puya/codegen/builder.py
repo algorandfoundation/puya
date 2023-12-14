@@ -5,7 +5,6 @@ import attrs
 import structlog
 
 from puya.codegen import ops
-from puya.codegen.callgraph import CallGraph
 from puya.codegen.context import ProgramCodeGenContext
 from puya.codegen.emitprogram import CompiledContract, CompiledProgram
 from puya.codegen.stack_assignment import (
@@ -410,13 +409,11 @@ def lower_program_ir_to_memory_ir(
 def compile_program_to_teal(
     context: CompileContext, contract: models.Contract, program: models.Program
 ) -> CompiledProgram:
-    call_graph = CallGraph.build(program)
     cg_context = attrs_extend(
         ProgramCodeGenContext,
         context,
         contract=contract,
         program=program,
-        call_graph=call_graph,
     )
     subroutines = list(lower_program_ir_to_memory_ir(cg_context))
     global_stack_assignment(cg_context, subroutines)
