@@ -19,4 +19,5 @@ def global_stack_assignment(
         koopmans(context, subroutine)
         baileys(context, subroutine)
         allocate_locals_on_stack(context, subroutine)
-        simplify_teal_ops(context, subroutine)
+        if context.options.optimization_level > 0:
+            simplify_teal_ops(context, subroutine)

@@ -185,7 +185,9 @@ test_swap_while_body@2:
         b test_swap_while_top@1                                                                  //                                                  (𝕡) i#0 | (𝕗) x#0,y#0 |
 
 test_swap_after_while@3:
-        retsub                                                                                   // virtual: 2 ops                                   x#0                                                                                           x = UInt64(1)                                                                  File "unssa/contract.py", line 46
+        frame_dig 0                                                                              // load x#0 from f-stack                            (𝕡) i#0 | (𝕗) x#0,y#0 | x#0                                                                   x                                                                              File "unssa/contract.py", line 46
+        frame_bury 0
+        retsub                                                                                   //                                                  x#0                                                                                           return x                                                                       File "unssa/contract.py", line 53
 
 
 // examples.unssa.contract.test_swap_loop(i#0: uint64, j#0: uint64) -> uint64:
@@ -233,7 +235,9 @@ test_swap_loop_after_while@5:
         b test_swap_loop_while_top@1                                                             //                                                  (𝕡) i#0,j#0 | (𝕗) x#0,y#0 |
 
 test_swap_loop_after_while@6:
-        retsub                                                                                   // virtual: 2 ops                                   x#0                                                                                           x = UInt64(1)                                                                  File "unssa/contract.py", line 58
+        frame_dig 0                                                                              // load x#0 from f-stack                            (𝕡) i#0,j#0 | (𝕗) x#0,y#0 | x#0                                                               x                                                                              File "unssa/contract.py", line 58
+        frame_bury 0
+        retsub                                                                                   //                                                  x#0                                                                                           return x                                                                       File "unssa/contract.py", line 67
 
 
 // examples.unssa.contract.test_param_update_with_reentrant_entry_block(x#0: uint64) -> uint64:

@@ -327,16 +327,13 @@ def peephole_optimization(subroutine: ops.MemorySubroutine) -> None:
     # replace sequences of stack manipulations with shorter ones
     vla = VariableLifetimeAnalysis.analyze(subroutine)
     for block in subroutine.body:
-        while True:
-            before = block.ops
-            peephole_optimization_single(subroutine, vla, block)
-            if block.ops == before:
-                break
+        while peephole_optimization_single(subroutine, vla, block):
+            pass
 
 
 def peephole_optimization_single(
     subroutine: ops.MemorySubroutine, vla: VariableLifetimeAnalysis, block: ops.MemoryBasicBlock
-) -> None:
+) -> bool:
     result = list[ops.BaseOp]()
     op_iter = ManualIter(block.ops)
     b = op_iter.next()
@@ -391,7 +388,9 @@ def peephole_optimization_single(
             # skip to next b
             b = op_iter.next()
 
+    before = block.ops
     block.ops = result
+    return before != result
 
 
 def koopmans(_context: ProgramCodeGenContext, subroutine: ops.MemorySubroutine) -> None:
