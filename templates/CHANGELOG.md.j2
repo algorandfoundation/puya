@@ -3,7 +3,7 @@
 {# UNRELEASED #}
 ## Unreleased
 {% for type_, commits in context.history.unreleased | dictsort %}
-{% if type_ != "unknown" %}
+{% if type_ in ("feat", "fix", "perf") %}
 ### {{ type_ | capitalize }}
 {% for commit in commits %}
 * {{ commit.message.rstrip() }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
@@ -12,7 +12,7 @@
 {# RELEASED #}
 ## {{ version.as_semver_tag() }} ({{ release.tagged_date.strftime("%Y-%m-%d") }})
 {% for type_, commits in release["elements"] | dictsort %}
-{% if type_ != "unknown" %}
+{% if type_ in ("feat", "fix", "perf") %}
 ### {{ type_ | capitalize }}
 {% for commit in commits %}
 * {{ commit.message.rstrip() }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
