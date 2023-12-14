@@ -3,6 +3,11 @@ name: Continuous Delivery of Python package
 on:
   workflow_dispatch:
     inputs:
+      run_checks:
+        description: "Run checks?"
+        type: boolean
+        required: true
+        default: true
       production_release:
         description: "Production release?"
         type: boolean
@@ -16,13 +21,8 @@ permissions:
   packages: read
 
 jobs:
-  ci-check-python:
-    name: Check Python
-    uses: ./.github/workflows/check-python.yaml
-
   release:
     name: Release Library
-    needs: ci-check-python
     runs-on: ubuntu-latest
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
@@ -46,7 +46,16 @@ jobs:
           cache: "poetry"
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with cd
+        run: poetry install --no-interaction --with cicd
+
+      - name: pre-commit and pytest
+        if: inputs.run_checks
+        run: |
+            set -o pipefail
+            poetry shell
+            pre-commit run --all-files && git diff --exit-code
+            algokit localnet start
+            pytest
 
       - name: Get branch name
         shell: bash
