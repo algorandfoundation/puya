@@ -2,7 +2,10 @@
 import typing as t
 
 class UInt64:
+    __match_value__: int
+    __match_args__ = ("__match_value__",)
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
+
     def __init__(self, value: int, /) -> None: ...
     # ==
     # TODO: mypy suggests due to Liskov below should be other: object
@@ -71,6 +74,8 @@ class UInt64:
     def __invert__(self) -> UInt64: ...
 
 class Bytes(t.Iterable[Bytes]):
+    __match_value__: bytes
+    __match_args__ = ("__match_value__",)
     @t.overload
     def __init__(self) -> None: ...
     @t.overload
@@ -111,6 +116,8 @@ class Bytes(t.Iterable[Bytes]):
     def __invert__(self) -> Bytes: ...
 
 class BigUInt:
+    __match_value__: int
+    __match_args__ = ("__match_value__",)
     # TODO: consider how to handle cases where sizes exceeds 512, which can happen on + or *,
     #       but the result is no longer usable with any further ops.
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~

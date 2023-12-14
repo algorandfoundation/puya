@@ -3,6 +3,8 @@ import typing as t
 from puyapy import Bytes, UInt64
 
 class Account:
+    __match_value__: str
+    __match_args__ = ("__match_value__",)
     def __init__(self, address: t.LiteralString):
         """
         `value` should be a 58 character base32 string,

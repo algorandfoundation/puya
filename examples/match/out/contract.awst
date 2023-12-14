@@ -1,0 +1,76 @@
+contract MyContract
+{
+  approval_program(): bool
+  {
+    this::match_uint64()
+    this::match_biguint()
+    this::match_bytes()
+    this::match_address()
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine match_uint64(): None
+  {
+    n: puyapy.UInt64 = txn<NumAppArgs>()
+    switch (n) {
+      case 0u: {
+        hello: puyapy.Bytes = 'Hello'
+        log(hello)
+      }
+      case 10u: {
+        hello: puyapy.Bytes = 'Hello There'
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_bytes(): None
+  {
+    n: puyapy.Bytes = txna<ApplicationArgs, 0>()
+    switch (n) {
+      case '': {
+        hello: puyapy.Bytes = 'Hello bytes'
+        log(hello)
+      }
+      case '10': {
+        hello: puyapy.Bytes = 'Hello There bytes'
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_biguint(): None
+  {
+    n: puyapy.BigUInt = itob(txn<NumAppArgs>()) b* 10n
+    switch (n) {
+      case 0n: {
+        hello: puyapy.Bytes = 'Hello biguint'
+        log(hello)
+      }
+      case 10n: {
+        hello: puyapy.Bytes = 'Hello There biguint'
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_address(): None
+  {
+    n: puyapy.Account = txn<Sender>()
+    switch (n) {
+      case Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"): {
+        hello: puyapy.Bytes = 'Hello address'
+        log(hello)
+      }
+      case Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"): {
+        hello: puyapy.Bytes = 'Hello There address'
+        log(hello)
+      }
+    }
+  }
+}

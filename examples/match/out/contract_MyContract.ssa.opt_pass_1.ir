@@ -1,0 +1,68 @@
+contract examples.match.contract.MyContract:
+    program approval:
+        subroutine examples.match.contract.MyContract.approval_program() -> uint64:
+            block@0: // L5
+                examples.match.contract.MyContract.match_uint64()
+                examples.match.contract.MyContract.match_biguint()
+                examples.match.contract.MyContract.match_bytes()
+                examples.match.contract.MyContract.match_address()
+                return 1u
+        
+        subroutine examples.match.contract.MyContract.match_uint64() -> void:
+            block@0: // L13
+                let n#0: uint64 = (txn NumAppArgs)
+                switch n#0 {0u => block@1, 10u => block@2, * => block@4}
+            block@1: // switch_case_0_L17
+                (log "Hello")
+                goto block@4
+            block@2: // switch_case_1_L20
+                (log "Hello There")
+                goto block@4
+            block@4: // switch_case_next_L15
+                return 
+        
+        subroutine examples.match.contract.MyContract.match_biguint() -> void:
+            block@0: // L35
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: bytes = (itob tmp%0#0)
+                let n#0: bytes = (b* tmp%1#0 10b)
+                switch n#0 {0b => block@1, 10b => block@2, * => block@4}
+            block@1: // switch_case_0_L39
+                (log "Hello biguint")
+                goto block@4
+            block@2: // switch_case_1_L42
+                (log "Hello There biguint")
+                goto block@4
+            block@4: // switch_case_next_L37
+                return 
+        
+        subroutine examples.match.contract.MyContract.match_bytes() -> void:
+            block@0: // L24
+                let n#0: bytes = (txna ApplicationArgs 0)
+                switch n#0 {"" => block@1, "10" => block@2, * => block@4}
+            block@1: // switch_case_0_L28
+                (log "Hello bytes")
+                goto block@4
+            block@2: // switch_case_1_L31
+                (log "Hello There bytes")
+                goto block@4
+            block@4: // switch_case_next_L26
+                return 
+        
+        subroutine examples.match.contract.MyContract.match_address() -> void:
+            block@0: // L46
+                let n#0: bytes = (txn Sender)
+                switch n#0 {addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ => block@1, addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA => block@2, * => block@4}
+            block@1: // switch_case_0_L50
+                (log "Hello address")
+                goto block@4
+            block@2: // switch_case_1_L53
+                (log "Hello There address")
+                goto block@4
+            block@4: // switch_case_next_L48
+                return 
+    
+    program clear-state:
+        subroutine examples.match.contract.MyContract.clear_state_program() -> uint64:
+            block@0: // L56
+                return 1u

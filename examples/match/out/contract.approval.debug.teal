@@ -1,0 +1,120 @@
+// Op                                                                     // Op Description                  Stack (out)                                                                                                                  Source code                                                  Source line
+
+#pragma version 8
+
+// examples.match.contract.MyContract.approval_program() -> uint64:
+main_block@0:
+        callsub match_uint64                                              //                                                                                                                                                              self.match_uint64()                                          File "match/contract.py", line 6
+        callsub match_biguint                                             //                                                                                                                                                              self.match_biguint()                                         File "match/contract.py", line 7
+        callsub match_bytes                                               //                                                                                                                                                              self.match_bytes()                                           File "match/contract.py", line 8
+        callsub match_address                                             //                                                                                                                                                              self.match_address()                                         File "match/contract.py", line 9
+        int 1                                                             //                                 1                                                                                                                            True                                                         File "match/contract.py", line 10
+        return                                                            //                                                                                                                                                              return True                                                  File "match/contract.py", line 10
+
+
+// examples.match.contract.MyContract.match_uint64() -> void:
+match_uint64:
+        proto 0 0                                                         //                                                                                                                                                              def match_uint64(self) -> None:                              File "match/contract.py", line 13
+
+match_uint64_block@0:
+        txn NumAppArgs                                                    //                                 {txn}                                                                                                                        puyapy.Transaction.num_app_args()                            File "match/contract.py", line 14
+        int 0                                                             //                                 n#0,0                                                                                                                        0                                                            File "match/contract.py", line 16
+        int 10                                                            //                                 n#0,0,10                                                                                                                     10                                                           File "match/contract.py", line 19
+        uncover 2                                                         // load n#0 from l-stack (no copy) 0,10,n#0                                                                                                                     n                                                            File "match/contract.py", line 14
+        match match_uint64_switch_case_0@1 match_uint64_switch_case_1@2   //                                                                                                                                                              match n:                                                     File "match/contract.py", line 15
+        b match_uint64_switch_case_next@4                                 //                                                                                                                                                              match n:                                                     File "match/contract.py", line 15
+
+match_uint64_switch_case_0@1:
+        byte "Hello"                                                      //                                 "Hello"                                                                                                                      b"Hello"                                                     File "match/contract.py", line 17
+        log                                                               //                                                                                                                                                              puyapy.log(hello)                                            File "match/contract.py", line 18
+        b match_uint64_switch_case_next@4                                 //
+
+match_uint64_switch_case_1@2:
+        byte "Hello There"                                                //                                 "Hello There"                                                                                                                b"Hello There"                                               File "match/contract.py", line 20
+        log                                                               //                                                                                                                                                              puyapy.log(hello)                                            File "match/contract.py", line 21
+        // Implicit fall through to match_uint64_switch_case_next@4       //
+
+match_uint64_switch_case_next@4:
+        retsub                                                            //
+
+
+// examples.match.contract.MyContract.match_biguint() -> void:
+match_biguint:
+        proto 0 0                                                         //                                                                                                                                                              def match_biguint(self) -> None:                             File "match/contract.py", line 35
+
+match_biguint_block@0:
+        txn NumAppArgs                                                    //                                 {txn}                                                                                                                        puyapy.Transaction.num_app_args()                            File "match/contract.py", line 36
+        itob                                                              //                                 {itob}                                                                                                                       puyapy.Transaction.num_app_args() * puyapy.BigUInt(10)       File "match/contract.py", line 36
+        byte 0x0a                                                         //                                 tmp%1#0,0x0a                                                                                                                 10                                                           File "match/contract.py", line 36
+        b*                                                                //                                 {b*}                                                                                                                         puyapy.Transaction.num_app_args() * puyapy.BigUInt(10)       File "match/contract.py", line 36
+        byte 0x                                                           //                                 n#0,0x                                                                                                                       0                                                            File "match/contract.py", line 38
+        byte 0x0a                                                         //                                 n#0,0x,0x0a                                                                                                                  10                                                           File "match/contract.py", line 41
+        uncover 2                                                         // load n#0 from l-stack (no copy) 0x,0x0a,n#0                                                                                                                  n                                                            File "match/contract.py", line 36
+        match match_biguint_switch_case_0@1 match_biguint_switch_case_1@2 //                                                                                                                                                              match n:                                                     File "match/contract.py", line 37
+        b match_biguint_switch_case_next@4                                //                                                                                                                                                              match n:                                                     File "match/contract.py", line 37
+
+match_biguint_switch_case_0@1:
+        byte "Hello biguint"                                              //                                 "Hello biguint"                                                                                                              b"Hello biguint"                                             File "match/contract.py", line 39
+        log                                                               //                                                                                                                                                              puyapy.log(hello)                                            File "match/contract.py", line 40
+        b match_biguint_switch_case_next@4                                //
+
+match_biguint_switch_case_1@2:
+        byte "Hello There biguint"                                        //                                 "Hello There biguint"                                                                                                        b"Hello There biguint"                                       File "match/contract.py", line 42
+        log                                                               //                                                                                                                                                              puyapy.log(hello)                                            File "match/contract.py", line 43
+        // Implicit fall through to match_biguint_switch_case_next@4      //
+
+match_biguint_switch_case_next@4:
+        retsub                                                            //
+
+
+// examples.match.contract.MyContract.match_bytes() -> void:
+match_bytes:
+        proto 0 0                                                         //                                                                                                                                                              def match_bytes(self) -> None:                               File "match/contract.py", line 24
+
+match_bytes_block@0:
+        txna ApplicationArgs 0                                            //                                 {txna}                                                                                                                       puyapy.Transaction.application_args(0)                       File "match/contract.py", line 25
+        byte ""                                                           //                                 n#0,""                                                                                                                       b""                                                          File "match/contract.py", line 27
+        byte "10"                                                         //                                 n#0,"","10"                                                                                                                  b"10"                                                        File "match/contract.py", line 30
+        uncover 2                                                         // load n#0 from l-stack (no copy) "","10",n#0                                                                                                                  n                                                            File "match/contract.py", line 25
+        match match_bytes_switch_case_0@1 match_bytes_switch_case_1@2     //                                                                                                                                                              match n:                                                     File "match/contract.py", line 26
+        b match_bytes_switch_case_next@4                                  //                                                                                                                                                              match n:                                                     File "match/contract.py", line 26
+
+match_bytes_switch_case_0@1:
+        byte "Hello bytes"                                                //                                 "Hello bytes"                                                                                                                b"Hello bytes"                                               File "match/contract.py", line 28
+        log                                                               //                                                                                                                                                              puyapy.log(hello)                                            File "match/contract.py", line 29
+        b match_bytes_switch_case_next@4                                  //
+
+match_bytes_switch_case_1@2:
+        byte "Hello There bytes"                                          //                                 "Hello There bytes"                                                                                                          b"Hello There bytes"                                         File "match/contract.py", line 31
+        log                                                               //                                                                                                                                                              puyapy.log(hello)                                            File "match/contract.py", line 32
+        // Implicit fall through to match_bytes_switch_case_next@4        //
+
+match_bytes_switch_case_next@4:
+        retsub                                                            //
+
+
+// examples.match.contract.MyContract.match_address() -> void:
+match_address:
+        proto 0 0                                                         //                                                                                                                                                              def match_address(self) -> None:                             File "match/contract.py", line 46
+
+match_address_block@0:
+        txn Sender                                                        //                                 {txn}                                                                                                                        puyapy.Transaction.sender()                                  File "match/contract.py", line 47
+        addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ   //                                 n#0,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ                                                               "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ" File "match/contract.py", line 49
+        addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA   //                                 n#0,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ,VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA    "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA" File "match/contract.py", line 52
+        uncover 2                                                         // load n#0 from l-stack (no copy) AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ,VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA,n#0    n                                                            File "match/contract.py", line 47
+        match match_address_switch_case_0@1 match_address_switch_case_1@2 //                                                                                                                                                              match n:                                                     File "match/contract.py", line 48
+        b match_address_switch_case_next@4                                //                                                                                                                                                              match n:                                                     File "match/contract.py", line 48
+
+match_address_switch_case_0@1:
+        byte "Hello address"                                              //                                 "Hello address"                                                                                                              b"Hello address"                                             File "match/contract.py", line 50
+        log                                                               //                                                                                                                                                              puyapy.log(hello)                                            File "match/contract.py", line 51
+        b match_address_switch_case_next@4                                //
+
+match_address_switch_case_1@2:
+        byte "Hello There address"                                        //                                 "Hello There address"                                                                                                        b"Hello There address"                                       File "match/contract.py", line 53
+        log                                                               //                                                                                                                                                              puyapy.log(hello)                                            File "match/contract.py", line 54
+        // Implicit fall through to match_address_switch_case_next@4      //
+
+match_address_switch_case_next@4:
+        retsub                                                            //
+
