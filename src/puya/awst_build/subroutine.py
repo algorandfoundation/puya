@@ -460,11 +460,34 @@ class FunctionASTConverter(
                     case_value = expect_operand_wtype(case_value_builder_or_literal, subject.wtype)
                     case_block = self.visit_block(block)
                     case_block_map[case_value] = case_block
+                case mypy.patterns.ClassPattern(
+                    positionals=[mypy.patterns.ValuePattern(expr=inner_literal_expr)],
+                    class_ref=mypy.nodes.RefExpr(fullname=fullname),
+                ), None if fullname in (
+                    constants.CLS_UINT64,
+                    constants.CLS_BIGUINT,
+                    constants.CLS_BYTES,
+                    constants.CLS_ACCOUNT,
+                ):
+                    case_value_builder_or_literal = inner_literal_expr.accept(self)
+                    case_value = expect_operand_wtype(case_value_builder_or_literal, subject.wtype)
+                    case_block = self.visit_block(block)
+                    case_block_map[case_value] = case_block
                 case mypy.patterns.AsPattern(name=None, pattern=None), None:
                     default_block = self.visit_block(block)
                 case _:
+                    supported_types = ", ".join(
+                        (
+                            constants.CLS_UINT64_ALIAS,
+                            constants.CLS_BIGUINT_ALIAS,
+                            constants.CLS_BYTES_ALIAS,
+                            constants.CLS_ACCOUNT_ALIAS,
+                        )
+                    )
                     self._error(
-                        "match statements only support value patterns without guards", stmt
+                        f"match statements only support class patterns for {supported_types}"
+                        " or value patterns",
+                        stmt,
                     )
                     break
         else:
