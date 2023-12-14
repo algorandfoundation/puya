@@ -186,9 +186,7 @@ def create_arc32_json(contract: CompiledContract) -> str:
             "global": _encode_schema(metadata.global_state),
             "local": _encode_schema(metadata.local_state),
         },
-        "contract": _encode_arc4_contract(
-            metadata.name_override or metadata.class_name, metadata.description, arc4_methods
-        ),
+        "contract": _encode_arc4_contract(metadata.name, metadata.description, arc4_methods),
         "bare_call_config": _encode_bare_method_configs(bare_methods),
     }
     return json.dumps(_filter_none(app_spec), indent=4)
