@@ -17,11 +17,9 @@ class MemoryReplacer(IRMutator):
         cls,
         blocks: Sequence[models.BasicBlock],
         *,
-        find: Iterable[models.Register] | models.Register,
+        find: Iterable[models.Register],
         replacement: models.Register,
     ) -> int:
-        if isinstance(find, models.Register):
-            find = [find]
         replacer = cls(find=frozenset(find), replacement=replacement)
         for block in blocks:
             replacer.visit_block(block)
