@@ -229,17 +229,17 @@ class Pop(MemoryOp):
 
 @attrs.frozen(eq=False, init=False)
 class VirtualStackOp(BaseOp):
-    original: Sequence[MemoryOp]
+    original: Sequence[BaseOp]
     replacement: Sequence[TealOp] | None
     """Optional series of ops that leave the stack state in the same order as original, but
     with less ops"""
 
     def __init__(
         self,
-        original: MemoryOp | Sequence[MemoryOp],
+        original: BaseOp | Sequence[BaseOp],
         replacement: Sequence[TealOp] | None = None,
     ):
-        original = [original] if isinstance(original, MemoryOp) else original
+        original = [original] if isinstance(original, BaseOp) else original
         srcs = list(filter(None, (x.source_location for x in original)))
         source_location: SourceLocation | None = None
         if srcs:

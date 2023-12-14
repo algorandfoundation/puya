@@ -242,6 +242,54 @@ def simplify_pairwise_ops(original_ops: TealOpSequence) -> TealOpSequence | None
     return None
 
 
+LOAD_OP_CODES = frozenset(
+    [
+        "addr",
+        "byte",
+        "int",
+        "method",
+        "dig",
+        "frame_dig",
+        "txn",
+        "txna",
+        "gtxn",
+        "gtxna",
+        "itxn",
+        "itxna",
+        "global",
+    ]
+)
+
+
+def simplify_triplet_ops(original_ops: TealOpSequence) -> TealOpSequence | None:
+    remaining_ops = list(original_ops)
+    modified = False
+    result = list[teal.TealOp]()
+    while remaining_ops:
+        match remaining_ops:
+            case [
+                load_a,
+                load_b,
+                (teal.Cover(n=1) | teal.Uncover(n=1)),
+                *tail,
+            ] if (load_a.op_code in LOAD_OP_CODES and load_b.op_code in LOAD_OP_CODES):
+                modified = True
+                if isinstance(load_a, teal.Dig):
+                    load_a = attrs.evolve(load_a, n=load_a.n + 1)
+                if isinstance(load_b, teal.Dig):
+                    load_b = attrs.evolve(load_b, n=load_b.n - 1)
+                result.extend((load_b, load_a))
+            case [keep, *tail]:
+                result.append(keep)
+            case _:
+                raise InternalError("Unexpected empty sequence")
+        remaining_ops = tail
+
+    if modified:
+        return tuple(result)
+    return None
+
+
 @functools.cache
 def simplify_rotation_ops(
     original_ops: TealOpSequence,
@@ -310,13 +358,21 @@ def try_simplify(
     last_op = maybe_simplify[-1].mir_op
     replace_slice = slice(block_ops.index(first_op), block_ops.index(last_op) + 1)
     to_replace = block_ops[replace_slice]
-    flattened_virtual_ops = list[ops.MemoryOp]()
+    flattened_virtual_ops = list[ops.BaseOp]()
     for op in to_replace:
         match op:
             case ops.VirtualStackOp() as virtual:
                 flattened_virtual_ops.extend(virtual.original)
-            case ops.MemoryOp() as memory:
-                flattened_virtual_ops.append(memory)
+            case (
+                ops.MemoryOp()
+                | ops.PushBytes()
+                | ops.PushInt()
+                | ops.PushAddress()
+                | ops.PushMethod()
+            ):
+                flattened_virtual_ops.append(op)
+            case ops.IntrinsicOp(op_code=op_code) if op_code in LOAD_OP_CODES:
+                flattened_virtual_ops.append(op)
             case ops.RetSub() as retsub if simpler and isinstance(simpler[-1], teal.RetSub):
                 flattened_virtual_ops.append(retsub)
             case _:
@@ -354,33 +410,52 @@ def _is_valid_repeat_op(repeated: list[MIRTealOps], op: MIRTealOps) -> bool:
 
 def try_simplify_repeated_ops(
     subroutine: ops.MemorySubroutine, block: ops.MemoryBasicBlock
-) -> None:
+) -> bool:
     mir_teal_ops = get_teal_ops(subroutine, block)
     repeated = list[MIRTealOps]()
+    modified = False
     for mir_teal_op in mir_teal_ops:
         if _is_valid_repeat_op(repeated, mir_teal_op):
             repeated.append(mir_teal_op)
         elif repeated:
             if len(repeated) > 1:
-                try_simplify(repeated, simplify_repeated_rotation_ops, block.ops)
+                modified = modified or try_simplify(
+                    repeated, simplify_repeated_rotation_ops, block.ops
+                )
             repeated = []
             # op might still be valid as the start of a new sequence
             if _is_valid_repeat_op(repeated, mir_teal_op):
                 repeated.append(mir_teal_op)
     if repeated:  # probably shouldn't happen due to control ops terminating the sequence earlier
-        try_simplify(repeated, simplify_repeated_rotation_ops, block.ops)
+        modified = modified or try_simplify(repeated, simplify_repeated_rotation_ops, block.ops)
+    return modified
 
 
 def try_simplify_pairwise_ops(
     subroutine: ops.MemorySubroutine, block: ops.MemoryBasicBlock
-) -> None:
+) -> bool:
     mir_teal_ops = get_teal_ops(subroutine, block)
     to_simplify = list[MIRTealOps]()
+    modified = False
     for mir_teal_op in mir_teal_ops:
         to_simplify.append(mir_teal_op)
         if sum(len(o.teal_ops) for o in to_simplify) > 1:
-            try_simplify(to_simplify, simplify_pairwise_ops, block.ops)
+            if try_simplify(to_simplify, simplify_pairwise_ops, block.ops):
+                modified = True
             to_simplify = []
+    return modified
+
+
+def try_simplify_triple_ops(subroutine: ops.MemorySubroutine, block: ops.MemoryBasicBlock) -> bool:
+    to_simplify = list[MIRTealOps]()
+    modified = False
+    for mir_teal_op in get_teal_ops(subroutine, block):
+        to_simplify.append(mir_teal_op)
+        if sum(len(o.teal_ops) for o in to_simplify) > 2:
+            if try_simplify(to_simplify, simplify_triplet_ops, block.ops):
+                modified = True
+            to_simplify = []
+    return modified
 
 
 MAX_PERMUTATIONS = 2000
@@ -438,8 +513,11 @@ def try_simplify_rotation_ops(
 def simplify_teal_ops(context: ProgramCodeGenContext, subroutine: ops.MemorySubroutine) -> None:
     vla = VariableLifetimeAnalysis.analyze(subroutine)
     for block in subroutine.body:
-        peephole_optimization_single(subroutine, vla, block)
-        try_simplify_repeated_ops(subroutine, block)
-        try_simplify_pairwise_ops(subroutine, block)
+        modified = True
+        while modified:
+            modified = peephole_optimization_single(subroutine, vla, block)
+            modified = modified or try_simplify_repeated_ops(subroutine, block)
+            modified = modified or try_simplify_pairwise_ops(subroutine, block)
+            modified = modified or try_simplify_triple_ops(subroutine, block)
         if context.options.optimization_level >= 2:
             try_simplify_rotation_ops(subroutine, block)

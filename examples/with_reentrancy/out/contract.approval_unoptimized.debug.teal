@@ -139,7 +139,9 @@ silly3_after_if_else@5:
         swap                                               // load tmp%2#0 from l-stack (no copy)          (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | "silly3 = ",tmp%2#0                    itoa(x)                                     File "with_reentrancy/contract.py", line 60
         concat                                             //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | {concat}                               Bytes(b"silly3 = ") + itoa(x)               File "with_reentrancy/contract.py", line 60
         log                                                //                                              (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 |                                        log(Bytes(b"silly3 = ") + itoa(x))          File "with_reentrancy/contract.py", line 60
-        retsub                                             // virtual: 2 ops                               result#0                                                                      result = a * 2                              File "with_reentrancy/contract.py", line 53
+        frame_dig 0                                        // load result#0 from f-stack                   (𝕡) x#0 | (𝕗) result#0,is_even#0,a#0 | result#0                               result                                      File "with_reentrancy/contract.py", line 53
+        frame_bury 0
+        retsub                                             //                                              result#0                                                                      return result                               File "with_reentrancy/contract.py", line 61
 
 
 // examples.with_reentrancy.contract.itoa(i#0: uint64) -> bytes:
@@ -184,7 +186,8 @@ itoa_after_if_else@2:
         int 1                                              //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,tmp%5#0,tmp%5#0,1              digits[i % radix]                           File "with_reentrancy/contract.py", line 22
         +                                                  //                                              (𝕡) i#0 | (𝕗) radix#0 | (𝕏) digits#0 | tmp%4#0,tmp%5#0,{+}                    digits[i % radix]                           File "with_reentrancy/contract.py", line 22
         uncover 3                                          // load digits#0 from x-stack                   (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,tmp%5#0,index_plus_1%6#0,digits#0             digits                                      File "with_reentrancy/contract.py", line 18
-        cover 2                                            // virtual: 2 ops                               (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,digits#0,tmp%5#0,index_plus_1%6#0             digits[i % radix]                           File "with_reentrancy/contract.py", line 22
+        uncover 2                                          // load tmp%5#0 from l-stack (no copy)          (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,index_plus_1%6#0,digits#0,tmp%5#0             i % radix                                   File "with_reentrancy/contract.py", line 22
+        uncover 2                                          // load index_plus_1%6#0 from l-stack (no copy) (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,digits#0,tmp%5#0,index_plus_1%6#0             digits[i % radix]                           File "with_reentrancy/contract.py", line 22
         substring3                                         //                                              (𝕡) i#0 | (𝕗) radix#0 | tmp%4#0,{substring3}                                  digits[i % radix]                           File "with_reentrancy/contract.py", line 22
         concat                                             //                                              (𝕡) i#0 | (𝕗) radix#0 | {concat}                                              itoa(i // radix) + digits[i % radix]        File "with_reentrancy/contract.py", line 22
         swap
