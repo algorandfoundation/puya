@@ -8,11 +8,11 @@ on:
         type: boolean
         required: true
         default: true
-      production_release:
-        description: "Production release?"
+      dry_run:
+        description: "Dry Run?"
         type: boolean
         required: true
-        default: true
+        default: false
 
 concurrency: release
 
@@ -29,7 +29,8 @@ jobs:
       id-token: write
       contents: write
       packages: read
-
+    env:
+        DRY_RUN: ${{ inputs.dry_run && '--noop' || '' }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -65,20 +66,14 @@ jobs:
       - name: Set Git user as GitHub actions
         run: git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
 
-      - name: Update release - Production
-        if: steps.get_branch.outputs.branch == 'main' && inputs.production_release
-        run: semantic-release version
-
-      - name: Update release - Prerelease
-        if: steps.get_branch.outputs.branch == 'main' && !inputs.production_release
-        run: semantic-release version --prerelease
+      - name: Update release
+        run: poetry run semantic-release $DRY_RUN version
 
       - name: Create Wheel
         run: poetry build --format wheel
 
       - name: Publish to GitHub
-        if: steps.get_branch.outputs.branch == 'main'
-        run: semantic-release publish
+        run: poetry run semantic-release $DRY_RUN publish
 
       - name: Publish to PyPI
         if: steps.get_branch.outputs.branch == 'main' && inputs.production_release
