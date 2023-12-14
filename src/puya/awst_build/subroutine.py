@@ -457,7 +457,13 @@ class FunctionASTConverter(
             match pattern, guard:
                 case mypy.patterns.ValuePattern(expr=case_expr), None:
                     case_value_builder_or_literal = case_expr.accept(self)
-                    case_value = expect_operand_wtype(case_value_builder_or_literal, subject.wtype)
+                    case_value = require_expression_builder(case_value_builder_or_literal).rvalue()
+                    case_block = self.visit_block(block)
+                    case_block_map[case_value] = case_block
+                case mypy.patterns.SingletonPattern(value=bool() as bool_literal), None:
+                    case_value = BoolConstant(
+                        value=bool_literal, source_location=self._location(pattern)
+                    )
                     case_block = self.visit_block(block)
                     case_block_map[case_value] = case_block
                 case mypy.patterns.ClassPattern(
@@ -486,8 +492,8 @@ class FunctionASTConverter(
                     )
                     self._error(
                         f"match statements only support class patterns for {supported_types}"
-                        " or value patterns",
-                        stmt,
+                        ", value patterns or bool literals",
+                        pattern,
                     )
                     break
         else:
