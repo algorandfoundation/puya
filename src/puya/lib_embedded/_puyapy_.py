@@ -25,9 +25,9 @@ def ensure_budget(required_budget: UInt64, fee_source: UInt64) -> None:
         CreateInnerTransaction.set_approval_program(Bytes.from_hex("068101"))
         CreateInnerTransaction.set_clear_state_program(Bytes.from_hex("068101"))
         match fee_source:
-            case 0:
+            case UInt64(0):
                 CreateInnerTransaction.set_fee(0)
-            case 1:
+            case UInt64(1):
                 CreateInnerTransaction.set_fee(Global.min_txn_fee())
         CreateInnerTransaction.submit()
 

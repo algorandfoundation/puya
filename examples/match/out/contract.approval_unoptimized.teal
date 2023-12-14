@@ -2,10 +2,18 @@
 
 // examples.match.contract.MyContract.approval_program() -> uint64:
 main_block@0:
+        byte "case_one"
+        int 1
+        app_global_put
+        byte "case_two"
+        int 2
+        app_global_put
         callsub match_uint64
         callsub match_biguint
         callsub match_bytes
         callsub match_address
+        callsub match_attributes
+        callsub match_bools
         int 1
         return
 
@@ -122,5 +130,71 @@ match_address_switch_case_1@2:
 match_address_switch_case_default@3:
 
 match_address_switch_case_next@4:
+        retsub
+
+
+// examples.match.contract.MyContract.match_attributes() -> void:
+match_attributes:
+        proto 0 0
+
+match_attributes_block@0:
+        txn NumAppArgs
+        int 0
+        byte "case_one"
+        app_global_get_ex
+        assert // check value exists
+        int 0
+        byte "case_two"
+        app_global_get_ex
+        assert // check value exists
+        uncover 2
+        match match_attributes_switch_case_0@1 match_attributes_switch_case_1@2
+        b match_attributes_switch_case_default@3
+
+match_attributes_switch_case_0@1:
+        byte "Hello one"
+        log
+        b match_attributes_switch_case_next@4
+
+match_attributes_switch_case_1@2:
+        byte "Hello two"
+        log
+        b match_attributes_switch_case_next@4
+
+match_attributes_switch_case_default@3:
+        byte "Hello default"
+        log
+
+match_attributes_switch_case_next@4:
+        retsub
+
+
+// examples.match.contract.MyContract.match_bools() -> void:
+match_bools:
+        proto 0 0
+
+match_bools_block@0:
+        txn NumAppArgs
+        int 0
+        >
+        int 1
+        int 0
+        uncover 2
+        match match_bools_switch_case_0@1 match_bools_switch_case_1@2
+        b match_bools_switch_case_default@3
+
+match_bools_switch_case_0@1:
+        byte "Hello True"
+        log
+        b match_bools_switch_case_next@4
+
+match_bools_switch_case_1@2:
+        byte "Hello False"
+        log
+        b match_bools_switch_case_next@4
+
+match_bools_switch_case_default@3:
+
+match_bools_switch_case_next@4:
         retsub
 

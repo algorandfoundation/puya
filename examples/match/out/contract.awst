@@ -1,11 +1,20 @@
 contract MyContract
 {
+  globals {
+    ['case_one']: puyapy.UInt64
+    ['case_two']: puyapy.UInt64
+  }
+  
   approval_program(): bool
   {
+    this.globals['case_one']: puyapy.UInt64 = 1u
+    this.globals['case_two']: puyapy.UInt64 = 2u
     this::match_uint64()
     this::match_biguint()
     this::match_bytes()
     this::match_address()
+    this::match_attributes()
+    this::match_bools()
     return true
   }
   
@@ -69,6 +78,40 @@ contract MyContract
       }
       case Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"): {
         hello: puyapy.Bytes = 'Hello There address'
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_attributes(): None
+  {
+    n: puyapy.UInt64 = txn<NumAppArgs>()
+    switch (n) {
+      case this.globals['case_one']: {
+        hello: puyapy.Bytes = 'Hello one'
+        log(hello)
+      }
+      case this.globals['case_two']: {
+        hello: puyapy.Bytes = 'Hello two'
+        log(hello)
+      }
+      case _: {
+        hello: puyapy.Bytes = 'Hello default'
+        log(hello)
+      }
+    }
+  }
+  
+  subroutine match_bools(): None
+  {
+    n: bool = txn<NumAppArgs>() > 0u
+    switch (n) {
+      case true: {
+        hello: puyapy.Bytes = 'Hello True'
+        log(hello)
+      }
+      case false: {
+        hello: puyapy.Bytes = 'Hello False'
         log(hello)
       }
     }
