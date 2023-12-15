@@ -16,10 +16,6 @@ on:
 
 concurrency: release
 
-permissions:
-  contents: write
-  packages: read
-
 jobs:
   release:
     name: Release Library
@@ -68,12 +64,16 @@ jobs:
 
       - name: Update release
         run: poetry run semantic-release $DRY_RUN version
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Wheel
         run: poetry build --format wheel
 
       - name: Publish to GitHub
         run: poetry run semantic-release $DRY_RUN publish
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to PyPI
         if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run
