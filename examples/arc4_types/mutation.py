@@ -126,8 +126,15 @@ class Arc4MutationContract(Contract):
         )
         dynamic_uint8_array.extend((UInt8(4), UInt8(90)))
 
-        assert dynamic_uint8_array == DynamicArray[UInt8](
+        assert dynamic_uint8_array == DynamicArray(
             UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
+        )
+
+        popped = dynamic_uint8_array.pop()
+        assert popped == UInt8(90)
+
+        assert dynamic_uint8_array == DynamicArray(
+            UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
         )
 
     @subroutine
@@ -171,7 +178,7 @@ class Arc4MutationContract(Contract):
         world = String("World")
         foo = String("Foo")
         bar = String("Bar")
-        dynamic_string_array = DynamicArray[String](hello, world)
+        dynamic_string_array = DynamicArray(hello, world)
         assert dynamic_string_array.bytes == Bytes(
             b"\x00\x02\x00\x04\x00\x0b\x00\x05Hello\x00\x05World"
         )
@@ -183,13 +190,15 @@ class Arc4MutationContract(Contract):
 
         dynamic_string_array.extend(dynamic_string_array)
 
-        assert dynamic_string_array == DynamicArray[String](
-            hello, world, foo, bar, hello, world, foo, bar
-        )
-        dynamic_string_array = DynamicArray[String](hello, world, foo, bar, hello, world, foo, bar)
+        assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+        dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
         dynamic_string_array[3] = hello
         dynamic_string_array[5] = hello
 
-        assert dynamic_string_array == DynamicArray[String](
+        assert dynamic_string_array == DynamicArray(
             hello, world, foo, hello, hello, hello, foo, bar
         )
+
+        assert dynamic_string_array.pop() == bar
+        assert dynamic_string_array.pop() == foo
+        assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
