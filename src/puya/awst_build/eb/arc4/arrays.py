@@ -9,6 +9,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4ArrayEncode,
     ArrayExtend,
+    ArrayPop,
     BytesComparisonExpression,
     EqualityComparison,
     Expression,
@@ -316,6 +317,8 @@ class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
                 return AppendExpressionBuilder(self.expr, location)
             case "extend":
                 return ExtendExpressionBuilder(self.expr, location)
+            case "pop":
+                return PopExpressionBuilder(self.expr, location)
             case _:
                 return super().member_access(name, location)
 
@@ -347,6 +350,35 @@ class AppendExpressionBuilder(IntermediateExpressionBuilder):
                 source_location=location,
             )
         )
+
+
+class PopExpressionBuilder(IntermediateExpressionBuilder):
+    def __init__(self, expr: Expression, location: SourceLocation):
+        super().__init__(location)
+        self.expr = expr
+        if not isinstance(expr.wtype, wtypes.ARC4DynamicArray):
+            raise InternalError(
+                "AppendExpressionBuilder can only be instantiated with an arc4.DynamicArray"
+            )
+        self.wtype: wtypes.ARC4DynamicArray = expr.wtype
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        match args:
+            case []:
+                return var_expression(
+                    ArrayPop(
+                        base=self.expr, source_location=location, wtype=self.wtype.element_type
+                    )
+                )
+            case _:
+                raise CodeError("Invalid/Unhandled arguments", location)
 
 
 class ExtendExpressionBuilder(IntermediateExpressionBuilder):

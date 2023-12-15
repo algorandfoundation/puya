@@ -2338,7 +2338,49 @@ class FunctionIRBuilder(
         )
 
     def visit_array_pop(self, expr: puya.awst.nodes.ArrayPop) -> TExpression:
-        ...
+        source_location = expr.source_location
+        match expr.base.wtype:
+            case wtypes.ARC4DynamicArray(element_type=element_type):
+                element_size = get_arc4_fixed_bit_size(element_type)
+                popped = self._mktemp(AVMType.bytes, source_location, description="popped")
+                data = self._mktemp(AVMType.bytes, source_location, description="data")
+                base = self._visit_and_materialise_single(expr.base)
+                match element_size:
+                    case 1:
+                        method_name = "dynamic_array_pop_bit"
+                        args: list[Value] = [base]
+
+                    case int(fixed_size):
+                        method_name = "dynamic_array_pop_fixed_size"
+                        args = [
+                            base,
+                            UInt64Constant(
+                                value=fixed_size // 8,
+                                source_location=source_location,
+                            ),
+                        ]
+
+                    case _:
+                        method_name = "dynamic_array_pop_variable_size"
+                        args = [base]
+
+                (popped, data) = self.assign(
+                    source_location=source_location,
+                    names=[(popped.name, None), (data.name, None)],
+                    source=self._invoke_puya_util_subroutine(
+                        method_name=method_name, args=args, source_location=source_location
+                    ),
+                )
+
+                self._handle_arc4_assign(
+                    target=expr.base, value=data, source_location=source_location
+                )
+
+                return popped
+            case _:
+                raise InternalError(
+                    f"Unsupported target for array pop: {expr.base.wtype}", source_location
+                )
 
     def visit_array_concat(self, expr: puya.awst.nodes.ArrayConcat) -> TExpression:
         return self._concat_values(
