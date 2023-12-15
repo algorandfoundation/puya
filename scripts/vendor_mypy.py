@@ -50,18 +50,18 @@ def update_puya_typeshed(mypy_typeshed: Path, puya_typeshed: Path) -> None:
     stdlib = Path("stdlib")
     relative_to_copy = [
         # hard coded in mpyy/modulefinder.py, minimum requirements for mypy
-        stubs / "mypy-extensions",
+        stubs / "mypy-extensions" / "mypy_extensions.pyi",
         stdlib / "VERSIONS",
         # hard coded in mpyy/build.py, minimum requirements for mypy
-        stdlib / "_typeshed",
-        stdlib / "collections",
-        stdlib / "_collections_abc.pyi",
-        stdlib / "abc.pyi",
         stdlib / "builtins.pyi",
-        stdlib / "sys.pyi",
-        stdlib / "types.pyi",
         stdlib / "typing.pyi",
+        stdlib / "types.pyi",
         stdlib / "typing_extensions.pyi",
+        stdlib / "_typeshed" / "__init__.pyi",
+        stdlib / "_collections_abc.pyi",
+        stdlib / "collections" / "abc.pyi",
+        stdlib / "sys.pyi",
+        stdlib / "abc.pyi",
         # needed for puyapy
         stdlib / "enum.pyi",
     ]
@@ -74,6 +74,7 @@ def update_puya_typeshed(mypy_typeshed: Path, puya_typeshed: Path) -> None:
         if copy_src.is_dir():
             shutil.copytree(copy_src, copy_dst)
         else:
+            copy_dst.parent.mkdir(exist_ok=True, parents=True)
             shutil.copy(copy_src, copy_dst)
 
 
