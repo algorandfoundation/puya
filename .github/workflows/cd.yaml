@@ -68,12 +68,16 @@ jobs:
 
       - name: Update release
         run: poetry run semantic-release $DRY_RUN version
+        env:
+            GITHUB_TOKEN: ${{ github.token }}
 
       - name: Create Wheel
         run: poetry build --format wheel
 
       - name: Publish to GitHub
         run: poetry run semantic-release $DRY_RUN publish
+        env:
+            GITHUB_TOKEN: ${{ github.token }}
 
       - name: Publish to PyPI
         if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run
