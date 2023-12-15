@@ -120,29 +120,16 @@ def remove_empty_blocks(_context: CompileContext, subroutine: models.Subroutine)
             target = block.terminator.target
 
             if not empty_block.predecessors and block is not subroutine.body[0]:
-                logger.info(
+                logger.debug(
                     f"Not removing empty block {empty_block} because it's currently unreachable"
                 )
                 continue
 
             if target.phis:
-                logger.info(
+                logger.debug(
                     f"Not removing empty block {empty_block} because it's used by phi nodes"
                 )
                 continue
-
-            # for phi in target.phis:
-            #     for idx, arg in enumerate(phi.args):
-            #         if arg.through == empty_block:
-            #             phi.args[idx : idx + 1] = [
-            #                 models.PhiArgument(
-            #                     value=arg.value,
-            #                     through=pred,
-            #                 )
-            #                 for pred in empty_block.predecessors
-            #                 if pred not in target.predecessors
-            #             ]
-            #             break
 
             # this will replace any ops that pointed to block
             BlockReferenceReplacer.apply(
