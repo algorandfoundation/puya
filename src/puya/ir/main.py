@@ -288,6 +288,9 @@ class SubroutineCollector(FunctionTraverser):
             ("puya_util_arc4", "dynamic_array_concat_fixed_size"),
             ("puya_util_arc4", "dynamic_array_replace_variable_size"),
             ("puya_util_arc4", "static_array_replace_variable_size"),
+            ("puya_util_arc4", "dynamic_array_pop_bit"),
+            ("puya_util_arc4", "dynamic_array_pop_fixed_size"),
+            ("puya_util_arc4", "dynamic_array_pop_variable_size"),
         ]
         for module, func_name in to_include:
             func = self.context.module_awsts[module].symtable[func_name]

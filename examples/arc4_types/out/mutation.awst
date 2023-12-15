@@ -84,6 +84,9 @@ contract Arc4MutationContract
     assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
     dynamic_uint8_array.extend((4arc4u8, 90arc4u8))
     assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8, 90arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    popped: puyapy.arc4.UIntN[typing.Literal[8]] = dynamic_uint8_array.pop()
+    assert(reinterpret_cast<puyapy.Bytes>(popped) == reinterpret_cast<puyapy.Bytes>(90arc4u8))
+    assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
   }
   
   subroutine dynamic_array_bool(): None
@@ -115,5 +118,8 @@ contract Arc4MutationContract
     dynamic_string_array[3u]: puyapy.arc4.String = hello
     dynamic_string_array[5u]: puyapy.arc4.String = hello
     assert(reinterpret_cast<puyapy.Bytes>(dynamic_string_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([hello, world, foo, hello, hello, hello, foo, bar], puyapy.arc4.DynamicArray[puyapy.arc4.String])))
+    assert(reinterpret_cast<puyapy.Bytes>(dynamic_string_array.pop()) == reinterpret_cast<puyapy.Bytes>(bar))
+    assert(reinterpret_cast<puyapy.Bytes>(dynamic_string_array.pop()) == reinterpret_cast<puyapy.Bytes>(foo))
+    assert(reinterpret_cast<puyapy.Bytes>(dynamic_string_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([hello, world, foo, hello, hello, hello], puyapy.arc4.DynamicArray[puyapy.arc4.String])))
   }
 }

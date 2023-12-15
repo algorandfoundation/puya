@@ -398,8 +398,12 @@ class ARC4ArrayEncode(Expression):
 
 @attrs.frozen
 class ArrayConcat(Expression):
+    """
+    Given 'left' or 'right that is logically an array - concat it with the other value which is
+    an iterable type with the same element type
+    """
+
     left: Expression
-    # todo validator, wtype will be dynamic array - left and right element types must match
     wtype: wtypes.WType
     right: Expression
 
@@ -417,15 +421,14 @@ class ArrayPop(Expression):
 
 @attrs.frozen
 class ArrayExtend(Expression):
+    """
+    Given 'base' that is logically an array - extend it with 'other' which is an iterable type with
+    the same element type
+    """
+
     base: Expression
     other: Expression
     wtype: wtypes.WType = attrs.field(default=wtypes.void_wtype)
-
-    # some_array.extend((a, b, c))  => other = TupleExpression
-    # some_array.append(1) => other = TupleExpression
-    # some_array.extend(other_array) => other = DynamicArrayExpression or static
-    # some_array += other_array
-    # some_array += (a,)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_extend(self)
