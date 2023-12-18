@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import typing
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Self
@@ -24,15 +25,27 @@ _SRC_ROOT = Path(__file__).parent
 TYPESHED_PATH = _SRC_ROOT / "_typeshed"
 
 
-def embedded_module_alias(path: Path) -> str:
-    return path.stem.strip("_")
+@attrs.frozen
+class EmbeddedSource:
+    path: Path
+    mypy_module_name: str
+    puya_module_name: str
+
+    @classmethod
+    def from_path(cls, filename: str, *, module_override: str | None = None) -> typing.Self:
+        path = _SRC_ROOT / "lib_embedded" / filename
+        return cls(
+            path=path,
+            mypy_module_name=path.stem,
+            puya_module_name=module_override or path.stem,
+        )
 
 
 EMBEDDED_MODULES = {
-    p.stem: p
-    for p in sorted(
-        (_SRC_ROOT / "lib_embedded").glob("*.py"),
-        key=embedded_module_alias,
+    es.mypy_module_name: es
+    for es in (
+        EmbeddedSource.from_path("_puyapy_.py", module_override="puyapy"),
+        EmbeddedSource.from_path("puyapy_lib_bytes.py"),
     )
 }
 
@@ -159,11 +172,11 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
         [
             mypy.build.BuildSource(
                 # present a 'tidy' path to the user
-                path=str(Path("<puya>") / f"{embedded_module_alias(module_path)}.py"),
-                module=module_name,
-                text=module_path.read_text(),
+                path=str(Path("<puya>") / f"{module.puya_module_name}.py"),
+                module=module.mypy_module_name,
+                text=module.path.read_text("utf8"),
             )
-            for module_name, module_path in EMBEDDED_MODULES.items()
+            for module in EMBEDDED_MODULES.values()
         ]
     )
     result = _mypy_build(mypy_build_sources, mypy_options, mypy_fscache)

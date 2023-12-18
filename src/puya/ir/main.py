@@ -58,7 +58,6 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
             contract.source_location,
         )
     # visit call graph starting at entry point(s) to collect all references for each
-
     approval_subs_srefs = SubroutineCollector.collect(ctx, start=folded.approval_program.body)
     clear_subs_srefs = SubroutineCollector.collect(ctx, start=folded.clear_program.body)
     if folded.init:
@@ -73,7 +72,8 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
             ctx.subroutines[func] = _make_subroutine(func)
     # now construct the subroutine IR
     for func, sub in ctx.subroutines.items():
-        FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
+        if not sub.body:  # in case something is pre-built (ie from embedded lib)
+            FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
 
     approval_ir = _make_program(
         ctx,

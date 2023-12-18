@@ -49,9 +49,9 @@ def transform_ast(
                 logger.debug(f"Skipping typeshed stub {module_rel_path}")
             elif module.is_stub:
                 logger.warning(f"Skipping stub: {module_rel_path}")
-            elif module.name in EMBEDDED_MODULES:
+            elif embedded_src := EMBEDDED_MODULES.get(module.name):
                 logger.debug(f"Building AWST for embedded puyapy lib at {module_rel_path}")
-                module._fullname = module_name.strip("_")  # noqa: SLF001
+                module._fullname = embedded_src.puya_module_name  # noqa: SLF001
                 module_awst = ModuleASTConverter.convert(ctx, module)
                 result[module.name] = module_awst
             else:

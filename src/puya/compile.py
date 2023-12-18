@@ -75,9 +75,8 @@ def awst_to_teal(
         return None
     embedded_funcs = [
         func
-        for module_name, module in module_asts.items()
-        if module_name in EMBEDDED_MODULES
-        for func in module.body
+        for embedded_src in EMBEDDED_MODULES.values()
+        for func in module_asts[embedded_src.puya_module_name].body
         if isinstance(func, awst_nodes.Function)
     ]
     build_context: IRBuildContext = attrs_extend(
