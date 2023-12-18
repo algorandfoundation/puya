@@ -12,7 +12,6 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.function_traverser import FunctionTraverser
-from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_router import create_abi_router, create_default_clear_state
 from puya.ir.arc4_util import get_abi_signature
@@ -26,23 +25,25 @@ from puya.ir.models import (
 )
 from puya.ir.types_ import wtype_to_avm_type
 from puya.metadata import ARC4Method, ARC4MethodConfig
-from puya.utils import attrs_extend
+from puya.utils import StableSet
 
 logger = structlog.get_logger()
 
 
+def build_embedded_ir(ctx: IRBuildContext) -> None:
+    for func in ctx.embedded_funcs:
+        ctx.subroutines[func] = _make_subroutine(func)
+
+    for func in ctx.embedded_funcs:
+        sub = ctx.subroutines[func]
+        FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
+
+
 def build_ir(
-    compile_context: CompileContext,
+    build_context: IRBuildContext,
     contract: awst_nodes.ContractFragment,
-    module_awsts: dict[str, awst_nodes.Module],
 ) -> Contract:
-    ctx: IRBuildContext = attrs_extend(
-        IRBuildContext,
-        compile_context,
-        module_awsts=module_awsts,
-        contract=contract,
-        subroutines={},
-    )
+    ctx = build_context.for_contract(contract)
     with ctx.log_exceptions():
         return _build_ir(ctx, contract)
 
@@ -57,6 +58,7 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
             contract.source_location,
         )
     # visit call graph starting at entry point(s) to collect all references for each
+
     approval_subs_srefs = SubroutineCollector.collect(ctx, start=folded.approval_program.body)
     clear_subs_srefs = SubroutineCollector.collect(ctx, start=folded.clear_program.body)
     if folded.init:
@@ -71,12 +73,20 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
             ctx.subroutines[func] = _make_subroutine(func)
     # now construct the subroutine IR
     for func, sub in ctx.subroutines.items():
-        FunctionIRBuilder.build_body(ctx, sub, function=func, on_create=None)
+        FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
 
     approval_ir = _make_program(
-        ctx, folded.approval_program, approval_subs_srefs, on_create=folded.init
+        ctx,
+        folded.approval_program,
+        StableSet(*approval_subs_srefs, *ctx.embedded_funcs),
+        on_create=folded.init,
     )
-    clear_state_ir = _make_program(ctx, folded.clear_program, clear_subs_srefs, on_create=None)
+    clear_state_ir = _make_program(
+        ctx,
+        folded.clear_program,
+        StableSet(*clear_subs_srefs, *ctx.embedded_funcs),
+        on_create=None,
+    )
     result = Contract(
         source_location=contract.source_location,
         approval_program=approval_ir,
@@ -180,7 +190,7 @@ def _make_program(
     on_create_sub: Subroutine | None = None
     if on_create is not None:
         on_create_sub = ctx.subroutines[on_create]
-    FunctionIRBuilder.build_body(ctx, main_sub, function=main, on_create=on_create_sub)
+    FunctionIRBuilder.build_body(ctx, function=main, subroutine=main_sub, on_create=on_create_sub)
     return Program(
         main=main_sub,
         subroutines=[ctx.subroutines[ref] for ref in references],

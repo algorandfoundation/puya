@@ -116,6 +116,23 @@ class ParseResult:
         return result
 
 
+def embedded_module_alias(path: Path) -> str:
+    return path.stem.strip("_")
+
+
+EMBEDDED_MODULES = {
+    p.stem: p
+    for p in sorted(
+        (
+            p
+            for p in (Path(__file__).parent / "lib_embedded").iterdir()
+            if p.is_file() and p.suffix == ".py"
+        ),
+        key=embedded_module_alias,
+    )
+}
+
+
 def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Options) -> ParseResult:
     mypy_fscache = mypy.fscache.FileSystemCache()
     # ensure we have the absolute, canonical paths to the files
@@ -141,13 +158,16 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
         )
     # insert embedded lib, after source list that is returned has been constructed,
     # so we don't try to output it
-    puyapy_lib_path = Path(__file__).parent / "lib_embedded" / "_puyapy_.py"
-    mypy_build_sources.append(
-        mypy.build.BuildSource(
-            path=str(Path("<puya>") / "puyapy.py"),
-            module="_puyapy_",
-            text=puyapy_lib_path.read_text(),
-        )
+    mypy_build_sources.extend(
+        [
+            mypy.build.BuildSource(
+                # present a 'tidy' path to the user
+                path=str(Path("<puya>") / f"{embedded_module_alias(module_path)}.py"),
+                module=module_name,
+                text=module_path.read_text(),
+            )
+            for module_name, module_path in EMBEDDED_MODULES.items()
+        ]
     )
     result = _mypy_build(mypy_build_sources, mypy_options, mypy_fscache)
     missing_module_names = {s.module_name for s in sources} - result.manager.modules.keys()

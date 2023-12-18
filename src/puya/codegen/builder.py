@@ -353,8 +353,10 @@ def get_short_subroutine_names(program: models.Program) -> dict[models.Subroutin
         if subroutine.method_name not in seen_names:
             name = subroutine.method_name
         elif (
-            class_prefixed := f"{subroutine.class_name}.{subroutine.method_name}"
-        ) not in seen_names:
+            subroutine.class_name is not None
+            and (class_prefixed := f"{subroutine.class_name}.{subroutine.method_name}")
+            not in seen_names
+        ):
             name = class_prefixed
         else:
             name = subroutine.full_name

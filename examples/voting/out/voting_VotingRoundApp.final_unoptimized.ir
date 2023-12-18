@@ -315,33 +315,33 @@ contract examples.voting.voting.VotingRoundApp:
                 return 
         
         subroutine puyapy.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
-            block@0: // L14
+            block@0: // L13
                 let required_budget_with_buffer#0: uint64 = (+ required_budget#0 10u)
                 goto block@1
-            block@1: // while_top_L21
+            block@1: // while_top_L20
                 let tmp%0#0: uint64 = (global OpcodeBudget)
                 let tmp%1#0: uint64 = (> required_budget_with_buffer#0 tmp%0#0)
                 goto tmp%1#0 ? block@2 : block@7
-            block@2: // while_body_L21
+            block@2: // while_body_L20
                 itxn_begin
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field OnCompletion) DeleteApplication)
                 ((itxn_field ApprovalProgram) 0x068101)
                 ((itxn_field ClearStateProgram) 0x068101)
                 switch fee_source#0 {0u => block@3, 1u => block@4, * => block@5}
-            block@3: // switch_case_0_L29
+            block@3: // switch_case_0_L28
                 ((itxn_field Fee) 0u)
                 goto block@6
-            block@4: // switch_case_1_L31
+            block@4: // switch_case_1_L30
                 let tmp%2#0: uint64 = (global MinTxnFee)
                 ((itxn_field Fee) tmp%2#0)
                 goto block@6
-            block@5: // switch_case_default_L27
+            block@5: // switch_case_default_L26
                 goto block@6
-            block@6: // switch_case_next_L27
+            block@6: // switch_case_next_L26
                 itxn_submit
                 goto block@1
-            block@7: // after_while_L21
+            block@7: // after_while_L20
                 return 
         
         subroutine examples.voting.voting.get_vote_from_box(index: uint64) -> uint64:

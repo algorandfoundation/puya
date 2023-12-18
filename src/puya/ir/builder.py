@@ -84,14 +84,14 @@ class FunctionIRBuilder(
     @classmethod
     def build_body(
         cls,
-        context: IRBuildContext,
-        subroutine: Subroutine,
+        ctx: IRBuildContext,
         function: awst_nodes.Function,
+        subroutine: Subroutine,
         on_create: Subroutine | None,
     ) -> None:
-        ctx = context.for_function(function=function, subroutine=subroutine)
-        builder = cls(ctx)
-        with ctx.log_exceptions():
+        func_ctx = ctx.for_function(function, subroutine)
+        builder = cls(func_ctx)
+        with func_ctx.log_exceptions():
             if on_create is not None:
                 builder.insert_on_create_call(to=on_create)
             function.body.accept(builder)
