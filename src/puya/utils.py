@@ -1,6 +1,5 @@
 import contextlib
 import functools
-import itertools
 import math
 import os
 from collections.abc import Callable, Iterable, MutableMapping, MutableSet, Set
