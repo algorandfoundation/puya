@@ -76,6 +76,7 @@ def update_puya_typeshed(mypy_typeshed: Path, puya_typeshed: Path) -> None:
         else:
             copy_dst.parent.mkdir(exist_ok=True, parents=True)
             shutil.copy(copy_src, copy_dst)
+    (puya_typeshed / stdlib / "collections" / "__init__.pyi").touch()
 
 
 if __name__ == "__main__":
