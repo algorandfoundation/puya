@@ -20,7 +20,21 @@ from puya.logging_config import mypy_severity_to_loglevel
 from puya.utils import make_path_relative_to_cwd
 
 logger = structlog.get_logger()
-TYPESHED_PATH = Path(__file__).parent / "_typeshed"
+_SRC_ROOT = Path(__file__).parent
+TYPESHED_PATH = _SRC_ROOT / "_typeshed"
+
+
+def embedded_module_alias(path: Path) -> str:
+    return path.stem.strip("_")
+
+
+EMBEDDED_MODULES = {
+    p.stem: p
+    for p in sorted(
+        (_SRC_ROOT / "lib_embedded").glob("*.py"),
+        key=embedded_module_alias,
+    )
+}
 
 
 @attrs.frozen
@@ -114,23 +128,6 @@ class ParseResult:
             for dep_id in deps:
                 deps[dep_id] = result[dep_id]
         return result
-
-
-def embedded_module_alias(path: Path) -> str:
-    return path.stem.strip("_")
-
-
-EMBEDDED_MODULES = {
-    p.stem: p
-    for p in sorted(
-        (
-            p
-            for p in (Path(__file__).parent / "lib_embedded").iterdir()
-            if p.is_file() and p.suffix == ".py"
-        ),
-        key=embedded_module_alias,
-    )
-}
 
 
 def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Options) -> ParseResult:
