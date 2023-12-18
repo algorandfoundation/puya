@@ -172,6 +172,18 @@ class Arc4MutationContract(Contract):
             Bool(True),
         )
 
+        assert dynamic_bool_array.pop() == Bool(True)
+        assert dynamic_bool_array.pop() == Bool(False)
+        assert dynamic_bool_array == DynamicArray[Bool](
+            Bool(True),
+            Bool(False),
+            Bool(True),
+            Bool(False),
+            Bool(True),
+            Bool(False),
+            Bool(True),
+        )
+
     @subroutine
     def dynamic_array_string(self) -> None:
         hello = String("Hello")
