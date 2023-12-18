@@ -73,6 +73,18 @@ class StableSet(MutableSet[T]):
     def __init__(self, *items: T) -> None:
         self._data = dict.fromkeys(items)
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, StableSet):
+            return self._data == other._data
+        else:
+            return self._data.keys() == other
+
+    def __ne__(self, other: object) -> bool:
+        if isinstance(other, StableSet):
+            return self._data != other._data
+        else:
+            return self._data.keys() != other
+
     def __contains__(self, x: object) -> bool:
         return x in self._data
 
@@ -89,8 +101,10 @@ class StableSet(MutableSet[T]):
         self._data.pop(value, None)
 
     def __or__(self, other: Iterable[T]) -> "StableSet[T]":  # type: ignore[override]
-        data = (k for k in itertools.chain(self._data.keys(), other))
-        return StableSet(*data)
+        if isinstance(other, StableSet):
+            return StableSet(*self._data, *other._data)
+        else:
+            return StableSet(*self._data, *other)
 
     def __ior__(self, other: Iterable[T]) -> Self:  # type: ignore[override]
         if isinstance(other, StableSet):
@@ -101,6 +115,8 @@ class StableSet(MutableSet[T]):
         return self
 
     def __sub__(self, other: Set[T]) -> "StableSet[T]":
+        if isinstance(other, StableSet):
+            return StableSet(*(self._data.keys() - other._data.keys()))
         data = (k for k in self._data if k not in other)
         return StableSet(*data)
 
