@@ -277,28 +277,8 @@ class SubroutineCollector(FunctionTraverser):
     ) -> list[awst_nodes.Function]:
         collector = cls(context)
         start.accept(collector)
-        collector.include_puya_utils()
 
         return list(collector.result.keys())
-
-    def include_puya_utils(self) -> None:
-        to_include: list[tuple[str, str]] = [
-            ("puya_util_arc4", "dynamic_array_concat_bits"),
-            ("puya_util_arc4", "dynamic_array_concat_variable_size"),
-            ("puya_util_arc4", "dynamic_array_concat_fixed_size"),
-            ("puya_util_arc4", "dynamic_array_replace_variable_size"),
-            ("puya_util_arc4", "static_array_replace_variable_size"),
-            ("puya_util_arc4", "dynamic_array_pop_bit"),
-            ("puya_util_arc4", "dynamic_array_pop_fixed_size"),
-            ("puya_util_arc4", "dynamic_array_pop_variable_size"),
-        ]
-        for module, func_name in to_include:
-            func = self.context.module_awsts[module].symtable[func_name]
-            if not isinstance(func, awst_nodes.Function):
-                raise InternalError(f"{func_name} is not a function")
-            if func not in self.result:
-                self.result[func] = None
-                func.body.accept(self)
 
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         super().visit_subroutine_call_expression(expr)

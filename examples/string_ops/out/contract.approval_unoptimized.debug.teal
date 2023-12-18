@@ -1,81 +1,82 @@
-// Op                                                         // Op Description                  Stack (out)                                                         Source code                                     Source line
+// Op                                                         // Op Description                      Stack (out)                                                         Source code                                     Source line
 
 #pragma version 8
 
 // examples.string_ops.contract.MyContract.approval_program() -> uint64:
 main_block@0:
-        byte "brown fox"                                      //                                 "brown fox"                                                         b"brown fox"                                    File "string_ops/contract.py", line 7
-        byte "The quick brown fox jumped over the lazy dog"   //                                 "brown fox","The quick brown fox jumped over the lazy dog"          b"The quick brown fox jumped over the lazy dog" File "string_ops/contract.py", line 7
-        callsub is_in_str                                     //                                 {is_in_str}                                                         is_in_str(                                      File "string_ops/contract.py", line 6
-        assert                                                //                                                                                                     assert is_in_str(                               File "string_ops/contract.py", line 6
-        byte "red fox"                                        //                                 "red fox"                                                           b"red fox"                                      File "string_ops/contract.py", line 10
-        byte "The quick brown fox jumped over the lazy dog"   //                                 "red fox","The quick brown fox jumped over the lazy dog"            b"The quick brown fox jumped over the lazy dog" File "string_ops/contract.py", line 10
-        callsub is_in_str                                     //                                 {is_in_str}                                                         is_in_str(                                      File "string_ops/contract.py", line 9
-        !                                                     //                                 {!}                                                                 not is_in_str(                                  File "string_ops/contract.py", line 9
-        assert                                                //                                                                                                     assert not is_in_str(                           File "string_ops/contract.py", line 9
-        int 1                                                 //                                 1                                                                   True                                            File "string_ops/contract.py", line 13
-        return                                                //                                                                                                     return True                                     File "string_ops/contract.py", line 13
+        byte "brown fox"                                      //                                     "brown fox"                                                         b"brown fox"                                    File "string_ops/contract.py", line 7
+        byte "The quick brown fox jumped over the lazy dog"   //                                     "brown fox","The quick brown fox jumped over the lazy dog"          b"The quick brown fox jumped over the lazy dog" File "string_ops/contract.py", line 7
+        callsub is_in_str                                     //                                     {is_in_str}                                                         is_in_str(                                      File "string_ops/contract.py", line 6
+        assert                                                //                                                                                                         assert is_in_str(                               File "string_ops/contract.py", line 6
+        byte "red fox"                                        //                                     "red fox"                                                           b"red fox"                                      File "string_ops/contract.py", line 10
+        byte "The quick brown fox jumped over the lazy dog"   //                                     "red fox","The quick brown fox jumped over the lazy dog"            b"The quick brown fox jumped over the lazy dog" File "string_ops/contract.py", line 10
+        callsub is_in_str                                     //                                     {is_in_str}                                                         is_in_str(                                      File "string_ops/contract.py", line 9
+        !                                                     //                                     {!}                                                                 not is_in_str(                                  File "string_ops/contract.py", line 9
+        assert                                                //                                                                                                         assert not is_in_str(                           File "string_ops/contract.py", line 9
+        int 1                                                 //                                     1                                                                   True                                            File "string_ops/contract.py", line 13
+        return                                                //                                                                                                         return True                                     File "string_ops/contract.py", line 13
 
 
 // examples.string_ops.contract.is_in_str(a#0: bytes, b#0: bytes) -> uint64:
 is_in_str:
-        proto 2 1                                             //                                 (𝕡) a#0,b#0 |                                                       def is_in_str(a: Bytes, b: Bytes) -> bool:      File "string_ops/contract.py", line 20
+        proto 2 1                                             //                                     (𝕡) a#0,b#0 |                                                       def is_in_str(a: Bytes, b: Bytes) -> bool:      File "string_ops/contract.py", line 20
 
 is_in_str_block@0:
-        frame_dig -2                                          // load a#0 from parameters        (𝕡) a#0,b#0 | a#0                                                   a: Bytes                                        File "string_ops/contract.py", line 20
-        frame_dig -1                                          // load b#0 from parameters        (𝕡) a#0,b#0 | a#0,b#0                                               b: Bytes                                        File "string_ops/contract.py", line 20
-        callsub is_substring                                  //                                 (𝕡) a#0,b#0 | {is_substring}                                        a in b                                          File "string_ops/contract.py", line 21
-        retsub                                                //                                 tmp%0#0                                                             return a in b                                   File "string_ops/contract.py", line 21
+        frame_dig -2                                          // load a#0 from parameters            (𝕡) a#0,b#0 | a#0                                                   a: Bytes                                        File "string_ops/contract.py", line 20
+        frame_dig -1                                          // load b#0 from parameters            (𝕡) a#0,b#0 | a#0,b#0                                               b: Bytes                                        File "string_ops/contract.py", line 20
+        callsub is_substring                                  //                                     (𝕡) a#0,b#0 | {is_substring}                                        a in b                                          File "string_ops/contract.py", line 21
+        retsub                                                //                                     tmp%0#0                                                             return a in b                                   File "string_ops/contract.py", line 21
 
 
-// puyapy.is_substring(item#0: bytes, sequence#0: bytes) -> uint64:
+// puyapy_lib_bytes.is_substring(item#0: bytes, sequence#0: bytes) -> uint64:
 is_substring:
-        proto 2 1                                             //                                 (𝕡) item#0,sequence#0 |                                                                                             File "<puya>/puyapy.py", line 43
+        proto 2 1                                             //                                     (𝕡) item#0,sequence#0 |                                                                                             File "<puya>/puyapy_lib_bytes.py", line 5
 
 is_substring_block@0:
-        int 0                                                 //                                 (𝕡) item#0,sequence#0 | 0                                                                                           File "<puya>/puyapy.py", line 48
-        // Implicit fall through to is_substring_while_top@1  //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 |
+        int 0                                                 //                                     (𝕡) item#0,sequence#0 | 0                                                                                           File "<puya>/puyapy_lib_bytes.py", line 10
+        // Implicit fall through to is_substring_while_top@1  //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 |
 
 is_substring_while_top@1:
-        frame_dig -2                                          // load item#0 from parameters     (𝕡) item#0,sequence#0 | (𝕗) start#0 | item#0                                                                        File "<puya>/puyapy.py", line 43
-        len                                                   //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | {len}                                                                         File "<puya>/puyapy.py", line 49
-        frame_dig 0                                           // load start#0 from f-stack       (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%0#0,start#0                                                               File "<puya>/puyapy.py", line 48
-        +                                                     //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | {+}                                                                           File "<puya>/puyapy.py", line 49
-        frame_dig -1                                          // load sequence#0 from parameters (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%1#0,sequence#0                                                            File "<puya>/puyapy.py", line 43
-        len                                                   //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%1#0,{len}                                                                 File "<puya>/puyapy.py", line 49
-        <=                                                    //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | {<=}                                                                          File "<puya>/puyapy.py", line 49
-        bz is_substring_after_while@5                         //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy.py", line 49
-        // Implicit fall through to is_substring_while_body@2 //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy.py", line 49
+        frame_dig -2                                          // load item#0 from parameters         (𝕡) item#0,sequence#0 | (𝕗) start#0 | item#0                                                                        File "<puya>/puyapy_lib_bytes.py", line 5
+        len                                                   //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | {len}                                                                         File "<puya>/puyapy_lib_bytes.py", line 11
+        frame_dig 0                                           // load start#0 from f-stack           (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%0#0,start#0                                                               File "<puya>/puyapy_lib_bytes.py", line 10
+        +                                                     //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | {+}                                                                           File "<puya>/puyapy_lib_bytes.py", line 11
+        frame_dig -1                                          // load sequence#0 from parameters     (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%1#0,sequence#0                                                            File "<puya>/puyapy_lib_bytes.py", line 5
+        len                                                   //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%1#0,{len}                                                                 File "<puya>/puyapy_lib_bytes.py", line 11
+        <=                                                    //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | {<=}                                                                          File "<puya>/puyapy_lib_bytes.py", line 11
+        bz is_substring_after_while@5                         //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy_lib_bytes.py", line 11
+        // Implicit fall through to is_substring_while_body@2 //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy_lib_bytes.py", line 11
 
 is_substring_while_body@2:
-        frame_dig -2                                          // load item#0 from parameters     (𝕡) item#0,sequence#0 | (𝕗) start#0 | item#0                                                                        File "<puya>/puyapy.py", line 43
-        len                                                   //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | {len}                                                                         File "<puya>/puyapy.py", line 50
-        frame_dig 0                                           // load start#0 from f-stack       (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%4#0,start#0                                                               File "<puya>/puyapy.py", line 48
+        frame_dig -2                                          // load item#0 from parameters         (𝕡) item#0,sequence#0 | (𝕗) start#0 | item#0                                                                        File "<puya>/puyapy_lib_bytes.py", line 5
+        len                                                   //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | {len}                                                                         File "<puya>/puyapy_lib_bytes.py", line 12
+        frame_dig 0                                           // load start#0 from f-stack           (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%4#0,start#0                                                               File "<puya>/puyapy_lib_bytes.py", line 10
         dup
-        cover 2                                               // store start#0 to l-stack (copy) (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0,tmp%4#0,start#0                                                       File "<puya>/puyapy.py", line 48
-        +                                                     //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0,{+}                                                                   File "<puya>/puyapy.py", line 50
-        frame_dig -1                                          // load sequence#0 from parameters (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0,tmp%5#0,sequence#0                                                    File "<puya>/puyapy.py", line 43
-        cover 2                                               // virtual: 2 ops                  (𝕡) item#0,sequence#0 | (𝕗) start#0 | sequence#0,start#0,tmp%5#0                                                    File "<puya>/puyapy.py", line 48
-        substring3                                            //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | {substring3}                                                                  File "<puya>/puyapy.py", line 50
-        frame_dig -2                                          // load item#0 from parameters     (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%6#0,item#0                                                                File "<puya>/puyapy.py", line 43
-        ==                                                    //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | {==}                                                                          File "<puya>/puyapy.py", line 50
-        bz is_substring_after_if_else@4                       //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy.py", line 50
-        // Implicit fall through to is_substring_if_body@3    //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy.py", line 50
+        cover 2                                               // store start#0 to l-stack (copy)     (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0,tmp%4#0,start#0                                                       File "<puya>/puyapy_lib_bytes.py", line 10
+        +                                                     //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0,{+}                                                                   File "<puya>/puyapy_lib_bytes.py", line 12
+        frame_dig -1                                          // load sequence#0 from parameters     (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0,tmp%5#0,sequence#0                                                    File "<puya>/puyapy_lib_bytes.py", line 5
+        uncover 2                                             // load start#0 from l-stack (no copy) (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%5#0,sequence#0,start#0                                                    File "<puya>/puyapy_lib_bytes.py", line 10
+        uncover 2                                             // load tmp%5#0 from l-stack (no copy) (𝕡) item#0,sequence#0 | (𝕗) start#0 | sequence#0,start#0,tmp%5#0                                                    File "<puya>/puyapy_lib_bytes.py", line 12
+        substring3                                            //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | {substring3}                                                                  File "<puya>/puyapy_lib_bytes.py", line 12
+        frame_dig -2                                          // load item#0 from parameters         (𝕡) item#0,sequence#0 | (𝕗) start#0 | tmp%6#0,item#0                                                                File "<puya>/puyapy_lib_bytes.py", line 5
+        ==                                                    //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | {==}                                                                          File "<puya>/puyapy_lib_bytes.py", line 12
+        bz is_substring_after_if_else@4                       //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy_lib_bytes.py", line 12
+        // Implicit fall through to is_substring_if_body@3    //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy_lib_bytes.py", line 12
 
 is_substring_if_body@3:
-        int 1                                                 //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | 1                                                                             File "<puya>/puyapy.py", line 51
+        int 1                                                 //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | 1                                                                             File "<puya>/puyapy_lib_bytes.py", line 13
         swap
-        retsub                                                //                                 1                                                                                                                   File "<puya>/puyapy.py", line 51
+        retsub                                                //                                     1                                                                                                                   File "<puya>/puyapy_lib_bytes.py", line 13
 
 is_substring_after_if_else@4:
-        frame_dig 0                                           // load start#0 from f-stack       (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0                                                                       File "<puya>/puyapy.py", line 48
-        int 1                                                 //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0,1                                                                     File "<puya>/puyapy.py", line 52
-        +                                                     //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | {+}                                                                           File "<puya>/puyapy.py", line 52
-        frame_bury 0                                          // store start#0 to f-stack        (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy.py", line 48
-        b is_substring_while_top@1                            //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 |
+        frame_dig 0                                           // load start#0 from f-stack           (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0                                                                       File "<puya>/puyapy_lib_bytes.py", line 10
+        int 1                                                 //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | start#0,1                                                                     File "<puya>/puyapy_lib_bytes.py", line 14
+        +                                                     //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | {+}                                                                           File "<puya>/puyapy_lib_bytes.py", line 14
+        frame_bury 0                                          // store start#0 to f-stack            (𝕡) item#0,sequence#0 | (𝕗) start#0 |                                                                               File "<puya>/puyapy_lib_bytes.py", line 10
+        b is_substring_while_top@1                            //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 |
 
 is_substring_after_while@5:
-        int 0                                                 //                                 (𝕡) item#0,sequence#0 | (𝕗) start#0 | 0                                                                             File "<puya>/puyapy.py", line 53
+        int 0                                                 //                                     (𝕡) item#0,sequence#0 | (𝕗) start#0 | 0                                                                             File "<puya>/puyapy_lib_bytes.py", line 15
         swap
-        retsub                                                //                                 0                                                                                                                   File "<puya>/puyapy.py", line 53
+        retsub                                                //                                     0                                                                                                                   File "<puya>/puyapy_lib_bytes.py", line 15
 

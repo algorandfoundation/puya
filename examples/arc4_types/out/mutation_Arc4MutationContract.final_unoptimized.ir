@@ -12,68 +12,69 @@ contract examples.arc4_types.mutation.Arc4MutationContract:
                 return 1u
         
         subroutine examples.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size() -> void:
-            block@0: // L115
+            block@0: // L118
                 let array_data%0#0: bytes = 0x0002
                 let array_data%0#0: bytes = (concat array_data%0#0 0x01)
                 let array_data%0#0: bytes = (concat array_data%0#0 0x02)
                 let dynamic_uint8_array#0: bytes = array_data%0#0
-                let updated_data%1#0: bytes = dynamic_uint8_array#0
-                let starting_length%2#0: uint64 = (extract_uint16 updated_data%1#0 0u)
-                let new_length%3#0: uint64 = (+ starting_length%2#0 1u)
-                let val_as_bytes%4#0: bytes = (itob new_length%3#0)
-                let new_length_bytes%5#0: bytes = ((extract 6 2) val_as_bytes%4#0)
-                let updated_data%1#0: bytes = ((replace2 0) updated_data%1#0 new_length_bytes%5#0)
-                let updated_data%1#0: bytes = (concat updated_data%1#0 0x32)
-                let dynamic_uint8_array#0: bytes = updated_data%1#0
-                let array_data%6#0: bytes = 0x0003
-                let array_data%6#0: bytes = (concat array_data%6#0 0x01)
-                let array_data%6#0: bytes = (concat array_data%6#0 0x02)
-                let array_data%6#0: bytes = (concat array_data%6#0 0x32)
-                let tmp%7#0: uint64 = (== dynamic_uint8_array#0 array_data%6#0)
-                (assert tmp%7#0)
-                let updated_data%8#0: bytes = dynamic_uint8_array#0
-                let starting_length%9#0: uint64 = (extract_uint16 updated_data%8#0 0u)
-                let other_length%10#0: uint64 = (extract_uint16 dynamic_uint8_array#0 0u)
-                let other_data%11#0: bytes = ((extract 2 0) dynamic_uint8_array#0)
-                let new_length%12#0: uint64 = (+ starting_length%9#0 other_length%10#0)
-                let val_as_bytes%13#0: bytes = (itob new_length%12#0)
-                let new_length_bytes%14#0: bytes = ((extract 6 2) val_as_bytes%13#0)
-                let updated_data%8#0: bytes = ((replace2 0) updated_data%8#0 new_length_bytes%14#0)
-                let updated_data%8#0: bytes = (concat updated_data%8#0 other_data%11#0)
-                let dynamic_uint8_array#0: bytes = updated_data%8#0
-                let array_data%15#0: bytes = 0x0006
-                let array_data%15#0: bytes = (concat array_data%15#0 0x01)
-                let array_data%15#0: bytes = (concat array_data%15#0 0x02)
-                let array_data%15#0: bytes = (concat array_data%15#0 0x32)
-                let array_data%15#0: bytes = (concat array_data%15#0 0x01)
-                let array_data%15#0: bytes = (concat array_data%15#0 0x02)
-                let array_data%15#0: bytes = (concat array_data%15#0 0x32)
-                let tmp%16#0: uint64 = (== dynamic_uint8_array#0 array_data%15#0)
+                let data%1#0: bytes = 0x
+                let data%1#0: bytes = (concat data%1#0 0x32)
+                let concat_result%2#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(dynamic_uint8_array#0, data%1#0, 1u)
+                let dynamic_uint8_array#0: bytes = concat_result%2#0
+                let array_data%3#0: bytes = 0x0003
+                let array_data%3#0: bytes = (concat array_data%3#0 0x01)
+                let array_data%3#0: bytes = (concat array_data%3#0 0x02)
+                let array_data%3#0: bytes = (concat array_data%3#0 0x32)
+                let tmp%4#0: uint64 = (== dynamic_uint8_array#0 array_data%3#0)
+                (assert tmp%4#0)
+                let array_length%5#0: uint64 = (extract_uint16 dynamic_uint8_array#0 0u)
+                let data%6#0: bytes = ((extract 2 0) dynamic_uint8_array#0)
+                let concat_result%7#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(dynamic_uint8_array#0, data%6#0, array_length%5#0)
+                let dynamic_uint8_array#0: bytes = concat_result%7#0
+                let array_data%8#0: bytes = 0x0006
+                let array_data%8#0: bytes = (concat array_data%8#0 0x01)
+                let array_data%8#0: bytes = (concat array_data%8#0 0x02)
+                let array_data%8#0: bytes = (concat array_data%8#0 0x32)
+                let array_data%8#0: bytes = (concat array_data%8#0 0x01)
+                let array_data%8#0: bytes = (concat array_data%8#0 0x02)
+                let array_data%8#0: bytes = (concat array_data%8#0 0x32)
+                let tmp%9#0: uint64 = (== dynamic_uint8_array#0 array_data%8#0)
+                (assert tmp%9#0)
+                let data%10#0: bytes = 0x
+                let data%10#0: bytes = (concat data%10#0 0x04)
+                let data%10#0: bytes = (concat data%10#0 0x5a)
+                let concat_result%11#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(dynamic_uint8_array#0, data%10#0, 2u)
+                let dynamic_uint8_array#0: bytes = concat_result%11#0
+                let array_data%12#0: bytes = 0x0008
+                let array_data%12#0: bytes = (concat array_data%12#0 0x01)
+                let array_data%12#0: bytes = (concat array_data%12#0 0x02)
+                let array_data%12#0: bytes = (concat array_data%12#0 0x32)
+                let array_data%12#0: bytes = (concat array_data%12#0 0x01)
+                let array_data%12#0: bytes = (concat array_data%12#0 0x02)
+                let array_data%12#0: bytes = (concat array_data%12#0 0x32)
+                let array_data%12#0: bytes = (concat array_data%12#0 0x04)
+                let array_data%12#0: bytes = (concat array_data%12#0 0x5a)
+                let tmp%13#0: uint64 = (== dynamic_uint8_array#0 array_data%12#0)
+                (assert tmp%13#0)
+                let (popped%14#1: bytes, data%15#1: bytes) = puyapy_lib_arc4.dynamic_array_pop_fixed_size(dynamic_uint8_array#0, 1u)
+                let dynamic_uint8_array#0: bytes = data%15#1
+                let popped#0: bytes = popped%14#1
+                let tmp%16#0: uint64 = (== popped#0 0x5a)
                 (assert tmp%16#0)
-                let updated_data%17#0: bytes = dynamic_uint8_array#0
-                let starting_length%18#0: uint64 = (extract_uint16 updated_data%17#0 0u)
-                let new_length%19#0: uint64 = (+ starting_length%18#0 2u)
-                let val_as_bytes%20#0: bytes = (itob new_length%19#0)
-                let new_length_bytes%21#0: bytes = ((extract 6 2) val_as_bytes%20#0)
-                let updated_data%17#0: bytes = ((replace2 0) updated_data%17#0 new_length_bytes%21#0)
-                let updated_data%17#0: bytes = (concat updated_data%17#0 0x04)
-                let updated_data%17#0: bytes = (concat updated_data%17#0 0x5a)
-                let dynamic_uint8_array#0: bytes = updated_data%17#0
-                let array_data%22#0: bytes = 0x0008
-                let array_data%22#0: bytes = (concat array_data%22#0 0x01)
-                let array_data%22#0: bytes = (concat array_data%22#0 0x02)
-                let array_data%22#0: bytes = (concat array_data%22#0 0x32)
-                let array_data%22#0: bytes = (concat array_data%22#0 0x01)
-                let array_data%22#0: bytes = (concat array_data%22#0 0x02)
-                let array_data%22#0: bytes = (concat array_data%22#0 0x32)
-                let array_data%22#0: bytes = (concat array_data%22#0 0x04)
-                let array_data%22#0: bytes = (concat array_data%22#0 0x5a)
-                let tmp%23#0: uint64 = (== dynamic_uint8_array#0 array_data%22#0)
-                (assert tmp%23#0)
+                let array_data%17#0: bytes = 0x0007
+                let array_data%17#0: bytes = (concat array_data%17#0 0x01)
+                let array_data%17#0: bytes = (concat array_data%17#0 0x02)
+                let array_data%17#0: bytes = (concat array_data%17#0 0x32)
+                let array_data%17#0: bytes = (concat array_data%17#0 0x01)
+                let array_data%17#0: bytes = (concat array_data%17#0 0x02)
+                let array_data%17#0: bytes = (concat array_data%17#0 0x32)
+                let array_data%17#0: bytes = (concat array_data%17#0 0x04)
+                let tmp%18#0: uint64 = (== dynamic_uint8_array#0 array_data%17#0)
+                (assert tmp%18#0)
                 return 
         
         subroutine examples.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool() -> void:
-            block@0: // L131
+            block@0: // L141
                 let tmp%0#0: any = (setbit 0x00 0u 1u)
                 let tmp%1#0: any = (setbit 0x00 0u 0u)
                 let array_data%2#0: bytes = 0x0002
@@ -83,166 +84,96 @@ contract examples.arc4_types.mutation.Arc4MutationContract:
                 let dynamic_bool_array#0: any = array_data%2#0
                 let tmp%4#0: uint64 = (== dynamic_bool_array#0 0x000280)
                 (assert tmp%4#0)
-                let updated_data%5#0: any = dynamic_bool_array#0
-                let starting_length%6#0: uint64 = (extract_uint16 updated_data%5#0 0u)
-                let new_length%7#0: uint64 = (+ starting_length%6#0 2u)
-                let val_as_bytes%8#0: bytes = (itob new_length%7#0)
-                let new_length_bytes%9#0: bytes = ((extract 6 2) val_as_bytes%8#0)
-                let updated_data%5#0: any = ((replace2 0) updated_data%5#0 new_length_bytes%9#0)
-                let bzeros%10#0: bytes = (bzero 1u)
-                let updated_data%5#0: any = (concat updated_data%5#0 bzeros%10#0)
-                let tmp%11#0: any = (setbit 0x00 0u 1u)
-                let offset%12#0: uint64 = (+ starting_length%6#0 16u)
-                let is_true%13#0: uint64 = (getbit tmp%11#0 0u)
-                let updated_data%5#0: any = (setbit updated_data%5#0 offset%12#0 is_true%13#0)
-                let tmp%14#0: any = (setbit 0x00 0u 0u)
-                let offset%15#0: uint64 = (+ starting_length%6#0 17u)
-                let is_true%16#0: uint64 = (getbit tmp%14#0 0u)
-                let updated_data%5#0: any = (setbit updated_data%5#0 offset%15#0 is_true%16#0)
-                let expected_data_length%17#0: uint64 = (+ new_length%7#0 7u)
-                let expected_data_length%18#0: uint64 = (/ expected_data_length%17#0 8u)
-                let expected_full_length%19#0: uint64 = (+ expected_data_length%18#0 2u)
-                let updated_data%5#0: any = (substring3 updated_data%5#0 0u expected_full_length%19#0)
-                let dynamic_bool_array#0: any = updated_data%5#0
-                let tmp%20#0: uint64 = (== dynamic_bool_array#0 0x0004a0)
-                (assert tmp%20#0)
-                let tmp%21#0: any = (setbit 0x00 0u 1u)
-                let tmp%22#0: any = (setbit 0x00 0u 0u)
-                let tmp%23#0: any = (setbit 0x00 0u 1u)
-                let tmp%24#0: any = (setbit 0x00 0u 0u)
-                let array_data%25#0: bytes = 0x0004
-                let array_data%25#0: bytes = (concat array_data%25#0 tmp%21#0)
-                let is_true%26#0: uint64 = (getbit tmp%22#0 0u)
-                let array_data%25#0: bytes = (setbit array_data%25#0 17u is_true%26#0)
-                let is_true%27#0: uint64 = (getbit tmp%23#0 0u)
-                let array_data%25#0: bytes = (setbit array_data%25#0 18u is_true%27#0)
-                let is_true%28#0: uint64 = (getbit tmp%24#0 0u)
-                let array_data%25#0: bytes = (setbit array_data%25#0 19u is_true%28#0)
-                let tmp%29#0: uint64 = (== dynamic_bool_array#0 array_data%25#0)
-                (assert tmp%29#0)
-                let updated_data%30#0: bytes = dynamic_bool_array#0
-                let starting_length%31#0: uint64 = (extract_uint16 updated_data%30#0 0u)
-                let other_length%32#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
-                let other_data%33#0: bytes = ((extract 2 0) dynamic_bool_array#0)
-                let new_length%34#0: uint64 = (+ starting_length%31#0 other_length%32#0)
-                let val_as_bytes%35#0: bytes = (itob new_length%34#0)
-                let new_length_bytes%36#0: bytes = ((extract 6 2) val_as_bytes%35#0)
-                let updated_data%30#1: bytes = ((replace2 0) updated_data%30#0 new_length_bytes%36#0)
-                let updated_data%30#0: bytes = puyapy.dynamic_array_concat_bits(updated_data%30#0, other_data%33#0, other_length%32#0)
-                let dynamic_bool_array#0: any = updated_data%30#0
-                let tmp%37#0: any = (setbit 0x00 0u 1u)
-                let tmp%38#0: any = (setbit 0x00 0u 0u)
+                let tmp%5#0: any = (setbit 0x00 0u 1u)
+                let tmp%6#0: any = (setbit 0x00 0u 0u)
+                let data%7#0: bytes = 0x
+                let data%7#0: bytes = (concat data%7#0 tmp%5#0)
+                let data%7#0: bytes = (concat data%7#0 tmp%6#0)
+                let concat_result%8#0: bytes = puyapy_lib_arc4.dynamic_array_concat_bits(dynamic_bool_array#0, data%7#0, 2u, 0u)
+                let dynamic_bool_array#0: any = concat_result%8#0
+                let tmp%9#0: uint64 = (== dynamic_bool_array#0 0x0004a0)
+                (assert tmp%9#0)
+                let tmp%10#0: any = (setbit 0x00 0u 1u)
+                let tmp%11#0: any = (setbit 0x00 0u 0u)
+                let tmp%12#0: any = (setbit 0x00 0u 1u)
+                let tmp%13#0: any = (setbit 0x00 0u 0u)
+                let array_data%14#0: bytes = 0x0004
+                let array_data%14#0: bytes = (concat array_data%14#0 tmp%10#0)
+                let is_true%15#0: uint64 = (getbit tmp%11#0 0u)
+                let array_data%14#0: bytes = (setbit array_data%14#0 17u is_true%15#0)
+                let is_true%16#0: uint64 = (getbit tmp%12#0 0u)
+                let array_data%14#0: bytes = (setbit array_data%14#0 18u is_true%16#0)
+                let is_true%17#0: uint64 = (getbit tmp%13#0 0u)
+                let array_data%14#0: bytes = (setbit array_data%14#0 19u is_true%17#0)
+                let tmp%18#0: uint64 = (== dynamic_bool_array#0 array_data%14#0)
+                (assert tmp%18#0)
+                let array_length%19#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
+                let data%20#0: bytes = ((extract 2 0) dynamic_bool_array#0)
+                let concat_result%21#0: bytes = puyapy_lib_arc4.dynamic_array_concat_bits(dynamic_bool_array#0, data%20#0, array_length%19#0, 1u)
+                let dynamic_bool_array#0: any = concat_result%21#0
+                let tmp%22#0: any = (setbit 0x00 0u 1u)
+                let tmp%23#0: any = (setbit 0x00 0u 0u)
+                let tmp%24#0: any = (setbit 0x00 0u 1u)
+                let tmp%25#0: any = (setbit 0x00 0u 0u)
+                let tmp%26#0: any = (setbit 0x00 0u 1u)
+                let tmp%27#0: any = (setbit 0x00 0u 0u)
+                let tmp%28#0: any = (setbit 0x00 0u 1u)
+                let tmp%29#0: any = (setbit 0x00 0u 0u)
+                let array_data%30#0: bytes = 0x0008
+                let array_data%30#0: bytes = (concat array_data%30#0 tmp%22#0)
+                let is_true%31#0: uint64 = (getbit tmp%23#0 0u)
+                let array_data%30#0: bytes = (setbit array_data%30#0 17u is_true%31#0)
+                let is_true%32#0: uint64 = (getbit tmp%24#0 0u)
+                let array_data%30#0: bytes = (setbit array_data%30#0 18u is_true%32#0)
+                let is_true%33#0: uint64 = (getbit tmp%25#0 0u)
+                let array_data%30#0: bytes = (setbit array_data%30#0 19u is_true%33#0)
+                let is_true%34#0: uint64 = (getbit tmp%26#0 0u)
+                let array_data%30#0: bytes = (setbit array_data%30#0 20u is_true%34#0)
+                let is_true%35#0: uint64 = (getbit tmp%27#0 0u)
+                let array_data%30#0: bytes = (setbit array_data%30#0 21u is_true%35#0)
+                let is_true%36#0: uint64 = (getbit tmp%28#0 0u)
+                let array_data%30#0: bytes = (setbit array_data%30#0 22u is_true%36#0)
+                let is_true%37#0: uint64 = (getbit tmp%29#0 0u)
+                let array_data%30#0: bytes = (setbit array_data%30#0 23u is_true%37#0)
+                let tmp%38#0: uint64 = (== dynamic_bool_array#0 array_data%30#0)
+                (assert tmp%38#0)
                 let tmp%39#0: any = (setbit 0x00 0u 1u)
-                let tmp%40#0: any = (setbit 0x00 0u 0u)
-                let tmp%41#0: any = (setbit 0x00 0u 1u)
-                let tmp%42#0: any = (setbit 0x00 0u 0u)
-                let tmp%43#0: any = (setbit 0x00 0u 1u)
-                let tmp%44#0: any = (setbit 0x00 0u 0u)
-                let array_data%45#0: bytes = 0x0008
-                let array_data%45#0: bytes = (concat array_data%45#0 tmp%37#0)
-                let is_true%46#0: uint64 = (getbit tmp%38#0 0u)
-                let array_data%45#0: bytes = (setbit array_data%45#0 17u is_true%46#0)
-                let is_true%47#0: uint64 = (getbit tmp%39#0 0u)
-                let array_data%45#0: bytes = (setbit array_data%45#0 18u is_true%47#0)
-                let is_true%48#0: uint64 = (getbit tmp%40#0 0u)
-                let array_data%45#0: bytes = (setbit array_data%45#0 19u is_true%48#0)
-                let is_true%49#0: uint64 = (getbit tmp%41#0 0u)
-                let array_data%45#0: bytes = (setbit array_data%45#0 20u is_true%49#0)
-                let is_true%50#0: uint64 = (getbit tmp%42#0 0u)
-                let array_data%45#0: bytes = (setbit array_data%45#0 21u is_true%50#0)
-                let is_true%51#0: uint64 = (getbit tmp%43#0 0u)
-                let array_data%45#0: bytes = (setbit array_data%45#0 22u is_true%51#0)
-                let is_true%52#0: uint64 = (getbit tmp%44#0 0u)
-                let array_data%45#0: bytes = (setbit array_data%45#0 23u is_true%52#0)
-                let tmp%53#0: uint64 = (== dynamic_bool_array#0 array_data%45#0)
-                (assert tmp%53#0)
-                let updated_data%54#0: bytes = dynamic_bool_array#0
-                let starting_length%55#0: uint64 = (extract_uint16 updated_data%54#0 0u)
-                let new_length%56#0: uint64 = (+ starting_length%55#0 1u)
-                let val_as_bytes%57#0: bytes = (itob new_length%56#0)
-                let new_length_bytes%58#0: bytes = ((extract 6 2) val_as_bytes%57#0)
-                let updated_data%54#0: bytes = ((replace2 0) updated_data%54#0 new_length_bytes%58#0)
-                let bzeros%59#0: bytes = (bzero 1u)
-                let updated_data%54#0: bytes = (concat updated_data%54#0 bzeros%59#0)
-                let tmp%60#0: any = (setbit 0x00 0u 1u)
-                let offset%61#0: uint64 = (+ starting_length%55#0 16u)
-                let is_true%62#0: uint64 = (getbit tmp%60#0 0u)
-                let updated_data%54#0: bytes = (setbit updated_data%54#0 offset%61#0 is_true%62#0)
-                let expected_data_length%63#0: uint64 = (+ new_length%56#0 7u)
-                let expected_data_length%64#0: uint64 = (/ expected_data_length%63#0 8u)
-                let expected_full_length%65#0: uint64 = (+ expected_data_length%64#0 2u)
-                let updated_data%54#0: bytes = (substring3 updated_data%54#0 0u expected_full_length%65#0)
-                let dynamic_bool_array#0: any = updated_data%54#0
-                let tmp%66#0: any = (setbit 0x00 0u 1u)
-                let tmp%67#0: any = (setbit 0x00 0u 0u)
-                let tmp%68#0: any = (setbit 0x00 0u 1u)
-                let tmp%69#0: any = (setbit 0x00 0u 0u)
-                let tmp%70#0: any = (setbit 0x00 0u 1u)
-                let tmp%71#0: any = (setbit 0x00 0u 0u)
-                let tmp%72#0: any = (setbit 0x00 0u 1u)
-                let tmp%73#0: any = (setbit 0x00 0u 0u)
-                let tmp%74#0: any = (setbit 0x00 0u 1u)
-                let array_data%75#0: bytes = 0x0009
-                let array_data%75#0: bytes = (concat array_data%75#0 tmp%66#0)
-                let is_true%76#0: uint64 = (getbit tmp%67#0 0u)
-                let array_data%75#0: bytes = (setbit array_data%75#0 17u is_true%76#0)
-                let is_true%77#0: uint64 = (getbit tmp%68#0 0u)
-                let array_data%75#0: bytes = (setbit array_data%75#0 18u is_true%77#0)
-                let is_true%78#0: uint64 = (getbit tmp%69#0 0u)
-                let array_data%75#0: bytes = (setbit array_data%75#0 19u is_true%78#0)
-                let is_true%79#0: uint64 = (getbit tmp%70#0 0u)
-                let array_data%75#0: bytes = (setbit array_data%75#0 20u is_true%79#0)
-                let is_true%80#0: uint64 = (getbit tmp%71#0 0u)
-                let array_data%75#0: bytes = (setbit array_data%75#0 21u is_true%80#0)
-                let is_true%81#0: uint64 = (getbit tmp%72#0 0u)
-                let array_data%75#0: bytes = (setbit array_data%75#0 22u is_true%81#0)
-                let is_true%82#0: uint64 = (getbit tmp%73#0 0u)
-                let array_data%75#0: bytes = (setbit array_data%75#0 23u is_true%82#0)
-                let array_data%75#0: bytes = (concat array_data%75#0 tmp%74#0)
-                let tmp%83#0: uint64 = (== dynamic_bool_array#0 array_data%75#0)
-                (assert tmp%83#0)
+                let data%40#0: bytes = 0x
+                let data%40#0: bytes = (concat data%40#0 tmp%39#0)
+                let concat_result%41#0: bytes = puyapy_lib_arc4.dynamic_array_concat_bits(dynamic_bool_array#0, data%40#0, 1u, 0u)
+                let dynamic_bool_array#0: any = concat_result%41#0
+                let tmp%42#0: any = (setbit 0x00 0u 1u)
+                let tmp%43#0: any = (setbit 0x00 0u 0u)
+                let tmp%44#0: any = (setbit 0x00 0u 1u)
+                let tmp%45#0: any = (setbit 0x00 0u 0u)
+                let tmp%46#0: any = (setbit 0x00 0u 1u)
+                let tmp%47#0: any = (setbit 0x00 0u 0u)
+                let tmp%48#0: any = (setbit 0x00 0u 1u)
+                let tmp%49#0: any = (setbit 0x00 0u 0u)
+                let tmp%50#0: any = (setbit 0x00 0u 1u)
+                let array_data%51#0: bytes = 0x0009
+                let array_data%51#0: bytes = (concat array_data%51#0 tmp%42#0)
+                let is_true%52#0: uint64 = (getbit tmp%43#0 0u)
+                let array_data%51#0: bytes = (setbit array_data%51#0 17u is_true%52#0)
+                let is_true%53#0: uint64 = (getbit tmp%44#0 0u)
+                let array_data%51#0: bytes = (setbit array_data%51#0 18u is_true%53#0)
+                let is_true%54#0: uint64 = (getbit tmp%45#0 0u)
+                let array_data%51#0: bytes = (setbit array_data%51#0 19u is_true%54#0)
+                let is_true%55#0: uint64 = (getbit tmp%46#0 0u)
+                let array_data%51#0: bytes = (setbit array_data%51#0 20u is_true%55#0)
+                let is_true%56#0: uint64 = (getbit tmp%47#0 0u)
+                let array_data%51#0: bytes = (setbit array_data%51#0 21u is_true%56#0)
+                let is_true%57#0: uint64 = (getbit tmp%48#0 0u)
+                let array_data%51#0: bytes = (setbit array_data%51#0 22u is_true%57#0)
+                let is_true%58#0: uint64 = (getbit tmp%49#0 0u)
+                let array_data%51#0: bytes = (setbit array_data%51#0 23u is_true%58#0)
+                let array_data%51#0: bytes = (concat array_data%51#0 tmp%50#0)
+                let tmp%59#0: uint64 = (== dynamic_bool_array#0 array_data%51#0)
+                (assert tmp%59#0)
                 return 
         
-        subroutine puyapy.dynamic_array_concat_bits(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
-            block@0: // L57
-                let data#0: bytes = (replace3 source#0 0u 0xffff)
-                let new_item_bigint#0: bytes = new_items_bytes#0
-                let array_length#0: uint64 = (extract_uint16 source#0 0u)
-                let tmp%0#0: uint64 = (+ array_length#0 7u)
-                let current_bytes#0: uint64 = (/ tmp%0#0 8u)
-                let tmp%1#0: uint64 = (+ array_length#0 7u)
-                let tmp%2#0: uint64 = (+ tmp%1#0 new_items_count#0)
-                let required_bytes#0: uint64 = (/ tmp%2#0 8u)
-                let used_bits_in_last_byte#0: uint64 = (% array_length#0 8u)
-                let tmp%3#0: uint64 = (< current_bytes#0 required_bytes#0)
-                goto tmp%3#0 ? block@1 : block@2
-            block@1: // if_body_L66
-                let tmp%4#0: uint64 = (- required_bytes#0 current_bytes#0)
-                let tmp%5#0: uint64 = (* tmp%4#0 8u)
-                let tmp%6#0: uint64 = (exp 2u tmp%5#0)
-                let tmp%7#0: bytes = (itob tmp%6#0)
-                let data#0: bytes = (b* data#0 tmp%7#0)
-                let tmp%8#0: uint64 = (- 8u used_bits_in_last_byte#0)
-                let tmp%9#0: uint64 = (exp 2u tmp%8#0)
-                let tmp%10#0: bytes = (itob tmp%9#0)
-                let shifted_new#0: bytes = (b* new_item_bigint#0 tmp%10#0)
-                let data#0: bytes = (b| data#0 shifted_new#0)
-                goto block@3
-            block@2: // else_body_L66
-                let tmp%11#0: uint64 = (exp 2u used_bits_in_last_byte#0)
-                let tmp%12#0: bytes = (itob tmp%11#0)
-                let shifted_new#0: bytes = (b/ new_item_bigint#0 tmp%12#0)
-                let data#0: bytes = (b| data#0 shifted_new#0)
-                goto block@3
-            block@3: // after_if_else_L66
-                let tmp%13#0: uint64 = (+ array_length#0 new_items_count#0)
-                let tmp%14#0: bytes = (itob tmp%13#0)
-                let tmp%15#0: bytes = (substring3 tmp%14#0 6u 8u)
-                let tmp%16#0: bytes = (replace3 data#0 0u tmp%15#0)
-                return tmp%16#0
-        
         subroutine examples.arc4_types.mutation.Arc4MutationContract.dynamic_array_string() -> void:
-            block@0: // L166
+            block@0: // L176
                 let hello#0: bytes = "\x00\x05Hello"
                 let world#0: bytes = "\x00\x05World"
                 let foo#0: bytes = "\x00\x03Foo"
@@ -264,348 +195,292 @@ contract examples.arc4_types.mutation.Arc4MutationContract:
                 let dynamic_string_array#0: bytes = array_data%0#0
                 let tmp%8#0: uint64 = (== dynamic_string_array#0 "\x00\x02\x00\x04\x00\x0b\x00\x05Hello\x00\x05World")
                 (assert tmp%8#0)
-                let updated_data%9#0: bytes = dynamic_string_array#0
-                let starting_length%10#0: uint64 = (extract_uint16 updated_data%9#0 0u)
-                let new_length%11#0: uint64 = (+ starting_length%10#0 2u)
-                let val_as_bytes%12#0: bytes = (itob new_length%11#0)
-                let new_length_bytes%13#0: bytes = ((extract 6 2) val_as_bytes%12#0)
-                let new_data_bytes%14#0: bytes = ""
-                let new_data_bytes%14#0: bytes = (concat new_data_bytes%14#0 foo#0)
-                let new_data_bytes%14#0: bytes = (concat new_data_bytes%14#0 bar#0)
-                let updated_data%9#0: bytes = puyapy.dynamic_array_concat_variable_size(updated_data%9#0, new_data_bytes%14#0, 2u)
-                let dynamic_string_array#0: bytes = updated_data%9#0
-                let tmp%15#0: uint64 = (== dynamic_string_array#0 "\x00\x04\x00\x08\x00\x0f\x00\x16\x00\x1b\x00\x05Hello\x00\x05World\x00\x03Foo\x00\x03Bar")
-                (assert tmp%15#0)
-                let updated_data%16#0: bytes = dynamic_string_array#0
-                let starting_length%17#0: uint64 = (extract_uint16 updated_data%16#0 0u)
-                let other_length%18#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
-                let other_data%19#0: bytes = ((extract 2 0) dynamic_string_array#0)
-                let new_length%20#0: uint64 = (+ starting_length%17#0 other_length%18#0)
-                let val_as_bytes%21#0: bytes = (itob new_length%20#0)
-                let new_length_bytes%22#0: bytes = ((extract 6 2) val_as_bytes%21#0)
-                let other_header_bytes%23#0: uint64 = (* other_length%18#0 2u)
-                let other_total_bytes%24#0: uint64 = (len other_data%19#0)
-                let other_tail%25#0: bytes = (substring3 other_data%19#0 other_header_bytes%23#0 other_total_bytes%24#0)
-                let updated_data%16#0: bytes = puyapy.dynamic_array_concat_variable_size(updated_data%16#0, other_tail%25#0, other_length%18#0)
-                let dynamic_string_array#0: bytes = updated_data%16#0
-                let array_data%26#0: bytes = 0x0008
-                let next_offset%27#0: uint64 = 16u
-                let value_as_bytes%28#0: bytes = (itob next_offset%27#0)
+                let data%9#0: bytes = 0x
+                let data%9#0: bytes = (concat data%9#0 foo#0)
+                let data%9#0: bytes = (concat data%9#0 bar#0)
+                let concat_result%10#0: bytes = puyapy_lib_arc4.dynamic_array_concat_variable_size(dynamic_string_array#0, data%9#0, 2u)
+                let dynamic_string_array#0: bytes = concat_result%10#0
+                let tmp%11#0: uint64 = (== dynamic_string_array#0 "\x00\x04\x00\x08\x00\x0f\x00\x16\x00\x1b\x00\x05Hello\x00\x05World\x00\x03Foo\x00\x03Bar")
+                (assert tmp%11#0)
+                let array_length%12#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+                let start_of_data%13#0: uint64 = (* array_length%12#0 2u)
+                let start_of_data%13#0: uint64 = (+ start_of_data%13#0 2u)
+                let total_length%14#0: uint64 = (len dynamic_string_array#0)
+                let data%15#0: bytes = (substring3 dynamic_string_array#0 start_of_data%13#0 total_length%14#0)
+                let concat_result%16#0: bytes = puyapy_lib_arc4.dynamic_array_concat_variable_size(dynamic_string_array#0, data%15#0, array_length%12#0)
+                let dynamic_string_array#0: bytes = concat_result%16#0
+                let array_data%17#0: bytes = 0x0008
+                let next_offset%18#0: uint64 = 16u
+                let value_as_bytes%19#0: bytes = (itob next_offset%18#0)
+                let value_as_uint16%20#0: bytes = ((extract 6 2) value_as_bytes%19#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 value_as_uint16%20#0)
+                let element_length%21#0: uint64 = (len hello#0)
+                let next_offset%18#0: uint64 = (+ next_offset%18#0 element_length%21#0)
+                let value_as_bytes%22#0: bytes = (itob next_offset%18#0)
+                let value_as_uint16%23#0: bytes = ((extract 6 2) value_as_bytes%22#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 value_as_uint16%23#0)
+                let element_length%24#0: uint64 = (len world#0)
+                let next_offset%18#0: uint64 = (+ next_offset%18#0 element_length%24#0)
+                let value_as_bytes%25#0: bytes = (itob next_offset%18#0)
+                let value_as_uint16%26#0: bytes = ((extract 6 2) value_as_bytes%25#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 value_as_uint16%26#0)
+                let element_length%27#0: uint64 = (len foo#0)
+                let next_offset%18#0: uint64 = (+ next_offset%18#0 element_length%27#0)
+                let value_as_bytes%28#0: bytes = (itob next_offset%18#0)
                 let value_as_uint16%29#0: bytes = ((extract 6 2) value_as_bytes%28#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 value_as_uint16%29#0)
-                let element_length%30#0: uint64 = (len hello#0)
-                let next_offset%27#0: uint64 = (+ next_offset%27#0 element_length%30#0)
-                let value_as_bytes%31#0: bytes = (itob next_offset%27#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 value_as_uint16%29#0)
+                let element_length%30#0: uint64 = (len bar#0)
+                let next_offset%18#0: uint64 = (+ next_offset%18#0 element_length%30#0)
+                let value_as_bytes%31#0: bytes = (itob next_offset%18#0)
                 let value_as_uint16%32#0: bytes = ((extract 6 2) value_as_bytes%31#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 value_as_uint16%32#0)
-                let element_length%33#0: uint64 = (len world#0)
-                let next_offset%27#0: uint64 = (+ next_offset%27#0 element_length%33#0)
-                let value_as_bytes%34#0: bytes = (itob next_offset%27#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 value_as_uint16%32#0)
+                let element_length%33#0: uint64 = (len hello#0)
+                let next_offset%18#0: uint64 = (+ next_offset%18#0 element_length%33#0)
+                let value_as_bytes%34#0: bytes = (itob next_offset%18#0)
                 let value_as_uint16%35#0: bytes = ((extract 6 2) value_as_bytes%34#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 value_as_uint16%35#0)
-                let element_length%36#0: uint64 = (len foo#0)
-                let next_offset%27#0: uint64 = (+ next_offset%27#0 element_length%36#0)
-                let value_as_bytes%37#0: bytes = (itob next_offset%27#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 value_as_uint16%35#0)
+                let element_length%36#0: uint64 = (len world#0)
+                let next_offset%18#0: uint64 = (+ next_offset%18#0 element_length%36#0)
+                let value_as_bytes%37#0: bytes = (itob next_offset%18#0)
                 let value_as_uint16%38#0: bytes = ((extract 6 2) value_as_bytes%37#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 value_as_uint16%38#0)
-                let element_length%39#0: uint64 = (len bar#0)
-                let next_offset%27#0: uint64 = (+ next_offset%27#0 element_length%39#0)
-                let value_as_bytes%40#0: bytes = (itob next_offset%27#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 value_as_uint16%38#0)
+                let element_length%39#0: uint64 = (len foo#0)
+                let next_offset%18#0: uint64 = (+ next_offset%18#0 element_length%39#0)
+                let value_as_bytes%40#0: bytes = (itob next_offset%18#0)
                 let value_as_uint16%41#0: bytes = ((extract 6 2) value_as_bytes%40#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 value_as_uint16%41#0)
-                let element_length%42#0: uint64 = (len hello#0)
-                let next_offset%27#0: uint64 = (+ next_offset%27#0 element_length%42#0)
-                let value_as_bytes%43#0: bytes = (itob next_offset%27#0)
-                let value_as_uint16%44#0: bytes = ((extract 6 2) value_as_bytes%43#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 value_as_uint16%44#0)
-                let element_length%45#0: uint64 = (len world#0)
-                let next_offset%27#0: uint64 = (+ next_offset%27#0 element_length%45#0)
-                let value_as_bytes%46#0: bytes = (itob next_offset%27#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 value_as_uint16%41#0)
+                let element_length%42#0: uint64 = (len bar#0)
+                let next_offset%18#0: uint64 = (+ next_offset%18#0 element_length%42#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 hello#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 world#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 foo#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 bar#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 hello#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 world#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 foo#0)
+                let array_data%17#0: bytes = (concat array_data%17#0 bar#0)
+                let tmp%43#0: uint64 = (== dynamic_string_array#0 array_data%17#0)
+                (assert tmp%43#0)
+                let array_data%44#0: bytes = 0x0008
+                let next_offset%45#0: uint64 = 16u
+                let value_as_bytes%46#0: bytes = (itob next_offset%45#0)
                 let value_as_uint16%47#0: bytes = ((extract 6 2) value_as_bytes%46#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 value_as_uint16%47#0)
-                let element_length%48#0: uint64 = (len foo#0)
-                let next_offset%27#0: uint64 = (+ next_offset%27#0 element_length%48#0)
-                let value_as_bytes%49#0: bytes = (itob next_offset%27#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 value_as_uint16%47#0)
+                let element_length%48#0: uint64 = (len hello#0)
+                let next_offset%45#0: uint64 = (+ next_offset%45#0 element_length%48#0)
+                let value_as_bytes%49#0: bytes = (itob next_offset%45#0)
                 let value_as_uint16%50#0: bytes = ((extract 6 2) value_as_bytes%49#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 value_as_uint16%50#0)
-                let element_length%51#0: uint64 = (len bar#0)
-                let next_offset%27#0: uint64 = (+ next_offset%27#0 element_length%51#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 hello#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 world#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 foo#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 bar#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 hello#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 world#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 foo#0)
-                let array_data%26#0: bytes = (concat array_data%26#0 bar#0)
-                let tmp%52#0: uint64 = (== dynamic_string_array#0 array_data%26#0)
-                (assert tmp%52#0)
-                let array_data%53#0: bytes = 0x0008
-                let next_offset%54#0: uint64 = 16u
-                let value_as_bytes%55#0: bytes = (itob next_offset%54#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 value_as_uint16%50#0)
+                let element_length%51#0: uint64 = (len world#0)
+                let next_offset%45#0: uint64 = (+ next_offset%45#0 element_length%51#0)
+                let value_as_bytes%52#0: bytes = (itob next_offset%45#0)
+                let value_as_uint16%53#0: bytes = ((extract 6 2) value_as_bytes%52#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 value_as_uint16%53#0)
+                let element_length%54#0: uint64 = (len foo#0)
+                let next_offset%45#0: uint64 = (+ next_offset%45#0 element_length%54#0)
+                let value_as_bytes%55#0: bytes = (itob next_offset%45#0)
                 let value_as_uint16%56#0: bytes = ((extract 6 2) value_as_bytes%55#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 value_as_uint16%56#0)
-                let element_length%57#0: uint64 = (len hello#0)
-                let next_offset%54#0: uint64 = (+ next_offset%54#0 element_length%57#0)
-                let value_as_bytes%58#0: bytes = (itob next_offset%54#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 value_as_uint16%56#0)
+                let element_length%57#0: uint64 = (len bar#0)
+                let next_offset%45#0: uint64 = (+ next_offset%45#0 element_length%57#0)
+                let value_as_bytes%58#0: bytes = (itob next_offset%45#0)
                 let value_as_uint16%59#0: bytes = ((extract 6 2) value_as_bytes%58#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 value_as_uint16%59#0)
-                let element_length%60#0: uint64 = (len world#0)
-                let next_offset%54#0: uint64 = (+ next_offset%54#0 element_length%60#0)
-                let value_as_bytes%61#0: bytes = (itob next_offset%54#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 value_as_uint16%59#0)
+                let element_length%60#0: uint64 = (len hello#0)
+                let next_offset%45#0: uint64 = (+ next_offset%45#0 element_length%60#0)
+                let value_as_bytes%61#0: bytes = (itob next_offset%45#0)
                 let value_as_uint16%62#0: bytes = ((extract 6 2) value_as_bytes%61#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 value_as_uint16%62#0)
-                let element_length%63#0: uint64 = (len foo#0)
-                let next_offset%54#0: uint64 = (+ next_offset%54#0 element_length%63#0)
-                let value_as_bytes%64#0: bytes = (itob next_offset%54#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 value_as_uint16%62#0)
+                let element_length%63#0: uint64 = (len world#0)
+                let next_offset%45#0: uint64 = (+ next_offset%45#0 element_length%63#0)
+                let value_as_bytes%64#0: bytes = (itob next_offset%45#0)
                 let value_as_uint16%65#0: bytes = ((extract 6 2) value_as_bytes%64#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 value_as_uint16%65#0)
-                let element_length%66#0: uint64 = (len bar#0)
-                let next_offset%54#0: uint64 = (+ next_offset%54#0 element_length%66#0)
-                let value_as_bytes%67#0: bytes = (itob next_offset%54#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 value_as_uint16%65#0)
+                let element_length%66#0: uint64 = (len foo#0)
+                let next_offset%45#0: uint64 = (+ next_offset%45#0 element_length%66#0)
+                let value_as_bytes%67#0: bytes = (itob next_offset%45#0)
                 let value_as_uint16%68#0: bytes = ((extract 6 2) value_as_bytes%67#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 value_as_uint16%68#0)
-                let element_length%69#0: uint64 = (len hello#0)
-                let next_offset%54#0: uint64 = (+ next_offset%54#0 element_length%69#0)
-                let value_as_bytes%70#0: bytes = (itob next_offset%54#0)
-                let value_as_uint16%71#0: bytes = ((extract 6 2) value_as_bytes%70#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 value_as_uint16%71#0)
-                let element_length%72#0: uint64 = (len world#0)
-                let next_offset%54#0: uint64 = (+ next_offset%54#0 element_length%72#0)
-                let value_as_bytes%73#0: bytes = (itob next_offset%54#0)
-                let value_as_uint16%74#0: bytes = ((extract 6 2) value_as_bytes%73#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 value_as_uint16%74#0)
-                let element_length%75#0: uint64 = (len foo#0)
-                let next_offset%54#0: uint64 = (+ next_offset%54#0 element_length%75#0)
-                let value_as_bytes%76#0: bytes = (itob next_offset%54#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 value_as_uint16%68#0)
+                let element_length%69#0: uint64 = (len bar#0)
+                let next_offset%45#0: uint64 = (+ next_offset%45#0 element_length%69#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 hello#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 world#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 foo#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 bar#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 hello#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 world#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 foo#0)
+                let array_data%44#0: bytes = (concat array_data%44#0 bar#0)
+                let dynamic_string_array#0: bytes = array_data%44#0
+                let assigned_value%70#0: bytes = hello#0
+                let updated_value%71#0: bytes = puyapy_lib_arc4.dynamic_array_replace_variable_size(dynamic_string_array#0, assigned_value%70#0, 3u)
+                let dynamic_string_array#0: bytes = updated_value%71#0
+                let assigned_value%72#0: bytes = hello#0
+                let updated_value%73#0: bytes = puyapy_lib_arc4.dynamic_array_replace_variable_size(dynamic_string_array#0, assigned_value%72#0, 5u)
+                let dynamic_string_array#0: bytes = updated_value%73#0
+                let array_data%74#0: bytes = 0x0008
+                let next_offset%75#0: uint64 = 16u
+                let value_as_bytes%76#0: bytes = (itob next_offset%75#0)
                 let value_as_uint16%77#0: bytes = ((extract 6 2) value_as_bytes%76#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 value_as_uint16%77#0)
-                let element_length%78#0: uint64 = (len bar#0)
-                let next_offset%54#0: uint64 = (+ next_offset%54#0 element_length%78#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 hello#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 world#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 foo#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 bar#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 hello#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 world#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 foo#0)
-                let array_data%53#0: bytes = (concat array_data%53#0 bar#0)
-                let dynamic_string_array#0: bytes = array_data%53#0
-                let assigned_value%79#0: bytes = hello#0
-                let updated_value%80#0: bytes = puyapy.dynamic_array_replace_variable_size(dynamic_string_array#0, assigned_value%79#0, 3u)
-                let dynamic_string_array#0: bytes = updated_value%80#0
-                let assigned_value%81#0: bytes = hello#0
-                let updated_value%82#0: bytes = puyapy.dynamic_array_replace_variable_size(dynamic_string_array#0, assigned_value%81#0, 5u)
-                let dynamic_string_array#0: bytes = updated_value%82#0
-                let array_data%83#0: bytes = 0x0008
-                let next_offset%84#0: uint64 = 16u
-                let value_as_bytes%85#0: bytes = (itob next_offset%84#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 value_as_uint16%77#0)
+                let element_length%78#0: uint64 = (len hello#0)
+                let next_offset%75#0: uint64 = (+ next_offset%75#0 element_length%78#0)
+                let value_as_bytes%79#0: bytes = (itob next_offset%75#0)
+                let value_as_uint16%80#0: bytes = ((extract 6 2) value_as_bytes%79#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 value_as_uint16%80#0)
+                let element_length%81#0: uint64 = (len world#0)
+                let next_offset%75#0: uint64 = (+ next_offset%75#0 element_length%81#0)
+                let value_as_bytes%82#0: bytes = (itob next_offset%75#0)
+                let value_as_uint16%83#0: bytes = ((extract 6 2) value_as_bytes%82#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 value_as_uint16%83#0)
+                let element_length%84#0: uint64 = (len foo#0)
+                let next_offset%75#0: uint64 = (+ next_offset%75#0 element_length%84#0)
+                let value_as_bytes%85#0: bytes = (itob next_offset%75#0)
                 let value_as_uint16%86#0: bytes = ((extract 6 2) value_as_bytes%85#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 value_as_uint16%86#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 value_as_uint16%86#0)
                 let element_length%87#0: uint64 = (len hello#0)
-                let next_offset%84#0: uint64 = (+ next_offset%84#0 element_length%87#0)
-                let value_as_bytes%88#0: bytes = (itob next_offset%84#0)
+                let next_offset%75#0: uint64 = (+ next_offset%75#0 element_length%87#0)
+                let value_as_bytes%88#0: bytes = (itob next_offset%75#0)
                 let value_as_uint16%89#0: bytes = ((extract 6 2) value_as_bytes%88#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 value_as_uint16%89#0)
-                let element_length%90#0: uint64 = (len world#0)
-                let next_offset%84#0: uint64 = (+ next_offset%84#0 element_length%90#0)
-                let value_as_bytes%91#0: bytes = (itob next_offset%84#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 value_as_uint16%89#0)
+                let element_length%90#0: uint64 = (len hello#0)
+                let next_offset%75#0: uint64 = (+ next_offset%75#0 element_length%90#0)
+                let value_as_bytes%91#0: bytes = (itob next_offset%75#0)
                 let value_as_uint16%92#0: bytes = ((extract 6 2) value_as_bytes%91#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 value_as_uint16%92#0)
-                let element_length%93#0: uint64 = (len foo#0)
-                let next_offset%84#0: uint64 = (+ next_offset%84#0 element_length%93#0)
-                let value_as_bytes%94#0: bytes = (itob next_offset%84#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 value_as_uint16%92#0)
+                let element_length%93#0: uint64 = (len hello#0)
+                let next_offset%75#0: uint64 = (+ next_offset%75#0 element_length%93#0)
+                let value_as_bytes%94#0: bytes = (itob next_offset%75#0)
                 let value_as_uint16%95#0: bytes = ((extract 6 2) value_as_bytes%94#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 value_as_uint16%95#0)
-                let element_length%96#0: uint64 = (len hello#0)
-                let next_offset%84#0: uint64 = (+ next_offset%84#0 element_length%96#0)
-                let value_as_bytes%97#0: bytes = (itob next_offset%84#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 value_as_uint16%95#0)
+                let element_length%96#0: uint64 = (len foo#0)
+                let next_offset%75#0: uint64 = (+ next_offset%75#0 element_length%96#0)
+                let value_as_bytes%97#0: bytes = (itob next_offset%75#0)
                 let value_as_uint16%98#0: bytes = ((extract 6 2) value_as_bytes%97#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 value_as_uint16%98#0)
-                let element_length%99#0: uint64 = (len hello#0)
-                let next_offset%84#0: uint64 = (+ next_offset%84#0 element_length%99#0)
-                let value_as_bytes%100#0: bytes = (itob next_offset%84#0)
-                let value_as_uint16%101#0: bytes = ((extract 6 2) value_as_bytes%100#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 value_as_uint16%101#0)
-                let element_length%102#0: uint64 = (len hello#0)
-                let next_offset%84#0: uint64 = (+ next_offset%84#0 element_length%102#0)
-                let value_as_bytes%103#0: bytes = (itob next_offset%84#0)
-                let value_as_uint16%104#0: bytes = ((extract 6 2) value_as_bytes%103#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 value_as_uint16%104#0)
-                let element_length%105#0: uint64 = (len foo#0)
-                let next_offset%84#0: uint64 = (+ next_offset%84#0 element_length%105#0)
-                let value_as_bytes%106#0: bytes = (itob next_offset%84#0)
-                let value_as_uint16%107#0: bytes = ((extract 6 2) value_as_bytes%106#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 value_as_uint16%107#0)
-                let element_length%108#0: uint64 = (len bar#0)
-                let next_offset%84#0: uint64 = (+ next_offset%84#0 element_length%108#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 hello#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 world#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 foo#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 hello#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 hello#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 hello#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 foo#0)
-                let array_data%83#0: bytes = (concat array_data%83#0 bar#0)
-                let tmp%109#0: uint64 = (== dynamic_string_array#0 array_data%83#0)
-                (assert tmp%109#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 value_as_uint16%98#0)
+                let element_length%99#0: uint64 = (len bar#0)
+                let next_offset%75#0: uint64 = (+ next_offset%75#0 element_length%99#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 hello#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 world#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 foo#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 hello#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 hello#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 hello#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 foo#0)
+                let array_data%74#0: bytes = (concat array_data%74#0 bar#0)
+                let tmp%100#0: uint64 = (== dynamic_string_array#0 array_data%74#0)
+                (assert tmp%100#0)
+                let (popped%101#1: bytes, data%102#1: bytes) = puyapy_lib_arc4.dynamic_array_pop_variable_size(dynamic_string_array#0)
+                let dynamic_string_array#0: bytes = data%102#1
+                let tmp%103#0: uint64 = (== popped%101#1 bar#0)
+                (assert tmp%103#0)
+                let (popped%104#1: bytes, data%105#1: bytes) = puyapy_lib_arc4.dynamic_array_pop_variable_size(dynamic_string_array#0)
+                let dynamic_string_array#0: bytes = data%105#1
+                let tmp%106#0: uint64 = (== popped%104#1 foo#0)
+                (assert tmp%106#0)
+                let array_data%107#0: bytes = 0x0006
+                let next_offset%108#0: uint64 = 12u
+                let value_as_bytes%109#0: bytes = (itob next_offset%108#0)
+                let value_as_uint16%110#0: bytes = ((extract 6 2) value_as_bytes%109#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 value_as_uint16%110#0)
+                let element_length%111#0: uint64 = (len hello#0)
+                let next_offset%108#0: uint64 = (+ next_offset%108#0 element_length%111#0)
+                let value_as_bytes%112#0: bytes = (itob next_offset%108#0)
+                let value_as_uint16%113#0: bytes = ((extract 6 2) value_as_bytes%112#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 value_as_uint16%113#0)
+                let element_length%114#0: uint64 = (len world#0)
+                let next_offset%108#0: uint64 = (+ next_offset%108#0 element_length%114#0)
+                let value_as_bytes%115#0: bytes = (itob next_offset%108#0)
+                let value_as_uint16%116#0: bytes = ((extract 6 2) value_as_bytes%115#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 value_as_uint16%116#0)
+                let element_length%117#0: uint64 = (len foo#0)
+                let next_offset%108#0: uint64 = (+ next_offset%108#0 element_length%117#0)
+                let value_as_bytes%118#0: bytes = (itob next_offset%108#0)
+                let value_as_uint16%119#0: bytes = ((extract 6 2) value_as_bytes%118#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 value_as_uint16%119#0)
+                let element_length%120#0: uint64 = (len hello#0)
+                let next_offset%108#0: uint64 = (+ next_offset%108#0 element_length%120#0)
+                let value_as_bytes%121#0: bytes = (itob next_offset%108#0)
+                let value_as_uint16%122#0: bytes = ((extract 6 2) value_as_bytes%121#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 value_as_uint16%122#0)
+                let element_length%123#0: uint64 = (len hello#0)
+                let next_offset%108#0: uint64 = (+ next_offset%108#0 element_length%123#0)
+                let value_as_bytes%124#0: bytes = (itob next_offset%108#0)
+                let value_as_uint16%125#0: bytes = ((extract 6 2) value_as_bytes%124#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 value_as_uint16%125#0)
+                let element_length%126#0: uint64 = (len hello#0)
+                let next_offset%108#0: uint64 = (+ next_offset%108#0 element_length%126#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 hello#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 world#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 foo#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 hello#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 hello#0)
+                let array_data%107#0: bytes = (concat array_data%107#0 hello#0)
+                let tmp%127#0: uint64 = (== dynamic_string_array#0 array_data%107#0)
+                (assert tmp%127#0)
                 return 
-        
-        subroutine puyapy.dynamic_array_concat_variable_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
-            block@0: // L109
-                let array_length#0: uint64 = (extract_uint16 source#0 0u)
-                let new_length#0: uint64 = (+ array_length#0 new_items_count#0)
-                let tmp%0#0: uint64 = (* array_length#0 2u)
-                let header_end#0: uint64 = (+ tmp%0#0 2u)
-                let tmp%1#0: bytes = (itob new_length#0)
-                let tmp%2#0: bytes = (substring3 tmp%1#0 6u 8u)
-                let tmp%3#0: bytes = (substring3 source#0 2u header_end#0)
-                let tmp%4#0: uint64 = (* new_items_count#0 2u)
-                let tmp%5#0: bytes = (bzero tmp%4#0)
-                let tmp%6#0: bytes = (concat tmp%3#0 tmp%5#0)
-                let tmp%7#0: uint64 = (len source#0)
-                let tmp%8#0: bytes = (substring3 source#0 header_end#0 tmp%7#0)
-                let tmp%9#0: bytes = (concat tmp%6#0 tmp%8#0)
-                let tmp%10#0: bytes = (concat tmp%9#0 new_items_bytes#0)
-                let tmp%11#0: bytes = puyapy.recalculate_array_offsets_static(tmp%10#0, new_length#0, 0u)
-                let tmp%12#0: bytes = (concat tmp%2#0 tmp%11#0)
-                return tmp%12#0
-        
-        subroutine puyapy.recalculate_array_offsets_static(array_data: bytes, length: uint64, start_at_index: uint64) -> bytes:
-            block@0: // L138
-                let header_cursor#0: uint64 = (* start_at_index#0 2u)
-                let tmp%0#0: uint64 = (== start_at_index#0 0u)
-                goto tmp%0#0 ? block@1 : block@2
-            block@1: // if_body_L142
-                let tail_cursor#0: uint64 = (* length#0 2u)
-                goto block@3
-            block@2: // else_body_L142
-                let tail_cursor#0: uint64 = (extract_uint16 array_data#0 header_cursor#0)
-                goto block@3
-            block@3: // after_if_else_L142
-                let range_item%1#0: uint64 = start_at_index#0
-                goto block@4
-            block@4: // for_header_L147
-                let continue_looping%2#0: uint64 = (< range_item%1#0 length#0)
-                goto continue_looping%2#0 ? block@5 : block@7
-            block@5: // for_body_L147
-                let i#0: uint64 = range_item%1#0
-                let tmp%3#0: bytes = (itob tail_cursor#0)
-                let tail_cursor_bytes#0: bytes = (substring3 tmp%3#0 6u 8u)
-                let array_data#0: bytes = (replace3 array_data#0 header_cursor#0 tail_cursor_bytes#0)
-                let tmp%4#0: uint64 = (extract_uint16 array_data#0 tail_cursor#0)
-                let tmp%5#0: uint64 = (+ tmp%4#0 2u)
-                let tail_cursor#0: uint64 = (+ tail_cursor#0 tmp%5#0)
-                let header_cursor#0: uint64 = (+ header_cursor#0 2u)
-                goto block@6
-            block@6: // for_footer_L147
-                let range_item%1#0: uint64 = (+ range_item%1#0 1u)
-                goto block@4
-            block@7: // after_for_L147
-                return array_data#0
-        
-        subroutine puyapy.dynamic_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64) -> bytes:
-            block@0: // L81
-                let array_length#0: uint64 = (extract_uint16 source#0 0u)
-                let tmp%0#0: bytes = (substring3 source#0 0u 2u)
-                let tmp%1#0: uint64 = (len source#0)
-                let tmp%2#0: bytes = (substring3 source#0 2u tmp%1#0)
-                let tmp%3#0: bytes = puyapy.static_array_replace_variable_size(tmp%2#0, new_item#0, index#0, array_length#0)
-                let tmp%4#0: bytes = (concat tmp%0#0 tmp%3#0)
-                return tmp%4#0
-        
-        subroutine puyapy.static_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-            block@0: // L92
-                let tmp%0#0: uint64 = (< index#0 array_length#0)
-                (assert tmp%0#0) // Index out of bounds
-                let tmp%1#0: uint64 = (* index#0 2u)
-                let offset_for_index#0: uint64 = (extract_uint16 source#0 tmp%1#0)
-                let old_item_length#0: uint64 = (extract_uint16 source#0 offset_for_index#0)
-                let tmp%2#0: uint64 = (+ offset_for_index#0 old_item_length#0)
-                let old_item_end#0: uint64 = (+ tmp%2#0 2u)
-                let tmp%3#0: bytes = (substring3 source#0 0u offset_for_index#0)
-                let tmp%4#0: bytes = (concat tmp%3#0 new_item#0)
-                let tmp%5#0: uint64 = (len source#0)
-                let tmp%6#0: bytes = (substring3 source#0 old_item_end#0 tmp%5#0)
-                let tmp%7#0: bytes = (concat tmp%4#0 tmp%6#0)
-                let tmp%8#0: bytes = puyapy.recalculate_array_offsets_static(tmp%7#0, array_length#0, index#0)
-                return tmp%8#0
         
         subroutine examples.arc4_types.mutation.Arc4MutationContract.array_of_array_dynamic() -> void:
             block@0: // L44
                 let array_of_array#0: bytes = 0x0000
                 let tmp%0#0: uint64 = (== array_of_array#0 0x0000)
                 (assert tmp%0#0)
-                let updated_data%1#0: bytes = array_of_array#0
-                let starting_length%2#0: uint64 = (extract_uint16 updated_data%1#0 0u)
-                let new_length%3#0: uint64 = (+ starting_length%2#0 1u)
-                let val_as_bytes%4#0: bytes = (itob new_length%3#0)
-                let new_length_bytes%5#0: bytes = ((extract 6 2) val_as_bytes%4#0)
-                let new_data_bytes%6#0: bytes = ""
-                let array_data%7#0: bytes = 0x0001
-                let array_data%7#0: bytes = (concat array_data%7#0 0x0a)
-                let new_data_bytes%6#0: bytes = (concat new_data_bytes%6#0 array_data%7#0)
-                let updated_data%1#0: bytes = puyapy.dynamic_array_concat_variable_size(updated_data%1#0, new_data_bytes%6#0, 1u)
-                let array_of_array#0: bytes = updated_data%1#0
-                let tmp%8#0: uint64 = (== array_of_array#0 0x0001000200010a)
+                let array_data%1#0: bytes = 0x0001
+                let array_data%1#0: bytes = (concat array_data%1#0 0x0a)
+                let data%2#0: bytes = 0x
+                let data%2#0: bytes = (concat data%2#0 array_data%1#0)
+                let concat_result%3#0: bytes = puyapy_lib_arc4.dynamic_array_concat_variable_size(array_of_array#0, data%2#0, 1u)
+                let array_of_array#0: bytes = concat_result%3#0
+                let tmp%4#0: uint64 = (== array_of_array#0 0x0001000200010a)
+                (assert tmp%4#0)
+                let array_data%5#0: bytes = 0x0001
+                let array_data%5#0: bytes = (concat array_data%5#0 0x10)
+                let data%6#0: bytes = 0x
+                let data%6#0: bytes = (concat data%6#0 array_data%5#0)
+                let concat_result%7#0: bytes = puyapy_lib_arc4.dynamic_array_concat_variable_size(array_of_array#0, data%6#0, 1u)
+                let array_of_array#0: bytes = concat_result%7#0
+                let tmp%8#0: uint64 = (== array_of_array#0 0x00020004000700010a000110)
                 (assert tmp%8#0)
-                let updated_data%9#0: bytes = array_of_array#0
-                let starting_length%10#0: uint64 = (extract_uint16 updated_data%9#0 0u)
-                let new_length%11#0: uint64 = (+ starting_length%10#0 1u)
-                let val_as_bytes%12#0: bytes = (itob new_length%11#0)
-                let new_length_bytes%13#0: bytes = ((extract 6 2) val_as_bytes%12#0)
-                let new_data_bytes%14#0: bytes = ""
-                let array_data%15#0: bytes = 0x0001
-                let array_data%15#0: bytes = (concat array_data%15#0 0x10)
-                let new_data_bytes%14#0: bytes = (concat new_data_bytes%14#0 array_data%15#0)
-                let updated_data%9#0: bytes = puyapy.dynamic_array_concat_variable_size(updated_data%9#0, new_data_bytes%14#0, 1u)
-                let array_of_array#0: bytes = updated_data%9#0
-                let tmp%16#0: uint64 = (== array_of_array#0 0x00020004000700010a000110)
-                (assert tmp%16#0)
-                let array_length%17#0: uint64 = (extract_uint16 array_of_array#0 0u)
-                let index_is_in_bounds%18#0: uint64 = (< 0u array_length%17#0)
-                (assert index_is_in_bounds%18#0) // Index access is out of bounds
-                let array_data_sans_header%19#0: bytes = ((extract 2 0) array_of_array#0)
-                let item_index_index%20#0: uint64 = (* 0u 2u)
-                let item_index%21#0: uint64 = (extract_uint16 array_data_sans_header%19#0 item_index_index%20#0)
-                let item_length%22#0: uint64 = (extract_uint16 array_data_sans_header%19#0 item_index%21#0)
-                let item_length_plus_2%23#0: uint64 = (+ item_length%22#0 2u)
-                let tmp%24#0: bytes = (extract3 array_data_sans_header%19#0 item_index%21#0 item_length_plus_2%23#0)
-                let updated_data%25#0: bytes = tmp%24#0
-                let starting_length%26#0: uint64 = (extract_uint16 updated_data%25#0 0u)
-                let new_length%27#0: uint64 = (+ starting_length%26#0 1u)
-                let val_as_bytes%28#0: bytes = (itob new_length%27#0)
-                let new_length_bytes%29#0: bytes = ((extract 6 2) val_as_bytes%28#0)
-                let updated_data%25#0: bytes = ((replace2 0) updated_data%25#0 new_length_bytes%29#0)
-                let updated_data%25#0: bytes = (concat updated_data%25#0 0xff)
-                let assigned_value%30#0: bytes = updated_data%25#0
-                let updated_value%31#0: bytes = puyapy.dynamic_array_replace_variable_size(array_of_array#0, assigned_value%30#0, 0u)
-                let array_of_array#0: bytes = updated_value%31#0
-                let tmp%32#0: uint64 = (== array_of_array#0 0x00020004000800020aff000110)
-                (assert tmp%32#0)
-                let array_length%33#0: uint64 = (extract_uint16 array_of_array#0 0u)
-                let index_is_in_bounds%34#0: uint64 = (< 0u array_length%33#0)
-                (assert index_is_in_bounds%34#0) // Index access is out of bounds
-                let array_data_sans_header%35#0: bytes = ((extract 2 0) array_of_array#0)
-                let item_index_index%36#0: uint64 = (* 0u 2u)
-                let item_index%37#0: uint64 = (extract_uint16 array_data_sans_header%35#0 item_index_index%36#0)
-                let item_length%38#0: uint64 = (extract_uint16 array_data_sans_header%35#0 item_index%37#0)
-                let item_length_plus_2%39#0: uint64 = (+ item_length%38#0 2u)
-                let tmp%40#0: bytes = (extract3 array_data_sans_header%35#0 item_index%37#0 item_length_plus_2%39#0)
-                let assigned_value%41#0: bytes = 0x00
-                let array_length%42#0: uint64 = (extract_uint16 tmp%40#0 0u)
-                let index_is_in_bounds%43#0: uint64 = (< 1u array_length%42#0)
-                (assert index_is_in_bounds%43#0) // Index access is out of bounds
-                let updated_target%44#0: bytes = (replace3 tmp%40#0 3u assigned_value%41#0)
-                let assigned_value%45#0: bytes = updated_target%44#0
-                let updated_value%46#0: bytes = puyapy.dynamic_array_replace_variable_size(array_of_array#0, assigned_value%45#0, 0u)
-                let array_of_array#0: bytes = updated_value%46#0
-                let tmp%47#0: uint64 = (== array_of_array#0 0x00020004000800020a00000110)
-                (assert tmp%47#0)
+                let data%9#0: bytes = 0x
+                let data%9#0: bytes = (concat data%9#0 0xff)
+                let array_length%10#0: uint64 = (extract_uint16 array_of_array#0 0u)
+                let index_is_in_bounds%11#0: uint64 = (< 0u array_length%10#0)
+                (assert index_is_in_bounds%11#0) // Index access is out of bounds
+                let array_data_sans_header%12#0: bytes = ((extract 2 0) array_of_array#0)
+                let item_index_index%13#0: uint64 = (* 0u 2u)
+                let item_index%14#0: uint64 = (extract_uint16 array_data_sans_header%12#0 item_index_index%13#0)
+                let item_length%15#0: uint64 = (extract_uint16 array_data_sans_header%12#0 item_index%14#0)
+                let item_length_plus_2%16#0: uint64 = (+ item_length%15#0 2u)
+                let tmp%17#0: bytes = (extract3 array_data_sans_header%12#0 item_index%14#0 item_length_plus_2%16#0)
+                let concat_result%18#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(tmp%17#0, data%9#0, 1u)
+                let assigned_value%19#0: bytes = concat_result%18#0
+                let updated_value%20#0: bytes = puyapy_lib_arc4.dynamic_array_replace_variable_size(array_of_array#0, assigned_value%19#0, 0u)
+                let array_of_array#0: bytes = updated_value%20#0
+                let tmp%21#0: uint64 = (== array_of_array#0 0x00020004000800020aff000110)
+                (assert tmp%21#0)
+                let array_length%22#0: uint64 = (extract_uint16 array_of_array#0 0u)
+                let index_is_in_bounds%23#0: uint64 = (< 0u array_length%22#0)
+                (assert index_is_in_bounds%23#0) // Index access is out of bounds
+                let array_data_sans_header%24#0: bytes = ((extract 2 0) array_of_array#0)
+                let item_index_index%25#0: uint64 = (* 0u 2u)
+                let item_index%26#0: uint64 = (extract_uint16 array_data_sans_header%24#0 item_index_index%25#0)
+                let item_length%27#0: uint64 = (extract_uint16 array_data_sans_header%24#0 item_index%26#0)
+                let item_length_plus_2%28#0: uint64 = (+ item_length%27#0 2u)
+                let tmp%29#0: bytes = (extract3 array_data_sans_header%24#0 item_index%26#0 item_length_plus_2%28#0)
+                let assigned_value%30#0: bytes = 0x00
+                let array_length%31#0: uint64 = (extract_uint16 tmp%29#0 0u)
+                let index_is_in_bounds%32#0: uint64 = (< 1u array_length%31#0)
+                (assert index_is_in_bounds%32#0) // Index access is out of bounds
+                let updated_target%33#0: bytes = (replace3 tmp%29#0 3u assigned_value%30#0)
+                let assigned_value%34#0: bytes = updated_target%33#0
+                let updated_value%35#0: bytes = puyapy_lib_arc4.dynamic_array_replace_variable_size(array_of_array#0, assigned_value%34#0, 0u)
+                let array_of_array#0: bytes = updated_value%35#0
+                let tmp%36#0: uint64 = (== array_of_array#0 0x00020004000800020a00000110)
+                (assert tmp%36#0)
                 return 
         
         subroutine examples.arc4_types.mutation.Arc4MutationContract.array_of_array_static() -> void:
-            block@0: // L58
+            block@0: // L60
                 let array_data%0#0: bytes = 0x
                 let array_data%0#0: bytes = (concat array_data%0#0 0x0a)
                 let array_data%0#0: bytes = (concat array_data%0#0 0x09)
@@ -638,7 +513,7 @@ contract examples.arc4_types.mutation.Arc4MutationContract:
                 return 
         
         subroutine examples.arc4_types.mutation.Arc4MutationContract.index_assign() -> void:
-            block@0: // L72
+            block@0: // L75
                 let array_data%0#0: bytes = 0x0002
                 let array_data%0#0: bytes = (concat array_data%0#0 0x01)
                 let array_data%0#0: bytes = (concat array_data%0#0 0x02)
@@ -692,7 +567,7 @@ contract examples.arc4_types.mutation.Arc4MutationContract:
                 return 
         
         subroutine examples.arc4_types.mutation.Arc4MutationContract.struct_assign() -> void:
-            block@0: // L88
+            block@0: // L91
                 let tmp%0#0: any = (setbit 0x00 0u 1u)
                 let current_tail_offset%1#0: uint64 = 6u
                 let encoded_tuple_buffer%2#0: bytes = 0x
@@ -776,6 +651,178 @@ contract examples.arc4_types.mutation.Arc4MutationContract:
                 let tmp%47#0: uint64 = (== test_struct#0 encoded_tuple_buffer%40#0)
                 (assert tmp%47#0)
                 return 
+        
+        subroutine puyapy_lib_arc4.dynamic_array_pop_fixed_size(source: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
+            block@0: // L37
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let length_minus_1#0: uint64 = (- array_length#0 1u)
+                let tmp%0#0: bytes = (itob length_minus_1#0)
+                let tmp%1#0: bytes = (substring3 tmp%0#0 6u 8u)
+                let source#0: bytes = (replace3 source#0 0u tmp%1#0)
+                let tmp%2#0: uint64 = (len source#0)
+                let item_location#0: uint64 = (- tmp%2#0 fixed_byte_size#0)
+                let popped#0: bytes = (extract3 source#0 item_location#0 fixed_byte_size#0)
+                let source#0: bytes = (substring3 source#0 0u item_location#0)
+                return popped#0 source#0
+        
+        subroutine puyapy_lib_arc4.dynamic_array_pop_variable_size(source: bytes) -> <bytes, bytes>:
+            block@0: // L55
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let length_minus_1#0: uint64 = (- array_length#0 1u)
+                let tmp%0#0: uint64 = (len source#0)
+                let data_sans_header#0: bytes = (substring3 source#0 2u tmp%0#0)
+                let popped_header_offset#0: uint64 = (* length_minus_1#0 2u)
+                let popped_header#0: uint64 = (extract_uint16 data_sans_header#0 popped_header_offset#0)
+                let tmp%1#0: uint64 = (len data_sans_header#0)
+                let popped#0: bytes = (substring3 data_sans_header#0 popped_header#0 tmp%1#0)
+                let tmp%2#0: bytes = (substring3 data_sans_header#0 0u popped_header_offset#0)
+                let tmp%3#0: uint64 = (+ popped_header_offset#0 2u)
+                let tmp%4#0: bytes = (substring3 data_sans_header#0 tmp%3#0 popped_header#0)
+                let data_sans_header#0: bytes = (concat tmp%2#0 tmp%4#0)
+                let tmp%5#0: bytes = (itob length_minus_1#0)
+                let tmp%6#0: bytes = (substring3 tmp%5#0 6u 8u)
+                let tmp%7#0: bytes = puyapy_lib_arc4.recalculate_array_offsets_static(data_sans_header#0, length_minus_1#0, 0u)
+                let updated#0: bytes = (concat tmp%6#0 tmp%7#0)
+                return popped#0 updated#0
+        
+        subroutine puyapy_lib_arc4.dynamic_array_concat_bits(source: bytes, new_items_bytes: bytes, new_items_count: uint64, is_packed: uint64) -> bytes:
+            block@0: // L82
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let tmp%0#0: uint64 = (+ array_length#0 new_items_count#0)
+                let tmp%1#0: bytes = (itob tmp%0#0)
+                let tmp%2#0: bytes = (substring3 tmp%1#0 6u 8u)
+                let source#0: bytes = (replace3 source#0 0u tmp%2#0)
+                let tmp%3#0: uint64 = (+ array_length#0 7u)
+                let current_bytes#0: uint64 = (/ tmp%3#0 8u)
+                let tmp%4#0: uint64 = (+ array_length#0 7u)
+                let tmp%5#0: uint64 = (+ tmp%4#0 new_items_count#0)
+                let required_bytes#0: uint64 = (/ tmp%5#0 8u)
+                let tmp%6#0: uint64 = (< current_bytes#0 required_bytes#0)
+                let source#9: bytes = source#0
+                goto tmp%6#0 ? block@1 : block@2
+            block@1: // if_body_L101
+                let tmp%7#0: uint64 = (- required_bytes#0 current_bytes#0)
+                let tmp%8#0: bytes = (bzero tmp%7#0)
+                let source#0: bytes = (concat source#0 tmp%8#0)
+                let source#9: bytes = source#0
+                goto block@2
+            block@2: // after_if_else_L101
+                let source#0: bytes = source#9
+                let write_offset#0: uint64 = (+ array_length#0 16u)
+                goto is_packed#0 ? block@3 : block@4
+            block@3: // ternary_true_L105
+                let ternary_result%9#0: uint64 = 1u
+                goto block@5
+            block@4: // ternary_false_L105
+                let ternary_result%9#0: uint64 = 8u
+                goto block@5
+            block@5: // ternary_merge_L105
+                let range_item%10#0: uint64 = 0u
+                goto block@6
+            block@6: // for_header_L105
+                let continue_looping%11#0: uint64 = (< range_item%10#0 new_items_count#0)
+                goto continue_looping%11#0 ? block@7 : block@9
+            block@7: // for_body_L105
+                let i#0: uint64 = range_item%10#0
+                let tmp%12#0: uint64 = (getbit new_items_bytes#0 i#0)
+                let source#0: bytes = (setbit source#0 write_offset#0 tmp%12#0)
+                let write_offset#0: uint64 = (+ write_offset#0 1u)
+                goto block@8
+            block@8: // for_footer_L105
+                let range_item%10#0: uint64 = (+ range_item%10#0 ternary_result%9#0)
+                goto block@6
+            block@9: // after_for_L105
+                return source#0
+        
+        subroutine puyapy_lib_arc4.dynamic_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64) -> bytes:
+            block@0: // L113
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let tmp%0#0: bytes = (substring3 source#0 0u 2u)
+                let tmp%1#0: uint64 = (len source#0)
+                let tmp%2#0: bytes = (substring3 source#0 2u tmp%1#0)
+                let tmp%3#0: bytes = puyapy_lib_arc4.static_array_replace_variable_size(tmp%2#0, new_item#0, index#0, array_length#0)
+                let tmp%4#0: bytes = (concat tmp%0#0 tmp%3#0)
+                return tmp%4#0
+        
+        subroutine puyapy_lib_arc4.static_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+            block@0: // L134
+                let tmp%0#0: uint64 = (< index#0 array_length#0)
+                (assert tmp%0#0) // Index out of bounds
+                let tmp%1#0: uint64 = (* index#0 2u)
+                let offset_for_index#0: uint64 = (extract_uint16 source#0 tmp%1#0)
+                let old_item_length#0: uint64 = (extract_uint16 source#0 offset_for_index#0)
+                let tmp%2#0: uint64 = (+ offset_for_index#0 old_item_length#0)
+                let old_item_end#0: uint64 = (+ tmp%2#0 2u)
+                let tmp%3#0: bytes = (substring3 source#0 0u offset_for_index#0)
+                let tmp%4#0: bytes = (concat tmp%3#0 new_item#0)
+                let tmp%5#0: uint64 = (len source#0)
+                let tmp%6#0: bytes = (substring3 source#0 old_item_end#0 tmp%5#0)
+                let tmp%7#0: bytes = (concat tmp%4#0 tmp%6#0)
+                let tmp%8#0: bytes = puyapy_lib_arc4.recalculate_array_offsets_static(tmp%7#0, array_length#0, index#0)
+                return tmp%8#0
+        
+        subroutine puyapy_lib_arc4.dynamic_array_concat_variable_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+            block@0: // L161
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let new_length#0: uint64 = (+ array_length#0 new_items_count#0)
+                let tmp%0#0: uint64 = (* array_length#0 2u)
+                let header_end#0: uint64 = (+ tmp%0#0 2u)
+                let tmp%1#0: bytes = (itob new_length#0)
+                let tmp%2#0: bytes = (substring3 tmp%1#0 6u 8u)
+                let tmp%3#0: bytes = (substring3 source#0 2u header_end#0)
+                let tmp%4#0: uint64 = (* new_items_count#0 2u)
+                let tmp%5#0: bytes = (bzero tmp%4#0)
+                let tmp%6#0: bytes = (concat tmp%3#0 tmp%5#0)
+                let tmp%7#0: uint64 = (len source#0)
+                let tmp%8#0: bytes = (substring3 source#0 header_end#0 tmp%7#0)
+                let tmp%9#0: bytes = (concat tmp%6#0 tmp%8#0)
+                let tmp%10#0: bytes = (concat tmp%9#0 new_items_bytes#0)
+                let tmp%11#0: bytes = puyapy_lib_arc4.recalculate_array_offsets_static(tmp%10#0, new_length#0, 0u)
+                let tmp%12#0: bytes = (concat tmp%2#0 tmp%11#0)
+                return tmp%12#0
+        
+        subroutine puyapy_lib_arc4.dynamic_array_concat_fixed_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+            block@0: // L190
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let tmp%0#0: uint64 = (+ array_length#0 new_items_count#0)
+                let tmp%1#0: bytes = (itob tmp%0#0)
+                let tmp%2#0: bytes = (substring3 tmp%1#0 6u 8u)
+                let source#0: bytes = (replace3 source#0 0u tmp%2#0)
+                let source#0: bytes = (concat source#0 new_items_bytes#0)
+                return source#0
+        
+        subroutine puyapy_lib_arc4.recalculate_array_offsets_static(array_data: bytes, length: uint64, start_at_index: uint64) -> bytes:
+            block@0: // L227
+                let header_cursor#0: uint64 = (* start_at_index#0 2u)
+                let tmp%0#0: uint64 = (== start_at_index#0 0u)
+                goto tmp%0#0 ? block@1 : block@2
+            block@1: // if_body_L241
+                let tail_cursor#0: uint64 = (* length#0 2u)
+                goto block@3
+            block@2: // else_body_L241
+                let tail_cursor#0: uint64 = (extract_uint16 array_data#0 header_cursor#0)
+                goto block@3
+            block@3: // after_if_else_L241
+                let range_item%1#0: uint64 = start_at_index#0
+                goto block@4
+            block@4: // for_header_L246
+                let continue_looping%2#0: uint64 = (< range_item%1#0 length#0)
+                goto continue_looping%2#0 ? block@5 : block@7
+            block@5: // for_body_L246
+                let i#0: uint64 = range_item%1#0
+                let tmp%3#0: bytes = (itob tail_cursor#0)
+                let tail_cursor_bytes#0: bytes = (substring3 tmp%3#0 6u 8u)
+                let array_data#0: bytes = (replace3 array_data#0 header_cursor#0 tail_cursor_bytes#0)
+                let tmp%4#0: uint64 = (extract_uint16 array_data#0 tail_cursor#0)
+                let tmp%5#0: uint64 = (+ tmp%4#0 2u)
+                let tail_cursor#0: uint64 = (+ tail_cursor#0 tmp%5#0)
+                let header_cursor#0: uint64 = (+ header_cursor#0 2u)
+                goto block@6
+            block@6: // for_footer_L246
+                let range_item%1#0: uint64 = (+ range_item%1#0 1u)
+                goto block@4
+            block@7: // after_for_L246
+                return array_data#0
     
     program clear-state:
         subroutine examples.arc4_types.mutation.Arc4MutationContract.clear_state_program() -> uint64:

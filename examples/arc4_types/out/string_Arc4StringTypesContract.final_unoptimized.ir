@@ -29,29 +29,34 @@ contract examples.arc4_types.string.Arc4StringTypesContract:
                 let hello#0: bytes = "\x00\x05Hello"
                 let space#0: bytes = "\x00\x01 "
                 let world#0: bytes = "\x00\x06World!"
-                let len_left%11#0: uint64 = (extract_uint16 hello#0 0u)
-                let len_right%12#0: uint64 = (extract_uint16 space#0 0u)
-                let new_length%13#0: uint64 = (+ len_left%11#0 len_right%12#0)
-                let val_as_bytes%14#0: bytes = (itob new_length%13#0)
-                let result%15#0: bytes = ((extract 6 2) val_as_bytes%14#0)
-                let left_data%16#0: bytes = ((extract 2 0) hello#0)
-                let result%15#0: bytes = (concat result%15#0 left_data%16#0)
-                let right_data%17#0: bytes = ((extract 2 0) space#0)
-                let result%15#0: bytes = (concat result%15#0 right_data%17#0)
-                let len_left%18#0: uint64 = (extract_uint16 result%15#0 0u)
-                let len_right%19#0: uint64 = (extract_uint16 world#0 0u)
-                let new_length%20#0: uint64 = (+ len_left%18#0 len_right%19#0)
-                let val_as_bytes%21#0: bytes = (itob new_length%20#0)
-                let result%22#0: bytes = ((extract 6 2) val_as_bytes%21#0)
-                let left_data%23#0: bytes = ((extract 2 0) result%15#0)
-                let result%22#0: bytes = (concat result%22#0 left_data%23#0)
-                let right_data%24#0: bytes = ((extract 2 0) world#0)
-                let result%22#0: bytes = (concat result%22#0 right_data%24#0)
-                let tmp%25#0: uint64 = (== "\x00\x0cHello World!" result%22#0)
-                (assert tmp%25#0)
+                let array_length%11#0: uint64 = (extract_uint16 space#0 0u)
+                let data%12#0: bytes = ((extract 2 0) space#0)
+                let concat_result%13#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(hello#0, data%12#0, array_length%11#0)
+                let array_length%14#0: uint64 = (extract_uint16 world#0 0u)
+                let data%15#0: bytes = ((extract 2 0) world#0)
+                let concat_result%16#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(concat_result%13#0, data%15#0, array_length%14#0)
+                let tmp%17#0: uint64 = (== "\x00\x0cHello World!" concat_result%16#0)
+                (assert tmp%17#0)
+                let thing#0: bytes = "\x00\x02hi"
+                let array_length%18#0: uint64 = (extract_uint16 thing#0 0u)
+                let data%19#0: bytes = ((extract 2 0) thing#0)
+                let concat_result%20#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(thing#0, data%19#0, array_length%18#0)
+                let thing#0: bytes = concat_result%20#0
+                let tmp%21#0: uint64 = (== thing#0 "\x00\x04hihi")
+                (assert tmp%21#0)
                 return 1u
+        
+        subroutine puyapy_lib_arc4.dynamic_array_concat_fixed_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+            block@0: // L190
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let tmp%0#0: uint64 = (+ array_length#0 new_items_count#0)
+                let tmp%1#0: bytes = (itob tmp%0#0)
+                let tmp%2#0: bytes = (substring3 tmp%1#0 6u 8u)
+                let source#0: bytes = (replace3 source#0 0u tmp%2#0)
+                let source#0: bytes = (concat source#0 new_items_bytes#0)
+                return source#0
     
     program clear-state:
         subroutine examples.arc4_types.string.Arc4StringTypesContract.clear_state_program() -> uint64:
-            block@0: // L32
+            block@0: // L36
                 return 1u
