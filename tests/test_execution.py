@@ -43,9 +43,11 @@ NONE_ACTION = 3
 
 
 @functools.cache
-def compile_src(src_path: Path, optimization_level: int) -> CompiledContract:
+def compile_src(src_path: Path, optimization_level: int, debug_level: int) -> CompiledContract:
     puya_options = PuyaOptions(
-        paths=[src_path], optimization_level=optimization_level, debug_level=2
+        paths=[src_path],
+        optimization_level=optimization_level,
+        debug_level=debug_level,
     )
     context = parse_with_mypy(puya_options)
     awst = transform_ast(context)
@@ -91,10 +93,12 @@ def assemble_src(contract: CompiledContract, client: AlgodClient) -> Compilation
             num_byte_slices=sum(1 for x in state if x.storage_type is AVMType.bytes),
         )
 
-    assert contract.approval_program.debug_src is not None
-    assert contract.clear_program.debug_src is not None
-    approval_program = Program("\n".join(contract.approval_program.debug_src), client)
-    clear_program = Program("\n".join(contract.clear_program.debug_src), client)
+    approval_src = contract.approval_program.debug_src or contract.approval_program.src
+    clear_src = contract.clear_program.src or contract.clear_program.debug_src
+    assert approval_src is not None
+    assert clear_src is not None
+    approval_program = Program("\n".join(approval_src), client)
+    clear_program = Program("\n".join(clear_src), client)
     compilation = Compilation(
         contract=contract,
         approval=approval_program,
@@ -123,6 +127,7 @@ GroupTransactionsProvider: typing.TypeAlias = Callable[[int], Iterable[Transacti
 @attrs.frozen
 class AppCallRequest(AppTransactionParameters):
     increase_budget: int = 0
+    debug_level: int = 0
     trace_output: Path | None = None
     group_transactions: GroupTransactionsProvider | None = None
 
@@ -335,7 +340,10 @@ class ATCRunner:
                     raise NotImplementedError(f"Mapping not implemented: {value}")
 
         approval_source_map = self.compilation.approval.source_map
-        approval_source = self.compilation.contract.approval_program
+        approval_src = (
+            self.compilation.contract.approval_program.debug_src
+            or self.compilation.contract.approval_program.src
+        )
 
         (txn_group,) = simulate_response.simulate_response["txn-groups"]
         txn_result, *_ = txn_group["txn-results"]
@@ -349,11 +357,7 @@ class ATCRunner:
         for t in approval_program_trace:
             pc = t["pc"]
             teal_line = approval_source_map.get_line_for_pc(pc)
-            teal = (
-                ""
-                if teal_line is None or approval_source.debug_src is None
-                else approval_source.debug_src[teal_line]
-            )
+            teal = "" if teal_line is None else approval_src[teal_line]
             teal = teal.split("//", maxsplit=1)[0].strip()
             for _ in range(t.get("stack-pop-count", 0)):
                 assert stack, "Oh noes, the stack is empty, we can't pop anything"
@@ -408,7 +412,9 @@ class _TestHarness:
             request = AppCallRequest()
 
         self._compilations_by_level = {
-            o_level: self._compile_and_assemble_src(src_path, optimization_level=o_level)
+            o_level: self._compile_and_assemble_src(
+                src_path, optimization_level=o_level, debug_level=request.debug_level
+            )
             for o_level in self._optimization_levels
         }
 
@@ -474,8 +480,12 @@ class _TestHarness:
             op_up_app_id=self.op_up_app_id,
         )
 
-    def _compile_and_assemble_src(self, src_path: Path, optimization_level: int) -> Compilation:
-        contract = compile_src(src_path, optimization_level=optimization_level)
+    def _compile_and_assemble_src(
+        self, src_path: Path, optimization_level: int, debug_level: int
+    ) -> Compilation:
+        contract = compile_src(
+            src_path, optimization_level=optimization_level, debug_level=debug_level
+        )
         return assemble_src(contract=contract, client=self.client)
 
 
@@ -930,7 +940,7 @@ def test_undefined_phi_args(
     harness.deploy(example, AppCallRequest(args=[test_case]))
 
     with pytest.raises(LogicError) as ex_info:
-        harness.deploy(example, AppCallRequest(args=[test_case, True]))
+        harness.deploy(example, AppCallRequest(args=[test_case, True], debug_level=2))
     ex = ex_info.value
     assert ex.message == expected_logic_error
     assert ex.line_no is not None
