@@ -92,7 +92,21 @@ dynamic_array_bool_block@0:
         int 1
         int 0
         callsub dynamic_array_concat_bits
+        dup
         byte 0x0009aa80
+        ==
+        assert
+        callsub dynamic_array_pop_bit
+        swap
+        byte 0x80
+        ==
+        assert
+        callsub dynamic_array_pop_bit
+        swap
+        byte 0x00
+        ==
+        assert
+        byte 0x0007aa
         ==
         assert
         retsub
@@ -601,6 +615,57 @@ struct_assign_block@0:
         concat
         ==
         assert
+        retsub
+
+
+// puyapy_lib_arc4.dynamic_array_pop_bit(source#0: bytes) -> bytes, bytes:
+dynamic_array_pop_bit:
+        proto 1 2
+
+dynamic_array_pop_bit_block@0:
+        frame_dig -1
+        int 0
+        extract_uint16
+        int 1
+        -
+        dup
+        itob
+        int 6
+        int 8
+        substring3
+        frame_dig -1
+        int 0
+        uncover 2
+        replace3
+        frame_bury -1
+        dup
+        int 16
+        +
+        frame_dig -1
+        dig 1
+        getbit
+        byte "\x00"
+        int 0
+        uncover 2
+        setbit
+        cover 2
+        frame_dig -1
+        swap
+        int 0
+        setbit
+        frame_bury -1
+        int 7
+        +
+        int 8
+        /
+        int 2
+        +
+        frame_dig -1
+        int 0
+        uncover 2
+        substring3
+        dup
+        frame_bury -1
         retsub
 
 
