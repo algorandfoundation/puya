@@ -13,6 +13,7 @@ from textwrap import dedent
 import algokit_utils
 import algosdk.transaction
 import attrs
+import puya.context
 import pytest
 from algokit_utils import (
     Account,
@@ -27,6 +28,7 @@ from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
 from puya.avm_type import AVMType
+from puya.awst import nodes as awst_nodes
 from puya.awst_build.main import transform_ast
 from puya.codegen.emitprogram import CompiledContract, CompiledProgram
 from puya.codegen.teal_annotaters import AlignedWriter
@@ -43,14 +45,25 @@ NONE_ACTION = 3
 
 
 @functools.cache
+def parse_src_to_awst(
+    src_path: Path,
+) -> tuple[puya.context.CompileContext, dict[str, awst_nodes.Module]]:
+    context = parse_with_mypy(PuyaOptions(paths=[src_path]))
+    awst = transform_ast(context)
+    return context, awst
+
+
+@functools.cache
 def compile_src(src_path: Path, optimization_level: int, debug_level: int) -> CompiledContract:
-    puya_options = PuyaOptions(
-        paths=[src_path],
+    # note that this caching assumes that AWST is the same across all
+    # optimisation and debug levels, which is currently true.
+    # if this were to no longer be true, this test speedup strategy would need to be revisited
+    context, awst = parse_src_to_awst(src_path)
+    context.options = attrs.evolve(
+        context.options,
         optimization_level=optimization_level,
         debug_level=debug_level,
     )
-    context = parse_with_mypy(puya_options)
-    awst = transform_ast(context)
     teal = awst_to_teal(context, awst)
     assert teal is not None, "compile error"
     ((contract,),) = teal.values()
