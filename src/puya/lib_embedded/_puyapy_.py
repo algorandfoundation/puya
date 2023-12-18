@@ -6,7 +6,6 @@ from puyapy import (
     TransactionType,
     UInt64,
     subroutine,
-    substring,
 )
 
 
@@ -30,17 +29,3 @@ def ensure_budget(required_budget: UInt64, fee_source: UInt64) -> None:
             case UInt64(1):
                 CreateInnerTransaction.set_fee(Global.min_txn_fee())
         CreateInnerTransaction.submit()
-
-
-@subroutine
-def is_substring(item: Bytes, sequence: Bytes) -> bool:
-    """
-    Search for a shorter string in a larger one.
-    """
-
-    start = UInt64(0)
-    while start + item.length <= sequence.length:
-        if item == substring(sequence, start, start + item.length):
-            return True
-        start += 1
-    return False

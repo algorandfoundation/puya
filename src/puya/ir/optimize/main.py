@@ -17,6 +17,7 @@ from puya.ir.optimize.constant_propagation import (
 )
 from puya.ir.optimize.dead_code_elimination import (
     remove_unreachable_blocks,
+    remove_unused_subroutines,
     remove_unused_variables,
 )
 from puya.ir.to_text_visitor import output_contract_ir_to_path
@@ -116,6 +117,8 @@ def optimize_contract_ir(
                 if optimizer.optimize(context, subroutine):
                     contract_modified = True
                 subroutine.validate_with_ssa()
+        if remove_unused_subroutines(context, contract_ir):
+            contract_modified = True
         if not contract_modified:
             logger.debug(f"No optimizations performed in pass {pass_num}, ending loop")
             break

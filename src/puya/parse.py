@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import typing
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Self
@@ -20,7 +21,33 @@ from puya.logging_config import mypy_severity_to_loglevel
 from puya.utils import make_path_relative_to_cwd
 
 logger = structlog.get_logger()
-TYPESHED_PATH = Path(__file__).parent / "_typeshed"
+_SRC_ROOT = Path(__file__).parent
+TYPESHED_PATH = _SRC_ROOT / "_typeshed"
+
+
+@attrs.frozen
+class EmbeddedSource:
+    path: Path
+    mypy_module_name: str
+    puya_module_name: str
+
+    @classmethod
+    def from_path(cls, filename: str, *, module_override: str | None = None) -> typing.Self:
+        path = _SRC_ROOT / "lib_embedded" / filename
+        return cls(
+            path=path,
+            mypy_module_name=path.stem,
+            puya_module_name=module_override or path.stem,
+        )
+
+
+EMBEDDED_MODULES = {
+    es.mypy_module_name: es
+    for es in (
+        EmbeddedSource.from_path("_puyapy_.py", module_override="puyapy"),
+        EmbeddedSource.from_path("puyapy_lib_bytes.py"),
+    )
+}
 
 
 @attrs.frozen
@@ -141,13 +168,16 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
         )
     # insert embedded lib, after source list that is returned has been constructed,
     # so we don't try to output it
-    puyapy_lib_path = Path(__file__).parent / "lib_embedded" / "_puyapy_.py"
-    mypy_build_sources.append(
-        mypy.build.BuildSource(
-            path=str(Path("<puya>") / "puyapy.py"),
-            module="_puyapy_",
-            text=puyapy_lib_path.read_text(),
-        )
+    mypy_build_sources.extend(
+        [
+            mypy.build.BuildSource(
+                # present a 'tidy' path to the user
+                path=str(Path("<puya>") / f"{module.puya_module_name}.py"),
+                module=module.mypy_module_name,
+                text=module.path.read_text("utf8"),
+            )
+            for module in EMBEDDED_MODULES.values()
+        ]
     )
     result = _mypy_build(mypy_build_sources, mypy_options, mypy_fscache)
     missing_module_names = {s.module_name for s in sources} - result.manager.modules.keys()

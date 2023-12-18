@@ -8,8 +8,34 @@ from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models, visitor
 from puya.ir.ssa import TrivialPhiRemover
+from puya.utils import StableSet
 
 logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+
+
+@attrs.define
+class SubroutineCollector(visitor.IRTraverser):
+    subroutines: StableSet[models.Subroutine] = attrs.field(factory=StableSet)
+
+    def visit_subroutine(self, subroutine: models.Subroutine) -> None:
+        if subroutine not in self.subroutines:
+            self.subroutines.add(subroutine)
+            self.visit_all_blocks(subroutine.body)
+
+    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
+        self.visit_subroutine(callsub.target)
+
+
+def remove_unused_subroutines(_context: CompileContext, contract_ir: models.Contract) -> bool:
+    modified = False
+    for program in (contract_ir.approval_program, contract_ir.clear_program):
+        collector = SubroutineCollector()
+        collector.visit_subroutine(program.main)
+        to_keep = [p for p in program.subroutines if p in collector.subroutines]
+        if to_keep != program.subroutines:
+            program.subroutines = to_keep
+            modified = True
+    return modified
 
 
 def remove_unused_variables(_context: CompileContext, subroutine: models.Subroutine) -> bool:

@@ -18,13 +18,15 @@ from puya.codegen.builder import compile_ir_to_teal
 from puya.codegen.emitprogram import CompiledContract
 from puya.context import CompileContext
 from puya.errors import Errors, InternalError, ParseError, log_exceptions
+from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
-from puya.ir.main import build_ir
+from puya.ir.main import build_embedded_ir, build_ir
+from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_contract_ir_to_path
 from puya.options import PuyaOptions
-from puya.parse import TYPESHED_PATH, ParseSource, parse_and_typecheck
-from puya.utils import determine_out_dir, make_path_relative_to_cwd
+from puya.parse import EMBEDDED_MODULES, TYPESHED_PATH, ParseSource, parse_and_typecheck
+from puya.utils import attrs_extend, determine_out_dir, make_path_relative_to_cwd
 
 logger = structlog.get_logger(__name__)
 
@@ -71,9 +73,24 @@ def awst_to_teal(
 
     if errors.num_errors:
         return None
+    embedded_funcs = [
+        func
+        for embedded_src in EMBEDDED_MODULES.values()
+        for func in module_asts[embedded_src.puya_module_name].body
+        if isinstance(func, awst_nodes.Function)
+    ]
+    build_context: IRBuildContext = attrs_extend(
+        IRBuildContext,
+        context,
+        subroutines={},
+        module_awsts=module_asts,
+        embedded_funcs=embedded_funcs,
+    )
+
+    build_embedded_ir(build_context)
     module_irs = {
         module_name: [
-            build_ir(context, node, module_asts)
+            build_ir(build_context, node)
             for node in module_ast.body
             if isinstance(node, awst_nodes.ContractFragment) and not node.is_abstract
         ]
@@ -92,6 +109,7 @@ def awst_to_teal(
                 logger.warning(f"No contracts found in explicitly named source file: {src.path}")
         else:
             for contract_ir in module_ir:
+                remove_unused_subroutines(context, contract_ir)
                 metadata = contract_ir.metadata
                 out_dir = determine_out_dir(src.path.parent, context.options)
                 contract_ir_base_path = out_dir / "_".join((src.path.stem, metadata.class_name))

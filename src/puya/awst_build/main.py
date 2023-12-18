@@ -10,7 +10,7 @@ from puya.awst_build.module import ModuleASTConverter
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.options import PuyaOptions
-from puya.parse import TYPESHED_PATH
+from puya.parse import EMBEDDED_MODULES, TYPESHED_PATH
 from puya.utils import attrs_extend, determine_out_dir, make_path_relative_to_cwd
 
 logger = structlog.get_logger()
@@ -43,15 +43,15 @@ def transform_ast(
                 )
             if module_name in ("abc", "typing", "collections.abc"):
                 logger.debug(f"Skipping stdlib stub {module_rel_path}")
-            elif module_name.startswith("puyapy"):
+            elif module.is_stub and module_name.startswith("puyapy"):
                 logger.debug(f"Skipping puyapy stub {module_rel_path}")
             elif module.is_stub and is_typeshed_stub(Path(module.path).absolute()):
                 logger.debug(f"Skipping typeshed stub {module_rel_path}")
             elif module.is_stub:
                 logger.warning(f"Skipping stub: {module_rel_path}")
-            elif module_name == "_puyapy_":
+            elif embedded_src := EMBEDDED_MODULES.get(module.name):
                 logger.debug(f"Building AWST for embedded puyapy lib at {module_rel_path}")
-                module._fullname = "puyapy"  # noqa: SLF001
+                module._fullname = embedded_src.puya_module_name  # noqa: SLF001
                 module_awst = ModuleASTConverter.convert(ctx, module)
                 result[module.name] = module_awst
             else:
