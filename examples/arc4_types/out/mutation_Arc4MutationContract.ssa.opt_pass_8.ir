@@ -50,10 +50,18 @@ contract examples.arc4_types.mutation.Arc4MutationContract:
                 let array_data%51#9: bytes = (concat array_data%51#8 0x80)
                 let tmp%59#0: uint64 = (== dynamic_bool_array#3 array_data%51#9)
                 (assert tmp%59#0)
+                let (popped%60#1: bytes, dynamic_bool_array#4: bytes) = puyapy_lib_arc4.dynamic_array_pop_bit(dynamic_bool_array#3)
+                let tmp%63#0: uint64 = (== popped%60#1 0x80)
+                (assert tmp%63#0)
+                let (popped%64#1: bytes, dynamic_bool_array#5: bytes) = puyapy_lib_arc4.dynamic_array_pop_bit(dynamic_bool_array#4)
+                let tmp%67#0: uint64 = (== popped%64#1 0x00)
+                (assert tmp%67#0)
+                let tmp%82#0: uint64 = (== dynamic_bool_array#5 0x0007aa)
+                (assert tmp%82#0)
                 return 
         
         subroutine examples.arc4_types.mutation.Arc4MutationContract.dynamic_array_string() -> void:
-            block@0: // L176
+            block@0: // L188
                 let value_as_bytes%2#0: bytes = (itob 4u)
                 let value_as_uint16%3#0: bytes = ((extract 6 2) value_as_bytes%2#0)
                 let array_data%0#1: bytes = (concat 0x0002 value_as_uint16%3#0)
@@ -327,6 +335,23 @@ contract examples.arc4_types.mutation.Arc4MutationContract:
                 let tmp%47#0: uint64 = (== test_struct#4 encoded_tuple_buffer%40#6)
                 (assert tmp%47#0)
                 return 
+        
+        subroutine puyapy_lib_arc4.dynamic_array_pop_bit(source: bytes) -> <bytes, bytes>:
+            block@0: // L18
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let length_minus_1#0: uint64 = (- array_length#0 1u)
+                let tmp%0#0: bytes = (itob length_minus_1#0)
+                let tmp%1#0: bytes = (substring3 tmp%0#0 6u 8u)
+                let source#1: bytes = (replace3 source#0 0u tmp%1#0)
+                let popped_location#0: uint64 = (+ length_minus_1#0 16u)
+                let tmp%2#0: uint64 = (getbit source#1 popped_location#0)
+                let popped#0: any = (setbit "\x00" 0u tmp%2#0)
+                let source#2: any = (setbit source#1 popped_location#0 0u)
+                let tmp%3#0: uint64 = (+ length_minus_1#0 7u)
+                let tmp%4#0: uint64 = (/ tmp%3#0 8u)
+                let tmp%5#0: uint64 = (+ 2u tmp%4#0)
+                let source#3: bytes = (substring3 source#2 0u tmp%5#0)
+                return popped#0 source#3
         
         subroutine puyapy_lib_arc4.dynamic_array_pop_fixed_size(source: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
             block@0: // L37
