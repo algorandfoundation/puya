@@ -42,6 +42,8 @@ DEFAULT_MAX_OPTIMIZATION_LEVEL = int(os.getenv("MAX_TEST_OPTIMIZATION_LEVEL", "2
 BYTES_ACTION = 1
 UINT_ACTION = 2
 NONE_ACTION = 3
+INTC_BLOCK = 0x20
+BYTEC_BLOCK = 0x26
 
 
 @functools.cache
@@ -370,7 +372,14 @@ class ATCRunner:
         for t in approval_program_trace:
             pc = t["pc"]
             teal_line = approval_source_map.get_line_for_pc(pc)
-            teal = "" if teal_line is None else approval_src[teal_line]
+            op_code = self.compilation.approval.raw_binary[pc]
+            if teal_line == 0 and op_code in (INTC_BLOCK, BYTEC_BLOCK):
+                # algod collects constants and creates constant blocks for them,
+                # however they do not have a corresponding teal line to map to
+                # so handle that specifically
+                teal = "<intcblock>" if op_code == INTC_BLOCK else "<bytecblock>"
+            else:
+                teal = "" if teal_line is None else approval_src[teal_line]
             teal = teal.split("//", maxsplit=1)[0].strip()
             for _ in range(t.get("stack-pop-count", 0)):
                 assert stack, "Oh noes, the stack is empty, we can't pop anything"
