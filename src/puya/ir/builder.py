@@ -2622,14 +2622,11 @@ class FunctionIRBuilder(
                     ),
                 )
                 return concat_result
-            # case (
-            #     Expression(wtype=wtypes.WTuple(types=tuple_types)),
-            #     Expression(wtype=wtypes.ARC4Array(element_type=right_element_type)),
-            # ) if all(t == right_element_type for t in tuple_types):
-            #     ...
             case _:
-                raise TodoError(
-                    source_location, f"Unexpected operand types: {left.wtype} {right.wtype}"
+                raise CodeError(
+                    f"Unexpected operand types or order for concatenation: "
+                    f"{left.wtype} and {right.wtype}",
+                    source_location,
                 )
 
     def _handle_arc4_assign(

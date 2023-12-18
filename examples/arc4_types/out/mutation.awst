@@ -16,12 +16,25 @@ contract Arc4MutationContract
     this::array_of_array_static()
     this::index_assign()
     this::struct_assign()
+    this::array_concat()
     return true
   }
   
   clear_state_program(): bool
   {
     return true
+  }
+  
+  subroutine array_concat(): None
+  {
+    uint8_array: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])
+    array_concat_tuple: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = uint8_array + (3arc4u8, 4arc4u8)
+    assert(reinterpret_cast<puyapy.Bytes>(array_concat_tuple) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    array_concat_tuple.extend((5arc4u8))
+    assert(reinterpret_cast<puyapy.Bytes>(array_concat_tuple) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8, 5arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    hello_world: puyapy.arc4.DynamicArray[puyapy.arc4.String] = arc4_array_encode([arc4_encode('Hello', puyapy.arc4.String), arc4_encode('World', puyapy.arc4.String)], puyapy.arc4.DynamicArray[puyapy.arc4.String])
+    hello_world_concat: puyapy.arc4.DynamicArray[puyapy.arc4.String] = arc4_array_encode([arc4_encode('Hello', puyapy.arc4.String)], puyapy.arc4.DynamicArray[puyapy.arc4.String]) + arc4_array_encode([arc4_encode('World', puyapy.arc4.String)], puyapy.arc4.DynamicArray[puyapy.arc4.String])
+    assert(reinterpret_cast<puyapy.Bytes>(hello_world) == reinterpret_cast<puyapy.Bytes>(hello_world_concat))
   }
   
   subroutine array_of_array_dynamic(): None

@@ -9,6 +9,7 @@ main_block@0:
         callsub array_of_array_static
         callsub index_assign
         callsub struct_assign
+        callsub array_concat
         int 1
         return
 
@@ -613,6 +614,78 @@ struct_assign_block@0:
         concat
         byte "\x00\x07Oh well"
         concat
+        ==
+        assert
+        retsub
+
+
+// examples.arc4_types.mutation.Arc4MutationContract.array_concat() -> void:
+array_concat:
+        proto 0 0
+
+array_concat_block@0:
+        byte 0x00020102
+        byte 0x0304
+        int 2
+        callsub dynamic_array_concat_fixed_size
+        dup
+        byte 0x000401020304
+        ==
+        assert
+        byte 0x05
+        int 1
+        callsub dynamic_array_concat_fixed_size
+        byte 0x00050102030405
+        ==
+        assert
+        int 4
+        itob
+        extract 6 2
+        byte 0x0002
+        swap
+        concat
+        int 11
+        itob
+        extract 6 2
+        concat
+        byte "\x00\x05Hello"
+        concat
+        byte "\x00\x05World"
+        concat
+        int 2
+        itob
+        extract 6 2
+        byte 0x0001
+        swap
+        concat
+        byte "\x00\x05World"
+        concat
+        dup
+        int 0
+        extract_uint16
+        dup
+        int 2
+        *
+        int 2
+        +
+        dig 2
+        len
+        swap
+        uncover 3
+        swap
+        uncover 2
+        substring3
+        int 2
+        itob
+        extract 6 2
+        byte 0x0001
+        swap
+        concat
+        byte "\x00\x05Hello"
+        concat
+        swap
+        uncover 2
+        callsub dynamic_array_concat_variable_size
         ==
         assert
         retsub
