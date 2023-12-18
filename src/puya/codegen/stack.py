@@ -75,14 +75,6 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         return self.state.l_stack
 
     @property
-    def vla(self) -> VariableLifetimeAnalysis:
-        if self._vla is None:
-            assert self._current_subroutine
-            self._vla = VariableLifetimeAnalysis.analyze(self._current_subroutine)
-        assert self._vla
-        return self._vla
-
-    @property
     def f_x_l_stack_height(self) -> int:
         return self.f_stack_height + self.x_stack_height + self.l_stack_height
 
