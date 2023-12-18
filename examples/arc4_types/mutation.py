@@ -35,10 +35,23 @@ class Arc4MutationContract(Contract):
         self.array_of_array_static()
         self.index_assign()
         self.struct_assign()
+        self.array_concat()
         return True
 
     def clear_state_program(self) -> bool:
         return True
+
+    @subroutine
+    def array_concat(self) -> None:
+        uint8_array = DynamicArray(UInt8(1), UInt8(2))
+        array_concat_tuple = uint8_array + (UInt8(3), UInt8(4))
+        assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
+        array_concat_tuple += (UInt8(5),)
+        assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4), UInt8(5))
+
+        hello_world = DynamicArray(String("Hello"), String("World"))
+        hello_world_concat = DynamicArray(String("Hello")) + DynamicArray(String("World"))
+        assert hello_world == hello_world_concat
 
     @subroutine
     def array_of_array_dynamic(self) -> None:
@@ -49,8 +62,7 @@ class Arc4MutationContract(Contract):
         array_of_array.append(DynamicArray[UInt8](UInt8(16)))
         assert array_of_array.bytes == Bytes.from_hex("00020004000700010A000110")
         array_of_array[0].append(UInt8(255))
-        # array_of_array[0] = array_of_array[0] + array_of_array[0]
-        #
+
         assert array_of_array.bytes == Bytes.from_hex("00020004000800020AFF000110")
 
         array_of_array[0][1] = UInt8(0)

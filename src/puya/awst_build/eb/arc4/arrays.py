@@ -8,14 +8,17 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4ArrayEncode,
+    ArrayConcat,
     ArrayExtend,
     ArrayPop,
     BytesComparisonExpression,
     EqualityComparison,
     Expression,
+    ExpressionStatement,
     IndexExpression,
     IntrinsicCall,
     Literal,
+    Statement,
     TupleExpression,
     UInt64BinaryOperation,
     UInt64BinaryOperator,
@@ -27,6 +30,7 @@ from puya.awst_build.eb.arc4.base import (
     get_integer_literal_value,
 )
 from puya.awst_build.eb.base import (
+    BuilderBinaryOp,
     BuilderComparisonOp,
     ExpressionBuilder,
     GenericClassExpressionBuilder,
@@ -322,6 +326,61 @@ class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
             case _:
                 return super().member_access(name, location)
 
+    def augmented_assignment(
+        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+    ) -> Statement:
+        match op:
+            case BuilderBinaryOp.add:
+                return ExpressionStatement(
+                    expr=ArrayExtend(
+                        base=self.expr,
+                        other=match_array_concat_arg(
+                            (rhs,),
+                            self.wtype.element_type,
+                            source_location=location,
+                            msg="Array concat expects array or tuple of the same element type. "
+                            f"Element type: {self.wtype.element_type}",
+                        ),
+                        source_location=location,
+                        wtype=wtypes.arc4_string_wtype,
+                    )
+                )
+            case _:
+                return super().augmented_assignment(op, rhs, location)
+
+    def binary_op(
+        self,
+        other: ExpressionBuilder | Literal,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> ExpressionBuilder:
+        match op:
+            case BuilderBinaryOp.add:
+                lhs = self.expr
+                rhs = match_array_concat_arg(
+                    (other,),
+                    self.wtype.element_type,
+                    source_location=location,
+                    msg="Array concat expects array or tuple of the same element type. "
+                    f"Element type: {self.wtype.element_type}",
+                )
+
+                if reverse:
+                    (lhs, rhs) = (rhs, lhs)
+                return var_expression(
+                    ArrayConcat(
+                        left=lhs,
+                        right=rhs,
+                        source_location=location,
+                        wtype=self.wtype,
+                    )
+                )
+
+            case _:
+                return super().binary_op(other, op, location, reverse=reverse)
+
 
 class AppendExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, expr: Expression, location: SourceLocation):
@@ -399,34 +458,40 @@ class ExtendExpressionBuilder(IntermediateExpressionBuilder):
         location: SourceLocation,
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
-        match args:
-            case (ExpressionBuilder() as eb,):
-                expr = eb.rvalue()
-                match expr:
-                    case Expression(wtype=wtypes.ARC4Array() as array_wtype) as array_ex:
-                        if array_wtype.element_type == self.wtype.element_type:
-                            return var_expression(
-                                ArrayExtend(
-                                    base=self.expr,
-                                    other=array_ex,
-                                    source_location=location,
-                                )
-                            )
-                    case Expression(wtype=wtypes.WTuple() as tuple_wtype) as tuple_ex:
-                        if all(et == self.wtype.element_type for et in tuple_wtype.types):
-                            return var_expression(
-                                ArrayExtend(
-                                    base=self.expr,
-                                    other=tuple_ex,
-                                    source_location=location,
-                                )
-                            )
-                raise CodeError(
-                    "Extend expects an arc4.StaticArray or arc4.DynamicArray of the same element "
-                    f"type. Expected array of {self.wtype.element_type}; Received {expr.wtype}"
-                )
-            case _:
-                raise CodeError("Invalid/Unhandled arguments", location)
+        other = match_array_concat_arg(
+            args,
+            self.wtype.element_type,
+            source_location=location,
+            msg="Extend expects an arc4.StaticArray or arc4.DynamicArray of the same element "
+            f"type. Expected array or tuple of {self.wtype.element_type}",
+        )
+        return var_expression(
+            ArrayExtend(
+                base=self.expr,
+                other=other,
+                source_location=location,
+            )
+        )
+
+
+def match_array_concat_arg(
+    args: Sequence[ExpressionBuilder | Literal],
+    element_type: wtypes.WType,
+    *,
+    source_location: SourceLocation,
+    msg: str,
+) -> Expression:
+    match args:
+        case (ExpressionBuilder() as eb,):
+            expr = eb.rvalue()
+            match expr:
+                case Expression(wtype=wtypes.ARC4Array() as array_wtype) as array_ex:
+                    if array_wtype.element_type == element_type:
+                        return array_ex
+                case Expression(wtype=wtypes.WTuple() as tuple_wtype) as tuple_ex:
+                    if all(et == element_type for et in tuple_wtype.types):
+                        return tuple_ex
+    raise CodeError(msg, source_location)
 
 
 class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
