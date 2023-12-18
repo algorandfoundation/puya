@@ -109,7 +109,7 @@ def assemble_src(contract: CompiledContract, client: AlgodClient) -> Compilation
         )
 
     approval_src = contract.approval_program.debug_src or contract.approval_program.src
-    clear_src = contract.clear_program.src or contract.clear_program.debug_src
+    clear_src = contract.clear_program.debug_src or contract.clear_program.src
     assert approval_src is not None
     assert clear_src is not None
     approval_program = Program("\n".join(approval_src), client)
