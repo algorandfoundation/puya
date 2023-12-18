@@ -604,7 +604,100 @@ struct_assign_block@0:
         retsub
 
 
-// puya_util_arc4.dynamic_array_concat_bits(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64, is_packed#0: uint64) -> bytes:
+// puyapy_lib_arc4.dynamic_array_pop_fixed_size(source#0: bytes, fixed_byte_size#0: uint64) -> bytes, bytes:
+dynamic_array_pop_fixed_size:
+        proto 2 2
+
+dynamic_array_pop_fixed_size_block@0:
+        frame_dig -2
+        int 0
+        extract_uint16
+        int 1
+        -
+        itob
+        int 6
+        int 8
+        substring3
+        frame_dig -2
+        int 0
+        uncover 2
+        replace3
+        dup
+        frame_bury -2
+        len
+        frame_dig -1
+        -
+        frame_dig -2
+        dig 1
+        frame_dig -1
+        extract3
+        swap
+        frame_dig -2
+        int 0
+        uncover 2
+        substring3
+        dup
+        frame_bury -2
+        retsub
+
+
+// puyapy_lib_arc4.dynamic_array_pop_variable_size(source#0: bytes) -> bytes, bytes:
+dynamic_array_pop_variable_size:
+        proto 1 2
+
+dynamic_array_pop_variable_size_block@0:
+        frame_dig -1
+        int 0
+        extract_uint16
+        int 1
+        -
+        frame_dig -1
+        len
+        frame_dig -1
+        int 2
+        uncover 2
+        substring3
+        dig 1
+        int 2
+        *
+        dig 1
+        dig 1
+        extract_uint16
+        swap
+        dig 2
+        len
+        swap
+        dig 3
+        dig 3
+        uncover 3
+        substring3
+        cover 4
+        dig 2
+        int 0
+        dig 2
+        substring3
+        cover 2
+        int 2
+        +
+        uncover 3
+        swap
+        uncover 2
+        substring3
+        concat
+        dig 1
+        itob
+        int 6
+        int 8
+        substring3
+        swap
+        uncover 2
+        int 0
+        callsub recalculate_array_offsets_static
+        concat
+        retsub
+
+
+// puyapy_lib_arc4.dynamic_array_concat_bits(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64, is_packed#0: uint64) -> bytes:
 dynamic_array_concat_bits:
         proto 4 1
         byte ""
@@ -717,7 +810,75 @@ dynamic_array_concat_bits_after_for@9:
         retsub
 
 
-// puya_util_arc4.dynamic_array_concat_variable_size(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64) -> bytes:
+// puyapy_lib_arc4.dynamic_array_replace_variable_size(source#0: bytes, new_item#0: bytes, index#0: uint64) -> bytes:
+dynamic_array_replace_variable_size:
+        proto 3 1
+
+dynamic_array_replace_variable_size_block@0:
+        frame_dig -3
+        int 0
+        extract_uint16
+        frame_dig -3
+        int 0
+        int 2
+        substring3
+        frame_dig -3
+        len
+        frame_dig -3
+        int 2
+        uncover 2
+        substring3
+        frame_dig -2
+        frame_dig -1
+        uncover 4
+        callsub static_array_replace_variable_size
+        concat
+        retsub
+
+
+// puyapy_lib_arc4.static_array_replace_variable_size(source#0: bytes, new_item#0: bytes, index#0: uint64, array_length#0: uint64) -> bytes:
+static_array_replace_variable_size:
+        proto 4 1
+
+static_array_replace_variable_size_block@0:
+        frame_dig -2
+        frame_dig -1
+        <
+        assert // Index out of bounds
+        frame_dig -2
+        int 2
+        *
+        frame_dig -4
+        swap
+        extract_uint16
+        frame_dig -4
+        dig 1
+        extract_uint16
+        dig 1
+        +
+        int 2
+        +
+        swap
+        frame_dig -4
+        int 0
+        uncover 2
+        substring3
+        frame_dig -3
+        concat
+        frame_dig -4
+        len
+        frame_dig -4
+        uncover 3
+        uncover 2
+        substring3
+        concat
+        frame_dig -1
+        frame_dig -2
+        callsub recalculate_array_offsets_static
+        retsub
+
+
+// puyapy_lib_arc4.dynamic_array_concat_variable_size(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64) -> bytes:
 dynamic_array_concat_variable_size:
         proto 3 1
 
@@ -765,7 +926,34 @@ dynamic_array_concat_variable_size_block@0:
         retsub
 
 
-// puya_util_arc4.recalculate_array_offsets_static(array_data#0: bytes, length#0: uint64, start_at_index#0: uint64) -> bytes:
+// puyapy_lib_arc4.dynamic_array_concat_fixed_size(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64) -> bytes:
+dynamic_array_concat_fixed_size:
+        proto 3 1
+
+dynamic_array_concat_fixed_size_block@0:
+        frame_dig -3
+        int 0
+        extract_uint16
+        frame_dig -1
+        +
+        itob
+        int 6
+        int 8
+        substring3
+        frame_dig -3
+        int 0
+        uncover 2
+        replace3
+        dup
+        frame_bury -3
+        frame_dig -2
+        concat
+        dup
+        frame_bury -3
+        retsub
+
+
+// puyapy_lib_arc4.recalculate_array_offsets_static(array_data#0: bytes, length#0: uint64, start_at_index#0: uint64) -> bytes:
 recalculate_array_offsets_static:
         proto 3 1
         byte ""
@@ -835,244 +1023,5 @@ recalculate_array_offsets_static_for_body@5:
 recalculate_array_offsets_static_after_for@7:
         frame_dig -3
         frame_bury 0
-        retsub
-
-
-// puya_util_arc4.dynamic_array_concat_fixed_size(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64) -> bytes:
-dynamic_array_concat_fixed_size:
-        proto 3 1
-
-dynamic_array_concat_fixed_size_block@0:
-        frame_dig -3
-        int 0
-        extract_uint16
-        frame_dig -1
-        +
-        itob
-        int 6
-        int 8
-        substring3
-        frame_dig -3
-        int 0
-        uncover 2
-        replace3
-        dup
-        frame_bury -3
-        frame_dig -2
-        concat
-        dup
-        frame_bury -3
-        retsub
-
-
-// puya_util_arc4.dynamic_array_replace_variable_size(source#0: bytes, new_item#0: bytes, index#0: uint64) -> bytes:
-dynamic_array_replace_variable_size:
-        proto 3 1
-
-dynamic_array_replace_variable_size_block@0:
-        frame_dig -3
-        int 0
-        extract_uint16
-        frame_dig -3
-        int 0
-        int 2
-        substring3
-        frame_dig -3
-        len
-        frame_dig -3
-        int 2
-        uncover 2
-        substring3
-        frame_dig -2
-        frame_dig -1
-        uncover 4
-        callsub static_array_replace_variable_size
-        concat
-        retsub
-
-
-// puya_util_arc4.static_array_replace_variable_size(source#0: bytes, new_item#0: bytes, index#0: uint64, array_length#0: uint64) -> bytes:
-static_array_replace_variable_size:
-        proto 4 1
-
-static_array_replace_variable_size_block@0:
-        frame_dig -2
-        frame_dig -1
-        <
-        assert // Index out of bounds
-        frame_dig -2
-        int 2
-        *
-        frame_dig -4
-        swap
-        extract_uint16
-        frame_dig -4
-        dig 1
-        extract_uint16
-        dig 1
-        +
-        int 2
-        +
-        swap
-        frame_dig -4
-        int 0
-        uncover 2
-        substring3
-        frame_dig -3
-        concat
-        frame_dig -4
-        len
-        frame_dig -4
-        uncover 3
-        uncover 2
-        substring3
-        concat
-        frame_dig -1
-        frame_dig -2
-        callsub recalculate_array_offsets_static
-        retsub
-
-
-// puya_util_arc4.dynamic_array_pop_bit(source#0: bytes) -> bytes, bytes:
-dynamic_array_pop_bit:
-        proto 1 2
-
-dynamic_array_pop_bit_block@0:
-        frame_dig -1
-        int 0
-        extract_uint16
-        int 1
-        -
-        dup
-        itob
-        int 6
-        int 8
-        substring3
-        frame_dig -1
-        int 0
-        uncover 2
-        replace3
-        frame_bury -1
-        dup
-        int 16
-        +
-        frame_dig -1
-        dig 1
-        getbit
-        byte "\x00"
-        int 0
-        uncover 2
-        setbit
-        cover 2
-        frame_dig -1
-        swap
-        int 0
-        setbit
-        frame_bury -1
-        int 7
-        +
-        int 8
-        /
-        int 2
-        +
-        frame_dig -1
-        int 0
-        uncover 2
-        substring3
-        dup
-        frame_bury -1
-        retsub
-
-
-// puya_util_arc4.dynamic_array_pop_fixed_size(source#0: bytes, fixed_byte_size#0: uint64) -> bytes, bytes:
-dynamic_array_pop_fixed_size:
-        proto 2 2
-
-dynamic_array_pop_fixed_size_block@0:
-        frame_dig -2
-        int 0
-        extract_uint16
-        int 1
-        -
-        itob
-        int 6
-        int 8
-        substring3
-        frame_dig -2
-        int 0
-        uncover 2
-        replace3
-        dup
-        frame_bury -2
-        len
-        frame_dig -1
-        -
-        frame_dig -2
-        dig 1
-        frame_dig -1
-        extract3
-        swap
-        frame_dig -2
-        int 0
-        uncover 2
-        substring3
-        dup
-        frame_bury -2
-        retsub
-
-
-// puya_util_arc4.dynamic_array_pop_variable_size(source#0: bytes) -> bytes, bytes:
-dynamic_array_pop_variable_size:
-        proto 1 2
-
-dynamic_array_pop_variable_size_block@0:
-        frame_dig -1
-        int 0
-        extract_uint16
-        int 1
-        -
-        frame_dig -1
-        len
-        frame_dig -1
-        int 2
-        uncover 2
-        substring3
-        dig 1
-        int 2
-        *
-        dig 1
-        dig 1
-        extract_uint16
-        swap
-        dig 2
-        len
-        swap
-        dig 3
-        dig 3
-        uncover 3
-        substring3
-        cover 4
-        dig 2
-        int 0
-        dig 2
-        substring3
-        cover 2
-        int 2
-        +
-        uncover 3
-        swap
-        uncover 2
-        substring3
-        concat
-        dig 1
-        itob
-        int 6
-        int 8
-        substring3
-        swap
-        uncover 2
-        int 0
-        callsub recalculate_array_offsets_static
-        concat
         retsub
 

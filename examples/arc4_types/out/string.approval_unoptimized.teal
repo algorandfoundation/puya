@@ -52,42 +52,67 @@ main_ternary_merge@3:
         assert
         byte "\x00\x05Hello"
         byte "\x00\x01 "
-        swap
         byte "\x00\x06World!"
         cover 2
         dup
         int 0
         extract_uint16
-        dig 2
+        swap
+        extract 2 0
+        uncover 2
+        swap
+        uncover 2
+        callsub dynamic_array_concat_fixed_size
+        dig 1
         int 0
         extract_uint16
-        +
-        itob
-        extract 6 2
         swap
+        uncover 2
         extract 2 0
-        concat
-        swap
-        extract 2 0
-        concat
+        uncover 2
+        callsub dynamic_array_concat_fixed_size
+        byte "\x00\x0cHello World!"
+        ==
+        assert
+        byte "\x00\x02hi"
         dup
         int 0
         extract_uint16
-        dig 2
-        int 0
-        extract_uint16
-        +
-        itob
-        extract 6 2
         swap
+        dup
         extract 2 0
-        concat
-        swap
-        extract 2 0
-        concat
-        byte "\x00\x0cHello World!"
+        uncover 2
+        callsub dynamic_array_concat_fixed_size
+        byte "\x00\x04hihi"
         ==
         assert
         int 1
         return
+
+
+// puyapy_lib_arc4.dynamic_array_concat_fixed_size(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64) -> bytes:
+dynamic_array_concat_fixed_size:
+        proto 3 1
+
+dynamic_array_concat_fixed_size_block@0:
+        frame_dig -3
+        int 0
+        extract_uint16
+        frame_dig -1
+        +
+        itob
+        int 6
+        int 8
+        substring3
+        frame_dig -3
+        int 0
+        uncover 2
+        replace3
+        dup
+        frame_bury -3
+        frame_dig -2
+        concat
+        dup
+        frame_bury -3
+        retsub
 
