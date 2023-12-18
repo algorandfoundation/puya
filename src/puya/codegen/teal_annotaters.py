@@ -132,7 +132,6 @@ class EmitProgramContext(ProgramCodeGenContext):
 @attrs.frozen(kw_only=True)
 class EmitSubroutineContext(EmitProgramContext):
     subroutine: ops.MemorySubroutine
-    vla: VariableLifetimeAnalysis
 
 
 class TealAnnotater(abc.ABC):
@@ -191,8 +190,10 @@ class VLAAnnotation(TealAnnotater):
         writer.add_header("Live (out)", 4)
 
     def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
+        vla = VariableLifetimeAnalysis.analyze(context.subroutine)
+
         def annotater(writer: AlignedWriter, op: ops.BaseOp) -> None:
-            live = context.vla.get_live_out_variables(op)
+            live = vla.get_live_out_variables(op)
             writer.append(", ".join(live))
 
         return SimpleOpAnnotater(annotater)

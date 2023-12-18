@@ -11,7 +11,6 @@ from puya.codegen.teal_annotaters import (
     TealAnnotater,
     debug_annotations,
 )
-from puya.codegen.vla import VariableLifetimeAnalysis
 from puya.utils import attrs_extend
 
 logger = structlog.get_logger(__name__)
@@ -41,10 +40,7 @@ def emit_op(context: EmitProgramContext, op: ops.BaseOp, op_annotaters: list[OpA
 
 
 def emit_subroutine(context: EmitProgramContext, subroutine: ops.MemorySubroutine) -> None:
-    vla = VariableLifetimeAnalysis.analyze(subroutine)
-    subroutine_context = attrs_extend(
-        EmitSubroutineContext, context, subroutine=subroutine, vla=vla
-    )
+    subroutine_context = attrs_extend(EmitSubroutineContext, context, subroutine=subroutine)
     writer = context.writer
     writer.append_line(f"// {subroutine.signature}")
     with writer.indent():

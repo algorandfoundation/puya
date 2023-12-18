@@ -188,8 +188,9 @@ def get_edge_set(block: BlockRecord) -> EdgeSet | None:
     return EdgeSet(out_blocks, in_blocks) if in_blocks else None
 
 
-def get_edge_sets(subroutine: ops.MemorySubroutine) -> Sequence[EdgeSet]:
-    vla = VariableLifetimeAnalysis.analyze(subroutine)
+def get_edge_sets(
+    subroutine: ops.MemorySubroutine, vla: VariableLifetimeAnalysis
+) -> Sequence[EdgeSet]:
     records = {
         block: BlockRecord(
             block=block,
@@ -346,11 +347,11 @@ def validate_x_stacks(edge_sets: Sequence[EdgeSet]) -> bool:
 
 
 def baileys(_context: ProgramCodeGenContext, subroutine: ops.MemorySubroutine) -> None:
-    edge_sets = get_edge_sets(subroutine)
+    vla = VariableLifetimeAnalysis.analyze(subroutine)
+    edge_sets = get_edge_sets(subroutine, vla)
     if not edge_sets:
         # nothing to do
         return
-    vla = VariableLifetimeAnalysis.analyze(subroutine)
 
     logger.debug(f"Found {len(edge_sets)} edge set/s for {subroutine.signature.name}")
     schedule_sets(edge_sets, vla)
