@@ -2323,11 +2323,21 @@ class FunctionIRBuilder(
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
         raise TodoError(expr.source_location, "TODO: visit_new_struct")
 
-    def _invoke_puya_util_subroutine(
-        self, *, method_name: str, args: list[Value], source_location: SourceLocation
+    def _invoke_puya_lib_subroutine(
+        self,
+        *,
+        method_name: str,
+        module_name: str,
+        args: list[Value],
+        source_location: SourceLocation,
     ) -> InvokeSubroutine:
         sub = next(
-            (s for s in self.context.subroutines.values() if s.method_name == method_name), None
+            (
+                s
+                for s in self.context.subroutines.values()
+                if s.method_name == method_name and s.module_name == module_name
+            ),
+            None,
         )
         if not sub:
             raise InternalError(f"Could not find subroutine with the name {method_name}")
@@ -2367,8 +2377,11 @@ class FunctionIRBuilder(
                 (popped, data) = self.assign(
                     source_location=source_location,
                     names=[(popped.name, None), (data.name, None)],
-                    source=self._invoke_puya_util_subroutine(
-                        method_name=method_name, args=args, source_location=source_location
+                    source=self._invoke_puya_lib_subroutine(
+                        method_name=method_name,
+                        args=args,
+                        source_location=source_location,
+                        module_name="puyapy_lib_arc4",
                     ),
                 )
 
@@ -2569,9 +2582,10 @@ class FunctionIRBuilder(
                 (concat_result,) = self.assign(
                     temp_description="concat_result",
                     source_location=source_location,
-                    source=self._invoke_puya_util_subroutine(
+                    source=self._invoke_puya_lib_subroutine(
                         method_name=method_name,
                         source_location=source_location,
+                        module_name="puyapy_lib_arc4",
                         args=[l_value, r_data, r_length, *additional_args],
                     ),
                 )
@@ -2599,8 +2613,9 @@ class FunctionIRBuilder(
                 (concat_result,) = self.assign(
                     temp_description="concat_result",
                     source_location=source_location,
-                    source=self._invoke_puya_util_subroutine(
+                    source=self._invoke_puya_lib_subroutine(
                         method_name=method_name,
+                        module_name="puyapy_lib_arc4",
                         source_location=source_location,
                         args=[l_value, r_data, r_length, *additional_args],
                     ),
@@ -2615,8 +2630,9 @@ class FunctionIRBuilder(
                 (concat_result,) = self.assign(
                     temp_description="concat_result",
                     source_location=source_location,
-                    source=self._invoke_puya_util_subroutine(
+                    source=self._invoke_puya_lib_subroutine(
                         method_name="dynamic_array_concat_fixed_size",
+                        module_name="puyapy_lib_arc4",
                         source_location=source_location,
                         args=[l_value, r_data, r_length],
                     ),
@@ -2702,8 +2718,9 @@ class FunctionIRBuilder(
             if isinstance(wtype, wtypes.ARC4DynamicArray):
                 (updated_value,) = self.assign(
                     temp_description="updated_value",
-                    source=self._invoke_puya_util_subroutine(
+                    source=self._invoke_puya_lib_subroutine(
                         method_name="dynamic_array_replace_variable_size",
+                        module_name="puyapy_lib_arc4",
                         source_location=source_location,
                         args=[
                             base,
@@ -2717,8 +2734,9 @@ class FunctionIRBuilder(
             else:
                 (updated_value,) = self.assign(
                     temp_description="updated_value",
-                    source=self._invoke_puya_util_subroutine(
+                    source=self._invoke_puya_lib_subroutine(
                         method_name="static_array_replace_variable_size",
+                        module_name="puyapy_lib_arc4",
                         source_location=source_location,
                         args=[
                             base,
