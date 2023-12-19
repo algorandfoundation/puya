@@ -399,7 +399,7 @@ class ARC4ArrayEncode(Expression):
 @attrs.frozen
 class ArrayConcat(Expression):
     """
-    Given 'left' or 'right that is logically an array - concat it with the other value which is
+    Given 'left' or 'right' that is logically an array - concat it with the other value which is
     an iterable type with the same element type
     """
 
