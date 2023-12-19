@@ -16,8 +16,9 @@ def global_stack_assignment(
     context: ProgramCodeGenContext, subroutines: list[ops.MemorySubroutine]
 ) -> None:
     for subroutine in subroutines:
-        koopmans(context, subroutine)
-        baileys(context, subroutine)
-        allocate_locals_on_stack(context, subroutine)
+        sub_ctx = context.for_subroutine(subroutine)
+        koopmans(sub_ctx)
+        baileys(sub_ctx)
+        allocate_locals_on_stack(sub_ctx)
         if context.options.optimization_level > 0:
-            simplify_teal_ops(context, subroutine)
+            simplify_teal_ops(sub_ctx)

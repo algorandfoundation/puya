@@ -6,9 +6,8 @@ import attrs
 import structlog
 
 from puya.codegen import ops, teal
-from puya.codegen.context import ProgramCodeGenContext
+from puya.codegen.context import SubroutineCodeGenContext
 from puya.codegen.stack import Stack
-from puya.codegen.vla import VariableLifetimeAnalysis
 from puya.utils import invert_ordered_binary_op
 
 logger = structlog.get_logger(__name__)
@@ -192,7 +191,7 @@ ORDERING_OPS = frozenset(["<", "<=", ">", ">=", "b<", "b<=", "b>", "b>="])
 
 
 def optimize_pair(
-    vla: VariableLifetimeAnalysis,
+    ctx: SubroutineCodeGenContext,
     stack_before_a: Stack,
     a: ops.BaseOp,
     stack_before_b: Stack,
@@ -203,7 +202,7 @@ def optimize_pair(
     # this function has been optimized to reduce the number of isinstance checks,
     # consider this when making any modifications
 
-    if isinstance(b, ops.StoreVirtual) and b.local_id not in vla.get_live_out_variables(b):
+    if isinstance(b, ops.StoreVirtual) and b.local_id not in ctx.vla.get_live_out_variables(b):
         # aka dead store removal
         match a:
             case ops.StoreLStack(copy=True) | ops.StoreXStack(copy=True) as cover:
@@ -331,21 +330,31 @@ def _merge_virtual_ops(maybe_virtuals: Sequence[ops.BaseOp]) -> Sequence[ops.Bas
     return result
 
 
-def peephole_optimization(subroutine: ops.MemorySubroutine) -> None:
+def peephole_optimization(ctx: SubroutineCodeGenContext) -> None:
     # replace sequences of stack manipulations with shorter ones
-    vla = VariableLifetimeAnalysis.analyze(subroutine)
-    for block in subroutine.body:
-        while peephole_optimization_single(subroutine, vla, block):
-            pass
+    vla_modified = False
+    for block in ctx.subroutine.body:
+        while (result := peephole_optimization_single(ctx, block)) and result.modified:
+            vla_modified = vla_modified or result.vla_modified
+        vla_modified = vla_modified or result.vla_modified
+    if vla_modified:
+        ctx.invalidate_vla()
+
+
+@attrs.define(kw_only=True)
+class PeepholeResult:
+    modified: bool
+    vla_modified: bool
 
 
 def peephole_optimization_single(
-    subroutine: ops.MemorySubroutine, vla: VariableLifetimeAnalysis, block: ops.MemoryBasicBlock
-) -> bool:
+    ctx: SubroutineCodeGenContext, block: ops.MemoryBasicBlock
+) -> PeepholeResult:
     result = list[ops.BaseOp]()
     op_iter = ManualIter(block.ops)
     b = op_iter.next()
-    stack = Stack.for_full_stack(subroutine, block)
+    stack = Stack.for_full_stack(ctx.subroutine, block)
+    vla_modified = False
     while b:
         a = b
         b = op_iter.next()
@@ -368,11 +377,16 @@ def peephole_optimization_single(
             stack_before_a = stack
             stack_before_b = _copy_and_apply_ops(stack_before_a, a, maybe_virtual)
             ops_to_keep: Sequence[ops.BaseOp] = optimize_pair(
-                vla, stack_before_a, a, stack_before_b, b
+                ctx, stack_before_a, a, stack_before_b, b
             )
         else:
             ops_to_keep = (a,)
-
+        if (
+            not vla_modified
+            and (a not in ops_to_keep and isinstance(a, ops.StoreVirtual | ops.LoadVirtual))
+            or (b not in ops_to_keep and isinstance(b, ops.StoreVirtual | ops.LoadVirtual))
+        ):
+            vla_modified = True
         # based on peephole optimization result, insert virtual op
         if maybe_virtual is not None:
             if len(ops_to_keep) == 2:
@@ -398,11 +412,11 @@ def peephole_optimization_single(
 
     before = block.ops
     block.ops = result
-    return before != result
+    return PeepholeResult(modified=before != result, vla_modified=vla_modified)
 
 
-def koopmans(_context: ProgramCodeGenContext, subroutine: ops.MemorySubroutine) -> None:
-    for block in subroutine.body:
+def koopmans(ctx: SubroutineCodeGenContext) -> None:
+    for block in ctx.subroutine.body:
         usage_pairs = find_usage_pairs(block)
-        copy_usage_pairs(subroutine, block, usage_pairs)
-    peephole_optimization(subroutine)
+        copy_usage_pairs(ctx.subroutine, block, usage_pairs)
+    peephole_optimization(ctx)

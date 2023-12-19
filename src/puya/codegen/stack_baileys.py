@@ -5,9 +5,8 @@ import attrs
 import structlog
 
 from puya.codegen import ops
-from puya.codegen.context import ProgramCodeGenContext
+from puya.codegen.context import SubroutineCodeGenContext
 from puya.codegen.stack_koopmans import peephole_optimization
-from puya.codegen.vla import VariableLifetimeAnalysis
 from puya.errors import InternalError
 
 logger = structlog.get_logger(__name__)
@@ -188,9 +187,9 @@ def get_edge_set(block: BlockRecord) -> EdgeSet | None:
     return EdgeSet(out_blocks, in_blocks) if in_blocks else None
 
 
-def get_edge_sets(
-    subroutine: ops.MemorySubroutine, vla: VariableLifetimeAnalysis
-) -> Sequence[EdgeSet]:
+def get_edge_sets(ctx: SubroutineCodeGenContext) -> Sequence[EdgeSet]:
+    subroutine = ctx.subroutine
+    vla = ctx.vla
     records = {
         block: BlockRecord(
             block=block,
@@ -254,11 +253,12 @@ def get_edge_sets(
     return list(edge_sets.keys())
 
 
-def schedule_sets(edge_sets: Sequence[EdgeSet], vla: VariableLifetimeAnalysis) -> None:
+def schedule_sets(ctx: SubroutineCodeGenContext, edge_sets: Sequence[EdgeSet]) -> None:
     # determine all blocks referencing variables, so we can track if all references to a
     # variable are scheduled to x-stack
     stores = dict[str, set[ops.MemoryBasicBlock]]()
     loads = dict[str, set[ops.MemoryBasicBlock]]()
+    vla = ctx.vla
     for variable in vla.all_variables:
         stores[variable] = vla.get_store_blocks(variable)
         loads[variable] = vla.get_load_blocks(variable)
@@ -315,6 +315,7 @@ def schedule_sets(edge_sets: Sequence[EdgeSet], vla: VariableLifetimeAnalysis) -
         )
 
     if variables_successfully_scheduled:
+        ctx.invalidate_vla()
         logger.debug(
             f"Allocated {len(variables_successfully_scheduled)} "
             f"variable/s to x-stack: {', '.join(variables_successfully_scheduled)}"
@@ -346,18 +347,17 @@ def validate_x_stacks(edge_sets: Sequence[EdgeSet]) -> bool:
     return ok
 
 
-def baileys(_context: ProgramCodeGenContext, subroutine: ops.MemorySubroutine) -> None:
-    vla = VariableLifetimeAnalysis.analyze(subroutine)
-    edge_sets = get_edge_sets(subroutine, vla)
+def baileys(ctx: SubroutineCodeGenContext) -> None:
+    edge_sets = get_edge_sets(ctx)
     if not edge_sets:
         # nothing to do
         return
 
-    logger.debug(f"Found {len(edge_sets)} edge set/s for {subroutine.signature.name}")
-    schedule_sets(edge_sets, vla)
+    logger.debug(f"Found {len(edge_sets)} edge set/s for {ctx.subroutine.signature.name}")
+    schedule_sets(ctx, edge_sets)
 
     if not validate_x_stacks(edge_sets):
         raise InternalError("Could not schedule x-stack")
 
     add_x_stack_ops_to_edge_sets(edge_sets)
-    peephole_optimization(subroutine)
+    peephole_optimization(ctx)

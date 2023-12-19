@@ -9,10 +9,9 @@ import attrs
 import structlog
 
 from puya.codegen import ops, teal
-from puya.codegen.context import ProgramCodeGenContext
+from puya.codegen.context import SubroutineCodeGenContext
 from puya.codegen.stack import Stack
 from puya.codegen.stack_koopmans import peephole_optimization_single
-from puya.codegen.vla import VariableLifetimeAnalysis
 from puya.errors import InternalError
 
 logger = structlog.get_logger(__name__)
@@ -510,14 +509,15 @@ def try_simplify_rotation_ops(
             maybe_remove_rotations = []
 
 
-def simplify_teal_ops(context: ProgramCodeGenContext, subroutine: ops.MemorySubroutine) -> None:
-    vla = VariableLifetimeAnalysis.analyze(subroutine)
+def simplify_teal_ops(ctx: SubroutineCodeGenContext) -> None:
+    subroutine = ctx.subroutine
     for block in subroutine.body:
         modified = True
         while modified:
-            modified = peephole_optimization_single(subroutine, vla, block)
+            result = peephole_optimization_single(ctx, block)
+            modified = result.modified
             modified = modified or try_simplify_repeated_ops(subroutine, block)
             modified = modified or try_simplify_pairwise_ops(subroutine, block)
             modified = modified or try_simplify_triple_ops(subroutine, block)
-        if context.options.optimization_level >= 2:
+        if ctx.options.optimization_level >= 2:
             try_simplify_rotation_ops(subroutine, block)

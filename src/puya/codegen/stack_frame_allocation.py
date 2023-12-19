@@ -5,9 +5,8 @@ import structlog
 
 from puya.avm_type import AVMType
 from puya.codegen import ops
-from puya.codegen.context import ProgramCodeGenContext
+from puya.codegen.context import SubroutineCodeGenContext
 from puya.codegen.stack_koopmans import peephole_optimization
-from puya.codegen.vla import VariableLifetimeAnalysis
 
 logger = structlog.get_logger(__name__)
 
@@ -73,14 +72,13 @@ def get_allocate_op(
     )
 
 
-def allocate_locals_on_stack(
-    _context: ProgramCodeGenContext, subroutine: ops.MemorySubroutine
-) -> None:
-    vla = VariableLifetimeAnalysis.analyze(subroutine)
+def allocate_locals_on_stack(ctx: SubroutineCodeGenContext) -> None:
+    vla = ctx.vla
     all_variables = vla.all_variables
     if not all_variables:
         return
 
+    subroutine = ctx.subroutine
     first_store_ops = get_lazy_fstack(subroutine)
     allocate_on_first_store = [op.local_id for op in first_store_ops]
 
@@ -95,6 +93,7 @@ def allocate_locals_on_stack(
     for block in subroutine.body[1:]:
         block.f_stack_in = [*allocate_at_entry, *allocate_on_first_store]
 
+    removed_virtual = False
     for block in subroutine.body:
         for index, op in enumerate(block.ops):
             match op:
@@ -107,6 +106,7 @@ def allocate_locals_on_stack(
                         insert=op in first_store_ops,
                         atype=atype,
                     )
+                    removed_virtual = True
                 case ops.LoadVirtual(
                     local_id=local_id,
                     source_location=src_location,
@@ -117,6 +117,9 @@ def allocate_locals_on_stack(
                         source_location=src_location,
                         atype=atype,
                     )
+                    removed_virtual = True
                 case ops.RetSub() as retsub:
                     block.ops[index] = attrs.evolve(retsub, f_stack_size=len(all_variables))
-    peephole_optimization(subroutine)
+    if removed_virtual:
+        ctx.invalidate_vla()
+    peephole_optimization(ctx)
