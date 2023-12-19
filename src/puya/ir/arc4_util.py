@@ -49,8 +49,12 @@ def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str
             | wtypes.asset_wtype
             | wtypes.account_wtype
             | wtypes.application_wtype
+            | wtypes.uint64_wtype
+            | wtypes.bool_wtype
         ):
             return wtype.name
+        case wtypes.bytes_wtype:
+            return "byte[]"
         case wtypes.ARC4Type(alias=alias) if alias is not None:
             return alias
         case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM():
@@ -66,7 +70,9 @@ def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str
             return f"{wtype_to_arc4(inner_type, loc)}[]"
         case wtypes.ARC4StaticArray(element_type=inner_type, array_size=size):
             return f"{wtype_to_arc4(inner_type, loc)}[{size}]"
-        case wtypes.ARC4Tuple(types=types) | wtypes.ARC4Struct(types=types):
+        case wtypes.ARC4Tuple(types=types) | wtypes.ARC4Struct(types=types) | wtypes.WTuple(
+            types=types
+        ):
             item_types = ",".join([wtype_to_arc4(item) for item in types])
             return f"({item_types})"
     raise InternalError(f"Unhandled ARC4 type: {wtype}", loc)

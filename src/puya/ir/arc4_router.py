@@ -8,6 +8,7 @@ from puya.awst import (
 )
 from puya.awst.nodes import NumericComparison, NumericComparisonExpression, UInt64Constant
 from puya.awst_build.eb.transaction import check_transaction_type
+from puya.awst_build.utils import create_temporary_assignment
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_util import get_abi_signature, wtype_to_arc4
 from puya.metadata import (
@@ -68,6 +69,123 @@ def btoi(bytes_arg: awst_nodes.Expression, location: SourceLocation) -> awst_nod
         op_code="btoi",
         stack_args=[bytes_arg],
     )
+
+
+def arc4_encode(
+    base: awst_nodes.Expression, target_wtype: wtypes.WType, location: SourceLocation
+) -> awst_nodes.Expression:
+    match base.wtype:
+        case wtypes.bytes_wtype:
+            base_temp = create_temporary_assignment(base, location)
+
+            length = awst_nodes.IntrinsicCall(
+                source_location=location,
+                op_code="substring",
+                immediates=[6, 8],
+                wtype=wtypes.bytes_wtype,
+                stack_args=[
+                    awst_nodes.IntrinsicCall(
+                        source_location=location,
+                        op_code="itob",
+                        stack_args=[
+                            awst_nodes.IntrinsicCall.bytes_len(base_temp.define, location)
+                        ],
+                        wtype=wtypes.bytes_wtype,
+                    )
+                ],
+            )
+            return awst_nodes.ReinterpretCast(
+                source_location=location,
+                wtype=wtypes.ARC4DynamicArray.from_element_type(
+                    wtypes.ARC4UIntN.from_scale(8, alias="byte")
+                ),
+                expr=awst_nodes.IntrinsicCall(
+                    source_location=location,
+                    op_code="concat",
+                    stack_args=[length, base_temp.read],
+                    wtype=wtypes.bytes_wtype,
+                ),
+            )
+        case wtypes.WTuple(types=types):
+            base_temp = create_temporary_assignment(base, location)
+
+            return awst_nodes.ARC4Encode(
+                source_location=location,
+                value=awst_nodes.TupleExpression.from_items(
+                    items=[
+                        arc4_encode(
+                            awst_nodes.TupleItemExpression(
+                                base=base_temp.define if i == 0 else base_temp.read,
+                                index=i,
+                                source_location=location,
+                            ),
+                            wtypes.avm_to_arc4_equivalent_type(t),
+                            location,
+                        )
+                        for i, t in enumerate(types)
+                    ],
+                    location=location,
+                ),
+                wtype=target_wtype,
+            )
+
+        case _:
+            return awst_nodes.ARC4Encode(
+                source_location=location,
+                value=base,
+                wtype=target_wtype,
+            )
+
+
+def arc4_decode(
+    bytes_arg: awst_nodes.Expression, target_wtype: wtypes.WType, location: SourceLocation
+) -> awst_nodes.Expression:
+    match bytes_arg.wtype:
+        case wtypes.ARC4DynamicArray(
+            element_type=wtypes.ARC4UIntN(n=8)
+        ) if target_wtype == wtypes.bytes_wtype:
+            return awst_nodes.IntrinsicCall(
+                wtype=wtypes.bytes_wtype,
+                op_code="extract",
+                immediates=[2, 0],
+                source_location=location,
+                stack_args=[
+                    awst_nodes.ReinterpretCast(
+                        expr=bytes_arg, wtype=wtypes.bytes_wtype, source_location=location
+                    )
+                ],
+            )
+        case wtypes.ARC4Tuple(types=tuple_types):
+            decoded = create_temporary_assignment(
+                awst_nodes.ARC4Decode(
+                    source_location=location,
+                    wtype=wtypes.WTuple.from_types(tuple_types),
+                    value=bytes_arg,
+                ),
+                location=location,
+            )
+            return awst_nodes.TupleExpression.from_items(
+                items=[
+                    arc4_decode(
+                        awst_nodes.TupleItemExpression(
+                            base=decoded.define if i == 0 else decoded.read,
+                            index=i,
+                            source_location=location,
+                        ),
+                        wtypes.arc4_to_avm_equivalent_wtype(t),
+                        location,
+                    )
+                    for i, t in enumerate(tuple_types)
+                ],
+                location=location,
+            )
+
+        case _:
+            return awst_nodes.ARC4Decode(
+                source_location=location,
+                wtype=target_wtype,
+                value=bytes_arg,
+            )
 
 
 def has_app_id(location: SourceLocation) -> awst_nodes.Expression:
@@ -197,8 +315,17 @@ def route_bare_methods(
     )
 
 
+def log_arc4_compatible_result(
+    location: SourceLocation, result_expression: awst_nodes.Expression
+) -> awst_nodes.ExpressionStatement:
+    arc4_encoded = arc4_encode(
+        result_expression, wtypes.avm_to_arc4_equivalent_type(result_expression.wtype), location
+    )
+    return log_arc4_result(location, arc4_encoded)
+
+
 def log_arc4_result(
-    location: SourceLocation, call_expr: awst_nodes.SubroutineCallExpression
+    location: SourceLocation, result_expression: awst_nodes.Expression
 ) -> awst_nodes.ExpressionStatement:
     abi_log_prefix = awst_nodes.BytesConstant(
         source_location=location,
@@ -210,7 +337,9 @@ def log_arc4_result(
         left=abi_log_prefix,
         op=awst_nodes.BytesBinaryOperator.add,
         right=awst_nodes.ReinterpretCast(
-            expr=call_expr, wtype=wtypes.bytes_wtype, source_location=call_expr.source_location
+            expr=result_expression,
+            wtype=wtypes.bytes_wtype,
+            source_location=result_expression.source_location,
         ),
     )
     return awst_nodes.ExpressionStatement(
@@ -429,6 +558,16 @@ def map_abi_args(
                 )
                 yield check_transaction_type(transaction_index, txn_wtype, location)
                 transaction_arg_offset -= 1
+            case _ if wtypes.has_arc4_equivalent_type(arg.wtype):
+                abi_arg = load_abi_arg(
+                    abi_arg_index, wtypes.avm_to_arc4_equivalent_type(arg.wtype), location
+                )
+                decoded_abi_arg = arc4_decode(
+                    bytes_arg=abi_arg, target_wtype=arg.wtype, location=location
+                )
+                yield decoded_abi_arg
+                abi_arg_index += 1
+
             case _:
                 abi_arg = load_abi_arg(abi_arg_index, arg.wtype, location)
                 yield abi_arg
@@ -448,6 +587,8 @@ def route_abi_methods(
                 call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
             case _ if wtypes.is_arc4_encoded_type(method.return_type):
                 call_and_maybe_log = log_arc4_result(abi_loc, method_result)
+            case _ if wtypes.has_arc4_equivalent_type(method.return_type):
+                call_and_maybe_log = log_arc4_compatible_result(abi_loc, method_result)
             case _:
                 raise CodeError(
                     f"{method.return_type} is not a valid ABI return type", method.source_location

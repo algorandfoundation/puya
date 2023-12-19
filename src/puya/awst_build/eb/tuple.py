@@ -4,7 +4,9 @@ import structlog
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    BinaryBooleanOperator,
     BoolConstant,
+    BooleanBinaryOperation,
     Contains,
     Expression,
     IntegerConstant,
@@ -21,6 +23,7 @@ from puya.awst_build.eb.base import (
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.utils import require_expression_builder
 from puya.errors import CodeError, TodoError
 from puya.parse import SourceLocation
 from puya.utils import clamp
@@ -162,4 +165,39 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
+        if op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne):
+            other_expr = require_expression_builder(other).rvalue()
+            if self.wtype != other_expr.wtype:
+                return var_expression(
+                    BoolConstant(value=op == BuilderComparisonOp.ne, source_location=location)
+                )
+
+            def get_index(expr: Expression, index: int) -> Expression:
+                return TupleItemExpression(
+                    index=index,
+                    source_location=location,
+                    base=expr,
+                )
+
+            def compare_one(left: Expression, right: Expression) -> Expression:
+                return (
+                    var_expression(left)
+                    .compare(var_expression(right), op=op, location=location)
+                    .rvalue()
+                )
+
+            result = compare_one(get_index(self.expr, 0), get_index(other_expr, 0))
+            i = 1
+            while i < len(self.wtype.types):
+                result = BooleanBinaryOperation(
+                    left=result,
+                    right=compare_one(get_index(self.expr, i), get_index(other_expr, i)),
+                    op=BinaryBooleanOperator.and_
+                    if op == BuilderComparisonOp.eq
+                    else BinaryBooleanOperator.or_,
+                    source_location=location,
+                )
+                i += 1
+            return var_expression(result)
+
         raise TodoError(location, "TODO: tuple comparison support")

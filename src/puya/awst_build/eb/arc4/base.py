@@ -35,19 +35,6 @@ if TYPE_CHECKING:
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
 
 
-def arc4_to_avm_wtype(arc4_wtype: wtypes.WType) -> wtypes.WType:
-    match arc4_wtype:
-        case wtypes.arc4_string_wtype:
-            return wtypes.bytes_wtype
-        case wtypes.arc4_bool_wtype:
-            return wtypes.bool_wtype
-        case wtypes.ARC4UIntN(n=n) | wtypes.ARC4UFixedNxM(n=n):
-            return wtypes.uint64_wtype if n <= 64 else wtypes.biguint_wtype
-        case wtypes.ARC4Tuple(types=types):
-            return wtypes.WTuple.from_types(types)
-    raise InternalError("Invalid arc4_wtype")
-
-
 def get_bytes_expr(expr: Expression) -> ReinterpretCast:
     return ReinterpretCast(
         expr=expr, wtype=wtypes.bytes_wtype, source_location=expr.source_location
@@ -89,7 +76,9 @@ class ARC4EncodeBuilder(IntermediateExpressionBuilder):
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
-            case [ExpressionBuilder() as eb] if eb.rvalue().wtype == arc4_to_avm_wtype(self.wtype):
+            case [
+                ExpressionBuilder() as eb
+            ] if eb.rvalue().wtype == wtypes.arc4_to_avm_equivalent_wtype(self.wtype):
                 value = eb.rvalue()
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
@@ -136,7 +125,9 @@ class ARC4DecodeBuilder(IntermediateExpressionBuilder):
                 raise CodeError("Invalid/unhandled arguments", location)
 
         expr = ARC4Decode(
-            source_location=location, value=self.expr, wtype=arc4_to_avm_wtype(self.expr.wtype)
+            source_location=location,
+            value=self.expr,
+            wtype=wtypes.arc4_to_avm_equivalent_wtype(self.expr.wtype),
         )
         return var_expression(expr)
 
