@@ -132,18 +132,12 @@ def is_stack_swap(stack_before_op: Stack, op: ops.MemoryOp) -> bool:
     return False
 
 
-def is_virtual_op(stack_before_op: Stack, op: ops.MemoryOp) -> bool:
-    teal_ops = op.accept(stack_before_op.clone())
-    match teal_ops:
-        case [teal.Cover(0) | teal.Uncover(0)]:
-            return True
-    return False
-
-
 def optimize_single(stack_before_a: Stack, a: ops.BaseOp) -> ops.BaseOp | None:
-    match a:
-        case ops.MemoryOp() as mem_a if is_virtual_op(stack_before_a, mem_a):
-            return ops.VirtualStackOp(mem_a)
+    if isinstance(a, ops.MemoryOp):
+        teal_ops = a.accept(stack_before_a.clone())
+        match teal_ops:
+            case [teal.Cover(0) | teal.Uncover(0)]:
+                return ops.VirtualStackOp(a)
     return a
 
 
@@ -151,35 +145,50 @@ def is_redundant_rotate(
     stack_before_a: Stack, a: ops.MemoryOp, stack_before_b: Stack, b: ops.MemoryOp
 ) -> bool:
     a_teal = a.accept(stack_before_a.clone())
+    try:
+        (a_op,) = a_teal
+    except ValueError:
+        return False
     b_teal = b.accept(stack_before_b.clone())
-    match a_teal, b_teal:
-        case [teal.Cover(n=a_n)], [teal.Uncover(n=b_n)] if a_n == b_n:
+    try:
+        (b_op,) = b_teal
+    except ValueError:
+        return False
+    match a_op, b_op:
+        case teal.Cover(n=a_n), teal.Uncover(n=b_n) if a_n == b_n:
             return True
-        case [teal.Uncover(n=a_n)], [teal.Cover(n=b_n)] if a_n == b_n:
+        case teal.Uncover(n=a_n), teal.Cover(n=b_n) if a_n == b_n:
+            return True
+        case teal.Cover(n=1), teal.Cover(n=1):
+            return True
+        case teal.Uncover(n=1), teal.Uncover(n=1):
             return True
     return False
 
 
-COMMUTATIVE_OPS = {
-    "+",
-    "*",
-    "&",
-    "&&",
-    "|",
-    "||",
-    "^",
-    "==",
-    "!=",
-    "b*",
-    "b+",
-    "b&",
-    "b|",
-    "b^",
-    "b==",
-    "b!=",
-    "addw",
-    "mulw",
-}
+COMMUTATIVE_OPS = frozenset(
+    [
+        "+",
+        "*",
+        "&",
+        "&&",
+        "|",
+        "||",
+        "^",
+        "==",
+        "!=",
+        "b*",
+        "b+",
+        "b&",
+        "b|",
+        "b^",
+        "b==",
+        "b!=",
+        "addw",
+        "mulw",
+    ]
+)
+ORDERING_OPS = frozenset(["<", "<=", ">", ">=", "b<", "b<=", "b>", "b>="])
 
 
 def optimize_pair(
@@ -191,84 +200,80 @@ def optimize_pair(
 ) -> tuple[()] | tuple[ops.BaseOp] | tuple[ops.BaseOp, ops.BaseOp]:
     """Given a pair of ops, returns which ops should be kept including replacements"""
 
-    match a, b:
-        case ops.StoreLStack(copy=True) | ops.StoreXStack(copy=True) as cover, ops.StoreVirtual(
-            local_id=local_id
-        ) if local_id not in vla.get_live_out_variables(
-            b
-        ):  # aka dead store removal, this should handle both x-stack and l-stack cases
-            # StoreLStack is used to:
-            #   1.) store a variable for retrieval later via a load
-            #   2.) store a copy at the bottom of the stack for use in a later op
-            # If it is a dead store, then the 1st scenario is no longer needed
-            # and instead just need to ensure the value is copied to the bottom of the stack
-            return (attrs.evolve(cover, copy=False),)
-        case _, ops.StoreVirtual(local_id=local_id) if local_id not in vla.get_live_out_variables(
-            b
-        ):  # aka dead store removal
-            return a, ops.Pop(n=1, source_location=b.source_location)
-        case ops.LoadLStack(local_id=a_local_id, copy=False) as load, ops.StoreLStack(
-            local_id=b_local_id, copy=True
-        ) if a_local_id == b_local_id:
-            return (attrs.evolve(load, copy=True),)
-        case ops.LoadLStack(copy=False) as load, ops.StoreLStack(
-            copy=False
-        ) as store if is_redundant_rotate(stack_before_a, load, stack_before_b, store):
-            # loading and storing to the same spot in the same stack can be removed entirely if the
-            # local_id does not change
-            if load.local_id == store.local_id:
-                return ()
-            # otherwise keep around as virtual stack op
-            else:
-                return ops.VirtualStackOp(load), ops.VirtualStackOp(store)
-        case ops.LoadOp() as mem_a, ops.Pop(n=1) as mem_b:
-            return ops.VirtualStackOp(mem_a), ops.VirtualStackOp(mem_b)
-        case ops.LoadXStack(local_id=a_local_id), ops.StoreXStack(
-            local_id=b_local_id, copy=False
-        ) if a_local_id == b_local_id:
-            return ()
-        case ops.LoadFStack(local_id=a_local_id), ops.StoreFStack(
-            local_id=b_local_id
-        ) if a_local_id == b_local_id:
-            return ()
-        case ops.MemoryOp() as a_mem, ops.MemoryOp() as b_mem if is_stack_swap(
-            stack_before_a, a_mem
-        ) and is_stack_swap(stack_before_b, b_mem):
-            return ops.VirtualStackOp(a_mem), ops.VirtualStackOp(b_mem)
-        case ops.MemoryOp() as a_mem, ops.MemoryOp() as b_mem if is_redundant_rotate(
-            stack_before_a, a_mem, stack_before_b, b_mem
-        ):
-            return ops.VirtualStackOp(a_mem), ops.VirtualStackOp(b_mem)
-        case ops.MemoryOp() as a_mem, ops.IntrinsicOp(op_code=op_code) if is_stack_swap(
-            stack_before_a, a_mem
-        ) and op_code in COMMUTATIVE_OPS:
+    # this function has been optimized to reduce the number of isinstance checks,
+    # consider this when making any modifications
+
+    if isinstance(b, ops.StoreVirtual) and b.local_id not in vla.get_live_out_variables(b):
+        # aka dead store removal
+        match a:
+            case ops.StoreLStack(copy=True) | ops.StoreXStack(copy=True) as cover:
+                # this should handle both x-stack and l-stack cases StoreLStack is used to:
+                #   1.) store a variable for retrieval later via a load
+                #   2.) store a copy at the bottom of the stack for use in a later op
+                # If it is a dead store, then the 1st scenario is no longer needed
+                # and instead just need to ensure the value is copied to the bottom of the stack
+                return (attrs.evolve(cover, copy=False),)
+        return a, ops.Pop(n=1, source_location=b.source_location)
+
+    # optimization: cases after here are only applicable if "a" is a MemoryOp
+    if not isinstance(a, ops.MemoryOp):
+        return a, b
+
+    if isinstance(b, ops.Pop) and b.n == 1 and isinstance(a, ops.LoadOp):
+        return ops.VirtualStackOp(a), ops.VirtualStackOp(b)
+
+    if isinstance(b, ops.IntrinsicOp) and is_stack_swap(stack_before_a, a):
+        if b.op_code in COMMUTATIVE_OPS:
             if isinstance(a, ops.LoadLStack | ops.StoreLStack):
                 return (b,)
-            return ops.VirtualStackOp(a_mem), b
-        case ops.MemoryOp() as a_mem, ops.IntrinsicOp(
-            op_code=("<" | "<=" | ">" | ">=" | "b<" | "b<=" | "b>" | "b>=") as op_code
-        ) as binary_op if is_stack_swap(stack_before_a, a_mem):
-            inverse_ordering_op = invert_ordered_binary_op(op_code)
-            new_b = attrs.evolve(binary_op, op_code=inverse_ordering_op)
+            return ops.VirtualStackOp(a), b
+        elif b.op_code in ORDERING_OPS:
+            inverse_ordering_op = invert_ordered_binary_op(b.op_code)
+            new_b = attrs.evolve(b, op_code=inverse_ordering_op)
             if isinstance(a, ops.LoadLStack | ops.StoreLStack):
                 return (new_b,)
-            return ops.VirtualStackOp(a_mem), new_b
-        case (
-            ops.LoadVirtual() as load,
-            ops.StoreVirtual() as store,
-        ) if load.local_id == store.local_id:
-            return ()
-        case (
-            ops.StoreParam(copy=False) as store_param,
-            ops.LoadParam() as load_param,
-        ) if load_param.local_id == store_param.local_id:
-            # if we have a store to param and then read from param,
-            # we can reduce the program size byte 1 byte by copying
-            # and then storing instead
-            # i.e. frame_bury -x; frame_dig -x
-            # =>   dup; frame_bury -x
-            store_with_copy = attrs.evolve(store_param, copy=True)
-            return (store_with_copy,)
+            return ops.VirtualStackOp(a), new_b
+
+    # optimization: cases after here are only applicable if "b" is a MemoryOp
+    if not isinstance(b, ops.MemoryOp):
+        return a, b
+
+    if is_redundant_rotate(stack_before_a, a, stack_before_b, b):
+        match a, b:
+            case (
+                ops.LoadLStack(copy=False, local_id=a_local_id),
+                ops.StoreLStack(copy=False, local_id=b_local_id),
+            ) if a_local_id == b_local_id:
+                # loading and storing to the same spot in the same stack can be removed entirely
+                # if the local_id does not change
+                return ()
+        # otherwise keep around as virtual stack op
+        return ops.VirtualStackOp(a), ops.VirtualStackOp(b)
+
+    if isinstance(a, ops.LoadOp) and isinstance(b, ops.StoreOp):
+        if a.local_id == b.local_id:
+            match a, b:
+                case ops.LoadLStack(copy=False) as load, ops.StoreLStack(copy=True):
+                    return (attrs.evolve(load, copy=True),)
+                case ops.LoadXStack(), ops.StoreXStack(copy=False):
+                    return ()
+                case ops.LoadFStack(), ops.StoreFStack():
+                    return ()
+                case ops.LoadVirtual(), ops.StoreVirtual():
+                    return ()
+    else:
+        match a, b:
+            case (
+                ops.StoreParam(copy=False, local_id=a_local_id) as store_param,
+                ops.LoadParam(local_id=b_local_id),
+            ) if a_local_id == b_local_id:
+                # if we have a store to param and then read from param,
+                # we can reduce the program size byte 1 byte by copying
+                # and then storing instead
+                # i.e. frame_bury -x; frame_dig -x
+                # =>   dup; frame_bury -x
+                store_with_copy = attrs.evolve(store_param, copy=True)
+                return (store_with_copy,)
     return a, b
 
 
@@ -305,7 +310,10 @@ def _merge_virtual_ops(maybe_virtuals: Sequence[ops.BaseOp]) -> Sequence[ops.Bas
     virtuals = list[ops.VirtualStackOp]()
     # final None will trigger merging any remaining virtuals
     for op in [*maybe_virtuals, None]:
-        if isinstance(op, ops.VirtualStackOp):  # collect virtual ops
+        # note: uses type instead of isinstance because this is a
+        # hotspot as determined by profiling. VirtualStackOp
+        # has been annotated with @typing.final so that this is equivalent here
+        if type(op) is ops.VirtualStackOp:  # collect virtual ops
             virtuals.append(op)
             continue
         if virtuals:  # merge any existing virtuals if non-virtual found
@@ -394,7 +402,6 @@ def peephole_optimization_single(
 
 
 def koopmans(_context: ProgramCodeGenContext, subroutine: ops.MemorySubroutine) -> None:
-    peephole_optimization(subroutine)
     for block in subroutine.body:
         usage_pairs = find_usage_pairs(block)
         copy_usage_pairs(subroutine, block, usage_pairs)

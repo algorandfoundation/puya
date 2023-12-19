@@ -1,14 +1,12 @@
 import contextlib
 import typing
 from collections.abc import Iterable, Iterator
-from copy import deepcopy
 
 import attrs
 
 from puya.codegen import ops, teal
 from puya.codegen.utils import format_bytes
 from puya.codegen.visitor import MIRVisitor
-from puya.codegen.vla import VariableLifetimeAnalysis
 from puya.errors import InternalError
 from puya.ir.types_ import AVMBytesEncoding
 
@@ -29,14 +27,28 @@ class _StackState:
         yield from self.x_stack
         yield from self.l_stack
 
+    def copy(self) -> "_StackState":
+        return _StackState(
+            parameters=self.parameters.copy(),
+            f_stack=self.f_stack.copy(),
+            l_stack=self.l_stack.copy(),
+            x_stack=self.x_stack.copy(),
+        )
+
 
 @attrs.define
 class Stack(MIRVisitor[list[teal.TealOp]]):
     allow_virtual: bool = attrs.field(default=True)
-    _current_subroutine: ops.MemorySubroutine | None = attrs.field(default=None)
     _use_frame: bool = attrs.field(default=False)
-    _vla: VariableLifetimeAnalysis | None = attrs.field(default=None)
     state: _StackState = attrs.field(factory=_StackState)
+
+    def clone(self) -> "Stack":
+        state = self.state.copy()
+        return Stack(
+            use_frame=self._use_frame,
+            allow_virtual=self.allow_virtual,
+            state=state,
+        )
 
     @classmethod
     def for_full_stack(
@@ -47,9 +59,6 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         return stack
 
     def begin_block(self, subroutine: ops.MemorySubroutine, block: ops.MemoryBasicBlock) -> None:
-        if self._current_subroutine != subroutine:
-            self._vla = None
-        self._current_subroutine = subroutine
         self.state = _StackState(
             parameters=[p.local_id for p in subroutine.signature.parameters],
             f_stack=list(block.f_stack_in),
@@ -396,12 +405,6 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
             for original in virtual.original:
                 original.accept(self)
         return [*(virtual.replacement or ())]
-
-    def clone(self) -> "Stack":
-        # deep copy stack state
-        state = deepcopy(self.state)
-        # share instances of other fields such as current_subroutine and _vla
-        return attrs.evolve(self, state=state)
 
     def __str__(self) -> str:
         return self.full_stack_desc

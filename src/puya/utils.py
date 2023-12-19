@@ -69,29 +69,31 @@ def unique(items: Iterable[T]) -> list[T]:
 
 
 class StableSet(MutableSet[T]):
+    __slots__ = ("_data",)
+
     def __init__(self, *items: T) -> None:
         self._data = dict.fromkeys(items)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, StableSet):
-            return self._data == other._data
+            return self._data.__eq__(other._data)
         else:
             return self._data.keys() == other
 
     def __ne__(self, other: object) -> bool:
         if isinstance(other, StableSet):
-            return self._data != other._data
+            return self._data.__ne__(other._data)
         else:
             return self._data.keys() != other
 
     def __contains__(self, x: object) -> bool:
-        return x in self._data
+        return self._data.__contains__(x)
 
     def __len__(self) -> int:
-        return len(self._data)
+        return self._data.__len__()
 
     def __iter__(self) -> Iterator[T]:
-        yield from self._data.keys()
+        return self._data.__iter__()
 
     def add(self, value: T) -> None:
         self._data[value] = None
@@ -100,24 +102,30 @@ class StableSet(MutableSet[T]):
         self._data.pop(value, None)
 
     def __or__(self, other: Iterable[T]) -> "StableSet[T]":  # type: ignore[override]
+        result = StableSet.__new__(StableSet)
         if isinstance(other, StableSet):
-            return StableSet(*self._data, *other._data)
+            other_data = other._data
         else:
-            return StableSet(*self._data, *other)
+            other_data = dict.fromkeys(other)
+        result._data = self._data | other_data
+        return result
 
     def __ior__(self, other: Iterable[T]) -> Self:  # type: ignore[override]
         if isinstance(other, StableSet):
             other_data = other._data
         else:
             other_data = dict.fromkeys(other)
-        self._data.update(other_data)
+        self._data |= other_data
         return self
 
     def __sub__(self, other: Set[T]) -> "StableSet[T]":
+        result = StableSet.__new__(StableSet)
         if isinstance(other, StableSet):
-            return StableSet(*(self._data.keys() - other._data.keys()))
-        data = (k for k in self._data if k not in other)
-        return StableSet(*data)
+            data: Iterable[T] = self._data.keys() - other._data.keys()
+        else:
+            data = (k for k in self._data if k not in other)
+        result._data = dict.fromkeys(data)
+        return result
 
     def __repr__(self) -> str:
         return type(self).__name__ + "(" + ", ".join(map(repr, self._data)) + ")"
