@@ -13,6 +13,7 @@ from puya.algo_constants import (
     PUBLIC_KEY_HASH_LENGTH,
 )
 from puya.awst_build import constants
+from puya.errors import InternalError
 from puya.utils import sha512_256_hash
 
 
@@ -464,3 +465,46 @@ def is_arc4_argument_type(wtype: WType) -> bool:
         or is_reference_type(wtype)
         or (is_transaction_type(wtype) and wtype.transaction_type is not None)
     )
+
+
+def has_arc4_equivalent_type(wtype: WType) -> bool:
+    """
+    Checks if a non-arc4 encoded type has an arc4 equivalent
+    """
+    if wtype in (bool_wtype, uint64_wtype, bytes_wtype):
+        return True
+
+    match wtype:
+        case WTuple(types=types):
+            return all(has_arc4_equivalent_type(t) for t in types)
+    return False
+
+
+def avm_to_arc4_equivalent_type(wtype: WType) -> WType:
+    if wtype is bool_wtype:
+        return arc4_bool_wtype
+    if wtype is uint64_wtype:
+        return ARC4UIntN.from_scale(64)
+    if wtype is bytes_wtype:
+        return ARC4DynamicArray.from_element_type(
+            element_type=ARC4UIntN.from_scale(8, alias="byte")
+        )
+    if isinstance(wtype, WTuple):
+        return ARC4Tuple.from_types(types=[avm_to_arc4_equivalent_type(t) for t in wtype.types])
+    raise InternalError(f"{wtype} does not have an arc4 equivalent type")
+
+
+def arc4_to_avm_equivalent_wtype(arc4_wtype: WType) -> WType:
+    match arc4_wtype:
+        case ARC4UIntN(n=n) | ARC4UFixedNxM(n=n):
+            return uint64_wtype if n <= 64 else biguint_wtype
+        case ARC4Tuple(types=types):
+            return WTuple.from_types(types)
+        case ARC4DynamicArray(element_type=ARC4UIntN(n=8)):
+            return bytes_wtype
+    if arc4_wtype is arc4_string_wtype:
+        return bytes_wtype
+    elif arc4_wtype is arc4_bool_wtype:
+        return bool_wtype
+
+    raise InternalError(f"Invalid arc4_wtype: {arc4_wtype}")

@@ -1,0 +1,138 @@
+#pragma version 8
+
+// examples.avm_types_in_abi.contract.TestContract.approval_program() -> uint64:
+main_block@0:
+        txn NumAppArgs
+        bz main_after_if_else@5
+
+main_abi_routing@1:
+        method "create(bool,uint64,byte[],(bool,uint64,byte[]))(bool,uint64,byte[])"
+        txna ApplicationArgs 0
+        match main_create_route@2
+        b main_after_if_else@5
+
+main_create_route@2:
+        txn OnCompletion
+        !
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        !
+        assert // is creating
+        txna ApplicationArgs 1
+        int 0
+        getbit
+        txna ApplicationArgs 2
+        btoi
+        txna ApplicationArgs 3
+        extract 2 0
+        txna ApplicationArgs 4
+        dup
+        int 0
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        swap
+        dup
+        int 1
+        int 8
+        extract3
+        swap
+        dup
+        int 9
+        extract_uint16
+        dig 1
+        dig 1
+        extract_uint16
+        int 2
+        +
+        extract3
+        uncover 2
+        int 0
+        getbit
+        swap
+        uncover 2
+        btoi
+        swap
+        extract 2 0
+        callsub create
+        cover 2
+        swap
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        cover 2
+        itob
+        cover 2
+        dup
+        len
+        itob
+        substring 6 8
+        swap
+        concat
+        cover 2
+        byte 0x
+        swap
+        concat
+        swap
+        concat
+        int 11
+        itob
+        extract 6 2
+        concat
+        dig 1
+        len
+        int 11
+        +
+        pop
+        swap
+        concat
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_after_if_else@5:
+        err // reject transaction
+
+
+// examples.avm_types_in_abi.contract.TestContract.create(bool_param#0: uint64, uint64_param#0: uint64, bytes_param#0: bytes, tuple_param.0#0: uint64, tuple_param.1#0: uint64, tuple_param.2#0: bytes) -> uint64, uint64, bytes:
+create:
+        proto 6 3
+
+create_block@0:
+        frame_dig -6
+        frame_dig -3
+        ==
+        bz create_bool_false@4
+
+create_and_contd@1:
+        frame_dig -5
+        frame_dig -2
+        ==
+        bz create_bool_false@4
+
+create_and_contd@2:
+        frame_dig -4
+        frame_dig -1
+        ==
+        bz create_bool_false@4
+
+create_bool_true@3:
+        int 1
+        b create_bool_merge@5
+
+create_bool_false@4:
+        int 0
+
+create_bool_merge@5:
+        assert
+        frame_dig -6
+        frame_dig -5
+        frame_dig -4
+        retsub
+
