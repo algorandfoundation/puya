@@ -3,15 +3,17 @@
 {# UNRELEASED #}
 ## Unreleased
 {% for type_, commits in context.history.unreleased | dictsort %}
-{% if type_ in ("feat", "fix", "perf") %}
+{%- if type_ in ("feature", "fix", "performance") %}
 ### {{ type_ | capitalize }}
-{% for commit in commits %}
-* {{ commit.message.rstrip() | indent(2) }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
-{% endfor %}{% endif %}{% endfor %}{% endif %}{% for version, release in context.history.released.items() %}
+{% for commit in commits -%}
+* {{ commit["descriptions"][0].strip() | indent(2) }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
+{% endfor %}{% endif %}{% endfor %}{% endif %}
+{%- for version, release in context.history.released.items() %}
 {# RELEASED #}
 ## {{ version.as_semver_tag() }} ({{ release.tagged_date.strftime("%Y-%m-%d") }})
-{% for type_, commits in release["elements"] | dictsort %}{% if type_ in ("feat", "fix", "perf") %}
+{% for type_, commits in release["elements"] | dictsort %}
+{%- if type_ in ("feature", "fix", "performance") %}
 ### {{ type_ | capitalize }}
 {% for commit in commits %}
-* {{ commit.message.rstrip() | indent(2) }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
+* {{ commit["descriptions"][0].strip() | indent(2) }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
 {% endfor %}{% endif %}{% endfor %}{% endfor %}
