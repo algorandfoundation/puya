@@ -243,7 +243,7 @@ def recalculate_array_offsets_static(
     else:
         tail_cursor = extract_uint16(array_data, header_cursor)
 
-    for i in urange(start_at_index, length):  # noqa: B007
+    for _i in urange(start_at_index, length):
         tail_cursor_bytes = substring(itob(tail_cursor), 6, 8)
         array_data = replace(array_data, header_cursor, tail_cursor_bytes)
         tail_cursor += extract_uint16(array_data, tail_cursor) + 2
