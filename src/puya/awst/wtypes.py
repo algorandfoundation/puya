@@ -476,7 +476,7 @@ def has_arc4_equivalent_type(wtype: WType) -> bool:
 
     match wtype:
         case WTuple(types=types):
-            return all(has_arc4_equivalent_type(t) for t in types)
+            return all(has_arc4_equivalent_type(t) and not isinstance(t, WTuple) for t in types)
     return False
 
 
