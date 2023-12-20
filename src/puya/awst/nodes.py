@@ -871,9 +871,12 @@ class CallArg:
     value: Expression
 
 
+SubroutineTarget = FreeSubroutineTarget | InstanceSubroutineTarget | BaseClassSubroutineTarget
+
+
 @attrs.frozen
 class SubroutineCallExpression(Expression):
-    target: FreeSubroutineTarget | InstanceSubroutineTarget | BaseClassSubroutineTarget
+    target: SubroutineTarget
     args: Sequence[CallArg] = attrs.field(converter=tuple[CallArg, ...])
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
