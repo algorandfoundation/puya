@@ -227,6 +227,7 @@ class Pop(MemoryOp):
         return f"pop {self.n}"
 
 
+@t.final
 @attrs.frozen(eq=False, init=False)
 class VirtualStackOp(BaseOp):
     original: Sequence[BaseOp]
