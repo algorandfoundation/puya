@@ -32,10 +32,10 @@ class IRBuildContext(CompileContext):
         return contract
 
     def resolve_function_reference(
-        self, invocation: awst_nodes.SubroutineCallExpression
+        self, target: awst_nodes.SubroutineTarget, source_location: SourceLocation
     ) -> awst_nodes.Function:
         try:
-            match invocation.target:
+            match target:
                 case awst_nodes.BaseClassSubroutineTarget(base_class=cref, name=func_name):
                     contract = self.resolve_contract_reference(cref)
                     func: awst_nodes.Node = contract.symtable[func_name]
@@ -44,7 +44,7 @@ class IRBuildContext(CompileContext):
                         raise InternalError(
                             f"Cannot resolve instance function {func_name} "
                             f"as there is no current contract",
-                            invocation.source_location,
+                            source_location,
                         )
                     for contract in (
                         self.contract,
@@ -60,27 +60,27 @@ class IRBuildContext(CompileContext):
                         raise InternalError(
                             f"Unable to locate {func_name} in hierarchy "
                             f"for class {self.contract.full_name}",
-                            invocation.source_location,
+                            source_location,
                         )
                 case awst_nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
-                    if module_name == "_puyapy_":
-                        func = self.module_awsts["puyapy"].symtable[func_name]
-                    else:
-                        func = self.module_awsts[module_name].symtable[func_name]
+                    # remap the internal _puyapy_ lib to puyapy so that functions
+                    # defined in _puyapy_ can reference other functions defined in the same module
+                    module_name = "puyapy" if module_name == "_puyapy_" else module_name
+                    func = self.module_awsts[module_name].symtable[func_name]
                 case _:
                     raise InternalError(
-                        f"Unhandled subroutine invocation target: {invocation.target}",
-                        invocation.source_location,
+                        f"Unhandled subroutine invocation target: {target}",
+                        source_location,
                     )
         except KeyError as ex:
             raise CodeError(
-                f"Unable to resolve function reference {invocation.target}",
-                invocation.source_location,
+                f"Unable to resolve function reference {target}",
+                source_location,
             ) from ex
         if not isinstance(func, awst_nodes.Function):
             raise CodeError(
-                f"Function reference {invocation.target} resolved to {func}",
-                invocation.source_location,
+                f"Function reference {target} resolved to {func}",
+                source_location,
             )
         return func
 
