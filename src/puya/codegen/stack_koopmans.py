@@ -91,7 +91,7 @@ def copy_usage_pairs(
         insert_stack_in = _get_stack_after_op(subroutine, block, insert_index - 1)
 
         dup = ops.StoreLStack(
-            cover=insert_stack_in.get_l_stack_cover_n(),
+            cover=len(insert_stack_in.l_stack) - 1,
             local_id=local_id,
             source_location=a.source_location,
             atype=a.atype,
