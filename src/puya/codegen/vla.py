@@ -14,7 +14,8 @@ class _OpLifetime:
     block: ops.MemoryBasicBlock
     used: StableSet[str] = attrs.field(on_setattr=attrs.setters.frozen)
     defined: StableSet[str] = attrs.field(on_setattr=attrs.setters.frozen)
-    successors: Sequence[ops.BaseOp] = attrs.field(on_setattr=attrs.setters.frozen)
+    successors: "Sequence[_OpLifetime]" = attrs.field(default=())
+    predecessors: "list[_OpLifetime]" = attrs.field(factory=list)
 
     live_in: StableSet[str] = attrs.field(factory=StableSet)
     live_out: StableSet[str] = attrs.field(factory=StableSet)
@@ -39,24 +40,28 @@ class VariableLifetimeAnalysis:
         result = dict[ops.BaseOp, _OpLifetime]()
         block_map = {b.block_name: b.ops[0] for b in self.subroutine.body}
         for block in self.subroutine.all_blocks:
-            for op, next_op in itertools.zip_longest(block.ops, block.ops[1:]):
+            for op in block.ops:
                 used = StableSet[str]()
                 defined = StableSet[str]()
                 if isinstance(op, ops.StoreVirtual):
                     defined.add(op.local_id)
                 elif isinstance(op, ops.LoadVirtual):
                     used.add(op.local_id)
-                if next_op is None:
-                    # for last op, add first op of each successor block
-                    successors = [block_map[s] for s in block.successors]
-                else:
-                    successors = [next_op]
                 result[op] = _OpLifetime(
                     block=block,
                     used=used,
                     defined=defined,
-                    successors=successors,
                 )
+        for block in self.subroutine.all_blocks:
+            for op, next_op in itertools.zip_longest(block.ops, block.ops[1:]):
+                op_lifetime = result[op]
+                if next_op is None:
+                    # for last op, add first op of each successor block
+                    op_lifetime.successors = tuple(result[block_map[s]] for s in block.successors)
+                else:
+                    op_lifetime.successors = (result[next_op],)
+                for s in op_lifetime.successors:
+                    s.predecessors.append(op_lifetime)
         return result
 
     def get_live_out_variables(self, op: ops.BaseOp) -> Set[str]:
@@ -78,22 +83,23 @@ class VariableLifetimeAnalysis:
         return analysis
 
     def _analyze(self) -> None:
-        changes = True
-        while changes:
-            changes = False
-            for n in self._op_lifetimes.values():
+        changed = list(self._op_lifetimes.values())
+        while changed:
+            orig_changed = changed
+            changed = []
+            for n in orig_changed:
                 # For OUT, find out the union of previous variables
                 # in the IN set for each succeeding node of n.
 
                 # out[n] = U s ∈ succ[n] in[s]
                 live_out = StableSet[str]()
                 for s in n.successors:
-                    live_out |= self._op_lifetimes[s].live_in
+                    live_out |= s.live_in
 
                 # in[n] = use[n] U (out[n] - def [n])
                 live_in = n.used | (live_out - n.defined)
 
-                if not (live_in == n.live_in and live_out == n.live_out):
+                if live_out != n.live_out or live_in != n.live_in:
                     n.live_in = live_in
                     n.live_out = live_out
-                    changes = True
+                    changed.extend(n.predecessors)
