@@ -54,10 +54,6 @@ def transform_ast(
                 module._fullname = embedded_src.puya_module_name  # noqa: SLF001
                 module_awst = ModuleASTConverter.convert(ctx, module)
                 result[module.name] = module_awst
-            elif module_name.startswith("puya_util_"):
-                logger.debug(f"Building AWST for embedded puya util lib at {module_rel_path}")
-                module_awst = ModuleASTConverter.convert(ctx, module)
-                result[module.name] = module_awst
             else:
                 logger.debug(f"Building AWST for {module_rel_path}")
                 module_awst = ModuleASTConverter.convert(ctx, module)
