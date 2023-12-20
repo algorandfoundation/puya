@@ -1340,7 +1340,7 @@ class FunctionIRBuilder(
     def visit_subroutine_call_expression(
         self, expr: awst_nodes.SubroutineCallExpression
     ) -> TExpression:
-        sref = self.context.resolve_function_reference(expr)
+        sref = self.context.resolve_function_reference(expr.target, expr.source_location)
         target = self.context.subroutines[sref]
         # TODO: what if args are multi-valued?
         args_expanded = list[tuple[str | None, Value]]()
@@ -2331,16 +2331,12 @@ class FunctionIRBuilder(
         args: list[Value],
         source_location: SourceLocation,
     ) -> InvokeSubroutine:
-        sub = next(
-            (
-                s
-                for s in self.context.subroutines.values()
-                if s.method_name == method_name and s.module_name == module_name
-            ),
-            None,
-        )
-        if not sub:
-            raise InternalError(f"Could not find subroutine with the name {method_name}")
+        target = awst_nodes.FreeSubroutineTarget(module_name=module_name, name=method_name)
+        func = self.context.resolve_function_reference(target, source_location)
+        try:
+            sub = self.context.subroutines[func]
+        except KeyError as ex:
+            raise InternalError(f"Could not find subroutine for {target}", source_location) from ex
         return InvokeSubroutine(
             source_location=source_location,
             target=sub,

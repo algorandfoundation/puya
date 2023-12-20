@@ -282,7 +282,7 @@ class SubroutineCollector(FunctionTraverser):
 
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         super().visit_subroutine_call_expression(expr)
-        func = self.context.resolve_function_reference(expr)
+        func = self.context.resolve_function_reference(expr.target, expr.source_location)
         if func not in self.result:
             self.result[func] = None
             func.body.accept(self)
