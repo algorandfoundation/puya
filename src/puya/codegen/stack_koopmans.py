@@ -116,15 +116,8 @@ def copy_usage_pairs(
         logger.debug(f"Replaced {block.block_name}.ops[{b_index}]: '{b}' with '{uncover}'")
 
 
-def _copy_and_apply_ops(stack: Stack, *maybe_ops: ops.BaseOp | None) -> Stack:
-    stack = stack.clone()
-    for op in filter(None, maybe_ops):
-        op.accept(stack)
-    return stack
-
-
 def is_stack_swap(stack_before_op: Stack, op: ops.MemoryOp) -> bool:
-    teal_ops = op.accept(stack_before_op.clone())
+    teal_ops = op.accept(stack_before_op.copy())
     match teal_ops:
         case [teal.Cover(1) | teal.Uncover(1)]:
             return True
@@ -133,7 +126,7 @@ def is_stack_swap(stack_before_op: Stack, op: ops.MemoryOp) -> bool:
 
 def optimize_single(stack_before_a: Stack, a: ops.BaseOp) -> ops.BaseOp | None:
     if isinstance(a, ops.MemoryOp):
-        teal_ops = a.accept(stack_before_a.clone())
+        teal_ops = a.accept(stack_before_a.copy())
         match teal_ops:
             case [teal.Cover(0) | teal.Uncover(0)]:
                 return ops.VirtualStackOp(a)
@@ -141,14 +134,21 @@ def optimize_single(stack_before_a: Stack, a: ops.BaseOp) -> ops.BaseOp | None:
 
 
 def is_redundant_rotate(
-    stack_before_a: Stack, a: ops.MemoryOp, stack_before_b: Stack, b: ops.MemoryOp
+    stack_before_a: Stack, a: ops.MemoryOp, maybe_virtual: ops.BaseOp | None, b: ops.MemoryOp
 ) -> bool:
-    a_teal = a.accept(stack_before_a.clone())
+    stack = stack_before_a.copy()
+    a_teal = a.accept(stack)
     try:
         (a_op,) = a_teal
     except ValueError:
         return False
-    b_teal = b.accept(stack_before_b.clone())
+
+    # optimization: the virtual op is applied here instead of outside optimize_pair
+    # as it is a hot path so deferring it until it is actually required saves some time
+
+    if maybe_virtual:
+        maybe_virtual.accept(stack)
+    b_teal = b.accept(stack)
     try:
         (b_op,) = b_teal
     except ValueError:
@@ -192,9 +192,9 @@ ORDERING_OPS = frozenset(["<", "<=", ">", ">=", "b<", "b<=", "b>", "b>="])
 
 def optimize_pair(
     ctx: SubroutineCodeGenContext,
-    stack_before_a: Stack,
+    stack: Stack,  # stack state before a
     a: ops.BaseOp,
-    stack_before_b: Stack,
+    maybe_virtual: ops.BaseOp | None,  # represents virtual ops that may be between a and b
     b: ops.BaseOp,
 ) -> tuple[()] | tuple[ops.BaseOp] | tuple[ops.BaseOp, ops.BaseOp]:
     """Given a pair of ops, returns which ops should be kept including replacements"""
@@ -210,7 +210,7 @@ def optimize_pair(
                 #   1.) store a variable for retrieval later via a load
                 #   2.) store a copy at the bottom of the stack for use in a later op
                 # If it is a dead store, then the 1st scenario is no longer needed
-                # and instead just need to ensure the value is copied to the bottom of the stack
+                # and instead just need to ensure the value is moved to the bottom of the stack
                 return (attrs.evolve(cover, copy=False),)
         return a, ops.Pop(n=1, source_location=b.source_location)
 
@@ -221,7 +221,7 @@ def optimize_pair(
     if isinstance(b, ops.Pop) and b.n == 1 and isinstance(a, ops.LoadOp):
         return ops.VirtualStackOp(a), ops.VirtualStackOp(b)
 
-    if isinstance(b, ops.IntrinsicOp) and is_stack_swap(stack_before_a, a):
+    if isinstance(b, ops.IntrinsicOp) and is_stack_swap(stack, a):
         if b.op_code in COMMUTATIVE_OPS:
             if isinstance(a, ops.LoadLStack | ops.StoreLStack):
                 return (b,)
@@ -237,7 +237,7 @@ def optimize_pair(
     if not isinstance(b, ops.MemoryOp):
         return a, b
 
-    if is_redundant_rotate(stack_before_a, a, stack_before_b, b):
+    if is_redundant_rotate(stack, a, maybe_virtual, b):
         match a, b:
             case (
                 ops.LoadLStack(copy=False, local_id=a_local_id),
@@ -374,11 +374,7 @@ def peephole_optimization_single(
                     b = op_iter.next()
         #
         if b:
-            stack_before_a = stack
-            stack_before_b = _copy_and_apply_ops(stack_before_a, a, maybe_virtual)
-            ops_to_keep: Sequence[ops.BaseOp] = optimize_pair(
-                ctx, stack_before_a, a, stack_before_b, b
-            )
+            ops_to_keep: Sequence[ops.BaseOp] = optimize_pair(ctx, stack, a, maybe_virtual, b)
         else:
             ops_to_keep = (a,)
         if (
