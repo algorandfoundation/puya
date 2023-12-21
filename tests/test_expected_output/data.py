@@ -525,7 +525,7 @@ class TestItem(pytest.Item):
         self,
         excinfo: pytest.ExceptionInfo[BaseException],
         _style: str | None = None,
-    ) -> str | _pytest._code.code.TerminalRepr:  # noqa: SLF001
+    ) -> str | _pytest._code.code.TerminalRepr:
         match excinfo.value:
             case TestCaseOutputDifferenceError() as test_case_error:
                 assert self.parent is not None
