@@ -1,6 +1,5 @@
 import base64
 import collections
-import functools
 import inspect
 import os
 import re
@@ -13,7 +12,6 @@ from textwrap import dedent
 import algokit_utils
 import algosdk.transaction
 import attrs
-import puya.context
 import pytest
 from algokit_utils import (
     Account,
@@ -28,48 +26,21 @@ from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
 from puya.avm_type import AVMType
-from puya.awst import nodes as awst_nodes
-from puya.awst_build.main import transform_ast
 from puya.codegen.emitprogram import CompiledContract, CompiledProgram
 from puya.codegen.teal_annotaters import AlignedWriter
-from puya.compile import awst_to_teal, parse_with_mypy
 from puya.metadata import ContractMetaData, ContractState
-from puya.options import PuyaOptions
+
+from tests.conftest import compile_src
 
 VCS_ROOT = Path(__file__).parent.parent
 EXAMPLES_DIR = VCS_ROOT / "examples"
+TEST_CASES_DIR = VCS_ROOT / "test_cases"
 DEFAULT_MAX_OPTIMIZATION_LEVEL = int(os.getenv("MAX_TEST_OPTIMIZATION_LEVEL", "2"))
 BYTES_ACTION = 1
 UINT_ACTION = 2
 NONE_ACTION = 3
 INTC_BLOCK = 0x20
 BYTEC_BLOCK = 0x26
-
-
-@functools.cache
-def parse_src_to_awst(
-    src_path: Path,
-) -> tuple[puya.context.CompileContext, dict[str, awst_nodes.Module]]:
-    context = parse_with_mypy(PuyaOptions(paths=[src_path]))
-    awst = transform_ast(context)
-    return context, awst
-
-
-@functools.cache
-def compile_src(src_path: Path, optimization_level: int, debug_level: int) -> CompiledContract:
-    # note that this caching assumes that AWST is the same across all
-    # optimisation and debug levels, which is currently true.
-    # if this were to no longer be true, this test speedup strategy would need to be revisited
-    context, awst = parse_src_to_awst(src_path)
-    context.options = attrs.evolve(
-        context.options,
-        optimization_level=optimization_level,
-        debug_level=debug_level,
-    )
-    teal = awst_to_teal(context, awst)
-    assert teal is not None, "compile error"
-    ((contract,),) = teal.values()
-    return contract
 
 
 def decode_int(result: str) -> int:
@@ -557,15 +528,15 @@ def harness(algod_client: AlgodClient, account: Account, no_op_app_id: int) -> _
 
 def test_ssa(harness: _TestHarness) -> None:
     result = harness.deploy(
-        EXAMPLES_DIR / "ssa",
-        AppCallRequest(trace_output=EXAMPLES_DIR / "ssa" / "out" / "trace.log"),
+        TEST_CASES_DIR / "ssa",
+        AppCallRequest(trace_output=TEST_CASES_DIR / "ssa" / "out" / "trace.log"),
     )
 
     assert result.decode_logs("i") == [102]
 
 
 def test_tuple_support(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "tuple_support.py")
+    result = harness.deploy(TEST_CASES_DIR / "tuple_support.py")
     total, msg, hi, mid, lo, batman = result.decode_logs("iuiiiu")
     assert total == 306
     assert msg == "Hello, world!"
@@ -576,12 +547,12 @@ def test_tuple_support(harness: _TestHarness) -> None:
 
 
 def test_chained_assignment(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "chained_assignment")
+    result = harness.deploy(TEST_CASES_DIR / "chained_assignment")
     assert result.decode_logs("u") == ["Hello, world! 👋"]
 
 
 def test_callsub(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "callsub")
+    result = harness.deploy(TEST_CASES_DIR / "callsub")
     assert result.decode_logs("iii") == [42, 1, 2]
 
 
@@ -634,14 +605,14 @@ def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
 
 
 def test_nested_loops(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "nested_loops", AppCallRequest(increase_budget=15))
+    result = harness.deploy(TEST_CASES_DIR / "nested_loops", AppCallRequest(increase_budget=15))
     x, y = result.decode_logs("ii")
     assert x == 192
     assert y == 285
 
 
 def test_with_reentrancy(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "with_reentrancy")
+    result = harness.deploy(TEST_CASES_DIR / "with_reentrancy")
     logs = result.decode_logs("iuuuuuu")
     assert logs == [
         5,
@@ -655,7 +626,7 @@ def test_with_reentrancy(harness: _TestHarness) -> None:
 
 
 def test_conditional_expressions(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "conditional_expressions")
+    result = harness.deploy(TEST_CASES_DIR / "conditional_expressions")
     logs = result.decode_logs(("u" * 6) + "i")
     counts = collections.Counter(logs[:-1])
     assert counts == {
@@ -666,11 +637,11 @@ def test_conditional_expressions(harness: _TestHarness) -> None:
 
 
 def test_contains_operator(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "contains")
+    harness.deploy(TEST_CASES_DIR / "contains")
 
 
 def test_boolean_binary_ops(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "boolean_binary_ops")
+    result = harness.deploy(TEST_CASES_DIR / "boolean_binary_ops")
     logs = set(result.decode_logs("u" * 12))
     assert logs == {
         # AND
@@ -695,14 +666,15 @@ def test_boolean_binary_ops(harness: _TestHarness) -> None:
 
 
 def test_biguint_binary_ops(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "biguint_binary_ops")
+    harness.deploy(TEST_CASES_DIR / "biguint_binary_ops")
 
 
 def test_unssa(harness: _TestHarness) -> None:
     result = harness.deploy(
-        EXAMPLES_DIR / "unssa",
+        TEST_CASES_DIR / "unssa",
         AppCallRequest(
-            increase_budget=1, trace_output=EXAMPLES_DIR / "unssa" / "out" / "execution_trace.log"
+            increase_budget=1,
+            trace_output=TEST_CASES_DIR / "unssa" / "out" / "execution_trace.log",
         ),
     )
     result1, result2 = result.decode_logs("ii")
@@ -711,7 +683,7 @@ def test_unssa(harness: _TestHarness) -> None:
 
 
 def test_byte_constants(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "byte_constants.py")
+    result = harness.deploy(TEST_CASES_DIR / "byte_constants.py")
     the_str, the_length = result.decode_logs("bi")
     expected = b"Base 16 encoded|Base 64 encoded|Base 32 encoded|UTF-8 Encoded"
     assert the_str == expected
@@ -719,12 +691,12 @@ def test_byte_constants(harness: _TestHarness) -> None:
 
 
 def test_bytes_ops(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "bytes_ops")
+    harness.deploy(TEST_CASES_DIR / "bytes_ops")
 
 
 def test_simplish(harness: _TestHarness) -> None:
     nickname = "My Nicky Nick"
-    harness.deploy(EXAMPLES_DIR / "simplish")
+    harness.deploy(TEST_CASES_DIR / "simplish")
 
     opt_in_result = harness.call(AppCallRequest(args=[nickname], on_complete=OnComplete.OptInOC))
     assert not opt_in_result.logs
@@ -756,13 +728,13 @@ def test_simplish(harness: _TestHarness) -> None:
 
 
 def test_address(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "address_constant.py")
+    result = harness.deploy(TEST_CASES_DIR / "address_constant.py")
     sender_bytes = algosdk.encoding.decode_address(harness.sender)
     assert result.decode_logs("b") == [sender_bytes]
 
 
 def test_string_ops(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "string_ops", AppCallRequest(increase_budget=1))
+    harness.deploy(TEST_CASES_DIR / "string_ops", AppCallRequest(increase_budget=1))
 
 
 def test_local_storage(harness: _TestHarness) -> None:
@@ -849,7 +821,7 @@ def test_local_storage_with_offsets(harness: _TestHarness) -> None:
 
 
 def test_unary(harness: _TestHarness) -> None:
-    unary_path = EXAMPLES_DIR / "unary"
+    unary_path = TEST_CASES_DIR / "unary"
     harness.deploy(
         unary_path,
         AppCallRequest(trace_output=unary_path / "out" / "execution_trace.log"),
@@ -857,24 +829,24 @@ def test_unary(harness: _TestHarness) -> None:
 
 
 def test_enumeration(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "enumeration", AppCallRequest(increase_budget=1))
+    harness.deploy(TEST_CASES_DIR / "enumeration", AppCallRequest(increase_budget=1))
 
 
 def test_bytes_stubs(harness: _TestHarness) -> None:
     harness.deploy(
-        EXAMPLES_DIR / "stubs" / "bytes.py",
+        TEST_CASES_DIR / "stubs" / "bytes.py",
         AppCallRequest(
-            increase_budget=1, trace_output=EXAMPLES_DIR / "stubs" / "out" / "bytes.log"
+            increase_budget=1, trace_output=TEST_CASES_DIR / "stubs" / "out" / "bytes.log"
         ),
     )
 
 
 def test_uint64_stubs(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "stubs" / "uint64.py", AppCallRequest(increase_budget=1))
+    harness.deploy(TEST_CASES_DIR / "stubs" / "uint64.py", AppCallRequest(increase_budget=1))
 
 
 def test_biguint_stubs(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "stubs" / "biguint.py", AppCallRequest(increase_budget=1))
+    harness.deploy(TEST_CASES_DIR / "stubs" / "biguint.py", AppCallRequest(increase_budget=1))
 
 
 def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
@@ -898,49 +870,49 @@ def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
 
 @pytest.mark.xfail(reason="Struct support not implemented yet")
 def test_augmented_assignment_with_side_effects(harness: _TestHarness) -> None:
-    result = harness.deploy(EXAMPLES_DIR / "aug_ass_wit_side_efex")
+    result = harness.deploy(TEST_CASES_DIR / "aug_ass_wit_side_efex")
     assert result.decode_logs("i") == [1]
 
 
 def test_abi_string(harness: _TestHarness) -> None:
     harness.deploy(
-        EXAMPLES_DIR / "arc4_types" / "string.py",
-        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "string.log"),
+        TEST_CASES_DIR / "arc4_types" / "string.py",
+        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "string.log"),
     )
 
 
 def test_abi_numeric(harness: _TestHarness) -> None:
     harness.deploy(
-        EXAMPLES_DIR / "arc4_types" / "numeric.py",
-        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "numeric.log"),
+        TEST_CASES_DIR / "arc4_types" / "numeric.py",
+        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "numeric.log"),
     )
 
 
 def test_abi_array(harness: _TestHarness) -> None:
     harness.deploy(
-        EXAMPLES_DIR / "arc4_types" / "array.py",
-        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "array.log"),
+        TEST_CASES_DIR / "arc4_types" / "array.py",
+        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "array.log"),
     )
 
 
 def test_abi_bool(harness: _TestHarness) -> None:
     harness.deploy(
-        EXAMPLES_DIR / "arc4_types" / "bool.py",
-        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "bool.log"),
+        TEST_CASES_DIR / "arc4_types" / "bool.py",
+        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "bool.log"),
     )
 
 
 def test_abi_tuple(harness: _TestHarness) -> None:
     harness.deploy(
-        EXAMPLES_DIR / "arc4_types" / "tuples.py",
-        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "tuples.log"),
+        TEST_CASES_DIR / "arc4_types" / "tuples.py",
+        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "tuples.log"),
     )
 
 
 def test_abi_struct(harness: _TestHarness) -> None:
     result = harness.deploy(
-        EXAMPLES_DIR / "arc4_types" / "structs.py",
-        AppCallRequest(trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "structs.log"),
+        TEST_CASES_DIR / "arc4_types" / "structs.py",
+        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "structs.log"),
     )
     x, y, z = result.decode_logs("bbb")
 
@@ -971,7 +943,7 @@ def test_abi_mutations(harness: _TestHarness) -> None:
 def test_undefined_phi_args(
     harness: _TestHarness, test_case: bytes, expected_logic_error: str
 ) -> None:
-    example = EXAMPLES_DIR / "undefined_phi_args"
+    example = TEST_CASES_DIR / "undefined_phi_args"
     harness.deploy(example, AppCallRequest(args=[test_case]))
 
     with pytest.raises(LogicError) as ex_info:
@@ -984,7 +956,7 @@ def test_undefined_phi_args(
 
 def test_augmented_assignment(harness: _TestHarness) -> None:
     result = harness.deploy(
-        EXAMPLES_DIR / "augmented_assignment" / "contract.py",
+        TEST_CASES_DIR / "augmented_assignment" / "contract.py",
         AppCallRequest(args=[0], on_complete=OnComplete.OptInOC),
     )
 
@@ -1061,7 +1033,7 @@ def test_augmented_assignment(harness: _TestHarness) -> None:
 
 
 def test_asset(harness: _TestHarness, asset_a: int, asset_b: int) -> None:
-    harness.deploy(EXAMPLES_DIR / "asset")
+    harness.deploy(TEST_CASES_DIR / "asset")
 
     # ensure app meets minimum balance requirements
     harness.fund(200_000)
@@ -1085,7 +1057,7 @@ def test_verify(harness: _TestHarness) -> None:
     public_key = key.verify_key.encode()
 
     result = harness.deploy(
-        EXAMPLES_DIR / "edverify",
+        TEST_CASES_DIR / "edverify",
         AppCallRequest(
             args=[data, sig, public_key],
             increase_budget=4,
@@ -1097,16 +1069,16 @@ def test_verify(harness: _TestHarness) -> None:
 
 
 def test_application(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "application")
+    harness.deploy(TEST_CASES_DIR / "application")
 
     harness.call(AppCallRequest(args=[b"validate"]))
 
 
 def test_conditional_execution(harness: _TestHarness) -> None:
     harness.deploy(
-        EXAMPLES_DIR / "conditional_execution",
+        TEST_CASES_DIR / "conditional_execution",
         request=AppCallRequest(
-            trace_output=EXAMPLES_DIR / "conditional_execution" / "out" / "trace.log"
+            trace_output=TEST_CASES_DIR / "conditional_execution" / "out" / "trace.log"
         ),
     )
 
