@@ -45,6 +45,7 @@ EMBEDDED_MODULES = {
     es.mypy_module_name: es
     for es in (
         EmbeddedSource.from_path("_puyapy_.py", module_override="puyapy"),
+        EmbeddedSource.from_path("puyapy_lib_arc4.py"),
         EmbeddedSource.from_path("puyapy_lib_bytes.py"),
     )
 }

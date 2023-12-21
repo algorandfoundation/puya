@@ -7,12 +7,18 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
+    ArrayConcat,
+    ArrayExtend,
     BytesConstant,
     BytesEncoding,
+    ExpressionStatement,
     Literal,
+    Statement,
 )
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
+from puya.awst_build.eb.base import BuilderBinaryOp
 from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
 if TYPE_CHECKING:
@@ -57,3 +63,45 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
 
 class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
     wtype = wtypes.arc4_string_wtype
+
+    def augmented_assignment(
+        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+    ) -> Statement:
+        match op:
+            case BuilderBinaryOp.add:
+                return ExpressionStatement(
+                    expr=ArrayExtend(
+                        base=self.expr,
+                        other=expect_operand_wtype(rhs, wtypes.arc4_string_wtype),
+                        source_location=location,
+                        wtype=wtypes.arc4_string_wtype,
+                    )
+                )
+            case _:
+                return super().augmented_assignment(op, rhs, location)
+
+    def binary_op(
+        self,
+        other: ExpressionBuilder | Literal,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> ExpressionBuilder:
+        match op:
+            case BuilderBinaryOp.add:
+                lhs = self.expr
+                rhs = expect_operand_wtype(other, wtypes.arc4_string_wtype)
+                if reverse:
+                    (lhs, rhs) = (rhs, lhs)
+                return var_expression(
+                    ArrayConcat(
+                        left=lhs,
+                        right=rhs,
+                        source_location=location,
+                        wtype=wtypes.arc4_string_wtype,
+                    )
+                )
+
+            case _:
+                return super().binary_op(other, op, location, reverse=reverse)

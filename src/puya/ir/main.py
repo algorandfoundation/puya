@@ -6,6 +6,7 @@ import attrs
 import structlog
 
 from puya import metadata
+from puya.arc4_util import get_abi_signature
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -13,8 +14,10 @@ from puya.awst import (
 )
 from puya.awst.function_traverser import FunctionTraverser
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_router import create_abi_router, create_default_clear_state
-from puya.ir.arc4_util import get_abi_signature
+from puya.ir.arc4_router import (
+    create_abi_router,
+    create_default_clear_state,
+)
 from puya.ir.builder import FunctionIRBuilder, format_tuple_index
 from puya.ir.context import IRBuildContext
 from puya.ir.models import (
@@ -274,11 +277,12 @@ class SubroutineCollector(FunctionTraverser):
     ) -> list[awst_nodes.Function]:
         collector = cls(context)
         start.accept(collector)
+
         return list(collector.result.keys())
 
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         super().visit_subroutine_call_expression(expr)
-        func = self.context.resolve_function_reference(expr)
+        func = self.context.resolve_function_reference(expr.target, expr.source_location)
         if func not in self.result:
             self.result[func] = None
             func.body.accept(self)

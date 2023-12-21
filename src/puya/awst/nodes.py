@@ -389,11 +389,49 @@ class ARC4Encode(Expression):
 
 @attrs.frozen
 class ARC4ArrayEncode(Expression):
-    values: Sequence[Expression]
     wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray = attrs.field()
+    values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_array_encode(self)
+
+
+@attrs.frozen
+class ArrayConcat(Expression):
+    """
+    Given 'left' or 'right' that is logically an array - concat it with the other value which is
+    an iterable type with the same element type
+    """
+
+    left: Expression
+    wtype: wtypes.WType
+    right: Expression
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_concat(self)
+
+
+@attrs.frozen
+class ArrayPop(Expression):
+    base: Expression
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_pop(self)
+
+
+@attrs.frozen
+class ArrayExtend(Expression):
+    """
+    Given 'base' that is logically an array - extend it with 'other' which is an iterable type with
+    the same element type
+    """
+
+    base: Expression
+    other: Expression
+    wtype: wtypes.WType = attrs.field(default=wtypes.void_wtype)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_array_extend(self)
 
 
 @attrs.frozen
@@ -833,9 +871,12 @@ class CallArg:
     value: Expression
 
 
+SubroutineTarget = FreeSubroutineTarget | InstanceSubroutineTarget | BaseClassSubroutineTarget
+
+
 @attrs.frozen
 class SubroutineCallExpression(Expression):
-    target: FreeSubroutineTarget | InstanceSubroutineTarget | BaseClassSubroutineTarget
+    target: SubroutineTarget
     args: Sequence[CallArg] = attrs.field(converter=tuple[CallArg, ...])
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -1086,16 +1127,6 @@ class NewStruct(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_new_struct(self)
-
-
-@attrs.frozen
-class ArrayAppend(Expression):
-    array: Expression
-    element: Expression
-    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_array_append(self)
 
 
 @attrs.frozen
