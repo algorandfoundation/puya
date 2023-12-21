@@ -1,0 +1,36 @@
+#pragma version 8
+
+// test_cases.ssa2.contract.MyContract.clear_state_program() -> uint64:
+main_block@0:
+        int 40
+        callsub one_hundred
+        return
+
+
+// test_cases.ssa2.contract.one_hundred(c#0: uint64) -> uint64:
+one_hundred:
+        proto 1 1
+
+one_hundred_block@0:
+        int 25
+        int 2
+        int 25
+        frame_dig -1
+        <
+        bz one_hundred_after_if_else@2
+
+one_hundred_if_body@1:
+        int 1
+        frame_bury 1
+        int 100
+        frame_bury 0
+
+one_hundred_after_if_else@2:
+        frame_dig 1
+        dup
+        *
+        frame_dig 0
+        *
+        frame_bury 0
+        retsub
+

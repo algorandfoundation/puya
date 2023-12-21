@@ -1,0 +1,42 @@
+contract BiguintBinaryOps
+{
+  approval_program(): bool
+  {
+    test_cases.bytes_ops.contract::do_some_ops(left=hex<"FF">, right=hex<"0F">, concat=hex<"FF0F">, bitwise_or=hex<"FF">, bitwise_xor=hex<"F0">, bitwise_and=hex<"0F">)
+    test_cases.bytes_ops.contract::do_augmented_assignment_ops(hex<"FF">)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine do_some_ops(left: puyapy.Bytes, right: puyapy.Bytes, concat: puyapy.Bytes, bitwise_or: puyapy.Bytes, bitwise_xor: puyapy.Bytes, bitwise_and: puyapy.Bytes): None
+{
+  result: puyapy.Bytes = left + right
+  assert(result == concat)
+  result: puyapy.Bytes = left | right
+  assert(result == bitwise_or)
+  result: puyapy.Bytes = left ^ right
+  assert(result == bitwise_xor)
+  result: puyapy.Bytes = left & right
+  assert(result == bitwise_and)
+}
+
+subroutine do_augmented_assignment_ops(seed: puyapy.Bytes): None
+{
+  seed &= hex<"00">
+  assert(seed == hex<"00">)
+  five: puyapy.Bytes = hex<"05">
+  seed |= five
+  assert(seed == five)
+  sixteen: puyapy.Bytes = hex<"10">
+  seed ^= sixteen
+  assert(seed == hex<"15">)
+  seed ^= five
+  assert(seed == sixteen)
+  seed += five
+  assert(seed == hex<"1005">)
+}

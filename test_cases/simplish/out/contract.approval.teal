@@ -1,0 +1,362 @@
+#pragma version 8
+
+// test_cases.simplish.contract.Simplish.approval_program() -> uint64:
+main:
+        int 0
+        dup
+        byte ""
+        dupn 3
+
+main_block@0:
+        txn ApplicationID
+        bnz main_entrypoint@2
+
+main_on_create@1:
+        callsub __init__
+
+main_entrypoint@2:
+        txn ApplicationID
+        !
+        bz main_after_if_else@4
+
+main_if_body@3:
+        int 1
+        return
+
+main_after_if_else@4:
+        txn OnCompletion
+        dup
+        bury 3
+        txn Sender
+        bury 6
+        dup
+        int UpdateApplication
+        ==
+        swap
+        int DeleteApplication
+        ==
+        ||
+        bz main_after_if_else@8
+
+main_if_body@5:
+        dig 1
+        int DeleteApplication
+        ==
+        bz main_after_if_else@7
+
+main_if_body@6:
+        int 0
+        byte "counter"
+        app_global_get_ex
+        assert // check value exists
+        callsub itoa
+        byte "I was used "
+        swap
+        concat
+        byte " time(s) before I died"
+        concat
+        log
+
+main_after_if_else@7:
+        global CreatorAddress
+        dig 5
+        ==
+        return
+
+main_after_if_else@8:
+        dig 1
+        int OptIn
+        ==
+        bz main_after_if_else@12
+
+main_if_body@9:
+        txn NumAppArgs
+        int 0
+        >
+        bz main_after_if_else@11
+
+main_if_body@10:
+        txna ApplicationArgs 0
+        callsub set_sender_nickname
+
+main_after_if_else@11:
+        int 1
+        return
+
+main_after_if_else@12:
+        dig 1
+        int NoOp
+        !=
+        bz main_after_if_else@14
+
+main_if_body@13:
+        int 0
+        return
+
+main_after_if_else@14:
+        txn NumAppArgs
+        dup
+        bury 4
+        int 0
+        >
+        bz main_else_body@16
+
+main_if_body@15:
+        txna ApplicationArgs 0
+        dig 3
+        callsub call
+        bury 2
+        bury 6
+        b main_after_if_else@23
+
+main_else_body@16:
+        txn NumAssets
+        int 1
+        ==
+        bz main_else_body@21
+
+main_if_body@17:
+        dig 4
+        int 0
+        asset_holding_get AssetBalance
+        swap
+        bury 5
+        bnz main_else_body@19
+
+main_if_body@18:
+        byte "You do not have any of the asset"
+        bury 6
+        b main_after_if_else@20
+
+main_else_body@19:
+        dig 3
+        callsub itoa
+        byte "You have asset balance: "
+        swap
+        concat
+        bury 6
+
+main_after_if_else@20:
+        int 1
+        bury 1
+        b main_after_if_else@22
+
+main_else_body@21:
+        byte "not enough app args or foreign assets"
+        bury 6
+        int 0
+        bury 1
+
+main_after_if_else@22:
+
+main_after_if_else@23:
+        dig 5
+        log
+        callsub increment_counter
+        dup
+        return
+
+
+// test_cases.simplish.contract.itoa(i#0: uint64) -> bytes:
+itoa:
+        proto 1 1
+
+itoa_block@0:
+        frame_dig -1
+        int 10
+        <
+        bz itoa_after_if_else@2
+
+itoa_if_body@1:
+        frame_dig -1
+        int 1
+        +
+        byte "0123456789"
+        frame_dig -1
+        uncover 2
+        substring3
+        retsub
+
+itoa_after_if_else@2:
+        frame_dig -1
+        int 10
+        /
+        callsub itoa
+        frame_dig -1
+        int 10
+        %
+        dup
+        int 1
+        +
+        byte "0123456789"
+        cover 2
+        substring3
+        concat
+        retsub
+
+
+// test_cases.simplish.base_class.CallCounter.set_sender_nickname(nickname#0: bytes) -> void:
+set_sender_nickname:
+        proto 1 0
+
+set_sender_nickname_block@0:
+        int 0
+        byte "name"
+        frame_dig -1
+        app_local_put
+        retsub
+
+
+// test_cases.simplish.contract.Simplish.call(method_name#0: bytes, num_app_args#0: uint64) -> bytes, uint64:
+call:
+        proto 2 2
+        int 0
+
+call_block@0:
+        frame_dig -1
+        int 2
+        ==
+        assert // insufficient arguments
+        txna ApplicationArgs 1
+        btoi
+        int 1
+        frame_dig -2
+        byte "circle_area"
+        ==
+        bz call_else_body@2
+
+call_if_body@1:
+        frame_dig 1
+        callsub circle_area
+        callsub itoa
+        frame_bury 0
+        b call_after_if_else@9
+
+call_else_body@2:
+        frame_dig -2
+        byte "circle_circumference"
+        ==
+        bz call_else_body@4
+
+call_if_body@3:
+        frame_dig 1
+        callsub circle_circumference
+        callsub itoa
+        frame_bury 0
+        b call_after_if_else@8
+
+call_else_body@4:
+        frame_dig -2
+        byte "circle_report"
+        ==
+        bz call_else_body@6
+
+call_if_body@5:
+        frame_dig 1
+        dup
+        callsub circle_area
+        swap
+        dup
+        callsub circle_circumference
+        cover 2
+        callsub itoa
+        byte "Approximate area and circumference of circle with radius "
+        swap
+        concat
+        byte " = "
+        concat
+        swap
+        callsub itoa
+        concat
+        byte ", "
+        concat
+        swap
+        callsub itoa
+        concat
+        frame_bury 0
+        b call_after_if_else@7
+
+call_else_body@6:
+        int 0
+        frame_bury 2
+        byte "unknown method name"
+        frame_bury 0
+
+call_after_if_else@7:
+
+call_after_if_else@8:
+
+call_after_if_else@9:
+        frame_dig 0
+        frame_dig 2
+        frame_bury 1
+        frame_bury 0
+        retsub
+
+
+// test_cases.simplish.contract.circle_area(radius#0: uint64) -> uint64:
+circle_area:
+        proto 1 1
+
+circle_area_block@0:
+        frame_dig -1
+        int 2
+        exp
+        int 314159
+        *
+        int 100000
+        /
+        retsub
+
+
+// test_cases.simplish.contract.circle_circumference(radius#0: uint64) -> uint64:
+circle_circumference:
+        proto 1 1
+
+circle_circumference_block@0:
+        frame_dig -1
+        int 628318
+        *
+        int 100000
+        /
+        retsub
+
+
+// test_cases.simplish.contract.Simplish.increment_counter() -> void:
+increment_counter:
+        proto 0 0
+
+increment_counter_block@0:
+        byte "Incrementing counter!"
+        log
+        callsub CallCounter.increment_counter
+        retsub
+
+
+// test_cases.simplish.base_class.CallCounter.increment_counter() -> void:
+CallCounter.increment_counter:
+        proto 0 0
+
+CallCounter.increment_counter_block@0:
+        int 0
+        byte "counter"
+        app_global_get_ex
+        assert // check value exists
+        int 1
+        +
+        byte "counter"
+        swap
+        app_global_put
+        retsub
+
+
+// test_cases.simplish.base_class.CallCounter.__init__() -> void:
+__init__:
+        proto 0 0
+
+__init___block@0:
+        byte "counter"
+        int 0
+        app_global_put
+        retsub
+

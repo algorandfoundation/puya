@@ -1,0 +1,45 @@
+contract BigUIntContract
+{
+  approval_program(): bool
+  {
+    test_cases.stubs.biguint::compare_biguints(1n, 2n)
+    test_cases.stubs.biguint::compare_biguint_vs_uint64(1n, 2u)
+    test_cases.stubs.biguint::compare_uint64_vs_biguint(1u, 2n)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine compare_biguints(one: puyapy.BigUInt, two: puyapy.BigUInt): None
+{
+  assert(one < two)
+  assert(one <= two)
+  assert(one == one)
+  assert(two > one)
+  assert(two >= one)
+  assert(one != two)
+}
+
+subroutine compare_biguint_vs_uint64(one: puyapy.BigUInt, two: puyapy.UInt64): None
+{
+  assert(one < itob(two))
+  assert(one <= itob(two))
+  assert(one == one)
+  assert(one < itob(two))
+  assert(one <= itob(two))
+  assert(one != itob(two))
+}
+
+subroutine compare_uint64_vs_biguint(one: puyapy.UInt64, two: puyapy.BigUInt): None
+{
+  assert(two > itob(one))
+  assert(two >= itob(one))
+  assert(one == one)
+  assert(two > itob(one))
+  assert(two >= itob(one))
+  assert(two != itob(one))
+}

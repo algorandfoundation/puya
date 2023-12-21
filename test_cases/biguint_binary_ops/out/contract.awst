@@ -1,0 +1,32 @@
+contract BiguintBinaryOps
+{
+  approval_program(): bool
+  {
+    (add, subtract, multiply, divide, mod, lt, lte, gt, gte, eq, neq, b_or, b_and, b_xor): tuple[puyapy.BigUInt, puyapy.BigUInt, puyapy.BigUInt, puyapy.BigUInt, puyapy.BigUInt, bool, bool, bool, bool, bool, bool, puyapy.BigUInt, puyapy.BigUInt, puyapy.BigUInt] = test_cases.biguint_binary_ops.contract::do_some_ops(58446744073709552000n, 18446744073709552000n)
+    assert(add == 76893488147419104000n)
+    assert(subtract == 40000000000000000000n)
+    assert(multiply == 1078152129869320557630474056040704000000n)
+    assert(divide == 3n)
+    assert(mod == 3106511852580896000n)
+    assert(!(lt))
+    assert(!(lte))
+    assert(gt)
+    assert(gte)
+    assert(!(eq))
+    assert(neq)
+    assert(b_or == 58446744073709552000n)
+    assert(b_and == 18446744073709552000n)
+    assert(b_xor == 40000000000000000000n)
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine do_some_ops(left: puyapy.BigUInt, right: puyapy.BigUInt): tuple[puyapy.BigUInt, puyapy.BigUInt, puyapy.BigUInt, puyapy.BigUInt, puyapy.BigUInt, bool, bool, bool, bool, bool, bool, puyapy.BigUInt, puyapy.BigUInt, puyapy.BigUInt]
+{
+  return (left b+ right, left b- right, left b* right, left b// right, left b% right, left < right, left <= right, left > right, left >= right, left == right, left != right, left b| right, left b& right, left b^ right)
+}

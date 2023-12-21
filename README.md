@@ -129,6 +129,7 @@ def circle_area_100() -> UInt64:
  There are many examples in this repo, here are some of the more useful ones that showcase what
  is possible.
 
+- [hello world (arc4)](examples/hello_world/arc4_contract.py)
 - [voting](examples/voting/voting.py)
 - [AMM](examples/amm/contract.py)
 - [auction](examples/auction/contract.py)

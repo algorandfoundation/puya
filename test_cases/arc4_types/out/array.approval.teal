@@ -1,0 +1,309 @@
+#pragma version 8
+
+// test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
+main:
+        int 0
+        dupn 2
+        byte ""
+        dupn 4
+
+main_block@0:
+        int 0
+        byte 0x00020102
+        int 0
+        extract_uint16
+        int 0
+
+main_for_header@1:
+        dup
+        dig 2
+        <
+        bz main_after_for@4
+
+main_for_body@2:
+        byte 0x0102
+        dig 1
+        dup
+        cover 2
+        int 1
+        extract3
+        btoi
+        dig 4
+        +
+        bury 4
+        int 1
+        +
+        bury 1
+        b main_for_header@1
+
+main_after_for@4:
+        dig 2
+        int 3
+        ==
+        assert // Total should be sum of dynamic_uint8_array items
+        byte 0x00010001
+        int 0
+        extract_uint16
+        bury 7
+        int 0
+        bury 5
+
+main_for_header@5:
+        dig 4
+        dig 7
+        <
+        bz main_after_for@8
+
+main_for_body@6:
+        dig 4
+        dup
+        int 2
+        *
+        byte 0x0001
+        swap
+        int 2
+        extract3
+        btoi
+        dig 4
+        +
+        bury 4
+        int 1
+        +
+        bury 5
+        b main_for_header@5
+
+main_after_for@8:
+        dig 2
+        int 4
+        ==
+        assert // Total should now include sum of aliased_dynamic items
+        int 4
+        itob
+        extract 6 2
+        byte 0x0002
+        swap
+        concat
+        int 11
+        itob
+        extract 6 2
+        concat
+        byte "\x00\x05Hello"
+        concat
+        byte "\x00\x05World"
+        concat
+        dup
+        int 0
+        extract_uint16
+        int 2
+        ==
+        assert
+        dup
+        int 0
+        extract_uint16
+        int 0
+        >
+        assert // Index access is out of bounds
+        dup
+        extract 2 0
+        dup
+        int 0
+        extract_uint16
+        dig 1
+        dig 1
+        extract_uint16
+        int 2
+        +
+        extract3
+        byte "\x00\x05Hello"
+        ==
+        assert
+        byte ""
+        bury 11
+        dup
+        int 0
+        extract_uint16
+        bury 9
+        extract 2 0
+        bury 11
+        int 0
+        bury 6
+
+main_for_header@9:
+        dig 5
+        dig 8
+        <
+        bz main_after_for@15
+
+main_for_body@10:
+        dig 5
+        dup
+        int 2
+        *
+        dig 12
+        dup
+        cover 2
+        swap
+        extract_uint16
+        dig 1
+        dig 1
+        extract_uint16
+        int 2
+        +
+        extract3
+        swap
+        !
+        bz main_else_body@12
+
+main_if_body@11:
+        extract 2 0
+        bury 10
+        b main_after_if_else@13
+
+main_else_body@12:
+        extract 2 0
+        byte " "
+        swap
+        concat
+        dig 10
+        swap
+        concat
+        bury 10
+
+main_after_if_else@13:
+        dig 5
+        int 1
+        +
+        bury 6
+        b main_for_header@9
+
+main_after_for@15:
+        dig 9
+        byte "Hello World"
+        ==
+        assert
+        int 0
+        bury 4
+
+main_for_header@16:
+        dig 3
+        int 4
+        <
+        bz main_after_for@19
+
+main_for_body@17:
+        dig 3
+        dup
+        int 4
+        *
+        byte 0x000000010000000a000000ff00000080
+        swap
+        int 4
+        extract3
+        btoi
+        dig 4
+        +
+        bury 4
+        int 1
+        +
+        bury 4
+        b main_for_header@16
+
+main_after_for@19:
+        dig 2
+        int 398
+        ==
+        assert
+        byte 0x65
+        btoi
+        byte 0x65
+        btoi
+        +
+        int 202
+        ==
+        assert
+        int 4
+        itob
+        extract 6 2
+        int 10
+        itob
+        extract 6 2
+        concat
+        byte "\x00\x04Ping"
+        concat
+        byte "\x00\x04Pong"
+        concat
+        bury 9
+        byte ""
+        bury 10
+        int 0
+        bury 6
+
+main_for_header@20:
+        dig 5
+        int 2
+        <
+        bz main_after_for@26
+
+main_for_body@21:
+        dig 5
+        dup
+        int 2
+        *
+        dig 10
+        dup
+        cover 2
+        swap
+        extract_uint16
+        dig 1
+        dig 1
+        extract_uint16
+        int 2
+        +
+        extract3
+        swap
+        !
+        bz main_else_body@23
+
+main_if_body@22:
+        extract 2 0
+        bury 10
+        b main_after_if_else@24
+
+main_else_body@23:
+        extract 2 0
+        byte " "
+        swap
+        concat
+        dig 10
+        swap
+        concat
+        bury 10
+
+main_after_if_else@24:
+        dig 5
+        int 1
+        +
+        bury 6
+        b main_for_header@20
+
+main_after_for@26:
+        dig 9
+        byte "Ping Pong"
+        ==
+        assert
+        byte "Testing 123"
+        callsub hash_as_array
+        pop
+        int 1
+        return
+
+
+// examples.arc4_types.array.Arc4ArraysContract.hash_as_array(commitment_args_concat#0: bytes) -> bytes:
+hash_as_array:
+        proto 1 1
+
+hash_as_array_block@0:
+        frame_dig -1
+        sha3_256
+        retsub
+

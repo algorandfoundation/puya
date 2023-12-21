@@ -535,7 +535,7 @@ def test_dynamic_array_of_string(
 
 
 def test_avm_types_in_abi(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    example = EXAMPLES_DIR / "avm_types_in_abi" / "contract.py"
+    example = TEST_CASES_DIR / "avm_types_in_abi" / "contract.py"
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example, 1))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 

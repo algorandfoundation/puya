@@ -1,0 +1,175 @@
+#pragma version 8
+
+// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.approval_program() -> uint64:
+main_block@0:
+        txn NumAppArgs
+        bz main_bare_routing@6
+
+main_abi_routing@1:
+        txna ApplicationArgs 0
+        method "xyz()string[]"
+        method "xyz_raw()string[]"
+        uncover 2
+        match main_xyz_route@2 main_xyz_raw_route@3
+        b main_switch_case_default@4
+
+main_xyz_route@2:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        callsub xyz
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_xyz_raw_route@3:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        callsub xyz_raw
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_switch_case_default@4:
+
+main_switch_case_next@5:
+        b main_after_if_else@9
+
+main_bare_routing@6:
+        txn OnCompletion
+        int 0
+        swap
+        match main_create@7
+        b main_reject_bare_on_completion@8
+
+main_create@7:
+        txn ApplicationID
+        !
+        assert // is creating
+        int 1
+        return
+
+main_reject_bare_on_completion@8:
+        err // reject transaction
+
+main_after_if_else@9:
+        err // reject transaction
+
+
+// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz() -> bytes:
+xyz:
+        proto 0 1
+
+xyz_block@0:
+        byte 0x0003
+        int 6
+        dup
+        itob
+        extract 6 2
+        uncover 2
+        swap
+        concat
+        swap
+        byte "\x00\x01X"
+        len
+        +
+        dup
+        itob
+        extract 6 2
+        uncover 2
+        swap
+        concat
+        swap
+        byte "\x00\x01Y"
+        len
+        +
+        dup
+        itob
+        extract 6 2
+        uncover 2
+        swap
+        concat
+        byte "\x00\x01Z"
+        len
+        uncover 2
+        +
+        pop
+        byte "\x00\x01X"
+        concat
+        byte "\x00\x01Y"
+        concat
+        byte "\x00\x01Z"
+        concat
+        retsub
+
+
+// test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw() -> bytes:
+xyz_raw:
+        proto 0 1
+
+xyz_raw_block@0:
+        byte 0x0001
+        byte 0x58
+        concat
+        byte 0x0001
+        byte 0x59
+        concat
+        swap
+        byte 0x0001
+        byte 0x5a
+        concat
+        cover 2
+        byte 0x0003
+        int 6
+        dup
+        itob
+        extract 6 2
+        uncover 2
+        swap
+        concat
+        swap
+        dig 2
+        len
+        +
+        dup
+        itob
+        extract 6 2
+        uncover 2
+        swap
+        concat
+        swap
+        dig 3
+        len
+        +
+        dup
+        itob
+        extract 6 2
+        uncover 2
+        swap
+        concat
+        dig 4
+        len
+        uncover 2
+        +
+        pop
+        swap
+        concat
+        swap
+        concat
+        swap
+        concat
+        retsub
+
