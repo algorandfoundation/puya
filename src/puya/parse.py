@@ -149,7 +149,7 @@ def get_parse_sources(
     mypy_fscache: mypy.fscache.FileSystemCache,
     mypy_options: mypy.options.Options,
 ) -> list[ParseSource]:
-    resolved_input_paths = {p.resolve() for p in paths}
+    resolved_input_paths = {p.resolve(): p for p in paths}
     mypy_build_sources = mypy.find_sources.create_source_list(
         paths=[str(p) for p in resolved_input_paths],
         options=mypy_options,
@@ -163,7 +163,7 @@ def get_parse_sources(
         src_path = Path(src.path).resolve()
         sources.append(
             ParseSource(
-                path=src_path,
+                path=resolved_input_paths.get(src_path, src_path),
                 module_name=src.module,
                 is_explicit=src_path in resolved_input_paths,
             )
