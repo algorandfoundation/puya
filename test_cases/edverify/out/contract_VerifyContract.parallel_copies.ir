@@ -1,0 +1,30 @@
+contract test_cases.edverify.contract.VerifyContract:
+    program approval:
+        subroutine test_cases.edverify.contract.VerifyContract.approval_program() -> uint64:
+            block@0: // L5
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: uint64 = (== tmp%0#0 3u)
+                (assert tmp%1#0)
+                let tmp%2#0: bytes = (txna ApplicationArgs 0)
+                let tmp%3#0: bytes = (txna ApplicationArgs 1)
+                let tmp%4#0: bytes = (txna ApplicationArgs 2)
+                let result#0: uint64 = (ed25519verify_bare tmp%2#0 tmp%3#0 tmp%4#0)
+                goto result#0 ? block@1 : block@2
+            block@1: // ternary_true_L12
+                let ternary_result%5#0: uint64 = 1u
+                let ternary_result%5#5: uint64 = ternary_result%5#0
+                goto block@3
+            block@2: // ternary_false_L12
+                let ternary_result%5#1: uint64 = 0u
+                let ternary_result%5#5: uint64 = ternary_result%5#1
+                goto block@3
+            block@3: // ternary_merge_L12
+                let ternary_result%5#2: uint64 = ternary_result%5#5
+                let tmp%6#0: bytes = (itob ternary_result%5#2)
+                (log tmp%6#0)
+                return 1u
+    
+    program clear-state:
+        subroutine test_cases.edverify.contract.VerifyContract.clear_state_program() -> uint64:
+            block@0: // L15
+                return 1u

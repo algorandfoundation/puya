@@ -1,0 +1,100 @@
+#pragma version 8
+
+// test_cases.unary.contract.UnaryContract.approval_program() -> uint64:
+main_block@0:
+        callsub uint_unary
+        callsub biguint_unary
+        callsub bytes_unary
+        int 1
+        return
+
+
+// test_cases.unary.contract.uint_unary() -> void:
+uint_unary:
+        proto 0 0
+        byte ""
+        dup
+
+uint_unary_block@0:
+        int 0
+        !
+        assert // not uint
+
+uint_unary_for_header_0@1:
+        int 0
+        frame_bury 0
+        int 1
+        b uint_unary_for_body@5
+
+uint_unary_for_header_1@2:
+        int 2
+        frame_dig 1
+        frame_bury 0
+        b uint_unary_for_body@5
+
+uint_unary_for_header_2@3:
+        int 150
+        frame_dig 1
+        frame_bury 0
+        b uint_unary_for_body@5
+
+uint_unary_for_header_3@4:
+        int 18446744073709551615
+        frame_dig 1
+        frame_bury 0
+
+uint_unary_for_body@5:
+        int 18446744073709551615
+        swap
+        dup
+        cover 2
+        -
+        ~
+        ==
+        assert // ~ uint
+
+uint_unary_for_footer@6:
+        frame_dig 0
+        dup
+        int 1
+        +
+        frame_bury 1
+        switch uint_unary_for_header_1@2 uint_unary_for_header_2@3 uint_unary_for_header_3@4
+
+uint_unary_after_for@7:
+        retsub
+
+
+// test_cases.unary.contract.biguint_unary() -> void:
+biguint_unary:
+        proto 0 0
+
+biguint_unary_block@0:
+        byte 0x
+        byte 0x
+        b==
+        assert // not biguint
+        retsub
+
+
+// test_cases.unary.contract.bytes_unary() -> void:
+bytes_unary:
+        proto 0 0
+
+bytes_unary_block@0:
+        byte ""
+        len
+        !
+        assert // not bytes
+        byte 0xff
+        b~
+        byte 0x00
+        ==
+        assert // ~ bytes
+        byte 0x0000
+        b~
+        byte 0xffff
+        ==
+        assert // ~ bytes
+        retsub
+

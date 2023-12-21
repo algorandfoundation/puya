@@ -1,0 +1,92 @@
+#pragma version 8
+
+// test_cases.contains.contract.MyContract.approval_program() -> uint64:
+main_block@0:
+        int 10
+        int 10
+        int 15
+        byte "five"
+        callsub is_in_tuple_1
+        int 5
+        int 10
+        int 15
+        byte "five"
+        callsub is_in_tuple_1
+        swap
+        assert // Should be true
+        !
+        assert // Should be false
+        byte "hello"
+        byte "hello"
+        int 0
+        byte "bonjour"
+        callsub is_in_tuple_2
+        byte "ciao"
+        byte "hello"
+        int 0
+        byte "bonjour"
+        callsub is_in_tuple_2
+        swap
+        assert // Should be true
+        !
+        assert // Should be false
+        byte 0x1d65e22bcbbf
+        byte 0x1d65e22bcbbf
+        byte 0x07acf5cae41e
+        callsub is_in_tuple_3
+        byte 0x3acbc457977e
+        byte 0x1d65e22bcbbf
+        byte 0x07acf5cae41e
+        callsub is_in_tuple_3
+        swap
+        assert // Should be true
+        !
+        assert // Should be false
+        int 1
+        return
+
+
+// test_cases.contains.contract.MyContract.is_in_tuple_1(x#0: uint64, y.0#0: uint64, y.1#0: uint64, y.2#0: bytes) -> uint64:
+is_in_tuple_1:
+        proto 4 1
+
+is_in_tuple_1_block@0:
+        frame_dig -4
+        frame_dig -3
+        ==
+        frame_dig -4
+        frame_dig -2
+        ==
+        ||
+        retsub
+
+
+// test_cases.contains.contract.MyContract.is_in_tuple_2(x#0: bytes, y.0#0: bytes, y.1#0: uint64, y.2#0: bytes) -> uint64:
+is_in_tuple_2:
+        proto 4 1
+
+is_in_tuple_2_block@0:
+        frame_dig -4
+        frame_dig -3
+        ==
+        frame_dig -4
+        frame_dig -1
+        ==
+        ||
+        retsub
+
+
+// test_cases.contains.contract.MyContract.is_in_tuple_3(x#0: bytes, y.0#0: bytes, y.1#0: bytes) -> uint64:
+is_in_tuple_3:
+        proto 3 1
+
+is_in_tuple_3_block@0:
+        frame_dig -3
+        frame_dig -2
+        b==
+        frame_dig -3
+        frame_dig -1
+        b==
+        ||
+        retsub
+

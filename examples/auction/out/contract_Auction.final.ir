@@ -1,11 +1,11 @@
-contract examples.TEALScript.auction.contract.Auction:
+contract examples.auction.contract.Auction:
     program approval:
-        subroutine examples.TEALScript.auction.contract.Auction.approval_program() -> uint64:
+        subroutine examples.auction.contract.Auction.approval_program() -> uint64:
             block@0: // L17
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
             block@1: // on_create_L18
-                examples.TEALScript.auction.contract.Auction.__init__()
+                examples.auction.contract.Auction.__init__()
                 goto block@2
             block@2: // entrypoint_L18
                 let tmp%1#0: uint64 = (txn NumAppArgs)
@@ -22,7 +22,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 let tmp%6#0: bytes = (txna ApplicationArgs 1)
                 let tmp%7#0: uint64 = (btoi tmp%6#0)
                 let tmp%8#0: uint64 = ((txnas Assets) tmp%7#0)
-                examples.TEALScript.auction.contract.Auction.opt_into_asset(tmp%8#0)
+                examples.auction.contract.Auction.opt_into_asset(tmp%8#0)
                 return 1u
             block@5: // start_auction_route_L44
                 let tmp%9#0: uint64 = (txn OnCompletion)
@@ -37,7 +37,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 let tmp%18#0: uint64 = ((gtxns TypeEnum) awst_tmp%17#0)
                 let tmp%19#0: uint64 = (== tmp%18#0 axfer)
                 (assert tmp%19#0) // transaction type is axfer
-                examples.TEALScript.auction.contract.Auction.start_auction(tmp%12#0, tmp%13#0, awst_tmp%17#0)
+                examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%13#0, awst_tmp%17#0)
                 return 1u
             block@6: // opt_in_route_L65
                 let tmp%20#0: uint64 = (txn OnCompletion)
@@ -45,7 +45,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 (assert tmp%21#0) // OnCompletion is NoOp
                 let tmp%22#0: uint64 = (txn ApplicationID)
                 (assert tmp%22#0) // is not creating
-                examples.TEALScript.auction.contract.Auction.opt_in()
+                examples.auction.contract.Auction.opt_in()
                 return 1u
             block@7: // bid_route_L69
                 let tmp%23#0: uint64 = (txn OnCompletion)
@@ -58,7 +58,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 let tmp%29#0: uint64 = ((gtxns TypeEnum) awst_tmp%17#0)
                 let tmp%30#0: uint64 = (== tmp%29#0 pay)
                 (assert tmp%30#0) // transaction type is pay
-                examples.TEALScript.auction.contract.Auction.bid(awst_tmp%17#0)
+                examples.auction.contract.Auction.bid(awst_tmp%17#0)
                 return 1u
             block@8: // claim_bids_route_L85
                 let tmp%31#0: uint64 = (txn OnCompletion)
@@ -66,7 +66,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 (assert tmp%32#0) // OnCompletion is NoOp
                 let tmp%33#0: uint64 = (txn ApplicationID)
                 (assert tmp%33#0) // is not creating
-                examples.TEALScript.auction.contract.Auction.claim_bids()
+                examples.auction.contract.Auction.claim_bids()
                 return 1u
             block@9: // claim_asset_route_L104
                 let tmp%34#0: uint64 = (txn OnCompletion)
@@ -77,7 +77,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 let tmp%37#0: bytes = (txna ApplicationArgs 1)
                 let tmp%38#0: uint64 = (btoi tmp%37#0)
                 let tmp%39#0: uint64 = ((txnas Assets) tmp%38#0)
-                examples.TEALScript.auction.contract.Auction.claim_asset(tmp%39#0)
+                examples.auction.contract.Auction.claim_asset(tmp%39#0)
                 return 1u
             block@10: // switch_case_default_L17
                 fail // reject transaction
@@ -92,7 +92,7 @@ contract examples.TEALScript.auction.contract.Auction:
             block@14: // reject_bare_on_completion_L17
                 fail // reject transaction
         
-        subroutine examples.TEALScript.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
+        subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
             block@0: // L28
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
@@ -112,7 +112,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 itxn_submit
                 return 
         
-        subroutine examples.TEALScript.auction.contract.Auction.start_auction(starting_price: bytes, length: bytes, axfer: uint64) -> void:
+        subroutine examples.auction.contract.Auction.start_auction(starting_price: bytes, length: bytes, axfer: uint64) -> void:
             block@0: // L45
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
@@ -136,11 +136,11 @@ contract examples.TEALScript.auction.contract.Auction:
                 (app_global_put "previous_bid" new_state_value%13#0)
                 return 
         
-        subroutine examples.TEALScript.auction.contract.Auction.opt_in() -> void:
+        subroutine examples.auction.contract.Auction.opt_in() -> void:
             block@0: // L66
                 return 
         
-        subroutine examples.TEALScript.auction.contract.Auction.bid(pay: uint64) -> void:
+        subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
             block@0: // L70
                 let tmp%0#0: uint64 = (global LatestTimestamp)
                 let (app_global_get_ex_value%1#0: uint64, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "auction_end")
@@ -165,7 +165,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 (app_local_put tmp%14#0 "claimable_amount" new_state_value%13#0)
                 return 
         
-        subroutine examples.TEALScript.auction.contract.Auction.claim_bids() -> void:
+        subroutine examples.auction.contract.Auction.claim_bids() -> void:
             block@0: // L86
                 let tmp%0#0: bytes = (txn Sender)
                 let (original_amount#0: uint64, app_local_get_ex_did_exist%2#0: uint64) = (app_local_get_ex tmp%0#0 0u "claimable_amount")
@@ -194,7 +194,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 (app_local_put tmp%11#0 "claimable_amount" new_state_value%10#0)
                 return 
         
-        subroutine examples.TEALScript.auction.contract.Auction.claim_asset(asset: uint64) -> void:
+        subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
             block@0: // L105
                 let tmp%0#0: uint64 = (global LatestTimestamp)
                 let (app_global_get_ex_value%1#0: uint64, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "auction_end")
@@ -217,7 +217,7 @@ contract examples.TEALScript.auction.contract.Auction:
                 itxn_submit
                 return 
         
-        subroutine examples.TEALScript.auction.contract.Auction.__init__() -> void:
+        subroutine examples.auction.contract.Auction.__init__() -> void:
             block@0: // L18
                 (app_global_put "auction_end" 0u)
                 (app_global_put "previous_bid" 0u)
@@ -228,6 +228,6 @@ contract examples.TEALScript.auction.contract.Auction:
                 return 
     
     program clear-state:
-        subroutine examples.TEALScript.auction.contract.Auction.clear_state_program() -> uint64:
+        subroutine examples.auction.contract.Auction.clear_state_program() -> uint64:
             block@0: // L127
                 return 1u

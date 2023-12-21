@@ -14,13 +14,13 @@ from puyapy import (
     UInt64,
     arc4,
     btoi,
+    ed25519verify_bare,
     ensure_budget,
     extract,
     itob,
     log,
     subroutine,
     urange,
-    ed25519verify_bare,
 )
 
 VoteIndexArray: typing.TypeAlias = arc4.DynamicArray[arc4.UInt8]

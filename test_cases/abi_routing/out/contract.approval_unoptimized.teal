@@ -1,0 +1,533 @@
+#pragma version 8
+
+// test_cases.abi_routing.contract.Reference.approval_program() -> uint64:
+main_block@0:
+        txn ApplicationID
+        bnz main_entrypoint@2
+
+main_on_create@1:
+        callsub __init__
+
+main_entrypoint@2:
+        txn NumAppArgs
+        bz main_bare_routing@17
+
+main_abi_routing@3:
+        txna ApplicationArgs 0
+        method "noop_with_uint64(uint64)uint8"
+        method "all_the_things(uint64)uint8"
+        method "mixed_oca(uint64)uint8"
+        method "opt_into_asset(asset)void"
+        method "with_transactions(asset,uint64,pay,uint64)void"
+        method "compare_assets(asset,asset)void"
+        method "get_address()address"
+        method "get_asset()uint64"
+        method "get_application()uint64"
+        method "get_an_int()uint64"
+        method "method_with_default_args(asset,asset,account,account,application,application,byte[3],uint64,uint64)void"
+        uncover 11
+        match main_noop_with_uint64_route@4 main_all_the_things_route@5 main_mixed_oca_route@6 main_opt_into_asset_route@7 main_with_transactions_route@8 main_compare_assets_route@9 main_get_address_route@10 main_get_asset_route@11 main_get_application_route@12 main_get_an_int_route@13 main_method_with_default_args_route@14
+        b main_switch_case_default@15
+
+main_noop_with_uint64_route@4:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txna ApplicationArgs 1
+        callsub noop_with_uint64
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_all_the_things_route@5:
+        txna ApplicationArgs 1
+        callsub full_abi_config
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_mixed_oca_route@6:
+        txn OnCompletion
+        int 1
+        swap
+        shl
+        int 37
+        &
+        assert // OnCompletion is one of NoOp, CloseOut, DeleteApplication
+        txn ApplicationID
+        assert // is not creating
+        txna ApplicationArgs 1
+        callsub mixed_oca
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_opt_into_asset_route@7:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txna ApplicationArgs 1
+        btoi
+        txnas Assets
+        callsub opt_into_asset
+        int 1
+        return
+
+main_with_transactions_route@8:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txna ApplicationArgs 1
+        btoi
+        txnas Assets
+        txna ApplicationArgs 2
+        txn GroupIndex
+        int 1
+        -
+        dup
+        gtxns TypeEnum
+        int pay
+        ==
+        assert // transaction type is pay
+        txna ApplicationArgs 3
+        uncover 3
+        uncover 3
+        uncover 3
+        uncover 3
+        callsub with_transactions
+        int 1
+        return
+
+main_compare_assets_route@9:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txna ApplicationArgs 1
+        btoi
+        txnas Assets
+        txna ApplicationArgs 2
+        btoi
+        txnas Assets
+        callsub compare_assets
+        int 1
+        return
+
+main_get_address_route@10:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        callsub get_address
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_get_asset_route@11:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        callsub get_asset
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_get_application_route@12:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        callsub get_app
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_get_an_int_route@13:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        callsub get_a_int
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_method_with_default_args_route@14:
+        txn OnCompletion
+        int NoOp
+        ==
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txna ApplicationArgs 1
+        btoi
+        txnas Assets
+        txna ApplicationArgs 2
+        btoi
+        txnas Assets
+        txna ApplicationArgs 3
+        btoi
+        txnas Accounts
+        txna ApplicationArgs 4
+        btoi
+        txnas Accounts
+        txna ApplicationArgs 5
+        btoi
+        txnas Applications
+        txna ApplicationArgs 6
+        btoi
+        txnas Applications
+        txna ApplicationArgs 7
+        txna ApplicationArgs 8
+        txna ApplicationArgs 9
+        uncover 8
+        uncover 8
+        uncover 8
+        uncover 8
+        uncover 8
+        uncover 8
+        uncover 8
+        uncover 8
+        uncover 8
+        callsub method_with_default_args
+        int 1
+        return
+
+main_switch_case_default@15:
+
+main_switch_case_next@16:
+        b main_after_if_else@20
+
+main_bare_routing@17:
+        txn OnCompletion
+        int 0
+        int 1
+        int 2
+        int 4
+        int 5
+        uncover 5
+        match main_bare_abi_config@18 main_bare_abi_config@18 main_bare_abi_config@18 main_bare_abi_config@18 main_bare_abi_config@18
+        b main_reject_bare_on_completion@19
+
+main_bare_abi_config@18:
+        txn ApplicationID
+        !
+        assert // is creating
+        callsub bare_abi_config
+        int 1
+        return
+
+main_reject_bare_on_completion@19:
+        err // reject transaction
+
+main_after_if_else@20:
+        err // reject transaction
+
+
+// test_cases.abi_routing.contract.Reference.noop_with_uint64(a#0: bytes) -> bytes:
+noop_with_uint64:
+        proto 1 1
+
+noop_with_uint64_block@0:
+        frame_dig -1
+        btoi
+        int 1
+        +
+        itob
+        extract 7 1
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.full_abi_config(a#0: bytes) -> bytes:
+full_abi_config:
+        proto 1 1
+
+full_abi_config_block@0:
+        frame_dig -1
+        btoi
+        int 1
+        +
+        itob
+        extract 7 1
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.mixed_oca(a#0: bytes) -> bytes:
+mixed_oca:
+        proto 1 1
+
+mixed_oca_block@0:
+        frame_dig -1
+        btoi
+        int 1
+        +
+        itob
+        extract 7 1
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.opt_into_asset(asset#0: uint64) -> void:
+opt_into_asset:
+        proto 1 0
+
+opt_into_asset_block@0:
+        txn Sender
+        global CreatorAddress
+        ==
+        assert // Only creator can opt in to ASA
+        int 0
+        byte "asa"
+        app_global_get_ex
+        assert // check value exists
+        !
+        assert // ASA already opted in
+        byte "asa"
+        frame_dig -1
+        app_global_put
+        itxn_begin
+        int axfer
+        itxn_field TypeEnum
+        int 0
+        itxn_field Fee
+        global CurrentApplicationAddress
+        itxn_field AssetReceiver
+        frame_dig -1
+        itxn_field XferAsset
+        itxn_submit
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.with_transactions(asset#0: uint64, an_int#0: bytes, pay#0: uint64, another_int#0: bytes) -> void:
+with_transactions:
+        proto 4 0
+
+with_transactions_block@0:
+        int 0
+        byte "asa"
+        app_global_get_ex
+        assert // check value exists
+        frame_dig -4
+        ==
+        assert // is correct asset
+        frame_dig -3
+        btoi
+        int 1
+        ==
+        assert // is correct int
+        frame_dig -2
+        gtxns Receiver
+        global CurrentApplicationAddress
+        ==
+        assert // is payment to app
+        frame_dig -1
+        btoi
+        int 2
+        ==
+        assert // is correct int
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.compare_assets(asset_a#0: uint64, asset_b#0: uint64) -> void:
+compare_assets:
+        proto 2 0
+
+compare_assets_block@0:
+        frame_dig -2
+        frame_dig -1
+        ==
+        assert // asset a == b
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.get_address() -> bytes:
+get_address:
+        proto 0 1
+
+get_address_block@0:
+        global ZeroAddress
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.get_asset() -> bytes:
+get_asset:
+        proto 0 1
+
+get_asset_block@0:
+        byte 0x00000000000001c8
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.get_app() -> bytes:
+get_app:
+        proto 0 1
+
+get_app_block@0:
+        byte 0x00000000000001c8
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.get_a_int() -> bytes:
+get_a_int:
+        proto 0 1
+
+get_a_int_block@0:
+        byte 0x0000000000000003
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.method_with_default_args(asset_from_storage#0: uint64, asset_from_function#0: uint64, account_from_storage#0: bytes, account_from_function#0: bytes, application_from_storage#0: uint64, application_from_function#0: uint64, bytes_from_storage#0: bytes, int_from_storage#0: bytes, int_from_function#0: bytes) -> void:
+method_with_default_args:
+        proto 9 0
+
+method_with_default_args_block@0:
+        frame_dig -9
+        int 123
+        ==
+        assert // wrong asset from storage
+        frame_dig -8
+        int 456
+        ==
+        assert // wrong asset from function
+        global CreatorAddress
+        frame_dig -7
+        ==
+        assert // wrong account from storage
+        global ZeroAddress
+        frame_dig -6
+        ==
+        assert // wrong account from function
+        frame_dig -5
+        int 123
+        ==
+        assert // wrong application from storage
+        frame_dig -4
+        int 456
+        ==
+        assert // wrong application from function
+        int 0
+        int 1
+        *
+        frame_dig -3
+        swap
+        int 1
+        extract3
+        byte 0x07
+        ==
+        assert // wrong 0th byte from storage
+        int 1
+        int 1
+        *
+        frame_dig -3
+        swap
+        int 1
+        extract3
+        byte 0x08
+        ==
+        assert // wrong 1st byte from storage
+        int 2
+        int 1
+        *
+        frame_dig -3
+        swap
+        int 1
+        extract3
+        byte 0x09
+        ==
+        assert // wrong 2nd byte from storage
+        frame_dig -2
+        btoi
+        int 2
+        ==
+        assert // wrong int from storage
+        frame_dig -1
+        btoi
+        int 3
+        ==
+        assert // wrong int from function
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
+bare_abi_config:
+        proto 0 0
+
+bare_abi_config_block@0:
+        byte "Hello World"
+        log
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.__init__() -> void:
+__init__:
+        proto 0 0
+
+__init___block@0:
+        byte "asa"
+        int 123
+        app_global_put
+        byte "an_int"
+        int 2
+        app_global_put
+        byte 0x
+        byte 0x07
+        concat
+        byte 0x08
+        concat
+        byte 0x09
+        concat
+        byte "some_bytes"
+        swap
+        app_global_put
+        txn Sender
+        byte "creator"
+        swap
+        app_global_put
+        byte "app"
+        int 123
+        app_global_put
+        method "get(uint64,byte[])byte[]"
+        len
+        assert // has method selector
+        retsub
+
