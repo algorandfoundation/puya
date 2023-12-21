@@ -62,12 +62,12 @@ def transform_ast(
                     ctx.options.output_awst
                     and compile_context.errors.num_errors == errors_before_module
                 ):
-                    _output_awst(module_awst, ctx.options)
+                    output_awst(module_awst, ctx.options)
                 result[module_name] = module_awst
     return result
 
 
-def _output_awst(module_awst: Module, options: PuyaOptions) -> None:
+def output_awst(module_awst: Module, options: PuyaOptions) -> None:
     formatter = ToCodeVisitor()
     awst_module_str = formatter.visit_module(module_awst)
     if awst_module_str:
