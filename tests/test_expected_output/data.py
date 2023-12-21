@@ -11,7 +11,7 @@ import pytest
 import structlog.testing
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst_build.main import transform_ast
-from puya.compile import parse_with_mypy
+from puya.compile import awst_to_teal, parse_with_mypy
 from puya.errors import CodeError, ParseError, PuyaError
 from puya.options import PuyaOptions
 
@@ -330,7 +330,7 @@ def find_parse_errors_and_mark_as_failed(
 
 def run_compiler_and_handle_parse_errors(cases: list[TestCase]) -> None:
     try:
-        compile_awst_and_update_cases(cases)
+        compile_and_update_cases(cases)
     except ParseError as ex:
         # try and filter out cases that fail to parse or type check
         # if there is more than 1 parse failure this will still fail as mypy doesn't
@@ -345,7 +345,7 @@ def get_python_module_name(root_dir: Path, src_dir: Path) -> str:
     return ".".join(relative.with_suffix("").parts)
 
 
-def compile_awst_and_update_cases(cases: list[TestCase]) -> None:
+def compile_and_update_cases(cases: list[TestCase]) -> None:
     with structlog.testing.capture_logs() as logs, tempfile.TemporaryDirectory() as root_dir_str:
         root_dir = Path(root_dir_str).resolve()
         srcs = list[Path]()
@@ -365,11 +365,14 @@ def compile_awst_and_update_cases(cases: list[TestCase]) -> None:
 
         context = parse_with_mypy(PuyaOptions(paths=srcs))
         awst = transform_ast(context)
-        awst_repr = modules_to_awst_repr(awst)
+        # reset errors as some awst modules will have errors, but we want to continue anyway
+        context.errors.num_errors = 0
+        awst_to_teal(context, awst)
+
         log_items = [event_dict_to_log_item(log) for log in logs]
         for case in cases:
             try:
-                process_test_case(case, log_items, awst_repr)
+                process_test_case(case, log_items, awst)
             except TestCaseOutputDifferenceError as ex:
                 case.failure = ex
 
@@ -407,7 +410,9 @@ def map_error_tuple_to_dict(errors: set[tuple[int, TestCaseOutput]]) -> OutputMa
 
 
 def process_test_case(
-    case: TestCase, captured_logs: list[LogItem], awst_repr: dict[str, list[str]]
+    case: TestCase,
+    captured_logs: list[LogItem],
+    awst: dict[str, Module],
 ) -> None:
     if case.failure:
         raise case.failure
@@ -445,7 +450,7 @@ def process_test_case(
         if file.expected_awst:
             module_name = file.module_name
             assert module_name is not None
-            observed_awst = trim_empty_lines(awst_repr.get(module_name, []))
+            observed_awst = trim_empty_lines(module_to_awst_repr(awst[module_name]))
             expected_awst = trim_empty_lines(file.expected_awst)
             if observed_awst != expected_awst:
                 unexpected_awst[path] = observed_awst
@@ -603,10 +608,6 @@ def trim_empty_lines(lines: list[str]) -> list[str]:
     return lines[start : end + 1]
 
 
-def modules_to_awst_repr(module_asts: dict[str, Module]) -> dict[str, list[str]]:
+def module_to_awst_repr(module: Module) -> list[str]:
     visitor = ToCodeVisitor()
-    module_lines = dict[str, list[str]]()
-    for module_name, module in module_asts.items():
-        lines = module_lines.setdefault(module_name, [])
-        lines.extend(visitor.visit_module(module).splitlines())
-    return module_lines
+    return visitor.visit_module(module).splitlines()
