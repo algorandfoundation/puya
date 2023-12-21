@@ -38,6 +38,25 @@ class Arc4MutationContract(Contract):
         self.array_concat()
         return True
 
+    @subroutine
+    def mutation_problems(self) -> None:
+        my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
+
+        my_array_copy = my_array
+
+        my_array[2] = UInt8(5)
+
+        assert my_array_copy[2] == UInt8(5)
+
+        self.other_routine(my_array)
+
+        assert my_array[1] == UInt8(5)
+        assert my_array_copy[1] == UInt8(5)
+
+    @subroutine
+    def other_routine(self, array: StaticArray[UInt8, typing.Literal[4]]) -> None:
+        array[1] = UInt8(5)
+
     def clear_state_program(self) -> bool:
         return True
 
