@@ -131,7 +131,7 @@ def circle_area_100() -> UInt64:
 
 - [voting](examples/voting/voting.py)
 - [AMM](examples/amm/contract.py)
-- [auction](examples/TEALScript/auction/contract.py)
+- [auction](examples/auction/contract.py)
 - [non-ABI calculator](examples/calculator/contract.py)
 - [local storage](examples/local_storage)
 
