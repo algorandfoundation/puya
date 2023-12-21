@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.test_awst.data import TestFile
+from tests.test_expected_output.data import TestFile
 
 
 # This function name is special to pytest.  See
