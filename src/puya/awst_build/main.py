@@ -56,8 +56,12 @@ def transform_ast(
                 result[module.name] = module_awst
             else:
                 logger.debug(f"Building AWST for {module_rel_path}")
+                errors_before_module = compile_context.errors.num_errors
                 module_awst = ModuleASTConverter.convert(ctx, module)
-                if ctx.options.output_awst:
+                if (
+                    ctx.options.output_awst
+                    and compile_context.errors.num_errors == errors_before_module
+                ):
                     _output_awst(module_awst, ctx.options)
                 result[module_name] = module_awst
     return result
