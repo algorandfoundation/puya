@@ -90,12 +90,12 @@ def awst_to_teal(
 
     build_embedded_ir(build_context)
     module_irs = {
-        module_name: [
+        source.module_name: [
             build_ir(build_context, node)
-            for node in module_ast.body
+            for node in module_asts[source.module_name].body
             if isinstance(node, awst_nodes.ContractFragment) and not node.is_abstract
         ]
-        for module_name, module_ast in module_asts.items()
+        for source in parse_result.sources
     }
     if errors.num_errors:
         return None
