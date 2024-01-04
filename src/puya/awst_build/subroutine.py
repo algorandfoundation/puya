@@ -60,6 +60,9 @@ from puya.awst_build.eb.contracts import (
     LocalStorageClassExpressionBuilder,
 )
 from puya.awst_build.eb.ensure_budget import EnsureBudgetBuilder, OpUpFeeSourceClassBuilder
+from puya.awst_build.eb.global_storage import (
+    GlobalStorageClassExpressionBuilder,
+)
 from puya.awst_build.eb.intrinsics import (
     Arc4SignatureBuilder,
     IntrinsicEnumClassExpressionBuilder,
@@ -313,6 +316,18 @@ class FunctionASTConverter(
                     "Local state can only be assigned to a single member variable", stmt_loc
                 )
             return []
+        if isinstance(rvalue, GlobalStorageClassExpressionBuilder):
+            if len(stmt.lvalues) != 1:
+                raise CodeError(
+                    "AppGlobal state can only be assigned to a single member variable", stmt_loc
+                )
+            if rvalue.has_initial_value():
+                value = rvalue.build_assignment_source()
+                (lvalue,) = stmt.lvalues
+                target = self.resolve_lvalue(lvalue)
+                return [AssignmentStatement(source_location=stmt_loc, target=target, value=value)]
+            else:
+                return []
         if len(stmt.lvalues) == 1:
             value = rvalue.build_assignment_source()
             (lvalue,) = stmt.lvalues
@@ -727,13 +742,23 @@ class FunctionASTConverter(
                 return EnsureBudgetBuilder(location=location)
             case constants.OP_UP_FEE_SOURCE:
                 return OpUpFeeSourceClassBuilder(location=location)
-            case constants.LOCAL_PROXY_CLS:
+            case constants.STORAGE_APP_ACCOUNT_PROXY_CLS:
                 if self.contract_method_info is None:
                     raise CodeError(
-                        f"{constants.LOCAL_PROXY_CLS} is only usable in contract instance methods",
+                        f"{constants.STORAGE_APP_ACCOUNT_PROXY_CLS} is only usable in "
+                        "contract instance methods",
                         location,
                     )
                 return LocalStorageClassExpressionBuilder(location=location)
+            case constants.STORAGE_APP_GLOBAL_PROXY_CLS:
+                if self.contract_method_info is None:
+                    raise CodeError(
+                        f"{constants.STORAGE_APP_GLOBAL_PROXY_CLS} is only usable in "
+                        "contract instance methods",
+                        location,
+                    )
+                return GlobalStorageClassExpressionBuilder(location=location)
+
             case _ as enum_name if enum_name in constants.NAMED_INT_CONST_ENUM_DATA:
                 return NamedIntegerConstsTypeBuilder(
                     enum_name=enum_name,

@@ -1,7 +1,7 @@
 from puyapy import (
+    AppAccountStorage,
     Bytes,
     Contract,
-    Local,
     OnCompleteAction,
     Transaction,
     UInt64,
@@ -13,7 +13,7 @@ from puyapy import (
 
 class LocalStorageContract(Contract):
     def __init__(self) -> None:
-        self.local = Local(Bytes)
+        self.local = AppAccountStorage(Bytes)
 
     def approval_program(self) -> bool:
         if Transaction.application_id() == 0:

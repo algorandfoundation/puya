@@ -617,6 +617,17 @@ class AppStateExpression(Expression):
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_state_expression(self)
 
+    @classmethod
+    def from_state_def(
+        cls, state_def: "AppStateDefinition", location: SourceLocation
+    ) -> "AppStateExpression":
+        return cls(
+            source_location=location,
+            wtype=state_def.storage_wtype,
+            key=state_def.key,
+            key_encoding=state_def.key_encoding,
+        )
+
 
 @attrs.frozen
 class AppAccountStateExpression(Expression):
@@ -1204,10 +1215,17 @@ class AppStateKind(enum.Enum):
     account_local = enum.auto()
 
 
+@enum.unique
+class AppStorageApi(enum.Enum):
+    simplified = enum.auto()
+    full = enum.auto()
+
+
 @attrs.frozen
 class AppStateDefinition(Node):
     member_name: str
     kind: AppStateKind
+    api: AppStorageApi
     key: bytes
     key_encoding: BytesEncoding
     storage_wtype: WType

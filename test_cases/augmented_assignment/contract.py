@@ -1,10 +1,18 @@
-from puyapy import BigUInt, Bytes, Contract, Local, OnCompleteAction, Transaction, UInt64
+from puyapy import (
+    AppAccountStorage,
+    BigUInt,
+    Bytes,
+    Contract,
+    OnCompleteAction,
+    Transaction,
+    UInt64,
+)
 
 
 class Augmented(Contract):
     def __init__(self) -> None:
-        self.my_uint = Local(UInt64)
-        self.my_bytes = Local(Bytes)
+        self.my_uint = AppAccountStorage(UInt64)
+        self.my_bytes = AppAccountStorage(Bytes)
         self.global_uint = UInt64(0)
         self.global_bytes = Bytes(b"")
 

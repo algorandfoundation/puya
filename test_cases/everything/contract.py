@@ -1,4 +1,12 @@
-from puyapy import Account, ARC4Contract, Local, OnCompleteAction, Transaction, UInt64, subroutine
+from puyapy import (
+    Account,
+    AppAccountStorage,
+    ARC4Contract,
+    OnCompleteAction,
+    Transaction,
+    UInt64,
+    subroutine,
+)
 from puyapy.arc4 import (
     String,
     UInt64 as arc4_UInt64,
@@ -28,7 +36,7 @@ def add_one(x: UInt64) -> UInt64:
 
 class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     def __init__(self) -> None:
-        self.name = Local(String)
+        self.name = AppAccountStorage(String)
 
     @abimethod(create=True)
     def create(self) -> None:
