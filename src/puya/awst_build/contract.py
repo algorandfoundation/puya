@@ -225,9 +225,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         )
                 else:
                     for arg_wtype in arg_wtypes:
-                        if not wtypes.is_arc4_argument_type(
-                            arg_wtype
-                        ) and not wtypes.has_arc4_equivalent_type(arg_wtype):
+                        if not (
+                            wtypes.is_arc4_argument_type(arg_wtype)
+                            or wtypes.has_arc4_equivalent_type(arg_wtype)
+                        ):
                             self._error(
                                 f"Invalid argument type for an ARC4 method: {arg_wtype}",
                                 arc4_decorator_loc,

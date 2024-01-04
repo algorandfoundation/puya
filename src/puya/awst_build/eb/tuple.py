@@ -24,7 +24,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import require_expression_builder
-from puya.errors import CodeError, TodoError
+from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp
 
@@ -200,4 +200,4 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
                 i += 1
             return var_expression(result)
 
-        raise TodoError(location, "TODO: tuple comparison support")
+        raise CodeError(f"The {op} operator on the tuple type is not supported", location)
