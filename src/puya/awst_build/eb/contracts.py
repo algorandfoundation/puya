@@ -9,6 +9,7 @@ from puya.awst.nodes import (
     AppStateDefinition,
     AppStateExpression,
     AppStateKind,
+    AppStorageApi,
     BytesConstant,
     ConditionalExpression,
     Expression,
@@ -31,6 +32,7 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.global_storage import GlobalStorageExpressionBuilder
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import create_temporary_assignment, expect_operand_wtype
@@ -59,16 +61,21 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
                 location=location,
             )
         if state_def.kind is AppStateKind.app_global:
-            global_expr = AppStateExpression(
-                source_location=location,
-                wtype=state_def.storage_wtype,
-                key=state_def.key,
-                key_encoding=state_def.key_encoding,
-            )
+            if state_def.api is AppStorageApi.simplified:
+                return var_expression(
+                    AppStateExpression.from_state_def(
+                        location=location,
+                        state_def=state_def,
+                    )
+                )
+            elif state_def.api is AppStorageApi.full:
+                return GlobalStorageExpressionBuilder(state_def, location=location)
 
-            return var_expression(global_expr)
         else:
             assert state_def.kind is AppStateKind.account_local
+            assert (
+                state_def.api is AppStorageApi.full
+            ), "account_local storage does not have a simplified api"
             return ContractLocalStateExpressionBuilder(state_def, location)
 
 

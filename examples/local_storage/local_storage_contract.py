@@ -1,9 +1,18 @@
-from puyapy import Account, Bytes, Contract, Local, OnCompleteAction, Transaction, log, subroutine
+from puyapy import (
+    Account,
+    AppAccountStorage,
+    Bytes,
+    Contract,
+    OnCompleteAction,
+    Transaction,
+    log,
+    subroutine,
+)
 
 
 class LocalStorageContract(Contract):
     def __init__(self) -> None:
-        self.local = Local(Bytes)
+        self.local = AppAccountStorage(Bytes)
 
     def approval_program(self) -> bool:
         if Transaction.application_id() == 0:

@@ -12,6 +12,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
     AppStateKind,
+    AppStorageApi,
     BytesEncoding,
     ContractFragment,
     ContractMethod,
@@ -368,9 +369,11 @@ def _gather_app_state(
                 )
             match typ:
                 case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.LOCAL_PROXY_CLS), args=args
+                    type=mypy.nodes.TypeInfo(fullname=constants.STORAGE_APP_ACCOUNT_PROXY_CLS),
+                    args=args,
                 ):
                     kind = AppStateKind.account_local
+                    api = AppStorageApi.full
                     try:
                         (storage_type,) = args
                     except ValueError:
@@ -379,8 +382,23 @@ def _gather_app_state(
                                 "Local storage requires exactly one type parameter", var_loc
                             )
                         continue
+                case mypy.types.Instance(
+                    type=mypy.nodes.TypeInfo(fullname=constants.STORAGE_APP_GLOBAL_PROXY_CLS),
+                    args=args,
+                ):
+                    kind = AppStateKind.app_global
+                    api = AppStorageApi.full
+                    try:
+                        (storage_type,) = args
+                    except ValueError:
+                        if report_errors:
+                            context.error(
+                                "AppGlobal storage requires exactly one type parameter", var_loc
+                            )
+                        continue
                 case _:
                     kind = AppStateKind.app_global
+                    api = AppStorageApi.simplified
                     storage_type = typ
             storage_wtype = context.type_to_wtype(storage_type, source_location=var_loc)
             if not storage_wtype.lvalue:
@@ -398,6 +416,7 @@ def _gather_app_state(
                     key=name.encode(),  # TODO: encode name -> key with source file encoding?
                     key_encoding=BytesEncoding.utf8,
                     kind=kind,
+                    api=api,
                 )
 
 
