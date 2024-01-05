@@ -43,11 +43,17 @@ contract Arc4ArraysContract
       }
     }
     assert(result == 'Ping Pong')
+    this::hash_as_array('Testing 123')
     return true
   }
   
   clear_state_program(): bool
   {
     return true
+  }
+  
+  subroutine hash_as_array(commitment_args_concat: puyapy.Bytes): puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[32]]
+  {
+    return reinterpret_cast<puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[32]]>(sha3_256(commitment_args_concat))
   }
 }

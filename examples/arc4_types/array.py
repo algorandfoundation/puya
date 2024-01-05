@@ -1,6 +1,6 @@
 import typing as t
 
-from puyapy import Bytes, Contract, UInt64, uenumerate
+from puyapy import Bytes, Contract, UInt64, uenumerate, sha3_256, subroutine
 from puyapy.arc4 import (
     DynamicArray,
     StaticArray,
@@ -9,12 +9,15 @@ from puyapy.arc4 import (
     UInt8,
     UInt16,
     UInt32,
+    Byte,
 )
 
 AliasedDynamicArray: t.TypeAlias = DynamicArray[UInt16]
 AliasedStaticArray: t.TypeAlias = StaticArray[UInt8, t.Literal[1]]
 
 Decimal: t.TypeAlias = UFixedNxM[t.Literal[64], t.Literal[10]]
+
+HashResult: t.TypeAlias = StaticArray[Byte, t.Literal[32]]
 
 
 class Arc4ArraysContract(Contract):
@@ -65,7 +68,13 @@ class Arc4ArraysContract(Contract):
 
         assert result == b"Ping Pong"
 
+        self.hash_as_array(Bytes(b"Testing 123"))
+
         return True
+
+    @subroutine
+    def hash_as_array(self, commitment_args_concat: Bytes) -> HashResult:
+        return HashResult.from_bytes(sha3_256(commitment_args_concat))
 
     def clear_state_program(self) -> bool:
         return True
