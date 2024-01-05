@@ -108,6 +108,8 @@ _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
 
 class StaticArray(_ABIBytesBacked, typing.Generic[_TArrayItem, _TArrayLength]):
     @typing.overload
+    def __init__(self) -> None: ...
+    @typing.overload
     def __init__(self: StaticArray[_TArrayItem, typing.Literal[1]], item0: _TArrayItem): ...
     @typing.overload
     def __init__(
