@@ -8,6 +8,7 @@ from puya.avm_type import AVMType
 from puya.codegen.utils import format_bytes
 from puya.ir import models
 from puya.ir.visitor import IRVisitor
+from puya.utils import make_path_relative_to_cwd
 
 logger = structlog.get_logger(__name__)
 
@@ -158,7 +159,7 @@ def output_contract_ir_to_path(contract: models.Contract, path: Path) -> None:
 
     render_contract(emitter, contract)
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
-    logger.debug(f"Output IR to {path}")
+    logger.debug(f"Output IR to {make_path_relative_to_cwd(str(path))}")
 
 
 def ir_to_text(module_irs: dict[str, list[models.Contract]]) -> list[str]:

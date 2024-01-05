@@ -133,15 +133,25 @@ class StableSet(MutableSet[T]):
 
 def determine_out_dir(contract_path: Path, options: PuyaOptions) -> Path:
     if options.out_dir:
-        if Path.is_absolute(options.out_dir):
-            out_dir = options.out_dir
+        for src_path in options.paths:
+            src_path = src_path.resolve()
+            src_path = src_path if src_path.is_dir() else src_path.parent
+            if contract_path.is_relative_to(src_path):
+                relative_path = contract_path.relative_to(src_path)
+                if Path.is_absolute(options.out_dir):
+                    out_dir = options.out_dir / relative_path
+                else:
+                    out_dir = src_path / options.out_dir / relative_path
+                break
         else:
-            out_dir = contract_path / options.out_dir
+            if Path.is_absolute(options.out_dir):
+                out_dir = options.out_dir / contract_path
+            else:
+                out_dir = contract_path / options.out_dir
     else:
         out_dir = contract_path
 
-    if not out_dir.exists():
-        out_dir.mkdir()
+    out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir
 
 

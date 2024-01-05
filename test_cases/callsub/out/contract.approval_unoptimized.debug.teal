@@ -1,0 +1,29 @@
+// Op                // Op Description           Stack (out)             Source code                                   Source line
+
+#pragma version 8
+
+// test_cases.callsub.contract.MyContract.approval_program() -> uint64:
+main_block@0:
+        int 42       //                          42                      42                                            File "callsub/contract.py", line 6
+        itob         //                          {itob}                  itob(UInt64(42))                              File "callsub/contract.py", line 6
+        log          //                                                  log(itob(UInt64(42)))                         File "callsub/contract.py", line 6
+        int 1        //                          1                       1                                             File "callsub/contract.py", line 7
+        int 2        //                          1,2                     2                                             File "callsub/contract.py", line 7
+        callsub echo //                                                  self.echo(UInt64(1), UInt64(2))               File "callsub/contract.py", line 7
+        int 1        //                          1                       1                                             File "callsub/contract.py", line 8
+        return       //                                                  return UInt64(1)                              File "callsub/contract.py", line 8
+
+
+// test_cases.callsub.contract.MyContract.echo(a#0: uint64, b#0: uint64) -> void:
+echo:
+        proto 2 0    //                          (𝕡) a#0,b#0 |           def echo(self, a: UInt64, b: UInt64) -> None: File "callsub/contract.py", line 11
+
+echo_block@0:
+        frame_dig -2 // load a#0 from parameters (𝕡) a#0,b#0 | a#0       a: UInt64                                     File "callsub/contract.py", line 11
+        itob         //                          (𝕡) a#0,b#0 | {itob}    itob(a)                                       File "callsub/contract.py", line 12
+        log          //                          (𝕡) a#0,b#0 |           log(itob(a))                                  File "callsub/contract.py", line 12
+        frame_dig -1 // load b#0 from parameters (𝕡) a#0,b#0 | b#0       b: UInt64                                     File "callsub/contract.py", line 11
+        itob         //                          (𝕡) a#0,b#0 | {itob}    itob(b)                                       File "callsub/contract.py", line 13
+        log          //                          (𝕡) a#0,b#0 |           log(itob(b))                                  File "callsub/contract.py", line 13
+        retsub       //
+

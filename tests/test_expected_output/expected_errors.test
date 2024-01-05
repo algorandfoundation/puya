@@ -1,0 +1,39 @@
+## case: test_typing_interactions
+
+import typing
+
+from puyapy import Account, Bytes, UInt64, subroutine
+
+SOME_ADDRESS = "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"
+SOME_ADDRESS_PADDED = SOME_ADDRESS + "=="
+
+
+@subroutine
+def typing_interactions() -> None:
+    typing.reveal_type(UInt64(1)) ## N: Revealed type is "puyapy._primitives.UInt64" \
+                                  ## N: puyapy type is "uint64"
+    typing.reveal_type((UInt64(1), Bytes(b""))) ## N: Revealed type is "tuple[puyapy._primitives.UInt64, puyapy._primitives.Bytes]" \
+                                                ## N: puyapy type is "tuple<uint64,bytes>"
+    typing.assert_type(UInt64(1), UInt64) ## W: use of typing.assert_type has no effect on compilation \
+                                          ## W: expression result is ignored
+
+    assert typing.cast(Bytes, Account(SOME_ADDRESS)) == Bytes.from_base64(SOME_ADDRESS_PADDED) ## E: Unsupported comparison == between types \
+                                                                                               ## W: use of typing.cast, output may be invalid or insecure TEAL
+
+## case: test_unreachable
+
+from puyapy import Contract, UInt64, err, exit
+
+
+class ContractWithUnreachableCode(Contract):
+    def approval_program(self) -> UInt64:
+        x = UInt64(0)
+        if x:
+            return x
+        else:
+            err()
+            return x ## E: Unreachable code
+
+    def clear_state_program(self) -> bool:
+        exit(1)
+        return True ## E: Unreachable code

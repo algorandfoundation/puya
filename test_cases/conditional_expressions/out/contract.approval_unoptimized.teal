@@ -1,0 +1,166 @@
+#pragma version 8
+
+// test_cases.conditional_expressions.contract.MyContract.approval_program() -> uint64:
+main:
+        byte ""
+        dupn 9
+
+main_block@0:
+        int 1
+        dup
+        swap
+        int 2
+        swap
+        bz main_ternary_false@2
+
+main_ternary_true@1:
+        dig 1
+        b main_ternary_merge@3
+
+main_ternary_false@2:
+        dup
+
+main_ternary_merge@3:
+        bury 8
+        dup
+        bnz main_ternary_false@5
+
+main_ternary_true@4:
+        dup
+        b main_ternary_merge@6
+
+main_ternary_false@5:
+        dig 1
+
+main_ternary_merge@6:
+        bury 7
+        int 0
+        callsub expensive_op
+        dup
+        bury 13
+        bz main_ternary_false@8
+
+main_ternary_true@7:
+        dig 11
+        b main_ternary_merge@9
+
+main_ternary_false@8:
+        int 1
+        callsub side_effecting_op
+
+main_ternary_merge@9:
+        bury 6
+        int 3
+        callsub expensive_op
+        dup
+        bury 12
+        bz main_ternary_false@11
+
+main_ternary_true@10:
+        dig 10
+        b main_ternary_merge@12
+
+main_ternary_false@11:
+        int 42
+        callsub side_effecting_op
+
+main_ternary_merge@12:
+        bury 5
+        int 0
+        callsub side_effecting_op
+        dup
+        bury 11
+        bnz main_ternary_false@14
+
+main_ternary_true@13:
+        dig 9
+        b main_ternary_merge@15
+
+main_ternary_false@14:
+        int 42
+        callsub expensive_op
+
+main_ternary_merge@15:
+        bury 4
+        int 2
+        callsub side_effecting_op
+        dup
+        bury 10
+        bnz main_ternary_false@17
+
+main_ternary_true@16:
+        dig 8
+        b main_ternary_merge@18
+
+main_ternary_false@17:
+        int 3
+        callsub expensive_op
+
+main_ternary_merge@18:
+        bury 3
+        dup
+        dig 8
+        <
+        bz main_ternary_false@20
+
+main_ternary_true@19:
+        dig 1
+        b main_ternary_merge@21
+
+main_ternary_false@20:
+        dig 6
+        dig 6
+        +
+
+main_ternary_merge@21:
+        dig 2
+        dig 2
+        *
+        dig 9
+        *
+        dig 8
+        *
+        dig 6
+        *
+        dig 4
+        *
+        dig 7
+        -
+        dig 5
+        -
+        +
+        dup
+        itob
+        log
+        return
+
+
+// test_cases.conditional_expressions.contract.MyContract.expensive_op(val#0: uint64) -> uint64:
+expensive_op:
+        proto 1 1
+
+expensive_op_block@0:
+        frame_dig -1
+        int 42
+        !=
+        assert // Can't be 42
+        byte "expensive_op"
+        log
+        frame_dig -1
+        retsub
+
+
+// test_cases.conditional_expressions.contract.MyContract.side_effecting_op(val#0: uint64) -> uint64:
+side_effecting_op:
+        proto 1 1
+
+side_effecting_op_block@0:
+        frame_dig -1
+        int 42
+        !=
+        assert // Can't be 42
+        byte "side_effecting_op"
+        log
+        frame_dig -1
+        retsub
+

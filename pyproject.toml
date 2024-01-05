@@ -64,9 +64,20 @@ addopts = "-n auto --cov-config=.coveragerc"
 testpaths = [
     "tests"
 ]
+filterwarnings = [
+    # treat all warnings as errors by default
+    "error",
+    # ignore warnings from docstring_parser dependency, re-evaluate when changing python version or if docstring_parser is updated
+    "ignore:ast.NameConstant is deprecated and will be removed in Python 3.14; use ast.Constant instead",
+    "ignore:ast.Num is deprecated and will be removed in Python 3.14; use ast.Constant instead",
+    "ignore:ast.Str is deprecated and will be removed in Python 3.14; use ast.Constant instead",
+    # ignore pytest-xdist warning
+    "ignore:The --rsyncdir command line argument and rsyncdirs config variable are deprecated."
+]
 
 [tool.black]
 line-length = 99
+# force-exclude ensures these files are excluded even when run via pre-commit
 force-exclude = "src/puya/(_typeshed|_vendor)"
 
 [tool.mypy]
@@ -171,7 +182,10 @@ unfixable = [
 extend-exclude = [
     "src/puya/_typeshed",
     "src/puya/_vendor",
+    "test_cases/non_utf8.py", # E902 ruff doesn't read this file encoding
 ]
+# force-exclude ensures these files are excluded even when run via pre-commit
+force-exclude = true
 [tool.ruff.per-file-ignores]
 "src/**" = [
     "PT",       # no pytest rules
@@ -180,9 +194,14 @@ extend-exclude = [
     "PYI021",   # allow docstrings in stubs
     "PYI053",   # allow "docstrings" in overloads
 ]
-"examples/**" = [
+"{examples,test_cases}/**" = [
     "PT",       # no pytest rules
     "B011",     # allow assert False, "msg"
+    "FBT001",   # allow positional definitions
+    "FBT003",   # allow positional booleans
+]
+"test_cases/less_simple/contract.py" = [
+    "F405",     # this case is explicitly to test star imports
 ]
 "src/puya/awst_build/eb/**" = [
     # TODO: remove the below

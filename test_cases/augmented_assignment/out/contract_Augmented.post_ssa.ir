@@ -1,0 +1,55 @@
+contract test_cases.augmented_assignment.contract.Augmented:
+    program approval:
+        subroutine test_cases.augmented_assignment.contract.Augmented.approval_program() -> uint64:
+            block@0: // L11
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L5
+                test_cases.augmented_assignment.contract.Augmented.__init__()
+                goto block@2
+            block@2: // entrypoint_L5
+                let me#0: bytes = (txn Sender)
+                let tmp%1#0: uint64 = (txn OnCompletion)
+                let tmp%2#0: uint64 = (== tmp%1#0 OptIn)
+                goto tmp%2#0 ? block@3 : block@4
+            block@3: // if_body_L14
+                (app_local_put me#0 "my_uint" 0u)
+                (app_local_put me#0 "my_bytes" "")
+                goto block@4
+            block@4: // after_if_else_L14
+                let tmp%3#0: uint64 = (txn ApplicationID)
+                let tmp%4#0: uint64 = (> tmp%3#0 0u)
+                goto tmp%4#0 ? block@5 : block@6
+            block@5: // if_body_L17
+                let n#0: uint64 = (txn NumAppArgs)
+                let bytes_to_add#0: bytes = (itob n#0)
+                let (app_local_get_ex_value%5#0: uint64, app_local_get_ex_did_exist%6#0: uint64) = (app_local_get_ex me#0 0u "my_uint")
+                (assert app_local_get_ex_did_exist%6#0) // check value exists
+                let new_state_value%7#0: uint64 = (+ app_local_get_ex_value%5#0 n#0)
+                (app_local_put me#0 "my_uint" new_state_value%7#0)
+                let (app_local_get_ex_value%8#0: bytes, app_local_get_ex_did_exist%9#0: uint64) = (app_local_get_ex me#0 0u "my_bytes")
+                (assert app_local_get_ex_did_exist%9#0) // check value exists
+                let new_state_value%10#0: bytes = (concat app_local_get_ex_value%8#0 bytes_to_add#0)
+                (app_local_put me#0 "my_bytes" new_state_value%10#0)
+                let (app_global_get_ex_value%11#0: uint64, app_global_get_ex_did_exist%12#0: uint64) = (app_global_get_ex 0u "global_uint")
+                (assert app_global_get_ex_did_exist%12#0) // check value exists
+                let new_state_value%13#0: uint64 = (+ app_global_get_ex_value%11#0 n#0)
+                (app_global_put "global_uint" new_state_value%13#0)
+                let (app_global_get_ex_value%14#0: bytes, app_global_get_ex_did_exist%15#0: uint64) = (app_global_get_ex 0u "global_bytes")
+                (assert app_global_get_ex_did_exist%15#0) // check value exists
+                let new_state_value%16#0: bytes = (concat app_global_get_ex_value%14#0 bytes_to_add#0)
+                (app_global_put "global_bytes" new_state_value%16#0)
+                goto block@6
+            block@6: // after_if_else_L17
+                return 1u
+        
+        subroutine test_cases.augmented_assignment.contract.Augmented.__init__() -> void:
+            block@0: // L5
+                (app_global_put "global_uint" 0u)
+                (app_global_put "global_bytes" "")
+                return 
+    
+    program clear-state:
+        subroutine test_cases.augmented_assignment.contract.Augmented.clear_state_program() -> uint64:
+            block@0: // L32
+                return 1u

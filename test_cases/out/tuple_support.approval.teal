@@ -1,0 +1,227 @@
+#pragma version 8
+
+// test_cases.tuple_support.TupleSupport.approval_program() -> uint64:
+main_block@0:
+        txn ApplicationID
+        bnz main_entrypoint@2
+
+main_on_create@1:
+        callsub __init__
+
+main_entrypoint@2:
+        int 101
+        int 102
+        int 103
+        callsub add_three_values
+        itob
+        log
+        int 1
+        int 2
+        addw
+        byte "state"
+        swap
+        app_global_put
+        !
+        assert // overflow!
+        int 1
+        int 2
+        addw
+        pop
+        !
+        assert // overflow!
+        byte "Hello, "
+        byte "world!"
+        callsub bytes_combine
+        log
+        int 18446744073709551615
+        int 18446744073709551615
+        addw
+        swap
+        int 1
+        int 2
+        addw
+        swap
+        uncover 2
+        uncover 3
+        uncover 2
+        uncover 3
+        callsub addw2
+        cover 2
+        swap
+        itob
+        log
+        itob
+        log
+        itob
+        log
+        byte "na"
+        int 5
+        callsub bytes_multiply
+        log
+        int 0
+        callsub test_tuple_swap
+        int 1
+        int 2
+        int 3
+        int 4
+        int 5
+        int 6
+        int 7
+        int 8
+        callsub slicing
+        int 3
+        return
+
+
+// test_cases.tuple_support.add_three_values(values.0#0: uint64, values.1#0: uint64, values.2#0: uint64) -> uint64:
+add_three_values:
+        proto 3 1
+        byte ""
+
+add_three_values_block@0:
+        int 0
+        int 0
+        frame_dig -3
+        b add_three_values_for_body@4
+
+add_three_values_for_header_1@2:
+        frame_dig -2
+        frame_dig 0
+        frame_bury 2
+        b add_three_values_for_body@4
+
+add_three_values_for_header_2@3:
+        frame_dig -1
+        frame_dig 0
+        frame_bury 2
+
+add_three_values_for_body@4:
+        frame_dig 1
+        +
+        frame_bury 1
+        frame_dig 2
+        dup
+        int 1
+        +
+        frame_bury 0
+        switch add_three_values_for_header_1@2 add_three_values_for_header_2@3
+
+add_three_values_after_for@6:
+        frame_dig 1
+        frame_bury 0
+        retsub
+
+
+// test_cases.tuple_support.bytes_combine(arg.0#0: bytes, arg.1#0: bytes) -> bytes:
+bytes_combine:
+        proto 2 1
+
+bytes_combine_block@0:
+        frame_dig -2
+        frame_dig -1
+        concat
+        retsub
+
+
+// test_cases.tuple_support.addw2(a.0#0: uint64, a.1#0: uint64, b.0#0: uint64, b.1#0: uint64) -> uint64, uint64, uint64:
+addw2:
+        proto 4 3
+
+addw2_block@0:
+        frame_dig -3
+        frame_dig -1
+        addw
+        swap
+        frame_dig -4
+        frame_dig -2
+        addw
+        uncover 2
+        addw
+        cover 2
+        addw
+        swap
+        !
+        assert // is such a thing even possible? 👽
+        swap
+        uncover 2
+        retsub
+
+
+// test_cases.tuple_support.bytes_multiply(arg.0#0: bytes, arg.1#0: uint64) -> bytes:
+bytes_multiply:
+        proto 2 1
+
+bytes_multiply_block@0:
+        byte ""
+        int 0
+
+bytes_multiply_for_header@1:
+        frame_dig 1
+        frame_dig -1
+        <
+        bz bytes_multiply_after_for@4
+
+bytes_multiply_for_body@2:
+        frame_dig 0
+        frame_dig -2
+        concat
+        frame_bury 0
+        frame_dig 1
+        int 1
+        +
+        frame_bury 1
+        b bytes_multiply_for_header@1
+
+bytes_multiply_after_for@4:
+        retsub
+
+
+// test_cases.tuple_support.test_tuple_swap(zero#0: uint64) -> void:
+test_tuple_swap:
+        proto 1 0
+
+test_tuple_swap_block@0:
+        frame_dig -1
+        int 1
+        +
+        frame_dig -1
+        int 2
+        +
+        int 2
+        ==
+        assert // a should be two
+        int 1
+        ==
+        assert // b should be one
+        retsub
+
+
+// test_cases.tuple_support.slicing(values.0#0: uint64, values.1#0: uint64, values.2#0: uint64, values.3#0: uint64, values.4#0: uint64, values.5#0: uint64, values.6#0: uint64, values.7#0: uint64) -> void:
+slicing:
+        proto 8 0
+
+slicing_block@0:
+        frame_dig -8
+        frame_dig -7
+        frame_dig -6
+        callsub add_three_values
+        frame_dig -8
+        frame_dig -7
+        +
+        frame_dig -6
+        +
+        ==
+        assert
+        retsub
+
+
+// test_cases.tuple_support.TupleSupport.__init__() -> void:
+__init__:
+        proto 0 0
+
+__init___block@0:
+        byte "state"
+        int 0
+        app_global_put
+        retsub
+

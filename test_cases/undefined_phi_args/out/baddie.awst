@@ -1,0 +1,95 @@
+contract Baddie
+{
+  approval_program(): bool
+  {
+    test_case: puyapy.Bytes = txna<ApplicationArgs, 0>()
+    invert_second_condition: bool = txn<NumAppArgs>() > 1u and btoi(txna<ApplicationArgs, 1>()) > 0u
+    if (invert_second_condition) {
+      if (test_case == 'uint') {
+        assert(test_cases.undefined_phi_args.baddie::test_uint_undefined(true, false) == 10u)
+        assert(test_cases.undefined_phi_args.baddie::test_uint_undefined(false, true) == 8u)
+      } else {
+        if (test_case == 'bytes') {
+          assert(test_cases.undefined_phi_args.baddie::test_bytes_undefined(true, false) == 10n)
+          assert(test_cases.undefined_phi_args.baddie::test_bytes_undefined(false, true) == 8n)
+        } else {
+          assert(test_cases.undefined_phi_args.baddie::test_mixed_undefined(true, false) == 10n)
+          assert(test_cases.undefined_phi_args.baddie::test_mixed_undefined(false, true) == 8n)
+        }
+      }
+    } else {
+      if (test_case == 'uint') {
+        assert(test_cases.undefined_phi_args.baddie::test_uint_undefined(true, true) == 8u)
+        assert(test_cases.undefined_phi_args.baddie::test_uint_undefined(false, false) == 10u)
+      } else {
+        if (test_case == 'bytes') {
+          assert(test_cases.undefined_phi_args.baddie::test_bytes_undefined(true, true) == 8n)
+          assert(test_cases.undefined_phi_args.baddie::test_bytes_undefined(false, false) == 10n)
+        } else {
+          assert(test_cases.undefined_phi_args.baddie::test_mixed_undefined(true, true) == 8n)
+          assert(test_cases.undefined_phi_args.baddie::test_mixed_undefined(false, false) == 10n)
+        }
+      }
+    }
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine test_uint_undefined(x: bool, y: bool): puyapy.UInt64
+{
+  if (x) {
+    a: puyapy.UInt64 = 7u
+  }
+  if (x) {
+    b: puyapy.UInt64 = 11u
+  } else {
+    b: puyapy.UInt64 = 11u
+  }
+  if (y) {
+    c: puyapy.UInt64 = a + 1u
+  } else {
+    c: puyapy.UInt64 = b - 1u
+  }
+  return c
+}
+
+subroutine test_bytes_undefined(x: bool, y: bool): puyapy.BigUInt
+{
+  if (x) {
+    a: puyapy.BigUInt = 7n
+  }
+  if (x) {
+    b: puyapy.BigUInt = 11n
+  } else {
+    b: puyapy.BigUInt = 11n
+  }
+  if (y) {
+    c: puyapy.BigUInt = a b+ 1n
+  } else {
+    c: puyapy.BigUInt = b b- 1n
+  }
+  return c
+}
+
+subroutine test_mixed_undefined(x: bool, y: bool): puyapy.BigUInt
+{
+  if (x) {
+    a: puyapy.UInt64 = 7u
+  }
+  if (x) {
+    b: puyapy.BigUInt = 11n
+  } else {
+    b: puyapy.BigUInt = 11n
+  }
+  if (y) {
+    c: puyapy.BigUInt = itob(a) b+ 1n
+  } else {
+    c: puyapy.BigUInt = b b- 1n
+  }
+  return c
+}

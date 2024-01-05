@@ -143,11 +143,12 @@ class ParseResult:
         return result
 
 
-def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Options) -> ParseResult:
-    mypy_fscache = mypy.fscache.FileSystemCache()
-    # ensure we have the absolute, canonical paths to the files
-    resolved_input_paths = {p.resolve() for p in paths}
-    # creates a list of BuildSource objects from the contract Paths
+def get_parse_sources(
+    paths: Sequence[Path],
+    mypy_fscache: mypy.fscache.FileSystemCache,
+    mypy_options: mypy.options.Options,
+) -> list[ParseSource]:
+    resolved_input_paths = {p.resolve(): p for p in paths}
     mypy_build_sources = mypy.find_sources.create_source_list(
         paths=[str(p) for p in resolved_input_paths],
         options=mypy_options,
@@ -161,11 +162,26 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
         src_path = Path(src.path).resolve()
         sources.append(
             ParseSource(
-                path=src_path,
+                path=resolved_input_paths.get(src_path, src_path),
                 module_name=src.module,
                 is_explicit=src_path in resolved_input_paths,
             )
         )
+    return sources
+
+
+def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Options) -> ParseResult:
+    mypy_fscache = mypy.fscache.FileSystemCache()
+    # ensure we have the absolute, canonical paths to the files
+    resolved_input_paths = {p.resolve() for p in paths}
+    # creates a list of BuildSource objects from the contract Paths
+    mypy_build_sources = mypy.find_sources.create_source_list(
+        paths=[str(p) for p in resolved_input_paths],
+        options=mypy_options,
+        fscache=mypy_fscache,
+    )
+    sources = get_parse_sources(paths, mypy_fscache, mypy_options)
+
     # insert embedded lib, after source list that is returned has been constructed,
     # so we don't try to output it
     mypy_build_sources.extend(
