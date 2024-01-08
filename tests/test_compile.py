@@ -91,8 +91,6 @@ def rename_file(file_name: str, suffix: str | None) -> str:
         if file_name.endswith((".final.ir", ".final_par.ir")):
             final_ir_path = Path(file_name)
             suffix_keep, _ = final_ir_path.suffixes
-
-            suffix_keep, _ = final_ir_path.suffixes
             move_to = final_ir_path.with_suffix("").with_suffix(f"{suffix_keep}{suffix}.ir")
             return move_to.name
         elif file_name.endswith(".teal"):
@@ -280,10 +278,5 @@ def test_cases(case: PuyaExample) -> None:
     remove_output(case.path)
     compile_no_optimization(case)
     compile_with_level1_optimizations(case)
-    # compile_with_level2_optimizations(case)
     diff = check_for_diff(case.path)
     assert diff is None, f"Uncommitted changes were found:\n{diff}"
-
-
-# def test_amm() -> None:
-#    test_cases(PuyaExample(VCS_DIR / "examples", VCS_DIR / "examples" / "amm"))
