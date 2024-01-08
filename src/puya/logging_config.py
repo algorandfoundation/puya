@@ -55,17 +55,14 @@ def mypy_severity_to_loglevel(severity: str) -> int:
 
 
 class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
-    def __init__(self, *args: typing.Any, **kwargs: typing.Any):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *, colors: bool):
+        super().__init__(colors=colors)
+        self.level_to_color = self.get_default_level_styles(colors)
         self.base_path = str(Path.cwd())  # TODO: don't assume this?
         if not self.base_path.endswith(
             os.path.sep
         ):  # TODO: can we always append the path seperator?
             self.base_path += os.path.sep
-
-        level_color_map = self._level_to_color
-        assert isinstance(level_color_map, dict)
-        self.level_to_color = level_color_map
 
     def _location_as_link(self, location: SourceLocation | None) -> str:
         if not location or not location.file:
@@ -101,7 +98,7 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
             sio.write(self._styles.reset)
 
         # force event to str for compatibility with standard library
-        event = event_dict.pop(self._event_key, None)
+        event = event_dict.pop("event", None)
         if not isinstance(event, str):
             event = str(event)
 
