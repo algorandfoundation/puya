@@ -82,6 +82,14 @@ def create_asset(algod_client: AlgodClient, account: Account, asset_unit: str) -
     return asset_index
 
 
+def _get_root_dir(path: Path) -> Path | None:
+    if path.is_relative_to(EXAMPLES_DIR):
+        return EXAMPLES_DIR
+    elif path.is_relative_to(TEST_CASES_DIR):
+        return TEST_CASES_DIR
+    return None
+
+
 @attrs.define
 class CompileCache:
     context: CompileContext
@@ -90,12 +98,12 @@ class CompileCache:
 
 
 @functools.cache
-def get_awst_cache(root_dir: Path) -> CompileCache:
+def get_awst_cache(*root_dirs: Path) -> CompileCache:
     # note that this caching assumes that AWST is the same across all
     # optimisation and debug levels, which is currently true.
     # if this were to no longer be true, this test speedup strategy would need to be revisited
     with structlog.testing.capture_logs() as logs:
-        context = parse_with_mypy(PuyaOptions(paths=[root_dir]))
+        context = parse_with_mypy(PuyaOptions(paths=root_dirs))
         awst = transform_ast(context)
         return CompileCache(context, awst, logs)
 
@@ -104,21 +112,17 @@ def get_awst_cache(root_dir: Path) -> CompileCache:
 def parse_src_to_awst(
     src_path: Path,
 ) -> CompileCache:
-    orig_dir = os.curdir
-
-    if str(src_path).startswith(str(EXAMPLES_DIR)):
-        cache_dir = EXAMPLES_DIR
-        os.chdir(cache_dir)
-    elif str(src_path).startswith(str(TEST_CASES_DIR)):
-        cache_dir = TEST_CASES_DIR
-        os.chdir(cache_dir)
+    root_dir = _get_root_dir(src_path)
+    if root_dir:
+        orig_dir = os.curdir
+        os.chdir(root_dir)
+        try:
+            compile_cache = get_awst_cache(root_dir)
+        finally:
+            os.chdir(orig_dir)
     else:
-        cache_dir = src_path
+        compile_cache = get_awst_cache(src_path)
 
-    try:
-        compile_cache = get_awst_cache(cache_dir)
-    finally:
-        os.chdir(orig_dir)
     # create a new context from cache and specified src
     context = compile_cache.context
     module_awst = compile_cache.module_awst
@@ -126,18 +130,12 @@ def parse_src_to_awst(
     sources = get_parse_sources(
         [src_path], context.parse_result.manager.fscache, context.parse_result.manager.options
     )
-    # if a source wasn't found in the cache then parse and transform from source
-    if any(src.module_name not in module_awst for src in sources):
-        with structlog.testing.capture_logs() as logs:
-            context = parse_with_mypy(PuyaOptions(paths=[src_path]))
-            module_awst = transform_ast(context)
-    else:
-        # otherwise create a new context from the cache
-        context = attrs.evolve(
-            compile_cache.context,
-            errors=Errors(),
-            parse_result=attrs.evolve(context.parse_result, sources=sources),
-        )
+    # create a new context from the cache
+    context = attrs.evolve(
+        compile_cache.context,
+        errors=Errors(),
+        parse_result=attrs.evolve(context.parse_result, sources=sources),
+    )
     return CompileCache(context, module_awst, logs)
 
 

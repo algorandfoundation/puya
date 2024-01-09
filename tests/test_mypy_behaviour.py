@@ -2,7 +2,6 @@
 # ruff: noqa
 import inspect
 import typing
-from pathlib import Path
 from textwrap import dedent
 
 import mypy.build

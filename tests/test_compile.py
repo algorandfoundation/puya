@@ -13,18 +13,12 @@ from puya.compile import awst_to_teal, write_teal_to_output
 from puya.options import PuyaOptions
 from puya.parse import EMBEDDED_MODULES, SourceLocation
 
-from tests.conftest import parse_src_to_awst
+from tests.conftest import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT, parse_src_to_awst
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
     "PYTHONUTF8": "1",  # force utf8 on windows
 }
-SCRIPT_DIR = Path(__file__).parent
-VCS_DIR = SCRIPT_DIR.parent
-CONTRACT_ROOT_DIRS = [
-    VCS_DIR / "examples",
-    VCS_DIR / "test_cases",
-]
 APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir")
 
 
@@ -49,7 +43,7 @@ def _normalize_path(path: Path | str) -> str:
 def _stabilise_logs(
     logs: list[structlog.typing.EventDict], root_dir: Path, tmp_dir: Path, actual_path: Path
 ) -> Iterable[str]:
-    normalized_vcs = _normalize_path(VCS_DIR)
+    normalized_vcs = _normalize_path(VCS_ROOT)
     normalized_tmp = _normalize_path(tmp_dir)
     normalized_root = _normalize_path(root_dir) + "/"
     actual_dir = actual_path if actual_path.is_dir() else actual_path.parent
@@ -61,6 +55,8 @@ def _stabilise_logs(
             src_location = log["location"]
             assert isinstance(src_location, SourceLocation)
             path = Path(src_location.file)
+            if not path.is_relative_to(root_dir):
+                continue
             location = str(path.relative_to(root_dir))
             if not location.startswith(normalized_relative):
                 continue
@@ -237,7 +233,7 @@ def compile_with_level2_optimizations(test_case: PuyaExample) -> None:
 
 def get_test_cases() -> Iterable[PuyaExample]:
     to_compile = []
-    for root in CONTRACT_ROOT_DIRS:
+    for root in (EXAMPLES_DIR, TEST_CASES_DIR):
         for item in root.iterdir():
             if item.is_dir():
                 if any(item.rglob("*.py")):
@@ -264,7 +260,7 @@ def check_for_diff(path: Path) -> str | None:
     stdout = ""
     for path in paths:
         result = subprocess.run(
-            [git, "status", "-s", str(path)], check=True, capture_output=True, cwd=VCS_DIR
+            [git, "status", "-s", str(path)], check=True, capture_output=True, cwd=VCS_ROOT
         )
         stdout += result.stdout.decode("utf8")
     return stdout or None

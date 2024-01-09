@@ -12,11 +12,7 @@ from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
 from puya.arc32 import create_arc32_json
 
-from tests.conftest import compile_src
-
-VCS_ROOT = Path(__file__).parent.parent
-EXAMPLES_DIR = VCS_ROOT / "examples"
-TEST_CASES_DIR = VCS_ROOT / "test_cases"
+from tests.conftest import EXAMPLES_DIR, TEST_CASES_DIR, compile_src
 
 
 def compile_arc32(src_path: Path, optimization_level: int = 1) -> str:
@@ -319,7 +315,7 @@ def test_voting_app(
 
     private_key = SigningKey.generate()
 
-    example = VCS_ROOT / "examples" / "voting"
+    example = EXAMPLES_DIR / "voting"
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example, 1))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=creator_account)
 

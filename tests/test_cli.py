@@ -2,9 +2,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-VCS_ROOT = Path(__file__).parent.parent
-EXAMPLES_DIR = VCS_ROOT / "examples"
-TEST_CASES_DIR = VCS_ROOT / "test_cases"
+from tests.conftest import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 
 
 def run_puyapy(
