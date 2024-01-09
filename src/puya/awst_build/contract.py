@@ -16,6 +16,7 @@ from puya.awst.nodes import (
     ContractFragment,
     ContractMethod,
     ContractReference,
+    ScratchSpaceReservation,
 )
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
@@ -40,6 +41,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         context: ASTConversionModuleContext,
         class_def: mypy.nodes.ClassDef,
         name_override: str | None,
+        scratch_slot_reservations: typing.Sequence[ScratchSpaceReservation],
     ):
         super().__init__(context=context)
         self.class_def = class_def
@@ -98,6 +100,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             app_state=[decl.state_def for decl in this_app_state],
             docstring=docstring,
             source_location=self._location(class_def),
+            reserved_scratch_space=scratch_slot_reservations,
         )
 
     @classmethod
@@ -106,8 +109,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         context: ASTConversionModuleContext,
         class_def: mypy.nodes.ClassDef,
         name_override: str | None,
+        scratch_slot_reservations: typing.Sequence[ScratchSpaceReservation],
     ) -> ContractFragment:
-        return cls(context, class_def, name_override).result_
+        return cls(context, class_def, name_override, scratch_slot_reservations).result_
 
     def empty_statement(self, _stmt: mypy.nodes.Statement) -> None:
         return None

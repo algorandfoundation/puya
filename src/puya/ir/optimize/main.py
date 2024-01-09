@@ -12,14 +12,14 @@ from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from puya.ir.optimize.constant_propagation import (
     constant_replacer,
-    intrinsic_simplifier,
-    simplify_conditional_branches,
 )
+from puya.ir.optimize.control_op_simplification import simplify_control_ops
 from puya.ir.optimize.dead_code_elimination import (
     remove_unreachable_blocks,
     remove_unused_subroutines,
     remove_unused_variables,
 )
+from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.to_text_visitor import output_contract_ir_to_path
 
 MAX_PASSES = 100
@@ -57,7 +57,7 @@ def get_all_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(copy_propagation),
         SubroutineOptimization.from_function(intrinsic_simplifier),
         SubroutineOptimization.from_function(remove_unused_variables),
-        SubroutineOptimization.from_function(simplify_conditional_branches),
+        SubroutineOptimization.from_function(simplify_control_ops),
         SubroutineOptimization.from_function(remove_linear_jump),
         SubroutineOptimization.from_function(remove_empty_blocks),
         SubroutineOptimization.from_function(remove_unreachable_blocks),

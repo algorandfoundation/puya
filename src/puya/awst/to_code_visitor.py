@@ -190,6 +190,21 @@ class ToCodeVisitor(
                     f"Unhandled app state kinds: {', '.join(map(str, state_by_kind.keys()))}",
                     c.source_location,
                 )
+        if c.reserved_scratch_space:
+            body.extend(
+                [
+                    "reserved_scratch_space {",
+                    *_indent(
+                        [
+                            ", ".join(
+                                self._visit_scratch_space_reservation(x)
+                                for x in c.reserved_scratch_space
+                            )
+                        ]
+                    ),
+                    "}",
+                ]
+            )
         for special_method, formatter in (
             (c.init, self.visit_contract_init),
             (c.approval_program, self.visit_approval_main),
@@ -223,6 +238,12 @@ class ToCodeVisitor(
             *_indent(body),
             "}",
         ]
+
+    def _visit_scratch_space_reservation(self, node: nodes.ScratchSpaceReservation) -> str:
+        if node.start_slot + 1 == node.stop_slot:
+            return f"{node.start_slot}"
+        else:
+            return f"{node.start_slot}:{node.stop_slot - 1}"
 
     def visit_contract_init(self, statement: nodes.ContractMethod) -> list[str]:
         body = statement.body.accept(self)

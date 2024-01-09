@@ -78,11 +78,6 @@ EXCLUDED_OPCODES = {
     "popn",
     "swap",
     "uncover",
-    # program scratch slot read/modification (for current program)
-    "load",
-    "loads",
-    "store",
-    "stores",
     # modifies what other op codes with immediates point to
     "intcblock",
     "bytecblock",

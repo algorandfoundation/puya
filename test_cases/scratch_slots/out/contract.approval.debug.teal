@@ -1,0 +1,49 @@
+// Op                                                 // Op Description               Stack (out)                        Source code                                    Source line
+
+#pragma version 8
+
+// test_cases.scratch_slots.contract.MyContract.approval_program() -> uint64:
+main_block@0:
+        int 5                                         //                              5                                  5                                              File "scratch_slots/contract.py", line 6
+        store 1                                       //                                                                 Scratch.store(1, UInt64(5))                    File "scratch_slots/contract.py", line 6
+        byte "Hello World"                            //                              "Hello World"                      b"Hello World"                                 File "scratch_slots/contract.py", line 8
+        store 2                                       //                                                                 Scratch.store(2, Bytes(b"Hello World"))        File "scratch_slots/contract.py", line 8
+        int 3                                         //                              3                                  3                                              File "scratch_slots/contract.py", line 10
+        // Implicit fall through to main_for_header@1 //                              (𝕗) i#0 |
+
+main_for_header@1:
+        dup                                           // load i#0 from f-stack        (𝕗) i#0 | i#0                      i                                              File "scratch_slots/contract.py", line 10
+        int 20                                        //                              (𝕗) i#0 | i#0,20                   20                                             File "scratch_slots/contract.py", line 10
+        <                                             //                              (𝕗) i#0 | {<}                      urange(3, 20)                                  File "scratch_slots/contract.py", line 10
+        bz main_after_for@4                           //                              (𝕗) i#0 |                          for i in urange(3, 20):                        File "scratch_slots/contract.py", line 10
+        // Implicit fall through to main_for_body@2   //                              (𝕗) i#0 |                          for i in urange(3, 20):                        File "scratch_slots/contract.py", line 10
+
+main_for_body@2:
+        dup                                           // load i#0 from f-stack        (𝕗) i#0 | i#0                      i                                              File "scratch_slots/contract.py", line 10
+        dup                                           // store i#0 to l-stack (copy)  (𝕗) i#0 | i#0,i#0                  i                                              File "scratch_slots/contract.py", line 10
+        dig 1                                         // load i#0 from l-stack (copy) (𝕗) i#0 | i#0,i#0,i#0              i                                              File "scratch_slots/contract.py", line 10
+        stores                                        //                              (𝕗) i#0 | i#0                      Scratch.store(i, i)                            File "scratch_slots/contract.py", line 11
+        int 1                                         //                              (𝕗) i#0 | i#0,1                    urange(3, 20)                                  File "scratch_slots/contract.py", line 10
+        +                                             //                              (𝕗) i#0 | {+}                      urange(3, 20)                                  File "scratch_slots/contract.py", line 10
+        bury 1                                        // store i#0 to f-stack         (𝕗) i#0 |                          i                                              File "scratch_slots/contract.py", line 10
+        b main_for_header@1                           //                              (𝕗) i#0 |
+
+main_after_for@4:
+        int 1                                         //                              (𝕗) i#0 | 1                        1                                              File "scratch_slots/contract.py", line 13
+        loads                                         //                              (𝕗) i#0 | {loads}                  Scratch.load_uint64(1)                         File "scratch_slots/contract.py", line 13
+        int 5                                         //                              (𝕗) i#0 | tmp%2#0,5                5                                              File "scratch_slots/contract.py", line 13
+        ==                                            //                              (𝕗) i#0 | {==}                     Scratch.load_uint64(1) == UInt64(5)            File "scratch_slots/contract.py", line 13
+        assert                                        //                              (𝕗) i#0 |                          assert Scratch.load_uint64(1) == UInt64(5)     File "scratch_slots/contract.py", line 13
+        int 2                                         //                              (𝕗) i#0 | 2                        2                                              File "scratch_slots/contract.py", line 15
+        loads                                         //                              (𝕗) i#0 | {loads}                  Scratch.load_bytes(2)                          File "scratch_slots/contract.py", line 15
+        byte "Hello World"                            //                              (𝕗) i#0 | tmp%4#0,"Hello World"    b"Hello World"                                 File "scratch_slots/contract.py", line 15
+        ==                                            //                              (𝕗) i#0 | {==}                     Scratch.load_bytes(2) == b"Hello World"        File "scratch_slots/contract.py", line 15
+        assert                                        //                              (𝕗) i#0 |                          assert Scratch.load_bytes(2) == b"Hello World" File "scratch_slots/contract.py", line 15
+        int 5                                         //                              (𝕗) i#0 | 5                        5                                              File "scratch_slots/contract.py", line 17
+        loads                                         //                              (𝕗) i#0 | {loads}                  Scratch.load_uint64(5)                         File "scratch_slots/contract.py", line 17
+        int 5                                         //                              (𝕗) i#0 | tmp%6#0,5                5                                              File "scratch_slots/contract.py", line 17
+        ==                                            //                              (𝕗) i#0 | {==}                     Scratch.load_uint64(5) == UInt64(5)            File "scratch_slots/contract.py", line 17
+        assert                                        //                              (𝕗) i#0 |                          assert Scratch.load_uint64(5) == UInt64(5)     File "scratch_slots/contract.py", line 17
+        int 1                                         //                              (𝕗) i#0 | 1                        True                                           File "scratch_slots/contract.py", line 18
+        return                                        //                              (𝕗) i#0 |                          return True                                    File "scratch_slots/contract.py", line 18
+
