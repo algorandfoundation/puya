@@ -11,10 +11,12 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
     AppStateKind,
+    AppStorageDefinition,
     BytesEncoding,
     ContractFragment,
     ContractMethod,
     ContractReference,
+    ScratchSlotDefinition,
 )
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
@@ -379,6 +381,14 @@ def _gather_app_state(
                                 "Local storage requires exactly one type parameter", var_loc
                             )
                         continue
+                case mypy.types.Instance(
+                    type=mypy.nodes.TypeInfo(fullname=type_name)
+                ) if type_name in (
+                    constants.CLS_SCRATCH_SLOT_PROXY,
+                    constants.CLS_SCRATCH_SLOT_RANGE_PROXY,
+                ):
+                    yield ScratchSlotDefinition()
+                    continue
                 case _:
                     kind = AppStateKind.app_global
                     storage_type = typ
@@ -391,7 +401,7 @@ def _gather_app_state(
                         var_loc,
                     )
             else:
-                yield AppStateDefinition(
+                yield AppStorageDefinition(
                     source_location=var_loc,
                     member_name=name,
                     storage_wtype=storage_wtype,

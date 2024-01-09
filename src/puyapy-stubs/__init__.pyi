@@ -7,6 +7,7 @@ from puyapy._gen import *
 from puyapy._hints import *
 from puyapy._primitives import *
 from puyapy._reference import *
+from puyapy._scratch import *
 from puyapy._storage import *
 from puyapy._transactions import *
 from puyapy._unsigned_builtins import *

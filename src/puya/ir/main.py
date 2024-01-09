@@ -227,6 +227,8 @@ def fold_state_and_special_methods(
         if result.clear_program is None:
             result.clear_program = c.clear_program
         for state in c.app_state:
+            if not isinstance(state, awst_nodes.AppStateDefinition):
+                continue
             translated = metadata.ContractState(
                 name=state.member_name,
                 source_location=state.source_location,

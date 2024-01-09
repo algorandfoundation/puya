@@ -35,6 +35,7 @@ from puya.awst.nodes import (
     Lvalue,
     Not,
     ReturnStatement,
+    ScratchSlotDefinition,
     Statement,
     Subroutine,
     SubroutineArgument,
@@ -47,6 +48,7 @@ from puya.awst.wtypes import WType
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.eb import scratch
 from puya.awst_build.eb.arc4 import ARC4StructClassExpressionBuilder
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -71,7 +73,7 @@ from puya.awst_build.eb.struct import StructSubclassExpressionBuilder
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.temporary_assignment import TemporaryAssignmentExpressionBuilder
 from puya.awst_build.eb.tuple import TupleTypeExpressionBuilder
-from puya.awst_build.eb.type_registry import get_type_builder
+from puya.awst_build.eb.type_registry import get_state_proxy, get_type_builder
 from puya.awst_build.eb.unsigned_builtins import UnsignedEnumerateBuilder, UnsignedRangeBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import UnsupportedASTError
@@ -311,6 +313,16 @@ class FunctionASTConverter(
             if len(stmt.lvalues) != 1:
                 raise CodeError(
                     "Local state can only be assigned to a single member variable", stmt_loc
+                )
+            return []
+        if isinstance(
+            rvalue,
+            scratch.ScratchSlotClassExpressionBuilder
+            | scratch.ScratchSlotRangeClassExpressionBuilder,
+        ):
+            if len(stmt.lvalues) != 1:
+                raise CodeError(
+                    "Scratch slots can only be assigned to a single member variable", stmt_loc
                 )
             return []
         if len(stmt.lvalues) == 1:
@@ -727,13 +739,17 @@ class FunctionASTConverter(
                 return EnsureBudgetBuilder(location=location)
             case constants.OP_UP_FEE_SOURCE:
                 return OpUpFeeSourceClassBuilder(location=location)
-            case constants.LOCAL_PROXY_CLS:
+            case state_proxy_cls if state_proxy_cls in (
+                constants.LOCAL_PROXY_CLS,
+                constants.CLS_SCRATCH_SLOT_PROXY,
+                constants.CLS_SCRATCH_SLOT_RANGE_PROXY,
+            ):
                 if self.contract_method_info is None:
                     raise CodeError(
-                        f"{constants.LOCAL_PROXY_CLS} is only usable in contract instance methods",
+                        f"{state_proxy_cls} is only usable in contract instance methods",
                         location,
                     )
-                return LocalStorageClassExpressionBuilder(location=location)
+                return get_state_proxy(state_proxy_cls, location)
             case _ as enum_name if enum_name in constants.NAMED_INT_CONST_ENUM_DATA:
                 return NamedIntegerConstsTypeBuilder(
                     enum_name=enum_name,

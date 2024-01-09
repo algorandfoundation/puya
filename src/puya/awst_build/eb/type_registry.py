@@ -9,6 +9,7 @@ from puya.awst_build.eb import (
     biguint,
     bool as bool_,
     bytes as bytes_,
+    scratch,
     struct,
     transaction,
     tuple as tuple_,
@@ -18,10 +19,12 @@ from puya.awst_build.eb import (
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     GenericClassExpressionBuilder,
+    IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
 )
+from puya.awst_build.eb.contracts import LocalStorageClassExpressionBuilder
 from puya.awst_build.eb.reference_types import account, application, asset
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 TYPE_NAME_CLS_MAPPING: dict[
@@ -67,6 +70,12 @@ TYPE_NAME_CLS_MAPPING: dict[
     constants.CLS_UINT64: uint64.UInt64ClassExpressionBuilder,
 }
 
+STATE_PROXY_CLS_MAPPING: dict[str, type[IntermediateExpressionBuilder]] = {
+    constants.CLS_SCRATCH_SLOT_RANGE_PROXY: scratch.ScratchSlotRangeClassExpressionBuilder,
+    constants.CLS_SCRATCH_SLOT_PROXY: scratch.ScratchSlotClassExpressionBuilder,
+    constants.LOCAL_PROXY_CLS: LocalStorageClassExpressionBuilder,
+}
+
 WTYPE_BUILDER_MAPPING = {
     wtypes.ARC4DynamicArray: arc4.DynamicArrayExpressionBuilder,
     wtypes.ARC4Struct: arc4.ARC4StructExpressionBuilder,
@@ -95,6 +104,17 @@ WTYPE_BUILDER_MAPPING = {
     wtypes.uint64_wtype: uint64.UInt64ExpressionBuilder,
     wtypes.void_wtype: void.VoidExpressionBuilder,
 }
+
+
+def get_state_proxy(
+    python_type: str, source_location: SourceLocation
+) -> IntermediateExpressionBuilder:
+    try:
+        proxy_class = STATE_PROXY_CLS_MAPPING[python_type]
+    except KeyError as ex:
+        raise InternalError(f"Unhandled puyapy state: {python_type}", source_location) from ex
+    else:
+        return proxy_class(source_location)
 
 
 def get_type_builder(

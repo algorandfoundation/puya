@@ -1,5 +1,6 @@
 import decimal
 import enum
+import typing
 import typing as t
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
@@ -1162,15 +1163,32 @@ class ContractMethod(Function):
 class AppStateKind(enum.Enum):
     app_global = enum.auto()
     account_local = enum.auto()
+    scratch_slot = enum.auto()
 
 
 @attrs.frozen
-class AppStateDefinition(Node):
+class AppStorageDefinition(Node):
     member_name: str
-    kind: AppStateKind
+    kind: AppStateKind = attrs.field()
     key: bytes
     key_encoding: BytesEncoding
     storage_wtype: WType
+
+    @kind.validator
+    def check_kind(self, _attribute: object, kind: AppStateKind) -> None:
+        if kind not in (AppStateKind.app_global, AppStateKind.account_local):
+            raise InternalError("Invalid kind {kind} for AppStorageDefinition")
+
+
+@attrs.frozen
+class ScratchSlotDefinition(Node):
+    member_name: str
+    slots: Sequence[int]
+    slot_wtype: WType
+    kind: AppStateKind = attrs.field(default=AppStateKind.scratch_slot)
+
+
+AppStateDefinition: typing.TypeAlias = typing.Union[AppStorageDefinition, ScratchSlotDefinition]
 
 
 @attrs.frozen
@@ -1192,7 +1210,9 @@ class ContractFragment(ModuleStatement):
     symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)
 
     @symtable.default
-    def _symtable_factory(self) -> Mapping[str, ContractMethod | AppStateDefinition]:
+    def _symtable_factory(
+        self,
+    ) -> Mapping[str, ContractMethod | AppStateDefinition]:
         all_subs = [
             self.init,
             self.approval_program,
