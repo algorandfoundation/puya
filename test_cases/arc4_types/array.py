@@ -1,7 +1,8 @@
 import typing as t
 
-from puyapy import Bytes, Contract, UInt64, uenumerate, sha3_256, subroutine
+from puyapy import Bytes, Contract, UInt64, sha3_256, subroutine, uenumerate
 from puyapy.arc4 import (
+    Byte,
     DynamicArray,
     StaticArray,
     String,
@@ -9,7 +10,6 @@ from puyapy.arc4 import (
     UInt8,
     UInt16,
     UInt32,
-    Byte,
 )
 
 AliasedDynamicArray: t.TypeAlias = DynamicArray[UInt16]
