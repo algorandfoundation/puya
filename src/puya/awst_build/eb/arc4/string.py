@@ -11,14 +11,14 @@ from puya.awst.nodes import (
     ArrayExtend,
     BytesConstant,
     BytesEncoding,
+    Expression,
     ExpressionStatement,
     Literal,
     Statement,
 )
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
-from puya.awst_build.eb.base import BuilderBinaryOp
+from puya.awst_build.eb.base import BuilderBinaryOp, ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
 if TYPE_CHECKING:
@@ -26,7 +26,6 @@ if TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build.eb.base import ExpressionBuilder
     from puya.parse import SourceLocation
 
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
@@ -61,6 +60,40 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
                 raise CodeError("Invalid/unhandled arguments", location)
 
 
+def expect_string_or_bytes(expr: ExpressionBuilder | Literal) -> Expression:
+    def arc4_encode_bytes(bytes_expr: Expression, source_location: SourceLocation) -> Expression:
+        return ARC4Encode(
+            value=bytes_expr, source_location=source_location, wtype=wtypes.arc4_string_wtype
+        )
+
+    match expr:
+        case Literal(value=str(string_literal), source_location=source_location):
+            return arc4_encode_bytes(
+                BytesConstant(
+                    value=string_literal.encode("utf-8"),
+                    encoding=BytesEncoding.utf8,
+                    source_location=source_location,
+                ),
+                source_location,
+            )
+        case Literal(value=bytes(bytes_literal), source_location=source_location):
+            return arc4_encode_bytes(
+                BytesConstant(
+                    value=bytes_literal,
+                    encoding=BytesEncoding.utf8,
+                    source_location=source_location,
+                ),
+                source_location,
+            )
+        case ExpressionBuilder() as eb:
+            rvalue = eb.rvalue()
+            if rvalue.wtype == wtypes.arc4_string_wtype:
+                return rvalue
+            if rvalue.wtype == wtypes.bytes_wtype:
+                return arc4_encode_bytes(rvalue, eb.source_location)
+    raise CodeError("Expected String or Bytes, or a str or bytes literal", expr.source_location)
+
+
 class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
     wtype = wtypes.arc4_string_wtype
 
@@ -72,7 +105,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
                 return ExpressionStatement(
                     expr=ArrayExtend(
                         base=self.expr,
-                        other=expect_operand_wtype(rhs, wtypes.arc4_string_wtype),
+                        other=expect_string_or_bytes(rhs),
                         source_location=location,
                         wtype=wtypes.arc4_string_wtype,
                     )
@@ -91,7 +124,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
         match op:
             case BuilderBinaryOp.add:
                 lhs = self.expr
-                rhs = expect_operand_wtype(other, wtypes.arc4_string_wtype)
+                rhs = expect_string_or_bytes(other)
                 if reverse:
                     (lhs, rhs) = (rhs, lhs)
                 return var_expression(
