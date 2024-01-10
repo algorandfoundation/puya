@@ -381,10 +381,21 @@ class AddressConstant(Expression):
 @attrs.frozen
 class ARC4Encode(Expression):
     value: Expression
-    wtype: WType
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_encode(self)
+
+
+@attrs.frozen
+class Copy(Expression):
+    """
+    Create a new copy of 'value'
+    """
+
+    value: Expression
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_copy(self)
 
 
 @attrs.frozen
@@ -404,7 +415,6 @@ class ArrayConcat(Expression):
     """
 
     left: Expression
-    wtype: wtypes.WType
     right: Expression
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -437,7 +447,6 @@ class ArrayExtend(Expression):
 @attrs.frozen
 class ARC4Decode(Expression):
     value: Expression
-    wtype: WType
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_decode(self)

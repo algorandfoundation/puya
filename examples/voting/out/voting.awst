@@ -65,7 +65,7 @@ contract VotingRoundApp
     this.globals['end_time']: puyapy.UInt64 = et
     this.globals['quorum']: puyapy.UInt64 = arc4_decode(quorum, puyapy.UInt64)
     this.globals['nft_image_url']: puyapy.Bytes = arc4_decode(nft_image_url, puyapy.Bytes)
-    this::store_option_counts(option_counts)
+    this::store_option_counts(option_counts.copy())
   }
   
   abimethod bootstrap(fund_min_bal_req: puyapy.PaymentTransaction): None
@@ -154,8 +154,8 @@ contract VotingRoundApp
   {
     assert(reinterpret_cast<bool>(extract_uint16(option_counts, 0u)), comment="option_counts should be non-empty")
     assert(extract_uint16(option_counts, 0u) <= 112u, comment="Can't have more than 112 questions")
-    this.globals['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = option_counts
-    total_options: puyapy.UInt64 = this::calculate_total_options_count(option_counts)
+    this.globals['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = option_counts.copy()
+    total_options: puyapy.UInt64 = this::calculate_total_options_count(option_counts.copy())
     assert(total_options <= 128u, comment="Can't have more than 128 vote options")
     this.globals['total_options']: puyapy.UInt64 = total_options
   }

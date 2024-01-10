@@ -10,6 +10,9 @@ class FunctionTraverser(
         statement.target.accept(self)
         statement.value.accept(self)
 
+    def visit_copy(self, expr: awst_nodes.Copy) -> None:
+        expr.value.accept(self)
+
     def visit_assignment_expression(self, expr: awst_nodes.AssignmentExpression) -> None:
         expr.target.accept(self)
         expr.value.accept(self)

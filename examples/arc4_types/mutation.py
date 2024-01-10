@@ -39,23 +39,33 @@ class Arc4MutationContract(Contract):
         return True
 
     @subroutine
-    def mutation_problems(self) -> None:
+    def mutating_copies(self) -> None:
         my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
+        my_struct = TestStruct(
+            b_val=Bool(True),
+            u_val=UInt8(50),
+            s_val_1=String("Happy"),
+            s_val_2=String("Days"),
+        )
 
-        my_array_copy = my_array
+        my_array_copy = my_array.copy()
 
         my_array[2] = UInt8(5)
 
         assert my_array_copy[2] == UInt8(5)
 
-        self.other_routine(my_array)
+        self.other_routine(my_array.copy(), my_struct.copy())
 
-        assert my_array[1] == UInt8(5)
-        assert my_array_copy[1] == UInt8(5)
+        assert my_array[1] == UInt8(2)
+        assert my_array_copy[1] == UInt8(2)
+        assert my_struct.s_val_1 == String("Happy")
 
     @subroutine
-    def other_routine(self, array: StaticArray[UInt8, typing.Literal[4]]) -> None:
+    def other_routine(
+        self, array: StaticArray[UInt8, typing.Literal[4]], struct: TestStruct
+    ) -> None:
         array[1] = UInt8(5)
+        struct.s_val_1 = String("AARRGH!")
 
     def clear_state_program(self) -> bool:
         return True

@@ -26,12 +26,12 @@ class Arc4StructsTypeContract(Contract):
     def approval_program(self) -> bool:
         coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
         coord_2 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
-        coord_3 = add(coord_1, coord_2)
+        coord_3 = add(coord_1.copy(), coord_2.copy())
         for val in (coord_3.x, coord_3.y):
             log(val.bytes)
 
         flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
-        check(flags)
+        check(flags.copy())
         log(flags.bytes)
 
         nested_decode(VectorFlags(coord_1, flags))

@@ -30,6 +30,10 @@ class ToCodeVisitor(
         base = expr.base.accept(self)
         return f"{base}.pop()"
 
+    def visit_copy(self, expr: nodes.Copy) -> str:
+        value = expr.value.accept(self)
+        return f"{value}.copy()"
+
     def __init__(self) -> None:
         self._seen_tmp = dict[nodes.TemporaryVariable, int]()
 
