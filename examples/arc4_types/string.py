@@ -31,6 +31,12 @@ class Arc4StringTypesContract(Contract):
         thing = String("hi")
         thing += thing
         assert thing == String("hihi")
+
+        value = String("a") + Bytes(b"b") + b"c" + "d"
+        value += "e"
+        value += b"f"
+        value += Bytes(b"g")
+        assert String("abcdefg") == value
         return True
 
     def clear_state_program(self) -> bool:
