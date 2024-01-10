@@ -38,6 +38,20 @@ contract examples.arc4_types.string.Arc4StringTypesContract:
                 let thing#1: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size("\x00\x02hi", data%19#0, array_length%18#0)
                 let tmp%21#0: uint64 = (== thing#1 "\x00\x04hihi")
                 (assert tmp%21#0)
+                let array_length%22#0: uint64 = (extract_uint16 "\x00\x01b" 0u)
+                let concat_result%24#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size("\x00\x01a", "b", array_length%22#0)
+                let array_length%25#0: uint64 = (extract_uint16 "\x00\x01c" 0u)
+                let concat_result%27#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(concat_result%24#0, "c", array_length%25#0)
+                let array_length%28#0: uint64 = (extract_uint16 "\x00\x01d" 0u)
+                let value#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(concat_result%27#0, "d", array_length%28#0)
+                let array_length%31#0: uint64 = (extract_uint16 "\x00\x01e" 0u)
+                let value#1: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(value#0, "e", array_length%31#0)
+                let array_length%34#0: uint64 = (extract_uint16 "\x00\x01f" 0u)
+                let value#2: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(value#1, "f", array_length%34#0)
+                let array_length%37#0: uint64 = (extract_uint16 "\x00\x01g" 0u)
+                let value#3: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(value#2, "g", array_length%37#0)
+                let tmp%40#0: uint64 = (== "\x00\x07abcdefg" value#3)
+                (assert tmp%40#0)
                 return 1u
         
         subroutine puyapy_lib_arc4.dynamic_array_concat_fixed_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
@@ -52,5 +66,5 @@ contract examples.arc4_types.string.Arc4StringTypesContract:
     
     program clear-state:
         subroutine examples.arc4_types.string.Arc4StringTypesContract.clear_state_program() -> uint64:
-            block@0: // L36
+            block@0: // L42
                 return 1u
