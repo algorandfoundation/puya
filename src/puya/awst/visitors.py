@@ -261,3 +261,7 @@ class ExpressionVisitor(t.Generic[T], ABC):
     @abstractmethod
     def visit_array_pop(self, expr: puya.awst.nodes.ArrayPop) -> T:
         ...
+
+    @abstractmethod
+    def visit_copy(self, expr: puya.awst.nodes.Copy) -> T:
+        ...

@@ -25,6 +25,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build.eb.arc4.base import (
+    CopyBuilder,
     get_bytes_expr,
     get_bytes_expr_builder,
     get_integer_literal_value,
@@ -278,6 +279,8 @@ class ARC4ArrayExpressionBuilder(ValueExpressionBuilder, ABC):
         match name:
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
+            case "copy":
+                return CopyBuilder(self.expr, location)
             case _:
                 return super().member_access(name, location)
 

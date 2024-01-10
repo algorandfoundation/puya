@@ -10,6 +10,7 @@ from puya.awst.nodes import (
     ARC4Decode,
     ARC4Encode,
     BytesComparisonExpression,
+    Copy,
     EqualityComparison,
     Expression,
     Literal,
@@ -90,6 +91,27 @@ class ARC4EncodeBuilder(IntermediateExpressionBuilder):
                 wtype=self.wtype,
             )
         )
+
+
+class CopyBuilder(IntermediateExpressionBuilder):
+    def __init__(self, expr: Expression, location: SourceLocation):
+        super().__init__(location)
+        self.expr = expr
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        match args:
+            case []:
+                return var_expression(
+                    Copy(value=self.expr, wtype=self.expr.wtype, source_location=location)
+                )
+        raise CodeError("Invalid/Unexpected arguments", location)
 
 
 class ARC4DecodeBuilder(IntermediateExpressionBuilder):

@@ -296,6 +296,18 @@ class FunctionIRBuilder(
         """
         return self.ssa.read_variable(reg.name, reg.atype, self.block_builder.active_block)
 
+    def visit_copy(self, expr: puya.awst.nodes.Copy) -> TExpression:
+        # For reference types, we need to clone the data
+        # For value types, we can just visit the expression and the resulting read
+        # will effectively be a copy
+        match expr.value.wtype:
+            case wtypes.ARC4Array() | wtypes.ARC4Struct():
+                # Arc4 encoded types are value types
+                return self._visit_and_materialise_single(expr.value)
+        raise InternalError(
+            f"Invalid source wtype for Copy {expr.value.wtype}", expr.source_location
+        )
+
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> TExpression:
         value = self._visit_and_materialise_single(expr.value)
         match expr.value.wtype:

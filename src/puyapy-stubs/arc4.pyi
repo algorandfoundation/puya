@@ -213,6 +213,8 @@ class StaticArray(
         """Returns the current length of the array"""
     def __getitem__(self, index: puyapy.UInt64 | int | slice) -> _TArrayItem: ...
     def __setitem__(self, index: puyapy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
+    def copy(self) -> typing.Self:
+        """Create a copy of this array"""
 
 class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem], Iterable[_TArrayItem]):
     def __init__(self, *items: _TArrayItem): ...
@@ -229,6 +231,8 @@ class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem], Iterable[_TArra
     def __setitem__(self, index: puyapy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
     def __add__(self, other: Iterable[_TArrayItem]) -> DynamicArray[_TArrayItem]: ...
     def pop(self) -> _TArrayItem: ...
+    def copy(self) -> typing.Self:
+        """Create a copy of this array"""
 
 class Address(StaticArray[Byte, typing.Literal[32]]): ...
 
@@ -269,3 +273,5 @@ class Struct(metaclass=_StructMeta):
     @classmethod
     def from_bytes(cls, value: puyapy.Bytes) -> typing.Self:
         """Construct an instance from the underlying bytes[] (no validation)"""
+    def copy(self) -> typing.Self:
+        """Create a copy of this struct"""

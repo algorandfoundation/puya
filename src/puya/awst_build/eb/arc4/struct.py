@@ -15,7 +15,7 @@ from puya.awst.nodes import (
     TupleExpression,
     UInt64Constant,
 )
-from puya.awst_build.eb.arc4.base import get_bytes_expr, get_bytes_expr_builder
+from puya.awst_build.eb.arc4.base import CopyBuilder, get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import BuilderComparisonOp, ValueExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
@@ -102,6 +102,8 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
                 )
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
+            case "copy":
+                return CopyBuilder(self.expr, location)
             case _:
                 return super().member_access(name, location)
 
