@@ -239,7 +239,7 @@ def fold_state_and_special_methods(
             )
             if state.kind == awst_nodes.AppStateKind.app_global:
                 result.global_state.append(translated)
-            elif state.kind == awst_nodes.AppStateKind.account_local:
+            elif state.kind == awst_nodes.AppStateKind.app_account:
                 result.local_state.append(translated)
             else:
                 raise InternalError(f"Unhandled state kind: {state.kind}", state.source_location)

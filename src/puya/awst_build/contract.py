@@ -369,10 +369,10 @@ def _gather_app_state(
                 )
             match typ:
                 case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.STORAGE_APP_ACCOUNT_PROXY_CLS),
+                    type=mypy.nodes.TypeInfo(fullname=constants.APP_ACCOUNT_STATE_PROXY_CLS),
                     args=args,
                 ):
-                    kind = AppStateKind.account_local
+                    kind = AppStateKind.app_account
                     api = AppStorageApi.full
                     try:
                         (storage_type,) = args
@@ -383,7 +383,7 @@ def _gather_app_state(
                             )
                         continue
                 case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.STORAGE_APP_GLOBAL_PROXY_CLS),
+                    type=mypy.nodes.TypeInfo(fullname=constants.APP_GLOBAL_STATE_PROXY_CLS),
                     args=args,
                 ):
                     kind = AppStateKind.app_global

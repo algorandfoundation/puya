@@ -47,6 +47,10 @@ from puya.awst.wtypes import WType
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.eb.app_account_state import AppAccountStateClassExpressionBuilder
+from puya.awst_build.eb.app_global_state import (
+    AppStateClassExpressionBuilder,
+)
 from puya.awst_build.eb.arc4 import ARC4StructClassExpressionBuilder
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -57,12 +61,8 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
-    LocalStorageClassExpressionBuilder,
 )
 from puya.awst_build.eb.ensure_budget import EnsureBudgetBuilder, OpUpFeeSourceClassBuilder
-from puya.awst_build.eb.global_storage import (
-    GlobalStorageClassExpressionBuilder,
-)
 from puya.awst_build.eb.intrinsics import (
     Arc4SignatureBuilder,
     IntrinsicEnumClassExpressionBuilder,
@@ -310,16 +310,16 @@ class FunctionASTConverter(
                 return []
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
         # special no-op case
-        if isinstance(rvalue, LocalStorageClassExpressionBuilder):
+        if isinstance(rvalue, AppAccountStateClassExpressionBuilder):
             if len(stmt.lvalues) != 1:
                 raise CodeError(
-                    "Local state can only be assigned to a single member variable", stmt_loc
+                    "App account state can only be assigned to a single member variable", stmt_loc
                 )
             return []
-        if isinstance(rvalue, GlobalStorageClassExpressionBuilder):
+        if isinstance(rvalue, AppStateClassExpressionBuilder):
             if len(stmt.lvalues) != 1:
                 raise CodeError(
-                    "AppGlobal state can only be assigned to a single member variable", stmt_loc
+                    "App global state can only be assigned to a single member variable", stmt_loc
                 )
             if rvalue.has_initial_value():
                 value = rvalue.build_assignment_source()
@@ -742,22 +742,22 @@ class FunctionASTConverter(
                 return EnsureBudgetBuilder(location=location)
             case constants.OP_UP_FEE_SOURCE:
                 return OpUpFeeSourceClassBuilder(location=location)
-            case constants.STORAGE_APP_ACCOUNT_PROXY_CLS:
+            case constants.APP_ACCOUNT_STATE_PROXY_CLS:
                 if self.contract_method_info is None:
                     raise CodeError(
-                        f"{constants.STORAGE_APP_ACCOUNT_PROXY_CLS} is only usable in "
+                        f"{constants.APP_ACCOUNT_STATE_PROXY_CLS} is only usable in "
                         "contract instance methods",
                         location,
                     )
-                return LocalStorageClassExpressionBuilder(location=location)
-            case constants.STORAGE_APP_GLOBAL_PROXY_CLS:
+                return AppAccountStateClassExpressionBuilder(location=location)
+            case constants.APP_GLOBAL_STATE_PROXY_CLS:
                 if self.contract_method_info is None:
                     raise CodeError(
-                        f"{constants.STORAGE_APP_GLOBAL_PROXY_CLS} is only usable in "
+                        f"{constants.APP_GLOBAL_STATE_PROXY_CLS} is only usable in "
                         "contract instance methods",
                         location,
                     )
-                return GlobalStorageClassExpressionBuilder(location=location)
+                return AppStateClassExpressionBuilder(location=location)
 
             case _ as enum_name if enum_name in constants.NAMED_INT_CONST_ENUM_DATA:
                 return NamedIntegerConstsTypeBuilder(

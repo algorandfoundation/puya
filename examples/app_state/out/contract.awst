@@ -1,0 +1,48 @@
+contract AppStateContract
+{
+  globals {
+    ['global_int_full']: puyapy.UInt64
+    ['global_int_simplified']: puyapy.UInt64
+    ['global_int_no_default']: puyapy.UInt64
+    ['global_bytes_full']: puyapy.Bytes
+    ['global_bytes_simplified']: puyapy.Bytes
+    ['global_bytes_no_default']: puyapy.Bytes
+  }
+  
+  constructor()
+  {
+    this.globals['global_int_full']: puyapy.UInt64 = 55u
+    this.globals['global_int_simplified']: puyapy.UInt64 = 33u
+    this.globals['global_bytes_full']: puyapy.Bytes = 'Hello'
+    this.globals['global_bytes_simplified']: puyapy.Bytes = 'Hello'
+  }
+  
+  approval_program(): bool
+  {
+    assert(this.globals['global_int_simplified'] == 33u)
+    assert(app_global_get_ex(0u, 'global_int_full')[1])
+    assert(this.globals['global_int_full'] == 55u)
+    assert(!(app_global_get_ex(0u, 'global_int_no_default')[1]))
+    app_global_put('global_int_no_default', 44u)
+    (i_value, i_exists): tuple[puyapy.UInt64, bool] = app_global_get_ex(0u, 'global_int_no_default')
+    assert(i_exists)
+    assert(i_value == 44u)
+    assert(this.globals['global_bytes_simplified'] == 'Hello')
+    assert(app_global_get_ex(0u, 'global_bytes_full')[1])
+    assert(this.globals['global_bytes_full'] == 'Hello')
+    assert(!(app_global_get_ex(0u, 'global_bytes_no_default')[1]))
+    app_global_put('global_bytes_no_default', 'World')
+    (b_value, b_exists): tuple[puyapy.Bytes, bool] = app_global_get_ex(0u, 'global_bytes_no_default')
+    assert(b_exists)
+    assert(b_value == 'World')
+    app_global_del('global_bytes_no_default')
+    (b_value, b_exists): tuple[puyapy.Bytes, bool] = app_global_get_ex(0u, 'global_bytes_no_default')
+    assert(!(b_exists))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}

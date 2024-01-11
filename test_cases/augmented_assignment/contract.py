@@ -1,5 +1,5 @@
 from puyapy import (
-    AppAccountStorage,
+    AppAccountState,
     BigUInt,
     Bytes,
     Contract,
@@ -11,8 +11,8 @@ from puyapy import (
 
 class Augmented(Contract):
     def __init__(self) -> None:
-        self.my_uint = AppAccountStorage(UInt64)
-        self.my_bytes = AppAccountStorage(Bytes)
+        self.my_uint = AppAccountState(UInt64)
+        self.my_bytes = AppAccountState(Bytes)
         self.global_uint = UInt64(0)
         self.global_bytes = Bytes(b"")
 

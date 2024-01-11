@@ -1212,7 +1212,7 @@ class ContractMethod(Function):
 @enum.unique
 class AppStateKind(enum.Enum):
     app_global = enum.auto()
-    account_local = enum.auto()
+    app_account = enum.auto()
 
 
 @enum.unique
