@@ -176,7 +176,7 @@ class ToCodeVisitor(
                         "}",
                     ]
                 )
-            local_state = state_by_kind.pop(AppStateKind.account_local, [])
+            local_state = state_by_kind.pop(AppStateKind.app_account, [])
             if local_state:
                 body.extend(
                     [

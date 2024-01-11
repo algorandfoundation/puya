@@ -134,7 +134,7 @@ def circle_area_100() -> UInt64:
 - [AMM](examples/amm/contract.py)
 - [auction](examples/auction/contract.py)
 - [non-ABI calculator](examples/calculator/contract.py)
-- [local storage](examples/local_storage)
+- [local storage](examples/app_account_state)
 
 The compiled output is available under the `out/` directory alongside these, e.g. the approval
 TEAL for `voting` is available at [examples/voting/out/voting.approval.teal](examples/voting/out/voting.approval.teal).

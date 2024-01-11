@@ -1,5 +1,5 @@
 from puyapy import (
-    AppAccountStorage,
+    AppAccountState,
     ARC4Contract,
     AssetTransferTransaction,
     CreateInnerTransaction,
@@ -22,7 +22,7 @@ class Auction(ARC4Contract):
         self.asa = Asset(0)
         # Use zero address rather than an empty string for Account type safety
         self.previous_bidder = Global.zero_address()
-        self.claimable_amount = AppAccountStorage(UInt64)
+        self.claimable_amount = AppAccountState(UInt64)
 
     @arc4.abimethod
     def opt_into_asset(self, asset: Asset) -> None:
