@@ -30,7 +30,8 @@ from puya.codegen.emitprogram import CompiledContract, CompiledProgram
 from puya.codegen.teal_annotaters import AlignedWriter
 from puya.metadata import ContractMetaData, ContractState
 
-from tests.conftest import EXAMPLES_DIR, TEST_CASES_DIR, compile_src
+from tests import EXAMPLES_DIR, TEST_CASES_DIR
+from tests.utils import compile_src
 
 DEFAULT_MAX_OPTIMIZATION_LEVEL = int(os.getenv("MAX_TEST_OPTIMIZATION_LEVEL", "2"))
 BYTES_ACTION = 1

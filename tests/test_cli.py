@@ -2,7 +2,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from tests.conftest import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
+from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 
 
 def run_puyapy(

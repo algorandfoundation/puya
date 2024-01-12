@@ -12,7 +12,8 @@ from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
 from puya.arc32 import create_arc32_json
 
-from tests.conftest import EXAMPLES_DIR, TEST_CASES_DIR, compile_src
+from tests import EXAMPLES_DIR, TEST_CASES_DIR
+from tests.utils import compile_src
 
 
 def compile_arc32(src_path: Path, optimization_level: int = 1) -> str:

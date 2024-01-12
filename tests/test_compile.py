@@ -11,7 +11,8 @@ from puya.awst_build.main import output_awst
 from puya.options import PuyaOptions
 from puya.parse import EMBEDDED_MODULES
 
-from tests.conftest import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT, compile_src
+from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
+from tests.utils import compile_src
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
