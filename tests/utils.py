@@ -1,6 +1,7 @@
 import functools
 import tempfile
 import typing
+from collections.abc import Callable
 from pathlib import Path
 from typing import Iterable
 
@@ -51,9 +52,28 @@ def _normalize_path(path: Path | str) -> str:
     return str(path).replace("\\", "/")
 
 
+def _is_log_for(root_dir: Path, actual_path: Path) -> Callable[[structlog.typing.EventDict], bool]:
+    root_dir = root_dir.resolve()
+    normalized_relative = _normalize_path(actual_path.relative_to(root_dir))
+
+    def log_is_for_path(log: structlog.typing.EventDict) -> bool:
+        try:
+            src_location = log["location"]
+        except KeyError:
+            return True
+        assert isinstance(src_location, SourceLocation)
+        path = Path(src_location.file)
+        location = str(path.resolve().relative_to(root_dir))
+        return location.startswith(normalized_relative)
+
+    return log_is_for_path
+
+
 def _stabilise_logs(
     logs: list[structlog.typing.EventDict], *, root_dir: Path, tmp_dir: Path, actual_path: Path
 ) -> Iterable[str]:
+    root_dir = root_dir.resolve()
+    actual_path = actual_path.resolve()
     normalized_vcs = _normalize_path(VCS_ROOT)
     normalized_tmp = _normalize_path(tmp_dir)
     normalized_root = _normalize_path(root_dir) + "/"
@@ -61,19 +81,19 @@ def _stabilise_logs(
     normalized_out = _normalize_path(actual_dir / "out")
     normalized_relative = _normalize_path(actual_path.relative_to(root_dir))
     for log in logs:
-        location = ""
         try:
             src_location = log["location"]
+        except KeyError:
+            location = ""
+        else:
             assert isinstance(src_location, SourceLocation)
             path = Path(src_location.file)
-            if not path.is_relative_to(root_dir):
-                continue
-            location = str(path.relative_to(root_dir))
+            location = str(path.resolve().relative_to(root_dir))
+            # ignore logs that come from files outside of root_dir as these are
+            # logs emitted during the cached AWST parsing step
             if not location.startswith(normalized_relative):
                 continue
             location = f"{location}:{src_location.line} "
-        except KeyError:
-            pass
         msg: str = log["event"]
         line = f"{location}{log['log_level']}: {msg}"
         line = line.replace("\\", "/")
