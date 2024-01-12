@@ -1,5 +1,6 @@
 import functools
 import tempfile
+import typing
 from pathlib import Path
 from typing import Iterable
 
@@ -13,7 +14,7 @@ from puya.compile import awst_to_teal, parse_with_mypy, write_teal_to_output
 from puya.context import CompileContext
 from puya.errors import Errors
 from puya.options import PuyaOptions
-from puya.parse import ParseSource, SourceLocation, get_parse_sources
+from puya.parse import ParseResult, ParseSource, SourceLocation, get_parse_sources
 from puya.utils import pushd
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
@@ -29,8 +30,7 @@ def _get_root_dir(path: Path) -> Path:
     return path if path.is_dir() else path.parent
 
 
-@attrs.define
-class _CompileCache:
+class _CompileCache(typing.NamedTuple):
     context: CompileContext
     module_awst: dict[str, Module]
     logs: list[structlog.typing.EventDict]
@@ -47,29 +47,12 @@ def _get_awst_cache(root_dir: Path) -> _CompileCache:
     return _CompileCache(context, awst, logs)
 
 
-def _parse_src_to_awst(src_path: Path, *, root_dir: Path) -> _CompileCache:
-    compile_cache = _get_awst_cache(root_dir)
-
-    # create a new context from cache and specified src
-    parse_result = compile_cache.context.parse_result
-    sources = get_parse_sources(
-        [src_path], parse_result.manager.fscache, parse_result.manager.options
-    )
-    # create a new context from the cache
-    context = attrs.evolve(
-        compile_cache.context,
-        errors=Errors(),
-        parse_result=attrs.evolve(parse_result, sources=sources),
-    )
-    return attrs.evolve(compile_cache, context=context)
-
-
 def _normalize_path(path: Path | str) -> str:
     return str(path).replace("\\", "/")
 
 
 def _stabilise_logs(
-    logs: list[structlog.typing.EventDict], root_dir: Path, tmp_dir: Path, actual_path: Path
+    logs: list[structlog.typing.EventDict], *, root_dir: Path, tmp_dir: Path, actual_path: Path
 ) -> Iterable[str]:
     normalized_vcs = _normalize_path(VCS_ROOT)
     normalized_tmp = _normalize_path(tmp_dir)
@@ -119,18 +102,26 @@ class CompileContractResult:
     output_files: dict[str, str]
 
 
+def _narrow_sources(parse_result: ParseResult, src_path: Path) -> ParseResult:
+    sources = get_parse_sources(
+        [src_path], parse_result.manager.fscache, parse_result.manager.options
+    )
+    return attrs.evolve(parse_result, sources=sources)
+
+
 @functools.cache
 def compile_src(
     src_path: Path, optimization_level: int, debug_level: int
 ) -> CompileContractResult:
     root_dir = _get_root_dir(src_path)
-    compile_cache = _parse_src_to_awst(src_path, root_dir=root_dir)
-    context = compile_cache.context
-    awst = compile_cache.module_awst
+    context, awst, awst_logs = _get_awst_cache(root_dir)
+    # create a new context from cache and specified src
     with tempfile.TemporaryDirectory() as tmp_dir_:
         tmp_dir = Path(tmp_dir_)
         context = attrs.evolve(
             context,
+            errors=Errors(),
+            parse_result=_narrow_sources(context.parse_result, src_path),
             options=PuyaOptions(
                 paths=(src_path,),
                 optimization_level=optimization_level,
@@ -144,7 +135,7 @@ def compile_src(
                 output_cssa_ir=True,
                 output_post_ssa_ir=True,
                 output_parallel_copies_ir=True,
-                out_dir=Path(tmp_dir),
+                out_dir=tmp_dir,
             ),
         )
 
@@ -153,12 +144,14 @@ def compile_src(
             assert teal is not None, f"compilation failed: {src_path} at O{optimization_level}"
             write_teal_to_output(context, teal)
 
-        output_files = {}
-        for ext in APPROVAL_EXTENSIONS:
-            for file in tmp_dir.rglob(ext):
-                output_files[file.name] = file.read_text("utf8")
-        assert teal is not None, "compile error"
+        output_files = {
+            file.name: file.read_text("utf8")
+            for ext in APPROVAL_EXTENSIONS
+            for file in tmp_dir.rglob(ext)
+        }
         log_txt = "\n".join(
-            _stabilise_logs(compile_cache.logs + logs, root_dir, tmp_dir, src_path)
+            _stabilise_logs(
+                awst_logs + logs, root_dir=root_dir, tmp_dir=tmp_dir, actual_path=src_path
+            )
         )
         return CompileContractResult(context, awst, log_txt, teal, output_files)
