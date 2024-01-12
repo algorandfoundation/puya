@@ -73,7 +73,7 @@ class Arc4MutationContract(Contract):
     @subroutine
     def array_concat(self) -> None:
         uint8_array = DynamicArray(UInt8(1), UInt8(2))
-        array_concat_tuple = uint8_array + (UInt8(3), UInt8(4))
+        array_concat_tuple = uint8_array + (UInt8(3), UInt8(4))  # noqa: RUF005
         assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
         array_concat_tuple += (UInt8(5),)
         assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4), UInt8(5))

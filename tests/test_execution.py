@@ -922,10 +922,10 @@ def test_abi_struct(harness: _TestHarness) -> None:
 
 def test_abi_mutations(harness: _TestHarness) -> None:
     harness.deploy(
-        EXAMPLES_DIR / "arc4_types" / "mutation.py",
+        TEST_CASES_DIR / "arc4_types" / "mutation.py",
         AppCallRequest(
             extra_pages=1,
-            trace_output=EXAMPLES_DIR / "arc4_types" / "out" / "mutation.log",
+            trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "mutation.log",
             increase_budget=15,
         ),
     )
