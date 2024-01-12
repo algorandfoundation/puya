@@ -177,8 +177,13 @@ def write_compiled_contracts(
                 write_contract_files(base_path=qualified_path, compiled_contract=contract)
 
 
+def log_options(puya_options: PuyaOptions) -> None:
+    logger.debug(puya_options)
+
+
 def compile_to_teal(puya_options: PuyaOptions) -> None:
     """Drive the actual core compilation step."""
+    log_options(puya_options)
     context = parse_with_mypy(puya_options)
     awst = transform_ast(context)
 

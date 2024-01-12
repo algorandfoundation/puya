@@ -475,9 +475,10 @@ class _TestHarness:
     def _compile_and_assemble_src(
         self, src_path: Path, optimization_level: int, debug_level: int
     ) -> Compilation:
-        contract = compile_src(
+        result = compile_src(
             src_path, optimization_level=optimization_level, debug_level=debug_level
         )
+        ((contract,),) = result.teal.values()
         return assemble_src(contract=contract, client=self.client)
 
 

@@ -194,3 +194,13 @@ def bits_to_bytes(bit_size: int) -> int:
 
 def round_bits_to_nearest_bytes(bit_size: int) -> int:
     return bits_to_bytes(bit_size) * 8
+
+
+@contextlib.contextmanager
+def pushd(new_dir: Path) -> Iterator[None]:
+    orig_dir = Path.cwd()
+    os.chdir(new_dir)
+    try:
+        yield
+    finally:
+        os.chdir(orig_dir)

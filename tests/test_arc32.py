@@ -16,7 +16,8 @@ from tests.conftest import EXAMPLES_DIR, TEST_CASES_DIR, compile_src
 
 
 def compile_arc32(src_path: Path, optimization_level: int = 1) -> str:
-    contract = compile_src(src_path, optimization_level=optimization_level, debug_level=2)
+    result = compile_src(src_path, optimization_level=optimization_level, debug_level=2)
+    ((contract,),) = result.teal.values()
     return create_arc32_json(contract)
 
 
