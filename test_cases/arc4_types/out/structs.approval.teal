@@ -1,0 +1,162 @@
+#pragma version 8
+
+// test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> uint64:
+main:
+        byte ""
+
+main_block@0:
+        byte 0x000000083cfbf217000000230384b842
+        byte 0x000000083cfbf217000000230384b842
+        callsub add
+        dup
+        int 0
+        int 8
+        extract3
+        swap
+        int 8
+        int 8
+        extract3
+        swap
+        int 0
+        swap
+        b main_for_body@3
+
+main_for_header_1@2:
+        dig 1
+        dig 3
+        bury 2
+
+main_for_body@3:
+        log
+        dup
+        dup
+        int 1
+        +
+        bury 4
+        bz main_for_header_1@2
+
+main_after_for@5:
+        byte 0xa0
+        callsub check
+        byte 0xa0
+        log
+        byte 0x000000083cfbf217000000230384b842a0
+        callsub nested_decode
+        int 1
+        return
+
+
+// test_cases.arc4_types.structs.add(v1#0: bytes, v2#0: bytes) -> bytes:
+add:
+        proto 2 1
+
+add_block@0:
+        frame_dig -2
+        int 0
+        int 8
+        extract3
+        btoi
+        frame_dig -1
+        int 0
+        int 8
+        extract3
+        btoi
+        +
+        itob
+        frame_dig -2
+        int 8
+        int 8
+        extract3
+        btoi
+        frame_dig -1
+        int 8
+        int 8
+        extract3
+        btoi
+        +
+        itob
+        concat
+        retsub
+
+
+// test_cases.arc4_types.structs.check(flags#0: bytes) -> void:
+check:
+        proto 1 0
+
+check_block@0:
+        frame_dig -1
+        int 0
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        assert
+        frame_dig -1
+        int 1
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        !
+        assert
+        frame_dig -1
+        int 2
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        assert
+        frame_dig -1
+        int 3
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        !
+        assert
+        retsub
+
+
+// test_cases.arc4_types.structs.nested_decode(vector_flags#0: bytes) -> void:
+nested_decode:
+        proto 1 0
+
+nested_decode_block@0:
+        frame_dig -1
+        int 0
+        int 16
+        extract3
+        int 0
+        int 8
+        extract3
+        btoi
+        int 35382882839
+        ==
+        assert
+        frame_dig -1
+        int 16
+        int 1
+        extract3
+        int 2
+        getbit
+        byte 0x00
+        int 0
+        uncover 2
+        setbit
+        int 0
+        getbit
+        assert
+        retsub
+

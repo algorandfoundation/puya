@@ -90,12 +90,12 @@ def awst_to_teal(
 
     build_embedded_ir(build_context)
     module_irs = {
-        module_name: [
+        source.module_name: [
             build_ir(build_context, node)
-            for node in module_ast.body
+            for node in module_asts[source.module_name].body
             if isinstance(node, awst_nodes.ContractFragment) and not node.is_abstract
         ]
-        for module_name, module_ast in module_asts.items()
+        for source in parse_result.sources
     }
     if errors.num_errors:
         return None
@@ -103,7 +103,7 @@ def awst_to_teal(
     result = dict[ParseSource, list[CompiledContract]]()
     for src in parse_result.sources:
         module_ir = module_irs.get(src.module_name)
-        assert module_ir is not None
+        assert module_ir is not None, f"could not find ir for {src.path}"
 
         if not module_ir:
             if src.is_explicit:
@@ -177,24 +177,36 @@ def write_compiled_contracts(
                 write_contract_files(base_path=qualified_path, compiled_contract=contract)
 
 
+def log_options(puya_options: PuyaOptions) -> None:
+    logger.debug(puya_options)
+
+
 def compile_to_teal(puya_options: PuyaOptions) -> None:
     """Drive the actual core compilation step."""
+    log_options(puya_options)
     context = parse_with_mypy(puya_options)
     awst = transform_ast(context)
 
     with log_exceptions(context.errors):
         validate_awst(context, awst)
         compiled_contracts_by_source_path = awst_to_teal(context, awst)
-        if compiled_contracts_by_source_path is None:
-            logger.error("Build failed")
-            sys.exit(1)
-        elif not compiled_contracts_by_source_path:
-            logger.error("No contracts discovered in any source files")
-        else:
-            if puya_options.output_teal:
-                write_compiled_contracts(context, compiled_contracts_by_source_path)
-            if puya_options.output_arc32:
-                write_arc32_application_spec(context, compiled_contracts_by_source_path)
+        write_teal_to_output(context, compiled_contracts_by_source_path)
+
+
+def write_teal_to_output(
+    context: CompileContext, contracts: dict[ParseSource, list[CompiledContract]] | None
+) -> None:
+    if contracts is None:
+        logger.error("Build failed")
+        sys.exit(1)
+    elif not contracts:
+        logger.error("No contracts discovered in any source files")
+    else:
+        options = context.options
+        if options.output_teal:
+            write_compiled_contracts(context, contracts)
+        if options.output_arc32:
+            write_arc32_application_spec(context, contracts)
 
 
 def get_mypy_options() -> mypy.options.Options:

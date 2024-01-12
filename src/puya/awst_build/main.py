@@ -56,14 +56,18 @@ def transform_ast(
                 result[module.name] = module_awst
             else:
                 logger.debug(f"Building AWST for {module_rel_path}")
+                errors_before_module = compile_context.errors.num_errors
                 module_awst = ModuleASTConverter.convert(ctx, module)
-                if ctx.options.output_awst:
-                    _output_awst(module_awst, ctx.options)
+                if (
+                    ctx.options.output_awst
+                    and compile_context.errors.num_errors == errors_before_module
+                ):
+                    output_awst(module_awst, ctx.options)
                 result[module_name] = module_awst
     return result
 
 
-def _output_awst(module_awst: Module, options: PuyaOptions) -> None:
+def output_awst(module_awst: Module, options: PuyaOptions) -> None:
     formatter = ToCodeVisitor()
     awst_module_str = formatter.visit_module(module_awst)
     if awst_module_str:

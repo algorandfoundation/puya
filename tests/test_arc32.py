@@ -11,25 +11,14 @@ from algosdk.atomic_transaction_composer import AtomicTransactionComposer, Trans
 from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
 from puya.arc32 import create_arc32_json
-from puya.awst_build.main import transform_ast
-from puya.compile import awst_to_teal, parse_with_mypy
-from puya.options import PuyaOptions
 
-VCS_ROOT = Path(__file__).parent.parent
-EXAMPLES_DIR = VCS_ROOT / "examples"
+from tests import EXAMPLES_DIR, TEST_CASES_DIR
+from tests.utils import compile_src
 
 
 def compile_arc32(src_path: Path, optimization_level: int = 1) -> str:
-    puya_options = PuyaOptions(
-        paths=[src_path],
-        optimization_level=optimization_level,
-        debug_level=2,
-    )
-    context = parse_with_mypy(puya_options)
-    awst = transform_ast(context)
-    teal = awst_to_teal(context, awst)
-    assert teal is not None, "compile error"
-    ((contract,),) = teal.values()
+    result = compile_src(src_path, optimization_level=optimization_level, debug_level=2)
+    ((contract,),) = result.teal.values()
     return create_arc32_json(contract)
 
 
@@ -328,7 +317,7 @@ def test_voting_app(
 
     private_key = SigningKey.generate()
 
-    example = VCS_ROOT / "examples" / "voting"
+    example = EXAMPLES_DIR / "voting"
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example, 1))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=creator_account)
 
@@ -469,7 +458,7 @@ def test_arc4_routing(
     account: algokit_utils.Account,
 ) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(EXAMPLES_DIR / "abi_routing")
+        compile_arc32(TEST_CASES_DIR / "abi_routing")
     )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
@@ -482,7 +471,7 @@ def test_arc4_routing(
 
 def test_transaction(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(EXAMPLES_DIR / "transaction")
+        compile_arc32(TEST_CASES_DIR / "transaction")
     )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
@@ -520,7 +509,7 @@ def test_dynamic_array_of_string(
     account: algokit_utils.Account,
 ) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(EXAMPLES_DIR / "arc4_types/dynamic_string_array.py")
+        compile_arc32(TEST_CASES_DIR / "arc4_types/dynamic_string_array.py")
     )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
@@ -535,7 +524,7 @@ def test_dynamic_array_of_string(
 
 
 def test_avm_types_in_abi(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
-    example = EXAMPLES_DIR / "avm_types_in_abi" / "contract.py"
+    example = TEST_CASES_DIR / "avm_types_in_abi" / "contract.py"
     app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example, 1))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 

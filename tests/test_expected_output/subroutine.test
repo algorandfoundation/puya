@@ -1,0 +1,479 @@
+## case: test_literal_coercion
+import typing
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> UInt64:
+    one = UInt64(1)
+    three = one + 2
+    typing.reveal_type(three) ## N: puyapy type is "uint64" \
+                              ## N: Revealed type is "puyapy._primitives.UInt64"
+
+    return three
+
+## case: no_star_args
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test(*args: UInt64) -> UInt64: ## E: Unsupported construct FuncDef: variadic functions are not supported
+    return UInt64(1)
+
+## case: no_kwargs
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test(**kwargs: UInt64) -> UInt64: ## E: Unsupported construct FuncDef: variadic functions are not supported
+    return UInt64(1)
+
+## case: no_defaults
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test(foo: UInt64 = UInt64(1)) -> UInt64: ## E: default function argument values are not supported yet
+    return UInt64(1)
+
+
+## case: doc_string_ok
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> UInt64:
+    """Some documentation"""
+    return UInt64(1)
+
+## case: expression_statement_result_ignored
+from puyapy import UInt64, subroutine
+
+@subroutine
+def one() -> UInt64:
+    return UInt64(1)
+
+@subroutine
+def do_nothing() -> None:
+    one() ## W: expression result is ignored
+
+## case: forward_declaration
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test(a: UInt64, b: UInt64) -> UInt64:
+    is_lt: UInt64
+    if a < b:
+       is_lt = UInt64(1)
+    else:
+       is_lt = UInt64(0)
+    return is_lt
+
+## case: no_type_alias
+import typing
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> UInt64:
+    Foo: typing.TypeAlias = UInt64 ## E: type aliases, type vars, and type constructors are not supported inside functions
+    one: Foo = UInt64(1)
+    return one
+
+## case: no_assign_void
+from puyapy import UInt64, subroutine
+
+@subroutine
+def none() -> None:
+    return
+
+@subroutine
+def test() -> UInt64:
+    a = none() ## E: None indicates an empty return and cannot be assigned
+    return UInt64(1)
+
+## case: invalid_type
+from puyapy import Bytes, UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    b = Bytes(b"123")
+    b = UInt64(1) # type: ignore[assignment] ## E: Assignment target type puyapy.Bytes differs from expression value type puyapy.UInt64
+
+## case: while_ok
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    loop = UInt64(5)
+    while loop > UInt64(0):
+        loop -= 1
+
+## case: no_while_else
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    loop = UInt64(5)
+    while loop > UInt64(0): ## E: else clause on while loop not supported
+        loop -= 1
+    else:
+        pass
+
+## case: for_ok
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    one = UInt64(1)
+    two = UInt64(2)
+    for i in (one, two):
+        pass
+
+## case: no_for_else
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    one = UInt64(1)
+    two = UInt64(2)
+    for i in (one, two): ## E: else clause on for loop not supported
+        pass
+    else:
+        pass
+
+## case: range_suggests_urange
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> UInt64:
+    sum = UInt64(0)
+    for i in range(5): ## E: range() is not supported - use puyapy.urange() instead
+        sum += i
+    return sum
+
+## case: enumerate_suggests_uenumerate
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> UInt64:
+    sum = UInt64(0)
+    for idx, i in enumerate((sum, sum)): ## E: enumerate() is not supported - use puyapy.uenumerate() instead
+        sum += i
+    return sum
+
+## case: len_suggests_length
+from puyapy import Bytes, UInt64, subroutine
+
+@subroutine
+def test() -> UInt64:
+    b = Bytes(b"012345")
+    result = UInt64(len(b))  # type: ignore[arg-type] ## E: len() is not supported - types with a length will have a .length property instead
+    return result
+
+
+## case: other_unsupported_builtin
+from puyapy import subroutine
+
+@subroutine
+def test() -> None:
+    eval("1")  ## E: Unsupported builtin: eval
+
+
+## case: urange_1_arg
+from puyapy import UInt64, subroutine, urange
+
+@subroutine
+def test() -> UInt64:
+    sum = UInt64(0)
+    for i in urange(5):
+        sum += i
+    return sum
+
+
+## case: urange_2_arg
+from puyapy import UInt64, subroutine, urange
+
+@subroutine
+def test() -> UInt64:
+    sum = UInt64(0)
+    for i in urange(5, 10):
+        sum += i
+    return sum
+
+
+## case: urange_3_arg
+from puyapy import UInt64, subroutine, urange
+
+@subroutine
+def test() -> UInt64:
+    sum = UInt64(0)
+    for i in urange(5, 10, 2):
+        sum += i
+    return sum
+
+## case: no_urange_4_arg
+from puyapy import UInt64, subroutine, urange
+
+@subroutine
+def test() -> UInt64:
+    sum = UInt64(0)
+    for i in urange(5, 10, 2, 4): # type: ignore[call-overload, misc] ## E: too many arguments to urange function, takes at most three arguments
+        pass
+    return sum
+
+## case: no_urange_outside_for
+from puyapy import UInt64, subroutine, urange
+
+@subroutine
+def test() -> None:
+    i = urange(5) ## E: UnsignedRange is not valid as an rvalue
+
+## case: uenumerate
+from puyapy import Bytes, subroutine, uenumerate
+import typing
+
+@subroutine
+def test() -> None:
+    one = Bytes(b"1")
+    two = Bytes(b"2")
+    three = Bytes(b"3")
+    for loop_index, x in uenumerate((one, two, three)):
+        typing.reveal_type(loop_index) ## N: Revealed type is "puyapy._primitives.UInt64" \
+                                       ## N: puyapy type is "uint64"
+        typing.reveal_type(x) ## N: Revealed type is "puyapy._primitives.Bytes" \
+                              ## N: puyapy type is "bytes"
+
+## case: no_uenumerate_outside_for
+from puyapy import Bytes, subroutine, uenumerate
+
+@subroutine
+def test() -> None:
+    one = Bytes(b"1")
+    two = Bytes(b"2")
+    three = Bytes(b"3")
+    i = uenumerate((one, two, three)) ## E: UnsignedEnumerate is not valid as an rvalue
+
+## case: assert_ok
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    assert True, "this is ok"
+    assert 1 < 3, "this is also ok"
+    a = UInt64(1)
+    b = UInt64(2)
+    assert a == b, "it's fine"
+
+## case: assert_not_str_not_ok
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    assert True, b"bytes not ok" ## E: only literal strings are supported as assertion messages
+
+## case: none_must_not_return
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    return UInt64(1) # type: ignore[return-value] ## E: invalid return type
+
+
+## case: typed_return_must_return_a_value
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> UInt64:
+    a = UInt64(1)
+    return # type: ignore[return-value] ## E: function is typed as returning a value, so a value must be returned
+
+## case: typed_return_must_return
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> UInt64: # type: ignore[return] # TODO: this should fail during puya compilation
+    if False:
+        return UInt64(1)
+    else:
+        pass
+
+## case: typed_function_must_return_correct_type
+from puyapy import Bytes, UInt64, subroutine
+
+@subroutine
+def test() -> UInt64:
+    a = UInt64(1)
+    return Bytes(b"1") # type: ignore[return-value] ## E: invalid return type
+
+
+## case: no_dunder_all_name
+from puyapy import subroutine
+
+__all__ = ["test"]
+
+@subroutine
+def test() -> None:
+    my_all = __all__ ## E: __all__ cannot be referenced inside functions
+
+## case: true_name_ok
+from puyapy import subroutine
+
+@subroutine
+def test() -> None:
+    true = True
+
+## case: false_name_ok
+from puyapy import subroutine
+
+@subroutine
+def test() -> None:
+    true = False
+
+## case: no_none_name
+from puyapy import subroutine
+
+@subroutine
+def test() -> None:
+    none = None ## E: None is not supported as a value, only a return type
+
+## case: can_not_reference_global_defined_after
+from puyapy import UInt64, subroutine
+
+@subroutine
+def before() -> None:
+    two = UInt64(ONE + ONE) ## E: Unable to resolve global constant reference - note that constants must appear before any references to them
+
+ONE = 1
+
+## case: can_not_use_before_defined
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    two = one + one # type: ignore[has-type, misc, used-before-def] ## E: Any type is not supported
+    one = UInt64(1)
+
+## case: no_underscore
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    _ = UInt64(1) ## E: _ is not currently supported as a variable name
+
+## case: cant_change_type
+from puyapy import Bytes, UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    one = UInt64(1)
+    two = Bytes(b"2")
+    one = two = Bytes(b"3") # type: ignore[assignment] ## E: Assignment target type puyapy.UInt64 differs from expression value type puyapy.Bytes
+
+## case: can_reference_intrinsic_with_enum
+from puyapy import Base64, UInt64, base64_decode, subroutine
+
+@subroutine
+def test() -> None:
+    std = base64_decode(Base64.StdEncoding, b"")
+
+## case: can_reference_builtin_constant
+import typing
+from puyapy import OnCompleteAction, UInt64, subroutine
+
+@subroutine
+def test() -> None:
+    update_application = OnCompleteAction.UpdateApplication
+    typing.reveal_type(update_application) ## N: puyapy type is "uint64" \
+                                           ## N: Revealed type is "puyapy._constants.OnCompleteAction"
+    foo = update_application + 1
+    typing.reveal_type(foo) ## N: puyapy type is "uint64" \
+                            ## N: Revealed type is "puyapy._primitives.UInt64"
+
+## case: can_call_other
+from puyapy import UInt64, subroutine
+
+@subroutine
+def one() -> UInt64:
+    return UInt64(1)
+
+@subroutine
+def two() -> UInt64:
+    return one() + one()
+
+## case: no_nested_function
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test() -> UInt64:
+    def inner() -> UInt64: ## E: nested functions are not supported
+        return UInt64(1)
+
+    return UInt64(2)
+
+## case: in_operator
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test_one() -> bool:
+    a = UInt64(1)
+
+    return a in (UInt64(1),)
+
+@subroutine
+def test_two() -> bool:
+    a = UInt64(1)
+
+    return a in (UInt64(1), UInt64(2))
+
+@subroutine
+def test_three() -> bool:
+    a = UInt64(1)
+
+    return a in (UInt64(1), UInt64(2), UInt64(3))
+
+## case: not_in_operator
+from puyapy import UInt64, subroutine
+
+@subroutine
+def test_one() -> bool:
+    a = UInt64(1)
+
+    return a not in (UInt64(1),)
+
+@subroutine
+def test_two() -> bool:
+    a = UInt64(1)
+
+    return a not in (UInt64(1), UInt64(2))
+
+@subroutine
+def test_three() -> bool:
+    a = UInt64(1)
+
+    return a not in (UInt64(1), UInt64(2), UInt64(3))
+
+
+## case: not_operator_with_expressions
+from puyapy import UInt64, subroutine
+
+@subroutine
+def one() -> UInt64:
+    return UInt64(1)
+
+@subroutine
+def two() -> UInt64:
+    return UInt64(2)
+
+@subroutine
+def test() -> bool:
+    a = UInt64(42)
+
+    return a in (one(), two())
+
+
+## case: bool_eval_of_void
+from puyapy import subroutine
+
+@subroutine
+def no_op() -> None:
+    pass
+
+@subroutine
+def test() -> None:
+    if no_op():  ## E: None does not support boolean evaluation
+        pass

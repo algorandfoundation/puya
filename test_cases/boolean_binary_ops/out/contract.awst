@@ -1,0 +1,51 @@
+contract BooleanBinaryOps
+{
+  approval_program(): bool
+  {
+    test_cases.boolean_binary_ops.contract::test_boolean_binary_ops(true=true, false=false)
+    test_cases.boolean_binary_ops.contract::test_boolean_shortcircuit_binary_ops()
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine test_boolean_binary_ops(true: bool, false: bool): None
+{
+  assert(!(true and false))
+  assert(!(false and true))
+  assert(true and true)
+  assert(!(false and false))
+  assert(true or false)
+  assert(false or true)
+  assert(true or true)
+  assert(!(false or false))
+}
+
+subroutine bool_to_bytes(x: bool): puyapy.Bytes
+{
+  return (x) ? ('true') : ('false')
+}
+
+subroutine test_boolean_shortcircuit_binary_ops(): None
+{
+  for lhs in (true, false) {
+    for rhs in (true, false) {
+      and_msg: puyapy.Bytes = '_' + test_cases.boolean_binary_ops.contract::bool_to_bytes(lhs) + '_and_' + test_cases.boolean_binary_ops.contract::bool_to_bytes(rhs)
+      and_result: bool = test_cases.boolean_binary_ops.contract::log_and_return(lhs, 'lhs' + and_msg) and test_cases.boolean_binary_ops.contract::log_and_return(rhs, 'rhs' + and_msg)
+      assert(and_result == lhs and rhs)
+      or_msg: puyapy.Bytes = '_' + test_cases.boolean_binary_ops.contract::bool_to_bytes(lhs) + '_or_' + test_cases.boolean_binary_ops.contract::bool_to_bytes(rhs)
+      or_result: bool = test_cases.boolean_binary_ops.contract::log_and_return(lhs, 'lhs' + or_msg) or test_cases.boolean_binary_ops.contract::log_and_return(rhs, 'rhs' + or_msg)
+      assert(or_result == lhs or rhs)
+    }
+  }
+}
+
+subroutine log_and_return(x: bool, msg: puyapy.Bytes): bool
+{
+  log(msg)
+  return x
+}

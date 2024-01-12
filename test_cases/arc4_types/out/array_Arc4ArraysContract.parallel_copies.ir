@@ -1,0 +1,190 @@
+contract test_cases.arc4_types.array.Arc4ArraysContract:
+    program approval:
+        subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
+            block@0: // L24
+                let total#0: uint64 = 0u
+                let array_length%1#0: uint64 = (extract_uint16 0x00020102 0u)
+                let item_index_internal%3#0: uint64 = 0u
+                let item_index_internal%3#5: uint64 = item_index_internal%3#0
+                let total#9: uint64 = total#0
+                goto block@1
+            block@1: // for_header_L27
+                let item_index_internal%3#1: uint64 = item_index_internal%3#5
+                let total#1: uint64 = total#9
+                let continue_looping%4#0: uint64 = (< item_index_internal%3#1 array_length%1#0)
+                goto continue_looping%4#0 ? block@2 : block@4
+            block@2: // for_body_L27
+                let uint8_item#0: bytes = (extract3 0x0102 item_index_internal%3#1 1u)
+                let tmp%6#0: uint64 = (btoi uint8_item#0)
+                let total#2: uint64 = (+ total#1 tmp%6#0)
+                let item_index_internal%3#2: uint64 = (+ item_index_internal%3#1 1u)
+                let item_index_internal%3#5: uint64 = item_index_internal%3#2
+                let total#9: uint64 = total#2
+                goto block@1
+            block@4: // after_for_L27
+                let tmp%7#0: uint64 = (== total#1 3u)
+                (assert tmp%7#0) // Total should be sum of dynamic_uint8_array items
+                let array_length%9#0: uint64 = (extract_uint16 0x00010001 0u)
+                let item_index_internal%11#0: uint64 = 0u
+                let item_index_internal%11#5: uint64 = item_index_internal%11#0
+                let total#12: uint64 = total#1
+                goto block@5
+            block@5: // for_header_L32
+                let item_index_internal%11#1: uint64 = item_index_internal%11#5
+                let total#3: uint64 = total#12
+                let continue_looping%12#0: uint64 = (< item_index_internal%11#1 array_length%9#0)
+                goto continue_looping%12#0 ? block@6 : block@8
+            block@6: // for_body_L32
+                let item_index%13#0: uint64 = (* item_index_internal%11#1 2u)
+                let uint16_item#0: bytes = (extract3 0x0001 item_index%13#0 2u)
+                let tmp%14#0: uint64 = (btoi uint16_item#0)
+                let total#4: uint64 = (+ total#3 tmp%14#0)
+                let item_index_internal%11#2: uint64 = (+ item_index_internal%11#1 1u)
+                let item_index_internal%11#5: uint64 = item_index_internal%11#2
+                let total#12: uint64 = total#4
+                goto block@5
+            block@8: // after_for_L32
+                let tmp%15#0: uint64 = (== total#3 4u)
+                (assert tmp%15#0) // Total should now include sum of aliased_dynamic items
+                let value_as_bytes%18#0: bytes = (itob 4u)
+                let value_as_uint16%19#0: bytes = ((extract 6 2) value_as_bytes%18#0)
+                let array_data%16#1: bytes = (concat 0x0002 value_as_uint16%19#0)
+                let value_as_bytes%21#0: bytes = (itob 11u)
+                let value_as_uint16%22#0: bytes = ((extract 6 2) value_as_bytes%21#0)
+                let array_data%16#2: bytes = (concat array_data%16#1 value_as_uint16%22#0)
+                let array_data%16#3: bytes = (concat array_data%16#2 "\x00\x05Hello")
+                let dynamic_string_array#0: bytes = (concat array_data%16#3 "\x00\x05World")
+                let tmp%24#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+                let tmp%25#0: uint64 = (== tmp%24#0 2u)
+                (assert tmp%25#0)
+                let array_length%26#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+                let index_is_in_bounds%27#0: uint64 = (< 0u array_length%26#0)
+                (assert index_is_in_bounds%27#0) // Index access is out of bounds
+                let array_data_sans_header%28#0: bytes = ((extract 2 0) dynamic_string_array#0)
+                let item_index%30#0: uint64 = (extract_uint16 array_data_sans_header%28#0 0u)
+                let item_length%31#0: uint64 = (extract_uint16 array_data_sans_header%28#0 item_index%30#0)
+                let item_length_plus_2%32#0: uint64 = (+ item_length%31#0 2u)
+                let tmp%33#0: bytes = (extract3 array_data_sans_header%28#0 item_index%30#0 item_length_plus_2%32#0)
+                let tmp%34#0: uint64 = (== tmp%33#0 "\x00\x05Hello")
+                (assert tmp%34#0)
+                let result#0: bytes = ""
+                let array_length%35#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+                let array_value%36#0: bytes = ((extract 2 0) dynamic_string_array#0)
+                let item_index_internal%37#0: uint64 = 0u
+                let index#3: uint64 = item_index_internal%37#0
+                let result#12: bytes = result#0
+                goto block@9
+            block@9: // for_header_L39
+                let index#0: uint64 = index#3
+                let result#2: bytes = result#12
+                let continue_looping%38#0: uint64 = (< index#0 array_length%35#0)
+                goto continue_looping%38#0 ? block@10 : block@15
+            block@10: // for_body_L39
+                let item_index_index%39#0: uint64 = (* index#0 2u)
+                let item_index%40#0: uint64 = (extract_uint16 array_value%36#0 item_index_index%39#0)
+                let item_length%41#0: uint64 = (extract_uint16 array_value%36#0 item_index%40#0)
+                let item_length_plus_2%42#0: uint64 = (+ item_length%41#0 2u)
+                let string_item#0: bytes = (extract3 array_value%36#0 item_index%40#0 item_length_plus_2%42#0)
+                let tmp%43#0: uint64 = (! index#0)
+                goto tmp%43#0 ? block@11 : block@12
+            block@11: // if_body_L40
+                let result#1: bytes = ((extract 2 0) string_item#0)
+                let result#15: bytes = result#1
+                goto block@13
+            block@12: // else_body_L40
+                let tmp%44#0: bytes = ((extract 2 0) string_item#0)
+                let tmp%45#0: bytes = (concat " " tmp%44#0)
+                let result#3: bytes = (concat result#2 tmp%45#0)
+                let result#15: bytes = result#3
+                goto block@13
+            block@13: // after_if_else_L40
+                let result#4: bytes = result#15
+                let item_index_internal%37#3: uint64 = (+ index#0 1u)
+                let index#3: uint64 = item_index_internal%37#3
+                let result#12: bytes = result#4
+                goto block@9
+            block@15: // after_for_L39
+                let tmp%46#0: uint64 = (== result#2 "Hello World")
+                (assert tmp%46#0)
+                let item_index_internal%48#0: uint64 = 0u
+                let item_index_internal%48#5: uint64 = item_index_internal%48#0
+                let total#15: uint64 = total#3
+                goto block@16
+            block@16: // for_header_L49
+                let item_index_internal%48#1: uint64 = item_index_internal%48#5
+                let total#5: uint64 = total#15
+                let continue_looping%49#0: uint64 = (< item_index_internal%48#1 4u)
+                goto continue_looping%49#0 ? block@17 : block@19
+            block@17: // for_body_L49
+                let item_index%50#0: uint64 = (* item_index_internal%48#1 4u)
+                let uint32_item#0: bytes = (extract3 0x000000010000000a000000ff00000080 item_index%50#0 4u)
+                let tmp%51#0: uint64 = (btoi uint32_item#0)
+                let total#6: uint64 = (+ total#5 tmp%51#0)
+                let item_index_internal%48#2: uint64 = (+ item_index_internal%48#1 1u)
+                let item_index_internal%48#5: uint64 = item_index_internal%48#2
+                let total#15: uint64 = total#6
+                goto block@16
+            block@19: // after_for_L49
+                let tmp%52#0: uint64 = (== total#5 398u)
+                (assert tmp%52#0)
+                let tmp%56#0: uint64 = (btoi 0x65)
+                let tmp%61#0: uint64 = (btoi 0x65)
+                let tmp%62#0: uint64 = (+ tmp%56#0 tmp%61#0)
+                let tmp%63#0: uint64 = (== tmp%62#0 202u)
+                (assert tmp%63#0)
+                let value_as_bytes%66#0: bytes = (itob 4u)
+                let value_as_uint16%67#0: bytes = ((extract 6 2) value_as_bytes%66#0)
+                let value_as_bytes%69#0: bytes = (itob 10u)
+                let value_as_uint16%70#0: bytes = ((extract 6 2) value_as_bytes%69#0)
+                let array_data%64#2: bytes = (concat value_as_uint16%67#0 value_as_uint16%70#0)
+                let array_data%64#3: bytes = (concat array_data%64#2 "\x00\x04Ping")
+                let static_string_array#0: bytes = (concat array_data%64#3 "\x00\x04Pong")
+                let result#5: bytes = ""
+                let item_index_internal%72#0: uint64 = 0u
+                let index#4: uint64 = item_index_internal%72#0
+                let result#18: bytes = result#5
+                goto block@20
+            block@20: // for_header_L63
+                let index#2: uint64 = index#4
+                let result#7: bytes = result#18
+                let continue_looping%73#0: uint64 = (< index#2 2u)
+                goto continue_looping%73#0 ? block@21 : block@26
+            block@21: // for_body_L63
+                let item_index_index%74#0: uint64 = (* index#2 2u)
+                let item_index%75#0: uint64 = (extract_uint16 static_string_array#0 item_index_index%74#0)
+                let item_length%76#0: uint64 = (extract_uint16 static_string_array#0 item_index%75#0)
+                let item_length_plus_2%77#0: uint64 = (+ item_length%76#0 2u)
+                let string_item#1: bytes = (extract3 static_string_array#0 item_index%75#0 item_length_plus_2%77#0)
+                let tmp%78#0: uint64 = (! index#2)
+                goto tmp%78#0 ? block@22 : block@23
+            block@22: // if_body_L64
+                let result#6: bytes = ((extract 2 0) string_item#1)
+                let result#21: bytes = result#6
+                goto block@24
+            block@23: // else_body_L64
+                let tmp%79#0: bytes = ((extract 2 0) string_item#1)
+                let tmp%80#0: bytes = (concat " " tmp%79#0)
+                let result#8: bytes = (concat result#7 tmp%80#0)
+                let result#21: bytes = result#8
+                goto block@24
+            block@24: // after_if_else_L64
+                let result#9: bytes = result#21
+                let item_index_internal%72#3: uint64 = (+ index#2 1u)
+                let index#4: uint64 = item_index_internal%72#3
+                let result#18: bytes = result#9
+                goto block@20
+            block@26: // after_for_L63
+                let tmp%81#0: uint64 = (== result#7 "Ping Pong")
+                (assert tmp%81#0)
+                test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array("Testing 123")
+                return 1u
+        
+        subroutine test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array(commitment_args_concat: bytes) -> bytes:
+            block@0: // L76
+                let tmp%0#0: bytes = (sha3_256 commitment_args_concat#0)
+                return tmp%0#0
+    
+    program clear-state:
+        subroutine test_cases.arc4_types.array.Arc4ArraysContract.clear_state_program() -> uint64:
+            block@0: // L79
+                return 1u

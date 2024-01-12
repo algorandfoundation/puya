@@ -1,0 +1,176 @@
+## test module level declarations
+
+## case: no_float
+FLOAT = 0.1 ## E: Unsupported construct FloatExpr: floating point math is not supported
+another_float = 1 / 2 ## E: Unsupported construct OpExpr: unsupported result type of float
+
+## case: no_subroutine_hint
+from puyapy import UInt64
+
+def one() -> UInt64: ## E: free functions must be annotated with @puyapy.subroutine
+    return UInt64(1)
+
+## case: unsupported_decorator
+from puyapy import UInt64, arc4, subroutine
+
+@arc4.abimethod ## E: free functions cannot be ARC4 ABI methods
+@subroutine
+def one() -> UInt64:
+    return UInt64(1)
+
+## case: literals_only
+from puyapy import UInt64
+
+LITERAL = 123
+STR_LITERAL = "a string"
+BYTES_LITERAL = b"some bytes"
+FORMATTED_STR = f"{STR_LITERAL} {LITERAL}"
+MULTIPLIED_STR = "a" * 64
+
+NOT_A_LITERAL = UInt64(1) ## E: Unsupported construct CallExpr: not supported at module level
+
+## case: no_typed_dict
+from puyapy import UInt64
+import typing
+
+class NotAllowed(typing.TypedDict): ## E: Unsupported construct ClassDef: TypedDict classes are not supported
+    an_int: UInt64
+
+## case: no_named_tuple
+from puyapy import UInt64
+import typing
+
+class NotAllowed(typing.NamedTuple): ## E: Unsupported construct ClassDef: NamedTuple classes are not supported
+    an_int: UInt64
+
+## case: unsupported_class
+from puyapy import Contract, UInt64
+
+class AllowedContract(Contract):
+
+    def approval_program(self) -> UInt64:
+        return UInt64(1)
+
+    def clear_state_program(self) -> UInt64:
+        return UInt64(1)
+
+class NotAllowed: ## E: not a subclass of puyapy.Contract or a direct subclass of puyapy.Struct
+    pass
+
+## case: all_ignored
+
+FOO = 1
+
+__all__ = ["FOO"]
+
+## case: list_not_allowed
+
+FOO = [1] ## E: Unsupported construct ListExpr: not supported at module level
+
+## case: type_alias_allowed
+import typing
+from puyapy import UInt64, subroutine
+
+IntAlias: typing.TypeAlias = UInt64
+
+@subroutine
+def one() -> IntAlias:
+    return UInt64(1)
+
+## case: for_not_supported
+
+for i in [True, False]: ## E: Unsupported construct ForStmt: not supported at module level
+    pass
+
+## case: while_not_supported
+
+while False: ## E: Unsupported construct WhileStmt: not supported at module level
+    pass
+
+## case: assert_not_supported
+
+assert True ## E: Unsupported construct AssertStmt: not supported at module level
+
+## case: expression_stmt_not_supported
+
+3 + 4 ## E: Unsupported construct ExpressionStmt: not supported at module level
+
+## case: tuple_not_supported
+
+TUPLE = 1, 2 ## E: Unsupported construct TupleExpr: not supported at module level
+
+## case: lambda_not_supported
+
+LAMBDA = lambda: 1 ## E: Unsupported construct LambdaExpr: not supported at module level
+
+## case: slice_not_supported
+
+SLICE = [1, 2][:] ## E: Unsupported construct IndexExpr: not supported at module level
+
+## case: comprehension_not_supported
+
+COMPREHENSION = [f for f in [1, 2]] ## E: Unsupported construct ListComprehension: not supported at module level
+
+## case: index_not_supported
+
+INDEXED = [1,2,3][0] ## E: Unsupported construct IndexExpr: not supported at module level
+
+## case: match_not_supported
+ONE = 1
+
+match ONE: ## E: Unsupported construct MatchStmt: not supported at module level
+    case 1:
+        TWO = 2
+    case _:
+        TWO = 2
+
+## case: if_true_branch
+if True:
+    BRANCH_TAKEN = 1
+else:
+    BRANCH_NOT_TAKEN = "1"
+
+VALUE = BRANCH_TAKEN
+
+## case: multi_file_test
+## path: one.py
+ONE = 1
+
+## path: pkg/two.py
+TWO = 2
+
+## path: pkg/__init__.py
+
+## path: three.py
+from one import ONE
+import pkg
+
+THREE = ONE + pkg.two.TWO
+
+## case: imported_contract_test
+## path: my_contract.py
+import abc
+from puyapy import Contract, UInt64, subroutine
+
+class MyContractBase(Contract, abc.ABC):
+
+    def approval_program(self) -> UInt64:
+        return UInt64(1)
+
+    def clear_state_program(self) -> UInt64:
+        return UInt64(1)
+
+    @abc.abstractmethod
+    @subroutine
+    def get_value(self) -> UInt64: ... ## N: Skipping abstract method get_value
+
+
+## path: main.py
+from puyapy import UInt64, subroutine
+from my_contract import MyContractBase
+
+class MyContract(MyContractBase):
+
+    @subroutine
+    def get_value(self) -> UInt64:
+        return UInt64(1)

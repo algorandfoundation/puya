@@ -30,15 +30,15 @@ def account(algod_client: AlgodClient) -> Account:
 
 @pytest.fixture(scope="session")
 def asset_a(algod_client: AlgodClient, account: Account) -> int:
-    return create_asset(algod_client, account, "a")
+    return _create_asset(algod_client, account, "a")
 
 
 @pytest.fixture(scope="session")
 def asset_b(algod_client: AlgodClient, account: Account) -> int:
-    return create_asset(algod_client, account, "b")
+    return _create_asset(algod_client, account, "b")
 
 
-def create_asset(algod_client: AlgodClient, account: Account, asset_unit: str) -> int:
+def _create_asset(algod_client: AlgodClient, account: Account, asset_unit: str) -> int:
     sp = algod_client.suggested_params()
     atc = AtomicTransactionComposer()
     atc.add_transaction(

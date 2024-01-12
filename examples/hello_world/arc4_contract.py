@@ -1,4 +1,4 @@
-from puyapy import ARC4Contract, Bytes, log
+from puyapy import ARC4Contract, Bytes
 from puyapy.arc4 import String, abimethod
 
 

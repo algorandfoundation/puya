@@ -1,0 +1,192 @@
+contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
+    program approval:
+        subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program() -> uint64:
+            block@0: // L14
+                let value_as_bytes%2#0: bytes = (itob 7u)
+                let value_as_uint16%3#0: bytes = ((extract 6 2) value_as_bytes%2#0)
+                let encoded_tuple_buffer%1#3: bytes = (concat 0x0102 value_as_uint16%3#0)
+                let value_as_bytes%5#0: bytes = (itob 14u)
+                let value_as_uint16%6#0: bytes = ((extract 6 2) value_as_bytes%5#0)
+                let encoded_tuple_buffer%1#4: bytes = (concat encoded_tuple_buffer%1#3 value_as_uint16%6#0)
+                let encoded_tuple_buffer%1#5: bytes = (concat encoded_tuple_buffer%1#4 0xff)
+                let encoded_tuple_buffer%1#6: bytes = (concat encoded_tuple_buffer%1#5 "\x00\x05hello")
+                let my_tuple#0: bytes = (concat encoded_tuple_buffer%1#6 "\x00\x05world")
+                let tmp%8#0: uint64 = (== my_tuple#0 0x01020007000eff000568656c6c6f0005776f726c64)
+                (assert tmp%8#0)
+                let encoded_tuple_buffer%19#5: any = (setbit 0x04a0 11u 1u)
+                let encoded_tuple_buffer%19#6: any = (setbit encoded_tuple_buffer%19#5 12u 1u)
+                let encoded_tuple_buffer%19#7: any = (setbit encoded_tuple_buffer%19#6 13u 1u)
+                let encoded_tuple_buffer%19#8: any = (setbit encoded_tuple_buffer%19#7 14u 0u)
+                let encoded_tuple_buffer%19#9: any = (setbit encoded_tuple_buffer%19#8 15u 1u)
+                let encoded_tuple_buffer%19#10: bytes = (concat encoded_tuple_buffer%19#9 0x80)
+                let boolean_packing#0: bytes = (concat encoded_tuple_buffer%19#10 0x10)
+                let tmp%27#0: uint64 = (== boolean_packing#0 0x04bd8010)
+                (assert tmp%27#0)
+                let a#0: bytes = (extract3 boolean_packing#0 0u 1u)
+                let is_true%29#0: uint64 = (getbit boolean_packing#0 8u)
+                let b#0: any = (setbit 0x00 0u is_true%29#0)
+                let is_true%31#0: uint64 = (getbit boolean_packing#0 9u)
+                let c#0: any = (setbit 0x00 0u is_true%31#0)
+                let is_true%33#0: uint64 = (getbit boolean_packing#0 10u)
+                let d#0: any = (setbit 0x00 0u is_true%33#0)
+                let is_true%35#0: uint64 = (getbit boolean_packing#0 11u)
+                let e#0: any = (setbit 0x00 0u is_true%35#0)
+                let is_true%37#0: uint64 = (getbit boolean_packing#0 12u)
+                let f#0: any = (setbit 0x00 0u is_true%37#0)
+                let is_true%39#0: uint64 = (getbit boolean_packing#0 13u)
+                let g#0: any = (setbit 0x00 0u is_true%39#0)
+                let is_true%41#0: uint64 = (getbit boolean_packing#0 14u)
+                let h#0: any = (setbit 0x00 0u is_true%41#0)
+                let is_true%43#0: uint64 = (getbit boolean_packing#0 15u)
+                let i#0: any = (setbit 0x00 0u is_true%43#0)
+                let is_true%45#0: uint64 = (getbit boolean_packing#0 16u)
+                let j#0: any = (setbit 0x00 0u is_true%45#0)
+                let k#0: bytes = (extract3 boolean_packing#0 3u 1u)
+                let tmp%48#0: bytes = (extract3 boolean_packing#0 3u 1u)
+                let tmp%49#0: uint64 = (== tmp%48#0 k#0)
+                (assert tmp%49#0)
+                let tmp%50#0: uint64 = (btoi a#0)
+                let tmp%51#0: uint64 = (== tmp%50#0 4u)
+                (assert tmp%51#0) // a is 4
+                let tmp%52#0: uint64 = (== b#0 0x00)
+                goto tmp%52#0 ? block@1 : block@2
+            block@1: // ternary_true_L39
+                goto block@18
+            block@2: // ternary_false_L39
+                let tmp%54#0: uint64 = (== d#0 0x00)
+                goto tmp%54#0 ? block@3 : block@4
+            block@3: // ternary_true_L39
+                goto block@17
+            block@4: // ternary_false_L39
+                let tmp%56#0: uint64 = (== e#0 0x00)
+                goto tmp%56#0 ? block@5 : block@6
+            block@5: // ternary_true_L39
+                goto block@16
+            block@6: // ternary_false_L39
+                let tmp%58#0: uint64 = (== f#0 0x00)
+                goto tmp%58#0 ? block@7 : block@8
+            block@7: // ternary_true_L39
+                goto block@15
+            block@8: // ternary_false_L39
+                let tmp%60#0: uint64 = (== g#0 0x00)
+                goto tmp%60#0 ? block@9 : block@10
+            block@9: // ternary_true_L39
+                goto block@14
+            block@10: // ternary_false_L39
+                let tmp%62#0: uint64 = (== i#0 0x00)
+                goto tmp%62#0 ? block@11 : block@12
+            block@11: // ternary_true_L39
+                goto block@13
+            block@12: // ternary_false_L39
+                goto block@13
+            block@13: // ternary_merge_L39
+                let ternary_result%63#2: bytes = φ(i#0 <- block@11, j#0 <- block@12)
+                goto block@14
+            block@14: // ternary_merge_L39
+                let ternary_result%61#2: bytes = φ(g#0 <- block@9, ternary_result%63#2 <- block@13)
+                goto block@15
+            block@15: // ternary_merge_L39
+                let ternary_result%59#2: bytes = φ(f#0 <- block@7, ternary_result%61#2 <- block@14)
+                goto block@16
+            block@16: // ternary_merge_L39
+                let ternary_result%57#2: bytes = φ(e#0 <- block@5, ternary_result%59#2 <- block@15)
+                goto block@17
+            block@17: // ternary_merge_L39
+                let ternary_result%55#2: bytes = φ(d#0 <- block@3, ternary_result%57#2 <- block@16)
+                goto block@18
+            block@18: // ternary_merge_L39
+                let ternary_result%53#2: bytes = φ(b#0 <- block@1, ternary_result%55#2 <- block@17)
+                let tmp%64#0: uint64 = (!= ternary_result%53#2 0x00)
+                (assert tmp%64#0) // b,d,e,f,g,i,j are true
+                let tmp%65#0: uint64 = (!= c#0 0x00)
+                goto tmp%65#0 ? block@19 : block@20
+            block@19: // ternary_true_L40
+                goto block@21
+            block@20: // ternary_false_L40
+                goto block@21
+            block@21: // ternary_merge_L40
+                let ternary_result%66#2: bytes = φ(c#0 <- block@19, h#0 <- block@20)
+                let tmp%67#0: uint64 = (== ternary_result%66#2 0x00)
+                (assert tmp%67#0) // c and h are false
+                let tmp%68#0: uint64 = (btoi k#0)
+                let tmp%69#0: uint64 = (== tmp%68#0 16u)
+                (assert tmp%69#0) // k is 16
+                let item0%70#0: bytes = (extract3 boolean_packing#0 0u 1u)
+                let is_true%71#0: uint64 = (getbit boolean_packing#0 8u)
+                let item1%72#0: any = (setbit 0x00 0u is_true%71#0)
+                let is_true%73#0: uint64 = (getbit boolean_packing#0 9u)
+                let item2%74#0: any = (setbit 0x00 0u is_true%73#0)
+                let is_true%75#0: uint64 = (getbit boolean_packing#0 10u)
+                let item3%76#0: any = (setbit 0x00 0u is_true%75#0)
+                let is_true%77#0: uint64 = (getbit boolean_packing#0 11u)
+                let item4%78#0: any = (setbit 0x00 0u is_true%77#0)
+                let is_true%79#0: uint64 = (getbit boolean_packing#0 12u)
+                let item5%80#0: any = (setbit 0x00 0u is_true%79#0)
+                let is_true%81#0: uint64 = (getbit boolean_packing#0 13u)
+                let item6%82#0: any = (setbit 0x00 0u is_true%81#0)
+                let is_true%83#0: uint64 = (getbit boolean_packing#0 14u)
+                let item7%84#0: any = (setbit 0x00 0u is_true%83#0)
+                let is_true%85#0: uint64 = (getbit boolean_packing#0 15u)
+                let item8%86#0: any = (setbit 0x00 0u is_true%85#0)
+                let is_true%87#0: uint64 = (getbit boolean_packing#0 16u)
+                let item9%88#0: any = (setbit 0x00 0u is_true%87#0)
+                let item10%89#0: bytes = (extract3 boolean_packing#0 3u 1u)
+                let encoded_tuple_buffer%91#2: bytes = (concat item0%70#0 item1%72#0)
+                let is_true%92#0: uint64 = (getbit item2%74#0 0u)
+                let encoded_tuple_buffer%91#3: any = (setbit encoded_tuple_buffer%91#2 9u is_true%92#0)
+                let is_true%93#0: uint64 = (getbit item3%76#0 0u)
+                let encoded_tuple_buffer%91#4: any = (setbit encoded_tuple_buffer%91#3 10u is_true%93#0)
+                let is_true%94#0: uint64 = (getbit item4%78#0 0u)
+                let encoded_tuple_buffer%91#5: any = (setbit encoded_tuple_buffer%91#4 11u is_true%94#0)
+                let is_true%95#0: uint64 = (getbit item5%80#0 0u)
+                let encoded_tuple_buffer%91#6: any = (setbit encoded_tuple_buffer%91#5 12u is_true%95#0)
+                let is_true%96#0: uint64 = (getbit item6%82#0 0u)
+                let encoded_tuple_buffer%91#7: any = (setbit encoded_tuple_buffer%91#6 13u is_true%96#0)
+                let is_true%97#0: uint64 = (getbit item7%84#0 0u)
+                let encoded_tuple_buffer%91#8: any = (setbit encoded_tuple_buffer%91#7 14u is_true%97#0)
+                let is_true%98#0: uint64 = (getbit item8%86#0 0u)
+                let encoded_tuple_buffer%91#9: any = (setbit encoded_tuple_buffer%91#8 15u is_true%98#0)
+                let encoded_tuple_buffer%91#10: bytes = (concat encoded_tuple_buffer%91#9 item9%88#0)
+                let encoded_tuple_buffer%91#11: bytes = (concat encoded_tuple_buffer%91#10 item10%89#0)
+                let tmp%99#0: uint64 = (== boolean_packing#0 encoded_tuple_buffer%91#11)
+                (assert tmp%99#0)
+                let (total#0: uint64, concat#0: bytes) = test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(my_tuple#0)
+                let tmp%102#0: bytes = ((extract 2 0) concat#0)
+                let tmp%103#0: uint64 = (== tmp%102#0 "hello world")
+                (assert tmp%103#0)
+                let tmp%104#0: uint64 = (== total#0 258u)
+                (assert tmp%104#0)
+                return 1u
+        
+        subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_tuple: bytes) -> <uint64, bytes>:
+            block@0: // L55
+                let a#0: bytes = (extract3 test_tuple#0 0u 1u)
+                let b#0: bytes = (extract3 test_tuple#0 1u 1u)
+                let item_index%2#0: uint64 = (extract_uint16 test_tuple#0 2u)
+                let item_length%3#0: uint64 = (extract_uint16 test_tuple#0 item_index%2#0)
+                let item_length_plus_2%4#0: uint64 = (+ item_length%3#0 2u)
+                let c#0: bytes = (extract3 test_tuple#0 item_index%2#0 item_length_plus_2%4#0)
+                let item_index%6#0: uint64 = (extract_uint16 test_tuple#0 4u)
+                let item_length%7#0: uint64 = (extract_uint16 test_tuple#0 item_index%6#0)
+                let item_length_plus_2%8#0: uint64 = (+ item_length%7#0 2u)
+                let d#0: bytes = (extract3 test_tuple#0 item_index%6#0 item_length_plus_2%8#0)
+                let e#0: bytes = (extract3 test_tuple#0 6u 1u)
+                let tmp%11#0: uint64 = (btoi a#0)
+                let tmp%12#0: uint64 = (btoi b#0)
+                let tmp%13#0: uint64 = (+ tmp%11#0 tmp%12#0)
+                let tmp%14#0: uint64 = (btoi e#0)
+                let total#0: uint64 = (+ tmp%13#0 tmp%14#0)
+                let tmp%15#0: bytes = ((extract 2 0) c#0)
+                let tmp%16#0: bytes = (concat tmp%15#0 " ")
+                let tmp%17#0: bytes = ((extract 2 0) d#0)
+                let text#0: bytes = (concat tmp%16#0 tmp%17#0)
+                let length%18#0: uint64 = (len text#0)
+                let value_as_bytes%19#0: bytes = (itob length%18#0)
+                let value_as_uint16%20#0: bytes = ((extract 6 2) value_as_bytes%19#0)
+                let tmp%21#0: bytes = (concat value_as_uint16%20#0 text#0)
+                return total#0 tmp%21#0
+    
+    program clear-state:
+        subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.clear_state_program() -> uint64:
+            block@0: // L51
+                return 1u

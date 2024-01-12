@@ -1,0 +1,58 @@
+struct Vector {
+  x: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+  y: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+}
+
+struct Flags {
+  a: puyapy.arc4.Bool
+  b: puyapy.arc4.Bool
+  c: puyapy.arc4.Bool
+  d: puyapy.arc4.Bool
+}
+
+struct VectorFlags {
+  vector: test_cases.arc4_types.structs.Vector
+  flags: test_cases.arc4_types.structs.Flags
+}
+
+contract Arc4StructsTypeContract
+{
+  approval_program(): bool
+  {
+    coord_1: test_cases.arc4_types.structs.Vector = arc4_encode((35.382882839arc4u64x9, 150.382884930arc4u64x9), test_cases.arc4_types.structs.Vector)
+    coord_2: test_cases.arc4_types.structs.Vector = arc4_encode((35.382882839arc4u64x9, 150.382884930arc4u64x9), test_cases.arc4_types.structs.Vector)
+    coord_3: test_cases.arc4_types.structs.Vector = test_cases.arc4_types.structs::add(coord_1.copy(), coord_2.copy())
+    for val in (coord_3[0u], coord_3[1u]) {
+      log(reinterpret_cast<puyapy.Bytes>(val))
+    }
+    flags: test_cases.arc4_types.structs.Flags = arc4_encode((arc4_encode(true, puyapy.arc4.Bool), arc4_encode(false, puyapy.arc4.Bool), arc4_encode(true, puyapy.arc4.Bool), arc4_encode(false, puyapy.arc4.Bool)), test_cases.arc4_types.structs.Flags)
+    test_cases.arc4_types.structs::check(flags.copy())
+    log(reinterpret_cast<puyapy.Bytes>(flags))
+    test_cases.arc4_types.structs::nested_decode(arc4_encode((coord_1, flags), test_cases.arc4_types.structs.VectorFlags))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine add(v1: test_cases.arc4_types.structs.Vector, v2: test_cases.arc4_types.structs.Vector): test_cases.arc4_types.structs.Vector
+{
+  return arc4_encode((arc4_encode(arc4_decode(v1[0u], puyapy.UInt64) + arc4_decode(v2[0u], puyapy.UInt64), puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]), arc4_encode(arc4_decode(v1[1u], puyapy.UInt64) + arc4_decode(v2[1u], puyapy.UInt64), puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]])), test_cases.arc4_types.structs.Vector)
+}
+
+subroutine check(flags: test_cases.arc4_types.structs.Flags): None
+{
+  assert(arc4_decode(flags[0u], bool))
+  assert(!(arc4_decode(flags[1u], bool)))
+  assert(arc4_decode(flags[2u], bool))
+  assert(!(arc4_decode(flags[3u], bool)))
+}
+
+subroutine nested_decode(vector_flags: test_cases.arc4_types.structs.VectorFlags): None
+{
+  assert(arc4_decode(vector_flags[0u][0u], puyapy.UInt64) == 35382882839u)
+  assert(arc4_decode(vector_flags[1u][2u], bool))
+}

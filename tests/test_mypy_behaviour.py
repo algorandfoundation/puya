@@ -2,7 +2,6 @@
 # ruff: noqa
 import inspect
 import typing
-from pathlib import Path
 from textwrap import dedent
 
 import mypy.build
@@ -14,8 +13,6 @@ import mypy.types
 import pytest
 
 from puya.compile import get_mypy_options
-
-TEST_CASES = Path(__file__).parent / "test_cases"
 
 
 def get_assignment_var_named(mypy_file: mypy.nodes.MypyFile, name: str) -> mypy.nodes.Var:
