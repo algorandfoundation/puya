@@ -109,7 +109,10 @@ def compile_test_case(
         log_options = attrs.evolve(
             puya_options, out_dir=None, paths=(test_case.path.relative_to(test_case.root),)
         )
-        log_path.write_text(f"debug: {log_options}\n{compile_result.logs}", encoding="utf8")
+        log_options_str = (
+            str(log_options).replace("WindowsPath", "Path").replace("PosixPath", "Path")
+        )
+        log_path.write_text(f"debug: {log_options_str}\n{compile_result.logs}", encoding="utf8")
 
 
 def compile_no_optimization(test_case: PuyaExample) -> None:
