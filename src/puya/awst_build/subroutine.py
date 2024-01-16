@@ -12,6 +12,7 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
+    AppStateExpression,
     AssertStatement,
     AssignmentExpression,
     AssignmentStatement,
@@ -48,9 +49,7 @@ from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.app_account_state import AppAccountStateClassExpressionBuilder
-from puya.awst_build.eb.app_global_state import (
-    AppStateClassExpressionBuilder,
-)
+from puya.awst_build.eb.app_state import AppStateClassExpressionBuilder, AppStateExpressionBuilder
 from puya.awst_build.eb.arc4 import ARC4StructClassExpressionBuilder
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -313,22 +312,40 @@ class FunctionASTConverter(
         if isinstance(rvalue, AppAccountStateClassExpressionBuilder):
             if len(stmt.lvalues) != 1:
                 raise CodeError(
-                    "App account state can only be assigned to a single member variable", stmt_loc
+                    f"{constants.CLS_LOCAL_STATE_ALIAS}"
+                    f" can only be assigned to a single member variable",
+                    stmt_loc,
                 )
             return []
-        if isinstance(rvalue, AppStateClassExpressionBuilder):
+        elif isinstance(rvalue, AppStateClassExpressionBuilder):
             if len(stmt.lvalues) != 1:
                 raise CodeError(
-                    "App global state can only be assigned to a single member variable", stmt_loc
+                    f"{constants.CLS_GLOBAL_STATE_ALIAS}"
+                    f" can only be assigned to a single member variable",
+                    stmt_loc,
                 )
-            if rvalue.has_initial_value():
-                value = rvalue.build_assignment_source()
-                (lvalue,) = stmt.lvalues
-                target = self.resolve_lvalue(lvalue)
-                return [AssignmentStatement(source_location=stmt_loc, target=target, value=value)]
-            else:
+            if rvalue.initial_value is None:
                 return []
-        if len(stmt.lvalues) == 1:
+            else:
+                (lvalue,) = stmt.lvalues
+                app_state_eb = lvalue.accept(self)
+                if not isinstance(app_state_eb, AppStateExpressionBuilder):
+                    raise CodeError(
+                        f"Incompatible type on assignment,"
+                        f" expected a {constants.CLS_GLOBAL_STATE_ALIAS}",
+                        app_state_eb.source_location,
+                    )
+                global_state_target = AppStateExpression.from_state_def(
+                    app_state_eb.state_def, app_state_eb.source_location
+                )
+                return [
+                    AssignmentStatement(
+                        source_location=stmt_loc,
+                        target=global_state_target,
+                        value=rvalue.initial_value,
+                    )
+                ]
+        elif len(stmt.lvalues) == 1:
             value = rvalue.build_assignment_source()
             (lvalue,) = stmt.lvalues
             target = self.resolve_lvalue(lvalue)
@@ -742,18 +759,18 @@ class FunctionASTConverter(
                 return EnsureBudgetBuilder(location=location)
             case constants.OP_UP_FEE_SOURCE:
                 return OpUpFeeSourceClassBuilder(location=location)
-            case constants.APP_ACCOUNT_STATE_PROXY_CLS:
+            case constants.CLS_LOCAL_STATE:
                 if self.contract_method_info is None:
                     raise CodeError(
-                        f"{constants.APP_ACCOUNT_STATE_PROXY_CLS} is only usable in "
+                        f"{constants.CLS_LOCAL_STATE} is only usable in "
                         "contract instance methods",
                         location,
                     )
                 return AppAccountStateClassExpressionBuilder(location=location)
-            case constants.APP_GLOBAL_STATE_PROXY_CLS:
+            case constants.CLS_GLOBAL_STATE:
                 if self.contract_method_info is None:
                     raise CodeError(
-                        f"{constants.APP_GLOBAL_STATE_PROXY_CLS} is only usable in "
+                        f"{constants.CLS_GLOBAL_STATE} is only usable in "
                         "contract instance methods",
                         location,
                     )

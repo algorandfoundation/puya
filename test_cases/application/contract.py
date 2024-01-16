@@ -1,9 +1,9 @@
 from puyapy import (
-    AppAccountState,
     Application,
     Bytes,
     Contract,
     Global,
+    LocalState,
     Transaction,
     UInt64,
     subroutine,
@@ -15,13 +15,13 @@ class Reference(Contract):
         self.int_1 = UInt64(0)
         self.bytes_1 = Bytes(b"")
         self.bytes_2 = Bytes(b"")
-        self.int_l1 = AppAccountState(UInt64)
-        self.int_l2 = AppAccountState(UInt64)
-        self.int_l3 = AppAccountState(UInt64)
-        self.bytes_l1 = AppAccountState(Bytes)
-        self.bytes_l2 = AppAccountState(Bytes)
-        self.bytes_l3 = AppAccountState(Bytes)
-        self.bytes_l4 = AppAccountState(Bytes)
+        self.int_l1 = LocalState(UInt64)
+        self.int_l2 = LocalState(UInt64)
+        self.int_l3 = LocalState(UInt64)
+        self.bytes_l1 = LocalState(Bytes)
+        self.bytes_l2 = LocalState(Bytes)
+        self.bytes_l3 = LocalState(Bytes)
+        self.bytes_l4 = LocalState(Bytes)
 
     def approval_program(self) -> bool:
         if Transaction.num_app_args() == 1:

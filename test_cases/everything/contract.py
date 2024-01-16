@@ -1,7 +1,7 @@
 from puyapy import (
     Account,
-    AppAccountState,
     ARC4Contract,
+    LocalState,
     OnCompleteAction,
     Transaction,
     UInt64,
@@ -36,7 +36,7 @@ def add_one(x: UInt64) -> UInt64:
 
 class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     def __init__(self) -> None:
-        self.name = AppAccountState(String)
+        self.name = LocalState(String)
 
     @abimethod(create=True)
     def create(self) -> None:

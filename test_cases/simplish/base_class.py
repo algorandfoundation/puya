@@ -1,12 +1,12 @@
 import abc
 
-from puyapy import AppAccountState, Bytes, Contract, UInt64, subroutine
+from puyapy import Bytes, Contract, LocalState, UInt64, subroutine
 
 
 class CallCounter(Contract, abc.ABC):
     def __init__(self) -> None:
         self.counter = UInt64(0)
-        self.name = AppAccountState(Bytes)
+        self.name = LocalState(Bytes)
 
     @subroutine
     def increment_counter(self) -> None:

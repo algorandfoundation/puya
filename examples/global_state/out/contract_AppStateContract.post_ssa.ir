@@ -1,0 +1,90 @@
+contract examples.global_state.contract.AppStateContract:
+    program approval:
+        subroutine examples.global_state.contract.AppStateContract.approval_program() -> uint64:
+            block@0: // L14
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L5
+                examples.global_state.contract.AppStateContract.__init__()
+                goto block@2
+            block@2: // entrypoint_L5
+                let (app_global_get_ex_value%1#0: uint64, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "global_int_simplified")
+                (assert app_global_get_ex_did_exist%2#0) // check value exists
+                let tmp%3#0: uint64 = (== app_global_get_ex_value%1#0 33u)
+                (assert tmp%3#0)
+                let (tmp%4#0: any, tmp%5#0: uint64) = (app_global_get_ex 0u "global_int_full")
+                (assert tmp%5#0)
+                let (app_global_get_ex_value%6#0: uint64, app_global_get_ex_did_exist%7#0: uint64) = (app_global_get_ex 0u "global_int_full")
+                (assert app_global_get_ex_did_exist%7#0) // check value exists
+                let tmp%8#0: uint64 = (== app_global_get_ex_value%6#0 55u)
+                (assert tmp%8#0)
+                let (tmp%9#0: any, tmp%10#0: uint64) = (app_global_get_ex 0u "global_int_no_default")
+                let tmp%11#0: uint64 = (! tmp%10#0)
+                (assert tmp%11#0)
+                (app_global_put "global_int_no_default" 44u)
+                let (i_value#0: any, i_exists#0: uint64) = (app_global_get_ex 0u "global_int_no_default")
+                (assert i_exists#0)
+                let tmp%14#0: uint64 = (== i_value#0 44u)
+                (assert tmp%14#0)
+                let (app_global_get_ex_value%15#0: bytes, app_global_get_ex_did_exist%16#0: uint64) = (app_global_get_ex 0u "global_bytes_simplified")
+                (assert app_global_get_ex_did_exist%16#0) // check value exists
+                let tmp%17#0: uint64 = (== app_global_get_ex_value%15#0 "Hello")
+                (assert tmp%17#0)
+                let (tmp%18#0: any, tmp%19#0: uint64) = (app_global_get_ex 0u "global_bytes_full")
+                (assert tmp%19#0)
+                let (app_global_get_ex_value%20#0: bytes, app_global_get_ex_did_exist%21#0: uint64) = (app_global_get_ex 0u "global_bytes_full")
+                (assert app_global_get_ex_did_exist%21#0) // check value exists
+                let tmp%22#0: uint64 = (== app_global_get_ex_value%20#0 "Hello")
+                (assert tmp%22#0)
+                let (awst_tmp%23.0#0: any, awst_tmp%23.1#0: uint64) = (app_global_get_ex 0u "global_bytes_full")
+                goto awst_tmp%23.1#0 ? block@3 : block@4
+            block@3: // ternary_true_L27
+                let ternary_result%24#4: bytes = awst_tmp%23.0#0
+                goto block@5
+            block@4: // ternary_false_L27
+                let ternary_result%24#1: bytes = "default"
+                let ternary_result%24#4: bytes = ternary_result%24#1
+                goto block@5
+            block@5: // ternary_merge_L27
+                let ternary_result%24#2: bytes = ternary_result%24#4
+                let tmp%25#0: uint64 = (== ternary_result%24#2 "Hello")
+                (assert tmp%25#0)
+                let (tmp%26#0: any, tmp%27#0: uint64) = (app_global_get_ex 0u "global_bytes_no_default")
+                let tmp%28#0: uint64 = (! tmp%27#0)
+                (assert tmp%28#0)
+                (app_global_put "global_bytes_no_default" "World")
+                let (b_value#0: any, b_exists#0: uint64) = (app_global_get_ex 0u "global_bytes_no_default")
+                (assert b_exists#0)
+                let tmp%31#0: uint64 = (== b_value#0 "World")
+                (assert tmp%31#0)
+                (app_global_del "global_bytes_no_default")
+                let (b_value#1: any, b_exists#1: uint64) = (app_global_get_ex 0u "global_bytes_no_default")
+                let tmp%34#0: uint64 = (! b_exists#1)
+                (assert tmp%34#0)
+                let (awst_tmp%35.0#0: any, awst_tmp%35.1#0: uint64) = (app_global_get_ex 0u "global_bytes_no_default")
+                goto awst_tmp%35.1#0 ? block@6 : block@7
+            block@6: // ternary_true_L37
+                let ternary_result%36#4: bytes = awst_tmp%35.0#0
+                goto block@8
+            block@7: // ternary_false_L37
+                let ternary_result%36#1: bytes = "default"
+                let ternary_result%36#4: bytes = ternary_result%36#1
+                goto block@8
+            block@8: // ternary_merge_L37
+                let ternary_result%36#2: bytes = ternary_result%36#4
+                let tmp%37#0: uint64 = (== ternary_result%36#2 "default")
+                (assert tmp%37#0)
+                return 1u
+        
+        subroutine examples.global_state.contract.AppStateContract.__init__() -> void:
+            block@0: // L5
+                (app_global_put "global_int_full" 55u)
+                (app_global_put "global_int_simplified" 33u)
+                (app_global_put "global_bytes_full" "Hello")
+                (app_global_put "global_bytes_simplified" "Hello")
+                return 
+    
+    program clear-state:
+        subroutine examples.global_state.contract.AppStateContract.clear_state_program() -> uint64:
+            block@0: // L40
+                return 1u

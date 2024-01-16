@@ -737,14 +737,14 @@ def test_string_ops(harness: _TestHarness) -> None:
 
 
 def test_global_storage(harness: _TestHarness) -> None:
-    harness.deploy(EXAMPLES_DIR / "app_state", AppCallRequest(increase_budget=1))
+    harness.deploy(EXAMPLES_DIR / "global_state", AppCallRequest(increase_budget=1))
 
 
 def test_local_storage(harness: _TestHarness) -> None:
     default_value = "this is a default"
     stored_value = "testing 123"
     harness.deploy(
-        EXAMPLES_DIR / "app_account_state/app_account_state_contract.py",
+        EXAMPLES_DIR / "local_state/local_state_contract.py",
         AppCallRequest(on_complete=OnComplete.OptInOC),
     )
 
@@ -782,7 +782,7 @@ def test_local_storage_with_offsets(harness: _TestHarness) -> None:
     default_value = "this is a default"
     stored_value = "testing 123"
     harness.deploy(
-        EXAMPLES_DIR / "app_account_state/app_account_state_with_offsets.py",
+        EXAMPLES_DIR / "local_state/local_state_with_offsets.py",
         AppCallRequest(on_complete=OnComplete.OptInOC),
     )
 
