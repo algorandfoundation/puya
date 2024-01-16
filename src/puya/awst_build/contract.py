@@ -33,6 +33,7 @@ from puya.awst_build.utils import (
 from puya.errors import CodeError, InternalError
 from puya.metadata import ARC4DefaultArgument, ARC4MethodConfig, ARC32StructDef
 from puya.parse import SourceLocation
+from puya.utils import StableSet
 
 
 class ContractASTConverter(BaseMyPyStatementVisitor[None]):
@@ -41,7 +42,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         context: ASTConversionModuleContext,
         class_def: mypy.nodes.ClassDef,
         name_override: str | None,
-        scratch_slot_reservations: typing.Sequence[ScratchSpaceReservation],
+        scratch_slot_reservations: StableSet[ScratchSpaceReservation],
     ):
         super().__init__(context=context)
         self.class_def = class_def
@@ -109,7 +110,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         context: ASTConversionModuleContext,
         class_def: mypy.nodes.ClassDef,
         name_override: str | None,
-        scratch_slot_reservations: typing.Sequence[ScratchSpaceReservation],
+        scratch_slot_reservations: StableSet[ScratchSpaceReservation],
     ) -> ContractFragment:
         return cls(context, class_def, name_override, scratch_slot_reservations).result_
 

@@ -19,6 +19,7 @@ from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
 from puya.metadata import ARC4MethodConfig
 from puya.parse import SourceLocation
+from puya.utils import StableSet
 
 T = t.TypeVar("T")
 
@@ -1260,9 +1261,7 @@ class ContractFragment(ModuleStatement):
     clear_program: ContractMethod | None = attrs.field()
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
     app_state: Sequence[AppStateDefinition] = attrs.field(converter=tuple[AppStateDefinition, ...])
-    reserved_scratch_space: Sequence[ScratchSpaceReservation] = attrs.field(
-        converter=tuple[ScratchSpaceReservation, ...]
-    )
+    reserved_scratch_space: StableSet[ScratchSpaceReservation] = attrs.field()
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
     symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)

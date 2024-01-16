@@ -28,6 +28,7 @@ from puya.awst_build.utils import (
     get_decorators_by_fullname,
 )
 from puya.errors import CodeError, InternalError
+from puya.utils import StableSet
 
 logger = structlog.get_logger()
 
@@ -152,17 +153,17 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             # TODO: other checks above?
             else:
                 name_override: str | None = None
-                scratch_slot_reservations = list[ScratchSpaceReservation]()
+                scratch_slot_reservations = StableSet[ScratchSpaceReservation]()
                 for kw_name, kw_expr in cdef.keywords.items():
                     with self.context.log_exceptions(kw_expr):
                         if kw_name == "scratch_slots":
                             # Handle scratch slot ranges
                             match kw_expr:
                                 case mypy.nodes.TupleExpr(items=tuple_items):
-                                    scratch_slot_reservations = [
-                                        self._map_scratch_space_reservation(item)
-                                        for item in tuple_items
-                                    ]
+                                    for item in tuple_items:
+                                        scratch_slot_reservations.add(
+                                            self._map_scratch_space_reservation(item)
+                                        )
                                     continue
                                 case _:
                                     raise CodeError(
@@ -207,19 +208,16 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 callee=mypy.nodes.NameExpr(fullname=constants.URANGE), args=args
             ):
                 match args:
-                    case [stop]:
-                        stop_int = self._read_int_constant(stop)
+                    case [mypy.nodes.IntExpr(value=stop)]:
                         return ScratchSpaceReservation(
                             start_slot=0,
-                            stop_slot=stop_int,
+                            stop_slot=stop,
                             source_location=source_location,
                         )
-                    case [start, stop]:
-                        start_int = self._read_int_constant(start)
-                        stop_int = self._read_int_constant(stop)
+                    case [mypy.nodes.IntExpr(value=start), mypy.nodes.IntExpr(value=stop)]:
                         return ScratchSpaceReservation(
-                            start_slot=start_int,
-                            stop_slot=stop_int,
+                            start_slot=start,
+                            stop_slot=stop,
                             source_location=source_location,
                         )
                     case [_, _, _]:
@@ -232,15 +230,6 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
 
             case _:
                 raise CodeError("Unexpected value: Expected int literal or urange expression")
-
-    def _read_int_constant(self, expr: mypy.nodes.Expression) -> int:
-        match expr:
-            case mypy.nodes.IntExpr(value):
-                return value
-            case _:
-                raise CodeError(
-                    "Unexpected value: Expected int literal", location=self._location(expr)
-                )
 
     def _process_arc4_struct(self, cdef: mypy.nodes.ClassDef) -> None:
         field_types = dict[str, wtypes.WType]()
