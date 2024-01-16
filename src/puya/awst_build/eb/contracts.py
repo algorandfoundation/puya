@@ -7,7 +7,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
-from puya.awst_build.eb.app_global_state import AppStateExpressionBuilder
+from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
