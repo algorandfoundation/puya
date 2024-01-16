@@ -12,7 +12,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
     AppStateKind,
-    AppStorageApi,
     BytesEncoding,
     ContractFragment,
     ContractMethod,
@@ -21,6 +20,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.contract_data import AppStateDeclaration, AppStateDeclType
 from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puya.awst_build.utils import (
     extract_bytes_literal_from_mypy,
@@ -52,10 +52,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
         this_app_state = list(_gather_app_state(context, class_def.info))
-        combined_app_state = {defn.member_name: defn for defn in this_app_state}
+        combined_app_state = {defn.state_def.member_name: defn for defn in this_app_state}
         for base in iterate_user_bases(class_def.info):
             base_app_state = {
-                defn.member_name: defn
+                defn.state_def.member_name: defn
                 # NOTE: we don't report errors for the decls themselves here,
                 #       they should already have been reported when analysing the base type
                 for defn in _gather_app_state(context, base, report_errors=False)
@@ -65,16 +65,16 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 member_orig = base_app_state[redefined_member]
                 self.context.note(
                     f"Previous definition of {redefined_member} was here",
-                    member_orig.source_location,
+                    member_orig.state_def.source_location,
                 )
                 self.context.error(
                     f"Redefinition of {redefined_member}",
-                    member_redef.source_location,
+                    member_redef.state_def.source_location,
                 )
             # we do it this way around so that we keep combined_app_state with the most-derived
             # definition in case of redefinitions
             combined_app_state = base_app_state | combined_app_state
-        self.app_state: dict[str, AppStateDefinition] = combined_app_state
+        self.app_state: dict[str, AppStateDeclaration] = combined_app_state
 
         # note: we iterate directly and catch+log code errors here,
         #       since each statement should be somewhat independent given
@@ -95,7 +95,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             approval_program=self._approval_program,
             clear_program=self._clear_program,
             subroutines=self._subroutines,
-            app_state=this_app_state,
+            app_state=[decl.state_def for decl in this_app_state],
             docstring=docstring,
             source_location=self._location(class_def),
         )
@@ -356,7 +356,7 @@ def _gather_app_state(
     class_info: mypy.nodes.TypeInfo,
     *,
     report_errors: bool = True,
-) -> Iterator[AppStateDefinition]:
+) -> Iterator[AppStateDeclaration]:
     for name, sym in class_info.names.items():
         if isinstance(sym.node, mypy.nodes.Var):
             var_loc = context.node_location(sym.node)
@@ -372,14 +372,16 @@ def _gather_app_state(
                     type=mypy.nodes.TypeInfo(fullname=constants.CLS_LOCAL_STATE),
                     args=args,
                 ):
-                    kind = AppStateKind.app_account
-                    api = AppStorageApi.full
+                    kind = AppStateKind.account_local
+                    decl_type = AppStateDeclType.local_proxy
                     try:
                         (storage_type,) = args
                     except ValueError:
                         if report_errors:
                             context.error(
-                                "Local storage requires exactly one type parameter", var_loc
+                                f"{constants.CLS_LOCAL_STATE_ALIAS}"
+                                f" requires exactly one type parameter",
+                                var_loc,
                             )
                         continue
                 case mypy.types.Instance(
@@ -387,18 +389,20 @@ def _gather_app_state(
                     args=args,
                 ):
                     kind = AppStateKind.app_global
-                    api = AppStorageApi.full
+                    decl_type = AppStateDeclType.global_proxy
                     try:
                         (storage_type,) = args
                     except ValueError:
                         if report_errors:
                             context.error(
-                                "AppGlobal storage requires exactly one type parameter", var_loc
+                                f"{constants.CLS_GLOBAL_STATE_ALIAS}"
+                                f" requires exactly one type parameter",
+                                var_loc,
                             )
                         continue
                 case _:
                     kind = AppStateKind.app_global
-                    api = AppStorageApi.simplified
+                    decl_type = AppStateDeclType.global_direct
                     storage_type = typ
             storage_wtype = context.type_to_wtype(storage_type, source_location=var_loc)
             if not storage_wtype.lvalue:
@@ -409,15 +413,15 @@ def _gather_app_state(
                         var_loc,
                     )
             else:
-                yield AppStateDefinition(
+                state_def = AppStateDefinition(
                     source_location=var_loc,
                     member_name=name,
                     storage_wtype=storage_wtype,
                     key=name.encode(),  # TODO: encode name -> key with source file encoding?
                     key_encoding=BytesEncoding.utf8,
                     kind=kind,
-                    api=api,
                 )
+                yield AppStateDeclaration(state_def, decl_type)
 
 
 def get_func_types(

@@ -1212,20 +1212,13 @@ class ContractMethod(Function):
 @enum.unique
 class AppStateKind(enum.Enum):
     app_global = enum.auto()
-    app_account = enum.auto()
-
-
-@enum.unique
-class AppStorageApi(enum.Enum):
-    simplified = enum.auto()
-    full = enum.auto()
+    account_local = enum.auto()
 
 
 @attrs.frozen
 class AppStateDefinition(Node):
     member_name: str
     kind: AppStateKind
-    api: AppStorageApi
     key: bytes
     key_encoding: BytesEncoding
     storage_wtype: WType

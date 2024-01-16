@@ -1,11 +1,9 @@
 from puya.awst.nodes import (
-    AppStateDefinition,
     AppStateExpression,
-    AppStateKind,
-    AppStorageApi,
     InstanceSubroutineTarget,
 )
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.contract_data import AppStateDeclaration, AppStateDeclType
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import (
@@ -21,7 +19,7 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,
-        app_state: dict[str, AppStateDefinition],
+        app_state: dict[str, AppStateDeclaration],
         location: SourceLocation,
     ):
         super().__init__(location)
@@ -30,27 +28,20 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         try:
-            state_def = self._app_state[name]
+            state_decl = self._app_state[name]
         except KeyError:
             return SubroutineInvokerExpressionBuilder(
                 context=self.context,
                 target=InstanceSubroutineTarget(name=name),
                 location=location,
             )
-        if state_def.kind is AppStateKind.app_global:
-            if state_def.api is AppStorageApi.simplified:
+        state_def = state_decl.state_def
+        match state_decl.decl_type:
+            case AppStateDeclType.local_proxy:
+                return AppAccountStateExpressionBuilder(state_def, location)
+            case AppStateDeclType.global_proxy:
+                return AppStateExpressionBuilder(state_def, location)
+            case AppStateDeclType.global_direct:
                 return var_expression(
-                    AppStateExpression.from_state_def(
-                        location=location,
-                        state_def=state_def,
-                    )
+                    AppStateExpression.from_state_def(location=location, state_def=state_def)
                 )
-            elif state_def.api is AppStorageApi.full:
-                return AppStateExpressionBuilder(state_def, location=location)
-
-        else:
-            assert state_def.kind is AppStateKind.app_account
-            assert (
-                state_def.api is AppStorageApi.full
-            ), "account_local storage does not have a simplified api"
-            return AppAccountStateExpressionBuilder(state_def, location)
