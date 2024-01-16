@@ -11,7 +11,6 @@ import structlog
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    AppStateDefinition,
     AppStateExpression,
     AssertStatement,
     AssignmentExpression,
@@ -48,6 +47,7 @@ from puya.awst.wtypes import WType
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.contract_data import AppStateDeclaration
 from puya.awst_build.eb.app_account_state import AppAccountStateClassExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateClassExpressionBuilder, AppStateExpressionBuilder
 from puya.awst_build.eb.arc4 import ARC4StructClassExpressionBuilder
@@ -102,7 +102,7 @@ logger = structlog.get_logger(__name__)
 class ContractMethodInfo:
     type_info: mypy.nodes.TypeInfo
     cref: ContractReference
-    app_state: dict[str, AppStateDefinition]
+    app_state: dict[str, AppStateDeclaration]
     arc4_method_config: ARC4MethodConfig | None
 
 
@@ -775,7 +775,6 @@ class FunctionASTConverter(
                         location,
                     )
                 return AppStateClassExpressionBuilder(location=location)
-
             case _ as enum_name if enum_name in constants.NAMED_INT_CONST_ENUM_DATA:
                 return NamedIntegerConstsTypeBuilder(
                     enum_name=enum_name,

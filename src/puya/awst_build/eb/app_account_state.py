@@ -33,7 +33,7 @@ from puya.parse import SourceLocation
 
 class AppAccountStateExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, state_def: AppStateDefinition, location: SourceLocation):
-        assert state_def.kind is AppStateKind.app_account
+        assert state_def.kind is AppStateKind.account_local
         super().__init__(location)
         self.state_def = state_def
 
@@ -180,7 +180,7 @@ class AppAccountStateForAccountExpressionBuilder(ValueProxyExpressionBuilder):
     def __init__(
         self, index_expr: Expression, state_def: AppStateDefinition, location: SourceLocation
     ):
-        assert state_def.kind is AppStateKind.app_account
+        assert state_def.kind is AppStateKind.account_local
         self.wtype = state_def.storage_wtype
         expr = AppAccountStateExpression(
             source_location=location,
