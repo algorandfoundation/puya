@@ -22,3 +22,4 @@ class PuyaOptions:
     debug_level: int = 0
     optimization_level: int = 0
     log_level: LogLevel = LogLevel.info
+    target_avm_version: int = 8
