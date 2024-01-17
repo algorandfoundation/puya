@@ -64,6 +64,8 @@ def stack_type_to_avm_type(stack_type: StackType) -> AVMType:
         case (
             StackType.bytes
             | StackType.bytes_32
+            | StackType.bytes_64
+            | StackType.bytes_80
             | StackType.bigint
             | StackType.box_name
             | StackType.address
