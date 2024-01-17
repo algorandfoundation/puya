@@ -67,7 +67,7 @@ class IntrinsicSimplifier(IRMutator):
             ):
                 self.modified += 1
                 ass.source = true if value else false
-        return ass
+        return super().visit_assignment(ass)
 
     def visit_intrinsic_op(self, intrinsic: Intrinsic) -> Intrinsic | None:
         match intrinsic:
