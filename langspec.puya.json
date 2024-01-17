@@ -1781,7 +1781,7 @@
             "size": 1,
             "doc": [
                 "balance for account A, in microalgos. The balance is observed after the effects of previous transactions in the group, and after the fee for the current transaction is deducted. Changes caused by inner transactions are observable immediately following `itxn_submit`",
-                "params: Txn.Accounts offset (or, since v4, an _available_ account address). Return: value."
+                "params: Txn.Accounts offset (or, since v4, an _available_ account address), _available_ application id (or, since v4, a Txn.ForeignApps offset). Return: value."
             ],
             "cost": {
                 "value": 1,
@@ -1964,7 +1964,7 @@
             "name": "box_create",
             "size": 1,
             "doc": [
-                "create a box named A, of length B. Fail if A is empty or B exceeds 32,768. Returns 0 if A already existed, else 1",
+                "create a box named A, of length B. Fail if the name A is empty or B exceeds 32,768. Returns 0 if A already existed, else 1",
                 "Newly created boxes are filled with 0 bytes. `box_create` will fail if the referenced box already exists with a different size. Otherwise, existing boxes are unchanged by `box_create`."
             ],
             "cost": {
@@ -2201,6 +2201,77 @@
                 },
                 {
                     "name": "C",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [],
+            "stack_outputs": []
+        },
+        "box_resize": {
+            "name": "box_resize",
+            "size": 1,
+            "doc": [
+                "change the size of box named A to be of length B, adding zero bytes to end or removing bytes from the end, as needed. Fail if the name A is empty, A is not an existing box, or B exceeds 32,768."
+            ],
+            "cost": {
+                "value": 1,
+                "doc": "1"
+            },
+            "min_avm_version": 10,
+            "halts": false,
+            "groups": [
+                "Box Access"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "boxName",
+                    "doc": null
+                },
+                {
+                    "name": "B",
+                    "stack_type": "uint64",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [],
+            "stack_outputs": []
+        },
+        "box_splice": {
+            "name": "box_splice",
+            "size": 1,
+            "doc": [
+                "set box A to contain its previous bytes up to index B, followed by D, followed by the original bytes of A that began at index B+C.",
+                "Boxes are of constant length. If C < len(D), then len(D)-C bytes will be removed from the end. If C > len(D), zero bytes will be appended to the end to reach the box length."
+            ],
+            "cost": {
+                "value": 1,
+                "doc": "1"
+            },
+            "min_avm_version": 10,
+            "halts": false,
+            "groups": [
+                "Box Access"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "boxName",
+                    "doc": null
+                },
+                {
+                    "name": "B",
+                    "stack_type": "uint64",
+                    "doc": null
+                },
+                {
+                    "name": "C",
+                    "stack_type": "uint64",
+                    "doc": null
+                },
+                {
+                    "name": "D",
                     "stack_type": "[]byte",
                     "doc": null
                 }
@@ -2644,7 +2715,7 @@
             "min_avm_version": 2,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Byte Array Manipulation"
             ],
             "stack_inputs": [
                 {
@@ -2977,6 +3048,282 @@
             ],
             "stack_outputs": []
         },
+        "ec_add": {
+            "name": "ec_add",
+            "size": 2,
+            "doc": [
+                "for curve points A and B, return the curve point A + B",
+                "A and B are curve points in affine representation: field element X concatenated with field element Y. Field element `Z` is encoded as follows.",
+                "For the base field elements (Fp), `Z` is encoded as a big-endian number and must be lower than the field modulus.",
+                "For the quadratic field extension (Fp2), `Z` is encoded as the concatenation of the individual encoding of the coefficients. For an Fp2 element of the form `Z = Z0 + Z1 i`, where `i` is a formal quadratic non-residue, the encoding of Z is the concatenation of the encoding of `Z0` and `Z1` in this order. (`Z0` and `Z1` must be less than the field modulus).",
+                "",
+                "The point at infinity is encoded as `(X,Y) = (0,0)`.",
+                "Groups G1 and G2 are denoted additively.",
+                "",
+                "Fails if A or B is not in G.",
+                "A and/or B are allowed to be the point at infinity.",
+                "Does _not_ check if A and B are in the main prime-order subgroup."
+            ],
+            "cost": {
+                "value": null,
+                "doc": "BN254g1=125; BN254g2=170; BLS12_381g1=205; BLS12_381g2=290"
+            },
+            "min_avm_version": 10,
+            "halts": false,
+            "groups": [
+                "Cryptography"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "[]byte",
+                    "doc": null
+                },
+                {
+                    "name": "B",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [
+                {
+                    "name": "G",
+                    "immediate_type": "arg_enum",
+                    "arg_enum": "EC",
+                    "modifies_stack_input": null,
+                    "modifies_stack_output": null,
+                    "doc": "curve index"
+                }
+            ],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ]
+        },
+        "ec_map_to": {
+            "name": "ec_map_to",
+            "size": 2,
+            "doc": [
+                "maps field element A to group G",
+                "BN254 points are mapped by the SVDW map. BLS12-381 points are mapped by the SSWU map.",
+                "G1 element inputs are base field elements and G2 element inputs are quadratic field elements, with nearly the same encoding rules (for field elements) as defined in `ec_add`. There is one difference of encoding rule: G1 element inputs do not need to be 0-padded if they fit in less than 32 bytes for BN254 and less than 48 bytes for BLS12-381. (As usual, the empty byte array represents 0.) G2 elements inputs need to be always have the required size."
+            ],
+            "cost": {
+                "value": null,
+                "doc": "BN254g1=630; BN254g2=3300; BLS12_381g1=1950; BLS12_381g2=8150"
+            },
+            "min_avm_version": 10,
+            "halts": false,
+            "groups": [
+                "Cryptography"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [
+                {
+                    "name": "G",
+                    "immediate_type": "arg_enum",
+                    "arg_enum": "EC",
+                    "modifies_stack_input": null,
+                    "modifies_stack_output": null,
+                    "doc": "curve index"
+                }
+            ],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ]
+        },
+        "ec_multi_scalar_mul": {
+            "name": "ec_multi_scalar_mul",
+            "size": 2,
+            "doc": [
+                "for curve points A and scalars B, return curve point B0A0 + B1A1 + B2A2 + ... + BnAn",
+                "A is a list of concatenated points, encoded and checked as described in `ec_add`. B is a list of concatenated scalars which, unlike ec_scalar_mul, must all be exactly 32 bytes long.",
+                "The name `ec_multi_scalar_mul` was chosen to reflect common usage, but a more consistent name would be `ec_multi_scalar_mul`. AVM values are limited to 4096 bytes, so `ec_multi_scalar_mul` is limited by the size of the points in the group being operated upon."
+            ],
+            "cost": {
+                "value": null,
+                "doc": "BN254g1=3600 + 90 per 32 bytes of B; BN254g2=7200 + 270 per 32 bytes of B; BLS12_381g1=6500 + 95 per 32 bytes of B; BLS12_381g2=14850 + 485 per 32 bytes of B"
+            },
+            "min_avm_version": 10,
+            "halts": false,
+            "groups": [
+                "Cryptography"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "[]byte",
+                    "doc": null
+                },
+                {
+                    "name": "B",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [
+                {
+                    "name": "G",
+                    "immediate_type": "arg_enum",
+                    "arg_enum": "EC",
+                    "modifies_stack_input": null,
+                    "modifies_stack_output": null,
+                    "doc": "curve index"
+                }
+            ],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ]
+        },
+        "ec_pairing_check": {
+            "name": "ec_pairing_check",
+            "size": 2,
+            "doc": [
+                "1 if the product of the pairing of each point in A with its respective point in B is equal to the identity element of the target group Gt, else 0",
+                "A and B are concatenated points, encoded and checked as described in `ec_add`. A contains points of the group G, B contains points of the associated group (G2 if G is G1, and vice versa). Fails if A and B have a different number of points, or if any point is not in its described group or outside the main prime-order subgroup - a stronger condition than other opcodes. AVM values are limited to 4096 bytes, so `ec_pairing_check` is limited by the size of the points in the groups being operated upon."
+            ],
+            "cost": {
+                "value": null,
+                "doc": "BN254g1=8000 + 7400 per 64 bytes of B; BN254g2=8000 + 7400 per 128 bytes of B; BLS12_381g1=13000 + 10000 per 96 bytes of B; BLS12_381g2=13000 + 10000 per 192 bytes of B"
+            },
+            "min_avm_version": 10,
+            "halts": false,
+            "groups": [
+                "Cryptography"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "[]byte",
+                    "doc": null
+                },
+                {
+                    "name": "B",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [
+                {
+                    "name": "G",
+                    "immediate_type": "arg_enum",
+                    "arg_enum": "EC",
+                    "modifies_stack_input": null,
+                    "modifies_stack_output": null,
+                    "doc": "curve index"
+                }
+            ],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "bool",
+                    "doc": null
+                }
+            ]
+        },
+        "ec_scalar_mul": {
+            "name": "ec_scalar_mul",
+            "size": 2,
+            "doc": [
+                "for curve point A and scalar B, return the curve point BA, the point A multiplied by the scalar B.",
+                "A is a curve point encoded and checked as described in `ec_add`. Scalar B is interpreted as a big-endian unsigned integer. Fails if B exceeds 32 bytes."
+            ],
+            "cost": {
+                "value": null,
+                "doc": "BN254g1=1810; BN254g2=3430; BLS12_381g1=2950; BLS12_381g2=6530"
+            },
+            "min_avm_version": 10,
+            "halts": false,
+            "groups": [
+                "Cryptography"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "[]byte",
+                    "doc": null
+                },
+                {
+                    "name": "B",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [
+                {
+                    "name": "G",
+                    "immediate_type": "arg_enum",
+                    "arg_enum": "EC",
+                    "modifies_stack_input": null,
+                    "modifies_stack_output": null,
+                    "doc": "curve index"
+                }
+            ],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ]
+        },
+        "ec_subgroup_check": {
+            "name": "ec_subgroup_check",
+            "size": 2,
+            "doc": [
+                "1 if A is in the main prime-order subgroup of G (including the point at infinity) else 0. Program fails if A is not in G at all."
+            ],
+            "cost": {
+                "value": null,
+                "doc": "BN254g1=20; BN254g2=3100; BLS12_381g1=1850; BLS12_381g2=2340"
+            },
+            "min_avm_version": 10,
+            "halts": false,
+            "groups": [
+                "Cryptography"
+            ],
+            "stack_inputs": [
+                {
+                    "name": "A",
+                    "stack_type": "[]byte",
+                    "doc": null
+                }
+            ],
+            "immediate_args": [
+                {
+                    "name": "G",
+                    "immediate_type": "arg_enum",
+                    "arg_enum": "EC",
+                    "modifies_stack_input": null,
+                    "modifies_stack_output": null,
+                    "doc": "curve index"
+                }
+            ],
+            "stack_outputs": [
+                {
+                    "name": "X",
+                    "stack_type": "bool",
+                    "doc": null
+                }
+            ]
+        },
         "ecdsa_pk_decompress": {
             "name": "ecdsa_pk_decompress",
             "size": 2,
@@ -2986,12 +3333,12 @@
             ],
             "cost": {
                 "value": null,
-                "doc": " Secp256k1=650 Secp256r1=2400"
+                "doc": "Secp256k1=650; Secp256r1=2400"
             },
             "min_avm_version": 5,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
@@ -3037,12 +3384,12 @@
             "min_avm_version": 5,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
                     "name": "A",
-                    "stack_type": "[]byte",
+                    "stack_type": "[32]byte",
                     "doc": null
                 },
                 {
@@ -3052,12 +3399,12 @@
                 },
                 {
                     "name": "C",
-                    "stack_type": "[]byte",
+                    "stack_type": "[32]byte",
                     "doc": null
                 },
                 {
                     "name": "D",
-                    "stack_type": "[]byte",
+                    "stack_type": "[32]byte",
                     "doc": null
                 }
             ],
@@ -3093,17 +3440,17 @@
             ],
             "cost": {
                 "value": null,
-                "doc": " Secp256k1=1700 Secp256r1=2500"
+                "doc": "Secp256k1=1700; Secp256r1=2500"
             },
             "min_avm_version": 5,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
                     "name": "A",
-                    "stack_type": "[]byte",
+                    "stack_type": "[32]byte",
                     "doc": null
                 },
                 {
@@ -3159,7 +3506,7 @@
             "min_avm_version": 1,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
@@ -3169,12 +3516,12 @@
                 },
                 {
                     "name": "B",
-                    "stack_type": "[]byte",
+                    "stack_type": "[64]byte",
                     "doc": null
                 },
                 {
                     "name": "C",
-                    "stack_type": "[]byte",
+                    "stack_type": "[32]byte",
                     "doc": null
                 }
             ],
@@ -3200,7 +3547,7 @@
             "min_avm_version": 7,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
@@ -3210,12 +3557,12 @@
                 },
                 {
                     "name": "B",
-                    "stack_type": "[]byte",
+                    "stack_type": "[64]byte",
                     "doc": null
                 },
                 {
                     "name": "C",
-                    "stack_type": "[]byte",
+                    "stack_type": "[32]byte",
                     "doc": null
                 }
             ],
@@ -3671,7 +4018,7 @@
             "min_avm_version": 3,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Byte Array Manipulation"
             ],
             "stack_inputs": [
                 {
@@ -3707,7 +4054,7 @@
             "min_avm_version": 3,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Byte Array Manipulation"
             ],
             "stack_inputs": [
                 {
@@ -4767,7 +5114,7 @@
             "min_avm_version": 1,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
@@ -4798,7 +5145,7 @@
             "min_avm_version": 1,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Byte Array Manipulation"
             ],
             "stack_inputs": [
                 {
@@ -4941,7 +5288,7 @@
             "size": 1,
             "doc": [
                 "minimum required balance for account A, in microalgos. Required balance is affected by ASA, App, and Box usage. When creating or opting into an app, the minimum balance grows before the app code runs, therefore the increase is visible there. When deleting or closing out, the minimum balance decreases after the app executes. Changes caused by inner transactions or box usage are observable immediately following the opcode effecting the change.",
-                "params: Txn.Accounts offset (or, since v4, an _available_ account address). Return: value."
+                "params: Txn.Accounts offset (or, since v4, an _available_ account address), _available_ application id (or, since v4, a Txn.ForeignApps offset). Return: value."
             ],
             "cost": {
                 "value": 1,
@@ -5415,7 +5762,7 @@
             "min_avm_version": 3,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Byte Array Manipulation"
             ],
             "stack_inputs": [
                 {
@@ -5456,7 +5803,7 @@
             "min_avm_version": 3,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Byte Array Manipulation"
             ],
             "stack_inputs": [
                 {
@@ -5497,7 +5844,7 @@
             "min_avm_version": 1,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
@@ -5528,7 +5875,7 @@
             "min_avm_version": 7,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
@@ -5559,7 +5906,7 @@
             "min_avm_version": 1,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
@@ -6079,7 +6426,7 @@
             "min_avm_version": 7,
             "halts": false,
             "groups": [
-                "Arithmetic"
+                "Cryptography"
             ],
             "stack_inputs": [
                 {
@@ -6089,12 +6436,12 @@
                 },
                 {
                     "name": "B",
-                    "stack_type": "[]byte",
+                    "stack_type": "[80]byte",
                     "doc": null
                 },
                 {
                     "name": "C",
-                    "stack_type": "[]byte",
+                    "stack_type": "[32]byte",
                     "doc": null
                 }
             ],
@@ -6431,6 +6778,28 @@
                 "name": "BlkTimestamp",
                 "doc": null,
                 "stack_type": "uint64"
+            }
+        ],
+        "EC": [
+            {
+                "name": "BN254g1",
+                "doc": "G1 of the BN254 curve. Points encoded as 32 byte X following by 32 byte Y",
+                "stack_type": null
+            },
+            {
+                "name": "BN254g2",
+                "doc": "G2 of the BN254 curve. Points encoded as 64 byte X following by 64 byte Y",
+                "stack_type": null
+            },
+            {
+                "name": "BLS12_381g1",
+                "doc": "G1 of the BLS 12-381 curve. Points encoded as 48 byte X following by 48 byte Y",
+                "stack_type": null
+            },
+            {
+                "name": "BLS12_381g2",
+                "doc": "G2 of the BLS 12-381 curve. Points encoded as 96 byte X following by 96 byte Y",
+                "stack_type": null
             }
         ],
         "ECDSA": [
@@ -6899,6 +7268,21 @@
                 "name": "CallerApplicationAddress",
                 "doc": "The application address of the application that called this application. ZeroAddress if this application is at the top-level. Application mode only.",
                 "stack_type": "address"
+            },
+            {
+                "name": "AssetCreateMinBalance",
+                "doc": "The additional minimum balance required to create (and opt-in to) an asset.",
+                "stack_type": "uint64"
+            },
+            {
+                "name": "AssetOptInMinBalance",
+                "doc": "The additional minimum balance required to opt-in to an asset.",
+                "stack_type": "uint64"
+            },
+            {
+                "name": "GenesisHash",
+                "doc": "The Genesis Hash for the network.",
+                "stack_type": "[32]byte"
             }
         ],
         "itxn_field": [

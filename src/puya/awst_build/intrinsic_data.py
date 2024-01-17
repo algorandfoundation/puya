@@ -13,6 +13,12 @@ ENUM_CLASSES = {
     "puyapy._gen.VrfVerify": {
         "VrfAlgorand": "VrfAlgorand",
     },
+    "puyapy._gen.Ec": {
+        "BN254g1": "BN254g1",
+        "BN254g2": "BN254g2",
+        "BLS12_381g1": "BLS12_381g1",
+        "BLS12_381g2": "BLS12_381g2",
+    },
 }
 
 STUB_TO_AST_MAPPER = {
@@ -360,6 +366,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
                 ArgMapping(
@@ -374,6 +381,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
                 ArgMapping(
@@ -381,6 +389,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
             ],
@@ -407,6 +416,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
                 ArgMapping(
@@ -467,6 +477,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
             ],
@@ -499,6 +510,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
             ],
@@ -1410,6 +1422,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
             ],
@@ -2694,6 +2707,66 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
+    "puyapy._gen.Box.resize": [
+        FunctionOpMapping(
+            op_code="box_resize",
+            immediates=[],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy._gen.Box.splice": [
+        FunctionOpMapping(
+            op_code="box_splice",
+            immediates=[],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="c",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="d",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
     "puyapy._gen.CreateInnerTransaction.begin": [
         FunctionOpMapping(
             op_code="itxn_begin",
@@ -3629,6 +3702,184 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
+    "puyapy._gen.EllipticCurve.add": [
+        FunctionOpMapping(
+            op_code="ec_add",
+            immediates=[
+                ArgMapping(
+                    arg_name="g",
+                    allowed_types=[
+                        str,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.EllipticCurve.map_to": [
+        FunctionOpMapping(
+            op_code="ec_map_to",
+            immediates=[
+                ArgMapping(
+                    arg_name="g",
+                    allowed_types=[
+                        str,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.EllipticCurve.scalar_mul_multi": [
+        FunctionOpMapping(
+            op_code="ec_multi_scalar_mul",
+            immediates=[
+                ArgMapping(
+                    arg_name="g",
+                    allowed_types=[
+                        str,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.EllipticCurve.pairing_check": [
+        FunctionOpMapping(
+            op_code="ec_pairing_check",
+            immediates=[
+                ArgMapping(
+                    arg_name="g",
+                    allowed_types=[
+                        str,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.EllipticCurve.scalar_mul": [
+        FunctionOpMapping(
+            op_code="ec_scalar_mul",
+            immediates=[
+                ArgMapping(
+                    arg_name="g",
+                    allowed_types=[
+                        str,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.EllipticCurve.subgroup_check": [
+        FunctionOpMapping(
+            op_code="ec_subgroup_check",
+            immediates=[
+                ArgMapping(
+                    arg_name="g",
+                    allowed_types=[
+                        str,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+    ],
     "puyapy._gen.Global.min_txn_fee": [
         FunctionOpMapping(
             op_code="global",
@@ -3802,6 +4053,42 @@ STUB_TO_AST_MAPPER = {
             op_code="global",
             immediates=[
                 "CallerApplicationAddress",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.Global.asset_create_min_balance": [
+        FunctionOpMapping(
+            op_code="global",
+            immediates=[
+                "AssetCreateMinBalance",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.Global.asset_opt_in_min_balance": [
+        FunctionOpMapping(
+            op_code="global",
+            immediates=[
+                "AssetOptInMinBalance",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.Global.genesis_hash": [
+        FunctionOpMapping(
+            op_code="global",
+            immediates=[
+                "GenesisHash",
             ],
             stack_inputs=[],
             stack_outputs=[

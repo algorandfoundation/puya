@@ -111,6 +111,8 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
             "box_len": "length",
             "box_put": "put",
             "box_replace": "replace",
+            "box_resize": "resize",
+            "box_splice": "splice",
         },
     ),
     GroupedOpCodes(
@@ -120,6 +122,17 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
             "itxn_next": "next",
             "itxn_submit": "submit",
             "itxn_field": "set",
+        },
+    ),
+    GroupedOpCodes(
+        name="EllipticCurve",
+        ops={
+            "ec_add": "add",
+            "ec_map_to": "map_to",
+            "ec_multi_scalar_mul": "scalar_mul_multi",
+            "ec_pairing_check": "pairing_check",
+            "ec_scalar_mul": "scalar_mul",
+            "ec_subgroup_check": "subgroup_check",
         },
     ),
     MergedOpCodes(
@@ -327,7 +340,7 @@ def main() -> None:
             case MergedOpCodes() as merged:
                 class_defs.append(build_merged_ops(lang_spec, merged))
             case GroupedOpCodes() as grouped:
-                class_defs.append(build_grouped_ops(lang_spec, grouped))
+                class_defs.append(build_grouped_ops(lang_spec, grouped, enums_to_build))
             case RenamedOpCode() as aliased:
                 function_defs.extend(build_aliased_ops(lang_spec, aliased))
             case _:
@@ -349,6 +362,8 @@ def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
     sub_types = {
         StackType.bytes: bytes_,
         StackType.bytes_32: bytes_ + account if covariant else account,
+        StackType.bytes_64: bytes_,
+        StackType.bytes_80: bytes_,
         StackType.uint64: uint64,
         StackType.bool: boolean + uint64 if covariant else boolean,
         StackType.any: bytes_ + uint64,
@@ -362,7 +377,7 @@ def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
         return sub_types[type_name]
     except KeyError as ex:
         raise NotImplementedError(
-            f"Could not map stack type {type_name} to an puyapy type:" + type_name
+            f"Could not map stack type {type_name} to an puyapy type"
         ) from ex
 
 
@@ -757,7 +772,9 @@ def build_merged_ops(spec: LanguageSpec, group: MergedOpCodes) -> ClassDef:
     )
 
 
-def build_grouped_ops(spec: LanguageSpec, group: GroupedOpCodes) -> ClassDef:
+def build_grouped_ops(
+    spec: LanguageSpec, group: GroupedOpCodes, enums_to_build: dict[str, bool]
+) -> ClassDef:
     methods = list[FunctionDef]()
     for rename_op_name, python_name in group.ops.items():
         rename_op = spec.ops[rename_op_name]
@@ -770,8 +787,15 @@ def build_grouped_ops(spec: LanguageSpec, group: GroupedOpCodes) -> ClassDef:
             for method in rename_class.methods:
                 method.name = f"{python_name}_{method.name}"
             methods.extend(rename_class.methods)
+
         else:
             methods.extend(build_operation_methods(rename_op, python_name, aliases=[]))
+        for arg in rename_op.immediate_args:
+            if arg.immediate_type == ImmediateKind.arg_enum and (
+                arg.modifies_stack_input is None and arg.modifies_stack_output is None
+            ):
+                assert arg.arg_enum is not None
+                enums_to_build[arg.arg_enum] = True
 
     class_def = ClassDef(
         name=get_python_enum_class(group.name),

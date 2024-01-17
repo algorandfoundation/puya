@@ -14,6 +14,12 @@ class Ecdsa(enum.StrEnum):
 class VrfVerify(enum.StrEnum):
     VrfAlgorand = enum.auto()
 
+class Ec(enum.StrEnum):
+    BN254g1 = enum.auto()
+    BN254g2 = enum.auto()
+    BLS12_381g1 = enum.auto()
+    BLS12_381g2 = enum.auto()
+
 def addw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
     """
     A plus B as a 128-bit result. X is the carry-bit, Y is the low-order 64 bits.
@@ -51,7 +57,7 @@ def arg(a: UInt64 | int, /) -> Bytes:
 def balance(a: Account | UInt64 | int, /) -> UInt64:
     """
     balance for account A, in microalgos. The balance is observed after the effects of previous transactions in the group, and after the fee for the current transaction is deducted. Changes caused by inner transactions are observable immediately following `itxn_submit`
-    params: Txn.Accounts offset (or, since v4, an _available_ account address). Return: value.
+    params: Txn.Accounts offset (or, since v4, an _available_ account address), _available_ application id (or, since v4, a Txn.ForeignApps offset). Return: value.
 
     Groups: State Access
 
@@ -126,7 +132,7 @@ def concat(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
     join A and B
     `concat` fails if the result would be greater than 4096 bytes.
 
-    Groups: Arithmetic
+    Groups: Byte Array Manipulation
 
     Stack: [..., A, B] -> [..., X]
     TEAL: concat
@@ -164,7 +170,7 @@ def ecdsa_pk_decompress(v: Ecdsa, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
     decompress pubkey A into components X, Y
     The 33 byte public key in a compressed form to be decompressed into X and Y (top) components. All values are big-endian encoded.
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A] -> [..., X, Y]
     TEAL: ecdsa_pk_decompress V
@@ -173,13 +179,18 @@ def ecdsa_pk_decompress(v: Ecdsa, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
     """
 
 def ecdsa_pk_recover(
-    v: Ecdsa, a: Bytes | bytes, b: UInt64 | int, c: Bytes | bytes, d: Bytes | bytes, /
+    v: Ecdsa,
+    a: Bytes | bytes | Account,
+    b: UInt64 | int,
+    c: Bytes | bytes | Account,
+    d: Bytes | bytes | Account,
+    /,
 ) -> tuple[Bytes, Bytes]:
     """
     for (data A, recovery id B, signature C, D) recover a public key
     S (top) and R elements of a signature, recovery id and data (bottom) are expected on the stack and used to deriver a public key. All values are big-endian encoded. The signed data must be 32 bytes long.
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A, B, C, D] -> [..., X, Y]
     TEAL: ecdsa_pk_recover V
@@ -189,7 +200,7 @@ def ecdsa_pk_recover(
 
 def ecdsa_verify(
     v: Ecdsa,
-    a: Bytes | bytes,
+    a: Bytes | bytes | Account,
     b: Bytes | bytes,
     c: Bytes | bytes,
     d: Bytes | bytes,
@@ -200,7 +211,7 @@ def ecdsa_verify(
     for (data A, signature B, C and pubkey D, E) verify the signature of the data against the pubkey => {0 or 1}
     The 32 byte Y-component of a public key is the last element on the stack, preceded by X-component of a pubkey, preceded by S and R components of a signature, preceded by the data that is fifth element on the stack. All values are big-endian encoded. The signed data must be 32 bytes long, and signatures in lower-S form are only accepted.
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A, B, C, D, E] -> [..., X]
     TEAL: ecdsa_verify V
@@ -208,23 +219,23 @@ def ecdsa_verify(
     :param Ecdsa v: curve index
     """
 
-def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
+def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes | Account, /) -> bool:
     """
     for (data A, signature B, pubkey C) verify the signature of ("ProgData" || program_hash || data) against the pubkey => {0 or 1}
     The 32 byte public key is the last element on the stack, preceded by the 64 byte signature at the second-to-last element on the stack, preceded by the data which was signed at the third-to-last element on the stack.
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A, B, C] -> [..., X]
     TEAL: ed25519verify
 
     """
 
-def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
+def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes | Account, /) -> bool:
     """
     for (data A, signature B, pubkey C) verify the signature of the data against the pubkey => {0 or 1}
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A, B, C] -> [..., X]
     TEAL: ed25519verify_bare
@@ -337,7 +348,7 @@ def getbit(a: Bytes | bytes | UInt64 | int, b: UInt64 | int, /) -> UInt64:
     Bth bit of (byte-array or integer) A. If B is greater than or equal to the bit length of the value (8*byte length), the program fails
     see explanation of bit ordering in setbit
 
-    Groups: Arithmetic
+    Groups: Byte Array Manipulation
 
     Stack: [..., A, B] -> [..., X]
     TEAL: getbit
@@ -348,7 +359,7 @@ def getbyte(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
     """
     Bth byte of A, as an integer. If B is greater than or equal to the array length, the program fails
 
-    Groups: Arithmetic
+    Groups: Byte Array Manipulation
 
     Stack: [..., A, B] -> [..., X]
     TEAL: getbyte
@@ -392,7 +403,7 @@ def keccak256(a: Bytes | bytes, /) -> Account:
     """
     Keccak256 hash of value A, yields [32]byte
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A] -> [..., X]
     TEAL: keccak256
@@ -414,7 +425,7 @@ def log(a: Bytes | bytes, /) -> None:
 def min_balance(a: Account | UInt64 | int, /) -> UInt64:
     """
     minimum required balance for account A, in microalgos. Required balance is affected by ASA, App, and Box usage. When creating or opting into an app, the minimum balance grows before the app code runs, therefore the increase is visible there. When deleting or closing out, the minimum balance decreases after the app executes. Changes caused by inner transactions or box usage are observable immediately following the opcode effecting the change.
-    params: Txn.Accounts offset (or, since v4, an _available_ account address). Return: value.
+    params: Txn.Accounts offset (or, since v4, an _available_ account address), _available_ application id (or, since v4, a Txn.ForeignApps offset). Return: value.
 
     Groups: State Access
 
@@ -451,7 +462,7 @@ def setbit_bytes(a: Bytes | bytes | UInt64 | int, b: UInt64 | int, c: UInt64 | i
     Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or equal to the bit length of the value (8*byte length), the program fails
     When A is a uint64, index 0 is the least significant bit. Setting bit 3 to 1 on the integer 0 yields 8, or 2^3. When A is a byte array, index 0 is the leftmost bit of the leftmost byte. Setting bits 0 through 11 to 1 in a 4-byte-array of 0s yields the byte array 0xfff00000. Setting bit 3 to 1 on the 1-byte-array 0x00 yields the byte array 0x10.
 
-    Groups: Arithmetic
+    Groups: Byte Array Manipulation
 
     Stack: [..., A, B, C] -> [..., X]
     TEAL: setbit
@@ -463,7 +474,7 @@ def setbit_uint64(a: Bytes | bytes | UInt64 | int, b: UInt64 | int, c: UInt64 | 
     Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or equal to the bit length of the value (8*byte length), the program fails
     When A is a uint64, index 0 is the least significant bit. Setting bit 3 to 1 on the integer 0 yields 8, or 2^3. When A is a byte array, index 0 is the leftmost bit of the leftmost byte. Setting bits 0 through 11 to 1 in a 4-byte-array of 0s yields the byte array 0xfff00000. Setting bit 3 to 1 on the 1-byte-array 0x00 yields the byte array 0x10.
 
-    Groups: Arithmetic
+    Groups: Byte Array Manipulation
 
     Stack: [..., A, B, C] -> [..., X]
     TEAL: setbit
@@ -474,7 +485,7 @@ def setbyte(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     """
     Copy of A with the Bth byte set to small integer (between 0..255) C. If B is greater than or equal to the array length, the program fails
 
-    Groups: Arithmetic
+    Groups: Byte Array Manipulation
 
     Stack: [..., A, B, C] -> [..., X]
     TEAL: setbyte
@@ -485,7 +496,7 @@ def sha256(a: Bytes | bytes, /) -> Account:
     """
     SHA256 hash of value A, yields [32]byte
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A] -> [..., X]
     TEAL: sha256
@@ -496,7 +507,7 @@ def sha3_256(a: Bytes | bytes, /) -> Bytes:
     """
     SHA3_256 hash of value A, yields [32]byte
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A] -> [..., X]
     TEAL: sha3_256
@@ -507,7 +518,7 @@ def sha512_256(a: Bytes | bytes, /) -> Account:
     """
     SHA512_256 hash of value A, yields [32]byte
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A] -> [..., X]
     TEAL: sha512_256
@@ -559,13 +570,13 @@ def substring(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     """
 
 def vrf_verify(
-    s: VrfVerify, a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /
+    s: VrfVerify, a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes | Account, /
 ) -> tuple[Bytes, bool]:
     """
     Verify the proof B of message A against pubkey C. Returns vrf output and verification flag.
     `VrfAlgorand` is the VRF used in Algorand. It is ECVRF-ED25519-SHA512-Elligator2, specified in the IETF internet draft [draft-irtf-cfrg-vrf-03](https://datatracker.ietf.org/doc/draft-irtf-cfrg-vrf/03/).
 
-    Groups: Arithmetic
+    Groups: Cryptography
 
     Stack: [..., A, B, C] -> [..., X, Y]
     TEAL: vrf_verify S
@@ -1209,7 +1220,7 @@ class Box:
     @staticmethod
     def create(a: Bytes | bytes, b: UInt64 | int, /) -> bool:
         """
-        create a box named A, of length B. Fail if A is empty or B exceeds 32,768. Returns 0 if A already existed, else 1
+        create a box named A, of length B. Fail if the name A is empty or B exceeds 32,768. Returns 0 if A already existed, else 1
         Newly created boxes are filled with 0 bytes. `box_create` will fail if the referenced box already exists with a different size. Otherwise, existing boxes are unchanged by `box_create`.
 
         Groups: Box Access
@@ -1284,6 +1295,29 @@ class Box:
 
         Stack: [..., A, B, C] -> [...]
         TEAL: box_replace
+
+        """
+    @staticmethod
+    def resize(a: Bytes | bytes, b: UInt64 | int, /) -> None:
+        """
+        change the size of box named A to be of length B, adding zero bytes to end or removing bytes from the end, as needed. Fail if the name A is empty, A is not an existing box, or B exceeds 32,768.
+
+        Groups: Box Access
+
+        Stack: [..., A, B] -> [...]
+        TEAL: box_resize
+
+        """
+    @staticmethod
+    def splice(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, d: Bytes | bytes, /) -> None:
+        """
+        set box A to contain its previous bytes up to index B, followed by D, followed by the original bytes of A that began at index B+C.
+        Boxes are of constant length. If C < len(D), then len(D)-C bytes will be removed from the end. If C > len(D), zero bytes will be appended to the end to reach the box length.
+
+        Groups: Box Access
+
+        Stack: [..., A, B, C, D] -> [...]
+        TEAL: box_splice
 
         """
 
@@ -1988,6 +2022,96 @@ class CreateInnerTransaction:
         :param Bytes | bytes a: ClearState Program as an array of pages
         """
 
+class EllipticCurve:
+    @staticmethod
+    def add(g: Ec, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+        """
+        for curve points A and B, return the curve point A + B
+        A and B are curve points in affine representation: field element X concatenated with field element Y. Field element `Z` is encoded as follows.
+        For the base field elements (Fp), `Z` is encoded as a big-endian number and must be lower than the field modulus.
+        For the quadratic field extension (Fp2), `Z` is encoded as the concatenation of the individual encoding of the coefficients. For an Fp2 element of the form `Z = Z0 + Z1 i`, where `i` is a formal quadratic non-residue, the encoding of Z is the concatenation of the encoding of `Z0` and `Z1` in this order. (`Z0` and `Z1` must be less than the field modulus).
+
+        The point at infinity is encoded as `(X,Y) = (0,0)`.
+        Groups G1 and G2 are denoted additively.
+
+        Fails if A or B is not in G.
+        A and/or B are allowed to be the point at infinity.
+        Does _not_ check if A and B are in the main prime-order subgroup.
+
+        Groups: Cryptography
+
+        Stack: [..., A, B] -> [..., X]
+        TEAL: ec_add G
+
+        :param Ec g: curve index
+        """
+    @staticmethod
+    def map_to(g: Ec, a: Bytes | bytes, /) -> Bytes:
+        """
+        maps field element A to group G
+        BN254 points are mapped by the SVDW map. BLS12-381 points are mapped by the SSWU map.
+        G1 element inputs are base field elements and G2 element inputs are quadratic field elements, with nearly the same encoding rules (for field elements) as defined in `ec_add`. There is one difference of encoding rule: G1 element inputs do not need to be 0-padded if they fit in less than 32 bytes for BN254 and less than 48 bytes for BLS12-381. (As usual, the empty byte array represents 0.) G2 elements inputs need to be always have the required size.
+
+        Groups: Cryptography
+
+        Stack: [..., A] -> [..., X]
+        TEAL: ec_map_to G
+
+        :param Ec g: curve index
+        """
+    @staticmethod
+    def scalar_mul_multi(g: Ec, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+        """
+        for curve points A and scalars B, return curve point B0A0 + B1A1 + B2A2 + ... + BnAn
+        A is a list of concatenated points, encoded and checked as described in `ec_add`. B is a list of concatenated scalars which, unlike ec_scalar_mul, must all be exactly 32 bytes long.
+        The name `ec_multi_scalar_mul` was chosen to reflect common usage, but a more consistent name would be `ec_multi_scalar_mul`. AVM values are limited to 4096 bytes, so `ec_multi_scalar_mul` is limited by the size of the points in the group being operated upon.
+
+        Groups: Cryptography
+
+        Stack: [..., A, B] -> [..., X]
+        TEAL: ec_multi_scalar_mul G
+
+        :param Ec g: curve index
+        """
+    @staticmethod
+    def pairing_check(g: Ec, a: Bytes | bytes, b: Bytes | bytes, /) -> bool:
+        """
+        1 if the product of the pairing of each point in A with its respective point in B is equal to the identity element of the target group Gt, else 0
+        A and B are concatenated points, encoded and checked as described in `ec_add`. A contains points of the group G, B contains points of the associated group (G2 if G is G1, and vice versa). Fails if A and B have a different number of points, or if any point is not in its described group or outside the main prime-order subgroup - a stronger condition than other opcodes. AVM values are limited to 4096 bytes, so `ec_pairing_check` is limited by the size of the points in the groups being operated upon.
+
+        Groups: Cryptography
+
+        Stack: [..., A, B] -> [..., X]
+        TEAL: ec_pairing_check G
+
+        :param Ec g: curve index
+        """
+    @staticmethod
+    def scalar_mul(g: Ec, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+        """
+        for curve point A and scalar B, return the curve point BA, the point A multiplied by the scalar B.
+        A is a curve point encoded and checked as described in `ec_add`. Scalar B is interpreted as a big-endian unsigned integer. Fails if B exceeds 32 bytes.
+
+        Groups: Cryptography
+
+        Stack: [..., A, B] -> [..., X]
+        TEAL: ec_scalar_mul G
+
+        :param Ec g: curve index
+        """
+    @staticmethod
+    def subgroup_check(g: Ec, a: Bytes | bytes, /) -> bool:
+        """
+        1 if A is in the main prime-order subgroup of G (including the point at infinity) else 0. Program fails if A is not in G at all.
+
+        Groups: Cryptography
+
+        Stack: [..., A] -> [..., X]
+        TEAL: ec_subgroup_check G
+
+        :param Ec g: curve index
+        """
+
 class Global:
     @staticmethod
     def min_txn_fee() -> UInt64:
@@ -2168,6 +2292,42 @@ class Global:
         TEAL: global F
 
         :returns Account: The application address of the application that called this application. ZeroAddress if this application is at the top-level. Application mode only.
+        """
+    @staticmethod
+    def asset_create_min_balance() -> UInt64:
+        """
+        global field F
+
+        Groups: Loading Values
+
+        Stack: [...] -> [..., X]
+        TEAL: global F
+
+        :returns UInt64: The additional minimum balance required to create (and opt-in to) an asset.
+        """
+    @staticmethod
+    def asset_opt_in_min_balance() -> UInt64:
+        """
+        global field F
+
+        Groups: Loading Values
+
+        Stack: [...] -> [..., X]
+        TEAL: global F
+
+        :returns UInt64: The additional minimum balance required to opt-in to an asset.
+        """
+    @staticmethod
+    def genesis_hash() -> Account:
+        """
+        global field F
+
+        Groups: Loading Values
+
+        Stack: [...] -> [..., X]
+        TEAL: global F
+
+        :returns Account: The Genesis Hash for the network.
         """
 
 class InnerTransaction:
