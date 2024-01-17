@@ -15,24 +15,14 @@ main_on_create@1:
 main_entrypoint@2:
         int 1                                             //                                  1                                                              True                                                           File "conditional_execution/contract.py", line 11
         callsub func_a                                    //                                  {func_a}                                                       self.func_a(True)                                              File "conditional_execution/contract.py", line 11
-        bnz main_bool_true@4                              //                                                                                                 self.func_a(True) or self.func_b(True)                         File "conditional_execution/contract.py", line 11
+        bnz main_bool_merge@6                             //                                                                                                 self.func_a(True) or self.func_b(True)                         File "conditional_execution/contract.py", line 11
         // Implicit fall through to main_or_contd@3       //                                                                                                 self.func_a(True) or self.func_b(True)                         File "conditional_execution/contract.py", line 11
 
 main_or_contd@3:
         int 1                                             //                                  1                                                              True                                                           File "conditional_execution/contract.py", line 11
         callsub func_b                                    //                                  {func_b}                                                       self.func_b(True)                                              File "conditional_execution/contract.py", line 11
-        bz main_bool_false@5                              //                                                                                                 self.func_a(True) or self.func_b(True)                         File "conditional_execution/contract.py", line 11
-        // Implicit fall through to main_bool_true@4      //                                                                                                 self.func_a(True) or self.func_b(True)                         File "conditional_execution/contract.py", line 11
-
-main_bool_true@4:
-        int 1                                             //                                  1
-        pop                                               //
-        b main_bool_merge@6                               //
-
-main_bool_false@5:
-        int 0                                             //                                  0
-        pop                                               //
-        // Implicit fall through to main_bool_merge@6     //
+        pop                                               //                                                                                                 self.func_b(True)                                              File "conditional_execution/contract.py", line 11
+        // Implicit fall through to main_bool_merge@6     //                                                                                                 self.func_a(True) or self.func_b(True)                         File "conditional_execution/contract.py", line 11
 
 main_bool_merge@6:
         int 0                                             //                                  0                                                              self.did_execute_a                                             File "conditional_execution/contract.py", line 13
@@ -62,24 +52,14 @@ main_bool_merge@10:
         callsub assert_and_reset                          //                                                                                 and_result%8#0  self.assert_and_reset(                                         File "conditional_execution/contract.py", line 12
         int 0                                             //                                  0                                                              False                                                          File "conditional_execution/contract.py", line 17
         callsub func_a                                    //                                  {func_a}                                                       self.func_a(False)                                             File "conditional_execution/contract.py", line 17
-        bnz main_bool_true@12                             //                                                                                                 self.func_a(False) or self.func_b(True)                        File "conditional_execution/contract.py", line 17
+        bnz main_bool_merge@14                            //                                                                                                 self.func_a(False) or self.func_b(True)                        File "conditional_execution/contract.py", line 17
         // Implicit fall through to main_or_contd@11      //                                                                                                 self.func_a(False) or self.func_b(True)                        File "conditional_execution/contract.py", line 17
 
 main_or_contd@11:
         int 1                                             //                                  1                                                              True                                                           File "conditional_execution/contract.py", line 17
         callsub func_b                                    //                                  {func_b}                                                       self.func_b(True)                                              File "conditional_execution/contract.py", line 17
-        bz main_bool_false@13                             //                                                                                                 self.func_a(False) or self.func_b(True)                        File "conditional_execution/contract.py", line 17
-        // Implicit fall through to main_bool_true@12     //                                                                                                 self.func_a(False) or self.func_b(True)                        File "conditional_execution/contract.py", line 17
-
-main_bool_true@12:
-        int 1                                             //                                  1
-        pop                                               //
-        b main_bool_merge@14                              //
-
-main_bool_false@13:
-        int 0                                             //                                  0
-        pop                                               //
-        // Implicit fall through to main_bool_merge@14    //
+        pop                                               //                                                                                                 self.func_b(True)                                              File "conditional_execution/contract.py", line 17
+        // Implicit fall through to main_bool_merge@14    //                                                                                                 self.func_a(False) or self.func_b(True)                        File "conditional_execution/contract.py", line 17
 
 main_bool_merge@14:
         int 0                                             //                                  0                                                              self.did_execute_a                                             File "conditional_execution/contract.py", line 19
@@ -109,24 +89,14 @@ main_bool_merge@18:
         callsub assert_and_reset                          //                                                                                 and_result%16#0 self.assert_and_reset(                                         File "conditional_execution/contract.py", line 18
         int 0                                             //                                  0                                                              False                                                          File "conditional_execution/contract.py", line 23
         callsub func_a                                    //                                  {func_a}                                                       self.func_a(False)                                             File "conditional_execution/contract.py", line 23
-        bz main_bool_false@21                             //                                                                                                 self.func_a(False) and self.func_b(True)                       File "conditional_execution/contract.py", line 23
+        bz main_bool_merge@22                             //                                                                                                 self.func_a(False) and self.func_b(True)                       File "conditional_execution/contract.py", line 23
         // Implicit fall through to main_and_contd@19     //                                                                                                 self.func_a(False) and self.func_b(True)                       File "conditional_execution/contract.py", line 23
 
 main_and_contd@19:
         int 1                                             //                                  1                                                              True                                                           File "conditional_execution/contract.py", line 23
         callsub func_b                                    //                                  {func_b}                                                       self.func_b(True)                                              File "conditional_execution/contract.py", line 23
-        bz main_bool_false@21                             //                                                                                                 self.func_a(False) and self.func_b(True)                       File "conditional_execution/contract.py", line 23
-        // Implicit fall through to main_bool_true@20     //                                                                                                 self.func_a(False) and self.func_b(True)                       File "conditional_execution/contract.py", line 23
-
-main_bool_true@20:
-        int 1                                             //                                  1
-        pop                                               //
-        b main_bool_merge@22                              //
-
-main_bool_false@21:
-        int 0                                             //                                  0
-        pop                                               //
-        // Implicit fall through to main_bool_merge@22    //
+        pop                                               //                                                                                                 self.func_b(True)                                              File "conditional_execution/contract.py", line 23
+        // Implicit fall through to main_bool_merge@22    //                                                                                                 self.func_a(False) and self.func_b(True)                       File "conditional_execution/contract.py", line 23
 
 main_bool_merge@22:
         int 0                                             //                                  0                                                              self.did_execute_a                                             File "conditional_execution/contract.py", line 25
@@ -156,24 +126,14 @@ main_bool_merge@26:
         callsub assert_and_reset                          //                                                                                 and_result%24#0 self.assert_and_reset(                                         File "conditional_execution/contract.py", line 24
         int 1                                             //                                  1                                                              True                                                           File "conditional_execution/contract.py", line 29
         callsub func_a                                    //                                  {func_a}                                                       self.func_a(True)                                              File "conditional_execution/contract.py", line 29
-        bz main_bool_false@29                             //                                                                                                 self.func_a(True) and self.func_b(True)                        File "conditional_execution/contract.py", line 29
+        bz main_bool_merge@30                             //                                                                                                 self.func_a(True) and self.func_b(True)                        File "conditional_execution/contract.py", line 29
         // Implicit fall through to main_and_contd@27     //                                                                                                 self.func_a(True) and self.func_b(True)                        File "conditional_execution/contract.py", line 29
 
 main_and_contd@27:
         int 1                                             //                                  1                                                              True                                                           File "conditional_execution/contract.py", line 29
         callsub func_b                                    //                                  {func_b}                                                       self.func_b(True)                                              File "conditional_execution/contract.py", line 29
-        bz main_bool_false@29                             //                                                                                                 self.func_a(True) and self.func_b(True)                        File "conditional_execution/contract.py", line 29
-        // Implicit fall through to main_bool_true@28     //                                                                                                 self.func_a(True) and self.func_b(True)                        File "conditional_execution/contract.py", line 29
-
-main_bool_true@28:
-        int 1                                             //                                  1
-        pop                                               //
-        b main_bool_merge@30                              //
-
-main_bool_false@29:
-        int 0                                             //                                  0
-        pop                                               //
-        // Implicit fall through to main_bool_merge@30    //
+        pop                                               //                                                                                                 self.func_b(True)                                              File "conditional_execution/contract.py", line 29
+        // Implicit fall through to main_bool_merge@30    //                                                                                                 self.func_a(True) and self.func_b(True)                        File "conditional_execution/contract.py", line 29
 
 main_bool_merge@30:
         int 0                                             //                                  0                                                              self.did_execute_a                                             File "conditional_execution/contract.py", line 31

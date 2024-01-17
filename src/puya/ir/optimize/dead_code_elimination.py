@@ -78,7 +78,9 @@ class UnusedRegisterCollector(visitor.IRTraverser):
         ass.source.accept(self)
 
     def visit_phi(self, phi: models.Phi) -> None:
-        super().visit_phi(phi)
+        # don't visit phi.register, as this would mean the phi can never be considered unused
+        for arg in phi.args:
+            arg.accept(self)
         self.assigned[phi.register] = (self.active_block, phi)
 
     def visit_register(self, reg: models.Register) -> None:
