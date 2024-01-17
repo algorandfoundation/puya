@@ -84,7 +84,7 @@ def emit_memory_ir_as_teal(
             annotater.header(writer)
 
         writer.new_line()
-    writer.append_line("#pragma version 8")
+    writer.append_line(f"#pragma version {context.options.target_avm_version}")
     writer.new_line()
 
     for subroutine in subroutines:

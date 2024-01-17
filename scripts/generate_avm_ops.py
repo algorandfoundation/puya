@@ -166,6 +166,7 @@ def generate_op_node(
         immediate_types=immediate_types,
         signature=signature,
         cost=cost,
+        min_avm_version=op.min_avm_version,
     )
     yield f"{op_name} = {data!r}"
     if op.doc:
@@ -212,6 +213,7 @@ class AVMOp(enum.StrEnum):
     immediate_types: Sequence[ImmediateKind]
     _signature: OpSignature | DynamicSignatures
     cost: int | None
+    min_avm_version: int
 
     def __new__(cls, data: AVMOpData | str) -> "AVMOp":
         # the weird union type on data && then assert,
@@ -225,6 +227,7 @@ class AVMOp(enum.StrEnum):
         obj.immediate_types = tuple(data.immediate_types)
         obj._signature = data.signature  # noqa: SLF001
         obj.cost = data.cost
+        obj.min_avm_version = data.min_avm_version
         return obj
 
     def get_signature(self, immediates: Sequence[str | int]) -> OpSignature:

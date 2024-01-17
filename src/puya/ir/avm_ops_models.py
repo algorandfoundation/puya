@@ -47,3 +47,4 @@ class AVMOpData:
     signature: OpSignature | DynamicSignatures
     immediate_types: Sequence[ImmediateKind] = attrs.field(default=())
     cost: int | None
+    min_avm_version: int

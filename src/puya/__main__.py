@@ -89,6 +89,7 @@ def main() -> None:
         type=LogLevel.from_string,
         choices=list(LogLevel),
     )
+    parser.add_argument("--target-avm-version", type=int, choices=[8, 9, 10])
 
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
     options = PuyaOptions()
