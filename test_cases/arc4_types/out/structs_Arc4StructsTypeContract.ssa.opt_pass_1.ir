@@ -7,8 +7,8 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 let encoded_tuple_buffer%3#1: bytes = (concat 0x 0x000000083cfbf217)
                 let coord_2#0: bytes = (concat encoded_tuple_buffer%3#1 0x000000230384b842)
                 let coord_3#0: bytes = test_cases.arc4_types.structs.add(coord_1#0, coord_2#0)
-                let val#0: bytes = (extract3 coord_3#0 0u 8u)
-                let val#1: bytes = (extract3 coord_3#0 8u 8u)
+                let val#0: bytes = ((extract 0 8) coord_3#0)
+                let val#1: bytes = ((extract 8 8) coord_3#0)
                 let tuple_index%6#0: uint64 = 0u
                 goto block@3
             block@2: // for_header_1_L30
@@ -36,15 +36,15 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
         
         subroutine test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes:
             block@0: // L46
-                let tmp%0#0: bytes = (extract3 v1#0 0u 8u)
+                let tmp%0#0: bytes = ((extract 0 8) v1#0)
                 let tmp%1#0: uint64 = (btoi tmp%0#0)
-                let tmp%2#0: bytes = (extract3 v2#0 0u 8u)
+                let tmp%2#0: bytes = ((extract 0 8) v2#0)
                 let tmp%3#0: uint64 = (btoi tmp%2#0)
                 let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
                 let val_as_bytes%5#0: bytes = (itob tmp%4#0)
-                let tmp%6#0: bytes = (extract3 v1#0 8u 8u)
+                let tmp%6#0: bytes = ((extract 8 8) v1#0)
                 let tmp%7#0: uint64 = (btoi tmp%6#0)
-                let tmp%8#0: bytes = (extract3 v2#0 8u 8u)
+                let tmp%8#0: bytes = ((extract 8 8) v2#0)
                 let tmp%9#0: uint64 = (btoi tmp%8#0)
                 let tmp%10#0: uint64 = (+ tmp%7#0 tmp%9#0)
                 let val_as_bytes%11#0: bytes = (itob tmp%10#0)
@@ -76,12 +76,12 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
         
         subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> void:
             block@0: // L62
-                let tmp%0#0: bytes = (extract3 vector_flags#0 0u 16u)
-                let tmp%1#0: bytes = (extract3 tmp%0#0 0u 8u)
+                let tmp%0#0: bytes = ((extract 0 16) vector_flags#0)
+                let tmp%1#0: bytes = ((extract 0 8) tmp%0#0)
                 let tmp%2#0: uint64 = (btoi tmp%1#0)
                 let tmp%3#0: uint64 = (== tmp%2#0 35382882839u)
                 (assert tmp%3#0)
-                let tmp%4#0: bytes = (extract3 vector_flags#0 16u 1u)
+                let tmp%4#0: bytes = ((extract 16 1) vector_flags#0)
                 let is_true%5#0: uint64 = (getbit tmp%4#0 2u)
                 let tmp%6#0: any = (setbit 0x00 0u is_true%5#0)
                 let tmp%7#0: uint64 = (getbit tmp%6#0 0u)
