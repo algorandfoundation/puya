@@ -2,19 +2,18 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst_build.validation.awst_traverser import AwstTraverser
+from puya.awst_build.validation.awst_traverser import AWSTTraverser
 from puya.context import CompileContext
 
 
-def validate_arc4_copy_semantics(
-    context: CompileContext, module_asts: dict[str, awst_nodes.Module]
-) -> None:
-    for module in module_asts.values():
-        for module_statement in module.body:
-            Arc4CopyValidator.validate(context, module_statement)
+class ARC4CopyValidator(AWSTTraverser):
+    @classmethod
+    def validate(cls, context: CompileContext, module_asts: dict[str, awst_nodes.Module]) -> None:
+        validator = cls(context)
+        for module in module_asts.values():
+            for module_statement in module.body:
+                module_statement.accept(validator)
 
-
-class Arc4CopyValidator(AwstTraverser):
     def __init__(self, context: CompileContext) -> None:
         self._context = context
 
@@ -26,15 +25,13 @@ class Arc4CopyValidator(AwstTraverser):
         match expr.wtype:
             case wtypes.ARC4Array() | wtypes.ARC4Struct():
                 match expr:
-                    case awst_nodes.ARC4ArrayEncode():
-                        return
-                    case awst_nodes.ARC4Encode():
-                        return
-                    case awst_nodes.Copy():
-                        return
-                    case awst_nodes.ArrayConcat():
-                        return
-                    case awst_nodes.SubroutineCallExpression():
+                    case (
+                        awst_nodes.ARC4ArrayEncode()
+                        | awst_nodes.ARC4Encode()
+                        | awst_nodes.Copy()
+                        | awst_nodes.ArrayConcat()
+                        | awst_nodes.SubroutineCallExpression()
+                    ):
                         return
 
                 self._context.errors.error(
@@ -51,10 +48,3 @@ class Arc4CopyValidator(AwstTraverser):
         super().visit_subroutine_call_expression(expr)
         for arg in expr.args:
             self._check_for_arc4_copy(arg.value)
-
-    @classmethod
-    def validate(
-        cls, context: CompileContext, module_statement: awst_nodes.ModuleStatement
-    ) -> None:
-        validator = cls(context)
-        module_statement.accept(validator)

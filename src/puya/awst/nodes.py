@@ -8,7 +8,6 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
-from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.awst import wtypes
 from puya.awst.visitors import (
     ExpressionVisitor,
@@ -1226,27 +1225,6 @@ class AppStateDefinition(Node):
     storage_wtype: WType
 
 
-@attrs.frozen(init=False)
-class ScratchSpaceReservation(Node):
-    start_slot: int
-    stop_slot: int
-
-    def __init__(self, start_slot: int, stop_slot: int, source_location: SourceLocation) -> None:
-        if start_slot >= stop_slot:
-            raise CodeError("Reservation must contain at least 1 slot", source_location)
-        if not (
-            (0 <= start_slot <= MAX_SCRATCH_SLOT_NUMBER)
-            and (1 <= stop_slot <= (MAX_SCRATCH_SLOT_NUMBER + 1))
-        ):
-            raise CodeError(
-                f"Reserved scratch slots must be between 0 and {MAX_SCRATCH_SLOT_NUMBER} ",
-                source_location,
-            )
-        self.__attrs_init__(
-            start_slot=start_slot, stop_slot=stop_slot, source_location=source_location
-        )
-
-
 @attrs.frozen
 class ContractFragment(ModuleStatement):
     # note: it's a fragment because it needs to be stitched together with bases,
@@ -1261,7 +1239,7 @@ class ContractFragment(ModuleStatement):
     clear_program: ContractMethod | None = attrs.field()
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
     app_state: Sequence[AppStateDefinition] = attrs.field(converter=tuple[AppStateDefinition, ...])
-    reserved_scratch_space: StableSet[ScratchSpaceReservation] = attrs.field()
+    reserved_scratch_space: StableSet[int] = attrs.field()
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
     symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)

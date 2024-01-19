@@ -1,4 +1,5 @@
 import typing as t
+from collections.abc import Iterable
 
 import mypy.nodes
 import mypy.types
@@ -11,7 +12,6 @@ from puya.awst.nodes import (
     ConstantValue,
     Module,
     ModuleStatement,
-    ScratchSpaceReservation,
     StructureDefinition,
     StructureField,
 )
@@ -28,6 +28,7 @@ from puya.awst_build.utils import (
     get_decorators_by_fullname,
 )
 from puya.errors import CodeError, InternalError
+from puya.parse import SourceLocation
 from puya.utils import StableSet
 
 logger = structlog.get_logger()
@@ -153,32 +154,31 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             # TODO: other checks above?
             else:
                 name_override: str | None = None
-                scratch_slot_reservations = StableSet[ScratchSpaceReservation]()
+                scratch_slot_reservations = StableSet[int]()
                 for kw_name, kw_expr in cdef.keywords.items():
                     with self.context.log_exceptions(kw_expr):
-                        if kw_name == "scratch_slots":
-                            # Handle scratch slot ranges
-                            match kw_expr:
-                                case mypy.nodes.TupleExpr(items=tuple_items):
-                                    for item in tuple_items:
-                                        scratch_slot_reservations.add(
-                                            self._map_scratch_space_reservation(item)
-                                        )
-                                    continue
-                                case _:
-                                    raise CodeError(
+                        match kw_name:
+                            case "name":
+                                name_value = kw_expr.accept(self)
+                                if isinstance(name_value, str):
+                                    name_override = name_value
+                                else:
+                                    self._error("Invalid type for name=", kw_expr)
+                            case "scratch_slots":
+                                if not isinstance(kw_expr, mypy.nodes.TupleExpr):
+                                    self._error(
                                         "scratch_slots should be a tuple of slot numbers or "
                                         "slot number ranges",
-                                        self._location(kw_expr),
+                                        kw_expr,
                                     )
-
-                        kw_value = kw_expr.accept(self)
-                        match kw_name, kw_value:
-                            case "name", str(name_value):
-                                name_override = name_value
-                            case "name", _:
-                                self._error("Invalid type for name=", kw_expr)
-                            case _, _:
+                                else:
+                                    for item in kw_expr.items:
+                                        scratch_slot_reservations |= (
+                                            _map_scratch_space_reservation(
+                                                item, self._location(item)
+                                            )
+                                        )
+                            case _:
                                 self._error("Unrecognised class keyword", kw_expr)
 
                 self._statements.append(
@@ -192,44 +192,6 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 f" or a direct subclass of {constants.STRUCT_BASE_ALIAS}",
                 location=cdef,
             )
-
-    def _map_scratch_space_reservation(
-        self, expr: mypy.nodes.Expression
-    ) -> ScratchSpaceReservation:
-        source_location = self._location(expr)
-        match expr:
-            case mypy.nodes.IntExpr(value):
-                return ScratchSpaceReservation(
-                    start_slot=value,
-                    stop_slot=value + 1,
-                    source_location=source_location,
-                )
-            case mypy.nodes.CallExpr(
-                callee=mypy.nodes.NameExpr(fullname=constants.URANGE), args=args
-            ):
-                match args:
-                    case [mypy.nodes.IntExpr(value=stop)]:
-                        return ScratchSpaceReservation(
-                            start_slot=0,
-                            stop_slot=stop,
-                            source_location=source_location,
-                        )
-                    case [mypy.nodes.IntExpr(value=start), mypy.nodes.IntExpr(value=stop)]:
-                        return ScratchSpaceReservation(
-                            start_slot=start,
-                            stop_slot=stop,
-                            source_location=source_location,
-                        )
-                    case [_, _, _]:
-                        raise CodeError(
-                            "Stride is not supported when specifying ranges of reserved scratch "
-                            "slots"
-                        )
-                    case _:
-                        raise CodeError("Unexpected arguments for urange")
-
-            case _:
-                raise CodeError("Unexpected value: Expected int literal or urange expression")
 
     def _process_arc4_struct(self, cdef: mypy.nodes.ClassDef) -> None:
         field_types = dict[str, wtypes.WType]()
@@ -621,3 +583,30 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
 
     def visit_lambda_expr(self, expr: mypy.nodes.LambdaExpr) -> ConstantValue:
         return self._unsupported(expr)
+
+
+def _map_scratch_space_reservation(
+    expr: mypy.nodes.Expression, source_location: SourceLocation
+) -> Iterable[int]:
+    match expr:
+        case mypy.nodes.IntExpr(value):
+            return [value]
+        case mypy.nodes.CallExpr(callee=mypy.nodes.NameExpr(fullname=constants.URANGE), args=args):
+            match args:
+                case [mypy.nodes.IntExpr(value=stop)]:
+                    return range(stop)
+                case [mypy.nodes.IntExpr(value=start), mypy.nodes.IntExpr(value=stop)]:
+                    return range(start, stop)
+                case [
+                    mypy.nodes.IntExpr(value=start),
+                    mypy.nodes.IntExpr(value=stop),
+                    mypy.nodes.IntExpr(value=step),
+                ]:
+                    return range(start, stop, step)
+                case _:
+                    raise CodeError("Unexpected arguments for urange", source_location)
+
+        case _:
+            raise CodeError(
+                "Unexpected value: Expected int literal or urange expression", source_location
+            )

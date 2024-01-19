@@ -1,11 +1,9 @@
-from puya.awst import (
-    nodes as awst_nodes,
-)
+from puya.awst import nodes as awst_nodes
 from puya.awst.function_traverser import FunctionTraverser
 from puya.awst.visitors import ModuleStatementVisitor
 
 
-class AwstTraverser(FunctionTraverser, ModuleStatementVisitor[None]):
+class AWSTTraverser(FunctionTraverser, ModuleStatementVisitor[None]):
     def visit_subroutine(self, statement: awst_nodes.Subroutine) -> None:
         statement.body.accept(self)
 

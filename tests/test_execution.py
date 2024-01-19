@@ -838,7 +838,11 @@ def test_enumeration(harness: _TestHarness) -> None:
 
 
 def test_scratch_slots(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "scratch_slots", AppCallRequest())
+    harness.deploy(TEST_CASES_DIR / "scratch_slots" / "contract.py", AppCallRequest())
+
+
+def test_scratch_slots_inheritance(harness: _TestHarness) -> None:
+    harness.deploy(TEST_CASES_DIR / "scratch_slots" / "contract2.py", AppCallRequest())
 
 
 def test_bytes_stubs(harness: _TestHarness) -> None:

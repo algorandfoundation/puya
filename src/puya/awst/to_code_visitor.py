@@ -1,5 +1,6 @@
 import base64
 import typing as t
+from collections.abc import Iterable
 
 from puya.awst import nodes, wtypes
 from puya.awst.nodes import AppStateKind
@@ -194,14 +195,7 @@ class ToCodeVisitor(
             body.extend(
                 [
                     "reserved_scratch_space {",
-                    *_indent(
-                        [
-                            ", ".join(
-                                self._visit_scratch_space_reservation(x)
-                                for x in c.reserved_scratch_space
-                            )
-                        ]
-                    ),
+                    *_indent([", ".join(_collapse_sequential_ranges(c.reserved_scratch_space))]),
                     "}",
                 ]
             )
@@ -238,12 +232,6 @@ class ToCodeVisitor(
             *_indent(body),
             "}",
         ]
-
-    def _visit_scratch_space_reservation(self, node: nodes.ScratchSpaceReservation) -> str:
-        if node.start_slot + 1 == node.stop_slot:
-            return f"{node.start_slot}"
-        else:
-            return f"{node.start_slot}:{node.stop_slot - 1}"
 
     def visit_contract_init(self, statement: nodes.ContractMethod) -> list[str]:
         body = statement.body.accept(self)
@@ -511,3 +499,17 @@ def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:
 
 def bytes_str(b: bytes) -> str:
     return repr(b)[1:]
+
+
+def _collapse_sequential_ranges(nums: Iterable[int]) -> Iterable[str]:
+    ranges = list[tuple[int, int]]()
+    for num in sorted(nums):
+        if ranges and num == ranges[-1][1] + 1:
+            ranges[-1] = (ranges[-1][0], num)
+        else:
+            ranges.append((num, num))
+    for start, stop in ranges:
+        if start == stop:
+            yield str(start)
+        else:
+            yield f"{start}..{stop}"

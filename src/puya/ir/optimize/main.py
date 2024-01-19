@@ -10,9 +10,7 @@ from puya.ir import models
 from puya.ir.optimize.arithmetic import arithmetic_simplification
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
-from puya.ir.optimize.constant_propagation import (
-    constant_replacer,
-)
+from puya.ir.optimize.constant_propagation import constant_replacer
 from puya.ir.optimize.control_op_simplification import simplify_control_ops
 from puya.ir.optimize.dead_code_elimination import (
     remove_unreachable_blocks,
