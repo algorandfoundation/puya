@@ -49,5 +49,5 @@ class Arc4BoolTypeContract(Contract):
 
         assert not false.decode()
 
-        assert true == ARC4Bool.encode(true.decode())
-        assert false == ARC4Bool.encode(false.decode())
+        assert true == ARC4Bool(true.decode())
+        assert false == ARC4Bool(false.decode())

@@ -18,14 +18,14 @@ contract VotingRoundApp
     ['is_bootstrapped']: bool
     ['voter_count']: puyapy.UInt64
     ['close_time']: puyapy.UInt64
-    ['nft_asset_id']: puyapy.UInt64
-    ['snapshot_public_key']: puyapy.Bytes
     ['vote_id']: puyapy.Bytes
+    ['snapshot_public_key']: puyapy.Bytes
     ['metadata_ipfs_cid']: puyapy.Bytes
     ['start_time']: puyapy.UInt64
     ['end_time']: puyapy.UInt64
     ['quorum']: puyapy.UInt64
     ['nft_image_url']: puyapy.Bytes
+    ['nft_asset_id']: puyapy.UInt64
     ['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]
     ['total_options']: puyapy.UInt64
   }
@@ -34,36 +34,18 @@ contract VotingRoundApp
   {
     this.globals['is_bootstrapped']: bool = false
     this.globals['voter_count']: puyapy.UInt64 = 0u
-    this.globals['close_time']: puyapy.UInt64 = 0u
-    this.globals['nft_asset_id']: puyapy.UInt64 = 0u
-    this.globals['snapshot_public_key']: puyapy.Bytes = ''
-    this.globals['vote_id']: puyapy.Bytes = ''
-    this.globals['metadata_ipfs_cid']: puyapy.Bytes = ''
-    this.globals['start_time']: puyapy.UInt64 = 0u
-    this.globals['end_time']: puyapy.UInt64 = 0u
-    this.globals['quorum']: puyapy.UInt64 = 0u
-    this.globals['nft_image_url']: puyapy.Bytes = ''
-    this.globals['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = arc4_array_encode([], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])
-    this.globals['total_options']: puyapy.UInt64 = 0u
   }
   
-  clear_state_program(): bool
+  abimethod create(vote_id: puyapy.arc4.String, snapshot_public_key: puyapy.Bytes, metadata_ipfs_cid: puyapy.arc4.String, start_time: puyapy.UInt64, end_time: puyapy.UInt64, option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]], quorum: puyapy.UInt64, nft_image_url: puyapy.arc4.String): None
   {
-    return true
-  }
-  
-  abimethod create(vote_id: puyapy.arc4.String, snapshot_public_key: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]], metadata_ipfs_cid: puyapy.arc4.String, start_time: puyapy.arc4.UIntN[typing.Literal[64]], end_time: puyapy.arc4.UIntN[typing.Literal[64]], option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]], quorum: puyapy.arc4.UIntN[typing.Literal[64]], nft_image_url: puyapy.arc4.String): None
-  {
-    st: puyapy.UInt64 = arc4_decode(start_time, puyapy.UInt64)
-    et: puyapy.UInt64 = arc4_decode(end_time, puyapy.UInt64)
-    assert(st < et, comment="End time should be after start time")
-    assert(et >= global<LatestTimestamp>(), comment="End time should be in the future")
+    assert(start_time < end_time, comment="End time should be after start time")
+    assert(end_time >= global<LatestTimestamp>(), comment="End time should be in the future")
     this.globals['vote_id']: puyapy.Bytes = arc4_decode(vote_id, puyapy.Bytes)
-    this.globals['snapshot_public_key']: puyapy.Bytes = reinterpret_cast<puyapy.Bytes>(snapshot_public_key)[(2u < tmp$0: puyapy.UInt64 := len(reinterpret_cast<puyapy.Bytes>(snapshot_public_key))) ? (2u) : (tmp$0):]
+    this.globals['snapshot_public_key']: puyapy.Bytes = snapshot_public_key
     this.globals['metadata_ipfs_cid']: puyapy.Bytes = arc4_decode(metadata_ipfs_cid, puyapy.Bytes)
-    this.globals['start_time']: puyapy.UInt64 = st
-    this.globals['end_time']: puyapy.UInt64 = et
-    this.globals['quorum']: puyapy.UInt64 = arc4_decode(quorum, puyapy.UInt64)
+    this.globals['start_time']: puyapy.UInt64 = start_time
+    this.globals['end_time']: puyapy.UInt64 = end_time
+    this.globals['quorum']: puyapy.UInt64 = quorum
     this.globals['nft_image_url']: puyapy.Bytes = arc4_decode(nft_image_url, puyapy.Bytes)
     this::store_option_counts(option_counts.copy())
   }
@@ -72,28 +54,37 @@ contract VotingRoundApp
   {
     assert(!(this.globals['is_bootstrapped']), comment="Must not be already bootstrapped")
     this.globals['is_bootstrapped']: bool = true
-    bytes_per_option: puyapy.UInt64 = 8u
-    box_cost: puyapy.UInt64 = 2900u + this.globals['total_options'] * 400u * bytes_per_option
-    min_balance_req: puyapy.UInt64 = 201000u + box_cost
     assert(gtxns<Receiver>(fund_min_bal_req) == global<CurrentApplicationAddress>(), comment="Payment must be to app address")
+    tally_box_size: puyapy.UInt64 = this.globals['total_options'] * 8u
+    min_balance_req: puyapy.UInt64 = 203900u + tally_box_size * 400u
     log(itob(min_balance_req))
     assert(gtxns<Amount>(fund_min_bal_req) == min_balance_req, comment="Payment must be for the exact min balance requirement")
-    assert(box_create('V', this.globals['total_options'] * 8u))
+    assert(box_create('V', tally_box_size))
   }
   
   abimethod close(): None
   {
     puyapy::ensure_budget(required_budget=20000u, fee_source=0u)
-    assert(this.globals['close_time'] == 0u, comment="Already closed")
+    assert(!(app_global_get_ex(0u, 'close_time')[1]), comment="Already closed")
     this.globals['close_time']: puyapy.UInt64 = global<LatestTimestamp>()
-    note: puyapy.Bytes = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + this.globals['vote_id'] + '.","properties":{"metadata":"ipfs://' + this.globals['metadata_ipfs_cid'] + '","id":"' + this.globals['vote_id'] + '","quorum":' + itob(this.globals['quorum']) + ',"voterCount":' + itob(this.globals['voter_count']) + ',"tallies":['
+    note: puyapy.Bytes = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + this.globals['vote_id'] + '.","properties":{"metadata":"ipfs://' + this.globals['metadata_ipfs_cid'] + '","id":"' + this.globals['vote_id'] + '","quorum":' + examples.voting.voting::itoa(this.globals['quorum']) + ',"voterCount":' + examples.voting.voting::itoa(this.globals['voter_count']) + ',"tallies":['
     current_index: puyapy.UInt64 = 0u
-    for question_index in range(0u, extract_uint16(this.globals['option_counts'], 0u), 1u) {
-      question_options: puyapy.UInt64 = arc4_decode(this.globals['option_counts'][question_index], puyapy.UInt64)
-      for option_index in range(0u, question_options, 1u) {
-        votes_for_option: puyapy.UInt64 = examples.voting.voting::get_vote_from_box(current_index)
-        note += (option_index == 0u) ? ('[') : ((option_index == question_options - 1u) ? ('' + itob(votes_for_option) + ']') : ((question_index == extract_uint16(this.globals['option_counts'], 0u) - 1u) ? (',') : ('')))
-        current_index += 1u
+    for (question_index, question_options_arc) in enumerate(this.globals['option_counts']) {
+      if (question_index > 0u) {
+        note += ','
+      }
+      question_options: puyapy.UInt64 = arc4_decode(question_options_arc, puyapy.UInt64)
+      if (question_options > 0u) {
+        note += '['
+        for option_index in range(0u, question_options, 1u) {
+          if (option_index > 0u) {
+            note += ','
+          }
+          votes_for_option: puyapy.UInt64 = examples.voting.voting::get_vote_from_box(current_index)
+          note += examples.voting.voting::itoa(votes_for_option)
+          current_index += 1u
+        }
+        note += ']'
       }
     }
     note += ']}}'
@@ -112,13 +103,13 @@ contract VotingRoundApp
   
   abimethod get_preconditions(signature: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): examples.voting.voting.VotingPreconditions
   {
-    return arc4_encode((arc4_encode(this::voting_open(), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::allowed_to_vote(reinterpret_cast<puyapy.Bytes>(signature)[(2u < tmp$1: puyapy.UInt64 := len(reinterpret_cast<puyapy.Bytes>(signature))) ? (2u) : (tmp$1):]), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::already_voted(), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(global<LatestTimestamp>(), puyapy.arc4.UIntN[typing.Literal[64]])), examples.voting.voting.VotingPreconditions)
+    return arc4_encode((arc4_encode(this::voting_open(), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::allowed_to_vote(reinterpret_cast<puyapy.Bytes>(signature)[(2u < tmp$0: puyapy.UInt64 := len(reinterpret_cast<puyapy.Bytes>(signature))) ? (2u) : (tmp$0):]), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::already_voted(), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(global<LatestTimestamp>(), puyapy.arc4.UIntN[typing.Literal[64]])), examples.voting.voting.VotingPreconditions)
   }
   
-  abimethod vote(fund_min_bal_req: puyapy.PaymentTransaction, signature: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]], answer_ids: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): None
+  abimethod vote(fund_min_bal_req: puyapy.PaymentTransaction, signature: puyapy.Bytes, answer_ids: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): None
   {
     puyapy::ensure_budget(required_budget=7700u, fee_source=0u)
-    assert(this::allowed_to_vote(reinterpret_cast<puyapy.Bytes>(signature)[(2u < tmp$2: puyapy.UInt64 := len(reinterpret_cast<puyapy.Bytes>(signature))) ? (2u) : (tmp$2):]), comment="Not allowed to vote")
+    assert(this::allowed_to_vote(signature), comment="Not allowed to vote")
     assert(this::voting_open(), comment="Voting not open")
     assert(!(this::already_voted()), comment="Already voted")
     questions_count: puyapy.UInt64 = extract_uint16(this.globals['option_counts'], 0u)
@@ -129,11 +120,11 @@ contract VotingRoundApp
     assert(gtxns<Amount>(fund_min_bal_req) == min_bal_req, comment="Payment must be the exact min balance")
     cumulative_offset: puyapy.UInt64 = 0u
     for question_index in range(0u, questions_count, 1u) {
-      answer_option_index: puyapy.arc4.UIntN[typing.Literal[8]] = answer_ids[question_index]
-      options_count: puyapy.arc4.UIntN[typing.Literal[8]] = this.globals['option_counts'][question_index]
-      assert(arc4_decode(answer_option_index, puyapy.UInt64) < arc4_decode(options_count, puyapy.UInt64), comment="Answer option index invalid")
-      examples.voting.voting::increment_vote_in_box(cumulative_offset + arc4_decode(answer_option_index, puyapy.UInt64))
-      cumulative_offset += arc4_decode(options_count, puyapy.UInt64)
+      answer_option_index: puyapy.UInt64 = arc4_decode(answer_ids[question_index], puyapy.UInt64)
+      options_count: puyapy.UInt64 = arc4_decode(this.globals['option_counts'][question_index], puyapy.UInt64)
+      assert(answer_option_index < options_count, comment="Answer option index invalid")
+      examples.voting.voting::increment_vote_in_box(cumulative_offset + answer_option_index)
+      cumulative_offset += options_count
       box_put(reinterpret_cast<puyapy.Bytes>(txn<Sender>()), reinterpret_cast<puyapy.Bytes>(answer_ids))
       this.globals['voter_count'] += 1u
     }
@@ -141,7 +132,7 @@ contract VotingRoundApp
   
   subroutine voting_open(): bool
   {
-    return this.globals['is_bootstrapped'] and !(reinterpret_cast<bool>(this.globals['close_time'])) and this.globals['start_time'] <= tmp$3: puyapy.UInt64 := global<LatestTimestamp>() and tmp$3 <= this.globals['end_time']
+    return this.globals['is_bootstrapped'] and !(app_global_get_ex(0u, 'close_time')[1]) and this.globals['start_time'] <= tmp$1: puyapy.UInt64 := global<LatestTimestamp>() and tmp$1 <= this.globals['end_time']
   }
   
   subroutine already_voted(): bool
@@ -154,19 +145,13 @@ contract VotingRoundApp
   {
     assert(reinterpret_cast<bool>(extract_uint16(option_counts, 0u)), comment="option_counts should be non-empty")
     assert(extract_uint16(option_counts, 0u) <= 112u, comment="Can't have more than 112 questions")
-    this.globals['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = option_counts.copy()
-    total_options: puyapy.UInt64 = this::calculate_total_options_count(option_counts.copy())
-    assert(total_options <= 128u, comment="Can't have more than 128 vote options")
-    this.globals['total_options']: puyapy.UInt64 = total_options
-  }
-  
-  subroutine calculate_total_options_count(option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): puyapy.UInt64
-  {
-    total: puyapy.UInt64 = 0u
+    total_options: puyapy.UInt64 = 0u
     for item in option_counts {
-      total += arc4_decode(item, puyapy.UInt64)
+      total_options += arc4_decode(item, puyapy.UInt64)
     }
-    return total
+    assert(total_options <= 128u, comment="Can't have more than 128 vote options")
+    this.globals['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = option_counts.copy()
+    this.globals['total_options']: puyapy.UInt64 = total_options
   }
   
   subroutine allowed_to_vote(signature: puyapy.Bytes): bool
@@ -189,4 +174,14 @@ subroutine increment_vote_in_box(index: puyapy.UInt64): None
   assert(exists, comment="Box not created")
   current_vote: puyapy.UInt64 = btoi(extract3(box_data, index, 8u))
   box_replace('V', index, itob(current_vote + 1u))
+}
+
+subroutine itoa(i: puyapy.UInt64): puyapy.Bytes
+{
+  digits: puyapy.Bytes = '0123456789'
+  radix: puyapy.UInt64 = len(digits)
+  if (i < radix) {
+    return digits[i]
+  }
+  return examples.voting.voting::itoa(i // radix) + digits[i % radix]
 }

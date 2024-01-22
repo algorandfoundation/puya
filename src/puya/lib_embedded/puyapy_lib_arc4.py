@@ -27,7 +27,7 @@ def dynamic_array_pop_bit(source: Bytes) -> tuple[Bytes, Bytes]:
     length_minus_1 = array_length - 1
     source = replace(source, 0, substring(itob(length_minus_1), 6, 8))
     popped_location = length_minus_1 + 16
-    popped = setbit_bytes(Bytes(b"\x00"), 0, getbit(source, popped_location))
+    popped = setbit_bytes(b"\x00", 0, getbit(source, popped_location))
     source = setbit_bytes(source, popped_location, 0)
     source = substring(source, 0, 2 + ((length_minus_1 + 7) // 8))
     return popped, source

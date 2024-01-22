@@ -32,11 +32,15 @@ main_create_route@4:
         assert // is creating
         txna ApplicationArgs 1
         txna ApplicationArgs 2
+        extract 2 0
         txna ApplicationArgs 3
         txna ApplicationArgs 4
+        btoi
         txna ApplicationArgs 5
+        btoi
         txna ApplicationArgs 6
         txna ApplicationArgs 7
+        btoi
         txna ApplicationArgs 8
         callsub create
         int 1
@@ -100,6 +104,7 @@ main_vote_route@8:
         ==
         assert // transaction type is pay
         txna ApplicationArgs 1
+        extract 2 0
         txna ApplicationArgs 2
         callsub vote
         int 1
@@ -109,54 +114,26 @@ main_after_if_else@11:
         err // reject transaction
 
 
-// examples.voting.voting.VotingRoundApp.create(vote_id#0: bytes, snapshot_public_key#0: bytes, metadata_ipfs_cid#0: bytes, start_time#0: bytes, end_time#0: bytes, option_counts#0: bytes, quorum#0: bytes, nft_image_url#0: bytes) -> void:
+// examples.voting.voting.VotingRoundApp.create(vote_id#0: bytes, snapshot_public_key#0: bytes, metadata_ipfs_cid#0: bytes, start_time#0: uint64, end_time#0: uint64, option_counts#0: bytes, quorum#0: uint64, nft_image_url#0: bytes) -> void:
 create:
         proto 8 0
 
 create_block@0:
         frame_dig -5
-        btoi
-        dup
-        swap
         frame_dig -4
-        btoi
-        dup
-        cover 2
-        dup
-        cover 2
         <
         assert // End time should be after start time
         global LatestTimestamp
-        >=
+        frame_dig -4
+        <=
         assert // End time should be in the future
         frame_dig -8
         extract 2 0
         byte "vote_id"
         swap
         app_global_put
-        frame_dig -7
-        len
-        dup
-        swap
-        int 2
-        >
-        bz create_ternary_false@2
-
-create_ternary_true@1:
-        int 2
-        b create_ternary_merge@3
-
-create_ternary_false@2:
-        frame_dig 2
-
-create_ternary_merge@3:
-        frame_dig -7
-        len
-        frame_dig -7
-        cover 2
-        substring3
         byte "snapshot_public_key"
-        swap
+        frame_dig -7
         app_global_put
         frame_dig -6
         extract 2 0
@@ -164,15 +141,13 @@ create_ternary_merge@3:
         swap
         app_global_put
         byte "start_time"
-        frame_dig 0
+        frame_dig -5
         app_global_put
         byte "end_time"
-        frame_dig 1
+        frame_dig -4
         app_global_put
-        frame_dig -2
-        btoi
         byte "quorum"
-        swap
+        frame_dig -2
         app_global_put
         frame_dig -1
         extract 2 0
@@ -199,26 +174,6 @@ store_option_counts_block@0:
         int 112
         <=
         assert // Can't have more than 112 questions
-        byte "option_counts"
-        frame_dig -1
-        app_global_put
-        frame_dig -1
-        callsub calculate_total_options_count
-        dup
-        int 128
-        <=
-        assert // Can't have more than 128 vote options
-        byte "total_options"
-        swap
-        app_global_put
-        retsub
-
-
-// examples.voting.voting.VotingRoundApp.calculate_total_options_count(option_counts#0: bytes) -> uint64:
-calculate_total_options_count:
-        proto 1 1
-
-calculate_total_options_count_block@0:
         int 0
         frame_dig -1
         int 0
@@ -227,13 +182,13 @@ calculate_total_options_count_block@0:
         extract 2 0
         int 0
 
-calculate_total_options_count_for_header@1:
+store_option_counts_for_header@1:
         frame_dig 3
         frame_dig 1
         <
-        bz calculate_total_options_count_after_for@4
+        bz store_option_counts_after_for@4
 
-calculate_total_options_count_for_body@2:
+store_option_counts_for_body@2:
         frame_dig 2
         frame_dig 3
         dup
@@ -247,9 +202,20 @@ calculate_total_options_count_for_body@2:
         int 1
         +
         frame_bury 3
-        b calculate_total_options_count_for_header@1
+        b store_option_counts_for_header@1
 
-calculate_total_options_count_after_for@4:
+store_option_counts_after_for@4:
+        frame_dig 0
+        dup
+        int 128
+        <=
+        assert // Can't have more than 128 vote options
+        byte "option_counts"
+        frame_dig -1
+        app_global_put
+        byte "total_options"
+        swap
+        app_global_put
         retsub
 
 
@@ -267,23 +233,22 @@ bootstrap_block@0:
         byte "is_bootstrapped"
         int 1
         app_global_put
-        int 0
-        byte "total_options"
-        app_global_get_ex
-        assert // check value exists
-        int 400
-        *
-        int 8
-        *
-        int 2900
-        +
-        int 201000
-        +
         frame_dig -1
         gtxns Receiver
         global CurrentApplicationAddress
         ==
         assert // Payment must be to app address
+        int 0
+        byte "total_options"
+        app_global_get_ex
+        assert // check value exists
+        int 8
+        *
+        dup
+        int 400
+        *
+        int 203900
+        +
         dup
         itob
         log
@@ -291,12 +256,6 @@ bootstrap_block@0:
         gtxns Amount
         ==
         assert // Payment must be for the exact min balance requirement
-        int 0
-        byte "total_options"
-        app_global_get_ex
-        assert // check value exists
-        int 8
-        *
         byte "V"
         swap
         box_create
@@ -307,6 +266,8 @@ bootstrap_block@0:
 // examples.voting.voting.VotingRoundApp.close() -> void:
 close:
         proto 0 0
+        int 0
+        dup
         byte ""
         dupn 2
 
@@ -317,11 +278,13 @@ close_block@0:
         int 0
         byte "close_time"
         app_global_get_ex
-        assert // check value exists
+        swap
+        pop
         !
         assert // Already closed
-        byte "close_time"
         global LatestTimestamp
+        byte "close_time"
+        swap
         app_global_put
         int 0
         byte "vote_id"
@@ -350,7 +313,7 @@ close_block@0:
         byte "quorum"
         app_global_get_ex
         assert // check value exists
-        itob
+        callsub itoa
         concat
         byte ",\"voterCount\":"
         concat
@@ -358,7 +321,7 @@ close_block@0:
         byte "voter_count"
         app_global_get_ex
         assert // check value exists
-        itob
+        callsub itoa
         concat
         byte ",\"tallies\":["
         concat
@@ -367,119 +330,122 @@ close_block@0:
         byte "option_counts"
         app_global_get_ex
         assert // check value exists
+        dup
         int 0
         extract_uint16
+        swap
+        extract 2 0
         int 0
 
 close_for_header@1:
-        frame_dig 6
-        frame_dig 5
+        frame_dig 9
+        frame_dig 7
         <
-        bz close_after_for@17
+        bz close_after_for@14
 
 close_for_body@2:
-        int 0
-        byte "option_counts"
-        app_global_get_ex
-        assert // check value exists
+        frame_dig 8
+        frame_dig 9
         dup
-        int 0
-        extract_uint16
-        frame_dig 6
-        dup
-        cover 3
-        >
-        assert // Index access is out of bounds
-        extract 2 0
-        swap
+        cover 2
         int 1
         extract3
-        btoi
         frame_bury 1
         int 0
+        >
+        frame_dig 5
         frame_bury 0
+        bz close_after_if_else@4
 
-close_for_header@3:
-        frame_dig 0
-        frame_dig 1
-        <
-        bz close_after_for@15
-
-close_for_body@4:
-        frame_dig 4
-        callsub get_vote_from_box
-        frame_bury 2
-        frame_dig 0
-        !
-        bz close_ternary_false@6
-
-close_ternary_true@5:
-        byte "["
-        b close_ternary_merge@13
-
-close_ternary_false@6:
-        frame_dig 1
-        int 1
-        -
-        frame_dig 0
-        ==
-        bz close_ternary_false@8
-
-close_ternary_true@7:
-        frame_dig 2
-        itob
-        byte "]"
-        concat
-        b close_ternary_merge@12
-
-close_ternary_false@8:
-        int 0
-        byte "option_counts"
-        app_global_get_ex
-        assert // check value exists
-        int 0
-        extract_uint16
-        int 1
-        -
-        frame_dig 6
-        ==
-        bz close_ternary_false@10
-
-close_ternary_true@9:
+close_if_body@3:
+        frame_dig 5
         byte ","
-        b close_ternary_merge@11
-
-close_ternary_false@10:
-        byte ""
-
-close_ternary_merge@11:
-
-close_ternary_merge@12:
-
-close_ternary_merge@13:
-        frame_dig 3
-        swap
         concat
-        frame_bury 3
-        frame_dig 4
-        int 1
-        +
-        frame_bury 4
-        frame_dig 0
-        int 1
-        +
         frame_bury 0
-        b close_for_header@3
 
-close_after_for@15:
+close_after_if_else@4:
+        frame_dig 0
+        dup
+        frame_bury 5
+        frame_dig 1
+        btoi
+        dup
+        frame_bury 4
+        int 0
+        >
+        swap
+        frame_bury 0
         frame_dig 6
+        frame_bury 2
+        bz close_after_if_else@12
+
+close_if_body@5:
+        frame_dig 5
+        byte "["
+        concat
+        frame_bury 5
+        int 0
+        frame_bury 3
+
+close_for_header@6:
+        frame_dig 3
+        frame_dig 4
+        <
+        bz close_after_for@11
+
+close_for_body@7:
+        frame_dig 3
+        int 0
+        >
+        frame_dig 5
+        frame_bury 0
+        bz close_after_if_else@9
+
+close_if_body@8:
+        frame_dig 5
+        byte ","
+        concat
+        frame_bury 0
+
+close_after_if_else@9:
+        frame_dig 0
+        frame_dig 6
+        dup
+        cover 2
+        callsub get_vote_from_box
+        callsub itoa
+        concat
+        frame_bury 5
         int 1
         +
         frame_bury 6
+        frame_dig 3
+        int 1
+        +
+        frame_bury 3
+        b close_for_header@6
+
+close_after_for@11:
+        frame_dig 5
+        byte "]"
+        concat
+        frame_bury 0
+        frame_dig 6
+        frame_bury 2
+
+close_after_if_else@12:
+        frame_dig 0
+        frame_bury 5
+        frame_dig 2
+        frame_bury 6
+        frame_dig 9
+        int 1
+        +
+        frame_bury 9
         b close_for_header@1
 
-close_after_for@17:
-        frame_dig 3
+close_after_for@14:
+        frame_dig 5
         byte "]}}"
         concat
         itxn_begin
@@ -561,6 +527,44 @@ ensure_budget_after_while@7:
         retsub
 
 
+// examples.voting.voting.itoa(i#0: uint64) -> bytes:
+itoa:
+        proto 1 1
+
+itoa_block@0:
+        frame_dig -1
+        int 10
+        <
+        bz itoa_after_if_else@2
+
+itoa_if_body@1:
+        frame_dig -1
+        int 1
+        +
+        byte "0123456789"
+        frame_dig -1
+        uncover 2
+        substring3
+        retsub
+
+itoa_after_if_else@2:
+        frame_dig -1
+        int 10
+        /
+        callsub itoa
+        frame_dig -1
+        int 10
+        %
+        dup
+        int 1
+        +
+        byte "0123456789"
+        cover 2
+        substring3
+        concat
+        retsub
+
+
 // examples.voting.voting.get_vote_from_box(index#0: uint64) -> uint64:
 get_vote_from_box:
         proto 1 1
@@ -637,7 +641,8 @@ voting_open_and_contd@1:
         int 0
         byte "close_time"
         app_global_get_ex
-        assert // check value exists
+        swap
+        pop
         bnz voting_open_bool_false@5
 
 voting_open_and_contd@2:
@@ -707,34 +712,12 @@ already_voted_block@0:
 // examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req#0: uint64, signature#0: bytes, answer_ids#0: bytes) -> void:
 vote:
         proto 3 0
-        byte ""
-        dupn 2
 
 vote_block@0:
         int 7700
         int 0
         callsub ensure_budget
         frame_dig -2
-        len
-        dup
-        swap
-        int 2
-        >
-        bz vote_ternary_false@2
-
-vote_ternary_true@1:
-        int 2
-        b vote_ternary_merge@3
-
-vote_ternary_false@2:
-        frame_dig 3
-
-vote_ternary_merge@3:
-        frame_dig -2
-        len
-        frame_dig -2
-        cover 2
-        substring3
         callsub allowed_to_vote
         assert // Not allowed to vote
         callsub voting_open
@@ -749,7 +732,7 @@ vote_ternary_merge@3:
         int 0
         extract_uint16
         dup
-        frame_bury 2
+        swap
         frame_dig -1
         int 0
         extract_uint16
@@ -777,21 +760,19 @@ vote_ternary_merge@3:
         ==
         assert // Payment must be the exact min balance
         int 0
-        frame_bury 0
         int 0
-        frame_bury 1
 
-vote_for_header@4:
-        frame_dig 1
+vote_for_header@1:
         frame_dig 2
+        frame_dig 0
         <
-        bz vote_after_for@7
+        bz vote_after_for@4
 
-vote_for_body@5:
+vote_for_body@2:
         frame_dig -1
         int 0
         extract_uint16
-        frame_dig 1
+        frame_dig 2
         dup
         cover 2
         >
@@ -801,6 +782,7 @@ vote_for_body@5:
         dig 1
         int 1
         extract3
+        btoi
         swap
         int 0
         byte "option_counts"
@@ -816,25 +798,18 @@ vote_for_body@5:
         dig 1
         int 1
         extract3
+        btoi
         dig 2
-        btoi
-        swap
-        dup
-        btoi
-        uncover 2
-        >
+        dig 1
+        <
         assert // Answer option index invalid
-        uncover 2
-        btoi
-        frame_dig 0
+        frame_dig 1
         dup
-        cover 2
+        uncover 4
         +
         callsub increment_vote_in_box
-        swap
-        btoi
         +
-        frame_bury 0
+        frame_bury 1
         txn Sender
         frame_dig -1
         box_put
@@ -849,10 +824,10 @@ vote_for_body@5:
         app_global_put
         int 1
         +
-        frame_bury 1
-        b vote_for_header@4
+        frame_bury 2
+        b vote_for_header@1
 
-vote_after_for@7:
+vote_after_for@4:
         retsub
 
 
@@ -887,39 +862,6 @@ __init___block@0:
         int 0
         app_global_put
         byte "voter_count"
-        int 0
-        app_global_put
-        byte "close_time"
-        int 0
-        app_global_put
-        byte "nft_asset_id"
-        int 0
-        app_global_put
-        byte "snapshot_public_key"
-        byte ""
-        app_global_put
-        byte "vote_id"
-        byte ""
-        app_global_put
-        byte "metadata_ipfs_cid"
-        byte ""
-        app_global_put
-        byte "start_time"
-        int 0
-        app_global_put
-        byte "end_time"
-        int 0
-        app_global_put
-        byte "quorum"
-        int 0
-        app_global_put
-        byte "nft_image_url"
-        byte ""
-        app_global_put
-        byte "option_counts"
-        byte 0x0000
-        app_global_put
-        byte "total_options"
         int 0
         app_global_put
         retsub

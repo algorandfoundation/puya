@@ -59,12 +59,12 @@ class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         name, exists = self.name.maybe(account=0)
         if not exists:
             return String("Howdy stranger!")
-        return String.encode(b"Hello, " + name.decode() + b"!")
+        return "Hello, " + name + "!"
 
     @abimethod
     def calculate(self, a: arc4_UInt64, b: arc4_UInt64) -> arc4_UInt64:
         c = super().calculate(a, b)
-        return arc4_UInt64.encode(c.decode() * b.decode())
+        return arc4_UInt64(c.decode() * b.decode())
 
     @abimethod(allow_actions=["CloseOut"])
     def close_out(self) -> None:

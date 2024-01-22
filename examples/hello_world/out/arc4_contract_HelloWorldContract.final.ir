@@ -33,13 +33,20 @@ contract examples.hello_world.arc4_contract.HelloWorldContract:
         
         subroutine examples.hello_world.arc4_contract.HelloWorldContract.say_hello(name: bytes) -> bytes:
             block@0: // L7
-                let tmp%0#0: bytes = ((extract 2 0) name#0)
-                let tmp%1#0: bytes = (concat "Hello " tmp%0#0)
-                let length%2#0: uint64 = (len tmp%1#0)
-                let value_as_bytes%3#0: bytes = (itob length%2#0)
-                let value_as_uint16%4#0: bytes = ((extract 6 2) value_as_bytes%3#0)
-                let tmp%5#0: bytes = (concat value_as_uint16%4#0 tmp%1#0)
-                return tmp%5#0
+                let array_length%0#0: uint64 = (extract_uint16 name#0 0u)
+                let data%1#0: bytes = ((extract 2 0) name#0)
+                let concat_result%2#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size("\x00\x06Hello ", data%1#0, array_length%0#0)
+                return concat_result%2#0
+        
+        subroutine puyapy_lib_arc4.dynamic_array_concat_fixed_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+            block@0: // L190
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let tmp%0#0: uint64 = (+ array_length#0 new_items_count#0)
+                let tmp%1#0: bytes = (itob tmp%0#0)
+                let tmp%2#0: bytes = ((substring 6 8) tmp%1#0)
+                let source#0: bytes = (replace3 source#0 0u tmp%2#0)
+                let source#0: bytes = (concat source#0 new_items_bytes#0)
+                return source#0
     
     program clear-state:
         subroutine examples.hello_world.arc4_contract.HelloWorldContract.clear_state_program() -> uint64:

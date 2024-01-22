@@ -19,7 +19,7 @@ class AppStateContract(Contract):
         self.global_int_no_default.value = UInt64(44)
         i_value, i_exists = self.global_int_no_default.maybe()
         assert i_exists
-        assert i_value == UInt64(44)
+        assert i_value == 44
 
         assert self.global_bytes_simplified == b"Hello"
         assert self.global_bytes_full
