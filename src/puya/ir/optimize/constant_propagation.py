@@ -81,6 +81,8 @@ class IntrinsicSimplifier(IRMutator):
                     return None
                 else:
                     # an assert 0 could be simplified to an err, but
+                    # this would make it a ControlOp, so the block would
+                    # need to be restructured
                     return intrinsic
             case _:
                 return self._simplify_intrinsic(intrinsic)
