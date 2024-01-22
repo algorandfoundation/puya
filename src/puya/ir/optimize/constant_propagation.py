@@ -65,9 +65,13 @@ class IntrinsicSimplifier(IRMutator):
             case models.Intrinsic(
                 op=AVMOp.select, args=[false, true, models.UInt64Constant(value=value)]
             ):
+                # note this case is handled specially because we want to replace
+                # the source with a Value, not an Intrinsic
                 self.modified += 1
                 ass.source = true if value else false
-        return super().visit_assignment(ass)
+            case models.Intrinsic() as intrinsic:
+                ass.source = self._simplify_intrinsic(intrinsic)
+        return ass
 
     def visit_intrinsic_op(self, intrinsic: Intrinsic) -> Intrinsic | None:
         match intrinsic:
@@ -75,6 +79,14 @@ class IntrinsicSimplifier(IRMutator):
                 if value:
                     self.modified += 1
                     return None
+                else:
+                    # an assert 0 could be simplified to an err, but
+                    return intrinsic
+            case _:
+                return self._simplify_intrinsic(intrinsic)
+
+    def _simplify_intrinsic(self, intrinsic: Intrinsic) -> Intrinsic:
+        match intrinsic:
             case Intrinsic(
                 op=(AVMOp.extract3 | AVMOp.extract),
                 args=[
