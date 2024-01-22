@@ -33,6 +33,8 @@ from puya.metadata import ContractMetaData, ContractState
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import compile_src
 
+pytestmark = pytest.mark.localnet
+
 DEFAULT_MAX_OPTIMIZATION_LEVEL = int(os.getenv("MAX_TEST_OPTIMIZATION_LEVEL", "2"))
 BYTES_ACTION = 1
 UINT_ACTION = 2
