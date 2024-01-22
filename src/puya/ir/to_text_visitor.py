@@ -159,7 +159,7 @@ def output_contract_ir_to_path(contract: models.Contract, path: Path) -> None:
 
     render_contract(emitter, contract)
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
-    logger.debug(f"Output IR to {make_path_relative_to_cwd(str(path))}")
+    logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")
 
 
 def ir_to_text(module_irs: dict[str, list[models.Contract]]) -> list[str]:

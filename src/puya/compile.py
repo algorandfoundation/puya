@@ -102,11 +102,15 @@ def awst_to_teal(
     result = dict[ParseSource, list[CompiledContract]]()
     for src in parse_result.sources:
         module_ir = module_irs.get(src.module_name)
-        assert module_ir is not None, f"could not find ir for {src.path}"
+        if module_ir is None:
+            raise InternalError(f"Could not find IR for {src.path}")
 
         if not module_ir:
             if src.is_explicit:
-                logger.warning(f"No contracts found in explicitly named source file: {src.path}")
+                logger.warning(
+                    f"No contracts found in explicitly named source file:"
+                    f" {make_path_relative_to_cwd(src.path)}"
+                )
         else:
             for contract_ir in module_ir:
                 remove_unused_subroutines(context, contract_ir)
@@ -156,7 +160,7 @@ def write_arc32_application_spec(
                 else f"application.{arc4_contract.metadata.full_name}.json"
             )
             arc32_path = base_path / stem
-            logger.info(f"Writing {make_path_relative_to_cwd(str(arc32_path))}")
+            logger.info(f"Writing {make_path_relative_to_cwd(arc32_path)}")
             write_arc32(arc32_path, arc4_contract)
 
 
@@ -261,5 +265,5 @@ def write_contract_files(base_path: Path, compiled_contract: CompiledContract) -
             continue
         output_path = base_path.with_suffix(suffix)
         output_text = "\n".join(src)
-        logger.info(f"Writing {make_path_relative_to_cwd(str(output_path))}")
+        logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
         output_path.write_text(output_text, encoding="utf-8")

@@ -8,6 +8,7 @@ from pathlib import Path
 import attrs
 import pytest
 from puya.awst_build.main import output_awst
+from puya.logging_config import LogLevel
 from puya.options import PuyaOptions
 from puya.parse import EMBEDDED_MODULES
 
@@ -133,6 +134,8 @@ def compile_with_level1_optimizations(test_case: PuyaExample) -> None:
         puya_options=PuyaOptions(
             paths=[test_case.path],
             optimization_level=1,
+            debug_level=1,
+            log_level=LogLevel.debug,
             output_teal=True,
             output_arc32=True,
             output_awst=False,
