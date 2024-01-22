@@ -159,13 +159,7 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
         else:
             log_path = p.with_suffix(".puya.log")
 
-        log_txt = "\n".join(
-            [
-                ">> " + " ".join(cmd),
-                *_stabilise_logs(result.stdout),
-                f">> exit code = {result.returncode}",
-            ]
-        )
+        log_txt = "\n".join(_stabilise_logs(result.stdout))
         log_path.write_text(log_txt, encoding="utf8")
     return CompilationResult(
         rel_path=rel_path,

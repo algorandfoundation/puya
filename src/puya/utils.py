@@ -60,8 +60,8 @@ def make_path_relative(*, to: Path, path: str) -> str:
     return path.replace(os.sep, "/")
 
 
-def make_path_relative_to_cwd(path: str) -> str:
-    return make_path_relative(to=Path.cwd(), path=path)
+def make_path_relative_to_cwd(path: str | Path) -> str:
+    return make_path_relative(to=Path.cwd(), path=str(path))
 
 
 def unique(items: Iterable[T]) -> list[T]:
