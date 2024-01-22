@@ -15,6 +15,8 @@ from puya.arc32 import create_arc32_json
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import compile_src
 
+pytestmark = pytest.mark.localnet
+
 
 def compile_arc32(src_path: Path, optimization_level: int = 1) -> str:
     result = compile_src(src_path, optimization_level=optimization_level, debug_level=2)

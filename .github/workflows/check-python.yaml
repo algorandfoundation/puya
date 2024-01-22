@@ -61,7 +61,28 @@ jobs:
         with:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest-junit.xml
+  tests-windows:
+    runs-on: "windows-latest"
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with cicd
+
+      - name: pytest - not localnet
+        shell: bash
+        # can't use localnet in a windows github runner
+        run: poetry run pytest -m "not localnet"
   compile-all:
     runs-on: "ubuntu-latest"
     steps:
