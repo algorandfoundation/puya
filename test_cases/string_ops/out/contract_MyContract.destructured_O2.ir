@@ -1,0 +1,42 @@
+contract test_cases.string_ops.contract.MyContract:
+    program approval:
+        subroutine test_cases.string_ops.contract.MyContract.approval_program() -> uint64:
+            block@0: // L5
+                let tmp%0#0: uint64 = test_cases.string_ops.contract.is_in_str("brown fox", "The quick brown fox jumped over the lazy dog")
+                (assert tmp%0#0)
+                let tmp%1#0: uint64 = test_cases.string_ops.contract.is_in_str("red fox", "The quick brown fox jumped over the lazy dog")
+                let tmp%2#0: uint64 = (! tmp%1#0)
+                (assert tmp%2#0)
+                return 1u
+        
+        subroutine test_cases.string_ops.contract.is_in_str(a: bytes, b: bytes) -> uint64:
+            block@0: // L19
+                let tmp%0#0: uint64 = puyapy_lib_bytes.is_substring(a#0, b#0)
+                return tmp%0#0
+        
+        subroutine puyapy_lib_bytes.is_substring(item: bytes, sequence: bytes) -> uint64:
+            block@0: // L4
+                let start#0: uint64 = 0u
+                goto block@1
+            block@1: // while_top_L11
+                let tmp%0#0: uint64 = (len item#0)
+                let tmp%1#0: uint64 = (+ start#0 tmp%0#0)
+                let tmp%2#0: uint64 = (len sequence#0)
+                let tmp%3#0: uint64 = (<= tmp%1#0 tmp%2#0)
+                goto tmp%3#0 ? block@2 : block@5
+            block@2: // while_body_L11
+                let tmp%6#0: bytes = (substring3 sequence#0 start#0 tmp%1#0)
+                let tmp%7#0: uint64 = (== item#0 tmp%6#0)
+                goto tmp%7#0 ? block@3 : block@4
+            block@3: // if_body_L12
+                return 1u
+            block@4: // after_if_else_L12
+                let start#0: uint64 = (+ start#0 1u)
+                goto block@1
+            block@5: // after_while_L11
+                return 0u
+    
+    program clear-state:
+        subroutine test_cases.string_ops.contract.MyContract.clear_state_program() -> uint64:
+            block@0: // L15
+                return 1u

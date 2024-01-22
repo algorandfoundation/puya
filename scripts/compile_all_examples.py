@@ -9,7 +9,7 @@ from pathlib import Path
 
 import algokit_utils
 import attrs
-from puya.codegen.teal_annotaters import AlignedWriter
+import prettytable
 
 SCRIPT_DIR = Path(__file__).parent
 GIT_ROOT = SCRIPT_DIR.parent
@@ -52,47 +52,55 @@ def get_unique_name(path: Path) -> str:
 
 @attrs.define(str=False)
 class ProgramSizes:
-    sizes: dict[str, int] = attrs.field(factory=dict)
-    unoptimized_sizes: dict[str, int] = attrs.field(factory=dict)
+    o1_sizes: dict[str, int] = attrs.field(factory=dict)
+    o0_sizes: dict[str, int] = attrs.field(factory=dict)
+    o2_sizes: dict[str, int] = attrs.field(factory=dict)
 
     def add(self, teal_programs: list[Path]) -> None:
         for teal in teal_programs:
             name = get_unique_name(teal)
             match teal.suffixes:
-                case [".approval", ".teal"]:
-                    self.sizes[name] = get_program_size(teal)
                 case [".approval_unoptimized", ".teal"]:
-                    self.unoptimized_sizes[name] = get_program_size(teal)
+                    self.o0_sizes[name] = get_program_size(teal)
+                case [".approval", ".teal"]:
+                    self.o1_sizes[name] = get_program_size(teal)
+                case [".approval_O2", ".teal"]:
+                    self.o2_sizes[name] = get_program_size(teal)
 
     @classmethod
     def read_file(cls, path: Path) -> "ProgramSizes":
         lines = path.read_text("utf-8").splitlines()
         program_sizes = ProgramSizes()
         for line in lines[1:]:
-            name, unoptimized, optimized = line.rsplit(maxsplit=3)
-            program_sizes.unoptimized_sizes[name] = int(unoptimized)
-            program_sizes.sizes[name] = int(optimized)
+            name, unoptimized, optimized, o2 = line.rsplit(maxsplit=3)
+            program_sizes.o0_sizes[name] = int(unoptimized)
+            program_sizes.o1_sizes[name] = int(optimized)
+            program_sizes.o2_sizes[name] = int(o2)
         return program_sizes
 
     def update(self, other: "ProgramSizes") -> "ProgramSizes":
         return ProgramSizes(
-            sizes={**self.sizes, **other.sizes},
-            unoptimized_sizes={**self.unoptimized_sizes, **other.unoptimized_sizes},
+            o2_sizes={**self.o2_sizes, **other.o2_sizes},
+            o1_sizes={**self.o1_sizes, **other.o1_sizes},
+            o0_sizes={**self.o0_sizes, **other.o0_sizes},
         )
 
     def __str__(self) -> str:
-        writer = AlignedWriter()
-        writer.add_header("Name")
-        writer.add_header("Unoptimized size")
-        writer.add_header("Optimized size")
-        for name in sorted(self.sizes):
-            optimized = self.sizes[name]
-            unoptimized = self.unoptimized_sizes[name]
-            writer.append(name)
-            writer.append(str(unoptimized))
-            writer.append(str(optimized))
-            writer.new_line()
-        return "\n".join(writer.write())
+        writer = prettytable.PrettyTable(
+            field_names=["Name", "O0 size", "O1 size", "O2 size"],
+            sortby="Name",
+            header=True,
+            border=False,
+            padding_width=0,
+            left_padding_width=0,
+            right_padding_width=1,
+            align="l",
+        )
+        for name, optimized in self.o1_sizes.items():
+            unoptimized = self.o0_sizes[name]
+            o2 = self.o2_sizes[name]
+            writer.add_row([name, str(unoptimized), str(optimized), str(o2)])
+        return writer.get_string()
 
 
 @attrs.define
@@ -127,7 +135,7 @@ def _stabilise_logs(stdout: str) -> list[str]:
     ]
 
 
-def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> CompilationResult:
+def checked_compile(p: Path, flags: list[str], *, write_logs: bool = False) -> CompilationResult:
     root, rel_path_ = get_root_and_relative_path(p)
     rel_path = str(rel_path_)
 
@@ -151,8 +159,7 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
         env=ENV_WITH_NO_COLOR,
         encoding="utf-8",
     )
-    final_ir_written = re.findall(r"debug: Output IR to (.+\.final\.ir)", result.stdout)
-    final_ir_written += re.findall(r"debug: Output IR to (.+\.final_par\.ir)", result.stdout)
+    final_ir_written = re.findall(r"debug: Output IR to (.+\.destructured\.ir)", result.stdout)
     teal_files_written = re.findall(r"info: Writing (.+\.teal)", result.stdout)
     if write_logs:
         if p.is_dir():
@@ -176,7 +183,7 @@ def compile_no_optimization(p: Path) -> CompilationResult:
         flags=[
             "-O0",
             "--output-awst",
-            "--output-final-ir",
+            "--output-destructured-ir",
         ],
         write_logs=False,
     )
@@ -198,6 +205,32 @@ def compile_no_optimization(p: Path) -> CompilationResult:
     return attrs.evolve(result, teal_files=moved_teal, final_ir_files=moved_ir)
 
 
+def compile_o2(p: Path) -> CompilationResult:
+    result = checked_compile(
+        p,
+        flags=[
+            "-O2",
+            "--output-destructured-ir",
+        ],
+    )
+    moved_teal = list[Path]()
+    for teal_path in result.teal_files:
+        program, *other_suffixes = teal_path.suffixes
+        new_suffix = "".join((f"{program}_O2", *other_suffixes))
+        old_suffix = "".join(teal_path.suffixes)
+        new_stem = str(teal_path.name)[: -len(old_suffix)]
+        move_to = (teal_path.parent / new_stem).with_suffix(new_suffix)
+        teal_path.rename(move_to)
+        moved_teal.append(move_to)
+    moved_ir = list[Path]()
+    for final_ir_path in result.final_ir_files:
+        suffix_keep, _ = final_ir_path.suffixes
+        move_to = final_ir_path.with_suffix("").with_suffix(f"{suffix_keep}_O2.ir")
+        final_ir_path.rename(move_to)
+        moved_ir.append(move_to)
+    return attrs.evolve(result, teal_files=moved_teal, final_ir_files=moved_ir)
+
+
 def compile_with_level1_optimizations(p: Path) -> CompilationResult:
     return checked_compile(
         p,
@@ -205,10 +238,8 @@ def compile_with_level1_optimizations(p: Path) -> CompilationResult:
             "-O1",
             "--output-ssa-ir",
             "--output-optimization-ir",
-            "--output-final-ir",
-            "--output-cssa-ir",
-            "--output-post-ssa-ir",
-            "--output-parallel-copies-ir",
+            "--output-destructured-ir",
+            "--output-memory-ir",
         ],
         write_logs=True,
     )
@@ -246,7 +277,7 @@ def main(options: CompileAllOptions) -> None:
     opt_success = set()
     unopt_success = set()
     with ProcessPoolExecutor() as executor:
-        print(" ~~~ RUNNING WITHOUT OPTIMIZATIONS ~~~ ")
+        print(" ~~~ RUNNING -O0 ~~~ ")
         for compilation_result in executor.map(compile_no_optimization, to_compile):
             rel_path = compilation_result.rel_path
             if compilation_result.ok:
@@ -255,7 +286,16 @@ def main(options: CompileAllOptions) -> None:
                 print(f"✅  {rel_path}")
             else:
                 print(f"💥 {rel_path}", file=sys.stderr)
-        print(" ~~~ RUNNING WITH OPTIMIZATIONS ~~~ ")
+        print(" ~~~ RUNNING -O2 ~~~ ")
+        for compilation_result in executor.map(compile_o2, to_compile):
+            rel_path = compilation_result.rel_path
+            if compilation_result.ok:
+                modified_teal.extend(compilation_result.teal_files)
+                unopt_success.add(rel_path)
+                print(f"✅  {rel_path}")
+            else:
+                print(f"💥 {rel_path}", file=sys.stderr)
+        print(" ~~~ RUNNING -O1 ~~~ ")
         for compilation_result in executor.map(compile_with_level1_optimizations, to_compile):
             rel_path = compilation_result.rel_path
             if compilation_result.ok:

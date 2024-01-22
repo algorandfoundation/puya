@@ -1,0 +1,72 @@
+contract test_cases.conditional_expressions.contract.MyContract:
+    program approval:
+        subroutine test_cases.conditional_expressions.contract.MyContract.approval_program() -> uint64:
+            block@0: // L7
+                let awst_tmp%2#0: uint64 = test_cases.conditional_expressions.contract.MyContract.expensive_op(0u)
+                goto awst_tmp%2#0 ? block@7 : block@8
+            block@7: // ternary_true_L14
+                let e#0: uint64 = awst_tmp%2#0
+                goto block@9
+            block@8: // ternary_false_L14
+                let ternary_result%3#1: uint64 = test_cases.conditional_expressions.contract.MyContract.side_effecting_op(1u)
+                let e#0: uint64 = ternary_result%3#1
+                goto block@9
+            block@9: // ternary_merge_L14
+                let awst_tmp%4#0: uint64 = test_cases.conditional_expressions.contract.MyContract.expensive_op(3u)
+                goto awst_tmp%4#0 ? block@10 : block@11
+            block@10: // ternary_true_L15
+                let f#0: uint64 = awst_tmp%4#0
+                goto block@12
+            block@11: // ternary_false_L15
+                let ternary_result%5#1: uint64 = test_cases.conditional_expressions.contract.MyContract.side_effecting_op(42u)
+                let f#0: uint64 = ternary_result%5#1
+                goto block@12
+            block@12: // ternary_merge_L15
+                let awst_tmp%6#0: uint64 = test_cases.conditional_expressions.contract.MyContract.side_effecting_op(0u)
+                goto awst_tmp%6#0 ? block@14 : block@13
+            block@13: // ternary_true_L17
+                let g#0: uint64 = awst_tmp%6#0
+                goto block@15
+            block@14: // ternary_false_L17
+                let ternary_result%7#1: uint64 = test_cases.conditional_expressions.contract.MyContract.expensive_op(42u)
+                let g#0: uint64 = ternary_result%7#1
+                goto block@15
+            block@15: // ternary_merge_L17
+                let awst_tmp%8#0: uint64 = test_cases.conditional_expressions.contract.MyContract.side_effecting_op(2u)
+                goto awst_tmp%8#0 ? block@17 : block@16
+            block@16: // ternary_true_L18
+                let h#0: uint64 = awst_tmp%8#0
+                goto block@18
+            block@17: // ternary_false_L18
+                let ternary_result%9#1: uint64 = test_cases.conditional_expressions.contract.MyContract.expensive_op(3u)
+                let h#0: uint64 = ternary_result%9#1
+                goto block@18
+            block@18: // ternary_merge_L18
+                let ternary_result%11#1: uint64 = (+ 1u e#0)
+                let tmp%15#0: uint64 = (* 2u f#0)
+                let tmp%16#0: uint64 = (* tmp%15#0 h#0)
+                let tmp%17#0: uint64 = (- tmp%16#0 e#0)
+                let tmp%18#0: uint64 = (- tmp%17#0 g#0)
+                let result#0: uint64 = (+ tmp%18#0 ternary_result%11#1)
+                let tmp%19#0: bytes = (itob result#0)
+                (log tmp%19#0)
+                return result#0
+        
+        subroutine test_cases.conditional_expressions.contract.MyContract.expensive_op(val: uint64) -> uint64:
+            block@0: // L31
+                let tmp%0#0: uint64 = (!= val#0 42u)
+                (assert tmp%0#0) // Can't be 42
+                (log "expensive_op")
+                return val#0
+        
+        subroutine test_cases.conditional_expressions.contract.MyContract.side_effecting_op(val: uint64) -> uint64:
+            block@0: // L37
+                let tmp%0#0: uint64 = (!= val#0 42u)
+                (assert tmp%0#0) // Can't be 42
+                (log "side_effecting_op")
+                return val#0
+    
+    program clear-state:
+        subroutine test_cases.conditional_expressions.contract.MyContract.clear_state_program() -> uint64:
+            block@0: // L28
+                return 0u

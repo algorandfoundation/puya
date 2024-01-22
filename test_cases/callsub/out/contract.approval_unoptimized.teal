@@ -1,27 +1,36 @@
 #pragma version 10
 
-// test_cases.callsub.contract.MyContract.approval_program() -> uint64:
-main_block@0:
-        int 42
-        itob
-        log
-        int 1
-        int 2
-        callsub echo
-        int 1
-        return
+test_cases.callsub.contract.MyContract.approval_program:
+    // callsub/contract.py:6
+    // log(itob(UInt64(42)))
+    int 42
+    itob
+    log
+    // callsub/contract.py:7
+    // self.echo(UInt64(1), UInt64(2))
+    int 1
+    int 2
+    callsub echo
+    // callsub/contract.py:8
+    // return UInt64(1)
+    int 1
+    return
 
 
-// test_cases.callsub.contract.MyContract.echo(a#0: uint64, b#0: uint64) -> void:
+// test_cases.callsub.contract.MyContract.echo(a: uint64, b: uint64) -> void:
 echo:
-        proto 2 0
-
-echo_block@0:
-        frame_dig -2
-        itob
-        log
-        frame_dig -1
-        itob
-        log
-        retsub
-
+    // callsub/contract.py:10-11
+    // @subroutine
+    // def echo(self, a: UInt64, b: UInt64) -> None:
+    proto 2 0
+    // callsub/contract.py:12
+    // log(itob(a))
+    frame_dig -2
+    itob
+    log
+    // callsub/contract.py:13
+    // log(itob(b))
+    frame_dig -1
+    itob
+    log
+    retsub

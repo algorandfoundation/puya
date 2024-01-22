@@ -9,7 +9,7 @@ contract test_cases.with_reentrancy.contract.WithReentrancy:
                 return 1u
         
         subroutine test_cases.with_reentrancy.contract.fibonacci(n: uint64) -> uint64:
-            block@0: // L26
+            block@0: // L25
                 let tmp%0#0: uint64 = (<= n#0 1u)
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L27
@@ -23,7 +23,7 @@ contract test_cases.with_reentrancy.contract.WithReentrancy:
                 return tmp%5#0
         
         subroutine test_cases.with_reentrancy.contract.silly(x: uint64) -> uint64:
-            block@0: // L33
+            block@0: // L32
                 let x#1: uint64 = (+ x#0 1u)
                 let result#0: uint64 = test_cases.with_reentrancy.contract.silly2(x#1)
                 let tmp%0#0: bytes = test_cases.with_reentrancy.contract.itoa(x#1)
@@ -32,7 +32,7 @@ contract test_cases.with_reentrancy.contract.WithReentrancy:
                 return result#0
         
         subroutine test_cases.with_reentrancy.contract.silly2(x: uint64) -> uint64:
-            block@0: // L41
+            block@0: // L40
                 let x#1: uint64 = (+ x#0 2u)
                 let result#0: uint64 = test_cases.with_reentrancy.contract.silly3(x#1)
                 let tmp%0#0: bytes = test_cases.with_reentrancy.contract.itoa(x#1)
@@ -41,11 +41,10 @@ contract test_cases.with_reentrancy.contract.WithReentrancy:
                 return result#0
         
         subroutine test_cases.with_reentrancy.contract.silly3(x: uint64) -> uint64:
-            block@0: // L49
+            block@0: // L48
                 let tmp%0#0: uint64 = (% x#0 2u)
-                let is_even#0: uint64 = (! tmp%0#0)
                 let a#0: uint64 = (+ x#0 2u)
-                goto is_even#0 ? block@1 : block@2
+                goto tmp%0#0 ? block@2 : block@1
             block@1: // if_body_L52
                 let result#0: uint64 = (* a#0 2u)
                 let tmp%1#0: uint64 = (/ result#0 2u)
@@ -57,7 +56,7 @@ contract test_cases.with_reentrancy.contract.WithReentrancy:
             block@3: // after_if_else_L52
                 let a#2: uint64 = φ(a#1 <- block@1, a#0 <- block@2)
                 let result#4: uint64 = φ(result#0 <- block@1, result#1 <- block@2)
-                goto is_even#0 ? block@4 : block@5
+                goto tmp%0#0 ? block@5 : block@4
             block@4: // if_body_L58
                 goto block@5
             block@5: // after_if_else_L58
@@ -68,7 +67,7 @@ contract test_cases.with_reentrancy.contract.WithReentrancy:
                 return result#3
         
         subroutine test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:
-            block@0: // L17
+            block@0: // L16
                 let tmp%0#0: uint64 = (< i#0 10u)
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L20

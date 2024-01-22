@@ -33,6 +33,7 @@ from puya.ir.models import (
     BytesConstant,
     ConditionalBranch,
     Fail,
+    Goto,
     GotoNth,
     Intrinsic,
     InvokeSubroutine,
@@ -1568,11 +1569,19 @@ class FunctionIRBuilder(
             "switch_case_next",
         )
 
+        switch_value = self._visit_and_materialise_single(statement.value)
+        goto_default = Goto(
+            target=default_block,
+            source_location=(
+                (statement.default_case and statement.default_case.source_location)
+                or statement.source_location
+            ),
+        )
         self.block_builder.terminate(
             Switch(
-                value=self._visit_and_materialise_single(statement.value),
+                value=switch_value,
                 cases=case_blocks,
-                default=default_block,
+                default=goto_default,
                 source_location=statement.source_location,
             )
         )
@@ -2581,12 +2590,13 @@ class FunctionIRBuilder(
             names=[(tuple_index, None)],
             source_location=None,
         )
+        goto_default = Goto(target=next_block, source_location=statement_loc)
         self.block_builder.terminate(
             GotoNth(
                 source_location=statement_loc,
                 value=curr_index_internal,
                 blocks=headers[1:],
-                default=next_block,
+                default=goto_default,
             )
         )
         for header in headers[1:]:

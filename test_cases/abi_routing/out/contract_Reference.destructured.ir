@@ -1,0 +1,430 @@
+contract test_cases.abi_routing.contract.Reference:
+    program approval:
+        subroutine test_cases.abi_routing.contract.Reference.approval_program() -> uint64:
+            block@0: // L23
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L24
+                test_cases.abi_routing.contract.Reference.__init__()
+                goto block@2
+            block@2: // entrypoint_L24
+                let tmp%1#0: uint64 = (txn NumAppArgs)
+                goto tmp%1#0 ? block@3 : block@18
+            block@3: // abi_routing_L23
+                let tmp%2#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%2#0 {method "noop_with_uint64(uint64)uint8" => block@4, method "all_the_things(uint64)uint8" => block@5, method "mixed_oca(uint64)uint8" => block@6, method "opt_into_asset(asset)void" => block@7, method "with_transactions(asset,uint64,pay,uint64)void" => block@8, method "compare_assets(asset,asset)void" => block@9, method "get_address()address" => block@10, method "get_asset()uint64" => block@11, method "get_application()uint64" => block@12, method "get_an_int()uint64" => block@13, method "method_with_default_args(asset,asset,account,account,application,application,byte[3],uint64,uint64)void" => block@14, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],asset,pay,uint64,uint64)uint64" => block@15, * => fail // reject transaction}
+            block@4: // noop_with_uint64_route_L33
+                let tmp%3#0: uint64 = (txn OnCompletion)
+                let tmp%4#0: uint64 = (! tmp%3#0)
+                (assert tmp%4#0) // OnCompletion is NoOp
+                let tmp%5#0: uint64 = (txn ApplicationID)
+                (assert tmp%5#0) // is not creating
+                let tmp%6#0: bytes = (txna ApplicationArgs 1)
+                let tmp%7#0: bytes = test_cases.abi_routing.contract.Reference.noop_with_uint64(tmp%6#0)
+                let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
+                (log tmp%8#0)
+                return 1u
+            block@5: // all_the_things_route_L38
+                let tmp%9#0: bytes = (txna ApplicationArgs 1)
+                let tmp%10#0: bytes = test_cases.abi_routing.contract.Reference.full_abi_config(tmp%9#0)
+                let tmp%11#0: bytes = (concat 0x151f7c75 tmp%10#0)
+                (log tmp%11#0)
+                return 1u
+            block@6: // mixed_oca_route_L54
+                let tmp%12#0: uint64 = (txn OnCompletion)
+                let tmp%13#0: uint64 = (shl 1u tmp%12#0)
+                let tmp%14#0: uint64 = (& tmp%13#0 37u)
+                (assert tmp%14#0) // OnCompletion is one of NoOp, CloseOut, DeleteApplication
+                let tmp%15#0: uint64 = (txn ApplicationID)
+                (assert tmp%15#0) // is not creating
+                let tmp%16#0: bytes = (txna ApplicationArgs 1)
+                let tmp%17#0: bytes = test_cases.abi_routing.contract.Reference.mixed_oca(tmp%16#0)
+                let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
+                (log tmp%18#0)
+                return 1u
+            block@7: // opt_into_asset_route_L80
+                let tmp%19#0: uint64 = (txn OnCompletion)
+                let tmp%20#0: uint64 = (! tmp%19#0)
+                (assert tmp%20#0) // OnCompletion is NoOp
+                let tmp%21#0: uint64 = (txn ApplicationID)
+                (assert tmp%21#0) // is not creating
+                let tmp%22#0: bytes = (txna ApplicationArgs 1)
+                let tmp%23#0: uint64 = (btoi tmp%22#0)
+                let tmp%24#0: uint64 = ((txnas Assets) tmp%23#0)
+                test_cases.abi_routing.contract.Reference.opt_into_asset(tmp%24#0)
+                return 1u
+            block@8: // with_transactions_route_L97
+                let tmp%25#0: uint64 = (txn OnCompletion)
+                let tmp%26#0: uint64 = (! tmp%25#0)
+                (assert tmp%26#0) // OnCompletion is NoOp
+                let tmp%27#0: uint64 = (txn ApplicationID)
+                (assert tmp%27#0) // is not creating
+                let tmp%28#0: bytes = (txna ApplicationArgs 1)
+                let tmp%29#0: uint64 = (btoi tmp%28#0)
+                let tmp%30#0: uint64 = ((txnas Assets) tmp%29#0)
+                let tmp%31#0: bytes = (txna ApplicationArgs 2)
+                let tmp%34#0: uint64 = (txn GroupIndex)
+                let awst_tmp%35#0: uint64 = (- tmp%34#0 1u)
+                let tmp%36#0: uint64 = ((gtxns TypeEnum) awst_tmp%35#0)
+                let tmp%37#0: uint64 = (== tmp%36#0 pay)
+                (assert tmp%37#0) // transaction type is pay
+                let tmp%38#0: bytes = (txna ApplicationArgs 3)
+                test_cases.abi_routing.contract.Reference.with_transactions(tmp%30#0, tmp%31#0, awst_tmp%35#0, tmp%38#0)
+                return 1u
+            block@9: // compare_assets_route_L106
+                let tmp%39#0: uint64 = (txn OnCompletion)
+                let tmp%40#0: uint64 = (! tmp%39#0)
+                (assert tmp%40#0) // OnCompletion is NoOp
+                let tmp%41#0: uint64 = (txn ApplicationID)
+                (assert tmp%41#0) // is not creating
+                let tmp%42#0: bytes = (txna ApplicationArgs 1)
+                let tmp%43#0: uint64 = (btoi tmp%42#0)
+                let tmp%44#0: uint64 = ((txnas Assets) tmp%43#0)
+                let tmp%45#0: bytes = (txna ApplicationArgs 2)
+                let tmp%46#0: uint64 = (btoi tmp%45#0)
+                let tmp%47#0: uint64 = ((txnas Assets) tmp%46#0)
+                test_cases.abi_routing.contract.Reference.compare_assets(tmp%44#0, tmp%47#0)
+                return 1u
+            block@10: // get_address_route_L110
+                let tmp%48#0: uint64 = (txn OnCompletion)
+                let tmp%49#0: uint64 = (! tmp%48#0)
+                (assert tmp%49#0) // OnCompletion is NoOp
+                let tmp%50#0: uint64 = (txn ApplicationID)
+                (assert tmp%50#0) // is not creating
+                let tmp%51#0: bytes = test_cases.abi_routing.contract.Reference.get_address()
+                let tmp%52#0: bytes = (concat 0x151f7c75 tmp%51#0)
+                (log tmp%52#0)
+                return 1u
+            block@11: // get_asset_route_L114
+                let tmp%53#0: uint64 = (txn OnCompletion)
+                let tmp%54#0: uint64 = (! tmp%53#0)
+                (assert tmp%54#0) // OnCompletion is NoOp
+                let tmp%55#0: uint64 = (txn ApplicationID)
+                (assert tmp%55#0) // is not creating
+                let tmp%56#0: bytes = test_cases.abi_routing.contract.Reference.get_asset()
+                let tmp%57#0: bytes = (concat 0x151f7c75 tmp%56#0)
+                (log tmp%57#0)
+                return 1u
+            block@12: // get_application_route_L118
+                let tmp%58#0: uint64 = (txn OnCompletion)
+                let tmp%59#0: uint64 = (! tmp%58#0)
+                (assert tmp%59#0) // OnCompletion is NoOp
+                let tmp%60#0: uint64 = (txn ApplicationID)
+                (assert tmp%60#0) // is not creating
+                let tmp%61#0: bytes = test_cases.abi_routing.contract.Reference.get_app()
+                let tmp%62#0: bytes = (concat 0x151f7c75 tmp%61#0)
+                (log tmp%62#0)
+                return 1u
+            block@13: // get_an_int_route_L122
+                let tmp%63#0: uint64 = (txn OnCompletion)
+                let tmp%64#0: uint64 = (! tmp%63#0)
+                (assert tmp%64#0) // OnCompletion is NoOp
+                let tmp%65#0: uint64 = (txn ApplicationID)
+                (assert tmp%65#0) // is not creating
+                let tmp%66#0: bytes = test_cases.abi_routing.contract.Reference.get_a_int()
+                let tmp%67#0: bytes = (concat 0x151f7c75 tmp%66#0)
+                (log tmp%67#0)
+                return 1u
+            block@14: // method_with_default_args_route_L126
+                let tmp%68#0: uint64 = (txn OnCompletion)
+                let tmp%69#0: uint64 = (! tmp%68#0)
+                (assert tmp%69#0) // OnCompletion is NoOp
+                let tmp%70#0: uint64 = (txn ApplicationID)
+                (assert tmp%70#0) // is not creating
+                let tmp%71#0: bytes = (txna ApplicationArgs 1)
+                let tmp%72#0: uint64 = (btoi tmp%71#0)
+                let tmp%73#0: uint64 = ((txnas Assets) tmp%72#0)
+                let tmp%74#0: bytes = (txna ApplicationArgs 2)
+                let tmp%75#0: uint64 = (btoi tmp%74#0)
+                let tmp%76#0: uint64 = ((txnas Assets) tmp%75#0)
+                let tmp%77#0: bytes = (txna ApplicationArgs 3)
+                let tmp%78#0: uint64 = (btoi tmp%77#0)
+                let tmp%79#0: bytes = ((txnas Accounts) tmp%78#0)
+                let tmp%80#0: bytes = (txna ApplicationArgs 4)
+                let tmp%81#0: uint64 = (btoi tmp%80#0)
+                let tmp%82#0: bytes = ((txnas Accounts) tmp%81#0)
+                let tmp%83#0: bytes = (txna ApplicationArgs 5)
+                let tmp%84#0: uint64 = (btoi tmp%83#0)
+                let tmp%85#0: uint64 = ((txnas Applications) tmp%84#0)
+                let tmp%86#0: bytes = (txna ApplicationArgs 6)
+                let tmp%87#0: uint64 = (btoi tmp%86#0)
+                let tmp%88#0: uint64 = ((txnas Applications) tmp%87#0)
+                let tmp%89#0: bytes = (txna ApplicationArgs 7)
+                let tmp%90#0: bytes = (txna ApplicationArgs 8)
+                let tmp%91#0: bytes = (txna ApplicationArgs 9)
+                test_cases.abi_routing.contract.Reference.method_with_default_args(tmp%73#0, tmp%76#0, tmp%79#0, tmp%82#0, tmp%85#0, tmp%88#0, tmp%89#0, tmp%90#0, tmp%91#0)
+                return 1u
+            block@15: // method_with_more_than_15_args_route_L163
+                let tmp%92#0: uint64 = (txn OnCompletion)
+                let tmp%93#0: uint64 = (! tmp%92#0)
+                (assert tmp%93#0) // OnCompletion is NoOp
+                let tmp%94#0: uint64 = (txn ApplicationID)
+                (assert tmp%94#0) // is not creating
+                let tmp%95#0: bytes = (txna ApplicationArgs 1)
+                let tmp%96#0: bytes = (txna ApplicationArgs 2)
+                let tmp%97#0: bytes = (txna ApplicationArgs 3)
+                let tmp%98#0: bytes = (txna ApplicationArgs 4)
+                let tmp%99#0: uint64 = (btoi tmp%98#0)
+                let tmp%100#0: bytes = (txna ApplicationArgs 5)
+                let tmp%101#0: uint64 = (btoi tmp%100#0)
+                let tmp%102#0: uint64 = ((txnas Assets) tmp%101#0)
+                let tmp%103#0: bytes = (txna ApplicationArgs 6)
+                let tmp%104#0: bytes = (txna ApplicationArgs 7)
+                let tmp%107#0: uint64 = (txn GroupIndex)
+                let awst_tmp%108#0: uint64 = (- tmp%107#0 2u)
+                let tmp%109#0: uint64 = ((gtxns TypeEnum) awst_tmp%108#0)
+                let tmp%110#0: uint64 = (== tmp%109#0 pay)
+                (assert tmp%110#0) // transaction type is pay
+                let tmp%111#0: bytes = (txna ApplicationArgs 8)
+                let tmp%112#0: bytes = (txna ApplicationArgs 9)
+                let tmp%113#0: bytes = (txna ApplicationArgs 10)
+                let tmp%114#0: bytes = (txna ApplicationArgs 11)
+                let tmp%115#0: bytes = (txna ApplicationArgs 12)
+                let tmp%116#0: bytes = (txna ApplicationArgs 13)
+                let tmp%117#0: bytes = (txna ApplicationArgs 14)
+                let tmp%118#0: bytes = (txna ApplicationArgs 15)
+                let tmp%119#0: bytes = ((extract 0 8) tmp%118#0)
+                let tmp%120#0: bytes = (txna ApplicationArgs 15)
+                let tmp%121#0: bytes = ((extract 8 8) tmp%120#0)
+                let tmp%122#0: bytes = (txna ApplicationArgs 15)
+                let tmp%123#0: bytes = ((extract 16 8) tmp%122#0)
+                let tmp%124#0: uint64 = (btoi tmp%123#0)
+                let tmp%125#0: bytes = (txna ApplicationArgs 15)
+                let tmp%126#0: bytes = ((extract 24 8) tmp%125#0)
+                let tmp%127#0: bytes = (txna ApplicationArgs 15)
+                let tmp%128#0: bytes = ((extract 32 8) tmp%127#0)
+                let tmp%129#0: bytes = (txna ApplicationArgs 15)
+                let item_index%130#0: uint64 = (extract_uint16 tmp%129#0 40u)
+                let item_length%131#0: uint64 = (extract_uint16 tmp%129#0 item_index%130#0)
+                let item_length_plus_2%132#0: uint64 = (+ item_length%131#0 2u)
+                let tmp%133#0: bytes = (extract3 tmp%129#0 item_index%130#0 item_length_plus_2%132#0)
+                let tmp%134#0: bytes = ((extract 2 0) tmp%133#0)
+                let tmp%135#0: bytes = (txna ApplicationArgs 15)
+                let item_index%136#0: uint64 = (extract_uint16 tmp%135#0 42u)
+                let item_length%137#0: uint64 = (extract_uint16 tmp%135#0 item_index%136#0)
+                let item_length_plus_2%138#0: uint64 = (+ item_length%137#0 2u)
+                let tmp%139#0: bytes = (extract3 tmp%135#0 item_index%136#0 item_length_plus_2%138#0)
+                let tmp%140#0: bytes = ((extract 2 0) tmp%139#0)
+                let tmp%141#0: bytes = (txna ApplicationArgs 15)
+                let tmp%142#0: bytes = ((extract 44 1) tmp%141#0)
+                let tmp%143#0: uint64 = (btoi tmp%142#0)
+                let tmp%144#0: uint64 = ((txnas Assets) tmp%143#0)
+                let tmp%147#0: uint64 = (txn GroupIndex)
+                let awst_tmp%35#0: uint64 = (- tmp%147#0 1u)
+                let tmp%148#0: uint64 = ((gtxns TypeEnum) awst_tmp%35#0)
+                let tmp%149#0: uint64 = (== tmp%148#0 pay)
+                (assert tmp%149#0) // transaction type is pay
+                let tmp%150#0: bytes = (txna ApplicationArgs 15)
+                let tmp%151#0: bytes = ((extract 45 8) tmp%150#0)
+                let tmp%152#0: bytes = (txna ApplicationArgs 15)
+                let tmp%153#0: bytes = ((extract 53 8) tmp%152#0)
+                let tmp%154#0: bytes = test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(tmp%95#0, tmp%96#0, tmp%97#0, tmp%99#0, tmp%102#0, tmp%103#0, tmp%104#0, awst_tmp%108#0, tmp%111#0, tmp%112#0, tmp%113#0, tmp%114#0, tmp%115#0, tmp%116#0, tmp%117#0, tmp%119#0, tmp%121#0, tmp%124#0, tmp%126#0, tmp%128#0, tmp%134#0, tmp%140#0, tmp%144#0, awst_tmp%35#0, tmp%151#0, tmp%153#0)
+                let tmp%155#0: bytes = (concat 0x151f7c75 tmp%154#0)
+                (log tmp%155#0)
+                return 1u
+            block@18: // bare_routing_L23
+                let tmp%156#0: uint64 = (txn OnCompletion)
+                goto_nth [block@19, block@19, block@19, block@20, block@19, block@19][tmp%156#0] else fail // reject transaction
+            block@19: // bare_abi_config_L67
+                let tmp%157#0: uint64 = (txn ApplicationID)
+                let tmp%158#0: uint64 = (! tmp%157#0)
+                (assert tmp%158#0) // is creating
+                test_cases.abi_routing.contract.Reference.bare_abi_config()
+                return 1u
+            block@20: // reject_bare_on_completion_L23
+                fail // reject transaction
+        
+        subroutine test_cases.abi_routing.contract.Reference.noop_with_uint64(a: bytes) -> bytes:
+            block@0: // L33
+                let tmp%0#0: uint64 = (btoi a#0)
+                let result#0: uint64 = (+ 1u tmp%0#0)
+                let val_as_bytes%1#0: bytes = (itob result#0)
+                let tmp%2#0: bytes = ((extract 7 1) val_as_bytes%1#0)
+                return tmp%2#0
+        
+        subroutine test_cases.abi_routing.contract.Reference.full_abi_config(a: bytes) -> bytes:
+            block@0: // L38
+                let tmp%0#0: uint64 = (btoi a#0)
+                let result#0: uint64 = (+ 1u tmp%0#0)
+                let val_as_bytes%1#0: bytes = (itob result#0)
+                let tmp%2#0: bytes = ((extract 7 1) val_as_bytes%1#0)
+                return tmp%2#0
+        
+        subroutine test_cases.abi_routing.contract.Reference.mixed_oca(a: bytes) -> bytes:
+            block@0: // L54
+                let tmp%0#0: uint64 = (btoi a#0)
+                let result#0: uint64 = (+ 1u tmp%0#0)
+                let val_as_bytes%1#0: bytes = (itob result#0)
+                let tmp%2#0: bytes = ((extract 7 1) val_as_bytes%1#0)
+                return tmp%2#0
+        
+        subroutine test_cases.abi_routing.contract.Reference.opt_into_asset(asset: uint64) -> void:
+            block@0: // L80
+                let tmp%0#0: bytes = (txn Sender)
+                let tmp%1#0: bytes = (global CreatorAddress)
+                let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
+                (assert tmp%2#0) // Only creator can opt in to ASA
+                let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asa")
+                (assert app_global_get_ex_did_exist%4#0) // check value exists
+                let tmp%5#0: uint64 = (! app_global_get_ex_value%3#0)
+                (assert tmp%5#0) // ASA already opted in
+                (app_global_put "asa" asset#0)
+                itxn_begin
+                ((itxn_field TypeEnum) axfer)
+                ((itxn_field Fee) 0u)
+                let tmp%6#0: bytes = (global CurrentApplicationAddress)
+                ((itxn_field AssetReceiver) tmp%6#0)
+                ((itxn_field XferAsset) asset#0)
+                itxn_submit
+                return 
+        
+        subroutine test_cases.abi_routing.contract.Reference.with_transactions(asset: uint64, an_int: bytes, pay: uint64, another_int: bytes) -> void:
+            block@0: // L97
+                let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "asa")
+                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                let tmp%2#0: uint64 = (== app_global_get_ex_value%0#0 asset#0)
+                (assert tmp%2#0) // is correct asset
+                let tmp%3#0: uint64 = (btoi an_int#0)
+                let tmp%4#0: uint64 = (== tmp%3#0 1u)
+                (assert tmp%4#0) // is correct int
+                let tmp%5#0: bytes = ((gtxns Receiver) pay#0)
+                let tmp%6#0: bytes = (global CurrentApplicationAddress)
+                let tmp%7#0: uint64 = (== tmp%5#0 tmp%6#0)
+                (assert tmp%7#0) // is payment to app
+                let tmp%8#0: uint64 = (btoi another_int#0)
+                let tmp%9#0: uint64 = (== tmp%8#0 2u)
+                (assert tmp%9#0) // is correct int
+                return 
+        
+        subroutine test_cases.abi_routing.contract.Reference.compare_assets(asset_a: uint64, asset_b: uint64) -> void:
+            block@0: // L106
+                let tmp%0#0: uint64 = (== asset_a#0 asset_b#0)
+                (assert tmp%0#0) // asset a == b
+                return 
+        
+        subroutine test_cases.abi_routing.contract.Reference.get_address() -> bytes:
+            block@0: // L110
+                let tmp%0#0: bytes = (global ZeroAddress)
+                return tmp%0#0
+        
+        subroutine test_cases.abi_routing.contract.Reference.get_asset() -> bytes:
+            block@0: // L114
+                return 0x00000000000001c8
+        
+        subroutine test_cases.abi_routing.contract.Reference.get_app() -> bytes:
+            block@0: // L118
+                return 0x00000000000001c8
+        
+        subroutine test_cases.abi_routing.contract.Reference.get_a_int() -> bytes:
+            block@0: // L122
+                return 0x0000000000000003
+        
+        subroutine test_cases.abi_routing.contract.Reference.method_with_default_args(asset_from_storage: uint64, asset_from_function: uint64, account_from_storage: bytes, account_from_function: bytes, application_from_storage: uint64, application_from_function: uint64, bytes_from_storage: bytes, int_from_storage: bytes, int_from_function: bytes) -> void:
+            block@0: // L126
+                let tmp%0#0: uint64 = (== asset_from_storage#0 123u)
+                (assert tmp%0#0) // wrong asset from storage
+                let tmp%1#0: uint64 = (== asset_from_function#0 456u)
+                (assert tmp%1#0) // wrong asset from function
+                let tmp%2#0: bytes = (global CreatorAddress)
+                let tmp%3#0: uint64 = (== account_from_storage#0 tmp%2#0)
+                (assert tmp%3#0) // wrong account from storage
+                let tmp%4#0: bytes = (global ZeroAddress)
+                let tmp%5#0: uint64 = (== account_from_function#0 tmp%4#0)
+                (assert tmp%5#0) // wrong account from function
+                let tmp%6#0: uint64 = (== application_from_storage#0 123u)
+                (assert tmp%6#0) // wrong application from storage
+                let tmp%7#0: uint64 = (== application_from_function#0 456u)
+                (assert tmp%7#0) // wrong application from function
+                let tmp%9#0: bytes = ((extract 0 1) bytes_from_storage#0)
+                let tmp%10#0: uint64 = (== tmp%9#0 0x07)
+                (assert tmp%10#0) // wrong 0th byte from storage
+                let tmp%12#0: bytes = ((extract 1 1) bytes_from_storage#0)
+                let tmp%13#0: uint64 = (== tmp%12#0 0x08)
+                (assert tmp%13#0) // wrong 1st byte from storage
+                let tmp%15#0: bytes = ((extract 2 1) bytes_from_storage#0)
+                let tmp%16#0: uint64 = (== tmp%15#0 0x09)
+                (assert tmp%16#0) // wrong 2nd byte from storage
+                let tmp%17#0: uint64 = (btoi int_from_storage#0)
+                let tmp%18#0: uint64 = (== tmp%17#0 2u)
+                (assert tmp%18#0) // wrong int from storage
+                let tmp%19#0: uint64 = (btoi int_from_function#0)
+                let tmp%20#0: uint64 = (== tmp%19#0 3u)
+                (assert tmp%20#0) // wrong int from function
+                return 
+        
+        subroutine test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(a: bytes, b: bytes, c: bytes, d: uint64, asset: uint64, e: bytes, f: bytes, pay: uint64, g: bytes, h: bytes, i: bytes, j: bytes, k: bytes, l: bytes, m: bytes, n: bytes, o: bytes, p: uint64, q: bytes, r: bytes, s: bytes, t: bytes, asset2: uint64, pay2: uint64, u: bytes, v: bytes) -> bytes:
+            block@0: // L163
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: uint64 = (== tmp%0#0 16u)
+                (assert tmp%1#0)
+                let tmp%2#0: uint64 = ((gtxns Amount) pay#0)
+                let tmp%3#0: uint64 = (== tmp%2#0 100000u)
+                (assert tmp%3#0)
+                let tmp%4#0: uint64 = ((gtxns Amount) pay2#0)
+                let tmp%5#0: uint64 = (== tmp%4#0 200000u)
+                (assert tmp%5#0)
+                (assert asset#0)
+                (assert asset2#0)
+                let tmp%6#0: bytes = (concat s#0 t#0)
+                (log tmp%6#0)
+                let tmp%7#0: uint64 = (btoi a#0)
+                let tmp%8#0: uint64 = (btoi b#0)
+                let tmp%9#0: uint64 = (+ tmp%7#0 tmp%8#0)
+                let tmp%10#0: uint64 = (btoi c#0)
+                let tmp%11#0: uint64 = (+ tmp%9#0 tmp%10#0)
+                let tmp%12#0: uint64 = (+ tmp%11#0 d#0)
+                let tmp%13#0: uint64 = (btoi e#0)
+                let tmp%14#0: uint64 = (+ tmp%12#0 tmp%13#0)
+                let tmp%15#0: uint64 = (btoi f#0)
+                let tmp%16#0: uint64 = (+ tmp%14#0 tmp%15#0)
+                let tmp%17#0: uint64 = (btoi g#0)
+                let tmp%18#0: uint64 = (+ tmp%16#0 tmp%17#0)
+                let tmp%19#0: uint64 = (btoi h#0)
+                let tmp%20#0: uint64 = (+ tmp%18#0 tmp%19#0)
+                let tmp%21#0: uint64 = (btoi i#0)
+                let tmp%22#0: uint64 = (+ tmp%20#0 tmp%21#0)
+                let tmp%23#0: uint64 = (btoi j#0)
+                let tmp%24#0: uint64 = (+ tmp%22#0 tmp%23#0)
+                let tmp%25#0: uint64 = (btoi k#0)
+                let tmp%26#0: uint64 = (+ tmp%24#0 tmp%25#0)
+                let tmp%27#0: uint64 = (btoi l#0)
+                let tmp%28#0: uint64 = (+ tmp%26#0 tmp%27#0)
+                let tmp%29#0: uint64 = (btoi m#0)
+                let tmp%30#0: uint64 = (+ tmp%28#0 tmp%29#0)
+                let tmp%31#0: uint64 = (btoi n#0)
+                let tmp%32#0: uint64 = (+ tmp%30#0 tmp%31#0)
+                let tmp%33#0: uint64 = (btoi o#0)
+                let tmp%34#0: uint64 = (+ tmp%32#0 tmp%33#0)
+                let tmp%35#0: uint64 = (+ tmp%34#0 p#0)
+                let tmp%36#0: uint64 = (btoi q#0)
+                let tmp%37#0: uint64 = (+ tmp%35#0 tmp%36#0)
+                let tmp%38#0: uint64 = (btoi r#0)
+                let tmp%39#0: uint64 = (+ tmp%37#0 tmp%38#0)
+                let tmp%40#0: uint64 = (btoi u#0)
+                let tmp%41#0: uint64 = (+ tmp%39#0 tmp%40#0)
+                let tmp%42#0: uint64 = (btoi v#0)
+                let tmp%43#0: uint64 = (+ tmp%41#0 tmp%42#0)
+                let val_as_bytes%44#0: bytes = (itob tmp%43#0)
+                return val_as_bytes%44#0
+        
+        subroutine test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
+            block@0: // L67
+                (log "Hello World")
+                return 
+        
+        subroutine test_cases.abi_routing.contract.Reference.__init__() -> void:
+            block@0: // L24
+                (app_global_put "asa" 123u)
+                (app_global_put "an_int" 2u)
+                (app_global_put "some_bytes" 0x070809)
+                let new_state_value%1#0: bytes = (txn Sender)
+                (app_global_put "creator" new_state_value%1#0)
+                (app_global_put "app" 123u)
+                let tmp%2#0: uint64 = (len method "get(uint64,byte[])byte[]")
+                (assert tmp%2#0) // has method selector
+                return 
+    
+    program clear-state:
+        subroutine test_cases.abi_routing.contract.Reference.clear_state_program() -> uint64:
+            block@0: // L23
+                return 1u

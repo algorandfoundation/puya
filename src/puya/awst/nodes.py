@@ -16,7 +16,7 @@ from puya.awst.visitors import (
 )
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
-from puya.metadata import ARC4MethodConfig
+from puya.models import ARC4MethodConfig
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
@@ -199,7 +199,7 @@ class Literal(Node):
 @attrs.frozen
 class Block(Statement):
     body: Sequence[Statement] = attrs.field(converter=tuple[Statement, ...])
-    description: str | None = attrs.field(default=None)
+    description: str | None = None
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_block(self)
@@ -291,7 +291,7 @@ class IntegerConstant(Expression):
         ]
     )
     value: int = attrs.field()
-    teal_alias: str | None = attrs.field(default=None)
+    teal_alias: str | None = None
 
     @value.validator
     def check(self, _attribute: object, value: int) -> None:

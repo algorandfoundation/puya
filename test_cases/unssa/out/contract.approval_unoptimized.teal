@@ -1,399 +1,511 @@
 #pragma version 10
 
-// test_cases.unssa.contract.UnSSAContract.approval_program() -> uint64:
-main:
-        byte ""
-
-main_block@0:
-        callsub test_self_ref_phi
-        pop
-        int 1
-        callsub test_swap
-        dup
-        swap
-        dup
-        itob
-        log
-        int 1
-        >=
-        bz main_bool_false@3
-
-main_and_contd@1:
-        dup
-        int 2
-        <=
-        bz main_bool_false@3
-
-main_bool_true@2:
-        int 1
-        b main_bool_merge@4
+test_cases.unssa.contract.UnSSAContract.approval_program:
+    byte ""
+    // unssa/contract.py:6
+    // test_self_ref_phi()
+    callsub test_self_ref_phi
+    pop
+    // unssa/contract.py:7
+    // result1 = test_swap(UInt64(1))
+    int 1
+    callsub test_swap
+    dup
+    swap
+    // unssa/contract.py:8
+    // log(itob(result1))
+    dup
+    itob
+    log
+    // unssa/contract.py:9
+    // assert 1 <= result1 <= 2
+    int 1
+    >=
+    bz main_bool_false@3
+    dup
+    int 2
+    <=
+    bz main_bool_false@3
+    int 1
+    b main_bool_merge@4
 
 main_bool_false@3:
-        int 0
+    int 0
 
 main_bool_merge@4:
-        assert
-        int 2
-        callsub test_swap
-        dup
-        bury 3
-        dup
-        itob
-        log
-        int 1
-        >=
-        bz main_bool_false@7
-
-main_and_contd@5:
-        dig 1
-        int 2
-        <=
-        bz main_bool_false@7
-
-main_bool_true@6:
-        int 1
-        b main_bool_merge@8
+    // unssa/contract.py:9
+    // assert 1 <= result1 <= 2
+    assert
+    // unssa/contract.py:10
+    // result2 = test_swap(UInt64(2))
+    int 2
+    callsub test_swap
+    dup
+    bury 3
+    // unssa/contract.py:11
+    // log(itob(result2))
+    dup
+    itob
+    log
+    // unssa/contract.py:12
+    // assert 1 <= result2 <= 2
+    int 1
+    >=
+    bz main_bool_false@7
+    dig 1
+    int 2
+    <=
+    bz main_bool_false@7
+    int 1
+    b main_bool_merge@8
 
 main_bool_false@7:
-        int 0
+    int 0
 
 main_bool_merge@8:
-        assert
-        int 7
-        int 11
-        callsub test_swap_loop
-        pop
-        int 0
-        callsub test_param_update_with_reentrant_entry_block
-        int 10
-        ==
-        assert
-        int 0
-        callsub test_param_update_with_reentrant_entry_block_v2
-        pop
-        callsub test_param_update_with_reentrant_entry_block_v3
-        callsub test_swap_args
-        int 100
-        int 200
-        int 0
-        callsub test_tuple_swap
-        swap
-        int 100
-        ==
-        assert
-        int 200
-        ==
-        assert
-        int 100
-        int 200
-        int 1
-        callsub test_tuple_swap
-        swap
-        int 200
-        ==
-        assert
-        int 100
-        ==
-        assert
-        int 1
-        return
+    // unssa/contract.py:12
+    // assert 1 <= result2 <= 2
+    assert
+    // unssa/contract.py:13
+    // test_swap_loop(UInt64(7), UInt64(11))
+    int 7
+    int 11
+    callsub test_swap_loop
+    pop
+    // unssa/contract.py:14
+    // assert test_param_update_with_reentrant_entry_block(UInt64(0)) == 10
+    int 0
+    callsub test_param_update_with_reentrant_entry_block
+    int 10
+    ==
+    assert
+    // unssa/contract.py:15
+    // test_param_update_with_reentrant_entry_block_v2(UInt64(0))
+    int 0
+    callsub test_param_update_with_reentrant_entry_block_v2
+    pop
+    // unssa/contract.py:16
+    // test_param_update_with_reentrant_entry_block_v3()
+    callsub test_param_update_with_reentrant_entry_block_v3
+    // unssa/contract.py:17
+    // test_swap_args()
+    callsub test_swap_args
+    // unssa/contract.py:19
+    // (a, b) = test_tuple_swap(UInt64(100), UInt64(200), UInt64(0))
+    int 100
+    int 200
+    int 0
+    callsub test_tuple_swap
+    swap
+    // unssa/contract.py:20
+    // assert a == UInt64(100)
+    int 100
+    ==
+    assert
+    // unssa/contract.py:21
+    // assert b == UInt64(200)
+    int 200
+    ==
+    assert
+    // unssa/contract.py:22
+    // (a, b) = test_tuple_swap(UInt64(100), UInt64(200), UInt64(1))
+    int 100
+    int 200
+    int 1
+    callsub test_tuple_swap
+    swap
+    // unssa/contract.py:23
+    // assert a == UInt64(200)
+    int 200
+    ==
+    assert
+    // unssa/contract.py:24
+    // assert b == UInt64(100)
+    int 100
+    ==
+    assert
+    // unssa/contract.py:26
+    // return True
+    int 1
+    return
 
 
 // test_cases.unssa.contract.test_self_ref_phi() -> uint64:
 test_self_ref_phi:
-        proto 0 1
-
-test_self_ref_phi_block@0:
-        int 1
+    // unssa/contract.py:32-33
+    // @subroutine
+    // def test_self_ref_phi() -> UInt64:
+    proto 0 1
+    // unssa/contract.py:34
+    // a = UInt64(1)
+    int 1
 
 test_self_ref_phi_while_top@1:
-        frame_dig 0
-        int 100
-        <
-        bz test_self_ref_phi_after_while@7
-
-test_self_ref_phi_while_body@2:
-        frame_dig 0
-        int 105
-        %
-        int 0
-        ==
-        bz test_self_ref_phi_after_if_else@4
-
-test_self_ref_phi_if_body@3:
-        b test_self_ref_phi_while_top@1
+    // unssa/contract.py:35
+    // while a < 100:
+    frame_dig 0
+    int 100
+    <
+    bz test_self_ref_phi_after_while@7
+    // unssa/contract.py:36
+    // if a % 105 == 0:
+    frame_dig 0
+    int 105
+    %
+    int 0
+    ==
+    bz test_self_ref_phi_after_if_else@4
+    // unssa/contract.py:37
+    // continue
+    b test_self_ref_phi_while_top@1
 
 test_self_ref_phi_after_if_else@4:
-        frame_dig 0
-        int 21
-        %
-        bnz test_self_ref_phi_after_if_else@6
-
-test_self_ref_phi_if_body@5:
-        b test_self_ref_phi_after_while@7
+    // unssa/contract.py:38
+    // if not a % 21:
+    frame_dig 0
+    int 21
+    %
+    bnz test_self_ref_phi_after_if_else@6
+    // unssa/contract.py:39
+    // break
+    b test_self_ref_phi_after_while@7
 
 test_self_ref_phi_after_if_else@6:
-        frame_dig 0
-        int 1
-        +
-        frame_bury 0
-        b test_self_ref_phi_while_top@1
+    // unssa/contract.py:40
+    // a += 1
+    frame_dig 0
+    int 1
+    +
+    frame_bury 0
+    b test_self_ref_phi_while_top@1
 
 test_self_ref_phi_after_while@7:
-        frame_dig 0
-        swap
-        retsub
+    // unssa/contract.py:41
+    // return a
+    frame_dig 0
+    swap
+    retsub
 
 
-// test_cases.unssa.contract.test_swap(i#0: uint64) -> uint64:
+// test_cases.unssa.contract.test_swap(i: uint64) -> uint64:
 test_swap:
-        proto 1 1
-
-test_swap_block@0:
-        int 1
-        int 2
+    // unssa/contract.py:44-45
+    // @subroutine
+    // def test_swap(i: UInt64) -> UInt64:
+    proto 1 1
+    // unssa/contract.py:46
+    // x = UInt64(1)
+    int 1
+    // unssa/contract.py:47
+    // y = UInt64(2)
+    int 2
 
 test_swap_while_top@1:
-        frame_dig -1
-        int 0
-        >
-        bz test_swap_after_while@3
-
-test_swap_while_body@2:
-        frame_dig 0
-        frame_dig 1
-        frame_bury 0
-        frame_bury 1
-        frame_dig -1
-        int 1
-        -
-        frame_bury -1
-        b test_swap_while_top@1
+    // unssa/contract.py:48
+    // while i > 0:
+    frame_dig -1
+    int 0
+    >
+    bz test_swap_after_while@3
+    // unssa/contract.py:49
+    // tmp = x
+    frame_dig 0
+    // unssa/contract.py:50
+    // x = y
+    frame_dig 1
+    frame_bury 0
+    // unssa/contract.py:51
+    // y = tmp
+    frame_bury 1
+    // unssa/contract.py:52
+    // i = i - 1
+    frame_dig -1
+    int 1
+    -
+    frame_bury -1
+    b test_swap_while_top@1
 
 test_swap_after_while@3:
-        frame_dig 0
-        frame_bury 0
-        retsub
+    // unssa/contract.py:53
+    // return x
+    frame_dig 0
+    frame_bury 0
+    retsub
 
 
-// test_cases.unssa.contract.test_swap_loop(i#0: uint64, j#0: uint64) -> uint64:
+// test_cases.unssa.contract.test_swap_loop(i: uint64, j: uint64) -> uint64:
 test_swap_loop:
-        proto 2 1
-
-test_swap_loop_block@0:
-        int 1
-        int 2
+    // unssa/contract.py:56-57
+    // @subroutine
+    // def test_swap_loop(i: UInt64, j: UInt64) -> UInt64:
+    proto 2 1
+    // unssa/contract.py:58
+    // x = UInt64(1)
+    int 1
+    // unssa/contract.py:59
+    // y = UInt64(2)
+    int 2
 
 test_swap_loop_while_top@1:
-        frame_dig -2
-        int 0
-        >
-        bz test_swap_loop_after_while@6
-
-test_swap_loop_while_body@2:
+    // unssa/contract.py:60
+    // while i > 0:
+    frame_dig -2
+    int 0
+    >
+    bz test_swap_loop_after_while@6
 
 test_swap_loop_while_top@3:
-        frame_dig -1
-        int 0
-        >
-        bz test_swap_loop_after_while@5
-
-test_swap_loop_while_body@4:
-        frame_dig 0
-        frame_dig 1
-        frame_bury 0
-        frame_bury 1
-        frame_dig -1
-        int 1
-        -
-        frame_bury -1
-        b test_swap_loop_while_top@3
+    // unssa/contract.py:61
+    // while j > 0:
+    frame_dig -1
+    int 0
+    >
+    bz test_swap_loop_after_while@5
+    // unssa/contract.py:62
+    // tmp = x
+    frame_dig 0
+    // unssa/contract.py:63
+    // x = y
+    frame_dig 1
+    frame_bury 0
+    // unssa/contract.py:64
+    // y = tmp
+    frame_bury 1
+    // unssa/contract.py:65
+    // j = j - 1
+    frame_dig -1
+    int 1
+    -
+    frame_bury -1
+    b test_swap_loop_while_top@3
 
 test_swap_loop_after_while@5:
-        frame_dig -2
-        int 1
-        -
-        frame_bury -2
-        b test_swap_loop_while_top@1
+    // unssa/contract.py:66
+    // i = i - 1
+    frame_dig -2
+    int 1
+    -
+    frame_bury -2
+    b test_swap_loop_while_top@1
 
 test_swap_loop_after_while@6:
-        frame_dig 0
-        frame_bury 0
-        retsub
+    // unssa/contract.py:67
+    // return x
+    frame_dig 0
+    frame_bury 0
+    retsub
 
 
-// test_cases.unssa.contract.test_param_update_with_reentrant_entry_block(x#0: uint64) -> uint64:
+// test_cases.unssa.contract.test_param_update_with_reentrant_entry_block(x: uint64) -> uint64:
 test_param_update_with_reentrant_entry_block:
-        proto 1 1
-        byte ""
-
-test_param_update_with_reentrant_entry_block_block@0:
+    // unssa/contract.py:77-78
+    // @subroutine
+    // def test_param_update_with_reentrant_entry_block(x: UInt64) -> UInt64:
+    proto 1 1
+    byte ""
 
 test_param_update_with_reentrant_entry_block_while_top@1:
-        frame_dig -1
-        frame_bury 0
-        int 1
-        bz test_param_update_with_reentrant_entry_block_after_while@5
-
-test_param_update_with_reentrant_entry_block_while_body@2:
-        frame_dig -1
-        int 1
-        +
-        dup
-        frame_bury -1
-        int 10
-        >=
-        bz test_param_update_with_reentrant_entry_block_after_if_else@4
-
-test_param_update_with_reentrant_entry_block_if_body@3:
-        frame_dig -1
-        frame_bury 0
-        b test_param_update_with_reentrant_entry_block_after_while@5
+    frame_dig -1
+    frame_bury 0
+    // unssa/contract.py:79
+    // while True:
+    int 1
+    bz test_param_update_with_reentrant_entry_block_after_while@5
+    // unssa/contract.py:80
+    // x = x + 1
+    frame_dig -1
+    int 1
+    +
+    dup
+    frame_bury -1
+    // unssa/contract.py:81
+    // if x >= 10:
+    int 10
+    >=
+    bz test_param_update_with_reentrant_entry_block_after_if_else@4
+    frame_dig -1
+    frame_bury 0
+    // unssa/contract.py:82
+    // break
+    b test_param_update_with_reentrant_entry_block_after_while@5
 
 test_param_update_with_reentrant_entry_block_after_if_else@4:
-        b test_param_update_with_reentrant_entry_block_while_top@1
+    b test_param_update_with_reentrant_entry_block_while_top@1
 
 test_param_update_with_reentrant_entry_block_after_while@5:
-        frame_dig 0
-        dup
-        frame_bury -1
-        swap
-        retsub
+    frame_dig 0
+    dup
+    frame_bury -1
+    // unssa/contract.py:83
+    // return x
+    swap
+    retsub
 
 
-// test_cases.unssa.contract.test_param_update_with_reentrant_entry_block_v2(x#0: uint64) -> uint64:
+// test_cases.unssa.contract.test_param_update_with_reentrant_entry_block_v2(x: uint64) -> uint64:
 test_param_update_with_reentrant_entry_block_v2:
-        proto 1 1
-
-test_param_update_with_reentrant_entry_block_v2_block@0:
-        frame_dig -1
-        int 1
-        +
-        frame_bury -1
+    // unssa/contract.py:86-87
+    // @subroutine
+    // def test_param_update_with_reentrant_entry_block_v2(x: UInt64) -> UInt64:
+    proto 1 1
+    // unssa/contract.py:88
+    // x = x + 1
+    frame_dig -1
+    int 1
+    +
+    frame_bury -1
 
 test_param_update_with_reentrant_entry_block_v2_while_top@1:
-        int 1
-        bz test_param_update_with_reentrant_entry_block_v2_after_while@5
-
-test_param_update_with_reentrant_entry_block_v2_while_body@2:
-        frame_dig -1
-        int 1
-        >=
-        bz test_param_update_with_reentrant_entry_block_v2_after_if_else@4
-
-test_param_update_with_reentrant_entry_block_v2_if_body@3:
-        b test_param_update_with_reentrant_entry_block_v2_after_while@5
+    // unssa/contract.py:89
+    // while True:
+    int 1
+    bz test_param_update_with_reentrant_entry_block_v2_after_while@5
+    // unssa/contract.py:90
+    // if x >= 1:
+    frame_dig -1
+    int 1
+    >=
+    bz test_param_update_with_reentrant_entry_block_v2_after_if_else@4
+    // unssa/contract.py:91
+    // break
+    b test_param_update_with_reentrant_entry_block_v2_after_while@5
 
 test_param_update_with_reentrant_entry_block_v2_after_if_else@4:
-        b test_param_update_with_reentrant_entry_block_v2_while_top@1
+    b test_param_update_with_reentrant_entry_block_v2_while_top@1
 
 test_param_update_with_reentrant_entry_block_v2_after_while@5:
-        frame_dig -1
-        retsub
+    // unssa/contract.py:92
+    // return x
+    frame_dig -1
+    retsub
 
 
 // test_cases.unssa.contract.test_param_update_with_reentrant_entry_block_v3() -> void:
 test_param_update_with_reentrant_entry_block_v3:
-        proto 0 0
-
-test_param_update_with_reentrant_entry_block_v3_block@0:
+    // unssa/contract.py:95-96
+    // @subroutine
+    // def test_param_update_with_reentrant_entry_block_v3() -> None:
+    proto 0 0
 
 test_param_update_with_reentrant_entry_block_v3_while_top@1:
-        int 1
-        bz test_param_update_with_reentrant_entry_block_v3_after_while@5
-
-test_param_update_with_reentrant_entry_block_v3_while_body@2:
-        callsub one
-        bz test_param_update_with_reentrant_entry_block_v3_after_if_else@4
-
-test_param_update_with_reentrant_entry_block_v3_if_body@3:
-        b test_param_update_with_reentrant_entry_block_v3_after_while@5
+    // unssa/contract.py:97
+    // while True:
+    int 1
+    bz test_param_update_with_reentrant_entry_block_v3_after_while@5
+    // unssa/contract.py:98
+    // if one():
+    callsub one
+    bz test_param_update_with_reentrant_entry_block_v3_after_if_else@4
+    // unssa/contract.py:99
+    // break
+    b test_param_update_with_reentrant_entry_block_v3_after_while@5
 
 test_param_update_with_reentrant_entry_block_v3_after_if_else@4:
-        b test_param_update_with_reentrant_entry_block_v3_while_top@1
+    b test_param_update_with_reentrant_entry_block_v3_while_top@1
 
 test_param_update_with_reentrant_entry_block_v3_after_while@5:
-        retsub
+    retsub
 
 
 // test_cases.unssa.contract.one() -> uint64:
 one:
-        proto 0 1
-
-one_block@0:
-        int 1
-        retsub
+    // unssa/contract.py:102-103
+    // @subroutine
+    // def one() -> UInt64:
+    proto 0 1
+    // unssa/contract.py:104
+    // return UInt64(1)
+    int 1
+    retsub
 
 
 // test_cases.unssa.contract.test_swap_args() -> void:
 test_swap_args:
-        proto 0 0
+    // unssa/contract.py:112-113
+    // @subroutine
+    // def test_swap_args() -> None:
+    proto 0 0
+    // unssa/contract.py:114
+    // a = one() + 123
+    callsub one
+    int 123
+    +
+    // unssa/contract.py:115
+    // b = one() + 234
+    callsub one
+    int 234
+    +
+    // unssa/contract.py:116
+    // a, b = swap_args(a, b)
+    callsub swap_args
+    swap
+    // unssa/contract.py:117
+    // assert a == 235, "a == 235"
+    int 235
+    ==
+    assert // a == 235
+    // unssa/contract.py:118
+    // assert b == 124, "b = 124"
+    int 124
+    ==
+    assert // b = 124
+    retsub
 
-test_swap_args_block@0:
-        callsub one
-        int 123
-        +
-        callsub one
-        int 234
-        +
-        callsub swap_args
-        swap
-        int 235
-        ==
-        assert // a == 235
-        int 124
-        ==
-        assert // b = 124
-        retsub
 
-
-// test_cases.unssa.contract.swap_args(a#0: uint64, b#0: uint64) -> uint64, uint64:
+// test_cases.unssa.contract.swap_args(a: uint64, b: uint64) -> uint64, uint64:
 swap_args:
-        proto 2 2
+    // unssa/contract.py:107-108
+    // @subroutine
+    // def swap_args(a: UInt64, b: UInt64) -> tuple[UInt64, UInt64]:
+    proto 2 2
+    // unssa/contract.py:109
+    // return b, a
+    frame_dig -1
+    frame_dig -2
+    retsub
 
-swap_args_block@0:
-        frame_dig -1
-        frame_dig -2
-        retsub
 
-
-// test_cases.unssa.contract.test_tuple_swap(a#0: uint64, b#0: uint64, i#0: uint64) -> uint64, uint64:
+// test_cases.unssa.contract.test_tuple_swap(a: uint64, b: uint64, i: uint64) -> uint64, uint64:
 test_tuple_swap:
-        proto 3 2
-        byte ""
-
-test_tuple_swap_block@0:
-        int 1
-        assert // Step cannot be zero
-        int 0
+    // unssa/contract.py:70-71
+    // @subroutine
+    // def test_tuple_swap(a: UInt64, b: UInt64, i: UInt64) -> tuple[UInt64, UInt64]:
+    proto 3 2
+    byte ""
+    // unssa/contract.py:72
+    // for _item in urange(i):
+    int 1
+    assert // Step cannot be zero
+    int 0
 
 test_tuple_swap_for_header@1:
-        frame_dig 1
-        frame_dig -1
-        <
-        bz test_tuple_swap_after_for@5
-
-test_tuple_swap_for_body@2:
-        frame_dig -2
-        frame_bury 0
-        frame_dig -3
-        frame_bury -2
-
-test_tuple_swap_for_footer@3:
-
-test_tuple_swap_for_increment@4:
-        frame_dig 1
-        int 1
-        +
-        frame_bury 1
-        frame_dig 0
-        frame_bury -3
-        b test_tuple_swap_for_header@1
+    // unssa/contract.py:72
+    // for _item in urange(i):
+    frame_dig 1
+    frame_dig -1
+    <
+    bz test_tuple_swap_after_for@5
+    // unssa/contract.py:73
+    // (a, b) = (b, a)
+    frame_dig -2
+    frame_bury 0
+    frame_dig -3
+    frame_bury -2
+    // unssa/contract.py:72
+    // for _item in urange(i):
+    frame_dig 1
+    int 1
+    +
+    frame_bury 1
+    frame_dig 0
+    frame_bury -3
+    b test_tuple_swap_for_header@1
 
 test_tuple_swap_after_for@5:
-        frame_dig -3
-        frame_dig -2
-        uncover 3
-        uncover 3
-        retsub
-
+    // unssa/contract.py:74
+    // return a, b
+    frame_dig -3
+    frame_dig -2
+    uncover 3
+    uncover 3
+    retsub

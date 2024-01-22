@@ -90,7 +90,7 @@ from puya.awst_build.utils import (
     require_expression_builder,
 )
 from puya.errors import CodeError, InternalError, PuyaError
-from puya.metadata import ARC4MethodConfig
+from puya.models import ARC4MethodConfig
 from puya.parse import SourceLocation
 from puya.utils import invert_ordered_binary_op, lazy_setdefault
 
@@ -113,6 +113,7 @@ class FunctionASTConverter(
         context: ASTConversionModuleContext,
         func_def: mypy.nodes.FuncDef,
         contract_method_info: ContractMethodInfo | None,
+        source_location: SourceLocation,
     ):
         super().__init__(context=context)
         func_loc = self._location(func_def)
@@ -182,7 +183,7 @@ class FunctionASTConverter(
             self.result = Subroutine(
                 module_name=self.context.module_name,
                 name=func_def.name,
-                source_location=self._location(func_def),
+                source_location=source_location,
                 args=args,
                 return_type=self._return_type,
                 body=translated_body,
@@ -193,7 +194,7 @@ class FunctionASTConverter(
                 module_name=self.contract_method_info.cref.module_name,
                 class_name=self.contract_method_info.cref.class_name,
                 name=func_def.name,
-                source_location=self._location(func_def),
+                source_location=source_location,
                 args=args,
                 return_type=self._return_type,
                 body=translated_body,
@@ -204,7 +205,10 @@ class FunctionASTConverter(
     @classmethod
     @typing.overload
     def convert(
-        cls, context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef
+        cls,
+        context: ASTConversionModuleContext,
+        func_def: mypy.nodes.FuncDef,
+        source_location: SourceLocation,
     ) -> Subroutine:
         ...
 
@@ -214,6 +218,7 @@ class FunctionASTConverter(
         cls,
         context: ASTConversionModuleContext,
         func_def: mypy.nodes.FuncDef,
+        source_location: SourceLocation,
         contract_method_info: ContractMethodInfo,
     ) -> ContractMethod:
         ...
@@ -223,10 +228,14 @@ class FunctionASTConverter(
         cls,
         context: ASTConversionModuleContext,
         func_def: mypy.nodes.FuncDef,
+        source_location: SourceLocation,
         contract_method_info: ContractMethodInfo | None = None,
     ) -> Subroutine | ContractMethod:
         return cls(
-            context=context, func_def=func_def, contract_method_info=contract_method_info
+            context=context,
+            func_def=func_def,
+            contract_method_info=contract_method_info,
+            source_location=source_location,
         ).result
 
     def visit_block(self, block: mypy.nodes.Block) -> Block:

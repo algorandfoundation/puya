@@ -10,17 +10,17 @@ import structlog.testing
 import structlog.typing
 from puya.awst.nodes import Module
 from puya.awst_build.main import transform_ast
-from puya.codegen.emitprogram import CompiledContract
 from puya.compile import awst_to_teal, parse_with_mypy, write_teal_to_output
 from puya.context import CompileContext
 from puya.errors import CodeError, Errors
+from puya.models import CompiledContract
 from puya.options import PuyaOptions
 from puya.parse import ParseResult, ParseSource, SourceLocation, get_parse_sources
 from puya.utils import pushd
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 
-APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir", "application.json")
+APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir", "*.mir", "application.json")
 UNSTABLE_LOG_PREFIXES = {
     "debug": (
         "Building AWST for ",
@@ -182,13 +182,11 @@ def compile_src(
                 debug_level=debug_level,
                 output_teal=True,
                 output_awst=True,
-                output_final_ir=True,
+                output_destructured_ir=True,
                 output_arc32=True,
-                output_ssa_ir=True,
-                output_optimization_ir=True,
-                output_cssa_ir=True,
-                output_post_ssa_ir=True,
-                output_parallel_copies_ir=True,
+                output_ssa_ir=optimization_level < 2,
+                output_optimization_ir=optimization_level < 2,
+                output_memory_ir=True,
                 out_dir=tmp_dir,
             ),
         )

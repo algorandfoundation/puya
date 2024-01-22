@@ -1,6 +1,6 @@
 import enum
 
-from puya.metadata import OnCompletionAction
+from puya.models import OnCompletionAction
 
 PUYAPY_PREFIX = "puyapy."
 ARC4_PREFIX = f"{PUYAPY_PREFIX}arc4."

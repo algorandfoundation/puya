@@ -1,51 +1,67 @@
 #pragma version 10
 
-// test_cases.simple.contract.MyContract.approval_program() -> uint64:
-main_block@0:
-        int 1
-        int 2
-        +
-        dup
-        swap
-        int 4
-        int 5
-        *
-        swap
-        int 3
-        ==
-        bz main_else_body@6
-
-main_if_body@1:
-        dup
-        int 2
-        <
-        bz main_else_body@3
-
-main_if_body@2:
-        int 3
-        int 2
-        +
-        dig 2
-        +
-        return
+test_cases.simple.contract.MyContract.approval_program:
+    // simple/contract.py:10
+    // a = algo.UInt64(1) + 2
+    int 1
+    int 2
+    +
+    dup
+    swap
+    // simple/contract.py:11
+    // b = algo.UInt64(4) * 5
+    int 4
+    int 5
+    *
+    swap
+    // simple/contract.py:12
+    // if a == (1 + 2) * (4 - 3):
+    int 3
+    ==
+    bz main_else_body@6
+    // simple/contract.py:13
+    // if b < 2:
+    dup
+    int 2
+    <
+    bz main_else_body@3
+    // simple/contract.py:14
+    // b = 3 + algo.UInt64(2)
+    int 3
+    int 2
+    +
+    // simple/contract.py:15
+    // return a + b
+    dig 2
+    swap
+    +
+    return
 
 main_else_body@3:
-        int 2
-        dig 2
-        *
-        int 14
-        *
-        bz main_else_body@5
-
-main_if_body@4:
-        int 2
-        return
+    // simple/contract.py:17
+    // b = 2 * a
+    int 2
+    dig 2
+    *
+    // simple/contract.py:18
+    // if ((3 * 4) + 2) * b:
+    int 14
+    swap
+    *
+    bz main_else_body@5
+    // simple/contract.py:19
+    // return algo.UInt64(2)
+    int 2
+    return
 
 main_else_body@5:
-        int 3
-        return
+    // simple/contract.py:21
+    // return algo.UInt64(3)
+    int 3
+    return
 
 main_else_body@6:
-        int 4
-        return
-
+    // simple/contract.py:23
+    // return pkg_a.MyUInt64(4)
+    int 4
+    return

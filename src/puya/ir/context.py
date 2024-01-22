@@ -16,7 +16,7 @@ class IRBuildContext(CompileContext):
     module_awsts: Mapping[str, awst_nodes.Module]
     subroutines: dict[awst_nodes.Function, Subroutine]
     embedded_funcs: Sequence[awst_nodes.Function] = attrs.field()
-    contract: awst_nodes.ContractFragment | None = attrs.field(default=None)
+    contract: awst_nodes.ContractFragment | None = None
 
     def resolve_contract_reference(
         self, cref: awst_nodes.ContractReference

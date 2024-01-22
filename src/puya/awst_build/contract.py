@@ -7,7 +7,7 @@ import mypy.nodes
 import mypy.types
 import mypy.visitor
 
-import puya.metadata
+import puya.models
 from puya.arc4_util import wtype_to_arc4
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -31,7 +31,7 @@ from puya.awst_build.utils import (
     qualified_class_name,
 )
 from puya.errors import CodeError, InternalError
-from puya.metadata import ARC4DefaultArgument, ARC4MethodConfig, ARC32StructDef, OnCompletionAction
+from puya.models import ARC4DefaultArgument, ARC4MethodConfig, ARC32StructDef, OnCompletionAction
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
@@ -134,6 +134,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             "class abstract method(s) but was not detected as abstract by mypy",
             func_loc,
         )
+        source_location = self._location(decorator or func_def)
 
         keep_going = True
         if func_def.is_class:
@@ -159,7 +160,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         # TODO: handle difference of subroutine vs abimethod and overrides???
         elif func_def.name == "__init__":
             sub = self._handle_method(
-                func_def, extra_decorators=dec_by_fullname, abimethod_config=None
+                func_def,
+                extra_decorators=dec_by_fullname,
+                abimethod_config=None,
+                source_location=source_location,
             )
             if sub is not None:
                 self._init_method = sub
@@ -181,7 +185,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     func_loc,
                 )
             sub = self._handle_method(
-                func_def, extra_decorators=dec_by_fullname, abimethod_config=None
+                func_def,
+                extra_decorators=dec_by_fullname,
+                abimethod_config=None,
+                source_location=source_location,
             )
             if sub is not None:
                 if is_approval:
@@ -256,7 +263,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                         )
                 # TODO: validate against super-class configs??
             sub = self._handle_method(
-                func_def, extra_decorators=dec_by_fullname, abimethod_config=arc4_method_config
+                func_def,
+                extra_decorators=dec_by_fullname,
+                abimethod_config=arc4_method_config,
+                source_location=source_location,
             )
             if sub is not None:
                 self._subroutines.append(sub)
@@ -266,6 +276,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         func_def: mypy.nodes.FuncDef,
         extra_decorators: Mapping[str, mypy.nodes.Expression],
         abimethod_config: ARC4MethodConfig | None,
+        source_location: SourceLocation,
     ) -> ContractMethod | None:
         func_loc = self._location(func_def)
         self._precondition(
@@ -284,6 +295,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 return FunctionASTConverter.convert(
                     self.context,
                     func_def=func_def,
+                    source_location=source_location,
                     contract_method_info=ContractMethodInfo(
                         type_info=self.class_def.info,
                         arc4_method_config=abimethod_config,
@@ -519,7 +531,7 @@ def _get_arc4_method_config(
                 source_location=dec_loc,
                 name=name,
                 allowed_completion_types=[
-                    puya.metadata.OnCompletionAction[a] for a in allow_actions
+                    puya.models.OnCompletionAction[a] for a in allow_actions
                 ],
                 allow_create=create == "allow",
                 require_create=create is True,

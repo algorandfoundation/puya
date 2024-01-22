@@ -92,7 +92,8 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
         for dec_fullname, dec in dec_by_fullname.items():
             self._error(f'Unsupported function decorator "{dec_fullname}"', dec)
 
-        sub = FunctionASTConverter.convert(self.context, func_def)
+        source_location = self._location(decorator or func_def)
+        sub = FunctionASTConverter.convert(self.context, func_def, source_location)
         self._statements.append(sub)
 
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> None:

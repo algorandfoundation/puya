@@ -1,46 +1,55 @@
 #pragma version 10
 
-// test_cases.ssa2.contract.MyContract.approval_program() -> uint64:
-main_block@0:
-        int 1
-        int 2
-        +
-        int 4
-        int 5
-        *
-        int 1
-        assert // Step cannot be zero
-        int 0
+test_cases.ssa2.contract.MyContract.approval_program:
+    // ssa2/contract.py:8
+    // a = UInt64(1) + 2
+    int 1
+    int 2
+    +
+    // ssa2/contract.py:9
+    // b = UInt64(4) * 5
+    int 4
+    int 5
+    *
+    // ssa2/contract.py:15
+    // for i in urange(5):
+    int 1
+    assert // Step cannot be zero
+    int 0
 
 main_for_header@1:
-        dup
-        int 5
-        <
-        bz main_after_for@5
-
-main_for_body@2:
-        dup
-        dig 2
-        dig 4
-        dup
-        cover 2
-        +
-        bury 4
-        +
-        bury 3
-
-main_for_footer@3:
-
-main_for_increment@4:
-        dup
-        int 1
-        +
-        bury 1
-        b main_for_header@1
+    // ssa2/contract.py:15
+    // for i in urange(5):
+    dup
+    int 5
+    <
+    bz main_after_for@5
+    dup
+    // ssa2/contract.py:16
+    // b = b + a
+    dig 2
+    dig 4
+    dup
+    cover 2
+    +
+    bury 4
+    // ssa2/contract.py:17
+    // a = a + i
+    swap
+    +
+    bury 3
+    // ssa2/contract.py:15
+    // for i in urange(5):
+    dup
+    int 1
+    +
+    bury 1
+    b main_for_header@1
 
 main_after_for@5:
-        dig 2
-        dig 2
-        +
-        return
-
+    // ssa2/contract.py:18
+    // return a + b
+    dig 2
+    dig 2
+    +
+    return

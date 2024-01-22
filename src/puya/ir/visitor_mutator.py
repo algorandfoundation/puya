@@ -114,6 +114,7 @@ class IRMutator(IRVisitor[t.Any]):
 
     def visit_goto_nth(self, goto_nth: GotoNth) -> ControlOp:
         goto_nth.value = goto_nth.value.accept(self)
+        goto_nth.default = goto_nth.default.accept(self)
         return goto_nth
 
     def visit_goto(self, goto: Goto) -> ControlOp:
@@ -122,6 +123,7 @@ class IRMutator(IRVisitor[t.Any]):
     def visit_switch(self, switch: Switch) -> ControlOp:
         switch.value = switch.value.accept(self)
         switch.cases = {case.accept(self): target for case, target in switch.cases.items()}
+        switch.default = switch.default.accept(self)
         return switch
 
     def visit_subroutine_return(self, retsub: SubroutineReturn) -> ControlOp:

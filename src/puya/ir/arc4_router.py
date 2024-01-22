@@ -9,9 +9,9 @@ from puya.awst import (
 )
 from puya.awst.nodes import NumericComparison, NumericComparisonExpression, UInt64Constant
 from puya.awst_build.eb.transaction import check_transaction_type
-from puya.awst_build.utils import TemporaryAssignmentExpr, create_temporary_assignment
+from puya.awst_build.utils import create_temporary_assignment
 from puya.errors import CodeError, InternalError
-from puya.metadata import (
+from puya.models import (
     ARC4Method,
     ARC4MethodArg,
     ARC4MethodConfig,
@@ -539,6 +539,19 @@ def tuple_item(
     )
 
 
+def arc4_tuple_index(
+    arc4_tuple_expression: awst_nodes.Expression, index: int, location: SourceLocation
+) -> awst_nodes.Expression:
+    assert isinstance(arc4_tuple_expression.wtype, wtypes.ARC4Tuple)
+
+    return awst_nodes.IndexExpression(
+        source_location=location,
+        index=UInt64Constant(value=index, source_location=location),
+        wtype=arc4_tuple_expression.wtype.types[index],
+        base=arc4_tuple_expression,
+    )
+
+
 def map_abi_args(
     args: Sequence[awst_nodes.SubroutineArgument], location: SourceLocation
 ) -> Iterable[awst_nodes.Expression]:
@@ -546,7 +559,7 @@ def map_abi_args(
     transaction_arg_offset = sum(1 for a in args if wtypes.is_transaction_type(a.wtype))
 
     non_transaction_args = [a for a in args if not wtypes.is_transaction_type(a.wtype)]
-    decoded_args: TemporaryAssignmentExpr | None = None
+    last_arg: awst_nodes.Expression | None = None
     if len(non_transaction_args) > 15:
 
         def map_param_wtype_to_arc4_tuple_type(wtype: wtypes.WType) -> wtypes.WType:
@@ -561,26 +574,14 @@ def map_abi_args(
             [map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]]
         )
         last_arg = load_abi_arg(15, args_overflow_wtype, location)
-        decoded_args = create_temporary_assignment(
-            value=arc4_decode(
-                last_arg, wtypes.WTuple.from_types(args_overflow_wtype.types), location
-            ),
-            location=location,
-        )
 
     def get_arg(index: int, arg_wtype: wtypes.WType) -> awst_nodes.Expression:
         if index < 15:
             return load_abi_arg(index, arg_wtype, location)
-        elif index == 15:
-            if decoded_args is None:
-                return load_abi_arg(15, arg_wtype, location)
-            return tuple_item(decoded_args.define, 0, location)
         else:
-            if decoded_args is None:
-                raise InternalError(
-                    "Decoded args should not be None if there are more than 15 args"
-                )
-            return tuple_item(decoded_args.read, index - 15, location)
+            if last_arg is None:
+                raise InternalError("last_arg should not be None if there are more than 15 args")
+            return arc4_tuple_index(last_arg, index - 15, location)
 
     for arg in args:
         match arg.wtype:
@@ -666,7 +667,7 @@ def route_abi_methods(
             )
         seen_signatures.add(arc4_signature)
         method_selector_value = awst_nodes.MethodConstant(
-            source_location=abi_loc, value=arc4_signature
+            source_location=location, value=arc4_signature
         )
         method_routing_cases[method_selector_value] = method_routing_block
     return create_block(
@@ -789,12 +790,19 @@ def create_abi_router(
         else:
             abi_methods[m] = abi_config
     router_location = contract.source_location
-    router = awst_nodes.IfElse(
-        source_location=router_location,
-        condition=has_app_args(router_location),
-        if_branch=route_abi_methods(router_location, abi_methods),
-        else_branch=route_bare_methods(router_location, bare_methods, add_create=not has_create),
-    )
+    if bare_methods or not has_create:
+        router: list[awst_nodes.Statement] = [
+            awst_nodes.IfElse(
+                source_location=router_location,
+                condition=has_app_args(router_location),
+                if_branch=route_abi_methods(router_location, abi_methods),
+                else_branch=route_bare_methods(
+                    router_location, bare_methods, add_create=not has_create
+                ),
+            )
+        ]
+    else:
+        router = list(route_abi_methods(router_location, abi_methods).body)
 
     known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
         s.name: s for s in itertools.chain(global_state, local_state)
@@ -851,7 +859,7 @@ def create_abi_router(
         body=create_block(
             router_location,
             "abi_bare_routing",
-            router,
+            *router,
             reject(contract.source_location),
         ),
         docstring=None,

@@ -1,83 +1,105 @@
 #pragma version 10
 
-// test_cases.too_many_permutations.contract.MyContract.approval_program() -> uint64:
-main_block@0:
-        txna ApplicationArgs 0
-        dup
-        swap
-        txna ApplicationArgs 1
-        swap
-        txna ApplicationArgs 2
-        dup
-        cover 2
-        txna ApplicationArgs 3
-        cover 2
-        !=
-        bnz main_bool_true@2
-
-main_or_contd@1:
-        dig 2
-        dig 1
-        !=
-        bz main_bool_false@3
+test_cases.too_many_permutations.contract.MyContract.approval_program:
+    // too_many_permutations/contract.py:6
+    // a = Transaction.application_args(0)
+    txna ApplicationArgs 0
+    dup
+    swap
+    // too_many_permutations/contract.py:7
+    // b = Transaction.application_args(1)
+    txna ApplicationArgs 1
+    swap
+    // too_many_permutations/contract.py:8
+    // c = Transaction.application_args(2)
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    // too_many_permutations/contract.py:9
+    // d = Transaction.application_args(3)
+    txna ApplicationArgs 3
+    cover 2
+    // too_many_permutations/contract.py:11
+    // assert (a != c) or (b != d)
+    !=
+    bnz main_bool_true@2
+    dig 2
+    dig 1
+    !=
+    bz main_bool_false@3
 
 main_bool_true@2:
-        int 1
-        b main_bool_merge@4
+    int 1
+    b main_bool_merge@4
 
 main_bool_false@3:
-        int 0
+    int 0
 
 main_bool_merge@4:
-        assert
-        dig 3
-        dup
-        dig 4
-        dup
-        cover 3
-        dig 5
-        dup
-        cover 5
-        dig 6
-        dup
-        cover 7
-        callsub four_args
-        assert
-        swap
-        callsub two_args
-        swap
-        callsub two_args
-        int 1
-        return
+    // too_many_permutations/contract.py:11
+    // assert (a != c) or (b != d)
+    assert
+    // too_many_permutations/contract.py:12
+    // assert four_args(a, b, c, d)
+    dig 3
+    dup
+    dig 4
+    dup
+    cover 3
+    dig 5
+    dup
+    cover 5
+    dig 6
+    dup
+    cover 7
+    callsub four_args
+    assert
+    // too_many_permutations/contract.py:13
+    // two_args(a, b)
+    swap
+    callsub two_args
+    // too_many_permutations/contract.py:14
+    // two_args(c, d)
+    swap
+    callsub two_args
+    // too_many_permutations/contract.py:16
+    // return True
+    int 1
+    return
 
 
-// test_cases.too_many_permutations.contract.four_args(a#0: bytes, b#0: bytes, c#0: bytes, d#0: bytes) -> uint64:
+// test_cases.too_many_permutations.contract.four_args(a: bytes, b: bytes, c: bytes, d: bytes) -> uint64:
 four_args:
-        proto 4 1
+    // too_many_permutations/contract.py:22-23
+    // @subroutine
+    // def four_args(a: Bytes, b: Bytes, c: Bytes, d: Bytes) -> bool:
+    proto 4 1
+    // too_many_permutations/contract.py:24
+    // return (a + b + c + d).length > 0
+    frame_dig -4
+    frame_dig -3
+    concat
+    frame_dig -2
+    concat
+    frame_dig -1
+    concat
+    len
+    int 0
+    >
+    retsub
 
-four_args_block@0:
-        frame_dig -4
-        frame_dig -3
-        concat
-        frame_dig -2
-        concat
-        frame_dig -1
-        concat
-        len
-        int 0
-        >
-        retsub
 
-
-// test_cases.too_many_permutations.contract.two_args(a#0: bytes, b#0: bytes) -> void:
+// test_cases.too_many_permutations.contract.two_args(a: bytes, b: bytes) -> void:
 two_args:
-        proto 2 0
-
-two_args_block@0:
-        frame_dig -2
-        frame_dig -1
-        concat
-        len
-        assert
-        retsub
-
+    // too_many_permutations/contract.py:27-28
+    // @subroutine
+    // def two_args(a: Bytes, b: Bytes) -> None:
+    proto 2 0
+    // too_many_permutations/contract.py:29
+    // assert a + b
+    frame_dig -2
+    frame_dig -1
+    concat
+    len
+    assert
+    retsub

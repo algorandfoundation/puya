@@ -1,97 +1,171 @@
 #pragma version 10
 
-// test_cases.bytes_ops.contract.BiguintBinaryOps.approval_program() -> uint64:
-main_block@0:
-        byte 0xff
-        byte 0x0f
-        byte 0xff0f
-        byte 0xff
-        byte 0xf0
-        byte 0x0f
-        callsub do_some_ops
-        byte 0xff
-        callsub do_augmented_assignment_ops
-        int 1
-        return
+test_cases.bytes_ops.contract.BiguintBinaryOps.approval_program:
+    // bytes_ops/contract.py:7
+    // left=Bytes.from_hex("FF"),
+    byte 0xff
+    // bytes_ops/contract.py:8
+    // right=Bytes.from_hex("0F"),
+    byte 0x0f
+    // bytes_ops/contract.py:9
+    // concat=Bytes.from_hex("FF0F"),
+    byte 0xff0f
+    // bytes_ops/contract.py:10
+    // bitwise_or=Bytes.from_hex("FF"),
+    byte 0xff
+    // bytes_ops/contract.py:11
+    // bitwise_xor=Bytes.from_hex("F0"),
+    byte 0xf0
+    // bytes_ops/contract.py:12
+    // bitwise_and=Bytes.from_hex("0F"),
+    byte 0x0f
+    // bytes_ops/contract.py:6-13
+    // do_some_ops(
+    //     left=Bytes.from_hex("FF"),
+    //     right=Bytes.from_hex("0F"),
+    //     concat=Bytes.from_hex("FF0F"),
+    //     bitwise_or=Bytes.from_hex("FF"),
+    //     bitwise_xor=Bytes.from_hex("F0"),
+    //     bitwise_and=Bytes.from_hex("0F"),
+    // )
+    callsub do_some_ops
+    // bytes_ops/contract.py:14
+    // do_augmented_assignment_ops(Bytes.from_hex("FF"))
+    byte 0xff
+    callsub do_augmented_assignment_ops
+    // bytes_ops/contract.py:15
+    // return True
+    int 1
+    return
 
 
-// test_cases.bytes_ops.contract.do_some_ops(left#0: bytes, right#0: bytes, concat#0: bytes, bitwise_or#0: bytes, bitwise_xor#0: bytes, bitwise_and#0: bytes) -> void:
+// test_cases.bytes_ops.contract.do_some_ops(left: bytes, right: bytes, concat: bytes, bitwise_or: bytes, bitwise_xor: bytes, bitwise_and: bytes) -> void:
 do_some_ops:
-        proto 6 0
+    // bytes_ops/contract.py:21-30
+    // @subroutine
+    // def do_some_ops(
+    //     *,
+    //     left: Bytes,
+    //     right: Bytes,
+    //     concat: Bytes,
+    //     bitwise_or: Bytes,
+    //     bitwise_xor: Bytes,
+    //     bitwise_and: Bytes
+    // ) -> None:
+    proto 6 0
+    // bytes_ops/contract.py:31
+    // result = left + right
+    frame_dig -6
+    frame_dig -5
+    concat
+    // bytes_ops/contract.py:32
+    // assert result == concat
+    frame_dig -4
+    ==
+    assert
+    // bytes_ops/contract.py:33
+    // result = left | right
+    frame_dig -6
+    frame_dig -5
+    b|
+    // bytes_ops/contract.py:34
+    // assert result == bitwise_or
+    frame_dig -3
+    ==
+    assert
+    // bytes_ops/contract.py:35
+    // result = left ^ right
+    frame_dig -6
+    frame_dig -5
+    b^
+    // bytes_ops/contract.py:36
+    // assert result == bitwise_xor
+    frame_dig -2
+    ==
+    assert
+    // bytes_ops/contract.py:37
+    // result = left & right
+    frame_dig -6
+    frame_dig -5
+    b&
+    // bytes_ops/contract.py:38
+    // assert result == bitwise_and
+    frame_dig -1
+    ==
+    assert
+    retsub
 
-do_some_ops_block@0:
-        frame_dig -6
-        frame_dig -5
-        concat
-        frame_dig -4
-        ==
-        assert
-        frame_dig -6
-        frame_dig -5
-        b|
-        frame_dig -3
-        ==
-        assert
-        frame_dig -6
-        frame_dig -5
-        b^
-        frame_dig -2
-        ==
-        assert
-        frame_dig -6
-        frame_dig -5
-        b&
-        frame_dig -1
-        ==
-        assert
-        retsub
 
-
-// test_cases.bytes_ops.contract.do_augmented_assignment_ops(seed#0: bytes) -> void:
+// test_cases.bytes_ops.contract.do_augmented_assignment_ops(seed: bytes) -> void:
 do_augmented_assignment_ops:
-        proto 1 0
-
-do_augmented_assignment_ops_block@0:
-        frame_dig -1
-        byte 0x00
-        b&
-        dup
-        frame_bury -1
-        byte 0x00
-        ==
-        assert
-        byte 0x05
-        frame_dig -1
-        dig 1
-        b|
-        dup
-        frame_bury -1
-        dig 1
-        ==
-        assert
-        byte 0x10
-        frame_dig -1
-        dig 1
-        b^
-        dup
-        frame_bury -1
-        byte 0x15
-        ==
-        assert
-        frame_dig -1
-        dig 2
-        b^
-        dup
-        frame_bury -1
-        ==
-        assert
-        frame_dig -1
-        swap
-        concat
-        dup
-        frame_bury -1
-        byte 0x1005
-        ==
-        assert
-        retsub
-
+    // bytes_ops/contract.py:41-42
+    // @subroutine
+    // def do_augmented_assignment_ops(seed: Bytes) -> None:
+    proto 1 0
+    // bytes_ops/contract.py:43
+    // seed &= Bytes.from_hex("00")
+    frame_dig -1
+    byte 0x00
+    b&
+    dup
+    frame_bury -1
+    // bytes_ops/contract.py:45
+    // assert seed == Bytes.from_hex("00")
+    byte 0x00
+    ==
+    assert
+    // bytes_ops/contract.py:47
+    // five = Bytes.from_hex("05")
+    byte 0x05
+    // bytes_ops/contract.py:49
+    // seed |= five
+    frame_dig -1
+    dig 1
+    b|
+    dup
+    frame_bury -1
+    // bytes_ops/contract.py:51
+    // assert seed == five
+    dig 1
+    ==
+    assert
+    // bytes_ops/contract.py:53
+    // sixteen = Bytes.from_hex("10")
+    byte 0x10
+    // bytes_ops/contract.py:55
+    // seed ^= sixteen
+    frame_dig -1
+    dig 1
+    b^
+    dup
+    frame_bury -1
+    // bytes_ops/contract.py:57
+    // assert seed == Bytes.from_hex("15")
+    byte 0x15
+    ==
+    assert
+    // bytes_ops/contract.py:59
+    // seed ^= five
+    frame_dig -1
+    dig 2
+    b^
+    dup
+    frame_bury -1
+    // bytes_ops/contract.py:61
+    // assert seed == sixteen
+    swap
+    ==
+    assert
+    // bytes_ops/contract.py:63
+    // seed += five
+    frame_dig -1
+    swap
+    concat
+    dup
+    frame_bury -1
+    // bytes_ops/contract.py:65
+    // assert seed == Bytes.from_hex("1005")
+    byte 0x1005
+    ==
+    assert
+    retsub

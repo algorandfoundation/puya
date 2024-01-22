@@ -13,6 +13,7 @@ from textwrap import dedent
 import algokit_utils
 import algosdk.transaction
 import attrs
+import prettytable
 import pytest
 from algokit_utils import (
     Account,
@@ -27,9 +28,7 @@ from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from nacl.signing import SigningKey
 from puya.avm_type import AVMType
-from puya.codegen.emitprogram import CompiledContract, CompiledProgram
-from puya.codegen.teal_annotaters import AlignedWriter
-from puya.metadata import ContractMetaData, ContractState
+from puya.models import CompiledContract, ContractMetaData, ContractState
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import compile_src
@@ -97,12 +96,8 @@ def assemble_src(contract: CompiledContract, client: AlgodClient) -> Compilation
             num_byte_slices=sum(1 for x in state if x.storage_type is AVMType.bytes),
         )
 
-    approval_src = contract.approval_program.debug_src or contract.approval_program.src
-    clear_src = contract.clear_program.debug_src or contract.clear_program.src
-    assert approval_src is not None
-    assert clear_src is not None
-    approval_program = Program("\n".join(approval_src), client)
-    clear_program = Program("\n".join(clear_src), client)
+    approval_program = Program("\n".join(contract.approval_program), client)
+    clear_program = Program("\n".join(contract.clear_program), client)
     compilation = Compilation(
         contract=contract,
         approval=approval_program,
@@ -133,7 +128,7 @@ GroupTransactionsProvider: typing.TypeAlias = Callable[[int], Iterable[Transacti
 @attrs.frozen
 class AppCallRequest(AppTransactionParameters):
     increase_budget: int = 0
-    debug_level: int = 0
+    debug_level: int = 1
     trace_output: Path | None = None
     group_transactions: GroupTransactionsProvider | None = None
 
@@ -255,7 +250,7 @@ class ATCRunner:
             )
         return self
 
-    def run(self, trace_path: Path | None) -> AppCallResult:
+    def run(self, trace_path: Path | None = None) -> AppCallResult:
         if trace_path is not None:
             self._simulate_and_write_trace(trace_path)
 
@@ -335,19 +330,21 @@ class ATCRunner:
                     raise NotImplementedError(f"Mapping not implemented: {value}")
 
         approval_source_map = self.compilation.approval.source_map
-        approval_src = (
-            self.compilation.contract.approval_program.debug_src
-            or self.compilation.contract.approval_program.src
-        )
+        approval_src = self.compilation.contract.approval_program
 
         (txn_group,) = simulate_response.simulate_response["txn-groups"]
         txn_result, *_ = txn_group["txn-results"]
         approval_program_trace = txn_result["exec-trace"]["approval-program-trace"]
 
-        writer = AlignedWriter()
-        writer.add_header("PC")
-        writer.add_header("Teal")
-        writer.add_header("Stack")
+        writer = prettytable.PrettyTable(
+            field_names=["PC", "Teal", "Stack"],
+            header=True,
+            border=False,
+            padding_width=0,
+            left_padding_width=0,
+            right_padding_width=1,
+            align="l",
+        )
         stack = list[int | str]()
         for t in approval_program_trace:
             pc = t["pc"]
@@ -366,11 +363,14 @@ class ATCRunner:
                 stack.pop()
             stack.extend(map(map_stack_addition, t.get("stack-additions", [])))
 
-            writer.append(str(pc))
-            writer.append(teal)
-            writer.append(", ".join(map(str, stack)))
-            writer.new_line()
-        output_path.write_text("\n".join(writer.write()))
+            writer.add_row(
+                [
+                    str(pc),
+                    teal,
+                    ", ".join(map(str, stack)),
+                ]
+            )
+        output_path.write_text(writer.get_string())
 
 
 @attrs.define
@@ -444,7 +444,7 @@ class _TestHarness:
                     app_id=self._app_ids_by_level[o_level],
                     micro_algos=micro_algos,
                 )
-                .run(None)
+                .run()
             )
 
     def call(self, request: AppCallRequest) -> AppCallResult:
@@ -498,13 +498,9 @@ def no_op_app_id(algod_client: AlgodClient, account: Account, worker_id: str) ->
         "#pragma version 8",
         "pushint 1",
     ]
-    teal_always_approve = CompiledProgram(
-        src=src,
-        debug_src=src,
-    )
     contract = CompiledContract(
-        approval_program=teal_always_approve,
-        clear_program=teal_always_approve,
+        approval_program=src,
+        clear_program=src,
         metadata=ContractMetaData(
             module_name="",
             class_name="",
@@ -524,7 +520,7 @@ def no_op_app_id(algod_client: AlgodClient, account: Account, worker_id: str) ->
                 args=[worker_id],  # this ensures a unique instance per parallel test run
             ),
         )
-        .run(trace_path=None)
+        .run()
     )
     return result.app_id
 
@@ -742,7 +738,7 @@ def test_address(harness: _TestHarness) -> None:
 
 
 def test_string_ops(harness: _TestHarness) -> None:
-    harness.deploy(TEST_CASES_DIR / "string_ops", AppCallRequest(increase_budget=1))
+    harness.deploy(TEST_CASES_DIR / "string_ops", AppCallRequest(increase_budget=2))
 
 
 def test_global_storage(harness: _TestHarness) -> None:
@@ -978,7 +974,7 @@ def test_undefined_phi_args(
     ex = ex_info.value
     assert ex.message == expected_logic_error
     assert ex.line_no is not None
-    assert "💥" in ex.lines[ex.line_no]
+    assert "💥" in "".join(ex.lines[ex.line_no - 5 : ex.line_no])
 
 
 def test_augmented_assignment(harness: _TestHarness) -> None:

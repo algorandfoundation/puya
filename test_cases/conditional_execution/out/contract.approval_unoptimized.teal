@@ -1,345 +1,392 @@
 #pragma version 10
 
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program() -> uint64:
-main_block@0:
-        txn ApplicationID
-        bnz main_entrypoint@2
-
-main_on_create@1:
-        callsub __init__
+test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
 
 main_entrypoint@2:
-        int 1
-        callsub func_a
-        bnz main_bool_true@4
-
-main_or_contd@3:
-        int 1
-        callsub func_b
-        bz main_bool_false@5
+    // conditional_execution/contract.py:10-11
+    // # 'or' won't execute rhs if lhs is True
+    // self.func_a(True) or self.func_b(True)
+    int 1
+    callsub func_a
+    bnz main_bool_true@4
+    int 1
+    callsub func_b
+    bz main_bool_false@5
 
 main_bool_true@4:
-        int 1
-        pop
-        b main_bool_merge@6
+    int 1
+    pop
+    b main_bool_merge@6
 
 main_bool_false@5:
-        int 0
-        pop
+    int 0
+    pop
 
 main_bool_merge@6:
-        int 0
-        byte "did_execute_a"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@9
-
-main_and_contd@7:
-        int 0
-        byte "did_execute_b"
-        app_global_get_ex
-        assert // check value exists
-        bnz main_bool_false@9
-
-main_bool_true@8:
-        int 1
-        b main_bool_merge@10
+    // conditional_execution/contract.py:13
+    // self.did_execute_a and not self.did_execute_b,
+    int 0
+    byte "did_execute_a"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@9
+    int 0
+    byte "did_execute_b"
+    app_global_get_ex
+    assert // check value exists
+    bnz main_bool_false@9
+    int 1
+    b main_bool_merge@10
 
 main_bool_false@9:
-        int 0
+    int 0
 
 main_bool_merge@10:
-        callsub assert_and_reset
-        int 0
-        callsub func_a
-        bnz main_bool_true@12
-
-main_or_contd@11:
-        int 1
-        callsub func_b
-        bz main_bool_false@13
+    // conditional_execution/contract.py:12-14
+    // self.assert_and_reset(
+    //     self.did_execute_a and not self.did_execute_b,
+    // )
+    callsub assert_and_reset
+    // conditional_execution/contract.py:16-17
+    // # 'or' executes rhs if lhs is False
+    // self.func_a(False) or self.func_b(True)
+    int 0
+    callsub func_a
+    bnz main_bool_true@12
+    int 1
+    callsub func_b
+    bz main_bool_false@13
 
 main_bool_true@12:
-        int 1
-        pop
-        b main_bool_merge@14
+    int 1
+    pop
+    b main_bool_merge@14
 
 main_bool_false@13:
-        int 0
-        pop
+    int 0
+    pop
 
 main_bool_merge@14:
-        int 0
-        byte "did_execute_a"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@17
-
-main_and_contd@15:
-        int 0
-        byte "did_execute_b"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@17
-
-main_bool_true@16:
-        int 1
-        b main_bool_merge@18
+    // conditional_execution/contract.py:19
+    // self.did_execute_a and self.did_execute_b,
+    int 0
+    byte "did_execute_a"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@17
+    int 0
+    byte "did_execute_b"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@17
+    int 1
+    b main_bool_merge@18
 
 main_bool_false@17:
-        int 0
+    int 0
 
 main_bool_merge@18:
-        callsub assert_and_reset
-        int 0
-        callsub func_a
-        bz main_bool_false@21
-
-main_and_contd@19:
-        int 1
-        callsub func_b
-        bz main_bool_false@21
-
-main_bool_true@20:
-        int 1
-        pop
-        b main_bool_merge@22
+    // conditional_execution/contract.py:18-20
+    // self.assert_and_reset(
+    //     self.did_execute_a and self.did_execute_b,
+    // )
+    callsub assert_and_reset
+    // conditional_execution/contract.py:22-23
+    // # 'and' won't execute rhs if lhs is False
+    // self.func_a(False) and self.func_b(True)
+    int 0
+    callsub func_a
+    bz main_bool_false@21
+    int 1
+    callsub func_b
+    bz main_bool_false@21
+    int 1
+    pop
+    b main_bool_merge@22
 
 main_bool_false@21:
-        int 0
-        pop
+    int 0
+    pop
 
 main_bool_merge@22:
-        int 0
-        byte "did_execute_a"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@25
-
-main_and_contd@23:
-        int 0
-        byte "did_execute_b"
-        app_global_get_ex
-        assert // check value exists
-        bnz main_bool_false@25
-
-main_bool_true@24:
-        int 1
-        b main_bool_merge@26
+    // conditional_execution/contract.py:25
+    // self.did_execute_a and not self.did_execute_b,
+    int 0
+    byte "did_execute_a"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@25
+    int 0
+    byte "did_execute_b"
+    app_global_get_ex
+    assert // check value exists
+    bnz main_bool_false@25
+    int 1
+    b main_bool_merge@26
 
 main_bool_false@25:
-        int 0
+    int 0
 
 main_bool_merge@26:
-        callsub assert_and_reset
-        int 1
-        callsub func_a
-        bz main_bool_false@29
-
-main_and_contd@27:
-        int 1
-        callsub func_b
-        bz main_bool_false@29
-
-main_bool_true@28:
-        int 1
-        pop
-        b main_bool_merge@30
+    // conditional_execution/contract.py:24-26
+    // self.assert_and_reset(
+    //     self.did_execute_a and not self.did_execute_b,
+    // )
+    callsub assert_and_reset
+    // conditional_execution/contract.py:28-29
+    // # 'and' executes rhs if lhs is True
+    // self.func_a(True) and self.func_b(True)
+    int 1
+    callsub func_a
+    bz main_bool_false@29
+    int 1
+    callsub func_b
+    bz main_bool_false@29
+    int 1
+    pop
+    b main_bool_merge@30
 
 main_bool_false@29:
-        int 0
-        pop
+    int 0
+    pop
 
 main_bool_merge@30:
-        int 0
-        byte "did_execute_a"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@33
-
-main_and_contd@31:
-        int 0
-        byte "did_execute_b"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@33
-
-main_bool_true@32:
-        int 1
-        b main_bool_merge@34
+    // conditional_execution/contract.py:31
+    // self.did_execute_a and self.did_execute_b,
+    int 0
+    byte "did_execute_a"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@33
+    int 0
+    byte "did_execute_b"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@33
+    int 1
+    b main_bool_merge@34
 
 main_bool_false@33:
-        int 0
+    int 0
 
 main_bool_merge@34:
-        callsub assert_and_reset
-        int 1
-        callsub func_a
-        pop
-        int 1
-        callsub func_b
-        pop
-        int 0
-        byte "did_execute_a"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@37
-
-main_and_contd@35:
-        int 0
-        byte "did_execute_b"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@37
-
-main_bool_true@36:
-        int 1
-        b main_bool_merge@38
+    // conditional_execution/contract.py:30-32
+    // self.assert_and_reset(
+    //     self.did_execute_a and self.did_execute_b,
+    // )
+    callsub assert_and_reset
+    // conditional_execution/contract.py:34-35
+    // # Tuples are fully evaluated before indexing is done
+    // (self.func_a(True), self.func_b(True))[0]
+    int 1
+    callsub func_a
+    pop
+    int 1
+    callsub func_b
+    pop
+    // conditional_execution/contract.py:37
+    // self.did_execute_a and self.did_execute_b,
+    int 0
+    byte "did_execute_a"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@37
+    int 0
+    byte "did_execute_b"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@37
+    int 1
+    b main_bool_merge@38
 
 main_bool_false@37:
-        int 0
+    int 0
 
 main_bool_merge@38:
-        callsub assert_and_reset
-        int 1
-        callsub func_c
-        bz main_ternary_false@40
-
-main_ternary_true@39:
-        int 1
-        callsub func_a
-        pop
-        b main_ternary_merge@41
+    // conditional_execution/contract.py:36-38
+    // self.assert_and_reset(
+    //     self.did_execute_a and self.did_execute_b,
+    // )
+    callsub assert_and_reset
+    // conditional_execution/contract.py:40-41
+    // # Ternary condition won't execute <false expr> if condition is True
+    // self.func_a(True) if self.func_c(True) else self.func_b(True)
+    int 1
+    callsub func_c
+    bz main_ternary_false@40
+    int 1
+    callsub func_a
+    pop
+    b main_ternary_merge@41
 
 main_ternary_false@40:
-        int 1
-        callsub func_b
-        pop
+    // conditional_execution/contract.py:40-41
+    // # Ternary condition won't execute <false expr> if condition is True
+    // self.func_a(True) if self.func_c(True) else self.func_b(True)
+    int 1
+    callsub func_b
+    pop
 
 main_ternary_merge@41:
-        int 0
-        byte "did_execute_a"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@44
-
-main_and_contd@42:
-        int 0
-        byte "did_execute_b"
-        app_global_get_ex
-        assert // check value exists
-        bnz main_bool_false@44
-
-main_bool_true@43:
-        int 1
-        b main_bool_merge@45
+    // conditional_execution/contract.py:43
+    // self.did_execute_a and not self.did_execute_b,
+    int 0
+    byte "did_execute_a"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@44
+    int 0
+    byte "did_execute_b"
+    app_global_get_ex
+    assert // check value exists
+    bnz main_bool_false@44
+    int 1
+    b main_bool_merge@45
 
 main_bool_false@44:
-        int 0
+    int 0
 
 main_bool_merge@45:
-        callsub assert_and_reset
-        int 0
-        callsub func_c
-        bz main_ternary_false@47
-
-main_ternary_true@46:
-        int 1
-        callsub func_a
-        pop
-        b main_ternary_merge@48
+    // conditional_execution/contract.py:42-44
+    // self.assert_and_reset(
+    //     self.did_execute_a and not self.did_execute_b,
+    // )
+    callsub assert_and_reset
+    // conditional_execution/contract.py:46-47
+    // # Ternary condition won't execute <true expr> if condition is False
+    // self.func_a(True) if self.func_c(False) else self.func_b(True)
+    int 0
+    callsub func_c
+    bz main_ternary_false@47
+    int 1
+    callsub func_a
+    pop
+    b main_ternary_merge@48
 
 main_ternary_false@47:
-        int 1
-        callsub func_b
-        pop
+    // conditional_execution/contract.py:46-47
+    // # Ternary condition won't execute <true expr> if condition is False
+    // self.func_a(True) if self.func_c(False) else self.func_b(True)
+    int 1
+    callsub func_b
+    pop
 
 main_ternary_merge@48:
-        int 0
-        byte "did_execute_a"
-        app_global_get_ex
-        assert // check value exists
-        bnz main_bool_false@51
-
-main_and_contd@49:
-        int 0
-        byte "did_execute_b"
-        app_global_get_ex
-        assert // check value exists
-        bz main_bool_false@51
-
-main_bool_true@50:
-        int 1
-        b main_bool_merge@52
+    // conditional_execution/contract.py:49
+    // not self.did_execute_a and self.did_execute_b,
+    int 0
+    byte "did_execute_a"
+    app_global_get_ex
+    assert // check value exists
+    bnz main_bool_false@51
+    int 0
+    byte "did_execute_b"
+    app_global_get_ex
+    assert // check value exists
+    bz main_bool_false@51
+    int 1
+    b main_bool_merge@52
 
 main_bool_false@51:
-        int 0
+    int 0
 
 main_bool_merge@52:
-        callsub assert_and_reset
-        int 1
-        return
+    // conditional_execution/contract.py:48-50
+    // self.assert_and_reset(
+    //     not self.did_execute_a and self.did_execute_b,
+    // )
+    callsub assert_and_reset
+    // conditional_execution/contract.py:52
+    // return True
+    int 1
+    return
 
 
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(ret_val#0: uint64) -> uint64:
+// test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(ret_val: uint64) -> uint64:
 func_a:
-        proto 1 1
+    // conditional_execution/contract.py:63-64
+    // @subroutine
+    // def func_a(self, ret_val: bool) -> bool:
+    proto 1 1
+    // conditional_execution/contract.py:65
+    // self.did_execute_a = True
+    byte "did_execute_a"
+    int 1
+    app_global_put
+    // conditional_execution/contract.py:66
+    // return ret_val
+    frame_dig -1
+    retsub
 
-func_a_block@0:
-        byte "did_execute_a"
-        int 1
-        app_global_put
-        frame_dig -1
-        retsub
 
-
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(ret_val#0: uint64) -> uint64:
+// test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(ret_val: uint64) -> uint64:
 func_b:
-        proto 1 1
+    // conditional_execution/contract.py:68-69
+    // @subroutine
+    // def func_b(self, ret_val: bool) -> bool:
+    proto 1 1
+    // conditional_execution/contract.py:70
+    // self.did_execute_b = True
+    byte "did_execute_b"
+    int 1
+    app_global_put
+    // conditional_execution/contract.py:71
+    // return ret_val
+    frame_dig -1
+    retsub
 
-func_b_block@0:
-        byte "did_execute_b"
-        int 1
-        app_global_put
-        frame_dig -1
-        retsub
 
-
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(condition#0: uint64) -> void:
+// test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(condition: uint64) -> void:
 assert_and_reset:
-        proto 1 0
+    // conditional_execution/contract.py:57-58
+    // @subroutine
+    // def assert_and_reset(self, condition: bool) -> None:
+    proto 1 0
+    // conditional_execution/contract.py:59
+    // assert condition
+    frame_dig -1
+    assert
+    // conditional_execution/contract.py:60
+    // self.did_execute_b = False
+    byte "did_execute_b"
+    int 0
+    app_global_put
+    // conditional_execution/contract.py:61
+    // self.did_execute_a = False
+    byte "did_execute_a"
+    int 0
+    app_global_put
+    retsub
 
-assert_and_reset_block@0:
-        frame_dig -1
-        assert
-        byte "did_execute_b"
-        int 0
-        app_global_put
-        byte "did_execute_a"
-        int 0
-        app_global_put
-        retsub
 
-
-// test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(ret_val#0: uint64) -> uint64:
+// test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(ret_val: uint64) -> uint64:
 func_c:
-        proto 1 1
-
-func_c_block@0:
-        frame_dig -1
-        retsub
+    // conditional_execution/contract.py:73-74
+    // @subroutine
+    // def func_c(self, ret_val: bool) -> bool:
+    proto 1 1
+    // conditional_execution/contract.py:75
+    // return ret_val
+    frame_dig -1
+    retsub
 
 
 // test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__() -> void:
 __init__:
-        proto 0 0
-
-__init___block@0:
-        byte "did_execute_a"
-        int 0
-        app_global_put
-        byte "did_execute_b"
-        int 0
-        app_global_put
-        retsub
-
+    // conditional_execution/contract.py:5
+    // def __init__(self) -> None:
+    proto 0 0
+    // conditional_execution/contract.py:6
+    // self.did_execute_a = False
+    byte "did_execute_a"
+    int 0
+    app_global_put
+    // conditional_execution/contract.py:7
+    // self.did_execute_b = False
+    byte "did_execute_b"
+    int 0
+    app_global_put
+    retsub

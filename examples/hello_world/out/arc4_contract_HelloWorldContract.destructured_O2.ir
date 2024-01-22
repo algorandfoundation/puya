@@ -1,0 +1,43 @@
+contract examples.hello_world.arc4_contract.HelloWorldContract:
+    program approval:
+        subroutine examples.hello_world.arc4_contract.HelloWorldContract.approval_program() -> uint64:
+            block@0: // L9
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@5
+            block@1: // abi_routing_L9
+                let tmp%1#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%1#0 {method "hello(string)string" => block@2, * => fail // reject transaction}
+            block@2: // hello_route_L10
+                let tmp%2#0: uint64 = (txn OnCompletion)
+                let tmp%3#0: uint64 = (! tmp%2#0)
+                (assert tmp%3#0) // OnCompletion is NoOp
+                let tmp%4#0: uint64 = (txn ApplicationID)
+                (assert tmp%4#0) // is not creating
+                let tmp%5#0: bytes = (txna ApplicationArgs 1)
+                let tmp%6#0: bytes = examples.hello_world.arc4_contract.HelloWorldContract.hello(tmp%5#0)
+                let tmp%7#0: bytes = (concat 0x151f7c75 tmp%6#0)
+                (log tmp%7#0)
+                return 1u
+            block@5: // bare_routing_L9
+                let tmp%8#0: uint64 = (txn OnCompletion)
+                let not%tmp%8#0: uint64 = (! tmp%8#0)
+                (assert not%tmp%8#0) // reject transaction
+                let tmp%9#0: uint64 = (txn ApplicationID)
+                let tmp%10#0: uint64 = (! tmp%9#0)
+                (assert tmp%10#0) // is creating
+                return 1u
+        
+        subroutine examples.hello_world.arc4_contract.HelloWorldContract.hello(name: bytes) -> bytes:
+            block@0: // L10
+                let expr_value_trimmed%1#0: bytes = ((extract 2 0) name#0)
+                let concatenated%2#0: bytes = (concat "Hello, " expr_value_trimmed%1#0)
+                let len_%3#0: uint64 = (len concatenated%2#0)
+                let len_bytes%4#0: bytes = (itob len_%3#0)
+                let len_16_bit%5#0: bytes = ((extract 6 0) len_bytes%4#0)
+                let concat_result%6#0: bytes = (concat len_16_bit%5#0 concatenated%2#0)
+                return concat_result%6#0
+    
+    program clear-state:
+        subroutine examples.hello_world.arc4_contract.HelloWorldContract.clear_state_program() -> uint64:
+            block@0: // L9
+                return 1u

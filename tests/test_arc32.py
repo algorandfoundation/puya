@@ -19,8 +19,8 @@ from tests.utils import compile_src
 pytestmark = pytest.mark.localnet
 
 
-def compile_arc32(src_path: Path, optimization_level: int = 1) -> str:
-    result = compile_src(src_path, optimization_level=optimization_level, debug_level=2)
+def compile_arc32(src_path: Path, *, optimization_level: int = 1, debug_level: int = 2) -> str:
+    result = compile_src(src_path, optimization_level=optimization_level, debug_level=debug_level)
     ((contract,),) = result.teal.values()
     return create_arc32_json(contract)
 
@@ -89,7 +89,7 @@ def test_amm(
     asset_b: int,
 ) -> None:
     example = EXAMPLES_DIR / "amm"
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example, 1))
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
     # create
@@ -354,7 +354,7 @@ def test_voting_app(
     private_key = SigningKey.generate()
 
     example = EXAMPLES_DIR / "voting"
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example, 1))
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=creator_account)
 
     quorum = math.ceil(random.randint(1, 9) * 1000)
@@ -601,7 +601,7 @@ def test_dynamic_array_of_string(
 
 def test_avm_types_in_abi(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     example = TEST_CASES_DIR / "avm_types_in_abi" / "contract.py"
-    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example, 1))
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
     result = app_client.create(

@@ -37,7 +37,7 @@ class CompilationResult:
 
 def rename_file(file_name: str, suffix: str | None) -> str:
     if suffix:
-        if file_name.endswith(".final.ir"):
+        if file_name.endswith(".destructured.ir"):
             final_ir_path = Path(file_name)
             suffix_keep, _ = final_ir_path.suffixes
             move_to = final_ir_path.with_suffix("").with_suffix(f"{suffix_keep}{suffix}.ir")
@@ -59,10 +59,8 @@ def _should_output(file_name: str, puya_options: PuyaOptions) -> bool:
         "*.awst": puya_options.output_awst,
         "*.ssa.ir": puya_options.output_ssa_ir,
         "*.ssa.opt_pass_*.ir": puya_options.output_optimization_ir,
-        "*.cssa.ir": puya_options.output_cssa_ir,
-        "*.post_ssa.ir": puya_options.output_post_ssa_ir,
-        "*.parallel_copies.ir": puya_options.output_parallel_copies_ir,
-        "*.final.ir": puya_options.output_final_ir,
+        "*.destructured.ir": puya_options.output_destructured_ir,
+        "*.mir": puya_options.output_memory_ir,
     }.items():
         if include_in_output and fnmatch(file_name, pattern):
             return True
@@ -74,7 +72,7 @@ def compile_test_case(
     *,
     puya_options: PuyaOptions,
     write_logs: bool,
-    suffix: str | None = None,
+    suffix: str = "",
 ) -> None:
     path = test_case.path
     dst_out_dir = (path if path.is_dir() else path.parent) / "out"
@@ -103,9 +101,9 @@ def compile_test_case(
 
     if write_logs:
         if path.is_dir():
-            log_path = path / "puya.log"
+            log_path = path / f"puya{suffix}.log"
         else:
-            log_path = path.with_suffix(".puya.log")
+            log_path = path.with_suffix(f".puya{suffix}.log")
         log_options = attrs.evolve(
             puya_options, out_dir=None, paths=(test_case.path.relative_to(test_case.root),)
         )
@@ -120,7 +118,7 @@ def compile_no_optimization(test_case: PuyaExample) -> None:
             optimization_level=0,
             output_teal=True,
             output_awst=True,
-            output_final_ir=True,
+            output_destructured_ir=True,
             output_arc32=False,
         ),
         write_logs=False,
@@ -134,17 +132,14 @@ def compile_with_level1_optimizations(test_case: PuyaExample) -> None:
         puya_options=PuyaOptions(
             paths=[test_case.path],
             optimization_level=1,
-            debug_level=1,
             log_level=LogLevel.debug,
             output_teal=True,
             output_arc32=True,
             output_awst=False,
             output_ssa_ir=True,
             output_optimization_ir=True,
-            output_cssa_ir=True,
-            output_post_ssa_ir=True,
-            output_parallel_copies_ir=True,
-            output_final_ir=True,
+            output_destructured_ir=True,
+            output_memory_ir=True,
         ),
         write_logs=True,
     )
@@ -157,7 +152,10 @@ def compile_with_level2_optimizations(test_case: PuyaExample) -> None:
             paths=[test_case.path],
             optimization_level=2,
             output_teal=True,
-            output_arc32=False,
+            output_arc32=True,
+            output_destructured_ir=True,
+            log_level=LogLevel.debug,
+            output_optimization_ir=False,
         ),
         write_logs=False,
         suffix="_O2",
@@ -207,5 +205,6 @@ def test_cases(case: PuyaExample) -> None:
     remove_output(case.path)
     compile_no_optimization(case)
     compile_with_level1_optimizations(case)
+    compile_with_level2_optimizations(case)
     diff = check_for_diff(case.path)
     assert diff is None, f"Uncommitted changes were found:\n{diff}"

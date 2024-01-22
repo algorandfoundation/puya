@@ -1,187 +1,241 @@
 #pragma version 10
 
-// test_cases.with_reentrancy.contract.WithReentrancy.approval_program() -> uint64:
-main_block@0:
-        int 5
-        callsub fibonacci
-        itob
-        log
-        int 2
-        callsub silly
-        pop
-        int 1
-        return
+test_cases.with_reentrancy.contract.WithReentrancy.approval_program:
+    // with_reentrancy/contract.py:8
+    // log(itob(fibonacci(UInt64(5))))
+    int 5
+    callsub fibonacci
+    itob
+    log
+    // with_reentrancy/contract.py:9
+    // silly(UInt64(2))
+    int 2
+    callsub silly
+    pop
+    // with_reentrancy/contract.py:10
+    // return True
+    int 1
+    return
 
 
-// test_cases.with_reentrancy.contract.fibonacci(n#0: uint64) -> uint64:
+// test_cases.with_reentrancy.contract.fibonacci(n: uint64) -> uint64:
 fibonacci:
-        proto 1 1
-
-fibonacci_block@0:
-        frame_dig -1
-        int 1
-        <=
-        bz fibonacci_after_if_else@2
-
-fibonacci_if_body@1:
-        frame_dig -1
-        retsub
+    // with_reentrancy/contract.py:25-26
+    // @subroutine
+    // def fibonacci(n: UInt64) -> UInt64:
+    proto 1 1
+    // with_reentrancy/contract.py:27
+    // if n <= 1:
+    frame_dig -1
+    int 1
+    <=
+    bz fibonacci_after_if_else@2
+    // with_reentrancy/contract.py:28
+    // return n
+    frame_dig -1
+    retsub
 
 fibonacci_after_if_else@2:
-        frame_dig -1
-        int 1
-        -
-        callsub fibonacci
-        frame_dig -1
-        int 2
-        -
-        callsub fibonacci
-        +
-        retsub
+    // with_reentrancy/contract.py:29
+    // return fibonacci(n - 1) + fibonacci(n - 2)
+    frame_dig -1
+    int 1
+    -
+    callsub fibonacci
+    frame_dig -1
+    int 2
+    -
+    callsub fibonacci
+    +
+    retsub
 
 
-// test_cases.with_reentrancy.contract.silly(x#0: uint64) -> uint64:
+// test_cases.with_reentrancy.contract.silly(x: uint64) -> uint64:
 silly:
-        proto 1 1
+    // with_reentrancy/contract.py:32-33
+    // @subroutine
+    // def silly(x: UInt64) -> UInt64:
+    proto 1 1
+    // with_reentrancy/contract.py:34
+    // x = x + 1
+    frame_dig -1
+    int 1
+    +
+    dup
+    frame_bury -1
+    // with_reentrancy/contract.py:35
+    // result = silly2(x)
+    callsub silly2
+    // with_reentrancy/contract.py:36
+    // log(Bytes(b"silly = ") + itoa(x))
+    frame_dig -1
+    callsub itoa
+    byte "silly = "
+    swap
+    concat
+    log
+    // with_reentrancy/contract.py:37
+    // return result
+    retsub
 
-silly_block@0:
-        frame_dig -1
-        int 1
-        +
-        dup
-        frame_bury -1
-        callsub silly2
-        frame_dig -1
-        callsub itoa
-        byte "silly = "
-        swap
-        concat
-        log
-        retsub
 
-
-// test_cases.with_reentrancy.contract.silly2(x#0: uint64) -> uint64:
+// test_cases.with_reentrancy.contract.silly2(x: uint64) -> uint64:
 silly2:
-        proto 1 1
+    // with_reentrancy/contract.py:40-41
+    // @subroutine
+    // def silly2(x: UInt64) -> UInt64:
+    proto 1 1
+    // with_reentrancy/contract.py:42
+    // x = x + 2
+    frame_dig -1
+    int 2
+    +
+    dup
+    frame_bury -1
+    // with_reentrancy/contract.py:43
+    // result = silly3(x)
+    callsub silly3
+    // with_reentrancy/contract.py:44
+    // log(Bytes(b"silly2 = ") + itoa(x))
+    frame_dig -1
+    callsub itoa
+    byte "silly2 = "
+    swap
+    concat
+    log
+    // with_reentrancy/contract.py:45
+    // return result
+    retsub
 
-silly2_block@0:
-        frame_dig -1
-        int 2
-        +
-        dup
-        frame_bury -1
-        callsub silly3
-        frame_dig -1
-        callsub itoa
-        byte "silly2 = "
-        swap
-        concat
-        log
-        retsub
 
-
-// test_cases.with_reentrancy.contract.silly3(x#0: uint64) -> uint64:
+// test_cases.with_reentrancy.contract.silly3(x: uint64) -> uint64:
 silly3:
-        proto 1 1
-        byte ""
-
-silly3_block@0:
-        frame_dig -1
-        int 2
-        %
-        int 0
-        ==
-        dup
-        swap
-        frame_dig -1
-        int 2
-        +
-        swap
-        bz silly3_else_body@2
-
-silly3_if_body@1:
-        frame_dig 2
-        int 2
-        *
-        dup
-        frame_bury 0
-        int 2
-        /
-        int 2
-        -
-        frame_bury 2
-        b silly3_after_if_else@3
+    // with_reentrancy/contract.py:48-49
+    // @subroutine
+    // def silly3(x: UInt64) -> UInt64:
+    proto 1 1
+    byte ""
+    // with_reentrancy/contract.py:50
+    // is_even = x % 2 == 0
+    frame_dig -1
+    int 2
+    %
+    int 0
+    ==
+    dup
+    swap
+    // with_reentrancy/contract.py:51
+    // a = x + 2
+    frame_dig -1
+    int 2
+    +
+    swap
+    // with_reentrancy/contract.py:52
+    // if is_even:
+    bz silly3_else_body@2
+    // with_reentrancy/contract.py:53
+    // result = a * 2
+    frame_dig 2
+    int 2
+    *
+    dup
+    frame_bury 0
+    // with_reentrancy/contract.py:54
+    // a = result // 2 - 2
+    int 2
+    /
+    int 2
+    -
+    frame_bury 2
+    b silly3_after_if_else@3
 
 silly3_else_body@2:
-        frame_dig -1
-        callsub silly
-        frame_bury 0
+    // with_reentrancy/contract.py:56
+    // result = silly(x)
+    frame_dig -1
+    callsub silly
+    frame_bury 0
 
 silly3_after_if_else@3:
-        frame_dig 1
-        bz silly3_after_if_else@5
-
-silly3_if_body@4:
-        frame_dig 2
-        frame_bury 0
+    // with_reentrancy/contract.py:58
+    // if is_even:
+    frame_dig 1
+    bz silly3_after_if_else@5
+    // with_reentrancy/contract.py:59
+    // result = a
+    frame_dig 2
+    frame_bury 0
 
 silly3_after_if_else@5:
-        frame_dig -1
-        callsub itoa
-        byte "silly3 = "
-        swap
-        concat
-        log
-        frame_dig 0
-        frame_bury 0
-        retsub
+    // with_reentrancy/contract.py:60
+    // log(Bytes(b"silly3 = ") + itoa(x))
+    frame_dig -1
+    callsub itoa
+    byte "silly3 = "
+    swap
+    concat
+    log
+    // with_reentrancy/contract.py:61
+    // return result
+    frame_dig 0
+    frame_bury 0
+    retsub
 
 
-// test_cases.with_reentrancy.contract.itoa(i#0: uint64) -> bytes:
+// test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:
 itoa:
-        proto 1 1
-
-itoa_block@0:
-        byte "0123456789"
-        dup
-        swap
-        len
-        dup
-        cover 2
-        frame_dig -1
-        >
-        bz itoa_after_if_else@2
-
-itoa_if_body@1:
-        frame_dig -1
-        int 1
-        +
-        swap
-        frame_dig -1
-        uncover 2
-        substring3
-        swap
-        retsub
+    // with_reentrancy/contract.py:16-17
+    // @subroutine
+    // def itoa(i: UInt64) -> Bytes:
+    proto 1 1
+    // with_reentrancy/contract.py:18
+    // digits = Bytes(b"0123456789")
+    byte "0123456789"
+    dup
+    swap
+    // with_reentrancy/contract.py:19
+    // radix = digits.length
+    len
+    dup
+    cover 2
+    // with_reentrancy/contract.py:20
+    // if i < radix:
+    frame_dig -1
+    swap
+    <
+    bz itoa_after_if_else@2
+    // with_reentrancy/contract.py:21
+    // return digits[i]
+    frame_dig -1
+    int 1
+    +
+    swap
+    frame_dig -1
+    uncover 2
+    substring3
+    swap
+    retsub
 
 itoa_after_if_else@2:
-        frame_dig -1
-        frame_dig 0
-        dup
-        cover 2
-        /
-        callsub itoa
-        swap
-        frame_dig -1
-        swap
-        %
-        dup
-        int 1
-        +
-        uncover 3
-        uncover 2
-        uncover 2
-        substring3
-        concat
-        swap
-        retsub
-
+    // with_reentrancy/contract.py:22
+    // return itoa(i // radix) + digits[i % radix]
+    frame_dig -1
+    frame_dig 0
+    dup
+    cover 2
+    /
+    callsub itoa
+    swap
+    frame_dig -1
+    swap
+    %
+    dup
+    int 1
+    +
+    uncover 3
+    uncover 2
+    uncover 2
+    substring3
+    concat
+    swap
+    retsub

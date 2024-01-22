@@ -2,12 +2,16 @@ import base64
 import json
 import typing
 from collections.abc import Mapping, Sequence
-from pathlib import Path
 
 from puya.avm_type import AVMType
-from puya.codegen.emitprogram import CompiledContract
 from puya.errors import InternalError
-from puya.metadata import ARC4Method, ARC4MethodConfig, ContractState, OnCompletionAction
+from puya.models import (
+    ARC4Method,
+    ARC4MethodConfig,
+    CompiledContract,
+    ContractState,
+    OnCompletionAction,
+)
 from puya.parse import SourceLocation
 
 OCA_ARC32_MAPPING = {
@@ -175,8 +179,8 @@ def create_arc32_json(contract: CompiledContract) -> str:
     app_spec = {
         "hints": _encode_arc32_hints(contract, arc4_methods),
         "source": {
-            "approval": _encode_source("\n".join(contract.approval_program.src)),
-            "clear": _encode_source("\n".join(contract.clear_program.src)),
+            "approval": _encode_source("\n".join(contract.approval_program)),
+            "clear": _encode_source("\n".join(contract.clear_program)),
         },
         "state": {
             "global": _encode_state_schema(metadata.global_state),
@@ -190,7 +194,3 @@ def create_arc32_json(contract: CompiledContract) -> str:
         "bare_call_config": _encode_bare_method_configs(bare_methods),
     }
     return json.dumps(_filter_none(app_spec), indent=4)
-
-
-def write_arc32(path: Path, contract: CompiledContract) -> None:
-    path.write_text(create_arc32_json(contract))

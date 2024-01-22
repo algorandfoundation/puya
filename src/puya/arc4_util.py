@@ -7,7 +7,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.metadata import ARC4MethodConfig
+from puya.models import ARC4MethodConfig
 from puya.parse import SourceLocation
 from puya.utils import round_bits_to_nearest_bytes
 

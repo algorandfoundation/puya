@@ -1,5 +1,8 @@
+# ruff: noqa: ARG002
+
 from __future__ import annotations  # needed to break import cycle
 
+import typing
 import typing as t
 from abc import ABC, abstractmethod
 
@@ -148,11 +151,13 @@ class IRTraverser(IRVisitor[None]):
 
     def visit_goto_nth(self, goto_nth: puya.ir.models.GotoNth) -> None:
         goto_nth.value.accept(self)
+        goto_nth.default.accept(self)
 
     def visit_switch(self, switch: puya.ir.models.Switch) -> None:
         switch.value.accept(self)
         for case in switch.cases:
             case.accept(self)
+        switch.default.accept(self)
 
     def visit_subroutine_return(self, retsub: puya.ir.models.SubroutineReturn) -> None:
         for r in retsub.result:
@@ -167,3 +172,62 @@ class IRTraverser(IRVisitor[None]):
     def visit_value_tuple(self, tup: puya.ir.models.ValueTuple) -> None:
         for v in tup.values:
             v.accept(self)
+
+
+class NoOpIRVisitor(typing.Generic[T], IRVisitor[T | None]):
+    def visit_assignment(self, ass: puya.ir.models.Assignment) -> T | None:
+        return None
+
+    def visit_register(self, reg: puya.ir.models.Register) -> T | None:
+        return None
+
+    def visit_uint64_constant(self, const: puya.ir.models.UInt64Constant) -> T | None:
+        return None
+
+    def visit_biguint_constant(self, const: puya.ir.models.BigUIntConstant) -> T | None:
+        return None
+
+    def visit_bytes_constant(self, const: puya.ir.models.BytesConstant) -> T | None:
+        return None
+
+    def visit_address_constant(self, const: puya.ir.models.AddressConstant) -> T | None:
+        return None
+
+    def visit_method_constant(self, const: puya.ir.models.MethodConstant) -> T | None:
+        return None
+
+    def visit_phi(self, phi: puya.ir.models.Phi) -> T | None:
+        return None
+
+    def visit_phi_argument(self, arg: puya.ir.models.PhiArgument) -> T | None:
+        return None
+
+    def visit_intrinsic_op(self, intrinsic: puya.ir.models.Intrinsic) -> T | None:
+        return None
+
+    def visit_invoke_subroutine(self, callsub: puya.ir.models.InvokeSubroutine) -> T | None:
+        return None
+
+    def visit_value_tuple(self, tup: puya.ir.models.ValueTuple) -> T | None:
+        return None
+
+    def visit_conditional_branch(self, branch: puya.ir.models.ConditionalBranch) -> T | None:
+        return None
+
+    def visit_goto(self, goto: puya.ir.models.Goto) -> T | None:
+        return None
+
+    def visit_goto_nth(self, goto_nth: puya.ir.models.GotoNth) -> T | None:
+        return None
+
+    def visit_switch(self, switch: puya.ir.models.Switch) -> T | None:
+        return None
+
+    def visit_subroutine_return(self, retsub: puya.ir.models.SubroutineReturn) -> T | None:
+        return None
+
+    def visit_program_exit(self, exit_: puya.ir.models.ProgramExit) -> T | None:
+        return None
+
+    def visit_fail(self, fail: puya.ir.models.Fail) -> T | None:
+        return None

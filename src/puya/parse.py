@@ -58,7 +58,7 @@ class ParseSource:
     is_explicit: bool
 
 
-@attrs.frozen(kw_only=True, repr=False)
+@attrs.frozen(kw_only=True, repr=False, str=False)
 class SourceLocation:
     file: str
     line: int
@@ -72,6 +72,64 @@ class SourceLocation:
     def from_mypy(cls, file: str, node: mypy.nodes.Context) -> Self:
         assert node.line is not None
         assert node.line >= 1
+
+        match node:
+            case mypy.nodes.FuncDef(body=body) | mypy.nodes.Decorator(
+                func=mypy.nodes.FuncDef(body=body)
+            ):
+                if body is None:
+                    # TODO: we can probably improve this, but for now just pass through unmodified.
+                    #       It'll only be for functions with empty bodies anyway
+                    end_line = node.end_line
+                else:
+                    end_line = body.line - 1
+                return cls(
+                    file=file,
+                    line=node.line,
+                    end_line=end_line,
+                    mypy_src_node=type(node).__name__,
+                )
+            case mypy.nodes.ClassDef(decorators=class_decorators, defs=class_body):
+                line = node.line
+                for dec in class_decorators:
+                    line = min(dec.line, line)
+                end_line = class_body.line - 1
+                return cls(
+                    file=file,
+                    line=line,
+                    end_line=end_line,
+                    mypy_src_node=type(node).__name__,
+                )
+            case (
+                mypy.nodes.WhileStmt(body=compound_body) | mypy.nodes.ForStmt(body=compound_body)
+            ):
+                return cls(
+                    file=file,
+                    line=node.line,
+                    end_line=compound_body.line - 1,
+                    mypy_src_node=type(node).__name__,
+                )
+            case (mypy.nodes.IfStmt(body=[*bodies], else_body=else_body)):
+                body_start: int | None = None
+                if else_body is not None:
+                    bodies.append(else_body)
+                for body in bodies:
+                    if body_start is None:
+                        body_start = body.line
+                    else:
+                        body_start = min(body_start, body.line)
+                if body_start is None:
+                    # this shouldn't happen, there should be at least one body in one branch,
+                    # but this serves okay as a fallback
+                    end_line2 = node.end_line
+                else:
+                    end_line2 = body_start - 1
+                return cls(
+                    file=file,
+                    line=node.line,
+                    end_line=end_line2,
+                    mypy_src_node=type(node).__name__,
+                )
         return cls(
             file=file,
             line=node.line,
@@ -83,13 +141,20 @@ class SourceLocation:
             mypy_src_node=type(node).__name__,
         )
 
-    @property
-    def clickable_str(self) -> str:
+    def __str__(self) -> str:
         relative_path = make_path_relative_to_cwd(self.file)
-        return f'File "{relative_path}", line {self.line}'
+        result = f"{relative_path}:{self.line}"
+        if self.end_line is not None and self.end_line != self.line:
+            result += f"-{self.end_line}"
+        return result
 
     def __repr__(self) -> str:
-        return self.clickable_str
+        result = str(self)
+        if self.column is not None:
+            result += f":{self.column}"
+            if self.end_column is not None:
+                result += f"-{self.end_column}"
+        return result
 
     def __add__(self, other: "SourceLocation") -> "SourceLocation":
         from puya.errors import InternalError
@@ -259,9 +324,9 @@ def split_log_message(message: str) -> tuple[str, str, str, str]:
 
 @attrs.define
 class MethodDocumentation:
-    description: str | None = attrs.field(default=None)
+    description: str | None = None
     args: dict[str, str] = attrs.field(factory=dict)
-    returns: str | None = attrs.field(default=None)
+    returns: str | None = None
 
 
 def _join_single_new_line(doc: str) -> str:

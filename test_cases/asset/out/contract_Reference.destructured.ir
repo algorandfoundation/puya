@@ -1,0 +1,122 @@
+contract test_cases.asset.contract.Reference:
+    program approval:
+        subroutine test_cases.asset.contract.Reference.approval_program() -> uint64:
+            block@0: // L18
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L15
+                test_cases.asset.contract.Reference.__init__()
+                goto block@2
+            block@2: // entrypoint_L15
+                let tmp%1#0: uint64 = (txn NumAppArgs)
+                let tmp%2#0: uint64 = (== tmp%1#0 1u)
+                goto tmp%2#0 ? block@3 : block@10
+            block@3: // if_body_L19
+                let tmp%3#0: bytes = (txna ApplicationArgs 0)
+                let tmp%4#0: uint64 = (== tmp%3#0 "opt_in")
+                goto tmp%4#0 ? block@4 : block@5
+            block@4: // if_body_L20
+                let asset#0: uint64 = (txna Assets 0)
+                test_cases.asset.contract.Reference.opt_into_asset(asset#0)
+                goto block@10
+            block@5: // else_body_L20
+                let tmp%5#0: bytes = (txna ApplicationArgs 0)
+                let tmp%6#0: uint64 = (== tmp%5#0 "is_opted_in")
+                (assert tmp%6#0) // Expected opt_in or is_opted_in
+                let asset#0: uint64 = (txna Assets 0)
+                test_cases.asset.contract.Reference.is_opted_asset(asset#0)
+                goto block@10
+            block@10: // after_if_else_L19
+                return 1u
+        
+        subroutine test_cases.asset.contract.Reference.opt_into_asset(asset: uint64) -> void:
+            block@0: // L33
+                let tmp%0#0: bytes = (txn Sender)
+                let tmp%1#0: bytes = (global CreatorAddress)
+                let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
+                (assert tmp%2#0) // Only creator can opt in to ASA
+                let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asa")
+                (assert app_global_get_ex_did_exist%4#0) // check value exists
+                let tmp%5#0: uint64 = (! app_global_get_ex_value%3#0)
+                (assert tmp%5#0) // ASA already opted in
+                (app_global_put "asa" asset#0)
+                itxn_begin
+                ((itxn_field TypeEnum) axfer)
+                ((itxn_field Fee) 0u)
+                let tmp%6#0: bytes = (global CurrentApplicationAddress)
+                ((itxn_field AssetReceiver) tmp%6#0)
+                ((itxn_field XferAsset) asset#0)
+                itxn_submit
+                return 
+        
+        subroutine test_cases.asset.contract.Reference.is_opted_asset(asset: uint64) -> void:
+            block@0: // L50
+                let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "asa")
+                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                let tmp%2#0: uint64 = (== app_global_get_ex_value%0#0 asset#0)
+                (assert tmp%2#0) // asset self.asa == asset
+                let (maybe_value%3#0: uint64, maybe_value_did_exist%4#0: uint64) = ((asset_params_get AssetTotal) asset#0)
+                (assert maybe_value_did_exist%4#0) // asset exists
+                let tmp%5#0: uint64 = (== maybe_value%3#0 10000000u)
+                (assert tmp%5#0) // total
+                let (maybe_value%6#0: uint64, maybe_value_did_exist%7#0: uint64) = ((asset_params_get AssetDecimals) asset#0)
+                (assert maybe_value_did_exist%7#0) // asset exists
+                let tmp%8#0: uint64 = (! maybe_value%6#0)
+                (assert tmp%8#0) // decimals
+                let (maybe_value%9#0: uint64, maybe_value_did_exist%10#0: uint64) = ((asset_params_get AssetDefaultFrozen) asset#0)
+                (assert maybe_value_did_exist%10#0) // asset exists
+                let tmp%11#0: uint64 = (! maybe_value%9#0)
+                (assert tmp%11#0) // default frozen
+                let (maybe_value%12#0: bytes, maybe_value_did_exist%13#0: uint64) = ((asset_params_get AssetUnitName) asset#0)
+                (assert maybe_value_did_exist%13#0) // asset exists
+                let tmp%14#0: uint64 = (== maybe_value%12#0 "a")
+                (assert tmp%14#0) // unit_name
+                let (maybe_value%15#0: bytes, maybe_value_did_exist%16#0: uint64) = ((asset_params_get AssetName) asset#0)
+                (assert maybe_value_did_exist%16#0) // asset exists
+                let tmp%17#0: uint64 = (== maybe_value%15#0 "asset a")
+                (assert tmp%17#0) // name
+                let (maybe_value%18#0: bytes, maybe_value_did_exist%19#0: uint64) = ((asset_params_get AssetURL) asset#0)
+                (assert maybe_value_did_exist%19#0) // asset exists
+                let tmp%20#0: uint64 = (== maybe_value%18#0 "")
+                (assert tmp%20#0) // URL
+                let (maybe_value%21#0: bytes, maybe_value_did_exist%22#0: uint64) = ((asset_params_get AssetMetadataHash) asset#0)
+                (assert maybe_value_did_exist%22#0) // asset exists
+                let tmp%23#0: bytes = (bzero 32u)
+                let tmp%24#0: uint64 = (== maybe_value%21#0 tmp%23#0)
+                (assert tmp%24#0) // hash
+                let (maybe_value%25#0: bytes, maybe_value_did_exist%26#0: uint64) = ((asset_params_get AssetManager) asset#0)
+                (assert maybe_value_did_exist%26#0) // asset exists
+                let tmp%27#0: bytes = (global ZeroAddress)
+                let tmp%28#0: uint64 = (== maybe_value%25#0 tmp%27#0)
+                (assert tmp%28#0) // manager
+                let (maybe_value%29#0: bytes, maybe_value_did_exist%30#0: uint64) = ((asset_params_get AssetReserve) asset#0)
+                (assert maybe_value_did_exist%30#0) // asset exists
+                let tmp%31#0: bytes = (global ZeroAddress)
+                let tmp%32#0: uint64 = (== maybe_value%29#0 tmp%31#0)
+                (assert tmp%32#0) // reserve
+                let (maybe_value%33#0: bytes, maybe_value_did_exist%34#0: uint64) = ((asset_params_get AssetFreeze) asset#0)
+                (assert maybe_value_did_exist%34#0) // asset exists
+                let tmp%35#0: bytes = (global ZeroAddress)
+                let tmp%36#0: uint64 = (== maybe_value%33#0 tmp%35#0)
+                (assert tmp%36#0) // freeze
+                let (maybe_value%37#0: bytes, maybe_value_did_exist%38#0: uint64) = ((asset_params_get AssetClawback) asset#0)
+                (assert maybe_value_did_exist%38#0) // asset exists
+                let tmp%39#0: bytes = (global ZeroAddress)
+                let tmp%40#0: uint64 = (== maybe_value%37#0 tmp%39#0)
+                (assert tmp%40#0) // clawback
+                let (maybe_value%41#0: bytes, maybe_value_did_exist%42#0: uint64) = ((asset_params_get AssetCreator) asset#0)
+                (assert maybe_value_did_exist%42#0) // asset exists
+                let tmp%43#0: bytes = (global CreatorAddress)
+                let tmp%44#0: uint64 = (== maybe_value%41#0 tmp%43#0)
+                (assert tmp%44#0) // creator
+                return 
+        
+        subroutine test_cases.asset.contract.Reference.__init__() -> void:
+            block@0: // L15
+                (app_global_put "asa" 0u)
+                return 
+    
+    program clear-state:
+        subroutine test_cases.asset.contract.Reference.clear_state_program() -> uint64:
+            block@0: // L30
+                return 1u

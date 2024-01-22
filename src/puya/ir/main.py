@@ -5,7 +5,6 @@ from collections.abc import Iterable, Iterator, Sequence
 import attrs
 import structlog
 
-from puya import metadata
 from puya.arc4_util import get_abi_signature
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -27,7 +26,7 @@ from puya.ir.models import (
     Subroutine,
 )
 from puya.ir.types_ import wtype_to_avm_type
-from puya.metadata import ARC4Method, ARC4MethodConfig
+from puya.models import ARC4Method, ARC4MethodConfig, ContractMetaData, ContractState
 from puya.utils import StableSet
 
 logger = structlog.get_logger()
@@ -107,11 +106,11 @@ def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Con
 
 def _create_contract_metadata(
     contract: awst_nodes.ContractFragment,
-    global_state: list[metadata.ContractState],
-    local_state: list[metadata.ContractState],
+    global_state: list[ContractState],
+    local_state: list[ContractState],
     arc4_methods: list[ARC4Method] | None,
-) -> metadata.ContractMetaData:
-    result = metadata.ContractMetaData(
+) -> ContractMetaData:
+    result = ContractMetaData(
         description=contract.docstring,
         name_override=contract.name_override,
         module_name=contract.module_name,
@@ -205,9 +204,9 @@ class FoldedContract:
     init: awst_nodes.ContractMethod | None = None
     approval_program: awst_nodes.ContractMethod | None = None
     clear_program: awst_nodes.ContractMethod | None = None
-    global_state: list[metadata.ContractState] = attrs.field(factory=list)
-    local_state: list[metadata.ContractState] = attrs.field(factory=list)
-    arc4_methods: list[ARC4Method] | None = attrs.field(default=None)
+    global_state: list[ContractState] = attrs.field(factory=list)
+    local_state: list[ContractState] = attrs.field(factory=list)
+    arc4_methods: list[ARC4Method] | None = None
 
 
 def wtype_to_storage_type(wtype: wtypes.WType) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
@@ -230,7 +229,7 @@ def fold_state_and_special_methods(
         if result.clear_program is None:
             result.clear_program = c.clear_program
         for state in c.app_state:
-            translated = metadata.ContractState(
+            translated = ContractState(
                 name=state.member_name,
                 source_location=state.source_location,
                 key=state.key,

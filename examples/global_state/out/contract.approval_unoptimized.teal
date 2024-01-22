@@ -1,161 +1,207 @@
 #pragma version 10
 
-// examples.global_state.contract.AppStateContract.approval_program() -> uint64:
-main:
-        byte ""
-        dup
-
-main_block@0:
-        txn ApplicationID
-        bnz main_entrypoint@2
-
-main_on_create@1:
-        callsub __init__
+examples.global_state.contract.AppStateContract.approval_program:
+    byte ""
+    dup
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
 
 main_entrypoint@2:
-        int 0
-        byte "global_int_simplified"
-        app_global_get_ex
-        assert // check value exists
-        int 33
-        ==
-        assert
-        int 0
-        byte "global_int_full"
-        app_global_get_ex
-        swap
-        pop
-        assert
-        int 0
-        byte "global_int_full"
-        app_global_get_ex
-        assert // check value exists
-        int 55
-        ==
-        assert
-        int 0
-        byte "global_int_no_default"
-        app_global_get_ex
-        swap
-        pop
-        !
-        assert
-        byte "global_int_no_default"
-        int 44
-        app_global_put
-        int 0
-        byte "global_int_no_default"
-        app_global_get_ex
-        swap
-        swap
-        assert
-        int 44
-        ==
-        assert
-        int 0
-        byte "global_bytes_simplified"
-        app_global_get_ex
-        assert // check value exists
-        byte "Hello"
-        ==
-        assert
-        int 0
-        byte "global_bytes_full"
-        app_global_get_ex
-        swap
-        pop
-        assert
-        int 0
-        byte "global_bytes_full"
-        app_global_get_ex
-        assert // check value exists
-        byte "Hello"
-        ==
-        assert
-        int 0
-        byte "global_bytes_full"
-        app_global_get_ex
-        swap
-        bury 3
-        bz main_ternary_false@4
-
-main_ternary_true@3:
-        dig 1
-        b main_ternary_merge@5
+    // global_state/contract.py:15
+    // assert self.global_int_simplified == 33
+    int 0
+    byte "global_int_simplified"
+    app_global_get_ex
+    assert // check value exists
+    int 33
+    ==
+    assert
+    // global_state/contract.py:16
+    // assert self.global_int_full
+    int 0
+    byte "global_int_full"
+    app_global_get_ex
+    swap
+    pop
+    assert
+    // global_state/contract.py:17
+    // assert self.global_int_full.value == 55
+    int 0
+    byte "global_int_full"
+    app_global_get_ex
+    assert // check value exists
+    int 55
+    ==
+    assert
+    // global_state/contract.py:18
+    // assert not self.global_int_no_default
+    int 0
+    byte "global_int_no_default"
+    app_global_get_ex
+    swap
+    pop
+    !
+    assert
+    // global_state/contract.py:19
+    // self.global_int_no_default.value = UInt64(44)
+    byte "global_int_no_default"
+    int 44
+    app_global_put
+    // global_state/contract.py:20
+    // i_value, i_exists = self.global_int_no_default.maybe()
+    int 0
+    byte "global_int_no_default"
+    app_global_get_ex
+    // global_state/contract.py:21
+    // assert i_exists
+    assert
+    // global_state/contract.py:22
+    // assert i_value == 44
+    int 44
+    ==
+    assert
+    // global_state/contract.py:24
+    // assert self.global_bytes_simplified == b"Hello"
+    int 0
+    byte "global_bytes_simplified"
+    app_global_get_ex
+    assert // check value exists
+    byte "Hello"
+    ==
+    assert
+    // global_state/contract.py:25
+    // assert self.global_bytes_full
+    int 0
+    byte "global_bytes_full"
+    app_global_get_ex
+    swap
+    pop
+    assert
+    // global_state/contract.py:26
+    // assert self.global_bytes_full.value == b"Hello"
+    int 0
+    byte "global_bytes_full"
+    app_global_get_ex
+    assert // check value exists
+    byte "Hello"
+    ==
+    assert
+    // global_state/contract.py:27
+    // assert self.global_bytes_full.get(Bytes(b"default")) == b"Hello"
+    int 0
+    byte "global_bytes_full"
+    app_global_get_ex
+    swap
+    bury 3
+    bz main_ternary_false@4
+    dig 1
+    b main_ternary_merge@5
 
 main_ternary_false@4:
-        byte "default"
+    // global_state/contract.py:27
+    // assert self.global_bytes_full.get(Bytes(b"default")) == b"Hello"
+    byte "default"
 
 main_ternary_merge@5:
-        byte "Hello"
-        ==
-        assert
-        int 0
-        byte "global_bytes_no_default"
-        app_global_get_ex
-        swap
-        pop
-        !
-        assert
-        byte "global_bytes_no_default"
-        byte "World"
-        app_global_put
-        int 0
-        byte "global_bytes_no_default"
-        app_global_get_ex
-        swap
-        swap
-        assert
-        byte "World"
-        ==
-        assert
-        byte "global_bytes_no_default"
-        app_global_del
-        int 0
-        byte "global_bytes_no_default"
-        app_global_get_ex
-        swap
-        pop
-        !
-        assert
-        int 0
-        byte "global_bytes_no_default"
-        app_global_get_ex
-        swap
-        bury 2
-        bz main_ternary_false@7
-
-main_ternary_true@6:
-        dup
-        b main_ternary_merge@8
+    // global_state/contract.py:27
+    // assert self.global_bytes_full.get(Bytes(b"default")) == b"Hello"
+    byte "Hello"
+    ==
+    assert
+    // global_state/contract.py:28
+    // assert not self.global_bytes_no_default
+    int 0
+    byte "global_bytes_no_default"
+    app_global_get_ex
+    swap
+    pop
+    !
+    assert
+    // global_state/contract.py:29
+    // self.global_bytes_no_default.value = Bytes(b"World")
+    byte "global_bytes_no_default"
+    byte "World"
+    app_global_put
+    // global_state/contract.py:30
+    // b_value, b_exists = self.global_bytes_no_default.maybe()
+    int 0
+    byte "global_bytes_no_default"
+    app_global_get_ex
+    // global_state/contract.py:31
+    // assert b_exists
+    assert
+    // global_state/contract.py:32
+    // assert b_value == b"World"
+    byte "World"
+    ==
+    assert
+    // global_state/contract.py:33
+    // del self.global_bytes_no_default.value
+    byte "global_bytes_no_default"
+    app_global_del
+    // global_state/contract.py:34
+    // b_value, b_exists = self.global_bytes_no_default.maybe()
+    int 0
+    byte "global_bytes_no_default"
+    app_global_get_ex
+    swap
+    pop
+    // global_state/contract.py:35
+    // assert not b_exists
+    !
+    assert
+    // global_state/contract.py:37
+    // assert self.global_bytes_no_default.get(Bytes(b"default")) == b"default"
+    int 0
+    byte "global_bytes_no_default"
+    app_global_get_ex
+    swap
+    bury 2
+    bz main_ternary_false@7
+    dup
+    b main_ternary_merge@8
 
 main_ternary_false@7:
-        byte "default"
+    // global_state/contract.py:37
+    // assert self.global_bytes_no_default.get(Bytes(b"default")) == b"default"
+    byte "default"
 
 main_ternary_merge@8:
-        byte "default"
-        ==
-        assert
-        int 1
-        return
+    // global_state/contract.py:37
+    // assert self.global_bytes_no_default.get(Bytes(b"default")) == b"default"
+    byte "default"
+    ==
+    assert
+    // global_state/contract.py:38
+    // return True
+    int 1
+    return
 
 
 // examples.global_state.contract.AppStateContract.__init__() -> void:
 __init__:
-        proto 0 0
-
-__init___block@0:
-        byte "global_int_full"
-        int 55
-        app_global_put
-        byte "global_int_simplified"
-        int 33
-        app_global_put
-        byte "global_bytes_full"
-        byte "Hello"
-        app_global_put
-        byte "global_bytes_simplified"
-        byte "Hello"
-        app_global_put
-        retsub
-
+    // global_state/contract.py:5
+    // def __init__(self) -> None:
+    proto 0 0
+    // global_state/contract.py:6
+    // self.global_int_full = GlobalState(UInt64(55))
+    byte "global_int_full"
+    int 55
+    app_global_put
+    // global_state/contract.py:7
+    // self.global_int_simplified = UInt64(33)
+    byte "global_int_simplified"
+    int 33
+    app_global_put
+    // global_state/contract.py:10
+    // self.global_bytes_full = GlobalState(Bytes(b"Hello"))
+    byte "global_bytes_full"
+    byte "Hello"
+    app_global_put
+    // global_state/contract.py:11
+    // self.global_bytes_simplified = Bytes(b"Hello")
+    byte "global_bytes_simplified"
+    byte "Hello"
+    app_global_put
+    retsub

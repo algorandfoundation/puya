@@ -1,0 +1,192 @@
+contract test_cases.conditional_execution.contract.ConditionalExecutionContract:
+    program approval:
+        subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.approval_program() -> uint64:
+            block@0: // L9
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L5
+                test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__()
+                goto block@2
+            block@2: // entrypoint_L5
+                let tmp%1#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
+                goto tmp%1#0 ? block@6 : block@3
+            block@3: // or_contd_L10
+                let tmp%2#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto block@6
+            block@6: // bool_merge_L10
+                let (app_global_get_ex_value%4#0: uint64, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "did_execute_a")
+                (assert app_global_get_ex_did_exist%5#0) // check value exists
+                goto app_global_get_ex_value%4#0 ? block@7 : block@9
+            block@7: // and_contd_L13
+                let (app_global_get_ex_value%6#0: uint64, app_global_get_ex_did_exist%7#0: uint64) = (app_global_get_ex 0u "did_execute_b")
+                (assert app_global_get_ex_did_exist%7#0) // check value exists
+                goto app_global_get_ex_value%6#0 ? block@9 : block@8
+            block@8: // bool_true_L13
+                let and_result%8#0: uint64 = 1u
+                goto block@10
+            block@9: // bool_false_L13
+                let and_result%8#0: uint64 = 0u
+                goto block@10
+            block@10: // bool_merge_L13
+                test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%8#0)
+                let tmp%9#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(0u)
+                goto tmp%9#0 ? block@14 : block@11
+            block@11: // or_contd_L16
+                let tmp%10#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto block@14
+            block@14: // bool_merge_L16
+                let (app_global_get_ex_value%12#0: uint64, app_global_get_ex_did_exist%13#0: uint64) = (app_global_get_ex 0u "did_execute_a")
+                (assert app_global_get_ex_did_exist%13#0) // check value exists
+                goto app_global_get_ex_value%12#0 ? block@15 : block@17
+            block@15: // and_contd_L19
+                let (app_global_get_ex_value%14#0: uint64, app_global_get_ex_did_exist%15#0: uint64) = (app_global_get_ex 0u "did_execute_b")
+                (assert app_global_get_ex_did_exist%15#0) // check value exists
+                goto app_global_get_ex_value%14#0 ? block@16 : block@17
+            block@16: // bool_true_L19
+                let and_result%16#0: uint64 = 1u
+                goto block@18
+            block@17: // bool_false_L19
+                let and_result%16#0: uint64 = 0u
+                goto block@18
+            block@18: // bool_merge_L19
+                test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%16#0)
+                let tmp%17#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(0u)
+                goto tmp%17#0 ? block@19 : block@22
+            block@19: // and_contd_L22
+                let tmp%18#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto block@22
+            block@22: // bool_merge_L22
+                let (app_global_get_ex_value%20#0: uint64, app_global_get_ex_did_exist%21#0: uint64) = (app_global_get_ex 0u "did_execute_a")
+                (assert app_global_get_ex_did_exist%21#0) // check value exists
+                goto app_global_get_ex_value%20#0 ? block@23 : block@25
+            block@23: // and_contd_L25
+                let (app_global_get_ex_value%22#0: uint64, app_global_get_ex_did_exist%23#0: uint64) = (app_global_get_ex 0u "did_execute_b")
+                (assert app_global_get_ex_did_exist%23#0) // check value exists
+                goto app_global_get_ex_value%22#0 ? block@25 : block@24
+            block@24: // bool_true_L25
+                let and_result%24#0: uint64 = 1u
+                goto block@26
+            block@25: // bool_false_L25
+                let and_result%24#0: uint64 = 0u
+                goto block@26
+            block@26: // bool_merge_L25
+                test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%24#0)
+                let tmp%25#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
+                goto tmp%25#0 ? block@27 : block@30
+            block@27: // and_contd_L28
+                let tmp%26#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto block@30
+            block@30: // bool_merge_L28
+                let (app_global_get_ex_value%28#0: uint64, app_global_get_ex_did_exist%29#0: uint64) = (app_global_get_ex 0u "did_execute_a")
+                (assert app_global_get_ex_did_exist%29#0) // check value exists
+                goto app_global_get_ex_value%28#0 ? block@31 : block@33
+            block@31: // and_contd_L31
+                let (app_global_get_ex_value%30#0: uint64, app_global_get_ex_did_exist%31#0: uint64) = (app_global_get_ex 0u "did_execute_b")
+                (assert app_global_get_ex_did_exist%31#0) // check value exists
+                goto app_global_get_ex_value%30#0 ? block@32 : block@33
+            block@32: // bool_true_L31
+                let and_result%32#0: uint64 = 1u
+                goto block@34
+            block@33: // bool_false_L31
+                let and_result%32#0: uint64 = 0u
+                goto block@34
+            block@34: // bool_merge_L31
+                test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%32#0)
+                let tmp%33#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
+                let tmp%34#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                let (app_global_get_ex_value%35#0: uint64, app_global_get_ex_did_exist%36#0: uint64) = (app_global_get_ex 0u "did_execute_a")
+                (assert app_global_get_ex_did_exist%36#0) // check value exists
+                goto app_global_get_ex_value%35#0 ? block@35 : block@37
+            block@35: // and_contd_L37
+                let (app_global_get_ex_value%37#0: uint64, app_global_get_ex_did_exist%38#0: uint64) = (app_global_get_ex 0u "did_execute_b")
+                (assert app_global_get_ex_did_exist%38#0) // check value exists
+                goto app_global_get_ex_value%37#0 ? block@36 : block@37
+            block@36: // bool_true_L37
+                let and_result%39#0: uint64 = 1u
+                goto block@38
+            block@37: // bool_false_L37
+                let and_result%39#0: uint64 = 0u
+                goto block@38
+            block@38: // bool_merge_L37
+                test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%39#0)
+                let tmp%40#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(1u)
+                goto tmp%40#0 ? block@39 : block@40
+            block@39: // ternary_true_L40
+                let ternary_result%41#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
+                goto block@41
+            block@40: // ternary_false_L40
+                let ternary_result%41#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto block@41
+            block@41: // ternary_merge_L40
+                let (app_global_get_ex_value%42#0: uint64, app_global_get_ex_did_exist%43#0: uint64) = (app_global_get_ex 0u "did_execute_a")
+                (assert app_global_get_ex_did_exist%43#0) // check value exists
+                goto app_global_get_ex_value%42#0 ? block@42 : block@44
+            block@42: // and_contd_L43
+                let (app_global_get_ex_value%44#0: uint64, app_global_get_ex_did_exist%45#0: uint64) = (app_global_get_ex 0u "did_execute_b")
+                (assert app_global_get_ex_did_exist%45#0) // check value exists
+                goto app_global_get_ex_value%44#0 ? block@44 : block@43
+            block@43: // bool_true_L43
+                let and_result%46#0: uint64 = 1u
+                goto block@45
+            block@44: // bool_false_L43
+                let and_result%46#0: uint64 = 0u
+                goto block@45
+            block@45: // bool_merge_L43
+                test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%46#0)
+                let tmp%47#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(0u)
+                goto tmp%47#0 ? block@46 : block@47
+            block@46: // ternary_true_L46
+                let ternary_result%48#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(1u)
+                goto block@48
+            block@47: // ternary_false_L46
+                let ternary_result%48#0: uint64 = test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(1u)
+                goto block@48
+            block@48: // ternary_merge_L46
+                let (app_global_get_ex_value%49#0: uint64, app_global_get_ex_did_exist%50#0: uint64) = (app_global_get_ex 0u "did_execute_a")
+                (assert app_global_get_ex_did_exist%50#0) // check value exists
+                goto app_global_get_ex_value%49#0 ? block@51 : block@49
+            block@49: // and_contd_L49
+                let (app_global_get_ex_value%51#0: uint64, app_global_get_ex_did_exist%52#0: uint64) = (app_global_get_ex 0u "did_execute_b")
+                (assert app_global_get_ex_did_exist%52#0) // check value exists
+                goto app_global_get_ex_value%51#0 ? block@50 : block@51
+            block@50: // bool_true_L49
+                let and_result%53#0: uint64 = 1u
+                goto block@52
+            block@51: // bool_false_L49
+                let and_result%53#0: uint64 = 0u
+                goto block@52
+            block@52: // bool_merge_L49
+                test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(and_result%53#0)
+                return 1u
+        
+        subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.func_a(ret_val: uint64) -> uint64:
+            block@0: // L63
+                (app_global_put "did_execute_a" 1u)
+                return ret_val#0
+        
+        subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.func_b(ret_val: uint64) -> uint64:
+            block@0: // L68
+                (app_global_put "did_execute_b" 1u)
+                return ret_val#0
+        
+        subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.assert_and_reset(condition: uint64) -> void:
+            block@0: // L57
+                (assert condition#0)
+                (app_global_put "did_execute_b" 0u)
+                (app_global_put "did_execute_a" 0u)
+                return 
+        
+        subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.func_c(ret_val: uint64) -> uint64:
+            block@0: // L73
+                return ret_val#0
+        
+        subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.__init__() -> void:
+            block@0: // L5
+                (app_global_put "did_execute_a" 0u)
+                (app_global_put "did_execute_b" 0u)
+                return 
+    
+    program clear-state:
+        subroutine test_cases.conditional_execution.contract.ConditionalExecutionContract.clear_state_program() -> uint64:
+            block@0: // L54
+                return 1u

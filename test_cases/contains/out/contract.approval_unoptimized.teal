@@ -1,96 +1,150 @@
 #pragma version 10
 
-// test_cases.contains.contract.MyContract.approval_program() -> uint64:
-main_block@0:
-        int 15
-        int 10
-        int 10
-        dig 2
-        byte "five"
-        callsub is_in_tuple_1
-        swap
-        int 5
-        int 10
-        uncover 2
-        byte "five"
-        callsub is_in_tuple_1
-        swap
-        assert // Should be true
-        !
-        assert // Should be false
-        byte "hello"
-        byte "hello"
-        int 0
-        byte "bonjour"
-        callsub is_in_tuple_2
-        byte "ciao"
-        byte "hello"
-        int 0
-        byte "bonjour"
-        callsub is_in_tuple_2
-        swap
-        assert // Should be true
-        !
-        assert // Should be false
-        byte 0x1d65e22bcbbf
-        byte 0x1d65e22bcbbf
-        byte 0x07acf5cae41e
-        callsub is_in_tuple_3
-        byte 0x1d65e22bcbbf
-        byte 0x1d65e22bcbbf
-        b+
-        byte 0x1d65e22bcbbf
-        byte 0x07acf5cae41e
-        callsub is_in_tuple_3
-        swap
-        assert // Should be true
-        !
-        assert // Should be false
-        int 1
-        return
+test_cases.contains.contract.MyContract.approval_program:
+    // contains/contract.py:8
+    // not_ten = UInt64(15)
+    int 15
+    // contains/contract.py:10
+    // one_true = self.is_in_tuple_1(UInt64(10), (UInt64(10), not_ten, Bytes(b"five")))
+    int 10
+    int 10
+    dig 2
+    byte "five"
+    callsub is_in_tuple_1
+    swap
+    // contains/contract.py:11
+    // one_false = self.is_in_tuple_1(UInt64(5), (UInt64(10), not_ten, Bytes(b"five")))
+    int 5
+    int 10
+    uncover 2
+    byte "five"
+    callsub is_in_tuple_1
+    // contains/contract.py:12
+    // assert one_true, "Should be true"
+    swap
+    assert // Should be true
+    // contains/contract.py:13
+    // assert not one_false, "Should be false"
+    !
+    assert // Should be false
+    // contains/contract.py:16
+    // Bytes(b"hello"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
+    byte "hello"
+    byte "hello"
+    int 0
+    byte "bonjour"
+    // contains/contract.py:15-17
+    // two_true = self.is_in_tuple_2(
+    //     Bytes(b"hello"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
+    // )
+    callsub is_in_tuple_2
+    // contains/contract.py:19
+    // Bytes(b"ciao"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
+    byte "ciao"
+    byte "hello"
+    int 0
+    byte "bonjour"
+    // contains/contract.py:18-20
+    // two_false = self.is_in_tuple_2(
+    //     Bytes(b"ciao"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
+    // )
+    callsub is_in_tuple_2
+    // contains/contract.py:21
+    // assert two_true, "Should be true"
+    swap
+    assert // Should be true
+    // contains/contract.py:22
+    // assert not two_false, "Should be false"
+    !
+    assert // Should be false
+    // contains/contract.py:25
+    // BigUInt(32323423423423), (BigUInt(32323423423423), BigUInt(8439439483934))
+    byte 0x1d65e22bcbbf
+    byte 0x1d65e22bcbbf
+    byte 0x07acf5cae41e
+    // contains/contract.py:24-26
+    // three_true = self.is_in_tuple_3(
+    //     BigUInt(32323423423423), (BigUInt(32323423423423), BigUInt(8439439483934))
+    // )
+    callsub is_in_tuple_3
+    // contains/contract.py:28
+    // BigUInt(32323423423423) + BigUInt(32323423423423),
+    byte 0x1d65e22bcbbf
+    byte 0x1d65e22bcbbf
+    b+
+    // contains/contract.py:29
+    // (BigUInt(32323423423423), BigUInt(8439439483934)),
+    byte 0x1d65e22bcbbf
+    byte 0x07acf5cae41e
+    // contains/contract.py:27-30
+    // three_false = self.is_in_tuple_3(
+    //     BigUInt(32323423423423) + BigUInt(32323423423423),
+    //     (BigUInt(32323423423423), BigUInt(8439439483934)),
+    // )
+    callsub is_in_tuple_3
+    // contains/contract.py:31
+    // assert three_true, "Should be true"
+    swap
+    assert // Should be true
+    // contains/contract.py:32
+    // assert not three_false, "Should be false"
+    !
+    assert // Should be false
+    // contains/contract.py:34
+    // return UInt64(1)
+    int 1
+    return
 
 
-// test_cases.contains.contract.MyContract.is_in_tuple_1(x#0: uint64, y.0#0: uint64, y.1#0: uint64, y.2#0: bytes) -> uint64:
+// test_cases.contains.contract.MyContract.is_in_tuple_1(x: uint64, y.0: uint64, y.1: uint64, y.2: bytes) -> uint64:
 is_in_tuple_1:
-        proto 4 1
+    // contains/contract.py:39-40
+    // @subroutine
+    // def is_in_tuple_1(self, x: UInt64, y: tuple[UInt64, UInt64, Bytes]) -> bool:
+    proto 4 1
+    // contains/contract.py:41
+    // return x in y
+    frame_dig -4
+    frame_dig -3
+    ==
+    frame_dig -4
+    frame_dig -2
+    ==
+    ||
+    retsub
 
-is_in_tuple_1_block@0:
-        frame_dig -4
-        frame_dig -3
-        ==
-        frame_dig -4
-        frame_dig -2
-        ==
-        ||
-        retsub
 
-
-// test_cases.contains.contract.MyContract.is_in_tuple_2(x#0: bytes, y.0#0: bytes, y.1#0: uint64, y.2#0: bytes) -> uint64:
+// test_cases.contains.contract.MyContract.is_in_tuple_2(x: bytes, y.0: bytes, y.1: uint64, y.2: bytes) -> uint64:
 is_in_tuple_2:
-        proto 4 1
+    // contains/contract.py:43-44
+    // @subroutine
+    // def is_in_tuple_2(self, x: Bytes, y: tuple[Bytes, UInt64, Bytes]) -> bool:
+    proto 4 1
+    // contains/contract.py:45
+    // return x in y
+    frame_dig -4
+    frame_dig -3
+    ==
+    frame_dig -4
+    frame_dig -1
+    ==
+    ||
+    retsub
 
-is_in_tuple_2_block@0:
-        frame_dig -4
-        frame_dig -3
-        ==
-        frame_dig -4
-        frame_dig -1
-        ==
-        ||
-        retsub
 
-
-// test_cases.contains.contract.MyContract.is_in_tuple_3(x#0: bytes, y.0#0: bytes, y.1#0: bytes) -> uint64:
+// test_cases.contains.contract.MyContract.is_in_tuple_3(x: bytes, y.0: bytes, y.1: bytes) -> uint64:
 is_in_tuple_3:
-        proto 3 1
-
-is_in_tuple_3_block@0:
-        frame_dig -3
-        frame_dig -2
-        b==
-        frame_dig -3
-        frame_dig -1
-        b==
-        ||
-        retsub
-
+    // contains/contract.py:47-48
+    // @subroutine
+    // def is_in_tuple_3(self, x: BigUInt, y: tuple[BigUInt, BigUInt]) -> bool:
+    proto 3 1
+    // contains/contract.py:49
+    // return x in y
+    frame_dig -3
+    frame_dig -2
+    b==
+    frame_dig -3
+    frame_dig -1
+    b==
+    ||
+    retsub
