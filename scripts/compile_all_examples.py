@@ -12,8 +12,11 @@ from puya.codegen.teal_annotaters import AlignedWriter
 
 SCRIPT_DIR = Path(__file__).parent
 GIT_ROOT = SCRIPT_DIR.parent
-EXAMPLES_DIR = GIT_ROOT / "examples"
-SIZE_TALLY_PATH = EXAMPLES_DIR / "sizes.txt"
+CONTRACT_ROOT_DIRS = [
+    GIT_ROOT / "examples",
+    GIT_ROOT / "test_cases",
+]
+SIZE_TALLY_PATH = GIT_ROOT / "examples" / "sizes.txt"
 ALGOD_CLIENT = algokit_utils.get_algod_client(algokit_utils.get_default_localnet_config("algod"))
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
@@ -21,8 +24,15 @@ ENV_WITH_NO_COLOR = dict(os.environ) | {
 }
 
 
+def get_root_and_relative_path(path: Path) -> tuple[Path, Path]:
+    for root in CONTRACT_ROOT_DIRS:
+        if path.is_relative_to(root):
+            return root, path.relative_to(root)
+    raise Exception(f"{path} is not relative to a known example")
+
+
 def get_unique_name(path: Path) -> str:
-    rel_path = path.relative_to(EXAMPLES_DIR)
+    _, rel_path = get_root_and_relative_path(path)
     # strip suffixes
     while rel_path.suffixes:
         rel_path = rel_path.with_suffix("")
@@ -110,13 +120,15 @@ def _stabilise_logs(stdout: str) -> list[str]:
                 "debug: Skipping typeshed stub ",
                 "warning: Skipping stub: ",
                 "debug: Skipping stdlib stub ",
+                "debug: Building AWST for ",
             )
         )
     ]
 
 
 def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> CompilationResult:
-    rel_path = str(p.relative_to(EXAMPLES_DIR))
+    root, rel_path_ = get_root_and_relative_path(p)
+    rel_path = str(rel_path_)
 
     cmd = [
         "poetry",
@@ -130,7 +142,7 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
     ]
     result = subprocess.run(
         cmd,
-        cwd=EXAMPLES_DIR,
+        cwd=root,
         check=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -158,8 +170,8 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool) -> Compilati
     return CompilationResult(
         rel_path=rel_path,
         ok=result.returncode == 0,
-        teal_files=[EXAMPLES_DIR / p for p in teal_files_written],
-        final_ir_files=[EXAMPLES_DIR / p for p in final_ir_written],
+        teal_files=[root / p for p in teal_files_written],
+        final_ir_files=[root / p for p in final_ir_written],
     )
 
 
@@ -212,18 +224,20 @@ def main(*limit_to: str) -> None:
     if limit_to:
         to_compile = [Path(x).resolve() for x in limit_to]
     else:
-        for item in EXAMPLES_DIR.iterdir():
-            if item.is_dir():
-                if any(item.rglob("*.py")):
+        for root in CONTRACT_ROOT_DIRS:
+            for item in root.iterdir():
+                if item.is_dir():
+                    if any(item.rglob("*.py")):
+                        to_compile.append(item)
+                elif item.is_file() and item.suffix == ".py" and item.name != "__init__.py":
                     to_compile.append(item)
-            elif item.is_file() and item.suffix == ".py" and item.name != "__init__.py":
-                to_compile.append(item)
     if not limit_to:
         print("Cleaning up prior runs")
         for ext in (".teal", ".awst", ".ir"):
-            for f in EXAMPLES_DIR.rglob(f"**/out/*{ext}"):
-                if f.is_file():
-                    f.unlink()
+            for root in CONTRACT_ROOT_DIRS:
+                for f in root.rglob(f"**/out/*{ext}"):
+                    if f.is_file():
+                        f.unlink()
 
     program_sizes = ProgramSizes()
     opt_success = set()
