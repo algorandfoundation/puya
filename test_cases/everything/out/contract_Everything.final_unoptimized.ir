@@ -133,14 +133,13 @@ contract test_cases.everything.contract.Everything:
             block@1: // if_body_L60
                 return "\x00\x0fHowdy stranger!"
             block@2: // after_if_else_L60
-                let tmp%2#0: bytes = ((extract 2 0) name#0)
-                let tmp%3#0: bytes = (concat "Hello, " tmp%2#0)
-                let tmp%4#0: bytes = (concat tmp%3#0 "!")
-                let length%5#0: uint64 = (len tmp%4#0)
-                let value_as_bytes%6#0: bytes = (itob length%5#0)
-                let value_as_uint16%7#0: bytes = ((extract 6 2) value_as_bytes%6#0)
-                let tmp%8#0: bytes = (concat value_as_uint16%7#0 tmp%4#0)
-                return tmp%8#0
+                let array_length%2#0: uint64 = (extract_uint16 name#0 0u)
+                let data%3#0: bytes = ((extract 2 0) name#0)
+                let concat_result%4#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size("\x00\x07Hello, ", data%3#0, array_length%2#0)
+                let array_length%5#0: uint64 = (extract_uint16 "\x00\x01!" 0u)
+                let data%6#0: bytes = ((extract 2 0) "\x00\x01!")
+                let concat_result%7#0: bytes = puyapy_lib_arc4.dynamic_array_concat_fixed_size(concat_result%4#0, data%6#0, array_length%5#0)
+                return concat_result%7#0
         
         subroutine test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
             block@0: // L65
@@ -180,6 +179,16 @@ contract test_cases.everything.contract.Everything:
         subroutine test_cases.everything.contract.Everything.__init__() -> void:
             block@0: // L38
                 return 
+        
+        subroutine puyapy_lib_arc4.dynamic_array_concat_fixed_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+            block@0: // L190
+                let array_length#0: uint64 = (extract_uint16 source#0 0u)
+                let tmp%0#0: uint64 = (+ array_length#0 new_items_count#0)
+                let tmp%1#0: bytes = (itob tmp%0#0)
+                let tmp%2#0: bytes = (substring3 tmp%1#0 6u 8u)
+                let source#0: bytes = (replace3 source#0 0u tmp%2#0)
+                let source#0: bytes = (concat source#0 new_items_bytes#0)
+                return source#0
     
     program clear-state:
         subroutine test_cases.everything.contract.Everything.clear_state_program() -> uint64:

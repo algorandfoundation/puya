@@ -1,5 +1,6 @@
 from puyapy import (
     ARC4Contract,
+    Asset,
     AssetTransferTransaction,
     CreateInnerTransaction,
     Global,
@@ -11,7 +12,6 @@ from puyapy import (
     arc4,
     subroutine,
 )
-from puyapy._reference import Asset
 
 
 class Auction(ARC4Contract):
@@ -36,7 +36,7 @@ class Auction(ARC4Contract):
         # Submit opt-in transaction: 0 asset transfer to self
         CreateInnerTransaction.begin()
         CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-        CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
+        CreateInnerTransaction.set_fee(0)  # cover fee with outer txn
         CreateInnerTransaction.set_asset_receiver(Global.current_application_address())
         CreateInnerTransaction.set_xfer_asset(asset.asset_id)
         CreateInnerTransaction.submit()
@@ -94,7 +94,7 @@ class Auction(ARC4Contract):
 
         CreateInnerTransaction.begin()
         CreateInnerTransaction.set_type_enum(TransactionType.Payment)
-        CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
+        CreateInnerTransaction.set_fee(0)  # cover fee with outer txn
         CreateInnerTransaction.set_receiver(Transaction.sender())
         CreateInnerTransaction.set_asset_amount(amount)
         CreateInnerTransaction.submit()
@@ -108,7 +108,7 @@ class Auction(ARC4Contract):
         # Send ASA to previous bidder
         CreateInnerTransaction.begin()
         CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-        CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
+        CreateInnerTransaction.set_fee(0)  # cover fee with outer txn
         CreateInnerTransaction.set_asset_receiver(self.previous_bidder)
         CreateInnerTransaction.set_xfer_asset(asset.asset_id)
         CreateInnerTransaction.set_asset_amount(self.asa_amount)
@@ -119,7 +119,7 @@ class Auction(ARC4Contract):
     def delete_application(self) -> None:
         CreateInnerTransaction.begin()
         CreateInnerTransaction.set_type_enum(TransactionType.Payment)
-        CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
+        CreateInnerTransaction.set_fee(0)  # cover fee with outer txn
         CreateInnerTransaction.set_receiver(Global.creator_address())
         CreateInnerTransaction.set_close_remainder_to(Global.creator_address())
         CreateInnerTransaction.submit()

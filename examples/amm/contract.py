@@ -5,7 +5,6 @@ from puyapy import (
     ARC4Contract,
     Asset,
     AssetTransferTransaction,
-    Bytes,
     CreateInnerTransaction,
     Global,
     InnerTransaction,
@@ -44,10 +43,6 @@ class ConstantProductAMM(ARC4Contract):
         # The ratio between assets (A*Scale/B)
         self.ratio = UInt64(0)
 
-    @arc4.baremethod(create=True)
-    def create(self) -> None:
-        """Allow creates"""
-
     @arc4.abimethod()
     def set_governor(self, new_governor: Account) -> None:
         """sets the governor of the contract, may only be called by the current governor"""
@@ -84,7 +79,7 @@ class ConstantProductAMM(ARC4Contract):
 
         self._do_opt_in(self.asset_a)
         self._do_opt_in(self.asset_b)
-        return arc4.UInt64.encode(self.pool_token.asset_id)
+        return arc4.UInt64(self.pool_token.asset_id)
 
     @arc4.abimethod(
         default_args={
@@ -278,7 +273,7 @@ class ConstantProductAMM(ARC4Contract):
         CreateInnerTransaction.begin()
         CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
         CreateInnerTransaction.set_config_asset_name(
-            Bytes(b"DPT-") + self.asset_a.unit_name + Bytes(b"-") + self.asset_b.unit_name
+            b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name
         )
         CreateInnerTransaction.set_config_asset_unit_name(b"dpt")
         CreateInnerTransaction.set_config_asset_total(TOTAL_SUPPLY)

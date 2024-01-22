@@ -25,7 +25,7 @@ class Arc4NumericTypesContract(Contract):
     def approval_program(self) -> bool:
         uint8 = UInt64(255)
 
-        int8_encoded = UInt8.encode(uint8)
+        int8_encoded = UInt8(uint8)
 
         int8_decoded = int8_encoded.decode()
 
@@ -47,7 +47,7 @@ class Arc4NumericTypesContract(Contract):
         really_big_int = BigUIntN[t.Literal[512]](sixty_four_byte_num)
 
         assert really_big_int.bytes.length == 64
-        assert really_big_int == BigUIntN[t.Literal[512]].encode(really_big_int.decode())
+        assert really_big_int == BigUIntN[t.Literal[512]](really_big_int.decode())
 
         really_big_decimal = BigUFixedNxM[t.Literal[512], t.Literal[2]].encode(
             BigUInt(sixty_four_byte_num)
@@ -55,7 +55,7 @@ class Arc4NumericTypesContract(Contract):
 
         biguint = BigUInt(1)
         arc4_biguint_const = ARC4BigUInt(1)
-        arc4_biguint_dynamic = ARC4BigUInt.encode(biguint + 1)
+        arc4_biguint_dynamic = ARC4BigUInt(biguint + 1)
 
         assert biguint == arc4_biguint_const.decode()
 

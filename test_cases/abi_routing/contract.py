@@ -31,7 +31,7 @@ class Reference(ARC4Contract):
     @arc4.abimethod
     def noop_with_uint64(self, a: arc4.UInt64) -> arc4.UInt8:
         result = 1 + a.decode()
-        return arc4.UInt8.encode(result)
+        return arc4.UInt8(result)
 
     @arc4.abimethod(
         allow_actions=[
@@ -47,7 +47,7 @@ class Reference(ARC4Contract):
     )
     def full_abi_config(self, a: arc4.UInt64) -> arc4.UInt8:
         result = UInt64(1) + a.decode()
-        return arc4.UInt8.encode(result)
+        return arc4.UInt8(result)
 
     @arc4.abimethod(
         allow_actions=[
@@ -60,7 +60,7 @@ class Reference(ARC4Contract):
     )
     def mixed_oca(self, a: arc4.UInt64) -> arc4.UInt8:
         result = UInt64(1) + a.decode()
-        return arc4.UInt8.encode(result)
+        return arc4.UInt8(result)
 
     @arc4.baremethod(
         allow_actions=[

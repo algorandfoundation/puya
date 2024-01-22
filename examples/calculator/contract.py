@@ -18,7 +18,7 @@ def itoa(i: UInt64) -> Bytes:
 class MyContract(Contract):
     def approval_program(self) -> UInt64:
         num_args = Transaction.num_app_args()
-        if num_args == UInt64(0):
+        if num_args == 0:
             a = UInt64(0)
             b = UInt64(0)
             action = UInt64(0)
@@ -82,5 +82,5 @@ class MyContract(Contract):
     def div(self, a: UInt64, b: UInt64) -> UInt64:
         return a // b
 
-    def clear_state_program(self) -> UInt64:
-        return UInt64(1)
+    def clear_state_program(self) -> bool:
+        return True

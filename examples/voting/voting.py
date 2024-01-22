@@ -6,6 +6,7 @@ from puyapy import (
     Bytes,
     CreateInnerTransaction,
     Global,
+    GlobalState,
     InnerTransaction,
     OpUpFeeSource,
     PaymentTransaction,
@@ -20,6 +21,7 @@ from puyapy import (
     itob,
     log,
     subroutine,
+    uenumerate,
     urange,
 )
 
@@ -53,77 +55,65 @@ class VotingRoundApp(ARC4Contract):
         self.is_bootstrapped = False
         # The minimum number of voters who have voted
         self.voter_count = UInt64(0)
-        self.close_time = UInt64(0)
-        self.nft_asset_id = UInt64(0)
-
-        self.snapshot_public_key = Bytes()
-        self.vote_id = Bytes()
-        self.metadata_ipfs_cid = Bytes()
-        self.start_time = UInt64(0)
-        self.end_time = UInt64(0)
-        self.quorum = UInt64(0)
-        self.nft_image_url = Bytes()
-        self.option_counts = VoteIndexArray()
-        self.total_options = UInt64(0)
-
-    def clear_state_program(self) -> bool:
-        return True
+        self.close_time = GlobalState(UInt64)
 
     @arc4.abimethod(create=True)
     def create(
         self,
         vote_id: arc4.String,
-        snapshot_public_key: arc4.DynamicBytes,
+        snapshot_public_key: Bytes,
         metadata_ipfs_cid: arc4.String,
-        start_time: arc4.UInt64,
-        end_time: arc4.UInt64,
+        start_time: UInt64,
+        end_time: UInt64,
         option_counts: VoteIndexArray,
-        quorum: arc4.UInt64,
+        quorum: UInt64,
         nft_image_url: arc4.String,
     ) -> None:
-        st = start_time.decode()
-        et = end_time.decode()
-        assert st < et, "End time should be after start time"
-        assert et >= Global.latest_timestamp(), "End time should be in the future"
+        assert start_time < end_time, "End time should be after start time"
+        assert end_time >= Global.latest_timestamp(), "End time should be in the future"
 
         self.vote_id = vote_id.decode()
-        self.snapshot_public_key = snapshot_public_key.bytes[2:]
+        self.snapshot_public_key = snapshot_public_key
         self.metadata_ipfs_cid = metadata_ipfs_cid.decode()
-        self.start_time = st
-        self.end_time = et
-        self.quorum = quorum.decode()
+        self.start_time = start_time
+        self.end_time = end_time
+        self.quorum = quorum
         self.nft_image_url = nft_image_url.decode()
         self.store_option_counts(option_counts.copy())
 
-    @arc4.abimethod()
+    @arc4.abimethod
     def bootstrap(self, fund_min_bal_req: PaymentTransaction) -> None:
         assert not self.is_bootstrapped, "Must not be already bootstrapped"
         self.is_bootstrapped = True
 
-        bytes_per_option = UInt64(8)
-        box_cost = (
-            BOX_FLAT_MIN_BALANCE
-            + BOX_BYTE_MIN_BALANCE
-            + (self.total_options * BOX_BYTE_MIN_BALANCE * bytes_per_option)
-        )
-
-        min_balance_req = ASSET_MIN_BALANCE * 2 + 1000 + box_cost
         assert (
             fund_min_bal_req.receiver == Global.current_application_address()
         ), "Payment must be to app address"
-        log(itob(min_balance_req))
 
+        tally_box_size = self.total_options * VOTE_COUNT_BYTES
+        min_balance_req = (
+            # minimum balance req for: ALGOs + Vote result NFT asset
+            ASSET_MIN_BALANCE * 2
+            # create NFT fee
+            + 1000
+            # tally box
+            + BOX_FLAT_MIN_BALANCE
+            # tally box key "V"
+            + BOX_BYTE_MIN_BALANCE
+            # tally box value
+            + (tally_box_size * BOX_BYTE_MIN_BALANCE)
+        )
+        log(itob(min_balance_req))
         assert (
             fund_min_bal_req.amount == min_balance_req
         ), "Payment must be for the exact min balance requirement"
+        assert Box.create(TALLY_BOX_KEY, tally_box_size)
 
-        assert Box.create(TALLY_BOX_KEY, self.total_options * VOTE_COUNT_BYTES)
-
-    @arc4.abimethod()
+    @arc4.abimethod
     def close(self) -> None:
         ensure_budget(20000, fee_source=OpUpFeeSource.GroupCredit)
-        assert self.close_time == 0, "Already closed"
-        self.close_time = Global.latest_timestamp()
+        assert not self.close_time, "Already closed"
+        self.close_time.value = Global.latest_timestamp()
 
         note = (
             b'{"standard":"arc69",'
@@ -134,27 +124,26 @@ class VotingRoundApp(ARC4Contract):
             + b'","id":"'
             + self.vote_id
             + b'","quorum":'
-            + itob(self.quorum)
+            + itoa(self.quorum)
             + b',"voterCount":'
-            + itob(self.voter_count)
+            + itoa(self.voter_count)
             + b',"tallies":['
         )
 
         current_index = UInt64(0)
-        for question_index in urange(self.option_counts.length):
-            question_options = self.option_counts[question_index].decode()
-            for option_index in urange(question_options):
-                votes_for_option = get_vote_from_box(current_index)
-                note += (
-                    Bytes(b"[")
-                    if option_index == 0
-                    else Bytes(b"") + itob(votes_for_option) + Bytes(b"]")
-                    if option_index == (question_options - 1)
-                    else Bytes(b",")
-                    if question_index == (self.option_counts.length - 1)
-                    else Bytes(b"")
-                )
-                current_index += 1
+        for question_index, question_options_arc in uenumerate(self.option_counts):
+            if question_index > 0:
+                note += b","
+            question_options = question_options_arc.decode()
+            if question_options > 0:
+                note += b"["
+                for option_index in urange(question_options):
+                    if option_index > 0:
+                        note += b","
+                    votes_for_option = get_vote_from_box(current_index)
+                    note += itoa(votes_for_option)
+                    current_index += 1
+                note += b"]"
         note += b"]}}"
         CreateInnerTransaction.begin()
         CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
@@ -177,17 +166,13 @@ class VotingRoundApp(ARC4Contract):
             current_time=arc4.UInt64(Global.latest_timestamp()),
         )
 
-    @arc4.abimethod()
+    @arc4.abimethod
     def vote(
-        self,
-        fund_min_bal_req: PaymentTransaction,
-        signature: arc4.DynamicBytes,
-        answer_ids: VoteIndexArray,
+        self, fund_min_bal_req: PaymentTransaction, signature: Bytes, answer_ids: VoteIndexArray
     ) -> None:
-        # return pt.Seq(
         ensure_budget(7700, fee_source=OpUpFeeSource.GroupCredit)
         # Check voting preconditions
-        assert self.allowed_to_vote(signature.bytes[2:]), "Not allowed to vote"
+        assert self.allowed_to_vote(signature), "Not allowed to vote"
         assert self.voting_open(), "Voting not open"
         assert not self.already_voted(), "Already voted"
         questions_count = self.option_counts.length
@@ -206,13 +191,11 @@ class VotingRoundApp(ARC4Contract):
         cumulative_offset = UInt64(0)
         for question_index in urange(questions_count):
             # Load the user's vote for this question
-            answer_option_index = answer_ids[question_index]
-            options_count = self.option_counts[question_index]
-            assert (
-                answer_option_index.decode() < options_count.decode()
-            ), "Answer option index invalid"
-            increment_vote_in_box(cumulative_offset + answer_option_index.decode())
-            cumulative_offset += options_count.decode()
+            answer_option_index = answer_ids[question_index].decode()
+            options_count = self.option_counts[question_index].decode()
+            assert answer_option_index < options_count, "Answer option index invalid"
+            increment_vote_in_box(cumulative_offset + answer_option_index)
+            cumulative_offset += options_count
             Box.put(Transaction.sender().bytes, answer_ids.bytes)
             self.voter_count += 1
 
@@ -232,22 +215,15 @@ class VotingRoundApp(ARC4Contract):
     @subroutine
     def store_option_counts(self, option_counts: VoteIndexArray) -> None:
         assert option_counts.length, "option_counts should be non-empty"
-
         assert option_counts.length <= 112, "Can't have more than 112 questions"
 
-        self.option_counts = option_counts.copy()
-
-        total_options = self.calculate_total_options_count(option_counts.copy())
-        assert total_options <= 128, "Can't have more than 128 vote options"
-        self.total_options = total_options
-
-    @subroutine
-    def calculate_total_options_count(self, option_counts: VoteIndexArray) -> UInt64:
-        total = UInt64(0)
+        total_options = UInt64(0)
         for item in option_counts:
-            total += item.decode()
+            total_options += item.decode()
+        assert total_options <= 128, "Can't have more than 128 vote options"
 
-        return total
+        self.option_counts = option_counts.copy()
+        self.total_options = total_options
 
     @subroutine
     def allowed_to_vote(self, signature: Bytes) -> bool:
@@ -272,3 +248,12 @@ def increment_vote_in_box(index: UInt64) -> None:
     assert exists, "Box not created"
     current_vote = btoi(extract(box_data, index, VOTE_COUNT_BYTES))
     Box.replace(TALLY_BOX_KEY, index, itob(current_vote + 1))
+
+
+@subroutine
+def itoa(i: UInt64) -> Bytes:
+    digits = Bytes(b"0123456789")
+    radix = digits.length
+    if i < radix:
+        return digits[i]
+    return itoa(i // radix) + digits[i % radix]
