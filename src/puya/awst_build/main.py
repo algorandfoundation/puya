@@ -7,6 +7,7 @@ from puya.awst.nodes import Module
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst_build.context import ASTConversionContext
 from puya.awst_build.module import ModuleASTConverter
+from puya.awst_build.validation.main import validate_awst
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.options import PuyaOptions
@@ -64,6 +65,7 @@ def transform_ast(
                 ):
                     output_awst(module_awst, ctx.options)
                 result[module_name] = module_awst
+    validate_awst(ctx, result)
     return result
 
 

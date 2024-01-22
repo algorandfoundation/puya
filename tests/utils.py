@@ -20,7 +20,7 @@ from puya.utils import pushd
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 
-APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir")
+APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir", "application.json")
 UNSTABLE_LOG_PREFIXES = {
     "debug": (
         "Building AWST for ",
