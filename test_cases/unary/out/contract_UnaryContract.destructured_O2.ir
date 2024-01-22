@@ -1,0 +1,46 @@
+contract test_cases.unary.contract.UnaryContract:
+    program approval:
+        subroutine test_cases.unary.contract.UnaryContract.approval_program() -> uint64:
+            block@0: // L14
+                test_cases.unary.contract.uint_unary()
+                test_cases.unary.contract.biguint_unary()
+                test_cases.unary.contract.bytes_unary()
+                return 1u
+        
+        subroutine test_cases.unary.contract.uint_unary() -> void:
+            block@0: // L25
+                let tuple_index%1#0: uint64 = 0u
+                let i#0: uint64 = 1u
+                goto block@5
+            block@2: // for_header_1_L30
+                let i#0: uint64 = 2u
+                let tuple_index%1#0: uint64 = tuple_index%1#5
+                goto block@5
+            block@3: // for_header_2_L30
+                let i#0: uint64 = 150u
+                let tuple_index%1#0: uint64 = tuple_index%1#5
+                goto block@5
+            block@4: // for_header_3_L30
+                let i#0: uint64 = 18446744073709551615u
+                let tuple_index%1#0: uint64 = tuple_index%1#5
+                goto block@5
+            block@5: // for_body_L30
+                let tmp%2#0: uint64 = (- 18446744073709551615u i#0)
+                let tmp%3#0: uint64 = (~ tmp%2#0)
+                let tmp%4#0: uint64 = (== tmp%3#0 i#0)
+                (assert tmp%4#0) // ~ uint
+                let tuple_index%1#5: uint64 = (+ tuple_index%1#0 1u)
+                goto_nth [block@2, block@3, block@4][tuple_index%1#0] else return 
+        
+        subroutine test_cases.unary.contract.biguint_unary() -> void:
+            block@0: // L35
+                return 
+        
+        subroutine test_cases.unary.contract.bytes_unary() -> void:
+            block@0: // L41
+                return 
+    
+    program clear-state:
+        subroutine test_cases.unary.contract.UnaryContract.clear_state_program() -> uint64:
+            block@0: // L21
+                return 1u

@@ -1,0 +1,42 @@
+// Op              //                                           Op Description  Stack (out)      X stack                                     Source code                                      Source line
+
+#pragma version 10
+
+// test_cases.simple.contract.MyContract.clear_state_program() -> uint64:
+main_block@0:
+    txn NumAppArgs //                                                           {txn}                                                        pkg_a.Txn.num_app_args()                         simple/contract.py:26
+    //             virtual: store tmp%0#0 to l-stack (no copy)  tmp%0#0                          pkg_a.Txn.num_app_args()                    simple/contract.py:26
+    //             virtual: load tmp%0#0 from l-stack (no copy) tmp%0#0                          pkg_a.Txn.num_app_args() == 0               simple/contract.py:26
+    !              //                                                           {!}                                                          pkg_a.Txn.num_app_args() == 0                    simple/contract.py:26
+    //             virtual: store tmp%1#0 to l-stack (no copy)  tmp%1#0                          pkg_a.Txn.num_app_args() == 0               simple/contract.py:26
+    //             virtual: load tmp%1#0 from l-stack (no copy) tmp%1#0                          assert pkg_a.Txn.num_app_args() == 0        simple/contract.py:26
+    assert         //                                                                                                                        assert pkg_a.Txn.num_app_args() == 0             simple/contract.py:26
+    callsub zero   //                                                           {zero}                                                       subs.zero()                                      simple/contract.py:27
+    //             virtual: store tmp%2#0 to l-stack (no copy)  tmp%2#0                          subs.zero()                                 simple/contract.py:27
+    callsub one    //                                                           tmp%2#0,{one}                                                pkg_a.pkg_1.subs.one()                           simple/contract.py:27
+    //             virtual: store tmp%3#0 to l-stack (no copy)  tmp%2#0,tmp%3#0                  pkg_a.pkg_1.subs.one()                      simple/contract.py:27
+    //             virtual: load tmp%2#0 from l-stack (no copy) tmp%3#0,tmp%2#0                  subs.zero() * pkg_a.pkg_1.subs.one()        simple/contract.py:27
+    //             virtual: load tmp%3#0 from l-stack (no copy) tmp%2#0,tmp%3#0                  subs.zero() * pkg_a.pkg_1.subs.one()        simple/contract.py:27
+    *              //                                                           {*}                                                          subs.zero() * pkg_a.pkg_1.subs.one()             simple/contract.py:27
+    //             virtual: store tmp%4#0 to l-stack (no copy)  tmp%4#0                          subs.zero() * pkg_a.pkg_1.subs.one()        simple/contract.py:27
+    //             virtual: load tmp%4#0 from l-stack (no copy) tmp%4#0                          return subs.zero() * pkg_a.pkg_1.subs.one() simple/contract.py:27
+    return         //                                                                                                                        return subs.zero() * pkg_a.pkg_1.subs.one()      simple/contract.py:27
+
+
+// test_cases.simple.subs.zero() -> uint64:
+zero:
+    proto 0 1      //                                                                                                                        @puyapy.subroutine\ndef zero() -> puyapy.UInt64: simple/subs.py:4-5
+
+zero_block@0:
+    int 0          //                                                           0                                                            0                                                simple/subs.py:6
+    retsub         //                                                           0                                                            return puyapy.UInt64(0)                          simple/subs.py:6
+
+
+// test_cases.simple.pkg_a.pkg_1.subs.one() -> uint64:
+one:
+    proto 0 1      //                                                                                                                        @puyapy.subroutine\ndef one() -> puyapy.UInt64:  simple/pkg_a/pkg_1/subs.py:4-5
+
+one_block@0:
+    int 1          //                                                           1                                                            1                                                simple/pkg_a/pkg_1/subs.py:6
+    retsub         //                                                           1                                                            return puyapy.UInt64(1)                          simple/pkg_a/pkg_1/subs.py:6
+

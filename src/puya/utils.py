@@ -101,6 +101,11 @@ class StableSet(MutableSet[T]):
     def discard(self, value: T) -> None:
         self._data.pop(value, None)
 
+    def intersection(self, other: Iterable[T]) -> "StableSet[T]":
+        result = StableSet.__new__(StableSet)
+        result._data = dict.fromkeys(k for k in self._data if k in other)  # noqa: SLF001
+        return result
+
     def __or__(self, other: Iterable[T]) -> "StableSet[T]":  # type: ignore[override]
         result = StableSet.__new__(StableSet)
         if isinstance(other, StableSet):

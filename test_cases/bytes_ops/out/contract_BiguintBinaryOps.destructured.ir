@@ -1,0 +1,47 @@
+contract test_cases.bytes_ops.contract.BiguintBinaryOps:
+    program approval:
+        subroutine test_cases.bytes_ops.contract.BiguintBinaryOps.approval_program() -> uint64:
+            block@0: // L5
+                test_cases.bytes_ops.contract.do_some_ops(0xff, 0x0f, 0xff0f, 0xff, 0xf0, 0x0f)
+                test_cases.bytes_ops.contract.do_augmented_assignment_ops(0xff)
+                return 1u
+        
+        subroutine test_cases.bytes_ops.contract.do_some_ops(left: bytes, right: bytes, concat: bytes, bitwise_or: bytes, bitwise_xor: bytes, bitwise_and: bytes) -> void:
+            block@0: // L21
+                let result#0: bytes = (concat left#0 right#0)
+                let tmp%0#0: uint64 = (== result#0 concat#0)
+                (assert tmp%0#0)
+                let result#0: bytes = (b| left#0 right#0)
+                let tmp%1#0: uint64 = (== result#0 bitwise_or#0)
+                (assert tmp%1#0)
+                let result#0: bytes = (b^ left#0 right#0)
+                let tmp%2#0: uint64 = (== result#0 bitwise_xor#0)
+                (assert tmp%2#0)
+                let result#0: bytes = (b& left#0 right#0)
+                let tmp%3#0: uint64 = (== result#0 bitwise_and#0)
+                (assert tmp%3#0)
+                return 
+        
+        subroutine test_cases.bytes_ops.contract.do_augmented_assignment_ops(seed: bytes) -> void:
+            block@0: // L41
+                let seed#0: bytes = (b& seed#0 0x00)
+                let tmp%0#0: uint64 = (== seed#0 0x00)
+                (assert tmp%0#0)
+                let seed#0: bytes = (b| seed#0 0x05)
+                let tmp%1#0: uint64 = (== seed#0 0x05)
+                (assert tmp%1#0)
+                let seed#0: bytes = (b^ seed#0 0x10)
+                let tmp%2#0: uint64 = (== seed#0 0x15)
+                (assert tmp%2#0)
+                let seed#0: bytes = (b^ seed#0 0x05)
+                let tmp%3#0: uint64 = (== seed#0 0x10)
+                (assert tmp%3#0)
+                let seed#0: bytes = (concat seed#0 0x05)
+                let tmp%4#0: uint64 = (== seed#0 0x1005)
+                (assert tmp%4#0)
+                return 
+    
+    program clear-state:
+        subroutine test_cases.bytes_ops.contract.BiguintBinaryOps.clear_state_program() -> uint64:
+            block@0: // L17
+                return 1u

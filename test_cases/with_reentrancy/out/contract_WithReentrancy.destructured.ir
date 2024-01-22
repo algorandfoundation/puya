@@ -1,0 +1,87 @@
+contract test_cases.with_reentrancy.contract.WithReentrancy:
+    program approval:
+        subroutine test_cases.with_reentrancy.contract.WithReentrancy.approval_program() -> uint64:
+            block@0: // L7
+                let tmp%0#0: uint64 = test_cases.with_reentrancy.contract.fibonacci(5u)
+                let tmp%1#0: bytes = (itob tmp%0#0)
+                (log tmp%1#0)
+                test_cases.with_reentrancy.contract.silly(2u)
+                return 1u
+        
+        subroutine test_cases.with_reentrancy.contract.fibonacci(n: uint64) -> uint64:
+            block@0: // L25
+                let tmp%0#0: uint64 = (<= n#0 1u)
+                goto tmp%0#0 ? block@1 : block@2
+            block@1: // if_body_L27
+                return n#0
+            block@2: // after_if_else_L27
+                let tmp%1#0: uint64 = (- n#0 1u)
+                let tmp%2#0: uint64 = test_cases.with_reentrancy.contract.fibonacci(tmp%1#0)
+                let tmp%3#0: uint64 = (- n#0 2u)
+                let tmp%4#0: uint64 = test_cases.with_reentrancy.contract.fibonacci(tmp%3#0)
+                let tmp%5#0: uint64 = (+ tmp%2#0 tmp%4#0)
+                return tmp%5#0
+        
+        subroutine test_cases.with_reentrancy.contract.silly(x: uint64) -> uint64:
+            block@0: // L32
+                let x#0: uint64 = (+ x#0 1u)
+                let result#0: uint64 = test_cases.with_reentrancy.contract.silly2(x#0)
+                let tmp%0#0: bytes = test_cases.with_reentrancy.contract.itoa(x#0)
+                let tmp%1#0: bytes = (concat "silly = " tmp%0#0)
+                (log tmp%1#0)
+                return result#0
+        
+        subroutine test_cases.with_reentrancy.contract.silly2(x: uint64) -> uint64:
+            block@0: // L40
+                let x#0: uint64 = (+ x#0 2u)
+                let result#0: uint64 = test_cases.with_reentrancy.contract.silly3(x#0)
+                let tmp%0#0: bytes = test_cases.with_reentrancy.contract.itoa(x#0)
+                let tmp%1#0: bytes = (concat "silly2 = " tmp%0#0)
+                (log tmp%1#0)
+                return result#0
+        
+        subroutine test_cases.with_reentrancy.contract.silly3(x: uint64) -> uint64:
+            block@0: // L48
+                let tmp%0#0: uint64 = (% x#0 2u)
+                let a#0: uint64 = (+ x#0 2u)
+                goto tmp%0#0 ? block@2 : block@1
+            block@1: // if_body_L52
+                let result#0: uint64 = (* a#0 2u)
+                let tmp%1#0: uint64 = (/ result#0 2u)
+                let a#0: uint64 = (- tmp%1#0 2u)
+                goto block@3
+            block@2: // else_body_L52
+                let result#0: uint64 = test_cases.with_reentrancy.contract.silly(x#0)
+                goto block@3
+            block@3: // after_if_else_L52
+                goto tmp%0#0 ? block@5 : block@4
+            block@4: // if_body_L58
+                let result#0: uint64 = a#0
+                goto block@5
+            block@5: // after_if_else_L58
+                let tmp%2#0: bytes = test_cases.with_reentrancy.contract.itoa(x#0)
+                let tmp%3#0: bytes = (concat "silly3 = " tmp%2#0)
+                (log tmp%3#0)
+                return result#0
+        
+        subroutine test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:
+            block@0: // L16
+                let tmp%0#0: uint64 = (< i#0 10u)
+                goto tmp%0#0 ? block@1 : block@2
+            block@1: // if_body_L20
+                let index_plus_1%1#0: uint64 = (+ i#0 1u)
+                let tmp%2#0: bytes = (substring3 "0123456789" i#0 index_plus_1%1#0)
+                return tmp%2#0
+            block@2: // after_if_else_L20
+                let tmp%3#0: uint64 = (/ i#0 10u)
+                let tmp%4#0: bytes = test_cases.with_reentrancy.contract.itoa(tmp%3#0)
+                let tmp%5#0: uint64 = (% i#0 10u)
+                let index_plus_1%6#0: uint64 = (+ tmp%5#0 1u)
+                let tmp%7#0: bytes = (substring3 "0123456789" tmp%5#0 index_plus_1%6#0)
+                let tmp%8#0: bytes = (concat tmp%4#0 tmp%7#0)
+                return tmp%8#0
+    
+    program clear-state:
+        subroutine test_cases.with_reentrancy.contract.WithReentrancy.clear_state_program() -> uint64:
+            block@0: // L12
+                return 1u

@@ -1,0 +1,42 @@
+contract test_cases.ssa2.contract.MyContract:
+    program approval:
+        subroutine test_cases.ssa2.contract.MyContract.approval_program() -> uint64:
+            block@0: // L7
+                let a#0: uint64 = 3u
+                let b#0: uint64 = 20u
+                let range_item%0#0: uint64 = 0u
+                let i#0: uint64 = range_item%0#0
+                goto block@1
+            block@1: // for_header_L15
+                let continue_looping%1#0: uint64 = (< i#0 5u)
+                goto continue_looping%1#0 ? block@2 : block@5
+            block@2: // for_body_L15
+                let b#0: uint64 = (+ b#0 a#0)
+                let a#0: uint64 = (+ a#0 i#0)
+                let range_item%0#0: uint64 = (+ i#0 1u)
+                let i#0: uint64 = range_item%0#0
+                goto block@1
+            block@5: // after_for_L15
+                let tmp%2#0: uint64 = (+ a#0 b#0)
+                return tmp%2#0
+    
+    program clear-state:
+        subroutine test_cases.ssa2.contract.MyContract.clear_state_program() -> uint64:
+            block@0: // L37
+                let tmp%0#0: uint64 = test_cases.ssa2.contract.one_hundred(40u)
+                return tmp%0#0
+        
+        subroutine test_cases.ssa2.contract.one_hundred(c: uint64) -> uint64:
+            block@0: // L41
+                let a#0: uint64 = 25u
+                let b#0: uint64 = 2u
+                let tmp%0#0: uint64 = (< 25u c#0)
+                goto tmp%0#0 ? block@1 : block@2
+            block@1: // if_body_L45
+                let b#0: uint64 = 1u
+                let a#0: uint64 = 100u
+                goto block@2
+            block@2: // after_if_else_L45
+                let b#0: uint64 = (* b#0 b#0)
+                let tmp%1#0: uint64 = (* a#0 b#0)
+                return tmp%1#0

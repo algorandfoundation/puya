@@ -1,0 +1,45 @@
+import contextlib
+from copy import deepcopy
+
+import attrs
+import structlog
+
+from puya.context import CompileContext
+from puya.ir import models
+from puya.ir.optimize.collapse_blocks import BlockReferenceReplacer
+
+logger = structlog.get_logger(__name__)
+
+
+def post_ssa_optimizer(_context: CompileContext, contract: models.Contract) -> models.Contract:
+    logger.debug("Performing post-SSA optimizations")
+    cloned = deepcopy(contract)
+    for sub in cloned.all_subroutines():
+        remove_linear_jumps(sub)
+        attrs.validate(sub)
+    return cloned
+
+
+def remove_linear_jumps(subroutine: models.Subroutine) -> None:
+    #  P = {p0, p1, ..., pn} -> {j} -> {t}
+    # remove {j} from subroutine
+    # point P at t:
+    #  update references within P from j to t
+    #  ensure P are all in predecessors of t
+    # This exists here and not in main IR optimization loop because we only want to do it for
+    # blocks that are _truly_ empty, not ones that contain phi-node magic that results in copies
+    for block in subroutine.body:
+        match block:
+            case models.BasicBlock(
+                ops=[], terminator=models.Goto(target=target)
+            ) if target is not block:
+                logger.debug(f"Removing jump block {block} and replacing references with {target}")
+                BlockReferenceReplacer.apply(
+                    find=block, replacement=target, blocks=block.predecessors
+                )
+                with contextlib.suppress(ValueError):
+                    target.predecessors.remove(block)
+                for pred in block.predecessors:
+                    if pred not in target.predecessors:
+                        target.predecessors.append(pred)
+                subroutine.body.remove(block)

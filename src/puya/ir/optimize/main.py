@@ -18,6 +18,7 @@ from puya.ir.optimize.dead_code_elimination import (
     remove_unused_variables,
 )
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
+from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
 from puya.ir.to_text_visitor import output_contract_ir_to_path
 
 MAX_PASSES = 100
@@ -59,6 +60,7 @@ def get_all_optimizations() -> Iterable[SubroutineOptimization]:
         SubroutineOptimization.from_function(remove_linear_jump),
         SubroutineOptimization.from_function(remove_empty_blocks),
         SubroutineOptimization.from_function(remove_unreachable_blocks),
+        SubroutineOptimization.from_function(repeated_expression_elimination),
     ]
 
 

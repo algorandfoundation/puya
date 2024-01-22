@@ -16,11 +16,9 @@ def main(example: str) -> None:
     options.output_teal = True
     options.output_awst = True
     options.output_ssa_ir = True
-    options.output_final_ir = True
+    options.output_destructured_ir = True
     options.output_optimization_ir = True
-    options.output_cssa_ir = True
-    options.output_parallel_copies_ir = True
-    options.output_post_ssa_ir = True
+    options.output_memory_ir = True
     options.out_dir = Path("out")
 
     compile_to_teal(options)

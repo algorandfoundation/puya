@@ -1,0 +1,309 @@
+contract test_cases.transaction.contract.TransactionContract:
+    program approval:
+        subroutine test_cases.transaction.contract.TransactionContract.approval_program() -> uint64:
+            block@0: // L16
+                let tmp%0#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%0#0 {method "create()void" => block@1, method "pay(pay)void" => block@2, method "key(keyreg)void" => block@3, method "asset_config(acfg)void" => block@4, method "asset_transfer(axfer)void" => block@5, method "asset_freeze(afrz)void" => block@6, method "application_call(appl)void" => block@7, * => fail // reject transaction}
+            block@1: // create_route_L17
+                let tmp%1#0: uint64 = (txn OnCompletion)
+                let tmp%2#0: uint64 = (! tmp%1#0)
+                (assert tmp%2#0) // OnCompletion is NoOp
+                let tmp%3#0: uint64 = (txn ApplicationID)
+                let tmp%4#0: uint64 = (! tmp%3#0)
+                (assert tmp%4#0) // is creating
+                test_cases.transaction.contract.TransactionContract.create()
+                return 1u
+            block@2: // pay_route_L36
+                let tmp%5#0: uint64 = (txn OnCompletion)
+                let tmp%6#0: uint64 = (! tmp%5#0)
+                (assert tmp%6#0) // OnCompletion is NoOp
+                let tmp%7#0: uint64 = (txn ApplicationID)
+                (assert tmp%7#0) // is not creating
+                let tmp%10#0: uint64 = (txn GroupIndex)
+                let awst_tmp%11#0: uint64 = (- tmp%10#0 1u)
+                let tmp%12#0: uint64 = ((gtxns TypeEnum) awst_tmp%11#0)
+                let tmp%13#0: uint64 = (== tmp%12#0 pay)
+                (assert tmp%13#0) // transaction type is pay
+                test_cases.transaction.contract.TransactionContract.pay(awst_tmp%11#0)
+                return 1u
+            block@3: // key_route_L45
+                let tmp%14#0: uint64 = (txn OnCompletion)
+                let tmp%15#0: uint64 = (! tmp%14#0)
+                (assert tmp%15#0) // OnCompletion is NoOp
+                let tmp%16#0: uint64 = (txn ApplicationID)
+                (assert tmp%16#0) // is not creating
+                let tmp%19#0: uint64 = (txn GroupIndex)
+                let awst_tmp%11#0: uint64 = (- tmp%19#0 1u)
+                let tmp%20#0: uint64 = ((gtxns TypeEnum) awst_tmp%11#0)
+                let tmp%21#0: uint64 = (== tmp%20#0 keyreg)
+                (assert tmp%21#0) // transaction type is keyreg
+                test_cases.transaction.contract.TransactionContract.key(awst_tmp%11#0)
+                return 1u
+            block@4: // asset_config_route_L56
+                let tmp%22#0: uint64 = (txn OnCompletion)
+                let tmp%23#0: uint64 = (! tmp%22#0)
+                (assert tmp%23#0) // OnCompletion is NoOp
+                let tmp%24#0: uint64 = (txn ApplicationID)
+                (assert tmp%24#0) // is not creating
+                let tmp%27#0: uint64 = (txn GroupIndex)
+                let awst_tmp%11#0: uint64 = (- tmp%27#0 1u)
+                let tmp%28#0: uint64 = ((gtxns TypeEnum) awst_tmp%11#0)
+                let tmp%29#0: uint64 = (== tmp%28#0 acfg)
+                (assert tmp%29#0) // transaction type is acfg
+                test_cases.transaction.contract.TransactionContract.asset_config(awst_tmp%11#0)
+                return 1u
+            block@5: // asset_transfer_route_L73
+                let tmp%30#0: uint64 = (txn OnCompletion)
+                let tmp%31#0: uint64 = (! tmp%30#0)
+                (assert tmp%31#0) // OnCompletion is NoOp
+                let tmp%32#0: uint64 = (txn ApplicationID)
+                (assert tmp%32#0) // is not creating
+                let tmp%35#0: uint64 = (txn GroupIndex)
+                let awst_tmp%11#0: uint64 = (- tmp%35#0 1u)
+                let tmp%36#0: uint64 = ((gtxns TypeEnum) awst_tmp%11#0)
+                let tmp%37#0: uint64 = (== tmp%36#0 axfer)
+                (assert tmp%37#0) // transaction type is axfer
+                test_cases.transaction.contract.TransactionContract.asset_transfer(awst_tmp%11#0)
+                return 1u
+            block@6: // asset_freeze_route_L82
+                let tmp%38#0: uint64 = (txn OnCompletion)
+                let tmp%39#0: uint64 = (! tmp%38#0)
+                (assert tmp%39#0) // OnCompletion is NoOp
+                let tmp%40#0: uint64 = (txn ApplicationID)
+                (assert tmp%40#0) // is not creating
+                let tmp%43#0: uint64 = (txn GroupIndex)
+                let awst_tmp%11#0: uint64 = (- tmp%43#0 1u)
+                let tmp%44#0: uint64 = ((gtxns TypeEnum) awst_tmp%11#0)
+                let tmp%45#0: uint64 = (== tmp%44#0 afrz)
+                (assert tmp%45#0) // transaction type is afrz
+                test_cases.transaction.contract.TransactionContract.asset_freeze(awst_tmp%11#0)
+                return 1u
+            block@7: // application_call_route_L90
+                let tmp%46#0: uint64 = (txn OnCompletion)
+                let tmp%47#0: uint64 = (! tmp%46#0)
+                (assert tmp%47#0) // OnCompletion is NoOp
+                let tmp%48#0: uint64 = (txn ApplicationID)
+                (assert tmp%48#0) // is not creating
+                let tmp%51#0: uint64 = (txn GroupIndex)
+                let awst_tmp%11#0: uint64 = (- tmp%51#0 1u)
+                let tmp%52#0: uint64 = ((gtxns TypeEnum) awst_tmp%11#0)
+                let tmp%53#0: uint64 = (== tmp%52#0 appl)
+                (assert tmp%53#0) // transaction type is appl
+                test_cases.transaction.contract.TransactionContract.application_call(awst_tmp%11#0)
+                return 1u
+        
+        subroutine test_cases.transaction.contract.TransactionContract.create() -> void:
+            block@0: // L17
+                return 
+        
+        subroutine test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
+            block@0: // L36
+                test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
+                let tmp%0#0: bytes = ((gtxns Receiver) txn#0)
+                let tmp%1#0: bytes = (global CurrentApplicationAddress)
+                let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
+                (assert tmp%2#0) // Payment should be for this app
+                let tmp%3#0: uint64 = ((gtxns Amount) txn#0)
+                let tmp%4#0: uint64 = (> tmp%3#0 1000u)
+                (assert tmp%4#0) // Payment should be for >1000 micro algos
+                let tmp%5#0: bytes = ((gtxns CloseRemainderTo) txn#0)
+                let tmp%6#0: bytes = (global ZeroAddress)
+                let tmp%7#0: uint64 = (== tmp%5#0 tmp%6#0)
+                (assert tmp%7#0) // close_remainder_to
+                return 
+        
+        subroutine test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:
+            block@0: // L21
+                let tmp%0#0: bytes = ((gtxns TxID) txn#0)
+                let tmp%1#0: uint64 = (len tmp%0#0)
+                (assert tmp%1#0) // txn_id
+                let tmp%2#0: bytes = ((gtxns Sender) txn#0)
+                let tmp%3#0: bytes = (global CreatorAddress)
+                let tmp%4#0: uint64 = (== tmp%2#0 tmp%3#0)
+                (assert tmp%4#0) // sender
+                let tmp%5#0: uint64 = ((gtxns Fee) txn#0)
+                (assert tmp%5#0) // fee
+                let tmp%6#0: uint64 = ((gtxns TypeEnum) txn#0)
+                (assert tmp%6#0) // type
+                let tmp%7#0: bytes = ((gtxns Type) txn#0)
+                let tmp%8#0: uint64 = (len tmp%7#0)
+                (assert tmp%8#0) // type_bytes
+                let tmp%9#0: bytes = ((gtxns Note) txn#0)
+                let tmp%10#0: uint64 = (== tmp%9#0 "")
+                (assert tmp%10#0) // note
+                let tmp%11#0: uint64 = ((gtxns GroupIndex) txn#0)
+                let tmp%12#0: uint64 = (! tmp%11#0)
+                (assert tmp%12#0) // group_index
+                let tmp%13#0: uint64 = ((gtxns FirstValid) txn#0)
+                (assert tmp%13#0) // first_valid
+                let tmp%14#0: uint64 = ((gtxns LastValid) txn#0)
+                (assert tmp%14#0) // last_valid
+                let tmp%15#0: bytes = ((gtxns Lease) txn#0)
+                let tmp%16#0: uint64 = (len tmp%15#0)
+                (assert tmp%16#0) // lease
+                let tmp%17#0: bytes = ((gtxns RekeyTo) txn#0)
+                let tmp%18#0: bytes = (global ZeroAddress)
+                let tmp%19#0: uint64 = (== tmp%17#0 tmp%18#0)
+                (assert tmp%19#0) // rekey_to
+                return 
+        
+        subroutine test_cases.transaction.contract.TransactionContract.key(txn: uint64) -> void:
+            block@0: // L45
+                test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
+                let tmp%0#0: bytes = ((gtxns VotePK) txn#0)
+                let tmp%1#0: bytes = (global ZeroAddress)
+                let tmp%2#0: uint64 = (!= tmp%0#0 tmp%1#0)
+                (assert tmp%2#0) // vote_key
+                let tmp%3#0: bytes = ((gtxns SelectionPK) txn#0)
+                let tmp%4#0: bytes = (global ZeroAddress)
+                let tmp%5#0: uint64 = (!= tmp%3#0 tmp%4#0)
+                (assert tmp%5#0) // selection_key
+                let tmp%6#0: uint64 = ((gtxns VoteKeyDilution) txn#0)
+                (assert tmp%6#0) // vote_key_dilution
+                let tmp%7#0: uint64 = ((gtxns VoteFirst) txn#0)
+                (assert tmp%7#0) // vote_first
+                let tmp%8#0: uint64 = ((gtxns VoteLast) txn#0)
+                (assert tmp%8#0) // vote_last
+                let tmp%9#0: uint64 = ((gtxns Nonparticipation) txn#0)
+                (assert tmp%9#0) // non_participation
+                let tmp%10#0: bytes = ((gtxns StateProofPK) txn#0)
+                let tmp%11#0: uint64 = (len tmp%10#0)
+                (assert tmp%11#0) // state_proof_key
+                return 
+        
+        subroutine test_cases.transaction.contract.TransactionContract.asset_config(txn: uint64) -> void:
+            block@0: // L56
+                test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
+                let tmp%0#0: uint64 = ((gtxns ConfigAsset) txn#0)
+                (assert tmp%0#0) // config_asset
+                let tmp%1#0: uint64 = ((gtxns ConfigAssetTotal) txn#0)
+                (assert tmp%1#0) // total
+                let tmp%2#0: uint64 = ((gtxns ConfigAssetDecimals) txn#0)
+                (assert tmp%2#0) // decimals
+                let tmp%3#0: uint64 = ((gtxns ConfigAssetDefaultFrozen) txn#0)
+                (assert tmp%3#0) // default_frozen
+                let tmp%4#0: bytes = ((gtxns ConfigAssetUnitName) txn#0)
+                let tmp%5#0: uint64 = (len tmp%4#0)
+                (assert tmp%5#0) // unit_name
+                let tmp%6#0: bytes = ((gtxns ConfigAssetName) txn#0)
+                let tmp%7#0: uint64 = (len tmp%6#0)
+                (assert tmp%7#0) // asset_name
+                let tmp%8#0: bytes = ((gtxns ConfigAssetURL) txn#0)
+                let tmp%9#0: uint64 = (len tmp%8#0)
+                (assert tmp%9#0) // url
+                let tmp%10#0: bytes = ((gtxns ConfigAssetMetadataHash) txn#0)
+                let tmp%11#0: uint64 = (len tmp%10#0)
+                (assert tmp%11#0) // metadata_hash
+                let tmp%12#0: bytes = ((gtxns ConfigAssetManager) txn#0)
+                let tmp%13#0: bytes = (global ZeroAddress)
+                let tmp%14#0: uint64 = (!= tmp%12#0 tmp%13#0)
+                (assert tmp%14#0) // manager
+                let tmp%15#0: bytes = ((gtxns ConfigAssetReserve) txn#0)
+                let tmp%16#0: bytes = (global ZeroAddress)
+                let tmp%17#0: uint64 = (!= tmp%15#0 tmp%16#0)
+                (assert tmp%17#0) // reserve
+                let tmp%18#0: bytes = ((gtxns ConfigAssetFreeze) txn#0)
+                let tmp%19#0: bytes = (global ZeroAddress)
+                let tmp%20#0: uint64 = (!= tmp%18#0 tmp%19#0)
+                (assert tmp%20#0) // freeze
+                let tmp%21#0: bytes = ((gtxns ConfigAssetClawback) txn#0)
+                let tmp%22#0: bytes = (global ZeroAddress)
+                let tmp%23#0: uint64 = (!= tmp%21#0 tmp%22#0)
+                (assert tmp%23#0) // clawback
+                return 
+        
+        subroutine test_cases.transaction.contract.TransactionContract.asset_transfer(txn: uint64) -> void:
+            block@0: // L73
+                test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
+                let tmp%0#0: uint64 = ((gtxns XferAsset) txn#0)
+                (assert tmp%0#0) // xfer_asset
+                let tmp%1#0: uint64 = ((gtxns AssetAmount) txn#0)
+                (assert tmp%1#0) // asset_amount
+                let tmp%2#0: bytes = ((gtxns AssetSender) txn#0)
+                let tmp%3#0: bytes = (global ZeroAddress)
+                let tmp%4#0: uint64 = (!= tmp%2#0 tmp%3#0)
+                (assert tmp%4#0) // asset_sender
+                let tmp%5#0: bytes = ((gtxns AssetReceiver) txn#0)
+                let tmp%6#0: bytes = (global ZeroAddress)
+                let tmp%7#0: uint64 = (!= tmp%5#0 tmp%6#0)
+                (assert tmp%7#0) // asset_receiver
+                let tmp%8#0: bytes = ((gtxns AssetCloseTo) txn#0)
+                let tmp%9#0: bytes = (global ZeroAddress)
+                let tmp%10#0: uint64 = (!= tmp%8#0 tmp%9#0)
+                (assert tmp%10#0) // asset_close_to
+                return 
+        
+        subroutine test_cases.transaction.contract.TransactionContract.asset_freeze(txn: uint64) -> void:
+            block@0: // L82
+                test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
+                let tmp%0#0: uint64 = ((gtxns FreezeAsset) txn#0)
+                (assert tmp%0#0) // freeze_asset
+                let tmp%1#0: bytes = ((gtxns FreezeAssetAccount) txn#0)
+                let tmp%2#0: bytes = (global ZeroAddress)
+                let tmp%3#0: uint64 = (!= tmp%1#0 tmp%2#0)
+                (assert tmp%3#0) // freeze_account
+                let tmp%4#0: uint64 = ((gtxns FreezeAssetFrozen) txn#0)
+                (assert tmp%4#0) // frozen
+                return 
+        
+        subroutine test_cases.transaction.contract.TransactionContract.application_call(txn: uint64) -> void:
+            block@0: // L90
+                test_cases.transaction.contract.TransactionContract._common_checks(txn#0)
+                let tmp%0#0: uint64 = ((gtxns ApplicationID) txn#0)
+                (assert tmp%0#0) // application_id
+                let tmp%1#0: uint64 = ((gtxns OnCompletion) txn#0)
+                (assert tmp%1#0) // on_completion
+                let tmp%2#0: uint64 = ((gtxns NumAppArgs) txn#0)
+                (assert tmp%2#0) // num_app_args
+                let tmp%3#0: uint64 = ((gtxns NumAccounts) txn#0)
+                (assert tmp%3#0) // num_accounts
+                let tmp%4#0: bytes = ((gtxns ApprovalProgram) txn#0)
+                let tmp%5#0: uint64 = (len tmp%4#0)
+                (assert tmp%5#0) // approval_program
+                let tmp%6#0: bytes = ((gtxns ClearStateProgram) txn#0)
+                let tmp%7#0: uint64 = (len tmp%6#0)
+                (assert tmp%7#0) // clear_state_program
+                let tmp%8#0: uint64 = ((gtxns NumAssets) txn#0)
+                (assert tmp%8#0) // num_assets
+                let tmp%9#0: uint64 = ((gtxns NumApplications) txn#0)
+                (assert tmp%9#0) // num_applications
+                let tmp%10#0: uint64 = ((gtxns GlobalNumUint) txn#0)
+                (assert tmp%10#0) // global_num_uint
+                let tmp%11#0: uint64 = ((gtxns GlobalNumByteSlice) txn#0)
+                (assert tmp%11#0) // global_num_byte_slice
+                let tmp%12#0: uint64 = ((gtxns LocalNumUint) txn#0)
+                (assert tmp%12#0) // local_num_uint
+                let tmp%13#0: uint64 = ((gtxns LocalNumByteSlice) txn#0)
+                (assert tmp%13#0) // local_num_byte_slice
+                let tmp%14#0: uint64 = ((gtxns ExtraProgramPages) txn#0)
+                (assert tmp%14#0) // extra_program_pages
+                let tmp%15#0: bytes = ((gtxns LastLog) txn#0)
+                let tmp%16#0: uint64 = (len tmp%15#0)
+                (assert tmp%16#0) // last_log
+                let tmp%17#0: uint64 = ((gtxns NumApprovalProgramPages) txn#0)
+                (assert tmp%17#0) // num_approval_program_pages
+                let tmp%18#0: uint64 = ((gtxns NumClearStateProgramPages) txn#0)
+                (assert tmp%18#0) // num_clear_state_program_pages
+                let tmp%19#0: bytes = ((gtxnsas ApplicationArgs) txn#0 0u)
+                let tmp%20#0: uint64 = (len tmp%19#0)
+                (assert tmp%20#0) // application_args(0)
+                let tmp%21#0: bytes = ((gtxnsas Accounts) txn#0 0u)
+                let tmp%22#0: bytes = (global ZeroAddress)
+                let tmp%23#0: uint64 = (!= tmp%21#0 tmp%22#0)
+                (assert tmp%23#0) // accounts(0)
+                let tmp%24#0: uint64 = ((gtxnsas Assets) txn#0 0u)
+                (assert tmp%24#0) // assets(0)
+                let tmp%25#0: uint64 = ((gtxnsas Applications) txn#0 0u)
+                (assert tmp%25#0) // applications(0)
+                let tmp%26#0: bytes = ((gtxnsas ApprovalProgramPages) txn#0 0u)
+                let tmp%27#0: uint64 = (len tmp%26#0)
+                (assert tmp%27#0) // approval_program_pages(0)
+                let tmp%28#0: bytes = ((gtxnsas ClearStateProgramPages) txn#0 0u)
+                let tmp%29#0: uint64 = (len tmp%28#0)
+                (assert tmp%29#0) // clear_state_program_pages(0)
+                return 
+    
+    program clear-state:
+        subroutine test_cases.transaction.contract.TransactionContract.clear_state_program() -> uint64:
+            block@0: // L16
+                return 1u

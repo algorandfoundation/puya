@@ -22,18 +22,15 @@ contract test_cases.asset.contract.Reference:
             block@5: // else_body_L20
                 let tmp%5#0: bytes = (txna ApplicationArgs 0)
                 let tmp%6#0: uint64 = (== tmp%5#0 "is_opted_in")
-                goto tmp%6#0 ? block@6 : block@7
-            block@6: // if_body_L23
+                (assert tmp%6#0) // Expected opt_in or is_opted_in
                 let asset#1: uint64 = (txna Assets 0)
                 test_cases.asset.contract.Reference.is_opted_asset(asset#1)
                 goto block@10
-            block@7: // else_body_L23
-                fail // Expected opt_in or is_opted_in
             block@10: // after_if_else_L19
                 return 1u
         
         subroutine test_cases.asset.contract.Reference.opt_into_asset(asset: uint64) -> void:
-            block@0: // L34
+            block@0: // L33
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
                 let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
@@ -53,7 +50,7 @@ contract test_cases.asset.contract.Reference:
                 return 
         
         subroutine test_cases.asset.contract.Reference.is_opted_asset(asset: uint64) -> void:
-            block@0: // L51
+            block@0: // L50
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "asa")
                 (assert app_global_get_ex_did_exist%1#0) // check value exists
                 let tmp%2#0: uint64 = (== app_global_get_ex_value%0#0 asset#0)

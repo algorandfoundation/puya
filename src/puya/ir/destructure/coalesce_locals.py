@@ -10,6 +10,7 @@ from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.ir.vla import VariableLifetimeAnalysis
+from puya.options import LocalsCoalescingStrategy
 from puya.utils import StableSet
 
 logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
@@ -109,7 +110,12 @@ def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subrou
 
 
 class RootOperandGrouping(CoalesceGroupStrategy):
+    def __init__(self, isolate: frozenset[models.Register] | None = None) -> None:
+        self._isolate = isolate or frozenset()
+
     def get_group_key(self, reg: models.Register) -> object:
+        if reg in self._isolate:
+            return reg
         return reg.name
 
     def determine_group_replacement(self, regs: Iterable[models.Register]) -> models.Register:
@@ -141,10 +147,13 @@ class AggressiveGrouping(CoalesceGroupStrategy):
 def coalesce_locals(context: CompileContext, contract: models.Contract) -> models.Contract:
     cloned = deepcopy(contract)
     for subroutine in cloned.all_subroutines():
-        if context.options.optimization_level < 2:
-            group_strategy: CoalesceGroupStrategy = RootOperandGrouping()
-        else:
-            group_strategy = AggressiveGrouping(subroutine)
+        match context.options.locals_coalescing_strategy:
+            case LocalsCoalescingStrategy.root_operand:
+                group_strategy: CoalesceGroupStrategy = RootOperandGrouping()
+            case LocalsCoalescingStrategy.root_operand_excluding_args:
+                group_strategy = RootOperandGrouping(isolate=frozenset(subroutine.parameters))
+            case LocalsCoalescingStrategy.aggressive:
+                group_strategy = AggressiveGrouping(subroutine)
         logger.debug(
             f"Coalescing local variables in {subroutine.full_name}"
             f" using strategy {type(group_strategy).__name__}"

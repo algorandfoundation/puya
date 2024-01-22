@@ -1,0 +1,112 @@
+contract test_cases.tuple_support.TupleSupport:
+    program approval:
+        subroutine test_cases.tuple_support.TupleSupport.approval_program() -> uint64:
+            block@0: // L8
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L5
+                test_cases.tuple_support.TupleSupport.__init__()
+                goto block@2
+            block@2: // entrypoint_L5
+                let total#0: uint64 = test_cases.tuple_support.add_three_values(101u, 102u, 103u)
+                let tmp%1#0: bytes = (itob total#0)
+                (log tmp%1#0)
+                let (did_overflow#0: uint64, result.1#0: uint64) = (addw 1u 2u)
+                (app_global_put "state" result.1#0)
+                let tmp%4#0: uint64 = (! did_overflow#0)
+                (assert tmp%4#0) // overflow!
+                let tmp%11#0: bytes = test_cases.tuple_support.bytes_combine("Hello, ", "world!")
+                (log tmp%11#0)
+                let (tmp%12#0: uint64, tmp%13#0: uint64) = (addw 18446744073709551615u 18446744073709551615u)
+                let (hi#0: uint64, mid#0: uint64, lo#0: uint64) = test_cases.tuple_support.addw2(tmp%12#0, tmp%13#0, did_overflow#0, result.1#0)
+                let tmp%19#0: bytes = (itob hi#0)
+                (log tmp%19#0)
+                let tmp%20#0: bytes = (itob mid#0)
+                (log tmp%20#0)
+                let tmp%21#0: bytes = (itob lo#0)
+                (log tmp%21#0)
+                let tmp%22#0: bytes = test_cases.tuple_support.bytes_multiply("na", 5u)
+                (log tmp%22#0)
+                test_cases.tuple_support.test_tuple_swap(0u)
+                test_cases.tuple_support.slicing(1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u)
+                return 3u
+        
+        subroutine test_cases.tuple_support.add_three_values(values.0: uint64, values.1: uint64, values.2: uint64) -> uint64:
+            block@0: // L75
+                let total#0: uint64 = 0u
+                let tuple_index%0#0: uint64 = 0u
+                let value#3: uint64 = values.0#0
+                goto block@4
+            block@2: // for_header_1_L78
+                let tuple_index%0#0: uint64 = tuple_index%0#4
+                let value#3: uint64 = values.1#0
+                goto block@4
+            block@3: // for_header_2_L78
+                let tuple_index%0#0: uint64 = tuple_index%0#4
+                let value#3: uint64 = values.2#0
+                goto block@4
+            block@4: // for_body_L78
+                let total#0: uint64 = (+ total#0 value#3)
+                let tuple_index%0#4: uint64 = (+ tuple_index%0#0 1u)
+                goto_nth [block@2, block@3][tuple_index%0#0] else return total#0
+        
+        subroutine test_cases.tuple_support.bytes_combine(arg.0: bytes, arg.1: bytes) -> bytes:
+            block@0: // L59
+                let result#0: bytes = (concat arg.0#0 arg.1#0)
+                return result#0
+        
+        subroutine test_cases.tuple_support.addw2(a.0: uint64, a.1: uint64, b.0: uint64, b.1: uint64) -> <uint64, uint64, uint64>:
+            block@0: // L86
+                let (lo_carry#0: uint64, c_lo#0: uint64) = (addw a.1#0 b.1#0)
+                let (hi_carry1#0: uint64, c_mid#0: uint64) = (addw a.0#0 b.0#0)
+                let (hi_carry2#0: uint64, c_mid#0: uint64) = (addw c_mid#0 lo_carry#0)
+                let (did_overflow#0: uint64, c_hi#0: uint64) = (addw hi_carry1#0 hi_carry2#0)
+                let tmp%8#0: uint64 = (! did_overflow#0)
+                (assert tmp%8#0) // is such a thing even possible? 👽
+                return c_hi#0 c_mid#0 c_lo#0
+        
+        subroutine test_cases.tuple_support.bytes_multiply(arg.0: bytes, arg.1: uint64) -> bytes:
+            block@0: // L66
+                let result#0: bytes = ""
+                let range_item%0#0: uint64 = 0u
+                let _i#0: uint64 = range_item%0#0
+                goto block@1
+            block@1: // for_header_L70
+                let continue_looping%1#0: uint64 = (< _i#0 arg.1#0)
+                goto continue_looping%1#0 ? block@2 : block@5
+            block@2: // for_body_L70
+                let result#0: bytes = (concat result#0 arg.0#0)
+                let range_item%0#0: uint64 = (+ _i#0 1u)
+                let _i#0: uint64 = range_item%0#0
+                goto block@1
+            block@5: // after_for_L70
+                return result#0
+        
+        subroutine test_cases.tuple_support.test_tuple_swap(zero: uint64) -> void:
+            block@0: // L98
+                let a#0: uint64 = (+ zero#0 1u)
+                let b#0: uint64 = (+ zero#0 2u)
+                let tmp%0#0: uint64 = (== b#0 2u)
+                (assert tmp%0#0) // a should be two
+                let tmp%1#0: uint64 = (== a#0 1u)
+                (assert tmp%1#0) // b should be one
+                return 
+        
+        subroutine test_cases.tuple_support.slicing(values.0: uint64, values.1: uint64, values.2: uint64, values.3: uint64, values.4: uint64, values.5: uint64, values.6: uint64, values.7: uint64) -> void:
+            block@0: // L107
+                let tmp%0#0: uint64 = test_cases.tuple_support.add_three_values(values.0#0, values.1#0, values.2#0)
+                let tmp%1#0: uint64 = (+ values.0#0 values.1#0)
+                let tmp%2#0: uint64 = (+ tmp%1#0 values.2#0)
+                let tmp%3#0: uint64 = (== tmp%0#0 tmp%2#0)
+                (assert tmp%3#0)
+                return 
+        
+        subroutine test_cases.tuple_support.TupleSupport.__init__() -> void:
+            block@0: // L5
+                (app_global_put "state" 0u)
+                return 
+    
+    program clear-state:
+        subroutine test_cases.tuple_support.TupleSupport.clear_state_program() -> uint64:
+            block@0: // L55
+                return 0u

@@ -1,474 +1,657 @@
 #pragma version 10
 
-// test_cases.transaction.contract.TransactionContract.approval_program() -> uint64:
-main_block@0:
-        txn NumAppArgs
-        bz main_after_if_else@11
+test_cases.transaction.contract.TransactionContract.approval_program:
+    // transaction/contract.py:16
+    // class TransactionContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    method "create()void"
+    method "pay(pay)void"
+    method "key(keyreg)void"
+    method "asset_config(acfg)void"
+    method "asset_transfer(axfer)void"
+    method "asset_freeze(afrz)void"
+    method "application_call(appl)void"
+    uncover 7
+    match main_create_route@1 main_pay_route@2 main_key_route@3 main_asset_config_route@4 main_asset_transfer_route@5 main_asset_freeze_route@6 main_application_call_route@7
+    b main_switch_case_default@8
 
-main_abi_routing@1:
-        txna ApplicationArgs 0
-        method "create()void"
-        method "pay(pay)void"
-        method "key(keyreg)void"
-        method "asset_config(acfg)void"
-        method "asset_transfer(axfer)void"
-        method "asset_freeze(afrz)void"
-        method "application_call(appl)void"
-        uncover 7
-        match main_create_route@2 main_pay_route@3 main_key_route@4 main_asset_config_route@5 main_asset_transfer_route@6 main_asset_freeze_route@7 main_application_call_route@8
-        b main_switch_case_default@9
+main_create_route@1:
+    // transaction/contract.py:17
+    // @arc4.abimethod(create=True)
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    !
+    assert // is creating
+    callsub create
+    int 1
+    return
 
-main_create_route@2:
-        txn OnCompletion
-        int NoOp
-        ==
-        assert // OnCompletion is NoOp
-        txn ApplicationID
-        !
-        assert // is creating
-        callsub create
-        int 1
-        return
+main_pay_route@2:
+    // transaction/contract.py:36
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // transaction/contract.py:16
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int pay
+    ==
+    assert // transaction type is pay
+    // transaction/contract.py:36
+    // @arc4.abimethod
+    callsub pay
+    int 1
+    return
 
-main_pay_route@3:
-        txn OnCompletion
-        int NoOp
-        ==
-        assert // OnCompletion is NoOp
-        txn ApplicationID
-        assert // is not creating
-        txn GroupIndex
-        int 1
-        -
-        dup
-        gtxns TypeEnum
-        int pay
-        ==
-        assert // transaction type is pay
-        callsub pay
-        int 1
-        return
+main_key_route@3:
+    // transaction/contract.py:45
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // transaction/contract.py:16
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int keyreg
+    ==
+    assert // transaction type is keyreg
+    // transaction/contract.py:45
+    // @arc4.abimethod
+    callsub key
+    int 1
+    return
 
-main_key_route@4:
-        txn OnCompletion
-        int NoOp
-        ==
-        assert // OnCompletion is NoOp
-        txn ApplicationID
-        assert // is not creating
-        txn GroupIndex
-        int 1
-        -
-        dup
-        gtxns TypeEnum
-        int keyreg
-        ==
-        assert // transaction type is keyreg
-        callsub key
-        int 1
-        return
+main_asset_config_route@4:
+    // transaction/contract.py:56
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // transaction/contract.py:16
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int acfg
+    ==
+    assert // transaction type is acfg
+    // transaction/contract.py:56
+    // @arc4.abimethod
+    callsub asset_config
+    int 1
+    return
 
-main_asset_config_route@5:
-        txn OnCompletion
-        int NoOp
-        ==
-        assert // OnCompletion is NoOp
-        txn ApplicationID
-        assert // is not creating
-        txn GroupIndex
-        int 1
-        -
-        dup
-        gtxns TypeEnum
-        int acfg
-        ==
-        assert // transaction type is acfg
-        callsub asset_config
-        int 1
-        return
+main_asset_transfer_route@5:
+    // transaction/contract.py:73
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // transaction/contract.py:16
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int axfer
+    ==
+    assert // transaction type is axfer
+    // transaction/contract.py:73
+    // @arc4.abimethod
+    callsub asset_transfer
+    int 1
+    return
 
-main_asset_transfer_route@6:
-        txn OnCompletion
-        int NoOp
-        ==
-        assert // OnCompletion is NoOp
-        txn ApplicationID
-        assert // is not creating
-        txn GroupIndex
-        int 1
-        -
-        dup
-        gtxns TypeEnum
-        int axfer
-        ==
-        assert // transaction type is axfer
-        callsub asset_transfer
-        int 1
-        return
+main_asset_freeze_route@6:
+    // transaction/contract.py:82
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // transaction/contract.py:16
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int afrz
+    ==
+    assert // transaction type is afrz
+    // transaction/contract.py:82
+    // @arc4.abimethod
+    callsub asset_freeze
+    int 1
+    return
 
-main_asset_freeze_route@7:
-        txn OnCompletion
-        int NoOp
-        ==
-        assert // OnCompletion is NoOp
-        txn ApplicationID
-        assert // is not creating
-        txn GroupIndex
-        int 1
-        -
-        dup
-        gtxns TypeEnum
-        int afrz
-        ==
-        assert // transaction type is afrz
-        callsub asset_freeze
-        int 1
-        return
+main_application_call_route@7:
+    // transaction/contract.py:90
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // transaction/contract.py:16
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    int 1
+    -
+    dup
+    gtxns TypeEnum
+    int appl
+    ==
+    assert // transaction type is appl
+    // transaction/contract.py:90
+    // @arc4.abimethod
+    callsub application_call
+    int 1
+    return
 
-main_application_call_route@8:
-        txn OnCompletion
-        int NoOp
-        ==
-        assert // OnCompletion is NoOp
-        txn ApplicationID
-        assert // is not creating
-        txn GroupIndex
-        int 1
-        -
-        dup
-        gtxns TypeEnum
-        int appl
-        ==
-        assert // transaction type is appl
-        callsub application_call
-        int 1
-        return
-
-main_switch_case_default@9:
-
-main_switch_case_next@10:
-
-main_after_if_else@11:
-        err // reject transaction
+main_switch_case_default@8:
+    // transaction/contract.py:16
+    // class TransactionContract(arc4.ARC4Contract):
+    err // reject transaction
 
 
 // test_cases.transaction.contract.TransactionContract.create() -> void:
 create:
-        proto 0 0
+    // transaction/contract.py:17-18
+    // @arc4.abimethod(create=True)
+    // def create(self) -> None:
+    proto 0 0
+    retsub
 
-create_block@0:
-        retsub
 
-
-// test_cases.transaction.contract.TransactionContract.pay(txn#0: uint64) -> void:
+// test_cases.transaction.contract.TransactionContract.pay(txn: uint64) -> void:
 pay:
-        proto 1 0
+    // transaction/contract.py:36-37
+    // @arc4.abimethod
+    // def pay(self, txn: PaymentTransaction) -> None:
+    proto 1 0
+    // transaction/contract.py:38
+    // self._common_checks(txn)
+    frame_dig -1
+    callsub _common_checks
+    // transaction/contract.py:40
+    // txn.receiver == Global.current_application_address()
+    frame_dig -1
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    // transaction/contract.py:39-41
+    // assert (
+    //     txn.receiver == Global.current_application_address()
+    // ), "Payment should be for this app"
+    assert // Payment should be for this app
+    // transaction/contract.py:42
+    // assert txn.amount > 1000, "Payment should be for >1000 micro algos"
+    frame_dig -1
+    gtxns Amount
+    int 1000
+    >
+    assert // Payment should be for >1000 micro algos
+    // transaction/contract.py:43
+    // assert txn.close_remainder_to == Global.zero_address(), "close_remainder_to"
+    frame_dig -1
+    gtxns CloseRemainderTo
+    global ZeroAddress
+    ==
+    assert // close_remainder_to
+    retsub
 
-pay_block@0:
-        frame_dig -1
-        callsub _common_checks
-        frame_dig -1
-        gtxns Receiver
-        global CurrentApplicationAddress
-        ==
-        assert // Payment should be for this app
-        frame_dig -1
-        gtxns Amount
-        int 1000
-        >
-        assert // Payment should be for >1000 micro algos
-        frame_dig -1
-        gtxns CloseRemainderTo
-        global ZeroAddress
-        ==
-        assert // close_remainder_to
-        retsub
 
-
-// test_cases.transaction.contract.TransactionContract._common_checks(txn#0: uint64) -> void:
+// test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:
 _common_checks:
-        proto 1 0
+    // transaction/contract.py:21-22
+    // @subroutine
+    // def _common_checks(self, txn: TransactionBase) -> None:
+    proto 1 0
+    // transaction/contract.py:23
+    // assert txn.txn_id, "txn_id"
+    frame_dig -1
+    gtxns TxID
+    len
+    assert // txn_id
+    // transaction/contract.py:24
+    // assert txn.sender == Global.creator_address(), "sender"
+    frame_dig -1
+    gtxns Sender
+    global CreatorAddress
+    ==
+    assert // sender
+    // transaction/contract.py:25
+    // assert txn.fee, "fee"
+    frame_dig -1
+    gtxns Fee
+    assert // fee
+    // transaction/contract.py:26
+    // assert txn.type, "type"
+    frame_dig -1
+    gtxns TypeEnum
+    assert // type
+    // transaction/contract.py:27
+    // assert txn.type_bytes, "type_bytes"
+    frame_dig -1
+    gtxns Type
+    len
+    assert // type_bytes
+    // transaction/contract.py:28
+    // assert txn.note == Bytes(b""), "note"
+    frame_dig -1
+    gtxns Note
+    byte ""
+    ==
+    assert // note
+    // transaction/contract.py:29
+    // assert txn.group_index == 0, "group_index"
+    frame_dig -1
+    gtxns GroupIndex
+    int 0
+    ==
+    assert // group_index
+    // transaction/contract.py:30
+    // assert txn.first_valid, "first_valid"
+    frame_dig -1
+    gtxns FirstValid
+    assert // first_valid
+    // transaction/contract.py:31-32
+    // # assert txn.first_valid_time, "first_valid_time" # this value can be flaky in tests
+    // assert txn.last_valid, "last_valid"
+    frame_dig -1
+    gtxns LastValid
+    assert // last_valid
+    // transaction/contract.py:33
+    // assert txn.lease, "lease"
+    frame_dig -1
+    gtxns Lease
+    len
+    assert // lease
+    // transaction/contract.py:34
+    // assert txn.rekey_to == Global.zero_address(), "rekey_to"
+    frame_dig -1
+    gtxns RekeyTo
+    global ZeroAddress
+    ==
+    assert // rekey_to
+    retsub
 
-_common_checks_block@0:
-        frame_dig -1
-        gtxns TxID
-        len
-        assert // txn_id
-        frame_dig -1
-        gtxns Sender
-        global CreatorAddress
-        ==
-        assert // sender
-        frame_dig -1
-        gtxns Fee
-        assert // fee
-        frame_dig -1
-        gtxns TypeEnum
-        assert // type
-        frame_dig -1
-        gtxns Type
-        len
-        assert // type_bytes
-        frame_dig -1
-        gtxns Note
-        byte ""
-        ==
-        assert // note
-        frame_dig -1
-        gtxns GroupIndex
-        int 0
-        ==
-        assert // group_index
-        frame_dig -1
-        gtxns FirstValid
-        assert // first_valid
-        frame_dig -1
-        gtxns LastValid
-        assert // last_valid
-        frame_dig -1
-        gtxns Lease
-        len
-        assert // lease
-        frame_dig -1
-        gtxns RekeyTo
-        global ZeroAddress
-        ==
-        assert // rekey_to
-        retsub
 
-
-// test_cases.transaction.contract.TransactionContract.key(txn#0: uint64) -> void:
+// test_cases.transaction.contract.TransactionContract.key(txn: uint64) -> void:
 key:
-        proto 1 0
+    // transaction/contract.py:45-46
+    // @arc4.abimethod
+    // def key(self, txn: KeyRegistrationTransaction) -> None:
+    proto 1 0
+    // transaction/contract.py:47
+    // self._common_checks(txn)
+    frame_dig -1
+    callsub _common_checks
+    // transaction/contract.py:48
+    // assert txn.vote_key, "vote_key"
+    frame_dig -1
+    gtxns VotePK
+    global ZeroAddress
+    !=
+    assert // vote_key
+    // transaction/contract.py:49
+    // assert txn.selection_key, "selection_key"
+    frame_dig -1
+    gtxns SelectionPK
+    global ZeroAddress
+    !=
+    assert // selection_key
+    // transaction/contract.py:50
+    // assert txn.vote_key_dilution, "vote_key_dilution"
+    frame_dig -1
+    gtxns VoteKeyDilution
+    assert // vote_key_dilution
+    // transaction/contract.py:51
+    // assert txn.vote_first, "vote_first"
+    frame_dig -1
+    gtxns VoteFirst
+    assert // vote_first
+    // transaction/contract.py:52
+    // assert txn.vote_last, "vote_last"
+    frame_dig -1
+    gtxns VoteLast
+    assert // vote_last
+    // transaction/contract.py:53
+    // assert txn.non_participation, "non_participation"
+    frame_dig -1
+    gtxns Nonparticipation
+    assert // non_participation
+    // transaction/contract.py:54
+    // assert txn.state_proof_key, "state_proof_key"
+    frame_dig -1
+    gtxns StateProofPK
+    len
+    assert // state_proof_key
+    retsub
 
-key_block@0:
-        frame_dig -1
-        callsub _common_checks
-        frame_dig -1
-        gtxns VotePK
-        global ZeroAddress
-        !=
-        assert // vote_key
-        frame_dig -1
-        gtxns SelectionPK
-        global ZeroAddress
-        !=
-        assert // selection_key
-        frame_dig -1
-        gtxns VoteKeyDilution
-        assert // vote_key_dilution
-        frame_dig -1
-        gtxns VoteFirst
-        assert // vote_first
-        frame_dig -1
-        gtxns VoteLast
-        assert // vote_last
-        frame_dig -1
-        gtxns Nonparticipation
-        assert // non_participation
-        frame_dig -1
-        gtxns StateProofPK
-        len
-        assert // state_proof_key
-        retsub
 
-
-// test_cases.transaction.contract.TransactionContract.asset_config(txn#0: uint64) -> void:
+// test_cases.transaction.contract.TransactionContract.asset_config(txn: uint64) -> void:
 asset_config:
-        proto 1 0
+    // transaction/contract.py:56-57
+    // @arc4.abimethod
+    // def asset_config(self, txn: AssetConfigTransaction) -> None:
+    proto 1 0
+    // transaction/contract.py:58
+    // self._common_checks(txn)
+    frame_dig -1
+    callsub _common_checks
+    // transaction/contract.py:60
+    // assert txn.config_asset, "config_asset"
+    frame_dig -1
+    gtxns ConfigAsset
+    assert // config_asset
+    // transaction/contract.py:61
+    // assert txn.total, "total"
+    frame_dig -1
+    gtxns ConfigAssetTotal
+    assert // total
+    // transaction/contract.py:62
+    // assert txn.decimals, "decimals"
+    frame_dig -1
+    gtxns ConfigAssetDecimals
+    assert // decimals
+    // transaction/contract.py:63
+    // assert txn.default_frozen, "default_frozen"
+    frame_dig -1
+    gtxns ConfigAssetDefaultFrozen
+    assert // default_frozen
+    // transaction/contract.py:64
+    // assert txn.unit_name, "unit_name"
+    frame_dig -1
+    gtxns ConfigAssetUnitName
+    len
+    assert // unit_name
+    // transaction/contract.py:65
+    // assert txn.asset_name, "asset_name"
+    frame_dig -1
+    gtxns ConfigAssetName
+    len
+    assert // asset_name
+    // transaction/contract.py:66
+    // assert txn.url, "url"
+    frame_dig -1
+    gtxns ConfigAssetURL
+    len
+    assert // url
+    // transaction/contract.py:67
+    // assert txn.metadata_hash, "metadata_hash"
+    frame_dig -1
+    gtxns ConfigAssetMetadataHash
+    len
+    assert // metadata_hash
+    // transaction/contract.py:68
+    // assert txn.manager, "manager"
+    frame_dig -1
+    gtxns ConfigAssetManager
+    global ZeroAddress
+    !=
+    assert // manager
+    // transaction/contract.py:69
+    // assert txn.reserve, "reserve"
+    frame_dig -1
+    gtxns ConfigAssetReserve
+    global ZeroAddress
+    !=
+    assert // reserve
+    // transaction/contract.py:70
+    // assert txn.freeze, "freeze"
+    frame_dig -1
+    gtxns ConfigAssetFreeze
+    global ZeroAddress
+    !=
+    assert // freeze
+    // transaction/contract.py:71
+    // assert txn.clawback, "clawback"
+    frame_dig -1
+    gtxns ConfigAssetClawback
+    global ZeroAddress
+    !=
+    assert // clawback
+    retsub
 
-asset_config_block@0:
-        frame_dig -1
-        callsub _common_checks
-        frame_dig -1
-        gtxns ConfigAsset
-        assert // config_asset
-        frame_dig -1
-        gtxns ConfigAssetTotal
-        assert // total
-        frame_dig -1
-        gtxns ConfigAssetDecimals
-        assert // decimals
-        frame_dig -1
-        gtxns ConfigAssetDefaultFrozen
-        assert // default_frozen
-        frame_dig -1
-        gtxns ConfigAssetUnitName
-        len
-        assert // unit_name
-        frame_dig -1
-        gtxns ConfigAssetName
-        len
-        assert // asset_name
-        frame_dig -1
-        gtxns ConfigAssetURL
-        len
-        assert // url
-        frame_dig -1
-        gtxns ConfigAssetMetadataHash
-        len
-        assert // metadata_hash
-        frame_dig -1
-        gtxns ConfigAssetManager
-        global ZeroAddress
-        !=
-        assert // manager
-        frame_dig -1
-        gtxns ConfigAssetReserve
-        global ZeroAddress
-        !=
-        assert // reserve
-        frame_dig -1
-        gtxns ConfigAssetFreeze
-        global ZeroAddress
-        !=
-        assert // freeze
-        frame_dig -1
-        gtxns ConfigAssetClawback
-        global ZeroAddress
-        !=
-        assert // clawback
-        retsub
 
-
-// test_cases.transaction.contract.TransactionContract.asset_transfer(txn#0: uint64) -> void:
+// test_cases.transaction.contract.TransactionContract.asset_transfer(txn: uint64) -> void:
 asset_transfer:
-        proto 1 0
+    // transaction/contract.py:73-74
+    // @arc4.abimethod
+    // def asset_transfer(self, txn: AssetTransferTransaction) -> None:
+    proto 1 0
+    // transaction/contract.py:75
+    // self._common_checks(txn)
+    frame_dig -1
+    callsub _common_checks
+    // transaction/contract.py:76
+    // assert txn.xfer_asset, "xfer_asset"
+    frame_dig -1
+    gtxns XferAsset
+    assert // xfer_asset
+    // transaction/contract.py:77
+    // assert txn.asset_amount, "asset_amount"
+    frame_dig -1
+    gtxns AssetAmount
+    assert // asset_amount
+    // transaction/contract.py:78
+    // assert txn.asset_sender, "asset_sender"
+    frame_dig -1
+    gtxns AssetSender
+    global ZeroAddress
+    !=
+    assert // asset_sender
+    // transaction/contract.py:79
+    // assert txn.asset_receiver, "asset_receiver"
+    frame_dig -1
+    gtxns AssetReceiver
+    global ZeroAddress
+    !=
+    assert // asset_receiver
+    // transaction/contract.py:80
+    // assert txn.asset_close_to, "asset_close_to"
+    frame_dig -1
+    gtxns AssetCloseTo
+    global ZeroAddress
+    !=
+    assert // asset_close_to
+    retsub
 
-asset_transfer_block@0:
-        frame_dig -1
-        callsub _common_checks
-        frame_dig -1
-        gtxns XferAsset
-        assert // xfer_asset
-        frame_dig -1
-        gtxns AssetAmount
-        assert // asset_amount
-        frame_dig -1
-        gtxns AssetSender
-        global ZeroAddress
-        !=
-        assert // asset_sender
-        frame_dig -1
-        gtxns AssetReceiver
-        global ZeroAddress
-        !=
-        assert // asset_receiver
-        frame_dig -1
-        gtxns AssetCloseTo
-        global ZeroAddress
-        !=
-        assert // asset_close_to
-        retsub
 
-
-// test_cases.transaction.contract.TransactionContract.asset_freeze(txn#0: uint64) -> void:
+// test_cases.transaction.contract.TransactionContract.asset_freeze(txn: uint64) -> void:
 asset_freeze:
-        proto 1 0
+    // transaction/contract.py:82-83
+    // @arc4.abimethod
+    // def asset_freeze(self, txn: AssetFreezeTransaction) -> None:
+    proto 1 0
+    // transaction/contract.py:84
+    // self._common_checks(txn)
+    frame_dig -1
+    callsub _common_checks
+    // transaction/contract.py:86
+    // assert txn.freeze_asset, "freeze_asset"
+    frame_dig -1
+    gtxns FreezeAsset
+    assert // freeze_asset
+    // transaction/contract.py:87
+    // assert txn.freeze_account, "freeze_account"
+    frame_dig -1
+    gtxns FreezeAssetAccount
+    global ZeroAddress
+    !=
+    assert // freeze_account
+    // transaction/contract.py:88
+    // assert txn.frozen, "frozen"
+    frame_dig -1
+    gtxns FreezeAssetFrozen
+    assert // frozen
+    retsub
 
-asset_freeze_block@0:
-        frame_dig -1
-        callsub _common_checks
-        frame_dig -1
-        gtxns FreezeAsset
-        assert // freeze_asset
-        frame_dig -1
-        gtxns FreezeAssetAccount
-        global ZeroAddress
-        !=
-        assert // freeze_account
-        frame_dig -1
-        gtxns FreezeAssetFrozen
-        assert // frozen
-        retsub
 
-
-// test_cases.transaction.contract.TransactionContract.application_call(txn#0: uint64) -> void:
+// test_cases.transaction.contract.TransactionContract.application_call(txn: uint64) -> void:
 application_call:
-        proto 1 0
-
-application_call_block@0:
-        frame_dig -1
-        callsub _common_checks
-        frame_dig -1
-        gtxns ApplicationID
-        assert // application_id
-        frame_dig -1
-        gtxns OnCompletion
-        assert // on_completion
-        frame_dig -1
-        gtxns NumAppArgs
-        assert // num_app_args
-        frame_dig -1
-        gtxns NumAccounts
-        assert // num_accounts
-        frame_dig -1
-        gtxns ApprovalProgram
-        len
-        assert // approval_program
-        frame_dig -1
-        gtxns ClearStateProgram
-        len
-        assert // clear_state_program
-        frame_dig -1
-        gtxns NumAssets
-        assert // num_assets
-        frame_dig -1
-        gtxns NumApplications
-        assert // num_applications
-        frame_dig -1
-        gtxns GlobalNumUint
-        assert // global_num_uint
-        frame_dig -1
-        gtxns GlobalNumByteSlice
-        assert // global_num_byte_slice
-        frame_dig -1
-        gtxns LocalNumUint
-        assert // local_num_uint
-        frame_dig -1
-        gtxns LocalNumByteSlice
-        assert // local_num_byte_slice
-        frame_dig -1
-        gtxns ExtraProgramPages
-        assert // extra_program_pages
-        frame_dig -1
-        gtxns LastLog
-        len
-        assert // last_log
-        frame_dig -1
-        gtxns NumApprovalProgramPages
-        assert // num_approval_program_pages
-        frame_dig -1
-        gtxns NumClearStateProgramPages
-        assert // num_clear_state_program_pages
-        frame_dig -1
-        int 0
-        gtxnsas ApplicationArgs
-        len
-        assert // application_args(0)
-        frame_dig -1
-        int 0
-        gtxnsas Accounts
-        global ZeroAddress
-        !=
-        assert // accounts(0)
-        frame_dig -1
-        int 0
-        gtxnsas Assets
-        assert // assets(0)
-        frame_dig -1
-        int 0
-        gtxnsas Applications
-        assert // applications(0)
-        frame_dig -1
-        int 0
-        gtxnsas ApprovalProgramPages
-        len
-        assert // approval_program_pages(0)
-        frame_dig -1
-        int 0
-        gtxnsas ClearStateProgramPages
-        len
-        assert // clear_state_program_pages(0)
-        retsub
-
+    // transaction/contract.py:90-91
+    // @arc4.abimethod
+    // def application_call(self, txn: ApplicationCallTransaction) -> None:
+    proto 1 0
+    // transaction/contract.py:92
+    // self._common_checks(txn)
+    frame_dig -1
+    callsub _common_checks
+    // transaction/contract.py:93
+    // assert txn.application_id, "application_id"
+    frame_dig -1
+    gtxns ApplicationID
+    assert // application_id
+    // transaction/contract.py:94
+    // assert txn.on_completion, "on_completion"
+    frame_dig -1
+    gtxns OnCompletion
+    assert // on_completion
+    // transaction/contract.py:95
+    // assert txn.num_app_args, "num_app_args"
+    frame_dig -1
+    gtxns NumAppArgs
+    assert // num_app_args
+    // transaction/contract.py:96
+    // assert txn.num_accounts, "num_accounts"
+    frame_dig -1
+    gtxns NumAccounts
+    assert // num_accounts
+    // transaction/contract.py:97
+    // assert txn.approval_program, "approval_program"
+    frame_dig -1
+    gtxns ApprovalProgram
+    len
+    assert // approval_program
+    // transaction/contract.py:98
+    // assert txn.clear_state_program, "clear_state_program"
+    frame_dig -1
+    gtxns ClearStateProgram
+    len
+    assert // clear_state_program
+    // transaction/contract.py:99
+    // assert txn.num_assets, "num_assets"
+    frame_dig -1
+    gtxns NumAssets
+    assert // num_assets
+    // transaction/contract.py:100
+    // assert txn.num_applications, "num_applications"
+    frame_dig -1
+    gtxns NumApplications
+    assert // num_applications
+    // transaction/contract.py:101
+    // assert txn.global_num_uint, "global_num_uint"
+    frame_dig -1
+    gtxns GlobalNumUint
+    assert // global_num_uint
+    // transaction/contract.py:102
+    // assert txn.global_num_byte_slice, "global_num_byte_slice"
+    frame_dig -1
+    gtxns GlobalNumByteSlice
+    assert // global_num_byte_slice
+    // transaction/contract.py:103
+    // assert txn.local_num_uint, "local_num_uint"
+    frame_dig -1
+    gtxns LocalNumUint
+    assert // local_num_uint
+    // transaction/contract.py:104
+    // assert txn.local_num_byte_slice, "local_num_byte_slice"
+    frame_dig -1
+    gtxns LocalNumByteSlice
+    assert // local_num_byte_slice
+    // transaction/contract.py:105
+    // assert txn.extra_program_pages, "extra_program_pages"
+    frame_dig -1
+    gtxns ExtraProgramPages
+    assert // extra_program_pages
+    // transaction/contract.py:106
+    // assert txn.last_log, "last_log"
+    frame_dig -1
+    gtxns LastLog
+    len
+    assert // last_log
+    // transaction/contract.py:107
+    // assert txn.num_approval_program_pages, "num_approval_program_pages"
+    frame_dig -1
+    gtxns NumApprovalProgramPages
+    assert // num_approval_program_pages
+    // transaction/contract.py:108
+    // assert txn.num_clear_state_program_pages, "num_clear_state_program_pages"
+    frame_dig -1
+    gtxns NumClearStateProgramPages
+    assert // num_clear_state_program_pages
+    // transaction/contract.py:109
+    // assert txn.application_args(0), "application_args(0)"
+    frame_dig -1
+    int 0
+    gtxnsas ApplicationArgs
+    len
+    assert // application_args(0)
+    // transaction/contract.py:110
+    // assert txn.accounts(0), "accounts(0)"
+    frame_dig -1
+    int 0
+    gtxnsas Accounts
+    global ZeroAddress
+    !=
+    assert // accounts(0)
+    // transaction/contract.py:111
+    // assert txn.assets(0), "assets(0)"
+    frame_dig -1
+    int 0
+    gtxnsas Assets
+    assert // assets(0)
+    // transaction/contract.py:112
+    // assert txn.applications(0), "applications(0)"
+    frame_dig -1
+    int 0
+    gtxnsas Applications
+    assert // applications(0)
+    // transaction/contract.py:113
+    // assert txn.approval_program_pages(0), "approval_program_pages(0)"
+    frame_dig -1
+    int 0
+    gtxnsas ApprovalProgramPages
+    len
+    assert // approval_program_pages(0)
+    // transaction/contract.py:114
+    // assert txn.clear_state_program_pages(0), "clear_state_program_pages(0)"
+    frame_dig -1
+    int 0
+    gtxnsas ClearStateProgramPages
+    len
+    assert // clear_state_program_pages(0)
+    retsub

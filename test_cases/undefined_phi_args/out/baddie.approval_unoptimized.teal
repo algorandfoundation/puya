@@ -1,294 +1,357 @@
 #pragma version 10
 
-// test_cases.undefined_phi_args.baddie.Baddie.approval_program() -> uint64:
-main_block@0:
-        txna ApplicationArgs 0
-        txn NumAppArgs
-        int 1
-        >
-        bz main_bool_false@3
-
-main_and_contd@1:
-        txna ApplicationArgs 1
-        btoi
-        int 0
-        >
-        bz main_bool_false@3
-
-main_bool_true@2:
-        int 1
-        b main_bool_merge@4
+test_cases.undefined_phi_args.baddie.Baddie.approval_program:
+    // undefined_phi_args/baddie.py:6
+    // test_case = Transaction.application_args(0)
+    txna ApplicationArgs 0
+    // undefined_phi_args/baddie.py:8
+    // Transaction.num_app_args() > 1 and btoi(Transaction.application_args(1)) > 0
+    txn NumAppArgs
+    int 1
+    >
+    bz main_bool_false@3
+    txna ApplicationArgs 1
+    btoi
+    int 0
+    >
+    bz main_bool_false@3
+    int 1
+    b main_bool_merge@4
 
 main_bool_false@3:
-        int 0
+    int 0
 
 main_bool_merge@4:
-        bz main_else_body@12
-
-main_if_body@5:
-        dup
-        byte "uint"
-        ==
-        bz main_else_body@7
-
-main_if_body@6:
-        int 1
-        int 0
-        callsub test_uint_undefined
-        int 10
-        ==
-        assert
-        int 0
-        int 1
-        callsub test_uint_undefined
-        int 8
-        ==
-        assert
-        b main_after_if_else@11
+    // undefined_phi_args/baddie.py:11
+    // if invert_second_condition:
+    bz main_else_body@12
+    // undefined_phi_args/baddie.py:12
+    // if test_case == b"uint":
+    dup
+    byte "uint"
+    ==
+    bz main_else_body@7
+    // undefined_phi_args/baddie.py:13
+    // assert test_uint_undefined(True, False) == 10
+    int 1
+    int 0
+    callsub test_uint_undefined
+    int 10
+    ==
+    assert
+    // undefined_phi_args/baddie.py:14
+    // assert test_uint_undefined(False, True) == 8  # should fail
+    int 0
+    int 1
+    callsub test_uint_undefined
+    int 8
+    ==
+    assert
+    b main_after_if_else@11
 
 main_else_body@7:
-        dup
-        byte "bytes"
-        ==
-        bz main_else_body@9
-
-main_if_body@8:
-        int 1
-        int 0
-        callsub test_bytes_undefined
-        byte 0x0a
-        b==
-        assert
-        int 0
-        int 1
-        callsub test_bytes_undefined
-        byte 0x08
-        b==
-        assert
-        b main_after_if_else@10
+    // undefined_phi_args/baddie.py:15
+    // elif test_case == b"bytes":
+    dup
+    byte "bytes"
+    ==
+    bz main_else_body@9
+    // undefined_phi_args/baddie.py:16
+    // assert test_bytes_undefined(True, False) == 10
+    int 1
+    int 0
+    callsub test_bytes_undefined
+    byte 0x0a
+    b==
+    assert
+    // undefined_phi_args/baddie.py:17
+    // assert test_bytes_undefined(False, True) == 8  # should fail
+    int 0
+    int 1
+    callsub test_bytes_undefined
+    byte 0x08
+    b==
+    assert
+    b main_after_if_else@10
 
 main_else_body@9:
-        int 1
-        int 0
-        callsub test_mixed_undefined
-        byte 0x0a
-        b==
-        assert
-        int 0
-        int 1
-        callsub test_mixed_undefined
-        byte 0x08
-        b==
-        assert
+    // undefined_phi_args/baddie.py:19
+    // assert test_mixed_undefined(True, False) == 10
+    int 1
+    int 0
+    callsub test_mixed_undefined
+    byte 0x0a
+    b==
+    assert
+    // undefined_phi_args/baddie.py:20
+    // assert test_mixed_undefined(False, True) == 8  # should fail
+    int 0
+    int 1
+    callsub test_mixed_undefined
+    byte 0x08
+    b==
+    assert
 
 main_after_if_else@10:
 
 main_after_if_else@11:
-        b main_after_if_else@19
+    b main_after_if_else@19
 
 main_else_body@12:
-        dup
-        byte "uint"
-        ==
-        bz main_else_body@14
-
-main_if_body@13:
-        int 1
-        int 1
-        callsub test_uint_undefined
-        int 8
-        ==
-        assert
-        int 0
-        int 0
-        callsub test_uint_undefined
-        int 10
-        ==
-        assert
-        b main_after_if_else@18
+    // undefined_phi_args/baddie.py:22
+    // if test_case == b"uint":
+    dup
+    byte "uint"
+    ==
+    bz main_else_body@14
+    // undefined_phi_args/baddie.py:23
+    // assert test_uint_undefined(True, True) == 8
+    int 1
+    int 1
+    callsub test_uint_undefined
+    int 8
+    ==
+    assert
+    // undefined_phi_args/baddie.py:24
+    // assert test_uint_undefined(False, False) == 10
+    int 0
+    int 0
+    callsub test_uint_undefined
+    int 10
+    ==
+    assert
+    b main_after_if_else@18
 
 main_else_body@14:
-        dup
-        byte "bytes"
-        ==
-        bz main_else_body@16
-
-main_if_body@15:
-        int 1
-        int 1
-        callsub test_bytes_undefined
-        byte 0x08
-        b==
-        assert
-        int 0
-        int 0
-        callsub test_bytes_undefined
-        byte 0x0a
-        b==
-        assert
-        b main_after_if_else@17
+    // undefined_phi_args/baddie.py:25
+    // elif test_case == b"bytes":
+    dup
+    byte "bytes"
+    ==
+    bz main_else_body@16
+    // undefined_phi_args/baddie.py:26
+    // assert test_bytes_undefined(True, True) == 8
+    int 1
+    int 1
+    callsub test_bytes_undefined
+    byte 0x08
+    b==
+    assert
+    // undefined_phi_args/baddie.py:27
+    // assert test_bytes_undefined(False, False) == 10
+    int 0
+    int 0
+    callsub test_bytes_undefined
+    byte 0x0a
+    b==
+    assert
+    b main_after_if_else@17
 
 main_else_body@16:
-        int 1
-        int 1
-        callsub test_mixed_undefined
-        byte 0x08
-        b==
-        assert
-        int 0
-        int 0
-        callsub test_mixed_undefined
-        byte 0x0a
-        b==
-        assert
+    // undefined_phi_args/baddie.py:29
+    // assert test_mixed_undefined(True, True) == 8
+    int 1
+    int 1
+    callsub test_mixed_undefined
+    byte 0x08
+    b==
+    assert
+    // undefined_phi_args/baddie.py:30
+    // assert test_mixed_undefined(False, False) == 10
+    int 0
+    int 0
+    callsub test_mixed_undefined
+    byte 0x0a
+    b==
+    assert
 
 main_after_if_else@17:
 
 main_after_if_else@18:
 
 main_after_if_else@19:
-        int 1
-        return
+    // undefined_phi_args/baddie.py:31
+    // return True
+    int 1
+    return
 
 
-// test_cases.undefined_phi_args.baddie.test_uint_undefined(x#0: uint64, y#0: uint64) -> uint64:
+// test_cases.undefined_phi_args.baddie.test_uint_undefined(x: uint64, y: uint64) -> uint64:
 test_uint_undefined:
-        proto 2 1
-        byte ""
-        dup
-
-test_uint_undefined_block@0:
-        frame_dig -2
-        bz test_uint_undefined_after_if_else@2
-
-test_uint_undefined_if_body@1:
-        int 7
-        frame_bury 0
+    // undefined_phi_args/baddie.py:37-38
+    // @subroutine
+    // def test_uint_undefined(x: bool, y: bool) -> UInt64:
+    proto 2 1
+    byte ""
+    dup
+    // undefined_phi_args/baddie.py:39
+    // if x:
+    frame_dig -2
+    bz test_uint_undefined_after_if_else@2
+    // undefined_phi_args/baddie.py:40
+    // a = UInt64(7)
+    int 7
+    frame_bury 0
 
 test_uint_undefined_after_if_else@2:
-        frame_dig -2
-        bz test_uint_undefined_else_body@4
-
-test_uint_undefined_if_body@3:
-        int 11
-        frame_bury 1
-        b test_uint_undefined_after_if_else@5
+    // undefined_phi_args/baddie.py:41
+    // if x:
+    frame_dig -2
+    bz test_uint_undefined_else_body@4
+    // undefined_phi_args/baddie.py:42
+    // b = UInt64(11)
+    int 11
+    frame_bury 1
+    b test_uint_undefined_after_if_else@5
 
 test_uint_undefined_else_body@4:
-        int 11
-        frame_bury 1
+    // undefined_phi_args/baddie.py:44
+    // b = UInt64(11)
+    int 11
+    frame_bury 1
 
 test_uint_undefined_after_if_else@5:
-        frame_dig -1
-        bz test_uint_undefined_else_body@7
-
-test_uint_undefined_if_body@6:
-        frame_dig 0
-        int 1
-        +
-        b test_uint_undefined_after_if_else@8
+    // undefined_phi_args/baddie.py:45
+    // if y:
+    frame_dig -1
+    bz test_uint_undefined_else_body@7
+    // undefined_phi_args/baddie.py:46
+    // c = a + 1  # 💥
+    frame_dig 0
+    int 1
+    +
+    b test_uint_undefined_after_if_else@8
 
 test_uint_undefined_else_body@7:
-        frame_dig 1
-        int 1
-        -
+    // undefined_phi_args/baddie.py:48
+    // c = b - 1
+    frame_dig 1
+    int 1
+    -
 
 test_uint_undefined_after_if_else@8:
-        frame_bury 0
-        retsub
+    // undefined_phi_args/baddie.py:49
+    // return c
+    frame_bury 0
+    retsub
 
 
-// test_cases.undefined_phi_args.baddie.test_bytes_undefined(x#0: uint64, y#0: uint64) -> bytes:
+// test_cases.undefined_phi_args.baddie.test_bytes_undefined(x: uint64, y: uint64) -> bytes:
 test_bytes_undefined:
-        proto 2 1
-        int 0
-        dup
-
-test_bytes_undefined_block@0:
-        frame_dig -2
-        bz test_bytes_undefined_after_if_else@2
-
-test_bytes_undefined_if_body@1:
-        byte 0x07
-        frame_bury 0
+    // undefined_phi_args/baddie.py:52-53
+    // @subroutine
+    // def test_bytes_undefined(x: bool, y: bool) -> BigUInt:
+    proto 2 1
+    int 0
+    dup
+    // undefined_phi_args/baddie.py:54
+    // if x:
+    frame_dig -2
+    bz test_bytes_undefined_after_if_else@2
+    // undefined_phi_args/baddie.py:55
+    // a = BigUInt(7)
+    byte 0x07
+    frame_bury 0
 
 test_bytes_undefined_after_if_else@2:
-        frame_dig -2
-        bz test_bytes_undefined_else_body@4
-
-test_bytes_undefined_if_body@3:
-        byte 0x0b
-        frame_bury 1
-        b test_bytes_undefined_after_if_else@5
+    // undefined_phi_args/baddie.py:56
+    // if x:
+    frame_dig -2
+    bz test_bytes_undefined_else_body@4
+    // undefined_phi_args/baddie.py:57
+    // b = BigUInt(11)
+    byte 0x0b
+    frame_bury 1
+    b test_bytes_undefined_after_if_else@5
 
 test_bytes_undefined_else_body@4:
-        byte 0x0b
-        frame_bury 1
+    // undefined_phi_args/baddie.py:59
+    // b = BigUInt(11)
+    byte 0x0b
+    frame_bury 1
 
 test_bytes_undefined_after_if_else@5:
-        frame_dig -1
-        bz test_bytes_undefined_else_body@7
-
-test_bytes_undefined_if_body@6:
-        frame_dig 0
-        byte 0x01
-        b+
-        b test_bytes_undefined_after_if_else@8
+    // undefined_phi_args/baddie.py:60
+    // if y:
+    frame_dig -1
+    bz test_bytes_undefined_else_body@7
+    // undefined_phi_args/baddie.py:61
+    // c = a + 1  # 💥
+    frame_dig 0
+    byte 0x01
+    b+
+    b test_bytes_undefined_after_if_else@8
 
 test_bytes_undefined_else_body@7:
-        frame_dig 1
-        byte 0x01
-        b-
+    // undefined_phi_args/baddie.py:63
+    // c = b - 1
+    frame_dig 1
+    byte 0x01
+    b-
 
 test_bytes_undefined_after_if_else@8:
-        frame_bury 0
-        retsub
+    // undefined_phi_args/baddie.py:64
+    // return c
+    frame_bury 0
+    retsub
 
 
-// test_cases.undefined_phi_args.baddie.test_mixed_undefined(x#0: uint64, y#0: uint64) -> bytes:
+// test_cases.undefined_phi_args.baddie.test_mixed_undefined(x: uint64, y: uint64) -> bytes:
 test_mixed_undefined:
-        proto 2 1
-        int 0
-        byte ""
-
-test_mixed_undefined_block@0:
-        frame_dig -2
-        bz test_mixed_undefined_after_if_else@2
-
-test_mixed_undefined_if_body@1:
-        int 7
-        frame_bury 1
+    // undefined_phi_args/baddie.py:67-68
+    // @subroutine
+    // def test_mixed_undefined(x: bool, y: bool) -> BigUInt:
+    proto 2 1
+    int 0
+    byte ""
+    // undefined_phi_args/baddie.py:69
+    // if x:
+    frame_dig -2
+    bz test_mixed_undefined_after_if_else@2
+    // undefined_phi_args/baddie.py:70
+    // a = UInt64(7)
+    int 7
+    frame_bury 1
 
 test_mixed_undefined_after_if_else@2:
-        frame_dig -2
-        bz test_mixed_undefined_else_body@4
-
-test_mixed_undefined_if_body@3:
-        byte 0x0b
-        frame_bury 0
-        b test_mixed_undefined_after_if_else@5
+    // undefined_phi_args/baddie.py:71
+    // if x:
+    frame_dig -2
+    bz test_mixed_undefined_else_body@4
+    // undefined_phi_args/baddie.py:72
+    // b = BigUInt(11)
+    byte 0x0b
+    frame_bury 0
+    b test_mixed_undefined_after_if_else@5
 
 test_mixed_undefined_else_body@4:
-        byte 0x0b
-        frame_bury 0
+    // undefined_phi_args/baddie.py:74
+    // b = BigUInt(11)
+    byte 0x0b
+    frame_bury 0
 
 test_mixed_undefined_after_if_else@5:
-        frame_dig -1
-        bz test_mixed_undefined_else_body@7
-
-test_mixed_undefined_if_body@6:
-        frame_dig 1
-        itob
-        byte 0x01
-        b+
-        b test_mixed_undefined_after_if_else@8
+    // undefined_phi_args/baddie.py:75
+    // if y:
+    frame_dig -1
+    bz test_mixed_undefined_else_body@7
+    // undefined_phi_args/baddie.py:76
+    // c = BigUInt(a) + BigUInt(1)  # 💥
+    frame_dig 1
+    itob
+    byte 0x01
+    b+
+    b test_mixed_undefined_after_if_else@8
 
 test_mixed_undefined_else_body@7:
-        frame_dig 0
-        byte 0x01
-        b-
+    // undefined_phi_args/baddie.py:78
+    // c = b - 1
+    frame_dig 0
+    byte 0x01
+    b-
 
 test_mixed_undefined_after_if_else@8:
-        frame_bury 0
-        retsub
-
+    // undefined_phi_args/baddie.py:79
+    // return c
+    frame_bury 0
+    retsub

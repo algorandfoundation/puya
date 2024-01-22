@@ -1,0 +1,129 @@
+contract examples.local_state.local_state_with_offsets.LocalStateContract:
+    program approval:
+        subroutine examples.local_state.local_state_with_offsets.LocalStateContract.approval_program() -> uint64:
+            block@0: // L18
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L15
+                examples.local_state.local_state_with_offsets.LocalStateContract.__init__()
+                goto block@2
+            block@2: // entrypoint_L15
+                let tmp%1#0: uint64 = (txn ApplicationID)
+                goto tmp%1#0 ? block@4 : block@3
+            block@3: // if_body_L19
+                return 1u
+            block@4: // after_if_else_L19
+                let tmp%3#0: uint64 = (txn OnCompletion)
+                let contains%4#0: uint64 = (! tmp%3#0)
+                let is_equal%5#0: uint64 = (== tmp%3#0 OptIn)
+                let tmp%6#0: uint64 = (|| contains%4#0 is_equal%5#0)
+                goto tmp%6#0 ? block@6 : block@5
+            block@5: // if_body_L21
+                return 0u
+            block@6: // after_if_else_L21
+                let tmp%7#0: uint64 = (txn NumAppArgs)
+                let tmp%8#0: uint64 = (< tmp%7#0 1u)
+                goto tmp%8#0 ? block@7 : block@8
+            block@7: // if_body_L23
+                return 0u
+            block@8: // after_if_else_L23
+                let tmp%9#0: bytes = (txna ApplicationArgs 0)
+                let offset#0: uint64 = (btoi tmp%9#0)
+                let method#0: bytes = (txna ApplicationArgs 1)
+                let tmp%10#0: uint64 = (txn NumAppArgs)
+                let tmp%11#0: uint64 = (== tmp%10#0 2u)
+                goto tmp%11#0 ? block@9 : block@19
+            block@9: // if_body_L28
+                let tmp%12#0: uint64 = (== method#0 "get_guaranteed_data")
+                goto tmp%12#0 ? block@10 : block@11
+            block@10: // if_body_L29
+                let tmp%13#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(offset#0)
+                (log tmp%13#0)
+                goto block@18
+            block@11: // else_body_L29
+                let tmp%14#0: uint64 = (== method#0 "get_data_or_assert")
+                goto tmp%14#0 ? block@12 : block@13
+            block@12: // if_body_L31
+                let tmp%15#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(offset#0)
+                (log tmp%15#0)
+                goto block@18
+            block@13: // else_body_L31
+                let tmp%16#0: uint64 = (== method#0 "delete_data")
+                goto tmp%16#0 ? block@14 : block@15
+            block@14: // if_body_L33
+                examples.local_state.local_state_with_offsets.LocalStateContract.delete_data(offset#0)
+                (log "Deleted")
+                goto block@18
+            block@15: // else_body_L33
+                return 0u
+            block@18: // after_if_else_L29
+                return 1u
+            block@19: // else_body_L28
+                let tmp%17#0: uint64 = (txn NumAppArgs)
+                let tmp%18#0: uint64 = (== tmp%17#0 3u)
+                goto tmp%18#0 ? block@20 : block@27
+            block@20: // if_body_L39
+                let tmp%19#0: uint64 = (== method#0 "set_data")
+                goto tmp%19#0 ? block@21 : block@22
+            block@21: // if_body_L40
+                let tmp%20#0: bytes = (txna ApplicationArgs 2)
+                examples.local_state.local_state_with_offsets.LocalStateContract.set_data(offset#0, tmp%20#0)
+                goto block@26
+            block@22: // else_body_L40
+                let tmp%21#0: uint64 = (== method#0 "get_data_with_default")
+                goto tmp%21#0 ? block@23 : block@24
+            block@23: // if_body_L42
+                let tmp%22#0: bytes = (txna ApplicationArgs 2)
+                let tmp%23#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(offset#0, tmp%22#0)
+                (log tmp%23#0)
+                goto block@26
+            block@24: // else_body_L42
+                return 0u
+            block@26: // after_if_else_L40
+                return 1u
+            block@27: // else_body_L39
+                return 0u
+        
+        subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(for_account: uint64) -> bytes:
+            block@0: // L53
+                let (app_local_get_ex_value%0#0: bytes, app_local_get_ex_did_exist%1#0: uint64) = (app_local_get_ex for_account#0 0u "local")
+                (assert app_local_get_ex_did_exist%1#0) // check value exists
+                return app_local_get_ex_value%0#0
+        
+        subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(for_account: uint64) -> bytes:
+            block@0: // L61
+                let (result#0: any, exists#0: uint64) = (app_local_get_ex for_account#0 0u "local")
+                (assert exists#0) // no data for account
+                return result#0
+        
+        subroutine examples.local_state.local_state_with_offsets.LocalStateContract.delete_data(for_account: uint64) -> void:
+            block@0: // L71
+                (app_local_del for_account#0 "local")
+                return 
+        
+        subroutine examples.local_state.local_state_with_offsets.LocalStateContract.set_data(for_account: uint64, value: bytes) -> void:
+            block@0: // L67
+                (app_local_put for_account#0 "local" value#0)
+                return 
+        
+        subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(for_account: uint64, default: bytes) -> bytes:
+            block@0: // L57
+                let (awst_tmp%0.0#0: any, awst_tmp%0.1#0: uint64) = (app_local_get_ex for_account#0 0u "local")
+                goto awst_tmp%0.1#0 ? block@1 : block@2
+            block@1: // ternary_true_L59
+                let ternary_result%1#2: bytes = awst_tmp%0.0#0
+                goto block@3
+            block@2: // ternary_false_L59
+                let ternary_result%1#2: bytes = default#0
+                goto block@3
+            block@3: // ternary_merge_L59
+                return ternary_result%1#2
+        
+        subroutine examples.local_state.local_state_with_offsets.LocalStateContract.__init__() -> void:
+            block@0: // L15
+                return 
+    
+    program clear-state:
+        subroutine examples.local_state.local_state_with_offsets.LocalStateContract.clear_state_program() -> uint64:
+            block@0: // L50
+                return 1u

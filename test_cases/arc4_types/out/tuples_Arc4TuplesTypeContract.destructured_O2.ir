@@ -1,0 +1,61 @@
+contract test_cases.arc4_types.tuples.Arc4TuplesTypeContract:
+    program approval:
+        subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program() -> uint64:
+            block@0: // L14
+                let value_as_bytes%2#0: bytes = (itob 7u)
+                let value_as_uint16%3#0: bytes = ((extract 6 2) value_as_bytes%2#0)
+                let encoded_tuple_buffer%1#3: bytes = (concat 0x0102 value_as_uint16%3#0)
+                let value_as_bytes%5#0: bytes = (itob 14u)
+                let value_as_uint16%6#0: bytes = ((extract 6 2) value_as_bytes%5#0)
+                let encoded_tuple_buffer%1#3: bytes = (concat encoded_tuple_buffer%1#3 value_as_uint16%6#0)
+                let encoded_tuple_buffer%1#3: bytes = (concat encoded_tuple_buffer%1#3 0xff)
+                let encoded_tuple_buffer%1#3: bytes = (concat encoded_tuple_buffer%1#3 "\x00\x05hello")
+                let my_tuple#0: bytes = (concat encoded_tuple_buffer%1#3 "\x00\x05world")
+                let tmp%8#0: uint64 = (== my_tuple#0 0x01020007000eff000568656c6c6f0005776f726c64)
+                (assert tmp%8#0)
+                let tmp%50#0: uint64 = (btoi 0x04)
+                let tmp%51#0: uint64 = (== tmp%50#0 4u)
+                (assert tmp%51#0) // a is 4
+                let tmp%68#0: uint64 = (btoi 0x10)
+                let tmp%69#0: uint64 = (== tmp%68#0 16u)
+                (assert tmp%69#0) // k is 16
+                let (total#0: uint64, concat#0: bytes) = test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(my_tuple#0)
+                let tmp%102#0: bytes = ((extract 2 0) concat#0)
+                let tmp%103#0: uint64 = (== tmp%102#0 "hello world")
+                (assert tmp%103#0)
+                let tmp%104#0: uint64 = (== total#0 258u)
+                (assert tmp%104#0)
+                return 1u
+        
+        subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_tuple: bytes) -> <uint64, bytes>:
+            block@0: // L54
+                let a#0: bytes = ((extract 0 1) test_tuple#0)
+                let b#0: bytes = ((extract 1 1) test_tuple#0)
+                let item_index%2#0: uint64 = (extract_uint16 test_tuple#0 2u)
+                let item_length%3#0: uint64 = (extract_uint16 test_tuple#0 item_index%2#0)
+                let item_length_plus_2%4#0: uint64 = (+ item_length%3#0 2u)
+                let c#0: bytes = (extract3 test_tuple#0 item_index%2#0 item_length_plus_2%4#0)
+                let item_index%6#0: uint64 = (extract_uint16 test_tuple#0 4u)
+                let item_length%7#0: uint64 = (extract_uint16 test_tuple#0 item_index%6#0)
+                let item_length_plus_2%8#0: uint64 = (+ item_length%7#0 2u)
+                let d#0: bytes = (extract3 test_tuple#0 item_index%6#0 item_length_plus_2%8#0)
+                let e#0: bytes = ((extract 6 1) test_tuple#0)
+                let tmp%11#0: uint64 = (btoi a#0)
+                let tmp%12#0: uint64 = (btoi b#0)
+                let tmp%13#0: uint64 = (+ tmp%11#0 tmp%12#0)
+                let tmp%14#0: uint64 = (btoi e#0)
+                let total#0: uint64 = (+ tmp%13#0 tmp%14#0)
+                let tmp%15#0: bytes = ((extract 2 0) c#0)
+                let tmp%16#0: bytes = (concat tmp%15#0 " ")
+                let tmp%17#0: bytes = ((extract 2 0) d#0)
+                let text#0: bytes = (concat tmp%16#0 tmp%17#0)
+                let length%18#0: uint64 = (len text#0)
+                let value_as_bytes%19#0: bytes = (itob length%18#0)
+                let value_as_uint16%20#0: bytes = ((extract 6 2) value_as_bytes%19#0)
+                let tmp%21#0: bytes = (concat value_as_uint16%20#0 text#0)
+                return total#0 tmp%21#0
+    
+    program clear-state:
+        subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.clear_state_program() -> uint64:
+            block@0: // L51
+                return 1u

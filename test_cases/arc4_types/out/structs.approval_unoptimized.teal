@@ -1,237 +1,275 @@
 #pragma version 10
 
-// test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program() -> uint64:
-main:
-        byte ""
-        dup
-
-main_block@0:
-        int 16
-        pop
-        byte 0x
-        byte 0x000000083cfbf217
-        concat
-        byte 0x000000230384b842
-        concat
-        dup
-        swap
-        int 16
-        pop
-        byte 0x
-        byte 0x000000083cfbf217
-        concat
-        byte 0x000000230384b842
-        concat
-        callsub add
-        dup
-        int 0
-        int 8
-        extract3
-        swap
-        int 8
-        int 8
-        extract3
-        swap
-
-main_for_header_0@1:
-        int 0
-        bury 5
-        b main_for_body@3
+test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
+    byte ""
+    dup
+    // arc4_types/structs.py:27
+    // coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
+    int 16
+    pop
+    byte 0x
+    byte 0x000000083cfbf217
+    concat
+    byte 0x000000230384b842
+    concat
+    dup
+    swap
+    // arc4_types/structs.py:28
+    // coord_2 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
+    int 16
+    pop
+    byte 0x
+    byte 0x000000083cfbf217
+    concat
+    byte 0x000000230384b842
+    concat
+    // arc4_types/structs.py:29
+    // coord_3 = add(coord_1.copy(), coord_2.copy())
+    callsub add
+    // arc4_types/structs.py:30
+    // for val in (coord_3.x, coord_3.y):
+    dup
+    int 0
+    int 8
+    extract3
+    swap
+    int 8
+    int 8
+    extract3
+    swap
+    int 0
+    bury 5
+    b main_for_body@3
 
 main_for_header_1@2:
-        dup
-        dig 3
-        bury 5
+    // arc4_types/structs.py:30
+    // for val in (coord_3.x, coord_3.y):
+    dup
+    dig 3
+    bury 5
 
 main_for_body@3:
-        log
+    // arc4_types/structs.py:31
+    // log(val.bytes)
+    log
+    dig 3
+    dup
+    int 1
+    +
+    bury 4
+    // arc4_types/structs.py:30
+    // for val in (coord_3.x, coord_3.y):
+    switch main_for_header_1@2
+    // arc4_types/structs.py:33
+    // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
+    byte 0x00
+    int 0
+    int 1
+    setbit
+    byte 0x00
+    int 0
+    int 0
+    setbit
+    byte 0x00
+    int 0
+    int 1
+    setbit
+    cover 2
+    byte 0x00
+    int 0
+    int 0
+    setbit
+    cover 3
+    int 1
+    pop
+    byte 0x
+    uncover 2
+    concat
+    swap
+    int 0
+    getbit
+    swap
+    int 1
+    uncover 2
+    setbit
+    swap
+    int 0
+    getbit
+    swap
+    int 2
+    uncover 2
+    setbit
+    swap
+    int 0
+    getbit
+    swap
+    int 3
+    uncover 2
+    setbit
+    // arc4_types/structs.py:34
+    // check(flags.copy())
+    dup
+    callsub check
+    // arc4_types/structs.py:35
+    // log(flags.bytes)
+    dup
+    log
+    // arc4_types/structs.py:37
+    // nested_decode(VectorFlags(coord_1, flags))
+    int 17
+    pop
+    byte 0x
+    dig 3
+    concat
+    swap
+    concat
+    callsub nested_decode
+    // arc4_types/structs.py:39
+    // return True
+    int 1
+    return
 
-main_for_footer@4:
-        dig 3
-        dup
-        int 1
-        +
-        bury 4
-        switch main_for_header_1@2
 
-main_after_for@5:
-        byte 0x00
-        int 0
-        int 1
-        setbit
-        byte 0x00
-        int 0
-        int 0
-        setbit
-        byte 0x00
-        int 0
-        int 1
-        setbit
-        cover 2
-        byte 0x00
-        int 0
-        int 0
-        setbit
-        cover 3
-        int 1
-        pop
-        byte 0x
-        uncover 2
-        concat
-        swap
-        int 0
-        getbit
-        swap
-        int 1
-        uncover 2
-        setbit
-        swap
-        int 0
-        getbit
-        swap
-        int 2
-        uncover 2
-        setbit
-        swap
-        int 0
-        getbit
-        swap
-        int 3
-        uncover 2
-        setbit
-        dup
-        callsub check
-        dup
-        log
-        int 17
-        pop
-        byte 0x
-        dig 3
-        concat
-        swap
-        concat
-        callsub nested_decode
-        int 1
-        return
-
-
-// test_cases.arc4_types.structs.add(v1#0: bytes, v2#0: bytes) -> bytes:
+// test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes:
 add:
-        proto 2 1
+    // arc4_types/structs.py:45-46
+    // @subroutine
+    // def add(v1: Vector, v2: Vector) -> Vector:
+    proto 2 1
+    // arc4_types/structs.py:48
+    // x=Decimal.encode(v1.x.decode() + v2.x.decode()),
+    frame_dig -2
+    int 0
+    int 8
+    extract3
+    btoi
+    frame_dig -1
+    int 0
+    int 8
+    extract3
+    btoi
+    +
+    itob
+    // arc4_types/structs.py:49
+    // y=Decimal.encode(v1.y.decode() + v2.y.decode()),
+    frame_dig -2
+    int 8
+    int 8
+    extract3
+    btoi
+    frame_dig -1
+    int 8
+    int 8
+    extract3
+    btoi
+    +
+    itob
+    // arc4_types/structs.py:47-50
+    // return Vector(
+    //     x=Decimal.encode(v1.x.decode() + v2.x.decode()),
+    //     y=Decimal.encode(v1.y.decode() + v2.y.decode()),
+    // )
+    int 16
+    pop
+    byte 0x
+    uncover 2
+    concat
+    swap
+    concat
+    retsub
 
-add_block@0:
-        frame_dig -2
-        int 0
-        int 8
-        extract3
-        btoi
-        frame_dig -1
-        int 0
-        int 8
-        extract3
-        btoi
-        +
-        itob
-        frame_dig -2
-        int 8
-        int 8
-        extract3
-        btoi
-        frame_dig -1
-        int 8
-        int 8
-        extract3
-        btoi
-        +
-        itob
-        int 16
-        pop
-        byte 0x
-        uncover 2
-        concat
-        swap
-        concat
-        retsub
 
-
-// test_cases.arc4_types.structs.check(flags#0: bytes) -> void:
+// test_cases.arc4_types.structs.check(flags: bytes) -> void:
 check:
-        proto 1 0
+    // arc4_types/structs.py:53-54
+    // @subroutine
+    // def check(flags: Flags) -> None:
+    proto 1 0
+    // arc4_types/structs.py:55
+    // assert flags.a.decode()
+    frame_dig -1
+    int 0
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    assert
+    // arc4_types/structs.py:56
+    // assert not flags.b.decode()
+    frame_dig -1
+    int 1
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    !
+    assert
+    // arc4_types/structs.py:57
+    // assert flags.c.decode()
+    frame_dig -1
+    int 2
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    assert
+    // arc4_types/structs.py:58
+    // assert not flags.d.decode()
+    frame_dig -1
+    int 3
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    !
+    assert
+    retsub
 
-check_block@0:
-        frame_dig -1
-        int 0
-        getbit
-        byte 0x00
-        int 0
-        uncover 2
-        setbit
-        int 0
-        getbit
-        assert
-        frame_dig -1
-        int 1
-        getbit
-        byte 0x00
-        int 0
-        uncover 2
-        setbit
-        int 0
-        getbit
-        !
-        assert
-        frame_dig -1
-        int 2
-        getbit
-        byte 0x00
-        int 0
-        uncover 2
-        setbit
-        int 0
-        getbit
-        assert
-        frame_dig -1
-        int 3
-        getbit
-        byte 0x00
-        int 0
-        uncover 2
-        setbit
-        int 0
-        getbit
-        !
-        assert
-        retsub
 
-
-// test_cases.arc4_types.structs.nested_decode(vector_flags#0: bytes) -> void:
+// test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> void:
 nested_decode:
-        proto 1 0
-
-nested_decode_block@0:
-        frame_dig -1
-        int 0
-        int 16
-        extract3
-        int 0
-        int 8
-        extract3
-        btoi
-        int 35382882839
-        ==
-        assert
-        frame_dig -1
-        int 16
-        int 1
-        extract3
-        int 2
-        getbit
-        byte 0x00
-        int 0
-        uncover 2
-        setbit
-        int 0
-        getbit
-        assert
-        retsub
-
+    // arc4_types/structs.py:61-62
+    // @subroutine
+    // def nested_decode(vector_flags: VectorFlags) -> None:
+    proto 1 0
+    // arc4_types/structs.py:63
+    // assert vector_flags.vector.x.decode() == 35382882839
+    frame_dig -1
+    int 0
+    int 16
+    extract3
+    int 0
+    int 8
+    extract3
+    btoi
+    int 35382882839
+    ==
+    assert
+    // arc4_types/structs.py:64
+    // assert vector_flags.flags.c.decode()
+    frame_dig -1
+    int 16
+    int 1
+    extract3
+    int 2
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    assert
+    retsub

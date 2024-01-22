@@ -6,11 +6,11 @@ import attrs
 import structlog
 
 from puya.avm_type import AVMType
-from puya.codegen.utils import format_bytes
 from puya.context import CompileContext
 from puya.errors import CodeError
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
+from puya.ir.utils import format_bytes
 
 logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
 
@@ -187,15 +187,13 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
                 )
         case models.Intrinsic(
             args=[
-                models.Value(atype=AVMType.uint64) as a,
-                models.Value(atype=AVMType.uint64) as b,
+                models.Register(atype=AVMType.uint64) as reg_a,
+                models.Register(atype=AVMType.uint64) as reg_b,
             ],
             op=op,
         ):
-            c: int | models.Value | None = None
-            a_const = get_int_constant(a)
-            b_const = get_int_constant(b)
-            if a == b:
+            c: models.Value | int | None = None
+            if reg_a == reg_b:
                 match op:
                     case AVMOp.sub:
                         c = 0
@@ -208,9 +206,26 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
                     case AVMOp.bitwise_xor:
                         c = 0
                     case AVMOp.bitwise_and | AVMOp.bitwise_or:
-                        c = a
+                        c = reg_a
+            if c is not None:
+                if isinstance(c, models.Value):
+                    logger.debug(f"Folded {reg_a} {op} {reg_b} to {c}")
+                    return c
+                else:
+                    logger.debug(f"Folded {reg_a} {op} {reg_b} to {c}")
+                    return models.UInt64Constant(value=c, source_location=value.source_location)
+        case models.Intrinsic(
+            args=[
+                models.Value(atype=AVMType.uint64) as a,
+                models.Value(atype=AVMType.uint64) as b,
+            ],
+            op=op,
+        ):
+            c = None
+            a_const = get_int_constant(a)
+            b_const = get_int_constant(b)
             # 0 == b <-> !b
-            elif a_const == 0 and op == AVMOp.eq:
+            if a_const == 0 and op == AVMOp.eq:
                 return attrs.evolve(value, op=AVMOp.not_, args=[b])
             # a == 0 <-> !a
             elif b_const == 0 and op == AVMOp.eq:
@@ -282,7 +297,35 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
                     if c < 0:
                         # Value cannot be folded as it would result in a negative uint
                         return None
-                    logger.debug(f"Folded {a_const} {op} {b_const} to {c}")
+                    logger.debug(
+                        f"Folded {a_const if a_const is not None else a}"
+                        f" {op} {b_const if b_const is not None else b} to {c}"
+                    )
+                    return models.UInt64Constant(value=c, source_location=value.source_location)
+        case models.Intrinsic(
+            args=[
+                models.Register(atype=AVMType.bytes) as reg_a,
+                models.Register(atype=AVMType.bytes) as reg_b,
+            ],
+            op=op,
+        ):
+            c = None
+            if reg_a == reg_b:
+                match op:
+                    case AVMOp.sub_bytes:
+                        c = 0
+                    case AVMOp.eq_bytes | AVMOp.eq:
+                        c = 1
+                    case AVMOp.neq_bytes | AVMOp.neq:
+                        c = 0
+                    case AVMOp.div_floor_bytes:
+                        c = 1
+            if c is not None:
+                if isinstance(c, models.Value):
+                    logger.debug(f"Folded {reg_a} {op} {reg_b} to {c}")
+                    return c
+                else:
+                    logger.debug(f"Folded {reg_a} {op} {reg_b} to {c}")
                     return models.UInt64Constant(value=c, source_location=value.source_location)
         case models.Intrinsic(
             args=[
@@ -294,17 +337,7 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
             c = None
             a_const = get_biguint_constant(a)
             b_const = get_biguint_constant(b)
-            if a == b:
-                match op:
-                    case AVMOp.sub_bytes:
-                        c = 0
-                    case AVMOp.eq_bytes | AVMOp.eq:
-                        c = 1
-                    case AVMOp.neq_bytes | AVMOp.neq:
-                        c = 0
-                    case AVMOp.div_floor_bytes:
-                        c = 1
-            elif a_const == 1 and op == AVMOp.mul_bytes:
+            if a_const == 1 and op == AVMOp.mul_bytes:
                 c = b
             elif b_const == 1 and op == AVMOp.mul_bytes:
                 c = a
@@ -340,7 +373,10 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
                 if isinstance(c, models.ValueProvider):
                     logger.debug(f"Folded {a} {op} {b} to {c}")
                     return c
-                logger.debug(f"Folded {a_const} {op} {b_const} to {c}")
+                logger.debug(
+                    f"Folded {a_const if a_const is not None else a}"
+                    f" {op} {b_const if b_const is not None else b} to {c}"
+                )
                 if op in (
                     AVMOp.eq_bytes,
                     AVMOp.eq,

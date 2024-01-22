@@ -1,0 +1,29 @@
+contract test_cases.arc4_types.reference_types.MyContract:
+    program approval:
+        subroutine test_cases.arc4_types.reference_types.MyContract.approval_program() -> uint64:
+            block@0: // L5
+                let sender_address#0: bytes = (txn Sender)
+                let checked_address#0: bytes = (txn Sender)
+                let tmp%3#0: uint64 = (len checked_address#0)
+                let tmp%4#0: uint64 = (== 32u tmp%3#0)
+                (assert tmp%4#0) // Address length is 32 bytes
+                let unchecked_address#0: bytes = (txn Sender)
+                let tmp%5#0: uint64 = (== sender_address#0 checked_address#0)
+                goto tmp%5#0 ? block@1 : block@3
+            block@1: // and_contd_L15
+                let tmp%6#0: uint64 = (== checked_address#0 unchecked_address#0)
+                goto tmp%6#0 ? block@2 : block@3
+            block@2: // bool_true_L15
+                let and_result%7#0: uint64 = 1u
+                goto block@4
+            block@3: // bool_false_L15
+                let and_result%7#0: uint64 = 0u
+                goto block@4
+            block@4: // bool_merge_L15
+                (assert and_result%7#0)
+                return 1u
+    
+    program clear-state:
+        subroutine test_cases.arc4_types.reference_types.MyContract.clear_state_program() -> uint64:
+            block@0: // L19
+                return 1u

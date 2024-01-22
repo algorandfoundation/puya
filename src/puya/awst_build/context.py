@@ -42,7 +42,29 @@ class ASTConversionModuleContext(ASTConversionContext):
         return self.current_module.path
 
     def node_location(self, node: mypy.nodes.Context) -> SourceLocation:
-        return SourceLocation.from_mypy(file=self.module_path, node=node)
+        loc = SourceLocation.from_mypy(file=self.module_path, node=node)
+        lines = self.try_get_source(loc).code
+        if loc.line > 1:
+            prior_code = self.try_get_source(
+                SourceLocation(file=self.module_path, line=1, end_line=loc.line - 1)
+            ).code
+            unchop = 0
+            for line in reversed(prior_code or ()):
+                if not line.strip().startswith("#"):
+                    break
+                unchop += 1
+            if unchop:
+                loc = attrs.evolve(loc, line=loc.line - unchop)
+        if loc.end_line is not None and loc.end_line != loc.line:
+            chop = 0
+            for line in reversed(lines or ()):
+                l_stripped = line.lstrip()
+                if l_stripped and not l_stripped.startswith("#"):
+                    break
+                chop += 1
+            if chop:
+                loc = attrs.evolve(loc, end_line=loc.end_line - chop)
+        return loc
 
     def _maybe_convert_location(
         self, location: mypy.nodes.Context | SourceLocation

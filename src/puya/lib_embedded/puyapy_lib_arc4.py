@@ -45,11 +45,11 @@ def dynamic_array_pop_fixed_size(source: Bytes, fixed_byte_size: UInt64) -> tupl
     """
     array_length = extract_uint16(source, 0)
     length_minus_1 = array_length - 1
-    source = replace(source, 0, extract(itob(length_minus_1), 6, 0))
-    item_location = source.length - fixed_byte_size
-    popped = extract(source, item_location, fixed_byte_size)
-    source = substring(source, 0, item_location)
-    return popped, source
+    result = replace(source, 0, extract(itob(length_minus_1), 6, 0))
+    item_location = result.length - fixed_byte_size
+    popped = extract(result, item_location, fixed_byte_size)
+    result = substring(result, 0, item_location)
+    return popped, result
 
 
 @subroutine

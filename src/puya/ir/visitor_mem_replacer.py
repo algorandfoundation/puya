@@ -1,4 +1,4 @@
-from typing import Iterable, Sequence
+from typing import Iterable
 
 import attrs
 
@@ -15,7 +15,7 @@ class MemoryReplacer(IRMutator):
     @classmethod
     def apply(
         cls,
-        blocks: Sequence[models.BasicBlock],
+        blocks: Iterable[models.BasicBlock],
         *,
         find: Iterable[models.Register],
         replacement: models.Register,

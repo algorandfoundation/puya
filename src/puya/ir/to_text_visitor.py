@@ -5,8 +5,8 @@ from pathlib import Path
 import structlog
 
 from puya.avm_type import AVMType
-from puya.codegen.utils import format_bytes
 from puya.ir import models
+from puya.ir.utils import format_bytes
 from puya.ir.visitor import IRVisitor
 from puya.utils import make_path_relative_to_cwd
 
@@ -63,11 +63,14 @@ class ToTextVisitor(IRVisitor[str]):
 
     def visit_goto_nth(self, op: models.GotoNth) -> str:
         blocks = ", ".join([f"block@{b.id}" for b in op.blocks])
-        return f"goto [{blocks}, ...block@{op.default.id}][{op.value.accept(self)}]"
+        return f"goto_nth [{blocks}][{op.value.accept(self)}] else {op.default.accept(self)}"
 
     def visit_switch(self, op: models.Switch) -> str:
         cases = {k.accept(self): f"block@{b.id}" for k, b in op.cases.items()}
-        cases["*"] = f"block@{op.default.id}"
+        if isinstance(op.default, models.Goto):
+            cases["*"] = f"block@{op.default.target.id}"
+        else:
+            cases["*"] = op.default.accept(self)
         map_ = ", ".join(f"{k} => {v}" for k, v in cases.items())
         return f"switch {op.value.accept(self)} {{{map_}}}"
 

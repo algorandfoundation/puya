@@ -11,13 +11,13 @@ class Baddie(Contract):
         if invert_second_condition:
             if test_case == b"uint":
                 assert test_uint_undefined(True, False) == 10
-                assert test_uint_undefined(False, True) == 8  # 💥
+                assert test_uint_undefined(False, True) == 8  # should fail
             elif test_case == b"bytes":
                 assert test_bytes_undefined(True, False) == 10
-                assert test_bytes_undefined(False, True) == 8  # 💥
+                assert test_bytes_undefined(False, True) == 8  # should fail
             else:
                 assert test_mixed_undefined(True, False) == 10
-                assert test_mixed_undefined(False, True) == 8  # 💥
+                assert test_mixed_undefined(False, True) == 8  # should fail
         else:  # noqa: PLR5501
             if test_case == b"uint":
                 assert test_uint_undefined(True, True) == 8
@@ -43,11 +43,7 @@ def test_uint_undefined(x: bool, y: bool) -> UInt64:
     else:
         b = UInt64(11)
     if y:
-        c = (
-            a
-            # 💥
-            + 1
-        )
+        c = a + 1  # 💥
     else:
         c = b - 1
     return c
@@ -62,11 +58,7 @@ def test_bytes_undefined(x: bool, y: bool) -> BigUInt:
     else:
         b = BigUInt(11)
     if y:
-        c = (
-            a
-            # 💥
-            + 1
-        )
+        c = a + 1  # 💥
     else:
         c = b - 1
     return c
@@ -81,10 +73,7 @@ def test_mixed_undefined(x: bool, y: bool) -> BigUInt:
     else:
         b = BigUInt(11)
     if y:
-        c = BigUInt(
-            # 💥
-            a
-        ) + BigUInt(1)
+        c = BigUInt(a) + BigUInt(1)  # 💥
     else:
         c = b - 1
     return c

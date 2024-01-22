@@ -225,7 +225,7 @@ class WTuple(WType):
 
 @attrs.frozen
 class ARC4Type(WType):
-    alias: str | None = attrs.field(default=None)
+    alias: str | None = None
 
 
 @typing.final

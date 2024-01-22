@@ -10,8 +10,9 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import OpSignature
 from puya.ir.types_ import AVMBytesEncoding, stack_type_to_avm_type
 from puya.ir.visitor import IRVisitor
-from puya.metadata import ContractMetaData
+from puya.models import ContractMetaData
 from puya.parse import SourceLocation
+from puya.utils import unique
 
 T = t.TypeVar("T")
 
@@ -39,7 +40,7 @@ class IRVisitable(Context, abc.ABC):
 class ValueProvider(IRVisitable, abc.ABC):
     """A node that provides/produces a value"""
 
-    source_location: SourceLocation | None
+    source_location: SourceLocation | None = attrs.field(eq=False)
 
     @property
     @abc.abstractmethod
@@ -47,7 +48,7 @@ class ValueProvider(IRVisitable, abc.ABC):
         ...
 
 
-@attrs.define(eq=False)
+@attrs.frozen
 class Value(ValueProvider, abc.ABC):
     """Base class for value types.
 
@@ -86,6 +87,15 @@ class ControlOp(IRVisitable, abc.ABC):
     @abc.abstractmethod
     def targets(self) -> Sequence["BasicBlock"]:
         """For graph traversal - result could be empty if it's the end of the current graph"""
+
+    @property
+    def unique_targets(self) -> list["BasicBlock"]:
+        return unique(self.targets())
+
+    @property
+    @abc.abstractmethod
+    def can_exit(self) -> bool:
+        """Does this ControlOp exit the current subroutine (somehow - eg terminates, returns)"""
 
 
 @attrs.frozen
@@ -153,17 +163,17 @@ class Phi(IRVisitable):
         return visitor.visit_phi(self)
 
 
-@attrs.define(eq=False)
+@attrs.frozen
 class UInt64Constant(Constant):
     value: int
     atype: AVMType = attrs.field(default=AVMType.uint64, init=False)
-    teal_alias: str | None = attrs.field(default=None)
+    teal_alias: str | None = None
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_uint64_constant(self)
 
 
-@attrs.define(eq=False)
+@attrs.frozen
 class BigUIntConstant(Constant):
     value: int
     atype: AVMType = attrs.field(default=AVMType.bytes, init=False)
@@ -172,7 +182,7 @@ class BigUIntConstant(Constant):
         return visitor.visit_biguint_constant(self)
 
 
-@attrs.define(eq=False)
+@attrs.frozen
 class BytesConstant(Constant):
     """Constant for types that are logically bytes"""
 
@@ -186,7 +196,7 @@ class BytesConstant(Constant):
         return visitor.visit_bytes_constant(self)
 
 
-@attrs.define(eq=False)
+@attrs.frozen
 class AddressConstant(Constant):
     """Constant for address literals"""
 
@@ -198,7 +208,7 @@ class AddressConstant(Constant):
         return visitor.visit_address_constant(self)
 
 
-@attrs.define(eq=False)
+@attrs.frozen
 class MethodConstant(Constant):
     """Constant for method literals"""
 
@@ -384,6 +394,10 @@ class ConditionalBranch(ControlOp):
     def targets(self) -> Sequence[BasicBlock]:
         return self.zero, self.non_zero
 
+    @property
+    def can_exit(self) -> bool:
+        return False
+
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_conditional_branch(self)
 
@@ -400,6 +414,10 @@ class Goto(ControlOp):
     def targets(self) -> Sequence[BasicBlock]:
         return (self.target,)
 
+    @property
+    def can_exit(self) -> bool:
+        return False
+
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto(self)
 
@@ -413,10 +431,14 @@ class GotoNth(ControlOp):
 
     value: Value
     blocks: list[BasicBlock] = attrs.field()
-    default: BasicBlock
+    default: ControlOp
 
     def targets(self) -> Sequence[BasicBlock]:
-        return [*self.blocks, self.default]
+        return [*self.blocks, *self.default.targets()]
+
+    @property
+    def can_exit(self) -> bool:
+        return self.default.can_exit
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_goto_nth(self)
@@ -434,7 +456,7 @@ class Switch(ControlOp):
 
     value: Value
     cases: dict[Value, BasicBlock] = attrs.field()
-    default: BasicBlock
+    default: ControlOp
 
     @cases.validator
     def _check_cases(self, _attribute: object, cases: dict[Value, BasicBlock]) -> None:
@@ -444,7 +466,11 @@ class Switch(ControlOp):
             )
 
     def targets(self) -> Sequence[BasicBlock]:
-        return [*self.cases.values(), self.default]
+        return [*self.cases.values(), *self.default.targets()]
+
+    @property
+    def can_exit(self) -> bool:
+        return self.default.can_exit
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_switch(self)
@@ -461,6 +487,10 @@ class SubroutineReturn(ControlOp):
 
     def targets(self) -> Sequence[BasicBlock]:
         return ()
+
+    @property
+    def can_exit(self) -> bool:
+        return True
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_subroutine_return(self)
@@ -483,6 +513,10 @@ class ProgramExit(ControlOp):
     def targets(self) -> Sequence[BasicBlock]:
         return ()
 
+    @property
+    def can_exit(self) -> bool:
+        return True
+
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_program_exit(self)
 
@@ -502,6 +536,10 @@ class Fail(ControlOp):
 
     def targets(self) -> Sequence[BasicBlock]:
         return ()
+
+    @property
+    def can_exit(self) -> bool:
+        return True
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_fail(self)

@@ -1,54 +1,66 @@
 #pragma version 10
 
-// test_cases.scratch_slots.contract.MyContract.approval_program() -> uint64:
-main_block@0:
-        int 1
-        int 5
-        stores
-        int 2
-        byte "Hello World"
-        stores
-        int 1
-        assert // Step cannot be zero
-        int 3
+test_cases.scratch_slots.contract.MyContract.approval_program:
+    // scratch_slots/contract.py:6
+    // Scratch.store(1, UInt64(5))
+    int 1
+    int 5
+    stores
+    // scratch_slots/contract.py:8
+    // Scratch.store(2, Bytes(b"Hello World"))
+    int 2
+    byte "Hello World"
+    stores
+    // scratch_slots/contract.py:10
+    // for i in urange(3, 20):
+    int 1
+    assert // Step cannot be zero
+    int 3
 
 main_for_header@1:
-        dup
-        int 20
-        <
-        bz main_after_for@5
-
-main_for_body@2:
-        dup
-        dup
-        swap
-        stores
-
-main_for_footer@3:
-
-main_for_increment@4:
-        dup
-        int 1
-        +
-        bury 1
-        b main_for_header@1
+    // scratch_slots/contract.py:10
+    // for i in urange(3, 20):
+    dup
+    int 20
+    <
+    bz main_after_for@5
+    dup
+    // scratch_slots/contract.py:11
+    // Scratch.store(i, i)
+    dup
+    swap
+    stores
+    // scratch_slots/contract.py:10
+    // for i in urange(3, 20):
+    dup
+    int 1
+    +
+    bury 1
+    b main_for_header@1
 
 main_after_for@5:
-        int 1
-        loads
-        int 5
-        ==
-        assert
-        int 2
-        loads
-        byte "Hello World"
-        ==
-        assert
-        int 5
-        loads
-        int 5
-        ==
-        assert
-        int 1
-        return
-
+    // scratch_slots/contract.py:13
+    // assert Scratch.load_uint64(1) == UInt64(5)
+    int 1
+    loads
+    int 5
+    ==
+    assert
+    // scratch_slots/contract.py:15
+    // assert Scratch.load_bytes(2) == b"Hello World"
+    int 2
+    loads
+    byte "Hello World"
+    ==
+    assert
+    // scratch_slots/contract.py:17
+    // assert Scratch.load_uint64(5) == UInt64(5)
+    int 5
+    loads
+    int 5
+    ==
+    assert
+    // scratch_slots/contract.py:18
+    // return True
+    int 1
+    return

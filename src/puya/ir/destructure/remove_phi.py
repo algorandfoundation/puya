@@ -76,9 +76,6 @@ def _make_copy_assignment(
         targets_tup, sources_tup = zip(*copies, strict=True)
         targets = list(targets_tup)
         sources_list = list(sources_tup)
-        # TODO: remove the below reversals, for minimizing diffs
-        targets.reverse()
-        sources_list.reverse()
         source = models.ValueTuple(source_location=None, values=sources_list)
     return models.Assignment(
         targets=targets,

@@ -1,38 +1,53 @@
 #pragma version 10
 
-// test_cases.ssa.contract.MyContract.clear_state_program() -> uint64:
-main_block@0:
-        int 40
-        callsub one_hundred
-        return
+test_cases.ssa.contract.MyContract.clear_state_program:
+    // ssa/contract.py:44
+    // return one_hundred(UInt64(40))
+    int 40
+    callsub one_hundred
+    return
 
 
-// test_cases.ssa.contract.one_hundred(c#0: uint64) -> uint64:
+// test_cases.ssa.contract.one_hundred(c: uint64) -> uint64:
 one_hundred:
-        proto 1 1
-
-one_hundred_block@0:
-        int 25
-        dup
-        swap
-        int 2
-        swap
-        frame_dig -1
-        <
-        bz one_hundred_after_if_else@2
-
-one_hundred_if_body@1:
-        int 1
-        frame_bury 1
-        int 100
-        frame_bury 0
+    // ssa/contract.py:47-48
+    // @subroutine
+    // def one_hundred(c: UInt64) -> UInt64:
+    proto 1 1
+    // ssa/contract.py:49
+    // a = UInt64(25)
+    int 25
+    dup
+    swap
+    // ssa/contract.py:50
+    // b = UInt64(2)
+    int 2
+    swap
+    // ssa/contract.py:51
+    // if a < c:
+    frame_dig -1
+    <
+    bz one_hundred_after_if_else@2
+    // ssa/contract.py:52
+    // b = UInt64(1)
+    int 1
+    frame_bury 1
+    // ssa/contract.py:53
+    // a = UInt64(100)
+    int 100
+    frame_bury 0
 
 one_hundred_after_if_else@2:
-        frame_dig 1
-        dup
-        *
-        frame_dig 0
-        *
-        frame_bury 0
-        retsub
-
+    // ssa/contract.py:55
+    // b *= b
+    frame_dig 1
+    dup
+    swap
+    *
+    // ssa/contract.py:56
+    // return a * b
+    frame_dig 0
+    swap
+    *
+    frame_bury 0
+    retsub

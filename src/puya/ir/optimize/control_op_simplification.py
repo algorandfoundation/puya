@@ -1,8 +1,11 @@
+import attrs
 import structlog
 
 from puya.avm_type import AVMType
 from puya.context import CompileContext
+from puya.errors import InternalError
 from puya.ir import models
+from puya.ir.avm_ops import AVMOp
 from puya.ir.ssa import TrivialPhiRemover
 from puya.utils import unique
 
@@ -49,10 +52,86 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 )
                 if other is not goto:
                     remove_target(block, other)
+            case models.ConditionalBranch(
+                condition=condition,
+                zero=models.BasicBlock(
+                    phis=[], ops=[], terminator=models.Fail(comment=fail_comment)
+                ) as err_block,
+                non_zero=non_zero,
+                source_location=source_location,
+            ):
+                logger.debug("inlining condition branch to err block into an assert true")
+                block.ops.append(
+                    models.Intrinsic(
+                        op=AVMOp.assert_,
+                        args=[condition],
+                        comment=fail_comment,
+                        source_location=source_location,
+                    )
+                )
+                block.terminator = models.Goto(target=non_zero, source_location=source_location)
+                if err_block not in block.successors:
+                    remove_target(block, err_block)
+            case models.ConditionalBranch(
+                condition=models.Register() as condition,
+                non_zero=models.BasicBlock(
+                    phis=[], ops=[], terminator=models.Fail(comment=fail_comment)
+                ) as err_block,
+                zero=zero,
+                source_location=source_location,
+            ):
+                logger.debug("inlining condition branch to err block into an assert false")
+                not_condition = models.Register(
+                    name=f"not%{condition.name}",
+                    atype=AVMType.uint64,
+                    version=condition.version,
+                    source_location=source_location,
+                )
+                if _get_definition(subroutine, not_condition, should_exist=False) is None:
+                    block.ops.append(
+                        models.Assignment(
+                            targets=[not_condition],
+                            source=models.Intrinsic(
+                                op=AVMOp.not_,
+                                args=[condition],
+                                source_location=source_location,
+                            ),
+                            source_location=source_location,
+                        )
+                    )
+                block.ops.append(
+                    models.Intrinsic(
+                        op=AVMOp.assert_,
+                        args=[not_condition],
+                        comment=fail_comment,
+                        source_location=source_location,
+                    )
+                )
+                block.terminator = models.Goto(target=zero, source_location=source_location)
+                if err_block not in block.successors:
+                    remove_target(block, err_block)
+            case models.ConditionalBranch(
+                condition=models.Register() as condition,
+            ) as branch if (
+                isinstance(defn := _get_definition(subroutine, condition), models.Assignment)
+                and isinstance(defn.source, models.Intrinsic)
+                and defn.source.op is AVMOp.not_
+            ):
+                logger.debug(
+                    f"simplified branch on !{condition} by swapping zero and non-zero targets"
+                )
+                block.terminator = attrs.evolve(
+                    branch,
+                    zero=branch.non_zero,
+                    non_zero=branch.zero,
+                    condition=defn.source.args[0],
+                )
             case models.Switch(
                 value=models.Value(atype=AVMType.uint64) as value,
                 cases=cases,
-                default=default_block,
+                default=models.ControlOp(
+                    unique_targets=[default_block], can_exit=False, source_location=default_sloc
+                ),
                 source_location=source_location,
             ) as switch if can_simplify_switch(switch):
                 # reduce to GotoNth
@@ -65,12 +144,12 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     value=value,
                     blocks=[block_map.get(i, default_block) for i in range(max_value + 1)],
                     source_location=source_location,
-                    default=default_block,
+                    default=models.Goto(source_location=default_sloc, target=default_block),
                 )
             case models.GotoNth(
                 value=models.UInt64Constant(value=value),
                 blocks=blocks,
-                default=default_block,
+                default=models.ControlOp(unique_targets=[default_block], can_exit=False),
             ):
                 goto = blocks[value] if value < len(blocks) else default_block
                 block.terminator = models.Goto(
@@ -82,7 +161,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.GotoNth(
                 value=value,
                 blocks=[zero],  # the constant here is the size of blocks
-                default=non_zero,
+                default=models.ControlOp(unique_targets=[non_zero], can_exit=False),
             ):  # reduces to ConditionalBranch
                 block.terminator = models.ConditionalBranch(
                     condition=value,
@@ -90,11 +169,56 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     non_zero=non_zero,
                     source_location=terminator.source_location,
                 )
+            # if the default target of a Switch/GotoNth is just a single ControlOp,
+            # inline that ControlOp instead
+            case (
+                models.Switch(
+                    default=models.ControlOp(unique_targets=[default_block], can_exit=False)
+                )
+                | models.GotoNth(
+                    default=models.ControlOp(unique_targets=[default_block], can_exit=False)
+                )
+            ) as fallthrough_terminator if not (default_block.ops or default_block.phis):
+                assert (
+                    default_block.terminator is not None
+                ), f"block {default_block} should already have been terminated"
+                block.terminator = attrs.evolve(
+                    fallthrough_terminator, default=default_block.terminator
+                )
+                # remove this block from the predecessors of default_block,
+                # if default_block is not targeted through one of the non-default cases
+                if default_block not in block.terminator.targets():
+                    remove_target(block, default_block)
+                # add this block as a predecessor to any new targets
+                for succ in unique(block.successors):
+                    if block not in succ.predecessors:
+                        logger.debug(
+                            f"adding {block} as a predecessor of {succ}"
+                            f" due to inlining of {default_block}"
+                        )
+                        succ.predecessors.append(block)
             case _:
                 continue
         changes = True
-        original_terminator_name = terminator.__class__.__name__
-        logger.debug(f"{original_terminator_name} {terminator} simplified to {block.terminator}")
+        logger.debug(f"simplified terminator of {block} from {terminator} to {block.terminator}")
     for phi in modified_phis:
         TrivialPhiRemover.try_remove(phi, subroutine.body)
     return changes
+
+
+def _get_definition(
+    subroutine: models.Subroutine, register: models.Register, *, should_exist: bool = True
+) -> models.Assignment | models.Phi | None:
+    if register in subroutine.parameters:
+        return None
+    for block in subroutine.body:
+        for phi in block.phis:
+            if phi.register == register:
+                return phi
+        for op in block.ops:
+            if isinstance(op, models.Assignment) and register in op.targets:
+                return op
+    if should_exist:
+        raise InternalError(f"Register is not defined: {register}", subroutine.source_location)
+    else:
+        return None

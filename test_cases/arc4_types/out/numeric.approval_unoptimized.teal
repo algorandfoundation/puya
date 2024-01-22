@@ -1,197 +1,270 @@
 #pragma version 10
 
-// test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program() -> uint64:
-main:
-        byte ""
-        dupn 3
-
-main_block@0:
-        int 255
-        dup
-        itob
-        extract 7 1
-        btoi
-        ==
-        assert
-        byte 0x7fffffffffffffff00
-        dup
-        swap
-        len
-        dup
-        swap
-        int 1
-        >
-        bz main_ternary_false@2
-
-main_ternary_true@1:
-        int 1
-        b main_ternary_merge@3
+test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
+    byte ""
+    dupn 3
+    // arc4_types/numeric.py:26
+    // uint8 = UInt64(255)
+    int 255
+    // arc4_types/numeric.py:28
+    // int8_encoded = UInt8(uint8)
+    dup
+    itob
+    extract 7 1
+    // arc4_types/numeric.py:30
+    // int8_decoded = int8_encoded.decode()
+    btoi
+    // arc4_types/numeric.py:32
+    // assert uint8 == int8_decoded
+    ==
+    assert
+    // arc4_types/numeric.py:34
+    // test_bytes = Bytes.from_hex("7FFFFFFFFFFFFFFF00")
+    byte 0x7fffffffffffffff00
+    dup
+    swap
+    // arc4_types/numeric.py:35
+    // assert UInt8.from_bytes(test_bytes[:1]).decode() == 2**8 - 1 - 2**7
+    len
+    dup
+    swap
+    int 1
+    swap
+    <
+    bz main_ternary_false@2
+    int 1
+    b main_ternary_merge@3
 
 main_ternary_false@2:
-        dup
+    // arc4_types/numeric.py:35
+    // assert UInt8.from_bytes(test_bytes[:1]).decode() == 2**8 - 1 - 2**7
+    dup
 
 main_ternary_merge@3:
-        dig 2
-        dup
-        int 0
-        uncover 3
-        substring3
-        btoi
-        int 127
-        ==
-        assert
-        len
-        dup
-        bury 4
-        int 3
-        >
-        bz main_ternary_false@5
-
-main_ternary_true@4:
-        int 3
-        b main_ternary_merge@6
+    // arc4_types/numeric.py:35
+    // assert UInt8.from_bytes(test_bytes[:1]).decode() == 2**8 - 1 - 2**7
+    dig 2
+    dup
+    int 0
+    uncover 3
+    substring3
+    btoi
+    int 127
+    ==
+    assert
+    // arc4_types/numeric.py:37
+    // UIntN[typing.Literal[24]].from_bytes(test_bytes[:3]).decode() == 2**24 - 1 - 2**23
+    len
+    dup
+    bury 4
+    int 3
+    swap
+    <
+    bz main_ternary_false@5
+    int 3
+    b main_ternary_merge@6
 
 main_ternary_false@5:
-        dig 2
+    // arc4_types/numeric.py:37
+    // UIntN[typing.Literal[24]].from_bytes(test_bytes[:3]).decode() == 2**24 - 1 - 2**23
+    dig 2
 
 main_ternary_merge@6:
-        dig 2
-        dup
-        int 0
-        uncover 3
-        substring3
-        btoi
-        int 8388607
-        ==
-        assert
-        len
-        dup
-        bury 7
-        int 2
-        >
-        bz main_ternary_false@8
-
-main_ternary_true@7:
-        int 2
-        b main_ternary_merge@9
+    // arc4_types/numeric.py:37
+    // UIntN[typing.Literal[24]].from_bytes(test_bytes[:3]).decode() == 2**24 - 1 - 2**23
+    dig 2
+    dup
+    int 0
+    uncover 3
+    substring3
+    btoi
+    int 8388607
+    ==
+    // arc4_types/numeric.py:36-38
+    // assert (
+    //     UIntN[typing.Literal[24]].from_bytes(test_bytes[:3]).decode() == 2**24 - 1 - 2**23
+    // )
+    assert
+    // arc4_types/numeric.py:39
+    // assert UInt16.from_bytes(test_bytes[:2]).decode() == 2**16 - 1 - 2**15
+    len
+    dup
+    bury 7
+    int 2
+    swap
+    <
+    bz main_ternary_false@8
+    int 2
+    b main_ternary_merge@9
 
 main_ternary_false@8:
-        dig 5
+    // arc4_types/numeric.py:39
+    // assert UInt16.from_bytes(test_bytes[:2]).decode() == 2**16 - 1 - 2**15
+    dig 5
 
 main_ternary_merge@9:
-        dig 2
-        dup
-        int 0
-        uncover 3
-        substring3
-        btoi
-        int 32767
-        ==
-        assert
-        len
-        dup
-        bury 6
-        int 4
-        >
-        bz main_ternary_false@11
-
-main_ternary_true@10:
-        int 4
-        b main_ternary_merge@12
+    // arc4_types/numeric.py:39
+    // assert UInt16.from_bytes(test_bytes[:2]).decode() == 2**16 - 1 - 2**15
+    dig 2
+    dup
+    int 0
+    uncover 3
+    substring3
+    btoi
+    int 32767
+    ==
+    assert
+    // arc4_types/numeric.py:40
+    // assert UInt32.from_bytes(test_bytes[:4]).decode() == 2**32 - 1 - 2**31
+    len
+    dup
+    bury 6
+    int 4
+    swap
+    <
+    bz main_ternary_false@11
+    int 4
+    b main_ternary_merge@12
 
 main_ternary_false@11:
-        dig 4
+    // arc4_types/numeric.py:40
+    // assert UInt32.from_bytes(test_bytes[:4]).decode() == 2**32 - 1 - 2**31
+    dig 4
 
 main_ternary_merge@12:
-        dig 2
-        dup
-        int 0
-        uncover 3
-        substring3
-        btoi
-        int 2147483647
-        ==
-        assert
-        len
-        dup
-        bury 5
-        int 8
-        >
-        bz main_ternary_false@14
-
-main_ternary_true@13:
-        int 8
-        b main_ternary_merge@15
+    // arc4_types/numeric.py:40
+    // assert UInt32.from_bytes(test_bytes[:4]).decode() == 2**32 - 1 - 2**31
+    dig 2
+    dup
+    int 0
+    uncover 3
+    substring3
+    btoi
+    int 2147483647
+    ==
+    assert
+    // arc4_types/numeric.py:41
+    // assert ARC4UInt64.from_bytes(test_bytes[:8]).decode() == 2**64 - 1 - 2**63
+    len
+    dup
+    bury 5
+    int 8
+    swap
+    <
+    bz main_ternary_false@14
+    int 8
+    b main_ternary_merge@15
 
 main_ternary_false@14:
-        dig 3
+    // arc4_types/numeric.py:41
+    // assert ARC4UInt64.from_bytes(test_bytes[:8]).decode() == 2**64 - 1 - 2**63
+    dig 3
 
 main_ternary_merge@15:
-        dig 2
-        int 0
-        uncover 2
-        substring3
-        btoi
-        int 9223372036854775807
-        ==
-        assert
-        byte 0x0000015333430684
-        len
-        int 8
-        ==
-        assert
-        byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        dup
-        len
-        int 64
-        ==
-        assert
-        dup
-        len
-        int 64
-        <=
-        assert // overflow
-        int 64
-        bzero
-        dig 1
-        b|
-        ==
-        assert
-        byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        len
-        int 64
-        <=
-        assert // overflow
-        int 64
-        bzero
-        byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        b|
-        byte 0x01
-        byte 0x00000000000000000000000000000001
-        swap
-        dup
-        byte 0x01
-        b+
-        dup
-        len
-        int 16
-        <=
-        assert // overflow
-        int 16
-        bzero
-        b|
-        swap
-        uncover 2
-        b==
-        assert
-        len
-        int 16
-        ==
-        assert
-        len
-        int 64
-        ==
-        assert
-        int 1
-        return
-
+    // arc4_types/numeric.py:41
+    // assert ARC4UInt64.from_bytes(test_bytes[:8]).decode() == 2**64 - 1 - 2**63
+    dig 2
+    int 0
+    uncover 2
+    substring3
+    btoi
+    int 9223372036854775807
+    ==
+    assert
+    // arc4_types/numeric.py:43
+    // decimals = Decimal("145.6853943940")
+    byte 0x0000015333430684
+    // arc4_types/numeric.py:45
+    // assert decimals.bytes.length == (64 // 8)
+    len
+    int 8
+    ==
+    assert
+    // arc4_types/numeric.py:47
+    // really_big_int = BigUIntN[t.Literal[512]](sixty_four_byte_num)
+    byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    // arc4_types/numeric.py:49
+    // assert really_big_int.bytes.length == 64
+    dup
+    len
+    int 64
+    ==
+    assert
+    // arc4_types/numeric.py:50
+    // assert really_big_int == BigUIntN[t.Literal[512]](really_big_int.decode())
+    dup
+    len
+    int 64
+    <=
+    assert // overflow
+    int 64
+    bzero
+    dig 1
+    swap
+    b|
+    ==
+    assert
+    // arc4_types/numeric.py:53
+    // BigUInt(sixty_four_byte_num)
+    byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    // arc4_types/numeric.py:52-54
+    // really_big_decimal = BigUFixedNxM[t.Literal[512], t.Literal[2]].encode(
+    //     BigUInt(sixty_four_byte_num)
+    // )
+    len
+    int 64
+    <=
+    assert // overflow
+    int 64
+    bzero
+    // arc4_types/numeric.py:53
+    // BigUInt(sixty_four_byte_num)
+    byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    // arc4_types/numeric.py:52-54
+    // really_big_decimal = BigUFixedNxM[t.Literal[512], t.Literal[2]].encode(
+    //     BigUInt(sixty_four_byte_num)
+    // )
+    swap
+    b|
+    // arc4_types/numeric.py:56
+    // biguint = BigUInt(1)
+    byte 0x01
+    // arc4_types/numeric.py:57
+    // arc4_biguint_const = ARC4BigUInt(1)
+    byte 0x00000000000000000000000000000001
+    swap
+    // arc4_types/numeric.py:58
+    // arc4_biguint_dynamic = ARC4BigUInt(biguint + 1)
+    dup
+    byte 0x01
+    b+
+    dup
+    len
+    int 16
+    <=
+    assert // overflow
+    int 16
+    bzero
+    b|
+    // arc4_types/numeric.py:60
+    // assert biguint == arc4_biguint_const.decode()
+    swap
+    uncover 2
+    b==
+    assert
+    // arc4_types/numeric.py:62
+    // assert arc4_biguint_dynamic.bytes.length == (128 // 8)
+    len
+    int 16
+    ==
+    assert
+    // arc4_types/numeric.py:64
+    // assert really_big_decimal.bytes.length == 64
+    len
+    int 64
+    ==
+    assert
+    // arc4_types/numeric.py:66
+    // return True
+    int 1
+    return
