@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  check-python:
+  linting:
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout source code
@@ -27,6 +27,24 @@ jobs:
         run: |
             set -o pipefail
             poetry run pre-commit run --all-files && git diff --exit-code
+
+  tests:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with cicd
 
       - name: Start LocalNet
         run: poetry run algokit localnet start
