@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import re
 import subprocess
@@ -213,8 +214,15 @@ def compile_with_level1_optimizations(p: Path) -> CompilationResult:
     )
 
 
-def main(*limit_to: str) -> None:
+@attrs.define(kw_only=True)
+class CompileAllOptions:
+    limit_to: list[Path] = attrs.field(factory=list)
+    update_sizes: bool = True
+
+
+def main(options: CompileAllOptions) -> None:
     to_compile = []
+    limit_to = options.limit_to
     if limit_to:
         to_compile = [Path(x).resolve() for x in limit_to]
     else:
@@ -234,6 +242,7 @@ def main(*limit_to: str) -> None:
                         f.unlink()
 
     program_sizes = ProgramSizes()
+    modified_teal = []
     opt_success = set()
     unopt_success = set()
     with ProcessPoolExecutor() as executor:
@@ -241,7 +250,7 @@ def main(*limit_to: str) -> None:
         for compilation_result in executor.map(compile_no_optimization, to_compile):
             rel_path = compilation_result.rel_path
             if compilation_result.ok:
-                program_sizes.add(compilation_result.teal_files)
+                modified_teal.extend(compilation_result.teal_files)
                 unopt_success.add(rel_path)
                 print(f"✅  {rel_path}")
             else:
@@ -250,7 +259,7 @@ def main(*limit_to: str) -> None:
         for compilation_result in executor.map(compile_with_level1_optimizations, to_compile):
             rel_path = compilation_result.rel_path
             if compilation_result.ok:
-                program_sizes.add(compilation_result.teal_files)
+                modified_teal.extend(compilation_result.teal_files)
                 opt_success.add(rel_path)
                 print(f"✅  {rel_path}")
             else:
@@ -260,11 +269,25 @@ def main(*limit_to: str) -> None:
         print("The following had different success outcomes depending on optimization flag: ")
         for name in sorted(success_differs):
             print(" - " + name)
-    if limit_to:
-        existing = ProgramSizes.read_file(SIZE_TALLY_PATH)
-        program_sizes = existing.update(program_sizes)
-    SIZE_TALLY_PATH.write_text(str(program_sizes))
+    if options.update_sizes:
+        print("Updating sizes.txt")
+        program_sizes = ProgramSizes()
+        program_sizes.add(modified_teal)
+        if limit_to:
+            existing = ProgramSizes.read_file(SIZE_TALLY_PATH)
+            program_sizes = existing.update(program_sizes)
+        SIZE_TALLY_PATH.write_text(str(program_sizes))
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:])
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--update-sizes",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Update sizes.txt",
+    )
+    parser.add_argument("limit_to", type=Path, nargs="*", metavar="LIMIT_TO")
+    options = CompileAllOptions()
+    parser.parse_args(namespace=options)
+    main(options)

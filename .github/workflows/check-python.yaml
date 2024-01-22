@@ -61,7 +61,7 @@ jobs:
         with:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest-junit.xml
-  tests-windows:
+  compile-all-windows:
     runs-on: "windows-latest"
     steps:
       - name: Checkout source code
@@ -77,12 +77,11 @@ jobs:
           cache: "poetry"
 
       - name: Install dependencies
-        run: poetry install --no-interaction --with cicd
+        run: poetry install --no-interaction
 
-      - name: pytest - not localnet
+      - name: Compile all
         shell: bash
-        # can't use localnet in a windows github runner
-        run: poetry run pytest -m "not localnet"
+        run: poetry run python scripts/compile_all_examples.py --no-update-sizes
   compile-all:
     runs-on: "ubuntu-latest"
     steps:
