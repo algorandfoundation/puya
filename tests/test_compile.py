@@ -12,13 +12,12 @@ from puya.options import PuyaOptions
 from puya.parse import EMBEDDED_MODULES
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
-from tests.utils import compile_src
+from tests.utils import APPROVAL_EXTENSIONS, compile_src
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
     "PYTHONUTF8": "1",  # force utf8 on windows
 }
-APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir")
 
 
 @attrs.define(str=False)

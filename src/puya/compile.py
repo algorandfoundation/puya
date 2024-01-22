@@ -14,7 +14,6 @@ import structlog
 from puya.arc32 import write_arc32
 from puya.awst import nodes as awst_nodes
 from puya.awst_build.main import transform_ast
-from puya.awst_build.validation.main import validate_awst
 from puya.codegen.builder import compile_ir_to_teal
 from puya.codegen.emitprogram import CompiledContract
 from puya.context import CompileContext
@@ -188,7 +187,6 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
     awst = transform_ast(context)
 
     with log_exceptions(context.errors):
-        validate_awst(context, awst)
         compiled_contracts_by_source_path = awst_to_teal(context, awst)
         write_teal_to_output(context, compiled_contracts_by_source_path)
 
