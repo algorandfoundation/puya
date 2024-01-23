@@ -1,9 +1,13 @@
+import typing
+
 from puyapy import Bytes, Scratch, UInt64, subroutine, urange
 
 from test_cases.scratch_slots.contract import MyContract
 
+renamed_urange: typing.TypeAlias = urange
 
-class MyContract2(MyContract, scratch_slots=(5, 25, urange(50, 53, 2), urange(100, 105))):
+
+class MyContract2(MyContract, scratch_slots=(5, 25, urange(50, 53, 2), renamed_urange(100, 105))):
     @subroutine
     def my_sub(self) -> None:
         Scratch.store(UInt64(1), Bytes(b"abc"))
