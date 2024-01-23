@@ -6,6 +6,7 @@ import mypy.types
 import mypy.visitor
 import structlog
 
+from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ConstantDeclaration,
@@ -598,11 +599,23 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
 def _map_scratch_space_reservation(
     expr: mypy.nodes.Expression, source_location: SourceLocation
 ) -> Iterable[int]:
+    def check_slot_is_in_range(slot: int) -> None:
+        if 0 <= slot <= MAX_SCRATCH_SLOT_NUMBER:
+            return
+        raise CodeError(
+            f"Invalid scratch slot {slot}. Reserved range must fall entirely between "
+            f"0 and {MAX_SCRATCH_SLOT_NUMBER}",
+            source_location,
+        )
+
     def map_urange_args(args: list[mypy.nodes.Expression]) -> range:
         match args:
             case [mypy.nodes.IntExpr(value=stop)]:
+                check_slot_is_in_range(stop - 1)
                 return range(stop)
             case [mypy.nodes.IntExpr(value=start), mypy.nodes.IntExpr(value=stop)]:
+                check_slot_is_in_range(start)
+                check_slot_is_in_range(stop - 1)
                 return range(start, stop)
             case [
                 mypy.nodes.IntExpr(value=start),
@@ -615,6 +628,7 @@ def _map_scratch_space_reservation(
 
     match expr:
         case mypy.nodes.IntExpr(value):
+            check_slot_is_in_range(value)
             return [value]
         case mypy.nodes.CallExpr(callee=mypy.nodes.NameExpr(fullname=constants.URANGE), args=args):
             return map_urange_args(args)
