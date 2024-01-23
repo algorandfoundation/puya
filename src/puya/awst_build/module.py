@@ -18,7 +18,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionContext
-from puya.awst_build.contract import ContractASTConverter
+from puya.awst_build.contract import ContractASTConverter, ContractClassOptions
 from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.subroutine import FunctionASTConverter
 from puya.awst_build.utils import (
@@ -154,38 +154,9 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 )
             # TODO: other checks above?
             else:
-                name_override: str | None = None
-                scratch_slot_reservations = StableSet[int]()
-                for kw_name, kw_expr in cdef.keywords.items():
-                    with self.context.log_exceptions(kw_expr):
-                        match kw_name:
-                            case "name":
-                                name_value = kw_expr.accept(self)
-                                if isinstance(name_value, str):
-                                    name_override = name_value
-                                else:
-                                    self._error("Invalid type for name=", kw_expr)
-                            case "scratch_slots":
-                                if not isinstance(kw_expr, mypy.nodes.TupleExpr):
-                                    self._error(
-                                        "scratch_slots should be a tuple of slot numbers or "
-                                        "slot number ranges",
-                                        kw_expr,
-                                    )
-                                else:
-                                    for item in kw_expr.items:
-                                        scratch_slot_reservations |= (
-                                            _map_scratch_space_reservation(
-                                                item, self._location(item)
-                                            )
-                                        )
-                            case _:
-                                self._error("Unrecognised class keyword", kw_expr)
-
+                class_options = self._process_contract_class_options(cdef)
                 self._statements.append(
-                    ContractASTConverter.convert(
-                        self.context, cdef, name_override, scratch_slot_reservations
-                    )
+                    ContractASTConverter.convert(self.context, cdef, class_options)
                 )
         else:
             self._error(
@@ -193,6 +164,44 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 f" or a direct subclass of {constants.STRUCT_BASE_ALIAS}",
                 location=cdef,
             )
+
+    def _process_contract_class_options(self, cdef: mypy.nodes.ClassDef) -> ContractClassOptions:
+        name_override: str | None = None
+        scratch_slot_reservations = StableSet[int]()
+        for kw_name, kw_expr in cdef.keywords.items():
+            with self.context.log_exceptions(kw_expr):
+                match kw_name:
+                    case "name":
+                        name_value = kw_expr.accept(self)
+                        if isinstance(name_value, str):
+                            name_override = name_value
+                        else:
+                            self._error("Invalid type for name=", kw_expr)
+                    case "scratch_slots":
+                        if not isinstance(kw_expr, mypy.nodes.TupleExpr):
+                            self._error(
+                                "scratch_slots should be a tuple of slot numbers or "
+                                "slot number ranges",
+                                kw_expr,
+                            )
+                        else:
+                            for item in kw_expr.items:
+                                scratch_slot_reservations |= _map_scratch_space_reservation(
+                                    item, self._location(item)
+                                )
+                    case _:
+                        self._error("Unrecognised class keyword", kw_expr)
+        for base in cdef.info.bases:
+            base_cdef = base.type.defn
+            if not base_cdef.info.has_base(constants.CONTRACT_BASE):
+                continue
+            base_options = self._process_contract_class_options(base_cdef)
+            for reservation in base_options.scratch_slot_reservations:
+                scratch_slot_reservations.add(reservation)
+        return ContractClassOptions(
+            name_override=name_override,
+            scratch_slot_reservations=scratch_slot_reservations,
+        )
 
     def _process_arc4_struct(self, cdef: mypy.nodes.ClassDef) -> None:
         field_types = dict[str, wtypes.WType]()
