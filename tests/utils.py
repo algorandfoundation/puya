@@ -69,7 +69,8 @@ class Log:
 
     def __str__(self) -> str:
         if self.source_location:
-            location = f"{self.relative_path!s}:{self.source_location.line} "
+            col = f":{self.source_location.column + 1}" if self.source_location.column else ""
+            location = f"{self.relative_path!s}:{self.source_location.line}{col} "
         else:
             location = ""
         return f"{location}{self.log_level}: {self.event}"

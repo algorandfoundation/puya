@@ -73,8 +73,8 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
             file = file[len(self.base_path) :]
 
         line = str(location.line) if location.line else "1"
-        col = "-".join(str(x) for x in [location.column, location.end_column] if x is not None)
-        return f"{file}:{line} {col}"
+        col = f":{location.column + 1}" if location.column else ""
+        return f"{file}:{line}{col}"
 
     def __call__(
         self,
