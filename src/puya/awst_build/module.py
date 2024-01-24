@@ -622,7 +622,10 @@ def _map_scratch_space_reservation(
                 mypy.nodes.IntExpr(value=stop),
                 mypy.nodes.IntExpr(value=step),
             ]:
-                return range(start, stop, step)
+                the_range = range(start, stop, step)
+                for slot in the_range:
+                    check_slot_is_in_range(slot)
+                return the_range
             case _:
                 raise CodeError("Unexpected arguments for urange", source_location)
 
