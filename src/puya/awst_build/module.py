@@ -630,14 +630,10 @@ def _map_scratch_space_reservation(
         case mypy.nodes.IntExpr(value):
             check_slot_is_in_range(value)
             return [value]
-        case mypy.nodes.CallExpr(callee=mypy.nodes.NameExpr(fullname=constants.URANGE), args=args):
-            return map_urange_args(args)
         case mypy.nodes.CallExpr(
-            callee=mypy.nodes.NameExpr() as name_expr,
-            args=args,
-        ) if get_unaliased_fullname(name_expr) == constants.URANGE:
+            callee=mypy.nodes.RefExpr() as expr, args=args
+        ) if get_unaliased_fullname(expr) == constants.URANGE:
             return map_urange_args(args)
-
         case _:
             raise CodeError(
                 "Unexpected value: Expected int literal or urange expression", source_location

@@ -109,8 +109,7 @@ def compile_test_case(
         log_options = attrs.evolve(
             puya_options, out_dir=None, paths=(test_case.path.relative_to(test_case.root),)
         )
-        log_options_str = str(log_options)
-        log_path.write_text(f"debug: {log_options_str}\n{compile_result.logs}", encoding="utf8")
+        log_path.write_text(f"debug: {log_options}\n{compile_result.logs}", encoding="utf8")
 
 
 def compile_no_optimization(test_case: PuyaExample) -> None:
@@ -194,7 +193,7 @@ def check_for_diff(path: Path) -> str | None:
     stdout = ""
     for path in paths:
         result = subprocess.run(
-            [git, "diff", "--exit-code", str(path)], check=True, capture_output=True, cwd=VCS_ROOT
+            [git, "diff", str(path)], check=True, capture_output=True, cwd=VCS_ROOT
         )
         stdout += result.stdout.decode("utf8")
     return stdout or None
