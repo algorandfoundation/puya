@@ -91,6 +91,7 @@ OPCODE_GROUPS = [
             "app_global_put": "put",
         },
     ),
+    GroupedOpCodes(name="Scratch", ops={"loads": "load", "stores": "store"}),
     GroupedOpCodes(
         name="AppLocals",
         ops={

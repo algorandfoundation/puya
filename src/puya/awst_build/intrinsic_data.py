@@ -6340,6 +6340,67 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
+    "puyapy._gen.Scratch.load_bytes": [
+        FunctionOpMapping(
+            op_code="loads",
+            immediates=[],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.Scratch.load_uint64": [
+        FunctionOpMapping(
+            op_code="loads",
+            immediates=[],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy._gen.Scratch.store": [
+        FunctionOpMapping(
+            op_code="stores",
+            immediates=[],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                        bytes,
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
     "puyapy._gen.Transaction.sender": [
         FunctionOpMapping(
             op_code="txn",

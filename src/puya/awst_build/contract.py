@@ -2,6 +2,7 @@ import typing
 from collections.abc import Iterator, Mapping
 from typing import Never
 
+import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
@@ -32,6 +33,13 @@ from puya.awst_build.utils import (
 from puya.errors import CodeError, InternalError
 from puya.metadata import ARC4DefaultArgument, ARC4MethodConfig, ARC32StructDef
 from puya.parse import SourceLocation
+from puya.utils import StableSet
+
+
+@attrs.define
+class ContractClassOptions:
+    name_override: str | None
+    scratch_slot_reservations: StableSet[int]
 
 
 class ContractASTConverter(BaseMyPyStatementVisitor[None]):
@@ -39,7 +47,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self,
         context: ASTConversionModuleContext,
         class_def: mypy.nodes.ClassDef,
-        name_override: str | None,
+        class_options: ContractClassOptions,
     ):
         super().__init__(context=context)
         self.class_def = class_def
@@ -87,7 +95,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self.result_ = ContractFragment(
             module_name=self.cref.module_name,
             name=self.cref.class_name,
-            name_override=name_override,
+            name_override=class_options.name_override,
             is_abstract=self._is_abstract,
             bases=_gather_bases(context, class_def),
             is_arc4=self._is_arc4,
@@ -98,6 +106,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             app_state=[decl.state_def for decl in this_app_state],
             docstring=docstring,
             source_location=self._location(class_def),
+            reserved_scratch_space=class_options.scratch_slot_reservations,
         )
 
     @classmethod
@@ -105,9 +114,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         cls,
         context: ASTConversionModuleContext,
         class_def: mypy.nodes.ClassDef,
-        name_override: str | None,
+        class_options: ContractClassOptions,
     ) -> ContractFragment:
-        return cls(context, class_def, name_override).result_
+        return cls(context, class_def, class_options).result_
 
     def empty_statement(self, _stmt: mypy.nodes.Statement) -> None:
         return None

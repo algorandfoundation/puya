@@ -1,10 +1,12 @@
 import typing as t
+from collections.abc import Iterable
 
 import mypy.nodes
 import mypy.types
 import mypy.visitor
 import structlog
 
+from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ConstantDeclaration,
@@ -17,7 +19,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionContext
-from puya.awst_build.contract import ContractASTConverter
+from puya.awst_build.contract import ContractASTConverter, ContractClassOptions
 from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.subroutine import FunctionASTConverter
 from puya.awst_build.utils import (
@@ -25,8 +27,11 @@ from puya.awst_build.utils import (
     extract_docstring,
     fold_binary_expr,
     get_decorators_by_fullname,
+    get_unaliased_fullname,
 )
 from puya.errors import CodeError, InternalError
+from puya.parse import SourceLocation
+from puya.utils import StableSet
 
 logger = structlog.get_logger()
 
@@ -150,20 +155,9 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 )
             # TODO: other checks above?
             else:
-                name_override: str | None = None
-                for kw_name, kw_expr in cdef.keywords.items():
-                    with self.context.log_exceptions(kw_expr):
-                        kw_value = kw_expr.accept(self)
-                        match kw_name, kw_value:
-                            case "name", str(name_value):
-                                name_override = name_value
-                            case "name", _:
-                                self._error("Invalid type for name=", kw_expr)
-                            case _, _:
-                                self._error("Unrecognised class keyword", kw_expr)
-
+                class_options = self._process_contract_class_options(cdef)
                 self._statements.append(
-                    ContractASTConverter.convert(self.context, cdef, name_override)
+                    ContractASTConverter.convert(self.context, cdef, class_options)
                 )
         else:
             self._error(
@@ -171,6 +165,44 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 f" or a direct subclass of {constants.STRUCT_BASE_ALIAS}",
                 location=cdef,
             )
+
+    def _process_contract_class_options(self, cdef: mypy.nodes.ClassDef) -> ContractClassOptions:
+        name_override: str | None = None
+        scratch_slot_reservations = StableSet[int]()
+        for kw_name, kw_expr in cdef.keywords.items():
+            with self.context.log_exceptions(kw_expr):
+                match kw_name:
+                    case "name":
+                        name_value = kw_expr.accept(self)
+                        if isinstance(name_value, str):
+                            name_override = name_value
+                        else:
+                            self._error("Invalid type for name=", kw_expr)
+                    case "scratch_slots":
+                        if not isinstance(kw_expr, mypy.nodes.TupleExpr):
+                            self._error(
+                                "scratch_slots should be a tuple of slot numbers or "
+                                "slot number ranges",
+                                kw_expr,
+                            )
+                        else:
+                            for item in kw_expr.items:
+                                scratch_slot_reservations |= _map_scratch_space_reservation(
+                                    item, self._location(item)
+                                )
+                    case _:
+                        self._error("Unrecognised class keyword", kw_expr)
+        for base in cdef.info.bases:
+            base_cdef = base.type.defn
+            if not base_cdef.info.has_base(constants.CONTRACT_BASE):
+                continue
+            base_options = self._process_contract_class_options(base_cdef)
+            for reservation in base_options.scratch_slot_reservations:
+                scratch_slot_reservations.add(reservation)
+        return ContractClassOptions(
+            name_override=name_override,
+            scratch_slot_reservations=scratch_slot_reservations,
+        )
 
     def _process_arc4_struct(self, cdef: mypy.nodes.ClassDef) -> None:
         field_types = dict[str, wtypes.WType]()
@@ -562,3 +594,47 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
 
     def visit_lambda_expr(self, expr: mypy.nodes.LambdaExpr) -> ConstantValue:
         return self._unsupported(expr)
+
+
+def _map_scratch_space_reservation(
+    expr: mypy.nodes.Expression, source_location: SourceLocation
+) -> Iterable[int]:
+    def check_slot_is_in_range(slot: int) -> None:
+        if 0 <= slot <= MAX_SCRATCH_SLOT_NUMBER:
+            return
+        raise CodeError(
+            f"Invalid scratch slot {slot}. Reserved range must fall entirely between "
+            f"0 and {MAX_SCRATCH_SLOT_NUMBER}",
+            source_location,
+        )
+
+    def map_urange_args(args: list[mypy.nodes.Expression]) -> range:
+        match args:
+            case [mypy.nodes.IntExpr(value=stop)]:
+                check_slot_is_in_range(stop - 1)
+                return range(stop)
+            case [mypy.nodes.IntExpr(value=start), mypy.nodes.IntExpr(value=stop)]:
+                check_slot_is_in_range(start)
+                check_slot_is_in_range(stop - 1)
+                return range(start, stop)
+            case [
+                mypy.nodes.IntExpr(value=start),
+                mypy.nodes.IntExpr(value=stop),
+                mypy.nodes.IntExpr(value=step),
+            ]:
+                return range(start, stop, step)
+            case _:
+                raise CodeError("Unexpected arguments for urange", source_location)
+
+    match expr:
+        case mypy.nodes.IntExpr(value):
+            check_slot_is_in_range(value)
+            return [value]
+        case mypy.nodes.CallExpr(
+            callee=mypy.nodes.RefExpr() as expr, args=args
+        ) if get_unaliased_fullname(expr) == constants.URANGE:
+            return map_urange_args(args)
+        case _:
+            raise CodeError(
+                "Unexpected value: Expected int literal or urange expression", source_location
+            )

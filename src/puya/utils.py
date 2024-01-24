@@ -204,3 +204,7 @@ def pushd(new_dir: Path) -> Iterator[None]:
         yield
     finally:
         os.chdir(orig_dir)
+
+
+def normalise_path_to_str(path: Path) -> str:
+    return str(path).replace("\\", "/")

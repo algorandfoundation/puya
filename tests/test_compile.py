@@ -193,7 +193,7 @@ def check_for_diff(path: Path) -> str | None:
     stdout = ""
     for path in paths:
         result = subprocess.run(
-            [git, "diff", "--exit-code", str(path)], check=True, capture_output=True, cwd=VCS_ROOT
+            [git, "diff", str(path)], check=True, capture_output=True, cwd=VCS_ROOT
         )
         stdout += result.stdout.decode("utf8")
     return stdout or None

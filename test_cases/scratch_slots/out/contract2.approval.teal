@@ -1,0 +1,42 @@
+#pragma version 8
+
+// test_cases.scratch_slots.contract.MyContract.approval_program() -> uint64:
+main_block@0:
+        int 5
+        store 1
+        byte "Hello World"
+        store 2
+        int 3
+
+main_for_header@1:
+        dup
+        int 20
+        <
+        bz main_after_for@4
+
+main_for_body@2:
+        dup
+        dup
+        dig 1
+        stores
+        int 1
+        +
+        bury 1
+        b main_for_header@1
+
+main_after_for@4:
+        load 1
+        int 5
+        ==
+        assert
+        load 2
+        byte "Hello World"
+        ==
+        assert
+        load 5
+        int 5
+        ==
+        assert
+        int 1
+        return
+

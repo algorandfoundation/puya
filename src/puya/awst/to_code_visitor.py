@@ -1,5 +1,6 @@
 import base64
 import typing as t
+from collections.abc import Iterable
 
 from puya.awst import nodes, wtypes
 from puya.awst.nodes import AppStateKind
@@ -190,6 +191,14 @@ class ToCodeVisitor(
                     f"Unhandled app state kinds: {', '.join(map(str, state_by_kind.keys()))}",
                     c.source_location,
                 )
+        if c.reserved_scratch_space:
+            body.extend(
+                [
+                    "reserved_scratch_space {",
+                    *_indent([", ".join(_collapse_sequential_ranges(c.reserved_scratch_space))]),
+                    "}",
+                ]
+            )
         for special_method, formatter in (
             (c.init, self.visit_contract_init),
             (c.approval_program, self.visit_approval_main),
@@ -490,3 +499,17 @@ def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:
 
 def bytes_str(b: bytes) -> str:
     return repr(b)[1:]
+
+
+def _collapse_sequential_ranges(nums: Iterable[int]) -> Iterable[str]:
+    ranges = list[tuple[int, int]]()
+    for num in sorted(nums):
+        if ranges and num == ranges[-1][1] + 1:
+            ranges[-1] = (ranges[-1][0], num)
+        else:
+            ranges.append((num, num))
+    for start, stop in ranges:
+        if start == stop:
+            yield str(start)
+        else:
+            yield f"{start}..{stop}"

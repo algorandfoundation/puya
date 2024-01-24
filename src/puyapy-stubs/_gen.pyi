@@ -3918,6 +3918,41 @@ class JsonRef:
 
         """
 
+class Scratch:
+    @staticmethod
+    def load_bytes(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath scratch space value.  All scratch spaces are 0 at program start.
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: loads
+
+        """
+    @staticmethod
+    def load_uint64(a: UInt64 | int, /) -> UInt64:
+        """
+        Ath scratch space value.  All scratch spaces are 0 at program start.
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: loads
+
+        """
+    @staticmethod
+    def store(a: UInt64 | int, b: Bytes | bytes | UInt64 | int, /) -> None:
+        """
+        store B to the Ath scratch space
+
+        Groups: Loading Values
+
+        Stack: [..., A, B] -> [...]
+        TEAL: stores
+
+        """
+
 class Transaction:
     @staticmethod
     def sender() -> Account:
