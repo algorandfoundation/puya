@@ -7,18 +7,29 @@ main:
 
 main_block@0:
         int 0
-        int 1
-
-main_for_header@1:
         dup
+        swap
+        int 1
+        assert // Step cannot be zero
+        int 1
+        int 100
+        <
+        bz main_after_for@10
+
+main_for_preamble@1:
+        int 1
+        bury 3
+
+main_for_header@2:
+        dig 2
         int 100
         <
         dig 2
-        bury 4
-        bz main_after_for@8
+        bury 2
+        bz main_after_for@10
 
-main_for_body@2:
-        dup
+main_for_body@3:
+        dig 2
         dup
         bury 5
         dup
@@ -27,38 +38,40 @@ main_for_body@2:
         *
         ==
         dig 2
-        bury 4
-        bz main_after_if_else@4
+        bury 2
+        bz main_after_if_else@5
 
-main_if_body@3:
+main_if_body@4:
         dig 1
         dig 4
         +
-        bury 3
+        bury 1
 
-main_after_if_else@4:
-        dig 2
+main_after_if_else@5:
+        dup
         dup
         bury 3
         int 200
         >
-        bz main_after_if_else@6
+        bz main_after_if_else@7
 
-main_if_body@5:
+main_if_body@6:
         dig 1
-        bury 3
-        b main_after_for@8
+        bury 1
+        b main_after_for@10
 
-main_after_if_else@6:
+main_after_if_else@7:
 
-main_for_footer@7:
-        dup
+main_for_footer@8:
+
+main_for_increment@9:
+        dig 2
         int 1
         +
-        bury 1
-        b main_for_header@1
+        bury 3
+        b main_for_header@2
 
-main_after_for@8:
-        dig 2
+main_after_for@10:
+        dup
         return
 

@@ -7,16 +7,16 @@ main_block@0:
         int 3                                         //                             3                                UInt64(1) + 2       File "ssa2/contract.py", line 8
         int 20                                        //                             (𝕗) a#0 | 20                     UInt64(4) * 5       File "ssa2/contract.py", line 9
         int 0                                         //                             (𝕗) a#0,b#0 | 0                  urange(5)           File "ssa2/contract.py", line 15
-        // Implicit fall through to main_for_header@1 //                             (𝕗) a#0,b#0,i#0 |
+        // Implicit fall through to main_for_header@2 //                             (𝕗) a#0,b#0,i#0 |
 
-main_for_header@1:
+main_for_header@2:
         dup                                           // load i#0 from f-stack       (𝕗) a#0,b#0,i#0 | i#0            i                   File "ssa2/contract.py", line 15
         int 5                                         //                             (𝕗) a#0,b#0,i#0 | i#0,5          5                   File "ssa2/contract.py", line 15
         <                                             //                             (𝕗) a#0,b#0,i#0 | {<}            urange(5)           File "ssa2/contract.py", line 15
-        bz main_after_for@4                           //                             (𝕗) a#0,b#0,i#0 |                for i in urange(5): File "ssa2/contract.py", line 15
-        // Implicit fall through to main_for_body@2   //                             (𝕗) a#0,b#0,i#0 |                for i in urange(5): File "ssa2/contract.py", line 15
+        bz main_after_for@6                           //                             (𝕗) a#0,b#0,i#0 |                for i in urange(5): File "ssa2/contract.py", line 15
+        // Implicit fall through to main_for_body@3   //                             (𝕗) a#0,b#0,i#0 |                for i in urange(5): File "ssa2/contract.py", line 15
 
-main_for_body@2:
+main_for_body@3:
         dig 1                                         // load b#0 from f-stack       (𝕗) a#0,b#0,i#0 | b#0            b                   File "ssa2/contract.py", line 9
         dig 3                                         // load a#0 from f-stack       (𝕗) a#0,b#0,i#0 | b#0,a#0        a                   File "ssa2/contract.py", line 8
         dup
@@ -31,9 +31,9 @@ main_for_body@2:
         int 1                                         //                             (𝕗) a#0,b#0,i#0 | i#0,1          urange(5)           File "ssa2/contract.py", line 15
         +                                             //                             (𝕗) a#0,b#0,i#0 | {+}            urange(5)           File "ssa2/contract.py", line 15
         bury 1                                        // store i#0 to f-stack        (𝕗) a#0,b#0,i#0 |                i                   File "ssa2/contract.py", line 15
-        b main_for_header@1                           //                             (𝕗) a#0,b#0,i#0 |
+        b main_for_header@2                           //                             (𝕗) a#0,b#0,i#0 |
 
-main_after_for@4:
+main_after_for@6:
         dig 2                                         // load a#0 from f-stack       (𝕗) a#0,b#0,i#0 | a#0            a                   File "ssa2/contract.py", line 8
         dig 2                                         // load b#0 from f-stack       (𝕗) a#0,b#0,i#0 | a#0,b#0        b                   File "ssa2/contract.py", line 9
         +                                             //                             (𝕗) a#0,b#0,i#0 | {+}            a + b               File "ssa2/contract.py", line 18

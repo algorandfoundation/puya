@@ -5,68 +5,83 @@
 // test_cases.less_simple.contract.MyContract.clear_state_program() -> uint64:
 main:
         byte ""
-        dup                                              // allocate 2 to stack                      (𝕗) i#0,sum_of_squares#10 |
+        dup                                              // allocate 2 to stack                      (𝕗) i#0,range_item%1#0 |
 
 main_block@0:
-        int 0                                            //                                          (𝕗) i#0,sum_of_squares#10 | 0                                                                        0                                  File "less_simple/contract.py", line 27
-        int 1                                            //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0 | 1                                                       1                                  File "less_simple/contract.py", line 28
-        // Implicit fall through to main_for_header@1    //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |
+        int 0                                            //                                          (𝕗) i#0,range_item%1#0 | 0                                                                           0                                  File "less_simple/contract.py", line 27
+        dup                                              // store sum_of_squares#0 to l-stack (copy) (𝕗) i#0,range_item%1#0 | sum_of_squares#0,sum_of_squares#0                                           sum_of_squares                     File "less_simple/contract.py", line 27
+        swap                                             // store sum_of_squares#0 to f-stack        (𝕗) i#0,range_item%1#0,sum_of_squares#0 | sum_of_squares#0                                           sum_of_squares                     File "less_simple/contract.py", line 27
+        int 1                                            //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0 | sum_of_squares#0,1                                         urange(1, 100)                     File "less_simple/contract.py", line 28
+        assert // Step cannot be zero                    //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0 | sum_of_squares#0                                           for i in urange(1, 100):           File "less_simple/contract.py", line 28
+        int 1                                            //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0 | sum_of_squares#0,1                                         1                                  File "less_simple/contract.py", line 28
+        int 100                                          //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0 | sum_of_squares#0,1,100                                     100                                File "less_simple/contract.py", line 28
+        <                                                //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0 | sum_of_squares#0,{<}                                       for i in urange(1, 100):           File "less_simple/contract.py", line 28
+        bz main_after_for@10                             //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          for i in urange(1, 100):           File "less_simple/contract.py", line 28
+        // Implicit fall through to main_for_preamble@1  //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          for i in urange(1, 100):           File "less_simple/contract.py", line 28
 
-main_for_header@1:
-        dup                                              // load range_item%0#0 from f-stack         (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | range_item%0#0                           i                                  File "less_simple/contract.py", line 28
-        int 100                                          //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | range_item%0#0,100                       100                                File "less_simple/contract.py", line 28
-        <                                                //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | {<}                                      urange(1, 100)                     File "less_simple/contract.py", line 28
-        dig 2                                            // load sum_of_squares#0 from f-stack       (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | continue_looping%1#0,sum_of_squares#0    sum_of_squares                     File "less_simple/contract.py", line 27
-        bury 4                                           // store sum_of_squares#10 to f-stack       (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | continue_looping%1#0
-        bz main_after_for@8                              //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |                                          for i in urange(1, 100):           File "less_simple/contract.py", line 28
-        // Implicit fall through to main_for_body@2      //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |                                          for i in urange(1, 100):           File "less_simple/contract.py", line 28
+main_for_preamble@1:
+        int 1                                            //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | 1                                        1                                  File "less_simple/contract.py", line 28
+        bury 3                                           // store range_item%1#0 to f-stack          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          i                                  File "less_simple/contract.py", line 28
+        // Implicit fall through to main_for_header@2    //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |
 
-main_for_body@2:
-        dup                                              // load range_item%0#0 from f-stack         (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | range_item%0#0                           i                                  File "less_simple/contract.py", line 28
-        dup                                              // store i#0 to l-stack (copy)              (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | i#0,i#0                                  i                                  File "less_simple/contract.py", line 28
-        bury 5                                           // store i#0 to f-stack                     (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | i#0                                      i                                  File "less_simple/contract.py", line 28
-        dup                                              // load i#0 from l-stack (copy)             (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | i#0,i#0                                  i                                  File "less_simple/contract.py", line 28
-        sqrt                                             //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | i#0,{sqrt}                               sqrt(i)                            File "less_simple/contract.py", line 29
-        dup                                              // load square_root#0 from l-stack (copy)   (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | i#0,square_root#0,square_root#0          square_root                        File "less_simple/contract.py", line 29
-        *                                                //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | i#0,{*}                                  square_root * square_root          File "less_simple/contract.py", line 30
-        ==                                               //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | {==}                                     square_root * square_root == i:    File "less_simple/contract.py", line 30
-        dig 2                                            // load sum_of_squares#0 from f-stack       (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | tmp%3#0,sum_of_squares#0                 sum_of_squares                     File "less_simple/contract.py", line 27
-        bury 4                                           // store sum_of_squares#10 to f-stack       (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | tmp%3#0
-        bz main_after_if_else@4                          //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |                                          if square_root * square_root == i: File "less_simple/contract.py", line 30
-        // Implicit fall through to main_if_body@3       //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |                                          if square_root * square_root == i: File "less_simple/contract.py", line 30
+main_for_header@2:
+        dig 2                                            // load range_item%1#0 from f-stack         (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | range_item%1#0                           i                                  File "less_simple/contract.py", line 28
+        int 100                                          //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | range_item%1#0,100                       100                                File "less_simple/contract.py", line 28
+        <                                                //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | {<}                                      urange(1, 100)                     File "less_simple/contract.py", line 28
+        dig 2                                            // load sum_of_squares#0 from f-stack       (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | continue_looping%2#0,sum_of_squares#0    sum_of_squares                     File "less_simple/contract.py", line 27
+        bury 2                                           // store sum_of_squares#11 to f-stack       (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | continue_looping%2#0
+        bz main_after_for@10                             //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          for i in urange(1, 100):           File "less_simple/contract.py", line 28
+        // Implicit fall through to main_for_body@3      //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          for i in urange(1, 100):           File "less_simple/contract.py", line 28
 
-main_if_body@3:
-        dig 1                                            // load sum_of_squares#0 from f-stack       (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | sum_of_squares#0                         sum_of_squares                     File "less_simple/contract.py", line 27
-        dig 4                                            // load i#0 from f-stack                    (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | sum_of_squares#0,i#0                     i                                  File "less_simple/contract.py", line 28
-        +                                                //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | {+}                                      sum_of_squares += i                File "less_simple/contract.py", line 31
-        bury 3                                           // store sum_of_squares#10 to f-stack       (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |
-        // Implicit fall through to main_after_if_else@4 //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |
+main_for_body@3:
+        dig 2                                            // load range_item%1#0 from f-stack         (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | range_item%1#0                           i                                  File "less_simple/contract.py", line 28
+        dup                                              // store i#0 to l-stack (copy)              (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | i#0,i#0                                  i                                  File "less_simple/contract.py", line 28
+        bury 5                                           // store i#0 to f-stack                     (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | i#0                                      i                                  File "less_simple/contract.py", line 28
+        dup                                              // load i#0 from l-stack (copy)             (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | i#0,i#0                                  i                                  File "less_simple/contract.py", line 28
+        sqrt                                             //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | i#0,{sqrt}                               sqrt(i)                            File "less_simple/contract.py", line 29
+        dup                                              // load square_root#0 from l-stack (copy)   (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | i#0,square_root#0,square_root#0          square_root                        File "less_simple/contract.py", line 29
+        *                                                //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | i#0,{*}                                  square_root * square_root          File "less_simple/contract.py", line 30
+        ==                                               //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | {==}                                     square_root * square_root == i:    File "less_simple/contract.py", line 30
+        dig 2                                            // load sum_of_squares#0 from f-stack       (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | tmp%4#0,sum_of_squares#0                 sum_of_squares                     File "less_simple/contract.py", line 27
+        bury 2                                           // store sum_of_squares#11 to f-stack       (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | tmp%4#0
+        bz main_after_if_else@5                          //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          if square_root * square_root == i: File "less_simple/contract.py", line 30
+        // Implicit fall through to main_if_body@4       //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          if square_root * square_root == i: File "less_simple/contract.py", line 30
 
-main_after_if_else@4:
-        dig 2                                            // load sum_of_squares#10 from f-stack      (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | sum_of_squares#10
-        dup                                              // store sum_of_squares#0 to l-stack (copy) (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | sum_of_squares#0,sum_of_squares#0        sum_of_squares                     File "less_simple/contract.py", line 27
-        bury 3                                           // store sum_of_squares#0 to f-stack        (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | sum_of_squares#0                         sum_of_squares                     File "less_simple/contract.py", line 27
-        int 200                                          //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | sum_of_squares#0,200                     200                                File "less_simple/contract.py", line 32
-        >                                                //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | {>}                                      sum_of_squares > 200:              File "less_simple/contract.py", line 32
-        bz main_after_if_else@6                          //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |                                          if sum_of_squares > 200:           File "less_simple/contract.py", line 32
-        // Implicit fall through to main_if_body@5       //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |                                          if sum_of_squares > 200:           File "less_simple/contract.py", line 32
+main_if_body@4:
+        dig 1                                            // load sum_of_squares#0 from f-stack       (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | sum_of_squares#0                         sum_of_squares                     File "less_simple/contract.py", line 27
+        dig 4                                            // load i#0 from f-stack                    (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | sum_of_squares#0,i#0                     i                                  File "less_simple/contract.py", line 28
+        +                                                //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | {+}                                      sum_of_squares += i                File "less_simple/contract.py", line 31
+        bury 1                                           // store sum_of_squares#11 to f-stack       (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |
+        // Implicit fall through to main_after_if_else@5 //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |
 
-main_if_body@5:
-        dig 1                                            // load sum_of_squares#0 from f-stack       (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | sum_of_squares#0                         sum_of_squares                     File "less_simple/contract.py", line 27
-        bury 3                                           // store sum_of_squares#10 to f-stack       (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |
-        b main_after_for@8                               //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |                                          break                              File "less_simple/contract.py", line 33
+main_after_if_else@5:
+        dup                                              // load sum_of_squares#11 from f-stack      (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | sum_of_squares#11
+        dup                                              // store sum_of_squares#0 to l-stack (copy) (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | sum_of_squares#0,sum_of_squares#0        sum_of_squares                     File "less_simple/contract.py", line 27
+        bury 3                                           // store sum_of_squares#0 to f-stack        (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | sum_of_squares#0                         sum_of_squares                     File "less_simple/contract.py", line 27
+        int 200                                          //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | sum_of_squares#0,200                     200                                File "less_simple/contract.py", line 32
+        >                                                //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | {>}                                      sum_of_squares > 200:              File "less_simple/contract.py", line 32
+        bz main_after_if_else@7                          //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          if sum_of_squares > 200:           File "less_simple/contract.py", line 32
+        // Implicit fall through to main_if_body@6       //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          if sum_of_squares > 200:           File "less_simple/contract.py", line 32
 
-main_after_if_else@6:
-        // Implicit fall through to main_for_footer@7    //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |
+main_if_body@6:
+        dig 1                                            // load sum_of_squares#0 from f-stack       (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | sum_of_squares#0                         sum_of_squares                     File "less_simple/contract.py", line 27
+        bury 1                                           // store sum_of_squares#11 to f-stack       (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |
+        b main_after_for@10                              //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          break                              File "less_simple/contract.py", line 33
 
-main_for_footer@7:
-        dup                                              // load range_item%0#0 from f-stack         (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | range_item%0#0                           i                                  File "less_simple/contract.py", line 28
-        int 1                                            //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | range_item%0#0,1                         urange(1, 100)                     File "less_simple/contract.py", line 28
-        +                                                //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | {+}                                      urange(1, 100)                     File "less_simple/contract.py", line 28
-        bury 1                                           // store range_item%0#0 to f-stack          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |                                          i                                  File "less_simple/contract.py", line 28
-        b main_for_header@1                              //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |
+main_after_if_else@7:
+        // Implicit fall through to main_for_footer@8    //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |
 
-main_after_for@8:
-        dig 2                                            // load sum_of_squares#10 from f-stack      (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 | sum_of_squares#10
-        return                                           //                                          (𝕗) i#0,sum_of_squares#10,sum_of_squares#0,range_item%0#0 |                                          return sum_of_squares              File "less_simple/contract.py", line 34
+main_for_footer@8:
+        // Implicit fall through to main_for_increment@9 //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |
+
+main_for_increment@9:
+        dig 2                                            // load range_item%1#0 from f-stack         (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | range_item%1#0                           i                                  File "less_simple/contract.py", line 28
+        int 1                                            //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | range_item%1#0,1                         urange(1, 100)                     File "less_simple/contract.py", line 28
+        +                                                //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | {+}                                      urange(1, 100)                     File "less_simple/contract.py", line 28
+        bury 3                                           // store range_item%1#0 to f-stack          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          i                                  File "less_simple/contract.py", line 28
+        b main_for_header@2                              //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |
+
+main_after_for@10:
+        dup                                              // load sum_of_squares#11 from f-stack      (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 | sum_of_squares#11
+        return                                           //                                          (𝕗) i#0,range_item%1#0,sum_of_squares#0,sum_of_squares#11 |                                          return sum_of_squares              File "less_simple/contract.py", line 34
 

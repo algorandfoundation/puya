@@ -131,19 +131,28 @@ contract test_cases.tuple_support.TupleSupport:
                 let b#0: bytes = arg.0#0
                 let count#0: uint64 = arg.1#0
                 let result#0: bytes = ""
-                let range_item%0#0: uint64 = 0u
-                goto block@1
-            block@1: // for_header_L70
-                let continue_looping%1#0: uint64 = (< range_item%0#0 count#0)
-                goto continue_looping%1#0 ? block@2 : block@4
-            block@2: // for_body_L70
-                let _i#0: uint64 = range_item%0#0
+                (assert 1u) // Step cannot be zero
+                let should_loop%0#0: uint64 = (< 0u count#0)
+                let result#10: bytes = result#0
+                goto should_loop%0#0 ? block@1 : block@6
+            block@1: // for_preamble_L70
+                let range_item%1#0: uint64 = 0u
+                goto block@2
+            block@2: // for_header_L70
+                let continue_looping%2#0: uint64 = (< range_item%1#0 count#0)
+                let result#10: bytes = result#0
+                goto continue_looping%2#0 ? block@3 : block@6
+            block@3: // for_body_L70
+                let _i#0: uint64 = range_item%1#0
                 let result#0: bytes = (concat result#0 b#0)
-                goto block@3
-            block@3: // for_footer_L70
-                let range_item%0#0: uint64 = (+ range_item%0#0 1u)
-                goto block@1
-            block@4: // after_for_L70
+                goto block@4
+            block@4: // for_footer_L70
+                goto block@5
+            block@5: // for_increment_L70
+                let range_item%1#0: uint64 = (+ range_item%1#0 1u)
+                goto block@2
+            block@6: // after_for_L70
+                let result#0: bytes = result#10
                 return result#0
         
         subroutine test_cases.tuple_support.test_tuple_swap(zero: uint64) -> void:
