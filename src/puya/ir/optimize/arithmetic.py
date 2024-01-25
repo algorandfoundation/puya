@@ -241,7 +241,13 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
                     case AVMOp.mul:
                         c = a_const * b_const
                     case AVMOp.div_floor:
+                        if b_const == 0:
+                            raise CodeError("// would fail at runtime (div 0)", b.source_location)
                         c = a_const // b_const
+                    case AVMOp.mod:
+                        if b_const == 0:
+                            raise CodeError("mod would fail at runtime (div 0)", b.source_location)
+                        c = a_const % b_const
                     case AVMOp.lt:
                         c = 1 if a_const < b_const else 0
                     case AVMOp.lte:
