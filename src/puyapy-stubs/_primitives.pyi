@@ -1,5 +1,6 @@
 # ruff: noqa: PYI034
 import typing as t
+from collections.abc import Iterator, Reversible
 
 class UInt64:
     __match_value__: int
@@ -73,7 +74,7 @@ class UInt64:
     # ~
     def __invert__(self) -> UInt64: ...
 
-class Bytes(t.Iterable[Bytes]):
+class Bytes(Reversible[Bytes]):
     __match_value__: bytes
     __match_args__ = ("__match_value__",)
     @t.overload
@@ -97,7 +98,8 @@ class Bytes(t.Iterable[Bytes]):
     def __getitem__(
         self, index: UInt64 | int | slice
     ) -> Bytes: ...  # maps to substring/substring3 if slice, extract/extract3 otherwise?
-    def __iter__(self) -> t.Iterator[Bytes]: ...
+    def __iter__(self) -> Iterator[Bytes]: ...
+    def __reversed__(self) -> Iterator[Bytes]: ...
     # mypy suggests due to Liskov below should be other: object
     # need to consider ramifications here, ignoring it for now
     def __eq__(self, other: Bytes | bytes) -> bool: ...  # type: ignore[override]

@@ -265,3 +265,7 @@ class ExpressionVisitor(t.Generic[T], ABC):
     @abstractmethod
     def visit_copy(self, expr: puya.awst.nodes.Copy) -> T:
         ...
+
+    @abstractmethod
+    def visit_reversed(self, expr: puya.awst.nodes.Reversed) -> T:
+        ...

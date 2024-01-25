@@ -977,12 +977,20 @@ class FunctionIRBuilder(
                 source_location=source_location,
             ),
         )
+
+        self._assert(
+            index_is_in_bounds,
+            source_location=source_location,
+            comment="Index access is out of bounds",
+        )
+
+    def _assert(self, value: Value, *, source_location: SourceLocation, comment: str) -> None:
         self.block_builder.add(
             Intrinsic(
                 op=AVMOp.assert_,
                 source_location=source_location,
-                args=[index_is_in_bounds],
-                comment="Index access is out of bounds",
+                args=[value],
+                comment=comment,
             )
         )
 
@@ -1769,8 +1777,34 @@ class FunctionIRBuilder(
     def visit_enumeration(self, expr: awst_nodes.Enumeration) -> TStatement:
         raise CodeError("Nested enumeration is not currently supported", expr.source_location)
 
+    def visit_reversed(self, expr: puya.awst.nodes.Reversed) -> TExpression:
+        raise CodeError("Reversed is not valid outside of an enumeration", expr.source_location)
+
     def visit_for_in_loop(self, statement: awst_nodes.ForInLoop) -> TStatement:
-        if isinstance(statement.sequence, awst_nodes.Enumeration):
+        sequence = statement.sequence
+        has_enumerate = False
+        reverse_items = False
+        reverse_index = False
+
+        while True:
+            match sequence:
+                case awst_nodes.Enumeration():
+                    if has_enumerate:
+                        raise CodeError(
+                            "Nested enumeration is not currently supported",
+                            sequence.source_location,
+                        )
+                    sequence = sequence.expr
+                    has_enumerate = True
+                case awst_nodes.Reversed():
+                    sequence = sequence.expr
+                    reverse_items = not reverse_items
+                    if not has_enumerate:
+                        reverse_index = not reverse_index
+                case _:
+                    break
+
+        if has_enumerate:
             if not (
                 isinstance(statement.items, awst_nodes.TupleExpression)
                 and len(statement.items.items) == 2
@@ -1781,11 +1815,9 @@ class FunctionIRBuilder(
                     statement.sequence.source_location,
                 )
             index_var, item_var = statement.items.items
-            sequence = statement.sequence.expr
         else:
             index_var = None
             item_var = statement.items
-            sequence = statement.sequence
 
         match sequence:
             case awst_nodes.Range(
@@ -1800,18 +1832,23 @@ class FunctionIRBuilder(
                     range_stop=range_stop,
                     range_step=range_step,
                     range_loc=range_loc,
+                    reverse_items=reverse_items,
+                    reverse_index=reverse_index,
                 )
             case awst_nodes.Expression(wtype=wtypes.WTuple()) as tuple_expression:
                 tuple_items = self._visit_and_materialise(tuple_expression)
                 if not tuple_items:
                     logger.debug("Skipping ForInStatement which iterates an empty sequence.")
                 else:
+                    # TODO: Handle reverse iteration
                     self._iterate_tuple(
                         loop_body=statement.loop_body,
                         item_var=item_var,
                         index_var=index_var,
                         tuple_items=tuple_items,
                         statement_loc=statement.source_location,
+                        reverse_index=reverse_index,
+                        reverse_items=reverse_items,
                     )
             case awst_nodes.Expression(wtype=wtypes.bytes_wtype) as bytes_expression:
                 bytes_value = self._visit_and_materialise_single(bytes_expression)
@@ -1843,6 +1880,8 @@ class FunctionIRBuilder(
                     item_var=item_var,
                     index_var=index_var,
                     statement_loc=statement.source_location,
+                    reverse_index=reverse_index,
+                    reverse_items=reverse_items,
                 )
             case awst_nodes.Expression(
                 wtype=wtypes.ARC4DynamicArray() as dynamic_array_wtype
@@ -1888,6 +1927,8 @@ class FunctionIRBuilder(
                     item_var=item_var,
                     index_var=index_var,
                     statement_loc=statement.source_location,
+                    reverse_index=reverse_index,
+                    reverse_items=reverse_items,
                 )
             case awst_nodes.Expression(
                 wtype=wtypes.ARC4StaticArray(array_size=array_size) as static_array_wtype
@@ -1915,6 +1956,8 @@ class FunctionIRBuilder(
                     item_var=item_var,
                     index_var=index_var,
                     statement_loc=statement.source_location,
+                    reverse_index=reverse_index,
+                    reverse_items=reverse_items,
                 )
             case _:
                 raise TodoError(statement.source_location, "TODO: IR build support")
@@ -2081,18 +2124,116 @@ class FunctionIRBuilder(
         range_stop: Expression,
         range_step: Expression,
         range_loc: SourceLocation,
+        reverse_items: bool,
+        reverse_index: bool,
     ) -> None:
-        header, body, footer, next_block = mkblocks(
+        preamble, header, body, footer, increment_block, next_block = mkblocks(
             statement_loc,
+            "for_preamble",
             "for_header",
             "for_body",
             "for_footer",
+            "for_increment",
             "after_for",
         )
 
         step = self._visit_and_materialise_single(range_step)
         stop = self._visit_and_materialise_single(range_stop)
         start = self._visit_and_materialise_single(range_start)
+
+        self._assert(step, source_location=statement_loc, comment="Step cannot be zero")
+        (should_loop,) = self._assign_intrinsic_op(
+            target="should_loop", op=AVMOp.lt, args=[start, stop], source_location=statement_loc
+        )
+        self.block_builder.terminate(
+            ConditionalBranch(
+                condition=should_loop,
+                non_zero=preamble,
+                zero=next_block,
+                source_location=statement_loc,
+            )
+        )
+        self.block_builder.activate_block(preamble)
+        self._seal(preamble)
+
+        iteration_count_minus_one: Register | None
+        if reverse_items or reverse_index:
+            # Determine the iteration count by doing the equivalent of
+            # ceiling((stop - start) / step)
+            # which is
+            # floor((stop - start) / step) + (mod((stop - start), step) != 0)
+            (range_length,) = self._assign_intrinsic_op(
+                target="range_length",
+                source_location=statement_loc,
+                op=AVMOp.sub,
+                args=[
+                    stop,
+                    start,
+                ],
+            )
+
+            (range_mod_step,) = self._assign_intrinsic_op(
+                target="range_mod_step",
+                source_location=statement_loc,
+                op=AVMOp.mod,
+                args=[range_length, step],
+            )
+            (range_mod_step_not_zero,) = self._assign_intrinsic_op(
+                target="range_mod_step_not_zero",
+                source_location=statement_loc,
+                op=AVMOp.neq,
+                args=[range_mod_step, 0],
+            )
+
+            (range_floor_div_step,) = self._assign_intrinsic_op(
+                target="range_floor_div_step",
+                source_location=statement_loc,
+                op=AVMOp.div_floor,
+                args=[
+                    range_length,
+                    step,
+                ],
+            )
+            (iteration_count,) = self._assign_intrinsic_op(
+                target="iteration_count",
+                source_location=statement_loc,
+                op=AVMOp.add,
+                args=[
+                    range_floor_div_step,
+                    range_mod_step_not_zero,
+                ],
+            )
+            (iteration_count_minus_one,) = self._assign_intrinsic_op(
+                target="iteration_count_minus_one",
+                source_location=statement_loc,
+                op=AVMOp.sub,
+                args=[
+                    iteration_count,
+                    1,
+                ],
+            )
+        else:
+            iteration_count_minus_one = None
+
+        if reverse_items and iteration_count_minus_one:
+            (range_delta,) = self._assign_intrinsic_op(
+                target="range_delta",
+                source_location=statement_loc,
+                op=AVMOp.mul,
+                args=[step, iteration_count_minus_one],
+            )
+            (stop,) = self.assign(
+                temp_description="stop",
+                source_location=statement_loc,
+                source=start,
+            )
+            (start,) = self._assign_intrinsic_op(
+                target="start",
+                source_location=statement_loc,
+                op=AVMOp.add,
+                args=[start, range_delta],
+            )
+
         (range_item,) = self.assign(
             source=start,
             temp_description="range_item",
@@ -2100,7 +2241,7 @@ class FunctionIRBuilder(
         )
 
         index_var_src_loc = index_var.source_location if index_var else None
-        range_index = None
+        range_index: Register | None = None
         if index_var:
             (range_index,) = self.assign(
                 source=UInt64Constant(value=0, source_location=None),
@@ -2109,17 +2250,30 @@ class FunctionIRBuilder(
             )
 
         self.block_builder.goto_and_activate(header)
-        (continue_looping,) = self.assign(
-            source=(
-                Intrinsic(
-                    op=AVMOp("<"),
-                    args=[self._refresh_mutated_variable(range_item), stop],
-                    source_location=range_loc,
-                )
-            ),
-            temp_description="continue_looping",
-            source_location=range_loc,
-        )
+        if reverse_items:
+            (continue_looping,) = self.assign(
+                source=(
+                    Intrinsic(
+                        op=AVMOp(">="),
+                        args=[self._refresh_mutated_variable(range_item), stop],
+                        source_location=range_loc,
+                    )
+                ),
+                temp_description="continue_looping",
+                source_location=range_loc,
+            )
+        else:
+            (continue_looping,) = self.assign(
+                source=(
+                    Intrinsic(
+                        op=AVMOp("<"),
+                        args=[self._refresh_mutated_variable(range_item), stop],
+                        source_location=range_loc,
+                    )
+                ),
+                temp_description="continue_looping",
+                source_location=range_loc,
+            )
 
         self.block_builder.terminate(
             ConditionalBranch(
@@ -2129,7 +2283,6 @@ class FunctionIRBuilder(
                 source_location=statement_loc,
             )
         )
-        self._seal(body)
 
         self.block_builder.activate_block(body)
 
@@ -2139,36 +2292,78 @@ class FunctionIRBuilder(
             assignment_location=item_var.source_location,
         )
         if index_var and range_index:
-            self._handle_assignment(
-                target=index_var,
-                value=self._refresh_mutated_variable(range_index),
-                assignment_location=index_var.source_location,
-            )
+            if reverse_index and iteration_count_minus_one:
+                (next_index,) = self._assign_intrinsic_op(
+                    target="next_index",
+                    source_location=index_var.source_location,
+                    op=AVMOp.sub,
+                    args=[iteration_count_minus_one, self._refresh_mutated_variable(range_index)],
+                )
+                self._handle_assignment(
+                    target=index_var,
+                    value=next_index,
+                    assignment_location=index_var.source_location,
+                )
+            else:
+                self._handle_assignment(
+                    target=index_var,
+                    value=self._refresh_mutated_variable(range_index),
+                    assignment_location=index_var.source_location,
+                )
 
         with self.block_builder.enter_loop(on_continue=footer, on_break=next_block):
             loop_body.accept(self)
         self.block_builder.goto_and_activate(footer)
         self._seal(footer)
-        self._seal(next_block)
+
+        if reverse_items:
+            (continue_looping,) = self.assign(
+                source=(
+                    Intrinsic(
+                        op=AVMOp(">"),
+                        args=[self._refresh_mutated_variable(range_item), stop],
+                        source_location=range_loc,
+                    )
+                ),
+                temp_description="continue_looping",
+                source_location=range_loc,
+            )
+            self.block_builder.terminate(
+                ConditionalBranch(
+                    condition=continue_looping,
+                    non_zero=increment_block,
+                    zero=next_block,
+                    source_location=statement_loc,
+                )
+            )
+            self.block_builder.activate_block(increment_block)
+        else:
+            self.block_builder.goto_and_activate(increment_block)
+        self._seal(increment_block)
+
         new_range_item_value = Intrinsic(
-            op=AVMOp("+"),
+            op=AVMOp.sub if reverse_items else AVMOp.add,
             args=[self._refresh_mutated_variable(range_item), step],
             source_location=range_loc,
         )
         self._reassign(range_item, new_range_item_value, statement_loc)
-        if range_index:
-            new_rang_index_value = Intrinsic(
+        if range_index and index_var:
+            self._assign_intrinsic_op(
+                target=range_index,
                 op=AVMOp("+"),
                 args=[
                     self._refresh_mutated_variable(range_index),
                     UInt64Constant(value=1, source_location=None),
                 ],
-                source_location=None,
+                source_location=index_var.source_location,
             )
-            self._reassign(range_index, new_rang_index_value, index_var_src_loc)
-
-        self.block_builder.goto(header)
+        if reverse_items:
+            self.block_builder.goto(body)
+        else:
+            self.block_builder.goto(header)
         self._seal(header)
+        self._seal(body)
+        self._seal(next_block)
 
         self.block_builder.activate_block(next_block)
 
@@ -2181,6 +2376,8 @@ class FunctionIRBuilder(
         statement_loc: SourceLocation,
         indexable_size: Value,
         get_value_at_index: typing.Callable[[Register], ValueProvider],
+        reverse_items: bool,
+        reverse_index: bool,
     ) -> None:
         header, body, footer, next_block = mkblocks(
             statement_loc,
@@ -2193,6 +2390,11 @@ class FunctionIRBuilder(
         (index_internal,) = self.assign(
             source=UInt64Constant(value=0, source_location=None),
             temp_description="item_index_internal",
+            source_location=None,
+        )
+        (reverse_index_internal,) = self.assign(
+            source=indexable_size,
+            temp_description="reverse_index_internal",
             source_location=None,
         )
 
@@ -2222,19 +2424,39 @@ class FunctionIRBuilder(
         self.block_builder.activate_block(body)
 
         current_index_internal = self._refresh_mutated_variable(index_internal)
-        item_value = get_value_at_index(current_index_internal)
-        self._handle_assignment(
-            target=item_var,
-            value=item_value,
-            assignment_location=item_var.source_location,
-        )
-
-        if index_var:
-            self._handle_assignment(
-                target=index_var,
-                value=current_index_internal,
-                assignment_location=index_var.source_location,
+        if reverse_items or reverse_index:
+            (reverse_index_internal,) = self._assign_intrinsic_op(
+                target=reverse_index_internal,
+                source_location=None,
+                op=AVMOp.sub,
+                args=[self._refresh_mutated_variable(reverse_index_internal), 1],
             )
+            self._handle_assignment(
+                target=item_var,
+                value=get_value_at_index(
+                    reverse_index_internal if reverse_items else current_index_internal
+                ),
+                assignment_location=item_var.source_location,
+            )
+
+            if index_var:
+                self._handle_assignment(
+                    target=index_var,
+                    value=reverse_index_internal if reverse_index else current_index_internal,
+                    assignment_location=index_var.source_location,
+                )
+        else:
+            self._handle_assignment(
+                target=item_var,
+                value=get_value_at_index(current_index_internal),
+                assignment_location=item_var.source_location,
+            )
+            if index_var:
+                self._handle_assignment(
+                    target=index_var,
+                    value=current_index_internal,
+                    assignment_location=index_var.source_location,
+                )
 
         with self.block_builder.enter_loop(on_continue=footer, on_break=next_block):
             loop_body.accept(self)
@@ -2258,16 +2480,23 @@ class FunctionIRBuilder(
 
     def _iterate_tuple(
         self,
+        *,
         loop_body: awst_nodes.Block,
         item_var: awst_nodes.Expression,
         index_var: awst_nodes.Expression | None,
         tuple_items: Sequence[Value],
         statement_loc: SourceLocation,
+        reverse_index: bool,
+        reverse_items: bool,
     ) -> None:
         headers = [
             BasicBlock(comment=f"for_header_{index}", source_location=statement_loc)
             for index, _ in enumerate(tuple_items)
         ]
+        if reverse_items:
+            headers.reverse()
+            tuple_items = [*tuple_items]
+            tuple_items.reverse()
 
         body, footer, next_block = mkblocks(
             statement_loc,
@@ -2277,6 +2506,7 @@ class FunctionIRBuilder(
         )
 
         tuple_index = self._next_tmp_name("tuple_index")
+
         for index, (item, header) in enumerate(zip(tuple_items, headers)):
             if index == 0:
                 self.block_builder.goto_and_activate(header)
@@ -2298,11 +2528,28 @@ class FunctionIRBuilder(
         self._seal(body)
         self.block_builder.activate_block(body)
         if index_var:
-            self._handle_assignment(
-                target=index_var,
-                value=self.ssa.read_variable(tuple_index, AVMType.uint64, body),
-                assignment_location=index_var.source_location,
-            )
+            if reverse_index:
+                (reversed_index,) = self._assign_intrinsic_op(
+                    target="reversed_index",
+                    source_location=None,
+                    op=AVMOp.sub,
+                    args=[
+                        len(tuple_items) - 1,
+                        self.ssa.read_variable(tuple_index, AVMType.uint64, body),
+                    ],
+                )
+                self._handle_assignment(
+                    target=index_var,
+                    value=reversed_index,
+                    assignment_location=index_var.source_location,
+                )
+            else:
+                self._handle_assignment(
+                    target=index_var,
+                    value=self.ssa.read_variable(tuple_index, AVMType.uint64, body),
+                    assignment_location=index_var.source_location,
+                )
+
         with self.block_builder.enter_loop(on_continue=footer, on_break=next_block):
             loop_body.accept(self)
 
@@ -2835,7 +3082,7 @@ class FunctionIRBuilder(
         target: str | Register,
         op: AVMOp,
         args: Sequence[int | bytes | Value],
-        source_location: SourceLocation,
+        source_location: SourceLocation | None,
         immediates: list[int | str] | None = None,
     ) -> Sequence[Register]:
         def map_arg(arg: int | bytes | Value) -> Value:

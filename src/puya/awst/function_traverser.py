@@ -25,6 +25,10 @@ class FunctionTraverser(
         expr.left.accept(self)
         expr.right.accept(self)
 
+    def visit_reversed(self, expr: awst_nodes.Reversed) -> None:
+        if isinstance(expr.expr, awst_nodes.Expression):
+            expr.expr.accept(self)
+
     def visit_integer_constant(self, expr: awst_nodes.IntegerConstant) -> None:
         pass
 

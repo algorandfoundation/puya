@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence, Reversible
 
 import puyapy
 
@@ -111,7 +111,9 @@ _TArrayItem = typing.TypeVar("_TArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
 
 class StaticArray(
-    _ABIBytesBacked, typing.Generic[_TArrayItem, _TArrayLength], Iterable[_TArrayItem]
+    _ABIBytesBacked,
+    typing.Generic[_TArrayItem, _TArrayLength],
+    Reversible[_TArrayItem],
 ):
     @typing.overload
     def __init__(self) -> None: ...
@@ -209,6 +211,8 @@ class StaticArray(
     def __init__(self, *items: _TArrayItem): ...
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
+    def __reversed__(self) -> typing.Iterator[_TArrayItem]:
+        """Returns an iterator for the items in the array, in reverse order"""
     @property
     def length(self) -> puyapy.UInt64:
         """Returns the current length of the array"""
@@ -217,10 +221,12 @@ class StaticArray(
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
 
-class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem], Iterable[_TArrayItem]):
+class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     def __init__(self, *items: _TArrayItem): ...
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
+    def __reversed__(self) -> typing.Iterator[_TArrayItem]:
+        """Returns an iterator for the items in the array, in reverse order"""
     @property
     def length(self) -> puyapy.UInt64:
         """Returns the current length of the array"""
