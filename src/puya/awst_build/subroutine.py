@@ -74,7 +74,11 @@ from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.temporary_assignment import TemporaryAssignmentExpressionBuilder
 from puya.awst_build.eb.tuple import TupleTypeExpressionBuilder
 from puya.awst_build.eb.type_registry import get_type_builder
-from puya.awst_build.eb.unsigned_builtins import UnsignedEnumerateBuilder, UnsignedRangeBuilder
+from puya.awst_build.eb.unsigned_builtins import (
+    ReversedFunctionExpressionBuilder,
+    UnsignedEnumerateBuilder,
+    UnsignedRangeBuilder,
+)
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.utils import (
@@ -728,6 +732,8 @@ class FunctionASTConverter(
                 raise CodeError(
                     "enumerate() is not supported - use puyapy.uenumerate() instead", location
                 )
+            case "reversed":
+                return ReversedFunctionExpressionBuilder(location=location)
             case _:
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
 

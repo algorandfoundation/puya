@@ -1094,7 +1094,17 @@ def test_conditional_execution(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "conditional_execution",
         request=AppCallRequest(
-            trace_output=TEST_CASES_DIR / "conditional_execution" / "out" / "trace.log"
+            trace_output=TEST_CASES_DIR / "conditional_execution" / "out" / "trace.log",
+        ),
+    )
+
+
+def test_reversed_iteration(harness: _TestHarness) -> None:
+    harness.deploy(
+        TEST_CASES_DIR / "reversed_iteration",
+        request=AppCallRequest(
+            trace_output=TEST_CASES_DIR / "reversed_iteration" / "out" / "trace.log",
+            increase_budget=3,
         ),
     )
 

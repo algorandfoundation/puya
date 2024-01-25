@@ -35,6 +35,14 @@ class ToCodeVisitor(
         value = expr.value.accept(self)
         return f"{value}.copy()"
 
+    def visit_reversed(self, expr: nodes.Reversed) -> str:
+        sequence = (
+            self.visit_range(expr.expr)
+            if isinstance(expr.expr, nodes.Range)
+            else expr.expr.accept(self)
+        )
+        return f"reversed({sequence})"
+
     def __init__(self) -> None:
         self._seen_tmp = dict[nodes.TemporaryVariable, int]()
 

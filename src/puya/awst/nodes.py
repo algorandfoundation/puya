@@ -1131,6 +1131,23 @@ class Enumeration(Expression):
         return visitor.visit_enumeration(self)
 
 
+@attrs.frozen(init=False)
+class Reversed(Expression):
+    expr: Expression | Range
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_reversed(self)
+
+    def __init__(self, expr: Expression | Range, source_location: SourceLocation):
+        wtype = expr.wtype if isinstance(expr, Expression) else wtypes.uint64_wtype
+
+        self.__attrs_init__(
+            expr=expr,
+            source_location=source_location,
+            wtype=wtype,
+        )
+
+
 @attrs.frozen
 class ForInLoop(Statement):
     sequence: Expression | Range

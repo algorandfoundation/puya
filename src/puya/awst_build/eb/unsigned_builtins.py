@@ -9,8 +9,10 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     Enumeration,
     Expression,
+    IntegerConstant,
     Literal,
     Range,
+    Reversed,
     UInt64Constant,
 )
 from puya.awst_build.eb.base import (
@@ -46,7 +48,8 @@ class UnsignedRangeBuilder(IntermediateExpressionBuilder):
         uint64_args = [expect_operand_wtype(in_arg, wtypes.uint64_wtype) for in_arg in args]
         match uint64_args:
             case [range_start, range_stop, range_step]:
-                pass
+                if isinstance(range_step, IntegerConstant) and range_step.value == 0:
+                    raise CodeError("urange step size cannot be zero", range_step.source_location)
             case [range_start, range_stop]:
                 range_step = UInt64Constant(value=1, source_location=location)
             case [range_stop]:
@@ -108,6 +111,40 @@ class UnsignedEnumerate(IntermediateExpressionBuilder):
 
     def iterate(self) -> Iteration:
         return Enumeration(
+            expr=self._sequence,
+            source_location=self.source_location,
+        )
+
+
+class ReversedFunctionExpressionBuilder(IntermediateExpressionBuilder):
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        if not args:
+            raise CodeError("insufficient arguments", location)
+        try:
+            (arg,) = args
+        except ValueError as ex:
+            raise CodeError(
+                "reversed expects a single argument",
+                location,
+            ) from ex
+        sequence = require_expression_builder(arg).iterate()
+        return ReversedExpressionBuilder(sequence, location)
+
+
+class ReversedExpressionBuilder(IntermediateExpressionBuilder):
+    def __init__(self, sequence: Expression | Range, location: SourceLocation):
+        super().__init__(location)
+        self._sequence = sequence
+
+    def iterate(self) -> Iteration:
+        return Reversed(
             expr=self._sequence,
             source_location=self.source_location,
         )
