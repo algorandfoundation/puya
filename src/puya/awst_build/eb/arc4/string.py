@@ -9,15 +9,21 @@ from puya.awst.nodes import (
     ARC4Encode,
     ArrayConcat,
     ArrayExtend,
+    BytesComparisonExpression,
     BytesConstant,
     BytesEncoding,
+    EqualityComparison,
     Expression,
     ExpressionStatement,
     Literal,
     Statement,
 )
-from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
-from puya.awst_build.eb.base import BuilderBinaryOp, ExpressionBuilder
+from puya.awst_build.eb.arc4.base import (
+    ARC4ClassExpressionBuilder,
+    ARC4EncodedExpressionBuilder,
+    get_bytes_expr,
+)
+from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError
 
@@ -59,12 +65,11 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
 
-
+def arc4_encode_bytes(bytes_expr: Expression, source_location: SourceLocation) -> Expression:
+    return ARC4Encode(
+        value=bytes_expr, source_location=source_location, wtype=wtypes.arc4_string_wtype
+    )
 def expect_string_or_bytes(expr: ExpressionBuilder | Literal) -> Expression:
-    def arc4_encode_bytes(bytes_expr: Expression, source_location: SourceLocation) -> Expression:
-        return ARC4Encode(
-            value=bytes_expr, source_location=source_location, wtype=wtypes.arc4_string_wtype
-        )
 
     match expr:
         case Literal(value=str(string_literal), source_location=source_location):
@@ -138,3 +143,31 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
 
             case _:
                 return super().binary_op(other, op, location, reverse=reverse)
+
+    def compare(
+        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> ExpressionBuilder:
+        other_expr: Expression
+        match other:
+            case Literal(value=str(string_literal), source_location=source_location):
+                other_expr = arc4_encode_bytes(
+                    BytesConstant(
+                        value=string_literal.encode("utf-8"),
+                        encoding=BytesEncoding.utf8,
+                        source_location=source_location,
+                    ),
+                    source_location,
+                )
+            case ExpressionBuilder() as eb if eb.rvalue().wtype == wtypes.arc4_string_wtype:
+                other_expr = eb.rvalue()
+            case _:
+                raise CodeError("Expected arc4.String or str literal")
+
+        return var_expression(
+            BytesComparisonExpression(
+                source_location=location,
+                lhs=get_bytes_expr(self.expr),
+                operator=EqualityComparison(op.value),
+                rhs=get_bytes_expr(other_expr),
+            )
+        )
