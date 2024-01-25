@@ -1585,34 +1585,42 @@ dynamic_array_pop_bit_block@0:
         -
         dup
         itob
-        extract 6 0
+        int 6
+        int 8
+        substring3
         frame_dig -1
-        swap
-        replace2 0
-        dig 1
+        int 0
+        uncover 2
+        replace3
+        frame_bury -1
+        dup
         int 16
         +
-        dig 1
+        frame_dig -1
         dig 1
         getbit
         byte "\x00"
         int 0
         uncover 2
         setbit
-        cover 3
+        cover 2
+        frame_dig -1
+        swap
         int 0
         setbit
-        swap
+        frame_bury -1
         int 7
         +
         int 8
         /
         int 2
         +
-        swap
+        frame_dig -1
         int 0
         uncover 2
         substring3
+        dup
+        frame_bury -1
         retsub
 
 
@@ -1627,10 +1635,13 @@ dynamic_array_pop_fixed_size_block@0:
         int 1
         -
         itob
-        extract 6 0
+        int 6
+        int 8
+        substring3
         frame_dig -2
-        swap
-        replace2 0
+        int 0
+        uncover 2
+        replace3
         dup
         frame_bury -2
         len
@@ -1660,39 +1671,46 @@ dynamic_array_pop_variable_size_block@0:
         extract_uint16
         int 1
         -
-        dup
+        frame_dig -1
+        len
+        frame_dig -1
+        int 2
+        uncover 2
+        substring3
+        dig 1
         int 2
         *
-        frame_dig -1
-        extract 2 0
-        dup
-        dig 2
+        dig 1
+        dig 1
         extract_uint16
         swap
-        dup
+        dig 2
         len
         swap
-        dup
+        dig 3
         dig 3
         uncover 3
         substring3
-        cover 3
-        dup
+        cover 4
+        dig 2
         int 0
-        dig 4
+        dig 2
         substring3
         cover 2
-        uncover 3
         int 2
         +
+        uncover 3
+        swap
         uncover 2
         substring3
         concat
-        dig 2
+        dig 1
         itob
-        extract 6 0
+        int 6
+        int 8
+        substring3
         swap
-        uncover 3
+        uncover 2
         int 0
         callsub recalculate_array_offsets_static
         concat
@@ -1714,45 +1732,51 @@ dynamic_array_concat_bits_block@0:
         dup
         frame_dig -2
         +
-        dup
         itob
-        extract 6 0
+        int 6
+        int 8
+        substring3
+        frame_dig -4
+        int 0
+        uncover 2
+        replace3
+        frame_bury -4
+        dup
+        int 7
+        +
+        int 8
+        /
+        dup
+        cover 2
+        cover 2
+        int 7
+        +
+        frame_dig -2
+        +
+        int 8
+        /
+        dup
+        cover 2
+        <
         frame_dig -4
         swap
-        replace2 0
-        dup
-        cover 3
-        cover 3
-        swap
-        int 7
-        +
-        int 8
-        /
-        dup
-        cover 3
-        swap
-        int 7
-        +
-        int 8
-        /
-        dup
-        cover 3
-        <
         bz dynamic_array_concat_bits_after_if_else@2
 
 dynamic_array_concat_bits_if_body@1:
-        frame_dig 6
         frame_dig 5
+        frame_dig 4
         -
         bzero
-        frame_dig 4
+        frame_dig -4
         swap
         concat
-        frame_bury 7
+        dup
+        frame_bury -4
+        frame_bury 6
 
 dynamic_array_concat_bits_after_if_else@2:
-        frame_dig 7
-        frame_bury 4
+        frame_dig 6
+        frame_bury -4
         frame_dig 3
         int 16
         +
@@ -1770,40 +1794,56 @@ dynamic_array_concat_bits_ternary_false@4:
         frame_bury 1
 
 dynamic_array_concat_bits_ternary_merge@5:
+        frame_dig 1
+        assert // Step cannot be zero
+        int 0
+        frame_dig -2
+        <
+        frame_dig -4
+        frame_bury 6
+        bz dynamic_array_concat_bits_after_for@11
+
+dynamic_array_concat_bits_for_preamble@6:
         int 0
         frame_bury 0
 
-dynamic_array_concat_bits_for_header@6:
+dynamic_array_concat_bits_for_header@7:
         frame_dig 0
         frame_dig -2
         <
-        bz dynamic_array_concat_bits_after_for@9
+        frame_dig -4
+        frame_bury 6
+        bz dynamic_array_concat_bits_after_for@11
 
-dynamic_array_concat_bits_for_body@7:
+dynamic_array_concat_bits_for_body@8:
         frame_dig 0
         frame_dig -3
         swap
         getbit
-        frame_dig 4
+        frame_dig -4
         frame_dig 2
         dup
         cover 3
         uncover 2
         setbit
-        frame_bury 4
+        frame_bury -4
         int 1
         +
         frame_bury 2
 
-dynamic_array_concat_bits_for_footer@8:
+dynamic_array_concat_bits_for_footer@9:
+
+dynamic_array_concat_bits_for_increment@10:
         frame_dig 0
         frame_dig 1
         +
         frame_bury 0
-        b dynamic_array_concat_bits_for_header@6
+        b dynamic_array_concat_bits_for_header@7
 
-dynamic_array_concat_bits_after_for@9:
-        frame_dig 4
+dynamic_array_concat_bits_after_for@11:
+        frame_dig 6
+        dup
+        frame_bury -4
         frame_bury 0
         retsub
 
@@ -1814,14 +1854,21 @@ dynamic_array_replace_variable_size:
 
 dynamic_array_replace_variable_size_block@0:
         frame_dig -3
-        substring 0 2
-        dup
-        btoi
+        int 0
+        extract_uint16
         frame_dig -3
-        extract 2 0
+        int 0
+        int 2
+        substring3
+        frame_dig -3
+        len
+        frame_dig -3
+        int 2
+        uncover 2
+        substring3
         frame_dig -2
         frame_dig -1
-        uncover 3
+        uncover 4
         callsub static_array_replace_variable_size
         concat
         retsub
@@ -1888,7 +1935,9 @@ dynamic_array_concat_variable_size_block@0:
         swap
         dup
         itob
-        extract 6 0
+        int 6
+        int 8
+        substring3
         swap
         frame_dig -3
         int 2
@@ -1926,18 +1975,26 @@ dynamic_array_concat_fixed_size_block@0:
         frame_dig -1
         +
         itob
-        extract 6 0
+        int 6
+        int 8
+        substring3
         frame_dig -3
-        extract 2 0
-        concat
+        int 0
+        uncover 2
+        replace3
+        dup
+        frame_bury -3
         frame_dig -2
         concat
+        dup
+        frame_bury -3
         retsub
 
 
 // puyapy_lib_arc4.recalculate_array_offsets_static(array_data#0: bytes, length#0: uint64, start_at_index#0: uint64) -> bytes:
 recalculate_array_offsets_static:
         proto 3 1
+        int 0
         byte ""
         dup
 
@@ -1954,32 +2011,46 @@ recalculate_array_offsets_static_if_body@1:
         frame_dig -2
         int 2
         *
-        frame_bury 1
+        frame_bury 2
         b recalculate_array_offsets_static_after_if_else@3
 
 recalculate_array_offsets_static_else_body@2:
         frame_dig -3
-        frame_dig 2
+        frame_dig 3
         extract_uint16
-        frame_bury 1
+        frame_bury 2
 
 recalculate_array_offsets_static_after_if_else@3:
+        int 1
+        assert // Step cannot be zero
         frame_dig -1
-        frame_bury 0
-
-recalculate_array_offsets_static_for_header@4:
-        frame_dig 0
         frame_dig -2
         <
-        bz recalculate_array_offsets_static_after_for@7
+        frame_dig -3
+        frame_bury 0
+        bz recalculate_array_offsets_static_after_for@9
 
-recalculate_array_offsets_static_for_body@5:
+recalculate_array_offsets_static_for_preamble@4:
+        frame_dig -1
+        frame_bury 1
+
+recalculate_array_offsets_static_for_header@5:
         frame_dig 1
+        frame_dig -2
+        <
+        frame_dig -3
+        frame_bury 0
+        bz recalculate_array_offsets_static_after_for@9
+
+recalculate_array_offsets_static_for_body@6:
+        frame_dig 2
         dup
         itob
-        extract 6 0
+        int 6
+        int 8
+        substring3
         frame_dig -3
-        frame_dig 2
+        frame_dig 3
         dup
         cover 4
         uncover 2
@@ -1991,20 +2062,24 @@ recalculate_array_offsets_static_for_body@5:
         int 2
         +
         +
-        frame_bury 1
+        frame_bury 2
         int 2
         +
-        frame_bury 2
+        frame_bury 3
 
-recalculate_array_offsets_static_for_footer@6:
-        frame_dig 0
+recalculate_array_offsets_static_for_footer@7:
+
+recalculate_array_offsets_static_for_increment@8:
+        frame_dig 1
         int 1
         +
-        frame_bury 0
-        b recalculate_array_offsets_static_for_header@4
+        frame_bury 1
+        b recalculate_array_offsets_static_for_header@5
 
-recalculate_array_offsets_static_after_for@7:
-        frame_dig -3
+recalculate_array_offsets_static_after_for@9:
+        frame_dig 0
+        dup
+        frame_bury -3
         frame_bury 0
         retsub
 

@@ -231,34 +231,52 @@ addw2_block@0:
 // test_cases.tuple_support.bytes_multiply(arg.0#0: bytes, arg.1#0: uint64) -> bytes:
 bytes_multiply:
         proto 2 1
+        byte ""
 
 bytes_multiply_block@0:
         frame_dig -2
         frame_dig -1
+        dup
+        swap
         byte ""
+        dup
+        cover 2
+        cover 2
+        int 1
+        assert // Step cannot be zero
         int 0
+        >
+        bz bytes_multiply_after_for@6
 
-bytes_multiply_for_header@1:
+bytes_multiply_for_preamble@1:
+        int 0
+        frame_bury 0
+
+bytes_multiply_for_header@2:
+        frame_dig 0
+        frame_dig 2
+        <
+        frame_dig 3
+        frame_bury 4
+        bz bytes_multiply_after_for@6
+
+bytes_multiply_for_body@3:
         frame_dig 3
         frame_dig 1
-        <
-        bz bytes_multiply_after_for@4
-
-bytes_multiply_for_body@2:
-        frame_dig 2
-        frame_dig 0
         concat
-        frame_bury 2
+        frame_bury 3
 
-bytes_multiply_for_footer@3:
-        frame_dig 3
+bytes_multiply_for_footer@4:
+
+bytes_multiply_for_increment@5:
+        frame_dig 0
         int 1
         +
-        frame_bury 3
-        b bytes_multiply_for_header@1
+        frame_bury 0
+        b bytes_multiply_for_header@2
 
-bytes_multiply_after_for@4:
-        frame_dig 2
+bytes_multiply_after_for@6:
+        frame_dig 4
         frame_bury 0
         retsub
 

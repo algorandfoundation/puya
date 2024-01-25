@@ -124,22 +124,23 @@ contract examples.voting.voting.VotingRoundApp:
                 let array_length%3#0: uint64 = (extract_uint16 option_counts#0 0u)
                 let array_value%4#0: bytes = ((extract 2 0) option_counts#0)
                 let item_index_internal%5#0: uint64 = 0u
+                let reverse_index_internal%6#0: uint64 = array_length%3#0
                 goto block@1
             block@1: // for_header_L221
-                let continue_looping%6#0: uint64 = (< item_index_internal%5#0 array_length%3#0)
-                goto continue_looping%6#0 ? block@2 : block@4
+                let continue_looping%7#0: uint64 = (< item_index_internal%5#0 array_length%3#0)
+                goto continue_looping%7#0 ? block@2 : block@4
             block@2: // for_body_L221
-                let item_index%7#0: uint64 = (* item_index_internal%5#0 1u)
-                let item#0: bytes = (extract3 array_value%4#0 item_index%7#0 1u)
-                let tmp%8#0: uint64 = (btoi item#0)
-                let total_options#0: uint64 = (+ total_options#0 tmp%8#0)
+                let item_index%8#0: uint64 = (* item_index_internal%5#0 1u)
+                let item#0: bytes = (extract3 array_value%4#0 item_index%8#0 1u)
+                let tmp%9#0: uint64 = (btoi item#0)
+                let total_options#0: uint64 = (+ total_options#0 tmp%9#0)
                 goto block@3
             block@3: // for_footer_L221
                 let item_index_internal%5#0: uint64 = (+ item_index_internal%5#0 1u)
                 goto block@1
             block@4: // after_for_L221
-                let tmp%9#0: uint64 = (<= total_options#0 128u)
-                (assert tmp%9#0) // Can't have more than 128 vote options
+                let tmp%10#0: uint64 = (<= total_options#0 128u)
+                (assert tmp%10#0) // Can't have more than 128 vote options
                 (app_global_put "option_counts" option_counts#0)
                 (app_global_put "total_options" total_options#0)
                 return 
@@ -205,85 +206,98 @@ contract examples.voting.voting.VotingRoundApp:
                 let array_length%27#0: uint64 = (extract_uint16 app_global_get_ex_value%25#0 0u)
                 let array_value%28#0: bytes = ((extract 2 0) app_global_get_ex_value%25#0)
                 let item_index_internal%29#0: uint64 = 0u
+                let reverse_index_internal%30#0: uint64 = array_length%27#0
                 goto block@1
             block@1: // for_header_L134
-                let continue_looping%30#0: uint64 = (< item_index_internal%29#0 array_length%27#0)
-                goto continue_looping%30#0 ? block@2 : block@14
+                let continue_looping%31#0: uint64 = (< item_index_internal%29#0 array_length%27#0)
+                goto continue_looping%31#0 ? block@2 : block@16
             block@2: // for_body_L134
-                let item_index%31#0: uint64 = (* item_index_internal%29#0 1u)
-                let question_options_arc#0: bytes = (extract3 array_value%28#0 item_index%31#0 1u)
+                let item_index%32#0: uint64 = (* item_index_internal%29#0 1u)
+                let question_options_arc#0: bytes = (extract3 array_value%28#0 item_index%32#0 1u)
                 let question_index#0: uint64 = item_index_internal%29#0
-                let tmp%32#0: uint64 = (> question_index#0 0u)
-                let note#17: bytes = note#0
-                goto tmp%32#0 ? block@3 : block@4
+                let tmp%33#0: uint64 = (> question_index#0 0u)
+                let note#19: bytes = note#0
+                goto tmp%33#0 ? block@3 : block@4
             block@3: // if_body_L135
                 let note#0: bytes = (concat note#0 ",")
-                let note#17: bytes = note#0
+                let note#19: bytes = note#0
                 goto block@4
             block@4: // after_if_else_L135
-                let note#0: bytes = note#17
+                let note#0: bytes = note#19
                 let question_options#0: uint64 = (btoi question_options_arc#0)
-                let tmp%33#0: uint64 = (> question_options#0 0u)
-                let note#17: bytes = note#0
-                let current_index#15: uint64 = current_index#0
-                goto tmp%33#0 ? block@5 : block@12
+                let tmp%34#0: uint64 = (> question_options#0 0u)
+                let note#19: bytes = note#0
+                let current_index#17: uint64 = current_index#0
+                goto tmp%34#0 ? block@5 : block@14
             block@5: // if_body_L138
                 let note#0: bytes = (concat note#0 "[")
-                let range_item%34#0: uint64 = 0u
-                goto block@6
-            block@6: // for_header_L140
-                let continue_looping%35#0: uint64 = (< range_item%34#0 question_options#0)
-                goto continue_looping%35#0 ? block@7 : block@11
-            block@7: // for_body_L140
-                let option_index#0: uint64 = range_item%34#0
-                let tmp%36#0: uint64 = (> option_index#0 0u)
-                let note#17: bytes = note#0
-                goto tmp%36#0 ? block@8 : block@9
-            block@8: // if_body_L141
+                (assert 1u) // Step cannot be zero
+                let should_loop%35#0: uint64 = (< 0u question_options#0)
+                let note#19: bytes = note#0
+                let current_index#17: uint64 = current_index#0
+                goto should_loop%35#0 ? block@6 : block@13
+            block@6: // for_preamble_L140
+                let range_item%36#0: uint64 = 0u
+                goto block@7
+            block@7: // for_header_L140
+                let continue_looping%37#0: uint64 = (< range_item%36#0 question_options#0)
+                let note#19: bytes = note#0
+                let current_index#17: uint64 = current_index#0
+                goto continue_looping%37#0 ? block@8 : block@13
+            block@8: // for_body_L140
+                let option_index#0: uint64 = range_item%36#0
+                let tmp%38#0: uint64 = (> option_index#0 0u)
+                let note#19: bytes = note#0
+                goto tmp%38#0 ? block@9 : block@10
+            block@9: // if_body_L141
                 let note#0: bytes = (concat note#0 ",")
-                let note#17: bytes = note#0
-                goto block@9
-            block@9: // after_if_else_L141
-                let note#0: bytes = note#17
-                let votes_for_option#0: uint64 = examples.voting.voting.get_vote_from_box(current_index#0)
-                let tmp%37#0: bytes = examples.voting.voting.itoa(votes_for_option#0)
-                let note#0: bytes = (concat note#0 tmp%37#0)
-                let current_index#0: uint64 = (+ current_index#0 1u)
+                let note#19: bytes = note#0
                 goto block@10
-            block@10: // for_footer_L140
-                let range_item%34#0: uint64 = (+ range_item%34#0 1u)
-                goto block@6
-            block@11: // after_for_L140
-                let note#0: bytes = (concat note#0 "]")
-                let note#17: bytes = note#0
-                let current_index#15: uint64 = current_index#0
+            block@10: // after_if_else_L141
+                let note#0: bytes = note#19
+                let votes_for_option#0: uint64 = examples.voting.voting.get_vote_from_box(current_index#0)
+                let tmp%39#0: bytes = examples.voting.voting.itoa(votes_for_option#0)
+                let note#0: bytes = (concat note#0 tmp%39#0)
+                let current_index#0: uint64 = (+ current_index#0 1u)
+                goto block@11
+            block@11: // for_footer_L140
                 goto block@12
-            block@12: // after_if_else_L138
-                let note#0: bytes = note#17
-                let current_index#0: uint64 = current_index#15
-                goto block@13
-            block@13: // for_footer_L134
+            block@12: // for_increment_L140
+                let range_item%36#0: uint64 = (+ range_item%36#0 1u)
+                goto block@7
+            block@13: // after_for_L140
+                let note#0: bytes = note#19
+                let current_index#0: uint64 = current_index#17
+                let note#0: bytes = (concat note#0 "]")
+                let note#19: bytes = note#0
+                let current_index#17: uint64 = current_index#0
+                goto block@14
+            block@14: // after_if_else_L138
+                let note#0: bytes = note#19
+                let current_index#0: uint64 = current_index#17
+                goto block@15
+            block@15: // for_footer_L134
                 let item_index_internal%29#0: uint64 = (+ item_index_internal%29#0 1u)
                 goto block@1
-            block@14: // after_for_L134
+            block@16: // after_for_L134
                 let note#0: bytes = (concat note#0 "]}}")
                 itxn_begin
                 ((itxn_field TypeEnum) acfg)
                 ((itxn_field ConfigAssetTotal) 1u)
                 ((itxn_field ConfigAssetDecimals) 0u)
                 ((itxn_field ConfigAssetDefaultFrozen) 0u)
-                let (app_global_get_ex_value%38#0: bytes, app_global_get_ex_did_exist%39#0: uint64) = (app_global_get_ex 0u "vote_id")
-                (assert app_global_get_ex_did_exist%39#0) // check value exists
-                let tmp%40#0: bytes = (concat "[VOTE RESULT] " app_global_get_ex_value%38#0)
-                ((itxn_field ConfigAssetName) tmp%40#0)
+                let (app_global_get_ex_value%40#0: bytes, app_global_get_ex_did_exist%41#0: uint64) = (app_global_get_ex 0u "vote_id")
+                (assert app_global_get_ex_did_exist%41#0) // check value exists
+                let tmp%42#0: bytes = (concat "[VOTE RESULT] " app_global_get_ex_value%40#0)
+                ((itxn_field ConfigAssetName) tmp%42#0)
                 ((itxn_field ConfigAssetUnitName) "VOTERSLT")
-                let (app_global_get_ex_value%41#0: bytes, app_global_get_ex_did_exist%42#0: uint64) = (app_global_get_ex 0u "nft_image_url")
-                (assert app_global_get_ex_did_exist%42#0) // check value exists
-                ((itxn_field ConfigAssetURL) app_global_get_ex_value%41#0)
+                let (app_global_get_ex_value%43#0: bytes, app_global_get_ex_did_exist%44#0: uint64) = (app_global_get_ex 0u "nft_image_url")
+                (assert app_global_get_ex_did_exist%44#0) // check value exists
+                ((itxn_field ConfigAssetURL) app_global_get_ex_value%43#0)
                 ((itxn_field Note) note#0)
                 itxn_submit
-                let new_state_value%43#0: uint64 = (itxn CreatedAssetID)
-                (app_global_put "nft_asset_id" new_state_value%43#0)
+                let new_state_value%45#0: uint64 = (itxn CreatedAssetID)
+                (app_global_put "nft_asset_id" new_state_value%45#0)
                 return 
         
         subroutine puyapy.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
@@ -451,45 +465,51 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%17#0: uint64 = (== tmp%16#0 min_bal_req#0)
                 (assert tmp%17#0) // Payment must be the exact min balance
                 let cumulative_offset#0: uint64 = 0u
-                let range_item%18#0: uint64 = 0u
-                goto block@1
-            block@1: // for_header_L192
-                let continue_looping%19#0: uint64 = (< range_item%18#0 questions_count#0)
-                goto continue_looping%19#0 ? block@2 : block@4
-            block@2: // for_body_L192
-                let question_index#0: uint64 = range_item%18#0
-                let array_length%20#0: uint64 = (extract_uint16 answer_ids#0 0u)
-                let index_is_in_bounds%21#0: uint64 = (< question_index#0 array_length%20#0)
-                (assert index_is_in_bounds%21#0) // Index access is out of bounds
-                let array_data_sans_header%22#0: bytes = ((extract 2 0) answer_ids#0)
-                let item_index%23#0: uint64 = (* question_index#0 1u)
-                let tmp%24#0: bytes = (extract3 array_data_sans_header%22#0 item_index%23#0 1u)
-                let answer_option_index#0: uint64 = (btoi tmp%24#0)
-                let (app_global_get_ex_value%25#0: bytes, app_global_get_ex_did_exist%26#0: uint64) = (app_global_get_ex 0u "option_counts")
-                (assert app_global_get_ex_did_exist%26#0) // check value exists
-                let array_length%27#0: uint64 = (extract_uint16 app_global_get_ex_value%25#0 0u)
-                let index_is_in_bounds%28#0: uint64 = (< question_index#0 array_length%27#0)
-                (assert index_is_in_bounds%28#0) // Index access is out of bounds
-                let array_data_sans_header%29#0: bytes = ((extract 2 0) app_global_get_ex_value%25#0)
-                let item_index%30#0: uint64 = (* question_index#0 1u)
-                let tmp%31#0: bytes = (extract3 array_data_sans_header%29#0 item_index%30#0 1u)
-                let options_count#0: uint64 = (btoi tmp%31#0)
-                let tmp%32#0: uint64 = (< answer_option_index#0 options_count#0)
-                (assert tmp%32#0) // Answer option index invalid
-                let tmp%33#0: uint64 = (+ cumulative_offset#0 answer_option_index#0)
-                examples.voting.voting.increment_vote_in_box(tmp%33#0)
+                (assert 1u) // Step cannot be zero
+                let should_loop%18#0: uint64 = (< 0u questions_count#0)
+                goto should_loop%18#0 ? block@1 : block@6
+            block@1: // for_preamble_L192
+                let range_item%19#0: uint64 = 0u
+                goto block@2
+            block@2: // for_header_L192
+                let continue_looping%20#0: uint64 = (< range_item%19#0 questions_count#0)
+                goto continue_looping%20#0 ? block@3 : block@6
+            block@3: // for_body_L192
+                let question_index#0: uint64 = range_item%19#0
+                let array_length%21#0: uint64 = (extract_uint16 answer_ids#0 0u)
+                let index_is_in_bounds%22#0: uint64 = (< question_index#0 array_length%21#0)
+                (assert index_is_in_bounds%22#0) // Index access is out of bounds
+                let array_data_sans_header%23#0: bytes = ((extract 2 0) answer_ids#0)
+                let item_index%24#0: uint64 = (* question_index#0 1u)
+                let tmp%25#0: bytes = (extract3 array_data_sans_header%23#0 item_index%24#0 1u)
+                let answer_option_index#0: uint64 = (btoi tmp%25#0)
+                let (app_global_get_ex_value%26#0: bytes, app_global_get_ex_did_exist%27#0: uint64) = (app_global_get_ex 0u "option_counts")
+                (assert app_global_get_ex_did_exist%27#0) // check value exists
+                let array_length%28#0: uint64 = (extract_uint16 app_global_get_ex_value%26#0 0u)
+                let index_is_in_bounds%29#0: uint64 = (< question_index#0 array_length%28#0)
+                (assert index_is_in_bounds%29#0) // Index access is out of bounds
+                let array_data_sans_header%30#0: bytes = ((extract 2 0) app_global_get_ex_value%26#0)
+                let item_index%31#0: uint64 = (* question_index#0 1u)
+                let tmp%32#0: bytes = (extract3 array_data_sans_header%30#0 item_index%31#0 1u)
+                let options_count#0: uint64 = (btoi tmp%32#0)
+                let tmp%33#0: uint64 = (< answer_option_index#0 options_count#0)
+                (assert tmp%33#0) // Answer option index invalid
+                let tmp%34#0: uint64 = (+ cumulative_offset#0 answer_option_index#0)
+                examples.voting.voting.increment_vote_in_box(tmp%34#0)
                 let cumulative_offset#0: uint64 = (+ cumulative_offset#0 options_count#0)
-                let tmp%34#0: bytes = (txn Sender)
-                (box_put tmp%34#0 answer_ids#0)
-                let (app_global_get_ex_value%35#0: uint64, app_global_get_ex_did_exist%36#0: uint64) = (app_global_get_ex 0u "voter_count")
-                (assert app_global_get_ex_did_exist%36#0) // check value exists
-                let new_state_value%37#0: uint64 = (+ app_global_get_ex_value%35#0 1u)
-                (app_global_put "voter_count" new_state_value%37#0)
-                goto block@3
-            block@3: // for_footer_L192
-                let range_item%18#0: uint64 = (+ range_item%18#0 1u)
-                goto block@1
-            block@4: // after_for_L192
+                let tmp%35#0: bytes = (txn Sender)
+                (box_put tmp%35#0 answer_ids#0)
+                let (app_global_get_ex_value%36#0: uint64, app_global_get_ex_did_exist%37#0: uint64) = (app_global_get_ex 0u "voter_count")
+                (assert app_global_get_ex_did_exist%37#0) // check value exists
+                let new_state_value%38#0: uint64 = (+ app_global_get_ex_value%36#0 1u)
+                (app_global_put "voter_count" new_state_value%38#0)
+                goto block@4
+            block@4: // for_footer_L192
+                goto block@5
+            block@5: // for_increment_L192
+                let range_item%19#0: uint64 = (+ range_item%19#0 1u)
+                goto block@2
+            block@6: // after_for_L192
                 return 
         
         subroutine examples.voting.voting.increment_vote_in_box(index: uint64) -> void:

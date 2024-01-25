@@ -341,7 +341,7 @@ close_for_header@1:
         frame_dig 9
         frame_dig 7
         <
-        bz close_after_for@14
+        bz close_after_for@16
 
 close_for_body@2:
         frame_dig 8
@@ -377,37 +377,52 @@ close_after_if_else@4:
         frame_bury 0
         frame_dig 6
         frame_bury 2
-        bz close_after_if_else@12
+        bz close_after_if_else@14
 
 close_if_body@5:
         frame_dig 5
         byte "["
         concat
+        dup
         frame_bury 5
+        int 0
+        frame_dig 4
+        <
+        swap
+        frame_bury 0
+        frame_dig 6
+        frame_bury 2
+        bz close_after_for@13
+
+close_for_preamble@6:
         int 0
         frame_bury 3
 
-close_for_header@6:
+close_for_header@7:
         frame_dig 3
         frame_dig 4
         <
-        bz close_after_for@11
+        frame_dig 5
+        frame_bury 0
+        frame_dig 6
+        frame_bury 2
+        bz close_after_for@13
 
-close_for_body@7:
+close_for_body@8:
         frame_dig 3
         int 0
         >
         frame_dig 5
         frame_bury 0
-        bz close_after_if_else@9
+        bz close_after_if_else@10
 
-close_if_body@8:
+close_if_body@9:
         frame_dig 5
         byte ","
         concat
         frame_bury 0
 
-close_after_if_else@9:
+close_after_if_else@10:
         frame_dig 0
         frame_dig 6
         dup
@@ -423,17 +438,17 @@ close_after_if_else@9:
         int 1
         +
         frame_bury 3
-        b close_for_header@6
+        b close_for_header@7
 
-close_after_for@11:
-        frame_dig 5
+close_after_for@13:
+        frame_dig 2
+        frame_dig 0
         byte "]"
         concat
         frame_bury 0
-        frame_dig 6
         frame_bury 2
 
-close_after_if_else@12:
+close_after_if_else@14:
         frame_dig 0
         frame_bury 5
         frame_dig 2
@@ -444,7 +459,7 @@ close_after_if_else@12:
         frame_bury 9
         b close_for_header@1
 
-close_after_for@14:
+close_after_for@16:
         frame_dig 5
         byte "]}}"
         concat
@@ -712,6 +727,7 @@ already_voted_block@0:
 // examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req#0: uint64, signature#0: bytes, answer_ids#0: bytes) -> void:
 vote:
         proto 3 0
+        byte ""
 
 vote_block@0:
         int 7700
@@ -736,6 +752,7 @@ vote_block@0:
         frame_dig -1
         int 0
         extract_uint16
+        dig 1
         ==
         assert // Number of answers incorrect
         frame_dig -1
@@ -760,19 +777,26 @@ vote_block@0:
         ==
         assert // Payment must be the exact min balance
         int 0
+        swap
         int 0
+        >
+        bz vote_after_for@6
 
-vote_for_header@1:
-        frame_dig 2
+vote_for_preamble@1:
+        int 0
+        frame_bury 0
+
+vote_for_header@2:
         frame_dig 0
+        frame_dig 1
         <
-        bz vote_after_for@4
+        bz vote_after_for@6
 
-vote_for_body@2:
+vote_for_body@3:
         frame_dig -1
         int 0
         extract_uint16
-        frame_dig 2
+        frame_dig 0
         dup
         cover 2
         >
@@ -803,13 +827,13 @@ vote_for_body@2:
         dig 1
         <
         assert // Answer option index invalid
-        frame_dig 1
+        frame_dig 2
         dup
         uncover 4
         +
         callsub increment_vote_in_box
         +
-        frame_bury 1
+        frame_bury 2
         txn Sender
         frame_dig -1
         box_put
@@ -824,10 +848,10 @@ vote_for_body@2:
         app_global_put
         int 1
         +
-        frame_bury 2
-        b vote_for_header@1
+        frame_bury 0
+        b vote_for_header@2
 
-vote_after_for@4:
+vote_after_for@6:
         retsub
 
 

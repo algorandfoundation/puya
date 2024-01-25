@@ -1,0 +1,415 @@
+#pragma version 8
+
+// test_cases.reversed_iteration.contract.MyContract.approval_program() -> uint64:
+main:
+        int 0
+        dupn 6
+        byte ""
+        dupn 13
+
+main_block@0:
+        int 0
+        int 0
+
+main_for_header@7:
+        dig 1
+        int 0
+        <
+        bz main_after_for@10
+
+main_for_body@8:
+        dup
+        int 1
+        -
+        dup
+        bury 2
+        byte 0x
+        swap
+        int 1
+        extract3
+        log
+        dig 1
+        int 1
+        +
+        bury 2
+        b main_for_header@7
+
+main_after_for@10:
+        byte 0x00000000
+        bury 19
+        int 3
+        int 0
+        swap
+        bury 15
+        bury 15
+
+main_for_body@13:
+        dig 13
+        dup
+        itob
+        extract 7 1
+        dig 16
+        dup
+        int 4
+        <
+        assert // Index access is out of bounds
+        dig 21
+        swap
+        uncover 2
+        replace3
+        bury 20
+        int 0
+        >
+        bz main_after_for@16
+
+main_for_increment@15:
+        dig 13
+        int 1
+        -
+        dig 15
+        int 1
+        +
+        swap
+        bury 15
+        bury 15
+        b main_for_body@13
+
+main_after_for@16:
+        dig 18
+        byte 0x03020100
+        ==
+        assert
+        int 4
+        int 0
+        bury 11
+        bury 14
+
+main_for_header@18:
+        dig 13
+        int 8
+        <
+        dig 19
+        bury 19
+        bz main_after_for@24
+
+main_for_body@19:
+        int 3
+        dig 10
+        -
+        dig 14
+        itob
+        extract 7 1
+        swap
+        dup
+        int 4
+        <
+        assert // Index access is out of bounds
+        dig 20
+        dig 1
+        uncover 3
+        replace3
+        bury 20
+        int 2
+        ==
+        bz main_after_if_else@21
+
+main_if_body@20:
+        dig 18
+        bury 18
+        b main_after_for@24
+
+main_after_if_else@21:
+        dig 13
+        int 1
+        +
+        dig 10
+        int 1
+        +
+        bury 11
+        bury 14
+        b main_for_header@18
+
+main_after_for@24:
+        dig 17
+        byte 0x03020504
+        ==
+        assert
+        int 6
+        itob
+        extract 6 2
+        int 9
+        itob
+        extract 6 2
+        concat
+        int 12
+        itob
+        extract 6 2
+        concat
+        byte "\x00\x01a"
+        concat
+        byte "\x00\x01b"
+        concat
+        byte "\x00\x01c"
+        concat
+        bury 20
+        byte "\x00\x00"
+        bury 21
+        int 0
+        bury 13
+        int 3
+        bury 9
+
+main_for_header@25:
+        dig 12
+        int 3
+        <
+        bz main_after_for@28
+
+main_for_body@26:
+        dig 8
+        int 1
+        -
+        dup
+        bury 10
+        int 2
+        *
+        dig 20
+        dup
+        cover 2
+        swap
+        extract_uint16
+        dig 1
+        dig 1
+        extract_uint16
+        int 2
+        +
+        extract3
+        dup
+        int 0
+        extract_uint16
+        swap
+        extract 2 0
+        dig 22
+        swap
+        uncover 2
+        callsub dynamic_array_concat_fixed_size
+        bury 21
+        dig 12
+        int 1
+        +
+        bury 13
+        b main_for_header@25
+
+main_after_for@28:
+        dig 20
+        byte "\x00\x03cba"
+        ==
+        assert
+        byte ""
+        bury 22
+        int 0
+        bury 12
+        int 5
+        bury 8
+
+main_for_header@29:
+        dig 11
+        int 5
+        <
+        bz main_after_for@35
+
+main_for_body@30:
+        dig 7
+        int 1
+        -
+        dup
+        bury 16
+        byte "HELLO"
+        dig 1
+        int 1
+        extract3
+        bury 24
+        dup
+        itob
+        bury 18
+        itob
+        len
+        dup
+        bury 17
+        int 1
+        >
+        bz main_ternary_false@32
+
+main_ternary_true@31:
+        dig 15
+        int 1
+        -
+        b main_ternary_merge@33
+
+main_ternary_false@32:
+        int 0
+
+main_ternary_merge@33:
+        dig 17
+        dup
+        len
+        swap
+        cover 2
+        substring3
+        dig 23
+        concat
+        dig 22
+        swap
+        concat
+        bury 22
+        dig 11
+        int 1
+        +
+        bury 12
+        dig 14
+        bury 8
+        b main_for_header@29
+
+main_after_for@35:
+        dig 21
+        byte "\x04O\x03L\x02L\x01E\x00H"
+        ==
+        assert
+        int 0
+        int 3
+        bury 5
+        bury 15
+        b main_for_body@40
+
+main_for_header_2@37:
+        int 2
+        bury 4
+        dig 6
+        bury 15
+        b main_for_body@40
+
+main_for_header_1@38:
+        int 1
+        bury 4
+        dig 6
+        bury 15
+        b main_for_body@40
+
+main_for_header_0@39:
+        int 0
+        bury 4
+        dig 6
+        bury 15
+
+main_for_body@40:
+        dig 14
+        dup
+        dig 5
+        +
+        int 3
+        ==
+        assert
+        dup
+        int 1
+        +
+        bury 8
+        switch main_for_header_2@37 main_for_header_1@38 main_for_header_0@39
+
+main_after_for@42:
+        int 0
+        int 99
+        bury 12
+        int 0
+        bury 7
+        int 5
+        bury 5
+        b main_for_body@47
+
+main_for_header_1@44:
+        int 6
+        bury 4
+        dig 4
+        bury 6
+        dig 2
+        dig 15
+        bury 12
+        b main_for_body@47
+
+main_for_header_2@45:
+        int 7
+        bury 4
+        dig 4
+        bury 6
+        dig 2
+        dig 15
+        bury 12
+        b main_for_body@47
+
+main_for_header_3@46:
+        int 8
+        bury 4
+        dig 4
+        bury 6
+        dig 2
+        dig 15
+        bury 12
+
+main_for_body@47:
+        dig 4
+        dup
+        bury 5
+        int 3
+        dig 8
+        dup
+        cover 3
+        -
+        dup
+        cover 2
+        bury 19
+        uncover 3
+        dig 1
+        <
+        assert
+        dig 13
+        dig 2
+        >
+        assert
+        +
+        int 8
+        ==
+        assert
+        dup
+        int 1
+        +
+        bury 6
+        switch main_for_header_1@44 main_for_header_2@45 main_for_header_3@46
+
+main_after_for@49:
+        int 1
+        return
+
+
+// puyapy_lib_arc4.dynamic_array_concat_fixed_size(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64) -> bytes:
+dynamic_array_concat_fixed_size:
+        proto 3 1
+
+dynamic_array_concat_fixed_size_block@0:
+        frame_dig -3
+        int 0
+        extract_uint16
+        frame_dig -1
+        +
+        itob
+        substring 6 8
+        frame_dig -3
+        int 0
+        uncover 2
+        replace3
+        dup
+        frame_bury -3
+        frame_dig -2
+        concat
+        dup
+        frame_bury -3
+        retsub
+

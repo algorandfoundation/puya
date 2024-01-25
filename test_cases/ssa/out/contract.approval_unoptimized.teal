@@ -3,7 +3,7 @@
 // test_cases.ssa.contract.MyContract.approval_program() -> uint64:
 main:
         byte ""
-        dup
+        dupn 3
 
 main_block@0:
         int 1
@@ -38,16 +38,32 @@ main_while_body@2:
         b main_while_top@1
 
 main_after_while@3:
+        int 1
+        assert // Step cannot be zero
+        int 0
+        int 5
+        <
+        dig 2
+        bury 7
+        dig 1
+        bury 6
+        bz main_after_for@9
+
+main_for_preamble@4:
         int 0
         bury 3
 
-main_for_header@4:
+main_for_header@5:
         dig 2
         int 5
         <
-        bz main_after_for@7
+        dig 2
+        bury 7
+        dig 1
+        bury 6
+        bz main_after_for@9
 
-main_for_body@5:
+main_for_body@6:
         dig 2
         dig 1
         dig 3
@@ -58,78 +74,84 @@ main_for_body@5:
         +
         bury 2
 
-main_for_footer@6:
+main_for_footer@7:
+
+main_for_increment@8:
         dig 2
         int 1
         +
         bury 3
-        b main_for_header@4
+        b main_for_header@5
 
-main_after_for@7:
-        dig 1
-        dig 1
+main_after_for@9:
+        dig 5
+        dup
+        bury 3
+        dig 5
+        dup
+        bury 3
         <
-        bz main_else_body@15
+        bz main_else_body@17
 
-main_if_body@8:
+main_if_body@10:
         dup
         int 2
         <
-        bz main_else_body@10
+        bz main_else_body@12
 
-main_if_body@9:
+main_if_body@11:
         int 3
         int 2
         +
         dig 2
         +
         bury 4
-        b main_after_if_else@14
+        b main_after_if_else@16
 
-main_else_body@10:
+main_else_body@12:
         int 2
         dig 2
         *
         int 14
         *
-        bz main_else_body@12
+        bz main_else_body@14
 
-main_if_body@11:
+main_if_body@13:
         int 2
         bury 4
-        b main_after_if_else@13
+        b main_after_if_else@15
 
-main_else_body@12:
+main_else_body@14:
         int 3
         return
 
-main_after_if_else@13:
+main_after_if_else@15:
 
-main_after_if_else@14:
-        b main_after_if_else@19
+main_after_if_else@16:
+        b main_after_if_else@21
 
-main_else_body@15:
+main_else_body@17:
         dup
         dig 2
         ==
-        bz main_else_body@17
+        bz main_else_body@19
 
-main_if_body@16:
+main_if_body@18:
         dig 1
         dig 1
         *
         bury 4
-        b main_after_if_else@18
+        b main_after_if_else@20
 
-main_else_body@17:
+main_else_body@19:
         dig 1
         dig 1
         -
         bury 4
 
-main_after_if_else@18:
+main_after_if_else@20:
 
-main_after_if_else@19:
+main_after_if_else@21:
         dig 3
         dup
         callsub one_hundred

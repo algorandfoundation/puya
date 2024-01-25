@@ -360,32 +360,59 @@ swap_args_block@0:
 // test_cases.unssa.contract.test_tuple_swap(a#0: uint64, b#0: uint64, i#0: uint64) -> uint64, uint64:
 test_tuple_swap:
         proto 3 2
+        byte ""
 
 test_tuple_swap_block@0:
+        int 1
+        assert // Step cannot be zero
         int 0
+        frame_dig -1
+        <
+        frame_dig -3
+        swap
+        frame_dig -2
+        swap
+        bz test_tuple_swap_after_for@6
 
-test_tuple_swap_for_header@1:
+test_tuple_swap_for_preamble@1:
+        int 0
+        frame_bury 0
+
+test_tuple_swap_for_header@2:
         frame_dig 0
         frame_dig -1
         <
-        bz test_tuple_swap_after_for@4
-
-test_tuple_swap_for_body@2:
+        frame_dig -3
+        frame_bury 1
         frame_dig -2
+        frame_bury 2
+        bz test_tuple_swap_after_for@6
+
+test_tuple_swap_for_body@3:
+        frame_dig -2
+        frame_bury 1
         frame_dig -3
         frame_bury -2
 
-test_tuple_swap_for_footer@3:
+test_tuple_swap_for_footer@4:
+
+test_tuple_swap_for_increment@5:
         frame_dig 0
         int 1
         +
         frame_bury 0
+        frame_dig 1
         frame_bury -3
-        b test_tuple_swap_for_header@1
+        b test_tuple_swap_for_header@2
 
-test_tuple_swap_after_for@4:
+test_tuple_swap_after_for@6:
+        frame_dig 1
+        frame_bury -3
+        frame_dig 2
+        frame_bury -2
         frame_dig -3
         frame_dig -2
-        uncover 2
+        frame_bury 1
+        frame_bury 0
         retsub
 

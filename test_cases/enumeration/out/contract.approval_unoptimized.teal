@@ -66,79 +66,134 @@ main_block@0:
 enumerate_urange:
         proto 3 3
         byte ""
-        dup
+        dupn 3
 
 enumerate_urange_block@0:
         int 0
-        int 0
-        int 0
-        frame_dig -3
-
-enumerate_urange_for_header@1:
-        frame_dig 5
-        frame_dig -2
-        <
-        bz enumerate_urange_after_for@4
-
-enumerate_urange_for_body@2:
-        frame_dig 5
-        frame_dig 2
-        int 1
-        +
-        frame_bury 2
-        frame_dig 3
-        +
-        frame_bury 3
-
-enumerate_urange_for_footer@3:
-        frame_dig 5
-        frame_dig -1
-        +
-        frame_bury 5
-        b enumerate_urange_for_header@1
-
-enumerate_urange_after_for@4:
-        frame_dig -3
-        frame_bury 1
-        int 0
-        frame_bury 0
-
-enumerate_urange_for_header@5:
-        frame_dig 1
-        frame_dig -2
-        <
-        bz enumerate_urange_after_for@8
-
-enumerate_urange_for_body@6:
-        frame_dig 1
-        frame_dig 0
+        dup
         swap
-        frame_dig 2
-        int 1
-        +
+        int 0
+        dup
+        cover 2
+        cover 2
+        int 0
+        cover 2
+        frame_dig -1
+        assert // Step cannot be zero
+        frame_dig -3
+        frame_dig -2
+        <
+        swap
+        cover 2
+        bz enumerate_urange_after_for@6
+
+enumerate_urange_for_preamble@1:
+        frame_dig -3
         frame_bury 2
-        frame_dig 3
-        +
-        frame_bury 3
+
+enumerate_urange_for_header@2:
+        frame_dig 2
+        frame_dig -2
+        <
         frame_dig 4
+        frame_bury 7
+        frame_dig 5
+        frame_bury 8
+        bz enumerate_urange_after_for@6
+
+enumerate_urange_for_body@3:
+        frame_dig 2
+        frame_dig 4
+        int 1
         +
         frame_bury 4
+        frame_dig 5
+        +
+        frame_bury 5
 
-enumerate_urange_for_footer@7:
-        frame_dig 1
+enumerate_urange_for_footer@4:
+
+enumerate_urange_for_increment@5:
+        frame_dig 2
         frame_dig -1
         +
+        frame_bury 2
+        b enumerate_urange_for_header@2
+
+enumerate_urange_after_for@6:
+        frame_dig 7
+        dup
+        frame_bury 4
+        frame_dig 8
+        dup
+        cover 2
+        frame_bury 5
+        frame_dig -1
+        assert // Step cannot be zero
+        frame_dig -3
+        frame_dig -2
+        <
+        swap
+        frame_bury 7
+        swap
+        frame_bury 8
+        frame_dig 6
+        frame_bury 0
+        bz enumerate_urange_after_for@12
+
+enumerate_urange_for_preamble@7:
+        frame_dig -3
+        frame_bury 3
+        int 0
         frame_bury 1
-        frame_dig 0
+
+enumerate_urange_for_header@8:
+        frame_dig 3
+        frame_dig -2
+        <
+        frame_dig 4
+        frame_bury 7
+        frame_dig 5
+        frame_bury 8
+        frame_dig 6
+        frame_bury 0
+        bz enumerate_urange_after_for@12
+
+enumerate_urange_for_body@9:
+        frame_dig 3
+        frame_dig 1
+        swap
+        frame_dig 4
         int 1
         +
-        frame_bury 0
-        b enumerate_urange_for_header@5
+        frame_bury 4
+        frame_dig 5
+        +
+        frame_bury 5
+        frame_dig 6
+        +
+        frame_bury 6
 
-enumerate_urange_after_for@8:
-        frame_dig 2
+enumerate_urange_for_footer@10:
+
+enumerate_urange_for_increment@11:
         frame_dig 3
-        frame_dig 4
+        frame_dig -1
+        +
+        frame_bury 3
+        frame_dig 1
+        int 1
+        +
+        frame_bury 1
+        b enumerate_urange_for_header@8
+
+enumerate_urange_after_for@12:
+        frame_dig 7
+        frame_dig 8
+        frame_dig 0
+        uncover 2
+        uncover 2
+        uncover 2
         frame_bury 2
         frame_bury 1
         frame_bury 0
@@ -275,7 +330,11 @@ enumerate_bytes_block@0:
         int 0
         frame_dig -1
         len
+        dup
+        swap
         int 0
+        swap
+        pop
 
 enumerate_bytes_for_header@1:
         frame_dig 6
@@ -307,9 +366,11 @@ enumerate_bytes_for_footer@3:
 enumerate_bytes_after_for@4:
         frame_dig -1
         len
+        dup
         frame_bury 0
         int 0
         frame_bury 1
+        pop
 
 enumerate_bytes_for_header@5:
         frame_dig 1
