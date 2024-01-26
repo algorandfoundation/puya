@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import Bytes, Contract, arc4, uenumerate, urange, itob, UInt64, log
+from puyapy import Bytes, Contract, UInt64, arc4, itob, log, uenumerate, urange
 
 
 class MyContract(Contract):
