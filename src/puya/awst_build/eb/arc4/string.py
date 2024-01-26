@@ -65,12 +65,14 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
 
+
 def arc4_encode_bytes(bytes_expr: Expression, source_location: SourceLocation) -> Expression:
     return ARC4Encode(
         value=bytes_expr, source_location=source_location, wtype=wtypes.arc4_string_wtype
     )
-def expect_string_or_bytes(expr: ExpressionBuilder | Literal) -> Expression:
 
+
+def expect_string_or_bytes(expr: ExpressionBuilder | Literal) -> Expression:
     match expr:
         case Literal(value=str(string_literal), source_location=source_location):
             return arc4_encode_bytes(
