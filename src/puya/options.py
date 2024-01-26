@@ -1,9 +1,22 @@
 from collections.abc import Sequence
+from enum import IntFlag
 from pathlib import Path
 
 import attrs
 
 from puya.logging_config import LogLevel
+
+
+class TealAnnotatorOption(IntFlag):
+    op_description = (1 << 0,)
+    stack = (1 << 1,)
+    vla = (1 << 2,)
+    x_stack = (1 << 3,)
+    source_info = 1 << 4
+
+    @staticmethod
+    def from_string(s: str) -> "TealAnnotatorOption":
+        return TealAnnotatorOption(int(s))
 
 
 @attrs.define(kw_only=True)
@@ -22,3 +35,4 @@ class PuyaOptions:
     debug_level: int = 0
     optimization_level: int = 0
     log_level: LogLevel = LogLevel.info
+    annotations: TealAnnotatorOption | None = None

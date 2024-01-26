@@ -3,7 +3,7 @@ from pathlib import Path
 
 from puya.compile import compile_to_teal
 from puya.logging_config import LogLevel, configure_logging
-from puya.options import PuyaOptions
+from puya.options import PuyaOptions, TealAnnotatorOption
 
 
 def main() -> None:
@@ -88,6 +88,12 @@ def main() -> None:
         "--log-level",
         type=LogLevel.from_string,
         choices=list(LogLevel),
+    )
+    parser.add_argument(
+        "--annotations",
+        type=TealAnnotatorOption.from_string,
+        help="combine multiple options as bit flags",
+        default=False,
     )
 
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")

@@ -6,11 +6,12 @@ from puya.codegen.teal_annotaters import (
     AlignedWriter,
     EmitProgramContext,
     EmitSubroutineContext,
-    OpAnnotater,
-    SimpleOpAnnotater,
-    TealAnnotater,
-    debug_annotations,
+    OpAnnotator,
+    SimpleOpAnnotator,
+    TealAnnotator,
+    get_annotators,
 )
+from puya.options import TealAnnotatorOption
 from puya.utils import attrs_extend
 
 logger = structlog.get_logger(__name__)
@@ -18,7 +19,7 @@ logger = structlog.get_logger(__name__)
 VIRTUAL_STACK_DEBUG_LEVEL = 2
 
 
-def emit_op(context: EmitProgramContext, op: ops.BaseOp, op_annotaters: list[OpAnnotater]) -> None:
+def emit_op(context: EmitProgramContext, op: ops.BaseOp, op_annotaters: list[OpAnnotator]) -> None:
     teal_ops = op.accept(context.stack)
     if not teal_ops:
         debug_level = context.options.debug_level
@@ -44,7 +45,7 @@ def emit_subroutine(context: EmitProgramContext, subroutine: ops.MemorySubroutin
     writer = context.writer
     writer.append_line(f"// {subroutine.signature}")
     with writer.indent():
-        op_annotaters = [a.create_op_annotater(subroutine_context) for a in context.annotaters]
+        op_annotaters = [a.create_op_annotater(subroutine_context) for a in context.annotators]
         for block in subroutine.all_blocks:
             context.stack.begin_block(subroutine, block)
             for annotate_op in op_annotaters:
@@ -58,29 +59,33 @@ def emit_subroutine(context: EmitProgramContext, subroutine: ops.MemorySubroutin
         writer.new_line()
 
 
-class _BeginCommentsAnnotater(TealAnnotater):
+class _BeginCommentsAnnotator(TealAnnotator):
     def header(self, writer: AlignedWriter) -> None:
         writer.add_header("//")
 
-    def create_op_annotater(self, _context: EmitSubroutineContext) -> OpAnnotater:
+    def create_op_annotater(self, _context: EmitSubroutineContext) -> OpAnnotator:
         def annotate(writer: AlignedWriter, _op: ops.BaseOp) -> None:
             writer.append("//")
 
-        return SimpleOpAnnotater(annotate)
+        return SimpleOpAnnotator(annotate)
 
 
 def emit_memory_ir_as_teal(
     context: ProgramCodeGenContext, subroutines: list[ops.MemorySubroutine]
 ) -> list[str]:
-    annotaters = debug_annotations.copy() if context.options.debug_level else []
-    if annotaters:
-        annotaters.insert(0, _BeginCommentsAnnotater())
-    emit_context = attrs_extend(EmitProgramContext, context, annotaters=annotaters)
+    selected_annotations = context.options.annotations
+    if context.options.debug_level and selected_annotations is None:
+        selected_annotations = TealAnnotatorOption(31)  # Default to all
+
+    annotators = list(get_annotators(selected_annotations))
+    if annotators:
+        annotators.insert(0, _BeginCommentsAnnotator())
+    emit_context = attrs_extend(EmitProgramContext, context, annotators=annotators)
 
     writer = emit_context.writer
-    if annotaters:
+    if annotators:
         writer.add_header("// Op")
-        for annotater in annotaters:
+        for annotater in annotators:
             annotater.header(writer)
 
         writer.new_line()

@@ -1,7 +1,7 @@
 import abc
 import contextlib
 from collections.abc import Iterator
-from typing import Callable
+from typing import Callable, Iterable
 
 import attrs
 
@@ -11,6 +11,7 @@ from puya.codegen.source_meta_retriever import SourceMetaRetriever
 from puya.codegen.stack import Stack
 from puya.codegen.vla import VariableLifetimeAnalysis
 from puya.errors import InternalError
+from puya.options import TealAnnotatorOption
 
 
 @attrs.define
@@ -95,7 +96,7 @@ class AlignedWriter:
         ]
 
 
-class OpAnnotater(abc.ABC):
+class OpAnnotator(abc.ABC):
     @abc.abstractmethod
     def annotate(self, writer: AlignedWriter, op: ops.BaseOp) -> None:
         ...
@@ -106,7 +107,7 @@ class OpAnnotater(abc.ABC):
 
 
 @attrs.frozen
-class SimpleOpAnnotater(OpAnnotater):
+class SimpleOpAnnotator(OpAnnotator):
     _annotate: Callable[[AlignedWriter, ops.BaseOp], None]
     _begin_block: Callable[[AlignedWriter, ops.MemoryBasicBlock], None] | None = None
 
@@ -120,7 +121,7 @@ class SimpleOpAnnotater(OpAnnotater):
 
 @attrs.frozen(kw_only=True)
 class EmitProgramContext(ProgramCodeGenContext):
-    annotaters: "list[TealAnnotater]"
+    annotators: "list[TealAnnotator]"
     writer: AlignedWriter = attrs.field(factory=AlignedWriter)
     stack: Stack = attrs.field()
 
@@ -134,13 +135,13 @@ class EmitSubroutineContext(EmitProgramContext):
     subroutine: ops.MemorySubroutine
 
 
-class TealAnnotater(abc.ABC):
+class TealAnnotator(abc.ABC):
     @abc.abstractmethod
     def header(self, writer: AlignedWriter) -> None:
         ...
 
     @abc.abstractmethod
-    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
+    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotator:
         ...
 
 
@@ -152,27 +153,27 @@ class OpDescVisitor(visitor.MIRVisitor[str]):
         return ""
 
 
-class OpDescriptionAnnotation(TealAnnotater):
+class OpDescriptionAnnotation(TealAnnotator):
     def header(self, writer: AlignedWriter) -> None:
         writer.add_header("Op Description")
 
-    def create_op_annotater(self, _context: EmitSubroutineContext) -> OpAnnotater:
+    def create_op_annotater(self, _context: EmitSubroutineContext) -> OpAnnotator:
         def annotate(writer: AlignedWriter, op: ops.BaseOp) -> None:
             if isinstance(op, ops.StoreOp | ops.LoadOp | ops.Allocate | ops.VirtualStackOp):
                 writer.append(str(op))
             else:
                 writer.append("")
 
-        return SimpleOpAnnotater(annotate)
+        return SimpleOpAnnotator(annotate)
 
 
-class StackAnnotation(TealAnnotater):
+class StackAnnotation(TealAnnotator):
     def header(self, writer: AlignedWriter) -> None:
         writer.add_header("Stack (out)", 4)
 
-    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
+    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotator:
         @attrs.define
-        class Annotater(OpAnnotater):
+        class Annotator(OpAnnotator):
             stack: Stack = attrs.field(factory=Stack)
 
             def begin_block(self, _writer: AlignedWriter, block: ops.MemoryBasicBlock) -> None:
@@ -182,32 +183,32 @@ class StackAnnotation(TealAnnotater):
                 op.accept(self.stack)
                 writer.append(self.stack.full_stack_desc)
 
-        return Annotater()
+        return Annotator()
 
 
-class VLAAnnotation(TealAnnotater):
+class VLAAnnotation(TealAnnotator):
     def header(self, writer: AlignedWriter) -> None:
         writer.add_header("Live (out)", 4)
 
-    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
+    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotator:
         vla = VariableLifetimeAnalysis.analyze(context.subroutine)
 
         def annotater(writer: AlignedWriter, op: ops.BaseOp) -> None:
             live = vla.get_live_out_variables(op)
             writer.append(", ".join(live))
 
-        return SimpleOpAnnotater(annotater)
+        return SimpleOpAnnotator(annotater)
 
 
 @attrs.define
-class SourceAnnotation(TealAnnotater):
+class SourceAnnotation(TealAnnotator):
     max_width: int = attrs.field(default=100)
 
     def header(self, writer: AlignedWriter) -> None:
         writer.add_header("Source code")
         writer.add_header("Source line")
 
-    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
+    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotator:
         meta = SourceMetaRetriever(context)
 
         def annotater(writer: AlignedWriter, op: ops.BaseOp) -> None:
@@ -223,15 +224,15 @@ class SourceAnnotation(TealAnnotater):
             writer.append(code)
             writer.append(src.location or "")
 
-        return SimpleOpAnnotater(annotater)
+        return SimpleOpAnnotator(annotater)
 
 
-class XStack(TealAnnotater):
+class XStack(TealAnnotator):
     def header(self, writer: AlignedWriter) -> None:
         writer.add_header("X stack")
 
-    def create_op_annotater(self, _context: EmitSubroutineContext) -> OpAnnotater:
-        class Annotater(OpAnnotater):
+    def create_op_annotater(self, _context: EmitSubroutineContext) -> OpAnnotator:
+        class Annotator(OpAnnotator):
             block: ops.MemoryBasicBlock
             need_x_stack_in: bool
 
@@ -250,13 +251,19 @@ class XStack(TealAnnotater):
                 else:
                     writer.append("")
 
-        return Annotater()
+        return Annotator()
 
 
-debug_annotations = [
-    OpDescriptionAnnotation(),
-    StackAnnotation(),
-    VLAAnnotation(),
-    XStack(),
-    SourceAnnotation(),
-]
+def get_annotators(option: TealAnnotatorOption | None) -> Iterable[TealAnnotator]:
+    if option is None:
+        return
+    if option & TealAnnotatorOption.op_description:
+        yield OpDescriptionAnnotation()
+    if option & TealAnnotatorOption.stack:
+        yield StackAnnotation()
+    if option & TealAnnotatorOption.vla:
+        yield VLAAnnotation()
+    if option & TealAnnotatorOption.x_stack:
+        yield XStack()
+    if option & TealAnnotatorOption.source_info:
+        yield SourceAnnotation()
