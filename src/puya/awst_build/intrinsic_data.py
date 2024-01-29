@@ -100,38 +100,6 @@ STUB_TO_AST_MAPPER = {
                 wtypes.bytes_wtype,
             ],
         ),
-        FunctionOpMapping(
-            op_code="arg_0",
-            immediates=[],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="arg_1",
-            immediates=[],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="arg_2",
-            immediates=[],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="arg_3",
-            immediates=[],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
     ],
     "puyapy._gen.balance": [
         FunctionOpMapping(
@@ -649,13 +617,13 @@ STUB_TO_AST_MAPPER = {
             op_code="extract",
             immediates=[
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
                 ),
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="c",
                     allowed_types=[
                         int,
                     ],
@@ -663,7 +631,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="c",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
@@ -884,7 +852,7 @@ STUB_TO_AST_MAPPER = {
             op_code="gloads",
             immediates=[
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -892,7 +860,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
                         int,
@@ -953,7 +921,7 @@ STUB_TO_AST_MAPPER = {
             op_code="gloads",
             immediates=[
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -961,7 +929,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
                         int,
@@ -1105,7 +1073,7 @@ STUB_TO_AST_MAPPER = {
             op_code="replace2",
             immediates=[
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -1113,7 +1081,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
@@ -1385,13 +1353,13 @@ STUB_TO_AST_MAPPER = {
             op_code="substring",
             immediates=[
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
                 ),
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="c",
                     allowed_types=[
                         int,
                     ],
@@ -1399,7 +1367,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="c",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,

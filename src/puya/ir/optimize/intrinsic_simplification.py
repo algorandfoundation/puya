@@ -62,7 +62,9 @@ class IntrinsicSimplifier(IRMutator):
                     models.UInt64Constant(value=S),
                     models.UInt64Constant(value=L),
                 ],
-            ) if S <= 255 and L <= 255:
+            ) if S <= 255 and 1 <= L <= 255:
+                # note the lower bound of 1 on length, extract with immediates vs extract3
+                # have *very* different behaviour if the length is 0
                 self.modified += 1
                 return attrs.evolve(
                     intrinsic, immediates=[S, L], args=intrinsic.args[:1], op=AVMOp.extract
@@ -79,6 +81,18 @@ class IntrinsicSimplifier(IRMutator):
                 return attrs.evolve(
                     intrinsic, immediates=[S, E], args=intrinsic.args[:1], op=AVMOp.substring
                 )
+            case Intrinsic(
+                op=AVMOp.replace3,
+                args=[a, models.UInt64Constant(value=S), b],
+            ) if S <= 255:
+                self.modified += 1
+                return attrs.evolve(intrinsic, immediates=[S], args=[a, b], op=AVMOp.replace2)
+            case Intrinsic(
+                op=AVMOp.args,
+                args=[models.UInt64Constant(value=idx)],
+            ) if idx <= 255:
+                self.modified += 1
+                return attrs.evolve(intrinsic, op=AVMOp.arg, immediates=[idx], args=[])
         return intrinsic
 
     @classmethod

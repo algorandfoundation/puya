@@ -171,12 +171,13 @@ contract test_cases.everything.contract.Everything:
         subroutine puyapy_lib_arc4.dynamic_array_concat_fixed_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
             block@0: // L190
                 let array_length#0: uint64 = (extract_uint16 source#0 0u)
-                let tmp%0#0: uint64 = (+ array_length#0 new_items_count#0)
-                let tmp%1#0: bytes = (itob tmp%0#0)
-                let tmp%2#0: bytes = ((substring 6 8) tmp%1#0)
-                let source#1: bytes = (replace3 source#0 0u tmp%2#0)
-                let source#2: bytes = (concat source#1 new_items_bytes#0)
-                return source#2
+                let new_length#0: uint64 = (+ array_length#0 new_items_count#0)
+                let tmp%0#0: bytes = (itob new_length#0)
+                let new_length_header#0: bytes = ((extract 6 0) tmp%0#0)
+                let tmp%1#0: bytes = ((extract 2 0) source#0)
+                let tmp%2#0: bytes = (concat new_length_header#0 tmp%1#0)
+                let tmp%3#0: bytes = (concat tmp%2#0 new_items_bytes#0)
+                return tmp%3#0
     
     program clear-state:
         subroutine test_cases.everything.contract.Everything.clear_state_program() -> uint64:

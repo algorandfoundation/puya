@@ -200,9 +200,9 @@ def dynamic_array_concat_fixed_size(
     returns: The updated bytes for the source array
     """
     array_length = extract_uint16(source, 0)
-    source = replace(source, 0, substring(itob(array_length + new_items_count), 6, 8))
-    source += new_items_bytes
-    return source
+    new_length = array_length + new_items_count
+    new_length_header = extract(itob(new_length), 6, 0)
+    return new_length_header + extract(source, 2, 0) + new_items_bytes
 
 
 @subroutine
