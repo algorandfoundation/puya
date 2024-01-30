@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 
+from puya.algo_constants import MAINNET_TEAL_LANGUAGE_VERSION, SUPPORTED_TEAL_LANGUAGE_VERSIONS
 from puya.compile import compile_to_teal
 from puya.logging_config import LogLevel, configure_logging
 from puya.options import PuyaOptions
@@ -89,7 +90,12 @@ def main() -> None:
         type=LogLevel.from_string,
         choices=list(LogLevel),
     )
-    parser.add_argument("--target-avm-version", type=int, choices=[8, 9, 10])
+    parser.add_argument(
+        "--target-avm-version",
+        type=int,
+        choices=SUPPORTED_TEAL_LANGUAGE_VERSIONS,
+        default=MAINNET_TEAL_LANGUAGE_VERSION,
+    )
 
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
     options = PuyaOptions()

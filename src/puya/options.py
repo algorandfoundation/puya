@@ -3,6 +3,7 @@ from pathlib import Path
 
 import attrs
 
+from puya.algo_constants import MAINNET_TEAL_LANGUAGE_VERSION
 from puya.logging_config import LogLevel
 
 
@@ -22,4 +23,4 @@ class PuyaOptions:
     debug_level: int = 0
     optimization_level: int = 0
     log_level: LogLevel = LogLevel.info
-    target_avm_version: int = 8
+    target_avm_version: int = MAINNET_TEAL_LANGUAGE_VERSION
