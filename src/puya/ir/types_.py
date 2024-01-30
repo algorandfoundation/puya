@@ -61,15 +61,7 @@ def stack_type_to_avm_type(stack_type: StackType) -> AVMType:
     match stack_type:
         case StackType.uint64 | StackType.bool:
             return AVMType.uint64
-        case (
-            StackType.bytes
-            | StackType.bytes_32
-            | StackType.bytes_64
-            | StackType.bytes_80
-            | StackType.bigint
-            | StackType.box_name
-            | StackType.address
-        ):
+        case StackType.bytes | StackType.bigint | StackType.box_name | StackType.address:
             return AVMType.bytes
         case StackType.any | StackType.address_or_index:
             return AVMType.any

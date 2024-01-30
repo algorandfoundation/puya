@@ -180,7 +180,14 @@ def generate_op_node(
 
 
 def get_stack_type(stack_type: langspec.StackType) -> StackType:
-    return StackType[stack_type.name]
+    if stack_type in (
+        langspec.StackType.bytes_32,
+        langspec.StackType.bytes_64,
+        langspec.StackType.bytes_80,
+    ):
+        return StackType.bytes
+    else:
+        return StackType[stack_type.name]
 
 
 def get_immediate_type(immediate: langspec.Immediate) -> ImmediateKind:
