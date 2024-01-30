@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import builtins
 import copy
-import itertools
 import json
 import keyword
 import re
