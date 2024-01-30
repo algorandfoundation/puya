@@ -375,7 +375,7 @@ close_for_header@1:
         frame_dig 9
         frame_dig 7
         <
-        bz close_after_for@16
+        bz close_after_for@15
 
 close_for_body@2:
         frame_dig 9
@@ -413,54 +413,39 @@ close_after_if_else@4:
         frame_bury 0
         frame_dig 6
         frame_bury 2
-        bz close_after_if_else@14
+        bz close_after_if_else@13
 
 close_if_body@5:
         frame_dig 5
         byte "["
         concat
-        dup
         frame_bury 5
         int 1
         assert // Step cannot be zero
         int 0
-        frame_dig 3
-        <
-        swap
-        frame_bury 0
-        frame_dig 6
-        frame_bury 2
-        bz close_after_for@13
-
-close_for_preamble@6:
-        int 0
         frame_bury 4
 
-close_for_header@7:
+close_for_header@6:
         frame_dig 4
         frame_dig 3
         <
-        frame_dig 5
-        frame_bury 0
-        frame_dig 6
-        frame_bury 2
-        bz close_after_for@13
+        bz close_after_for@12
 
-close_for_body@8:
+close_for_body@7:
         frame_dig 4
         int 0
         >
         frame_dig 5
         frame_bury 0
-        bz close_after_if_else@10
+        bz close_after_if_else@9
 
-close_if_body@9:
+close_if_body@8:
         frame_dig 5
         byte ","
         concat
         frame_bury 0
 
-close_after_if_else@10:
+close_after_if_else@9:
         frame_dig 0
         frame_dig 6
         dup
@@ -473,38 +458,37 @@ close_after_if_else@10:
         +
         frame_bury 6
 
-close_for_footer@11:
+close_for_footer@10:
 
-close_for_increment@12:
+close_for_increment@11:
         frame_dig 4
         int 1
         +
         frame_bury 4
-        b close_for_header@7
+        b close_for_header@6
 
-close_after_for@13:
-        frame_dig 0
-        frame_dig 2
-        swap
+close_after_for@12:
+        frame_dig 5
         byte "]"
         concat
         frame_bury 0
+        frame_dig 6
         frame_bury 2
 
-close_after_if_else@14:
+close_after_if_else@13:
         frame_dig 0
         frame_bury 5
         frame_dig 2
         frame_bury 6
 
-close_for_footer@15:
+close_for_footer@14:
         frame_dig 9
         int 1
         +
         frame_bury 9
         b close_for_header@1
 
-close_after_for@16:
+close_after_for@15:
         frame_dig 5
         byte "]}}"
         concat
@@ -795,7 +779,6 @@ already_voted_block@0:
 // examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req#0: uint64, signature#0: bytes, answer_ids#0: bytes) -> void:
 vote:
         proto 3 0
-        byte ""
 
 vote_block@0:
         int 7700
@@ -820,7 +803,6 @@ vote_block@0:
         frame_dig -1
         int 0
         extract_uint16
-        dig 1
         ==
         assert // Number of answers incorrect
         frame_dig -1
@@ -847,25 +829,18 @@ vote_block@0:
         ==
         assert // Payment must be the exact min balance
         int 0
-        swap
         int 1
         assert // Step cannot be zero
         int 0
-        >
-        bz vote_after_for@6
 
-vote_for_preamble@1:
-        int 0
-        frame_bury 0
-
-vote_for_header@2:
+vote_for_header@1:
+        frame_dig 2
         frame_dig 0
-        frame_dig 1
         <
-        bz vote_after_for@6
+        bz vote_after_for@5
 
-vote_for_body@3:
-        frame_dig 0
+vote_for_body@2:
+        frame_dig 2
         frame_dig -1
         int 0
         extract_uint16
@@ -902,13 +877,13 @@ vote_for_body@3:
         dig 1
         <
         assert // Answer option index invalid
-        frame_dig 2
+        frame_dig 1
         dup
         uncover 3
         +
         callsub increment_vote_in_box
         +
-        frame_bury 2
+        frame_bury 1
         txn Sender
         frame_dig -1
         box_put
@@ -922,16 +897,16 @@ vote_for_body@3:
         swap
         app_global_put
 
-vote_for_footer@4:
+vote_for_footer@3:
 
-vote_for_increment@5:
-        frame_dig 0
+vote_for_increment@4:
+        frame_dig 2
         int 1
         +
-        frame_bury 0
-        b vote_for_header@2
+        frame_bury 2
+        b vote_for_header@1
 
-vote_after_for@6:
+vote_after_for@5:
         retsub
 
 

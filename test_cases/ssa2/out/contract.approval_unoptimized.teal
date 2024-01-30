@@ -1,64 +1,46 @@
 #pragma version 8
 
 // test_cases.ssa2.contract.MyContract.approval_program() -> uint64:
-main:
-        byte ""
-
 main_block@0:
         int 1
         int 2
         +
-        dup
-        swap
         int 4
         int 5
         *
-        dup
-        cover 2
         int 1
         assert // Step cannot be zero
         int 0
+
+main_for_header@1:
+        dup
         int 5
         <
-        bz main_after_for@6
+        bz main_after_for@5
 
-main_for_preamble@1:
-        int 0
-        bury 5
-
-main_for_header@2:
+main_for_body@2:
+        dup
+        dig 2
         dig 4
-        int 5
-        <
-        dig 4
-        bury 3
-        dig 3
-        bury 2
-        bz main_after_for@6
-
-main_for_body@3:
-        dig 4
-        dig 3
-        dig 5
         dup
         cover 2
         +
-        bury 5
-        +
         bury 4
+        +
+        bury 3
 
-main_for_footer@4:
+main_for_footer@3:
 
-main_for_increment@5:
-        dig 4
+main_for_increment@4:
+        dup
         int 1
         +
-        bury 5
-        b main_for_header@2
+        bury 1
+        b main_for_header@1
 
-main_after_for@6:
-        dig 1
-        dig 1
+main_after_for@5:
+        dig 2
+        dig 2
         +
         return
 
