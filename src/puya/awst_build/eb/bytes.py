@@ -78,7 +78,7 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
                 const = BytesConstant(value=b"", source_location=location)
                 return var_expression(const)
             case [Literal(value=bytes(bytes_val), source_location=loc)]:
-                # TODO: replace loc with location
+                # TODO : replace loc with location
                 const = BytesConstant(value=bytes_val, source_location=loc)
                 return var_expression(const)
             case _:

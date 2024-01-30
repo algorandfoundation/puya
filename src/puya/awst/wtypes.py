@@ -29,7 +29,7 @@ class WType:
     immutable: bool = True
     is_valid_literal: Callable[[object], bool] = attrs.field(
         default=_all_literals_invalid,
-        eq=False,  # TODO: is this the right thing to do?
+        eq=False,  # TODO : is this the right thing to do?
     )
 
     def __str__(self) -> str:
@@ -402,7 +402,7 @@ arc4_bool_wtype: typing.Final = ARC4Type(
 )
 
 
-# TODO: move these validation functions somewhere else
+# TODO : move these validation functions somewhere else
 def valid_base32(s: str) -> bool:
     """check if s is a valid base32 encoding string and fits into AVM bytes type"""
     try:

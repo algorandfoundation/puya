@@ -117,7 +117,7 @@ def _create_contract_metadata(
         module_name=contract.module_name,
         class_name=contract.name,
         is_arc4=contract.is_arc4,
-        methods=arc4_methods or [],  # TODO: fixme
+        methods=arc4_methods or [],  # TODO : fixme
         global_state=global_state,
         local_state=local_state,
     )

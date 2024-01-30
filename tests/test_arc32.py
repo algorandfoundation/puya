@@ -503,7 +503,7 @@ def test_transaction(algod_client: AlgodClient, account: algokit_utils.Account) 
         ),
     )
 
-    # TODO: call remaining transaction methods
+    # TODO : call remaining transaction methods
 
 
 def test_dynamic_array_of_string(

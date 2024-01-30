@@ -690,7 +690,7 @@ def _validate_default_args(
                     if (
                         storage_type is AVMType.uint64
                         # storage can provide an int to types <= uint64
-                        # TODO: check what ATC does with ufixed, see if it can be added
+                        # TODO : check what ATC does with ufixed, see if it can be added
                         and (param_arc4_type == "byte" or param_arc4_type.startswith("uint"))
                     ) or (
                         storage_type is AVMType.bytes

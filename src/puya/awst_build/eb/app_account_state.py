@@ -141,7 +141,7 @@ def _build_app_local_get_ex(
 
 
 def _validated_index_expr(index: ExpressionBuilder | Literal) -> Expression:
-    # TODO: FIXME
+    # TODO : FIXME
     tmp: Expression | Literal
     if isinstance(index, Literal):
         tmp = index

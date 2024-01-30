@@ -47,7 +47,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                         " padding",
                         location,
                     )
-                # TODO: replace loc with location
+                # TODO : replace loc with location
                 const = AddressConstant(value=addr_value, source_location=loc)
                 return var_expression(const)
             case [ExpressionBuilder() as eb]:

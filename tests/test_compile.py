@@ -82,7 +82,7 @@ def compile_test_case(
 
     compile_result = compile_src(test_case.path, puya_options.optimization_level, 1)
     context = compile_result.context
-    # TODO: include this in compile_src
+    # TODO : include this in compile_src
     if puya_options.output_awst:
         sources = tuple(str(s.path) for s in context.parse_result.sources)
         for module_name, module in compile_result.module_awst.items():

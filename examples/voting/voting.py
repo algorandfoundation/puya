@@ -30,7 +30,7 @@ VoteIndexArray: typing.TypeAlias = arc4.DynamicArray[arc4.UInt8]
 VOTE_INDEX_BYTES = 1
 VOTE_COUNT_BYTES = 8
 
-# TODO: Do these belong in our stubs?
+# TODO : Do these belong in our stubs?
 #: The min balance increase per box created
 BOX_FLAT_MIN_BALANCE = 2500
 

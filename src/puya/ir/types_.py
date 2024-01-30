@@ -36,7 +36,7 @@ def wtype_to_avm_type(
         )
     else:
         wtype = expr_or_wtype
-    # TODO: compound types 🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔
+    # TODO : compound types 🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔
     match wtype:
         case (
             wtypes.uint64_wtype

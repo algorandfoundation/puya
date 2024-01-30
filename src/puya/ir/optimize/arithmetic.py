@@ -32,8 +32,8 @@ def byte_wise(op: Callable[[int, int], int], lhs: bytes, rhs: bytes) -> bytes:
 
 
 def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProvider | None:
-    # TODO: handle bytes math
-    # TODO: handle all math ops including shl, shr, exp, etc
+    # TODO : handle bytes math
+    # TODO : handle all math ops including shl, shr, exp, etc
     match value:
         case models.Intrinsic(
             args=[models.UInt64Constant(value=x)],
@@ -215,7 +215,7 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
             # a == 0 <-> !a
             elif b_const == 0 and op == AVMOp.eq:
                 return attrs.evolve(value, op=AVMOp.not_, args=[a])
-            # TODO: can we somehow do the below only in a boolean context?
+            # TODO : can we somehow do the below only in a boolean context?
             # # 0 != b <-> b
             # elif a_const == 0 and op == AVMOp.neq:
             #     c = b

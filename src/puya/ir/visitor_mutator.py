@@ -36,7 +36,7 @@ class IRMutator(IRVisitor[t.Any]):
     is_target_context: bool = attrs.field(default=False, init=False)
     current_op: Phi | Op | ControlOp | None = attrs.field(
         default=None, init=False
-    )  # TODO: this is probably removable
+    )  # TODO : this is probably removable
 
     @contextlib.contextmanager
     def _enter_target_context(self) -> Iterator[None]:

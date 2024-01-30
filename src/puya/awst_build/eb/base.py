@@ -86,7 +86,7 @@ class ExpressionBuilder(abc.ABC):
     @abc.abstractmethod
     def delete(self, location: SourceLocation) -> Statement:
         """Handle del operator statement"""
-        # TODO: consider making a DeleteStatement which e.g. handles AppAccountStateExpression
+        # TODO : consider making a DeleteStatement which e.g. handles AppAccountStateExpression
 
     @abc.abstractmethod
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
@@ -229,7 +229,7 @@ class IntermediateExpressionBuilder(ExpressionBuilder):
 
 
 class TypeClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
-    # TODO: better error messages for rvalue/lvalue/delete
+    # TODO : better error messages for rvalue/lvalue/delete
 
     @abc.abstractmethod
     def produces(self) -> wtypes.WType:

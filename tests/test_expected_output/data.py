@@ -549,7 +549,7 @@ class TestFile(pytest.File):
         if self.auto_update_output and dist_option and dist_option != "no":
             # don't allow updating output if tests are being executed in parallel
             self.auto_update_output = False
-            # TODO: work out how to inform the user of this
+            # TODO : work out how to inform the user of this
             print("`--test-auto-update` ignored due to --dist option. Use `--dist no` to enable")
 
     def collect(self) -> t.Iterable[pytest.Item | pytest.Collector]:
@@ -571,7 +571,7 @@ class TestFile(pytest.File):
         return lines
 
     def setup(self) -> None:
-        # TODO: find a better way to improve performance
+        # TODO : find a better way to improve performance
         # running multiple cases at once is a lot faster due to less mypy overhead
         # however a ParseError in a single case will effect all cases which is not ideal
         try:

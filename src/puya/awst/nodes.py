@@ -819,7 +819,7 @@ class NumericComparisonExpression(Expression):
 
     wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
 
-    # TODO: make these names consistent with other expressions
+    # TODO : make these names consistent with other expressions
     lhs: Expression = attrs.field(validator=[numeric_comparable])
     operator: NumericComparison
     rhs: Expression = attrs.field(validator=[numeric_comparable])
@@ -1048,7 +1048,7 @@ class Contains(Expression):
             raise InternalError(
                 "Use IsSubstring for 'in' or 'not in' checks with Bytes", self.source_location
             )
-        # TODO: this type handling here probably isn't scalable
+        # TODO : this type handling here probably isn't scalable
         if isinstance(self.sequence.wtype, wtypes.WArray):
             if self.sequence.wtype.element_type != self.item.wtype:
                 raise CodeError(

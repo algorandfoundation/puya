@@ -32,7 +32,7 @@ class ScratchSlotReservationValidator(AWSTTraverser):
 
     def visit_contract_fragment(self, statement: awst_nodes.ContractFragment) -> None:
         super().visit_contract_fragment(statement)
-        # TODO: gather reserved from bases
+        # TODO : gather reserved from bases
         self._reserved_slots = statement.reserved_scratch_space
 
     def visit_intrinsic_call(self, call: awst_nodes.IntrinsicCall) -> None:

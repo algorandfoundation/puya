@@ -14,7 +14,7 @@ logger = structlog.get_logger(__name__)
 def get_lazy_fstack(subroutine: ops.MemorySubroutine) -> list[ops.StoreVirtual]:
     result = list[ops.StoreVirtual]()
     seen_local_ids = set[str]()
-    # TODO: consider more than the entry block
+    # TODO : consider more than the entry block
     entry = subroutine.body[0]
     # if entry is re-entrant then can't lazy allocate anything
     if entry.predecessors:

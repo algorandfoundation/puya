@@ -58,7 +58,7 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                 itob_call = _uint64_to_biguint(eb, location)
                 return var_expression(itob_call)
             case [Literal(value=int(int_value), source_location=loc)]:
-                # TODO: replace with loc with location
+                # TODO : replace with loc with location
                 const = BigUIntConstant(value=int_value, source_location=loc)
                 return var_expression(const)
             case _:
@@ -82,7 +82,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         cmp_expr = NumericComparisonExpression(
             lhs=self.expr,
             operator=NumericComparison.eq if negate else NumericComparison.ne,
-            # TODO: does this source location make sense?
+            # TODO : does this source location make sense?
             rhs=BigUIntConstant(value=0, source_location=location),
             source_location=location,
         )
@@ -102,7 +102,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         elif other_expr.wtype == wtypes.uint64_wtype:
             other_expr = _uint64_to_biguint(other, location)
         elif other_expr.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to biguint")
+            raise TodoError(location, "TODO : support upcast from bool to biguint")
         else:
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
@@ -127,7 +127,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         elif other_expr.wtype == wtypes.uint64_wtype:
             other_expr = _uint64_to_biguint(other, location)
         elif other_expr.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to biguint")
+            raise TodoError(location, "TODO : support upcast from bool to biguint")
         else:
             return NotImplemented
         lhs = self.expr
@@ -149,7 +149,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         elif value.wtype == wtypes.uint64_wtype:
             value = _uint64_to_biguint(rhs, location)
         elif value.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to biguint")
+            raise TodoError(location, "TODO : support upcast from bool to biguint")
         else:
             raise CodeError(
                 f"Invalid operand type {value.wtype} for {op.value}= with {self.wtype}", location

@@ -278,7 +278,7 @@ def schedule_sets(ctx: SubroutineCodeGenContext, edge_sets: Sequence[EdgeSet]) -
         first, *others = l_stacks
         common_locals = frozenset(first).intersection(*others)
 
-        # TODO: better results might be possible if we allow reordering of x-stack
+        # TODO : better results might be possible if we allow reordering of x-stack
         x_stack_candidates = [
             *(sort_by_appearance(common_locals, b.block, load=False) for b in out_blocks),
             *(sort_by_appearance(common_locals, b.block, load=True) for b in in_blocks),

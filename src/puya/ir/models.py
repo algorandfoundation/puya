@@ -220,8 +220,8 @@ class Intrinsic(Op, ValueProvider):
     """
 
     op: AVMOp
-    # TODO: validation for immediates && args
-    # TODO: consider treating ops with no args (only immediates) as Value types
+    # TODO : validation for immediates && args
+    # TODO : consider treating ops with no args (only immediates) as Value types
     #       e.g. `txn NumAppArgs` or `txna ApplicationArgs 0`
     immediates: list[str | int] = attrs.field(factory=list)
     args: list[Value] = attrs.field(factory=list)
@@ -246,7 +246,7 @@ class InvokeSubroutine(Op, ValueProvider):
     opcode: callsub"""
 
     target: "Subroutine"
-    # TODO: validation for args
+    # TODO : validation for args
     args: list[Value]
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -586,7 +586,7 @@ class Subroutine(Context):
 
     def get_assigned_registers(self) -> Iterator[Register]:
         yield from self.parameters
-        # TODO: replace with visitor
+        # TODO : replace with visitor
         for block in self.body:
             for phi in block.phis:
                 yield phi.register
@@ -595,7 +595,7 @@ class Subroutine(Context):
                     yield from op.targets
 
     def get_used_registers(self) -> Iterator[Register]:
-        # TODO: replace with visitor
+        # TODO : replace with visitor
         for block in self.body:
             for phi in block.phis:
                 yield from (arg.value for arg in phi.args)

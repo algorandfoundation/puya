@@ -47,7 +47,7 @@ def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subrou
     """
     vla = VariableLifetimeAnalysis.analyze(sub)
 
-    # TODO: this uses a basic definition of interference by looking at live-ranges,
+    # TODO : this uses a basic definition of interference by looking at live-ranges,
     #       a better option is to continue with https://inria.hal.science/inria-00349925v1/document
     #       which has already been partially implemented (phase 1 + 4 have been, anyway)
 

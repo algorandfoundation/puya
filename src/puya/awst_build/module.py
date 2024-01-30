@@ -42,7 +42,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
 
     Note that constants must appear before usage, unlike in regular Python.
 
-    TODO: maybe collect constants in a pre-processing step?
+    TODO : maybe collect constants in a pre-processing step?
     """
 
     def __init__(self, context: ASTConversionContext, module: mypy.nodes.MypyFile):
@@ -129,7 +129,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             if [ti.fullname for ti in cdef.info.direct_base_classes()] != [
                 constants.CLS_ARC4_STRUCT
             ]:
-                # TODO: allow inheritance of arc4.Struct?
+                # TODO : allow inheritance of arc4.Struct?
                 self._error(
                     "arc4.Struct classes must only inherit directly from arc4.Struct", cdef
                 )
@@ -137,12 +137,12 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 self._process_arc4_struct(cdef)
         elif cdef.info.has_base(constants.STRUCT_BASE):
             if [ti.fullname for ti in cdef.info.direct_base_classes()] != [constants.STRUCT_BASE]:
-                # TODO: allow inheritance of Structs?
+                # TODO : allow inheritance of Structs?
                 self._error("Struct classes must only inherit directly from Struct", cdef)
             else:
                 self._process_struct(cdef)
         elif cdef.info.has_base(constants.CONTRACT_BASE):
-            # TODO: mypyc also checks for typing.TypingMeta and typing.GenericMeta equivalently
+            # TODO : mypyc also checks for typing.TypingMeta and typing.GenericMeta equivalently
             #       in a similar check - I can't find many references to these, should we include
             #       them?
             if (
@@ -153,7 +153,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                     f"Unsupported metaclass: {cdef.info.metaclass_type.type.fullname}",
                     location=cdef,
                 )
-            # TODO: other checks above?
+            # TODO : other checks above?
             else:
                 class_options = self._process_contract_class_options(cdef)
                 self._statements.append(
@@ -292,7 +292,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
     def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> None:
         match stmt.lvalue:
             case mypy.nodes.NameExpr(name="__all__"):
-                # TODO: this value is technically usable at runtime in Python,
+                # TODO : this value is technically usable at runtime in Python,
                 #       any references to it in the method bodies should fail
                 pass  # skip it
             case _:
@@ -322,7 +322,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             return  # skip it
         match stmt.lvalues:
             case [mypy.nodes.NameExpr(name="__all__")]:
-                # TODO: this value is technically usable at runtime in Python,
+                # TODO : this value is technically usable at runtime in Python,
                 #       any references to it in the method bodies should fail
                 return  # skip it
             # mypy comments here indicate if this is a special form,
@@ -380,7 +380,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 return True
             case "False":
                 return False
-        # TODO: is the GDEF check always valid?
+        # TODO : is the GDEF check always valid?
         if not isinstance(expr.node, mypy.nodes.Var) or expr.kind != mypy.nodes.GDEF:
             self._unsupported(
                 expr,
@@ -407,7 +407,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             self._unsupported(expr, details=str(ex), ex=ex)
         if not isinstance(
             result,
-            int | str | bytes | bool,  # TODO: why can't we use ConstantValue here?
+            int | str | bytes | bool,  # TODO : why can't we use ConstantValue here?
         ):
             self._unsupported(expr, details=f"unsupported result type of {type(result).__name__}")
         return result

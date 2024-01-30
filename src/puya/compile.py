@@ -212,7 +212,7 @@ def write_teal_to_output(
 
 
 def get_mypy_options() -> mypy.options.Options:
-    # TODO: build configuration interface to these options
+    # TODO : build configuration interface to these options
     mypy_opts = mypy.options.Options()
     # improve mypy parsing performance by using a cut-down typeshed
     mypy_opts.custom_typeshed_dir = str(TYPESHED_PATH)

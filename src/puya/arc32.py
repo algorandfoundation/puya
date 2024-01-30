@@ -37,7 +37,7 @@ def _encode_state_schema(state: Sequence[ContractState]) -> JSONDict:
 def _encode_schema_declaration(state: ContractState) -> JSONDict:
     return {
         "type": state.storage_type.name,
-        "key": state.key.decode("utf-8"),  # TODO: support not utf8 keys?
+        "key": state.key.decode("utf-8"),  # TODO : support not utf8 keys?
         "descr": state.description,
     }
 
@@ -77,7 +77,7 @@ def _encode_default_arg(contract: CompiledContract, source: str, loc: SourceLoca
         if state.name == source:
             return {
                 "source": "global-state",
-                # TODO: handle non utf-8 bytes
+                # TODO : handle non utf-8 bytes
                 "data": state.key.decode("utf-8"),
             }
     for state in contract.metadata.local_state:
@@ -92,7 +92,7 @@ def _encode_default_arg(contract: CompiledContract, source: str, loc: SourceLoca
                 "source": "abi-method",
                 "data": _encode_arc4_method(method),
             }
-    # TODO: constants
+    # TODO : constants
     raise InternalError(f"Cannot find source '{source}' on {contract.metadata.full_name}", loc)
 
 

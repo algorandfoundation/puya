@@ -92,7 +92,7 @@ def optimize_contract_ir(
     contract_ir: models.Contract,
     output_ir_base_path: Path | None = None,
 ) -> models.Contract:
-    # TODO: program optimizer for trivial function inliner
+    # TODO : program optimizer for trivial function inliner
     pipeline = get_all_optimizations()
     if output_ir_base_path:
         existing = list(

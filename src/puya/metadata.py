@@ -41,7 +41,7 @@ class ARC4MethodConfig:
     structs: Sequence[tuple[str, "ARC32StructDef"]] = attrs.field(
         factory=list, converter=tuple[tuple[str, "ARC32StructDef"], ...]
     )
-    # TODO: the rest
+    # TODO : the rest
 
 
 @attrs.define

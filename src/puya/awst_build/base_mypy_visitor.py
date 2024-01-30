@@ -159,7 +159,7 @@ class BaseMyPyStatementVisitor(
             self._location(stmt), details="global variables must be immutable"
         )
 
-    # TODO: do we reject nonlocal here too? are nested functions in/out?
+    # TODO : do we reject nonlocal here too? are nested functions in/out?
 
     # ~~~ raising and handling exceptions unsupported ~~~ #
     def visit_raise_stmt(self, stmt: mypy.nodes.RaiseStmt) -> _TStatement:

@@ -206,12 +206,12 @@ def _find_op_mapping(
     if best_mapping is None:
         raise CodeError(
             "Could not find valid op mapping", location=location
-        )  # TODO: raise better error
+        )  # TODO : raise better error
     return best_mapping
 
 
 def _code_error(arg: Node, arg_mapping: ArgMapping, callee: str) -> Never:
-    # TODO: better error
+    # TODO : better error
     raise CodeError(
         f"Invalid argument {arg} for argument {arg_mapping.arg_name} when calling {callee}",
         location=arg.source_location,

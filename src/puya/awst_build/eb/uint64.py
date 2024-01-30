@@ -57,7 +57,7 @@ class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [Literal(value=int(int_value), source_location=loc)]:
-                # TODO: replace loc with location
+                # TODO : replace loc with location
                 const = UInt64Constant(value=int_value, source_location=loc)
                 return var_expression(const)
             case _:
@@ -100,7 +100,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         if other_expr.wtype == self.wtype:
             pass
         elif other_expr.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to uint64")
+            raise TodoError(location, "TODO : support upcast from bool to uint64")
         else:
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
@@ -123,7 +123,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         if other_expr.wtype == self.wtype:
             pass
         elif other_expr.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to uint64")
+            raise TodoError(location, "TODO : support upcast from bool to uint64")
         else:
             return NotImplemented
         lhs = self.expr
@@ -143,7 +143,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         if value.wtype == self.wtype:
             pass
         elif value.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to uint64")
+            raise TodoError(location, "TODO : support upcast from bool to uint64")
         else:
             raise CodeError(
                 f"Invalid operand type {value.wtype} for {op.value}= with {self.wtype}", location

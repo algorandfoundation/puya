@@ -38,7 +38,7 @@ class TodoError(CodeError):
     """Not a code error but it's not a crash either"""
 
     def __init__(self, location: SourceLocation | None, msg: str | None = None):
-        super().__init__(msg or "TODO: support this thing", location=location)
+        super().__init__(msg or "TODO : support this thing", location=location)
 
 
 class Errors:

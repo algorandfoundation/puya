@@ -139,7 +139,7 @@ class BlocksBuilder:
         try:
             targets = self._loop_targets_stack[-1]
         except IndexError as ex:
-            # TODO: this might be a code error or an internal error
+            # TODO : this might be a code error or an internal error
             raise InternalError("break outside of loop", source_location) from ex
         self.goto(target=targets.on_break, source_location=source_location)
 
@@ -147,6 +147,6 @@ class BlocksBuilder:
         try:
             targets = self._loop_targets_stack[-1]
         except IndexError as ex:
-            # TODO: this might be a code error or an internal error
+            # TODO : this might be a code error or an internal error
             raise InternalError("continue outside of loop", source_location) from ex
         self.goto(target=targets.on_continue, source_location=source_location)

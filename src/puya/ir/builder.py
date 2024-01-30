@@ -207,7 +207,7 @@ class FunctionIRBuilder(
         if isinstance(provider, ValueTuple):
             return provider.values
 
-        # TODO: should this be the source location of the site forcing materialisation?
+        # TODO : should this be the source location of the site forcing materialisation?
         return self.assign(
             source=provider, temp_description=description, source_location=provider.source_location
         )
@@ -605,7 +605,7 @@ class FunctionIRBuilder(
             case _:
                 raise TodoError(
                     assignment_location,
-                    "TODO: explicitly handle or reject assignment target type:"
+                    "TODO : explicitly handle or reject assignment target type:"
                     f" {type(target).__name__}",
                 )
 
@@ -799,7 +799,7 @@ class FunctionIRBuilder(
         items = []
         for item in expr.items:
             try:
-                # TODO: don't rely on a pure function's side effects (raising) for validation
+                # TODO : don't rely on a pure function's side effects (raising) for validation
                 wtype_to_avm_type(item)
             except InternalError:
                 raise CodeError(
@@ -817,7 +817,7 @@ class FunctionIRBuilder(
         return tup[expr.index]
 
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
-        raise TodoError(expr.source_location, "TODO: IR building: visit_field_expression")
+        raise TodoError(expr.source_location, "TODO : IR building: visit_field_expression")
 
     def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> TExpression:
         """Slices an enumerable type."""
@@ -866,7 +866,7 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                 )
         else:
-            raise TodoError(expr.source_location, f"TODO: IR Slice {expr.wtype}")
+            raise TodoError(expr.source_location, f"TODO : IR Slice {expr.wtype}")
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         index = self._visit_and_materialise_single(expr.index)
@@ -952,7 +952,7 @@ class FunctionIRBuilder(
                     tuple_type=tuple_type,
                 )
 
-        raise TodoError(expr.source_location, "TODO: IR building: visit_index_expression")
+        raise TodoError(expr.source_location, "TODO : IR building: visit_index_expression")
 
     def _assert_index_in_bounds(
         self, index: Value, length: ValueProvider, source_location: SourceLocation
@@ -987,7 +987,7 @@ class FunctionIRBuilder(
         )
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
-        # TODO: if expr.true_value and exr.false_value are var expressions,
+        # TODO : if expr.true_value and exr.false_value are var expressions,
         #       we can optimize with the `select` op
 
         true_block, false_block, merge_block = mkblocks(
@@ -1044,9 +1044,9 @@ class FunctionIRBuilder(
             return ValueTuple(expr.source_location, registers)
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> TExpression:
-        # TODO: add specific (unsafe) optimisation flag to allow skipping this check
+        # TODO : add specific (unsafe) optimisation flag to allow skipping this check
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-        # TODO: keep encoding? modify AWST to add source location for key?
+        # TODO : keep encoding? modify AWST to add source location for key?
         key = BytesConstant(
             value=expr.key,
             source_location=expr.source_location,
@@ -1079,7 +1079,7 @@ class FunctionIRBuilder(
             Intrinsic(
                 op=AVMOp.assert_,
                 args=[did_exist_tmp],
-                comment="check value exists",  # TODO: add field name here
+                comment="check value exists",  # TODO : add field name here
                 source_location=expr.source_location,
             )
         )
@@ -1091,9 +1091,9 @@ class FunctionIRBuilder(
     ) -> TExpression:
         account = self._visit_and_materialise_single(expr.account)
 
-        # TODO: add specific (unsafe) optimisation flag to allow skipping this check
+        # TODO : add specific (unsafe) optimisation flag to allow skipping this check
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-        # TODO: keep encoding? modify AWST to add source location for key?
+        # TODO : keep encoding? modify AWST to add source location for key?
         key = BytesConstant(
             value=expr.key,
             source_location=expr.source_location,
@@ -1125,14 +1125,14 @@ class FunctionIRBuilder(
             Intrinsic(
                 op=AVMOp.assert_,
                 args=[did_exist_tmp],
-                comment="check value exists",  # TODO: add field name here
+                comment="check value exists",  # TODO : add field name here
                 source_location=expr.source_location,
             )
         )
         return value_tmp
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
-        raise TodoError(expr.source_location, "TODO: visit_new_array")
+        raise TodoError(expr.source_location, "TODO : visit_new_array")
 
     def _value_as_uint16(
         self, value: Value, source_location: SourceLocation | None = None
@@ -1354,7 +1354,7 @@ class FunctionIRBuilder(
     ) -> TExpression:
         sref = self.context.resolve_function_reference(expr.target, expr.source_location)
         target = self.context.subroutines[sref]
-        # TODO: what if args are multi-valued?
+        # TODO : what if args are multi-valued?
         args_expanded = list[tuple[str | None, Value]]()
         for expr_arg in expr.args:
             if not isinstance(expr_arg.value.wtype, wtypes.WTuple):
@@ -1450,7 +1450,7 @@ class FunctionIRBuilder(
         if not isinstance(expr.sequence.wtype, wtypes.WTuple):
             raise TodoError(
                 expr.source_location,
-                "TODO: IR building: visit_contains_expression handle non tuple contains",
+                "TODO : IR building: visit_contains_expression handle non tuple contains",
             )
         items_sequence = [
             item
@@ -1775,7 +1775,7 @@ class FunctionIRBuilder(
                 isinstance(statement.items, awst_nodes.TupleExpression)
                 and len(statement.items.items) == 2
             ):
-                # TODO: fix this
+                # TODO : fix this
                 raise CodeError(
                     "when using uenumerate(), loop variables must be an unpacked two item tuple",
                     statement.sequence.source_location,
@@ -1917,7 +1917,7 @@ class FunctionIRBuilder(
                     statement_loc=statement.source_location,
                 )
             case _:
-                raise TodoError(statement.source_location, "TODO: IR build support")
+                raise TodoError(statement.source_location, "TODO : IR build support")
 
     def _read_nth_item_of_arc4_heterogeneous_container(
         self,
@@ -2333,7 +2333,7 @@ class FunctionIRBuilder(
         self.block_builder.activate_block(next_block)
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
-        raise TodoError(expr.source_location, "TODO: visit_new_struct")
+        raise TodoError(expr.source_location, "TODO : visit_new_struct")
 
     def _invoke_puya_lib_subroutine(
         self,

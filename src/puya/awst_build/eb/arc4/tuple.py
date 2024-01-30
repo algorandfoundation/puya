@@ -102,7 +102,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
 
     def produces(self) -> wtypes.WType:
         if not self.wtype:
-            # TODO: make CodeError
+            # TODO : make CodeError
             raise InternalError(
                 "Cannot resolve wtype of generic EB until the index method is called with the "
                 "generic type parameter."

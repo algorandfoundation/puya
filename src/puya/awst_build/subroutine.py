@@ -159,7 +159,7 @@ class FunctionASTConverter(
                 "if function is not a method, first variable should be self-like",
                 func_loc,
             )
-        # TODO: this should be more than just type?
+        # TODO : this should be more than just type?
         self._symtable = dict[str, WType]()
         args = list[SubroutineArgument]()
         for arg, arg_type in zip(mypy_args, mypy_arg_types, strict=True):
@@ -282,7 +282,7 @@ class FunctionASTConverter(
             ):
                 self.context.warning("expression result is ignored", stmt_loc)
         else:
-            # TODO: should we do some checks here to warn if it's something
+            # TODO : should we do some checks here to warn if it's something
             #       with zero side effects? Can we even determine that simply & reliably?
             pass
         return ExpressionStatement(expr=expr)
@@ -621,7 +621,7 @@ class FunctionASTConverter(
             ) if any(
                 get_unaliased_fullname(de) == constants.SUBROUTINE_HINT
                 for de in decorators
-                if isinstance(de, mypy.nodes.RefExpr)  # TODO: why wouldn't this be a RefExpr
+                if isinstance(de, mypy.nodes.RefExpr)  # TODO : why wouldn't this be a RefExpr
             ):
                 func_name = expr.name
                 module_name = fullname.removesuffix(func_name).removesuffix(".")
@@ -640,7 +640,7 @@ class FunctionASTConverter(
                     f"decorated with {constants.SUBROUTINE_HINT_ALIAS}",
                     expr_loc,
                 )
-            # TODO: is this enough to filter to only global variable references?
+            # TODO : is this enough to filter to only global variable references?
             #       it seems like it should be...
             case mypy.nodes.RefExpr(kind=mypy.nodes.GDEF, node=mypy.nodes.Var()):
                 self._precondition(
@@ -656,7 +656,7 @@ class FunctionASTConverter(
                 try:
                     constant_value = self.context.constants[expr.fullname]
                 except KeyError as ex:
-                    # TODO: allow arbitrary ordering
+                    # TODO : allow arbitrary ordering
                     raise CodeError(
                         "Unable to resolve global constant reference"
                         " - note that constants must appear before any references to them",
@@ -676,7 +676,7 @@ class FunctionASTConverter(
                     expr_loc,
                 )
                 if var_name == "_":
-                    # TODO: ignore "_"
+                    # TODO : ignore "_"
                     raise CodeError("_ is not currently supported as a variable name", expr_loc)
                 local_type = lazy_setdefault(
                     self._symtable,
@@ -910,7 +910,7 @@ class FunctionASTConverter(
 
         # constant fold if both literals
         if isinstance(lhs, Literal) and isinstance(rhs, Literal):
-            # TODO: this shouldn't typecheck (as in our code, not user code), need to
+            # TODO : this shouldn't typecheck (as in our code, not user code), need to
             #       make mypy stricter (one day)
             folded_result = fold_binary_expr(
                 location=node_loc, op=node.op, lhs=lhs.value, rhs=rhs.value
@@ -993,7 +993,7 @@ class FunctionASTConverter(
         lhs_builder = temporary_assignment_if_required(lhs_expr)
         # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
         # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
-        # TODO: this is a bit convoluted in terms of ExpressionBuilder <-> Expression
+        # TODO : this is a bit convoluted in terms of ExpressionBuilder <-> Expression
         condition = lhs_builder.bool_eval(
             location, negate=op is BinaryBooleanOperator.and_
         ).rvalue()
@@ -1072,7 +1072,7 @@ class FunctionASTConverter(
         #   a < b < c
         # becomes:
         #   (a < (tmp := b)) AND (tmp < c)
-        # TODO: what about comparing different types that can never be equal? according to Python
+        # TODO : what about comparing different types that can never be equal? according to Python
         #       type signatures that should be possible, and we can always know it's value at
         #       compile time, but it would always result in a constant ...
 
@@ -1258,7 +1258,7 @@ def temporary_assignment_if_required(
         expr = operand
     else:
         expr = operand.build_assignment_source()
-    # TODO: optimise the below checks so we don't create unnecessary temporaries,
+    # TODO : optimise the below checks so we don't create unnecessary temporaries,
     #       ie when Expression has no side effects
     if not isinstance(expr, VarExpression | CompileTimeConstantExpression):
         return TemporaryAssignmentExpressionBuilder(expr)

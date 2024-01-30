@@ -52,7 +52,7 @@ def extract_docstring(
             )
     match mypy_body:
         case [mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr(value=docstring)), *_]:
-            # TODO: maybe we actually want to pass here and just ignore/warn about any
+            # TODO : maybe we actually want to pass here and just ignore/warn about any
             #       further ExpressionStmt(StrExpr())
             del mypy_body[0]
     return docstring
@@ -121,7 +121,7 @@ def fold_unary_expr(
         )
     assert isinstance(
         result, int | str | bytes | bool
-    )  # TODO: why can't we use ConstantValue here?
+    )  # TODO : why can't we use ConstantValue here?
     return result
 
 
@@ -144,7 +144,7 @@ def fold_binary_expr(
         )
     assert isinstance(
         result, int | str | bytes | bool
-    )  # TODO: why can't we use ConstantValue here?
+    )  # TODO : why can't we use ConstantValue here?
     return result
 
 
@@ -233,7 +233,7 @@ def convert_literal_to_expr(
 ) -> Expression:
     expr_or_builder = convert_literal(literal_or_expr, target_wtype)
     if isinstance(expr_or_builder, ExpressionBuilder):
-        return expr_or_builder.rvalue()  # TODO: move away from rvalue/lvaue in utility functions
+        return expr_or_builder.rvalue()  # TODO : move away from rvalue/lvaue in utility functions
     return expr_or_builder
 
 

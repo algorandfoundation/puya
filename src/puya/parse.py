@@ -62,7 +62,7 @@ class ParseSource:
 class SourceLocation:
     file: str
     line: int
-    # TODO: much better validation below
+    # TODO : much better validation below
     end_line: int | None = None
     column: int | None = None
     end_column: int | None = None

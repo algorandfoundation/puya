@@ -51,7 +51,7 @@ MAYBE7 = fr'{MAYBE}"'
 MAYBE_MORE = f"{MAYBE} \
  maybe not"
 TWO = consts.EXT_ONE + constants.EXT_ONE + consts.EXT_ZERO
-# TODO: make the line below work
+# TODO : make the line below work
 # EXT_NAME_REF_F_STR = f"{consts.BANNED}"
 YES_TWICE_AND_NO = 2 * f"2{YES}" + f"1{NO!r}"
 SHOULD_BE_1 = EXT_ONE if not typing.TYPE_CHECKING else EXT_ZERO

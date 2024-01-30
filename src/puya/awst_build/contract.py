@@ -54,7 +54,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self.cref = qualified_class_name(class_def.info)
         self._is_arc4 = class_def.info.has_base(constants.ARC4_CONTRACT_BASE)
         docstring = extract_docstring(class_def)
-        self._is_abstract = class_def.info.is_abstract  # TODO: is this sufficient?
+        self._is_abstract = class_def.info.is_abstract  # TODO : is this sufficient?
         self._approval_program: ContractMethod | None = None
         self._clear_program: ContractMethod | None = None
         self._init_method: ContractMethod | None = None
@@ -144,7 +144,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             keep_going = False
 
         dec_by_fullname = get_decorators_by_fullname(self.context, decorator) if decorator else {}
-        # TODO: validate decorator ordering?
+        # TODO : validate decorator ordering?
         dec_by_fullname.pop("abc.abstractmethod", None)
         for unknown_dec_fullname in dec_by_fullname.keys() - frozenset(
             constants.KNOWN_METHOD_DECORATORS
@@ -154,7 +154,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
 
         if not keep_going:
             pass  # unrecoverable error in prior validation,
-        # TODO: handle difference of subroutine vs abimethod and overrides???
+        # TODO : handle difference of subroutine vs abimethod and overrides???
         elif func_def.name == "__init__":
             sub = self._handle_method(
                 func_def, extra_decorators=dec_by_fullname, abimethod_config=None
@@ -252,7 +252,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                             f"Invalid return type for an ARC4 method: {ret_wtype}",
                             arc4_decorator_loc,
                         )
-                # TODO: validate against super-class configs??
+                # TODO : validate against super-class configs??
             sub = self._handle_method(
                 func_def, extra_decorators=dec_by_fullname, abimethod_config=arc4_method_config
             )
@@ -290,14 +290,14 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     ),
                 )
             case mypy.nodes.IMPLICITLY_ABSTRACT:
-                # TODO: should we have a placeholder item instead? need to handle via super() if so
+                # TODO : should we have a placeholder item instead? need to handle via super() if so
                 self.context.note(
                     f"Skipping (implicitly) abstract method {func_def.name}",
                     func_loc,
                 )
                 return None
             case mypy.nodes.IS_ABSTRACT:
-                # TODO: should we have a placeholder item instead? need to handle via super() if so
+                # TODO : should we have a placeholder item instead? need to handle via super() if so
                 self.context.note(
                     f"Skipping abstract method {func_def.name}",
                     func_loc,
@@ -426,7 +426,7 @@ def _gather_app_state(
                     source_location=var_loc,
                     member_name=name,
                     storage_wtype=storage_wtype,
-                    key=name.encode(),  # TODO: encode name -> key with source file encoding?
+                    key=name.encode(),  # TODO : encode name -> key with source file encoding?
                     key_encoding=BytesEncoding.utf8,
                     kind=kind,
                 )
@@ -498,7 +498,7 @@ def _get_arc4_method_config(
                     context.error(
                         f"'{parameter}' is not a parameter of {func_def.fullname}", dec_loc
                     )
-                # TODO: validate source here as well?
+                # TODO : validate source here as well?
                 #       Deferring it allows for more flexibility in contract composition
 
             structs = [

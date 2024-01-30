@@ -329,7 +329,7 @@ class RetSub(MemoryOp):
 class IntrinsicOp(BaseOp):
     """An Op that does something other than just manipulating memory"""
 
-    # TODO: use enum values for these ops
+    # TODO : use enum values for these ops
     op_code: str
     consumes: int
     produces: int | Sequence[str]
@@ -341,7 +341,7 @@ class IntrinsicOp(BaseOp):
     def __str__(self) -> str:
         teal = [self.op_code, *map(str, self.immediates)]
         if self.comment:
-            # TODO: determine if the comment is user defined or not
+            # TODO : determine if the comment is user defined or not
             # if not user then self.include_op_desc should be respected
             # e.g. consider assert comments
             teal += ("//", self.comment)
@@ -355,7 +355,7 @@ class MemoryBasicBlock:
     predecessors: list[str]
     successors: list[str]
     source_location: SourceLocation
-    # TODO: move this somewhere else?
+    # TODO : move this somewhere else?
     x_stack_in: Sequence[str] | None = None
     x_stack_out: Sequence[str] | None = None
     f_stack_in: Sequence[str] = attrs.field(factory=list)

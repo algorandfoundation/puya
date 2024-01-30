@@ -103,7 +103,7 @@ def get_type_builder(
     try:
         type_class = TYPE_NAME_CLS_MAPPING[python_type]
     except KeyError as ex:
-        # TODO: make an InternalError before alpha
+        # TODO : make an InternalError before alpha
         raise CodeError(f"Unhandled puyapy name: {python_type}", source_location) from ex
     else:
         return type_class(source_location)

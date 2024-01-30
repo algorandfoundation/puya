@@ -58,10 +58,10 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
     def __init__(self, *, colors: bool):
         super().__init__(colors=colors)
         self.level_to_color = self.get_default_level_styles(colors)
-        self.base_path = str(Path.cwd())  # TODO: don't assume this?
+        self.base_path = str(Path.cwd())  # TODO : don't assume this?
         if not self.base_path.endswith(
             os.path.sep
-        ):  # TODO: can we always append the path seperator?
+        ):  # TODO : can we always append the path seperator?
             self.base_path += os.path.sep
 
     def _location_as_link(self, location: SourceLocation | None) -> str:

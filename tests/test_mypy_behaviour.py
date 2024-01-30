@@ -155,7 +155,7 @@ def test_name_defined():
             raise AssertionError
 
 
-# TODO: override, what does the type information look like when call these?
+# TODO : override, what does the type information look like when call these?
 
 
 def test_ignore_override() -> None:
@@ -312,7 +312,7 @@ def test_class_members() -> None:
 
 
 def test_abc() -> None:
-    # TODO: FINISH THIS
+    # TODO : FINISH THIS
     def test():
         from abc import ABC, abstractmethod
         import pytest
@@ -370,12 +370,12 @@ def test_abc() -> None:
     assert tree
 
 
-# TODO: various member/class var decls, protocol handling, special decorators,
+# TODO : various member/class var decls, protocol handling, special decorators,
 #       metaclass, generics, etc
 #
 
 
-# TODO: Protocol tests
+# TODO : Protocol tests
 
 
 def test_nested_class() -> None:

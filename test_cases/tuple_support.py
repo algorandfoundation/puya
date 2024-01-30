@@ -18,7 +18,7 @@ class TupleSupport(Contract):
         (a2, b2) = ab
         cd = (c, d)
         ab2 = ab
-        # ((a2, b2), cd, ab2) = (ab, (c, d), ab) # TODO: support this instead of 3 lines above
+        # ((a2, b2), cd, ab2) = (ab, (c, d), ab) # TODO : support this instead of 3 lines above
         if a == b:
             tup = ab2
         else:
@@ -28,8 +28,8 @@ class TupleSupport(Contract):
         assert cd[0] == tup[0]
         assert cd[1] == tup[1]
 
-        # assert ab2 == ab # TODO: support ths
-        # foobar = ((a, b), (c, d)) # TODO: negative test for this
+        # assert ab2 == ab # TODO : support ths
+        # foobar = ((a, b), (c, d)) # TODO : negative test for this
         log(bytes_combine((Bytes(b"Hello, "), Bytes(b"world!"))))
         max_uint64 = UInt64(2**64 - 1)
         hi, mid, lo = addw2(addw(max_uint64, max_uint64), addw(a, b))
@@ -66,8 +66,8 @@ def bytes_combine(arg: tuple[Bytes, Bytes]) -> Bytes:
 @subroutine
 def bytes_multiply(arg: tuple[Bytes, UInt64]) -> Bytes:
     b, count = arg
-    result = Bytes(b"")  # TODO: allow no-args -> empty
-    for _i in urange(count):  # TODO: allow _
+    result = Bytes(b"")  # TODO : allow no-args -> empty
+    for _i in urange(count):  # TODO : allow _
         result += b
     return result
 

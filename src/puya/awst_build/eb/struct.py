@@ -32,9 +32,9 @@ class StructSubclassExpressionBuilder(TypeClassExpressionBuilder):
         location: SourceLocation,
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
-        # TODO: validation etc
+        # TODO : validation etc
         ctor_args = [
-            # TODO: allow literals?
+            # TODO : allow literals?
             CallArg(name=arg_name, value=require_expression_builder(a).rvalue())
             for a, arg_name in zip(args, arg_names, strict=True)
         ]

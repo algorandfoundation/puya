@@ -75,7 +75,7 @@ class Uncover(TealOpN):
 
 @attrs.frozen
 class Dig(TealOpN):
-    op_code: str = "dig"  # TODO: these should be field with default=... and init=False
+    op_code: str = "dig"  # TODO : these should be field with default=... and init=False
 
 
 @attrs.frozen

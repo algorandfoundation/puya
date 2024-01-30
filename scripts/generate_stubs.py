@@ -375,7 +375,7 @@ def is_simple_op(op: Op) -> bool:
         op.name in EXCLUDED_OPCODES
         or any(g.includes_op(op.name) for g in OPCODE_GROUPS)  # handled separately
         or not op.name.isidentifier()
-        or keyword.iskeyword(op.name)  # TODO: maybe consider issoftkeyword too?
+        or keyword.iskeyword(op.name)  # TODO : maybe consider issoftkeyword too?
         or op.name in dir(builtins)
     ):
         return False
@@ -428,7 +428,7 @@ def build_stub(
         if arg.doc:
             doc.append(f":param {python_type} {arg.name}: {arg.doc}")
     if function.args:
-        args.append("/")  # TODO: remove once we support kwargs
+        args.append("/")  # TODO : remove once we support kwargs
     signature.append(", ".join(args))
 
     return_types = [
