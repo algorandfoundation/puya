@@ -212,31 +212,26 @@ contract test_cases.unssa.contract.UnSSAContract:
         subroutine test_cases.unssa.contract.test_tuple_swap(a: uint64, b: uint64, i: uint64) -> <uint64, uint64>:
             block@0: // L71
                 (assert 1u) // Step cannot be zero
-                let should_loop%0#0: uint64 = (< 0u i#0)
-                goto should_loop%0#0 ? block@1 : block@6
-            block@1: // for_preamble_L72
-                let range_item%1#0: uint64 = 0u
-                goto block@2
-            block@2: // for_header_L72
-                let range_item%1#1: uint64 = φ(range_item%1#0 <- block@1, range_item%1#3 <- block@5)
-                let b#3: uint64 = φ(b#0 <- block@1, b#2 <- block@5)
-                let a#3: uint64 = φ(a#0 <- block@1, a#2 <- block@5)
-                let continue_looping%2#0: uint64 = (< range_item%1#1 i#0)
-                goto continue_looping%2#0 ? block@3 : block@6
-            block@3: // for_body_L72
-                let _item#0: uint64 = range_item%1#1
+                let range_item%0#0: uint64 = 0u
+                goto block@1
+            block@1: // for_header_L72
+                let range_item%0#1: uint64 = φ(range_item%0#0 <- block@0, range_item%0#3 <- block@4)
+                let b#3: uint64 = φ(b#0 <- block@0, b#2 <- block@4)
+                let a#3: uint64 = φ(a#0 <- block@0, a#2 <- block@4)
+                let continue_looping%1#0: uint64 = (< range_item%0#1 i#0)
+                goto continue_looping%1#0 ? block@2 : block@5
+            block@2: // for_body_L72
+                let _item#0: uint64 = range_item%0#1
                 let a#2: uint64 = b#3
                 let b#2: uint64 = a#3
+                goto block@3
+            block@3: // for_footer_L72
                 goto block@4
-            block@4: // for_footer_L72
-                goto block@5
-            block@5: // for_increment_L72
-                let range_item%1#3: uint64 = (+ range_item%1#1 1u)
-                goto block@2
-            block@6: // after_for_L72
-                let a#4: uint64 = φ(a#0 <- block@0, a#3 <- block@2)
-                let b#4: uint64 = φ(b#0 <- block@0, b#3 <- block@2)
-                return a#4 b#4
+            block@4: // for_increment_L72
+                let range_item%0#3: uint64 = (+ range_item%0#1 1u)
+                goto block@1
+            block@5: // after_for_L72
+                return a#3 b#3
     
     program clear-state:
         subroutine test_cases.unssa.contract.UnSSAContract.clear_state_program() -> uint64:

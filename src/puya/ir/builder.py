@@ -2113,6 +2113,29 @@ class FunctionIRBuilder(
             op=AVMOp.extract3, args=[data, index, end], source_location=source_location
         )
 
+    def _check_urange_will_loop(
+        self,
+        *,
+        stop: Value,
+        start: Value,
+        after_for: BasicBlock,
+        statement_loc: SourceLocation,
+    ) -> None:
+        (preamble,) = mkblocks(statement_loc, "for_preamble")
+        (should_loop,) = self._assign_intrinsic_op(
+            target="should_loop", op=AVMOp.lt, args=[start, stop], source_location=statement_loc
+        )
+        self.block_builder.terminate(
+            ConditionalBranch(
+                condition=should_loop,
+                non_zero=preamble,
+                zero=after_for,
+                source_location=statement_loc,
+            )
+        )
+        self.block_builder.activate_block(preamble)
+        self._seal(preamble)
+
     def _iterate_urange(
         self,
         *,
@@ -2127,9 +2150,8 @@ class FunctionIRBuilder(
         reverse_items: bool,
         reverse_index: bool,
     ) -> None:
-        preamble, header, body, footer, increment_block, next_block = mkblocks(
+        header, body, footer, increment_block, next_block = mkblocks(
             statement_loc,
-            "for_preamble",
             "for_header",
             "for_body",
             "for_footer",
@@ -2140,24 +2162,19 @@ class FunctionIRBuilder(
         step = self._visit_and_materialise_single(range_step)
         stop = self._visit_and_materialise_single(range_stop)
         start = self._visit_and_materialise_single(range_start)
-
         self._assert(step, source_location=statement_loc, comment="Step cannot be zero")
-        (should_loop,) = self._assign_intrinsic_op(
-            target="should_loop", op=AVMOp.lt, args=[start, stop], source_location=statement_loc
-        )
-        self.block_builder.terminate(
-            ConditionalBranch(
-                condition=should_loop,
-                non_zero=preamble,
-                zero=next_block,
-                source_location=statement_loc,
-            )
-        )
-        self.block_builder.activate_block(preamble)
-        self._seal(preamble)
 
         iteration_count_minus_one: Register | None
         if reverse_items or reverse_index:
+            # The following code will result in negative uints if we don't pre-check the urange
+            # params
+            self._check_urange_will_loop(
+                stop=stop,
+                start=start,
+                after_for=next_block,
+                statement_loc=statement_loc,
+            )
+
             # Determine the iteration count by doing the equivalent of
             # ceiling((stop - start) / step)
             # which is

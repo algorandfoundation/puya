@@ -1,71 +1,52 @@
-// Op                                                    // Op Description                   Stack (out)                                                        Source code         Source line
+// Op                                                    // Op Description                   Stack (out)                                      Source code         Source line
 
 #pragma version 8
 
 // test_cases.ssa2.contract.MyContract.approval_program() -> uint64:
-main:
-        byte ""                                          // allocate 1 to stack              (𝕗) range_item%1#0 |
-
 main_block@0:
-        int 1                                            //                                  (𝕗) range_item%1#0 | 1                                             1                   File "ssa2/contract.py", line 8
-        int 2                                            //                                  (𝕗) range_item%1#0 | 1,2                                           2                   File "ssa2/contract.py", line 8
-        +                                                //                                  (𝕗) range_item%1#0 | {+}                                           UInt64(1) + 2       File "ssa2/contract.py", line 8
-        dup                                              // store a#0 to l-stack (copy)      (𝕗) range_item%1#0 | a#0,a#0                                       a                   File "ssa2/contract.py", line 8
-        swap                                             // store a#0 to f-stack             (𝕗) range_item%1#0,a#0 | a#0                                       a                   File "ssa2/contract.py", line 8
-        int 4                                            //                                  (𝕗) range_item%1#0,a#0 | a#0,4                                     4                   File "ssa2/contract.py", line 9
-        int 5                                            //                                  (𝕗) range_item%1#0,a#0 | a#0,4,5                                   5                   File "ssa2/contract.py", line 9
-        *                                                //                                  (𝕗) range_item%1#0,a#0 | a#0,{*}                                   UInt64(4) * 5       File "ssa2/contract.py", line 9
-        dup                                              // store b#0 to l-stack (copy)      (𝕗) range_item%1#0,a#0 | a#0,b#0,b#0                               b                   File "ssa2/contract.py", line 9
-        cover 2                                          // store b#0 to f-stack             (𝕗) range_item%1#0,a#0,b#0 | a#0,b#0                               b                   File "ssa2/contract.py", line 9
-        int 1                                            //                                  (𝕗) range_item%1#0,a#0,b#0 | a#0,b#0,1                             urange(5)           File "ssa2/contract.py", line 15
-        assert // Step cannot be zero                    //                                  (𝕗) range_item%1#0,a#0,b#0 | a#0,b#0                               for i in urange(5): File "ssa2/contract.py", line 15
-        int 0                                            //                                  (𝕗) range_item%1#0,a#0,b#0 | a#0,b#0,0                             urange(5)           File "ssa2/contract.py", line 15
-        int 5                                            //                                  (𝕗) range_item%1#0,a#0,b#0 | a#0,b#0,0,5                           5                   File "ssa2/contract.py", line 15
-        <                                                //                                  (𝕗) range_item%1#0,a#0,b#0 | a#0,b#0,{<}                           for i in urange(5): File "ssa2/contract.py", line 15
-        bz main_after_for@6                              //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |                             for i in urange(5): File "ssa2/contract.py", line 15
-        // Implicit fall through to main_for_preamble@1  //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |                             for i in urange(5): File "ssa2/contract.py", line 15
+        int 1                                            //                                  1                                                1                   File "ssa2/contract.py", line 8
+        int 2                                            //                                  1,2                                              2                   File "ssa2/contract.py", line 8
+        +                                                //                                  {+}                                              UInt64(1) + 2       File "ssa2/contract.py", line 8
+        int 4                                            //                                  (𝕗) a#0 | 4                                      4                   File "ssa2/contract.py", line 9
+        int 5                                            //                                  (𝕗) a#0 | 4,5                                    5                   File "ssa2/contract.py", line 9
+        *                                                //                                  (𝕗) a#0 | {*}                                    UInt64(4) * 5       File "ssa2/contract.py", line 9
+        int 1                                            //                                  (𝕗) a#0,b#0 | 1                                  urange(5)           File "ssa2/contract.py", line 15
+        assert // Step cannot be zero                    //                                  (𝕗) a#0,b#0 |                                    for i in urange(5): File "ssa2/contract.py", line 15
+        int 0                                            //                                  (𝕗) a#0,b#0 | 0                                  urange(5)           File "ssa2/contract.py", line 15
+        // Implicit fall through to main_for_header@1    //                                  (𝕗) a#0,b#0,range_item%0#0 |
 
-main_for_preamble@1:
-        int 0                                            //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | 0                           urange(5)           File "ssa2/contract.py", line 15
-        bury 5                                           // store range_item%1#0 to f-stack  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |                             i                   File "ssa2/contract.py", line 15
-        // Implicit fall through to main_for_header@2    //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |
+main_for_header@1:
+        dup                                              // load range_item%0#0 from f-stack (𝕗) a#0,b#0,range_item%0#0 | range_item%0#0      i                   File "ssa2/contract.py", line 15
+        int 5                                            //                                  (𝕗) a#0,b#0,range_item%0#0 | range_item%0#0,5    5                   File "ssa2/contract.py", line 15
+        <                                                //                                  (𝕗) a#0,b#0,range_item%0#0 | {<}                 urange(5)           File "ssa2/contract.py", line 15
+        bz main_after_for@5                              //                                  (𝕗) a#0,b#0,range_item%0#0 |                     for i in urange(5): File "ssa2/contract.py", line 15
+        // Implicit fall through to main_for_body@2      //                                  (𝕗) a#0,b#0,range_item%0#0 |                     for i in urange(5): File "ssa2/contract.py", line 15
 
-main_for_header@2:
-        dig 4                                            // load range_item%1#0 from f-stack (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | range_item%1#0              i                   File "ssa2/contract.py", line 15
-        int 5                                            //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | range_item%1#0,5            5                   File "ssa2/contract.py", line 15
-        <                                                //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | {<}                         urange(5)           File "ssa2/contract.py", line 15
-        dig 4                                            // load a#0 from f-stack            (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | continue_looping%2#0,a#0    a                   File "ssa2/contract.py", line 8
-        bury 3                                           // store a#10 to f-stack            (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | continue_looping%2#0
-        dig 3                                            // load b#0 from f-stack            (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | continue_looping%2#0,b#0    b                   File "ssa2/contract.py", line 9
-        bury 2                                           // store b#10 to f-stack            (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | continue_looping%2#0
-        bz main_after_for@6                              //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |                             for i in urange(5): File "ssa2/contract.py", line 15
-        // Implicit fall through to main_for_body@3      //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |                             for i in urange(5): File "ssa2/contract.py", line 15
-
-main_for_body@3:
-        dig 4                                            // load range_item%1#0 from f-stack (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | range_item%1#0              i                   File "ssa2/contract.py", line 15
-        dig 3                                            // load b#0 from f-stack            (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | i#0,b#0                     b                   File "ssa2/contract.py", line 9
-        dig 5                                            // load a#0 from f-stack            (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | i#0,b#0,a#0                 a                   File "ssa2/contract.py", line 8
+main_for_body@2:
+        dup                                              // load range_item%0#0 from f-stack (𝕗) a#0,b#0,range_item%0#0 | range_item%0#0      i                   File "ssa2/contract.py", line 15
+        dig 2                                            // load b#0 from f-stack            (𝕗) a#0,b#0,range_item%0#0 | i#0,b#0             b                   File "ssa2/contract.py", line 9
+        dig 4                                            // load a#0 from f-stack            (𝕗) a#0,b#0,range_item%0#0 | i#0,b#0,a#0         a                   File "ssa2/contract.py", line 8
         dup
-        cover 2                                          // store a#0 to l-stack (copy)      (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | i#0,a#0,b#0,a#0             a                   File "ssa2/contract.py", line 8
-        +                                                //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | i#0,a#0,{+}                 b + a               File "ssa2/contract.py", line 16
-        bury 5                                           // store b#0 to f-stack             (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | i#0,a#0                     b                   File "ssa2/contract.py", line 9
-        +                                                //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | {+}                         a + i               File "ssa2/contract.py", line 17
-        bury 4                                           // store a#0 to f-stack             (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |                             a                   File "ssa2/contract.py", line 8
-        // Implicit fall through to main_for_footer@4    //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |
+        cover 2                                          // store a#0 to l-stack (copy)      (𝕗) a#0,b#0,range_item%0#0 | i#0,a#0,b#0,a#0     a                   File "ssa2/contract.py", line 8
+        +                                                //                                  (𝕗) a#0,b#0,range_item%0#0 | i#0,a#0,{+}         b + a               File "ssa2/contract.py", line 16
+        bury 4                                           // store b#0 to f-stack             (𝕗) a#0,b#0,range_item%0#0 | i#0,a#0             b                   File "ssa2/contract.py", line 9
+        +                                                //                                  (𝕗) a#0,b#0,range_item%0#0 | {+}                 a + i               File "ssa2/contract.py", line 17
+        bury 3                                           // store a#0 to f-stack             (𝕗) a#0,b#0,range_item%0#0 |                     a                   File "ssa2/contract.py", line 8
+        // Implicit fall through to main_for_footer@3    //                                  (𝕗) a#0,b#0,range_item%0#0 |
 
-main_for_footer@4:
-        // Implicit fall through to main_for_increment@5 //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |
+main_for_footer@3:
+        // Implicit fall through to main_for_increment@4 //                                  (𝕗) a#0,b#0,range_item%0#0 |
 
-main_for_increment@5:
-        dig 4                                            // load range_item%1#0 from f-stack (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | range_item%1#0              i                   File "ssa2/contract.py", line 15
-        int 1                                            //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | range_item%1#0,1            urange(5)           File "ssa2/contract.py", line 15
-        +                                                //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | {+}                         urange(5)           File "ssa2/contract.py", line 15
-        bury 5                                           // store range_item%1#0 to f-stack  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |                             i                   File "ssa2/contract.py", line 15
-        b main_for_header@2                              //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |
+main_for_increment@4:
+        dup                                              // load range_item%0#0 from f-stack (𝕗) a#0,b#0,range_item%0#0 | range_item%0#0      i                   File "ssa2/contract.py", line 15
+        int 1                                            //                                  (𝕗) a#0,b#0,range_item%0#0 | range_item%0#0,1    urange(5)           File "ssa2/contract.py", line 15
+        +                                                //                                  (𝕗) a#0,b#0,range_item%0#0 | {+}                 urange(5)           File "ssa2/contract.py", line 15
+        bury 1                                           // store range_item%0#0 to f-stack  (𝕗) a#0,b#0,range_item%0#0 |                     i                   File "ssa2/contract.py", line 15
+        b main_for_header@1                              //                                  (𝕗) a#0,b#0,range_item%0#0 |
 
-main_after_for@6:
-        dig 1                                            // load a#10 from f-stack           (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | a#10
-        dig 1                                            // load b#10 from f-stack           (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | a#0,b#10
-        +                                                //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 | {+}                         a + b               File "ssa2/contract.py", line 18
-        return                                           //                                  (𝕗) range_item%1#0,a#0,b#0,a#10,b#10 |                             return a + b        File "ssa2/contract.py", line 18
+main_after_for@5:
+        dig 2                                            // load a#0 from f-stack            (𝕗) a#0,b#0,range_item%0#0 | a#0                 a                   File "ssa2/contract.py", line 8
+        dig 2                                            // load b#0 from f-stack            (𝕗) a#0,b#0,range_item%0#0 | a#0,b#0             b                   File "ssa2/contract.py", line 9
+        +                                                //                                  (𝕗) a#0,b#0,range_item%0#0 | {+}                 a + b               File "ssa2/contract.py", line 18
+        return                                           //                                  (𝕗) a#0,b#0,range_item%0#0 |                     return a + b        File "ssa2/contract.py", line 18
 
