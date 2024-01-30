@@ -119,12 +119,6 @@ def remove_empty_blocks(_context: CompileContext, subroutine: models.Subroutine)
             empty_block = block
             target = block.terminator.target
 
-            if not empty_block.predecessors and block is not subroutine.body[0]:
-                logger.debug(
-                    f"Not removing empty block {empty_block} because it's currently unreachable"
-                )
-                continue
-
             if target.phis:
                 logger.debug(
                     f"Not removing empty block {empty_block} because it's used by phi nodes"
