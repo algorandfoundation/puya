@@ -7375,13 +7375,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "Sender",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Sender",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7411,13 +7411,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "Fee",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Fee",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7447,13 +7447,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "FirstValid",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "FirstValid",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7483,13 +7483,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "FirstValidTime",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "FirstValidTime",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7519,13 +7519,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "LastValid",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "LastValid",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7555,13 +7555,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "Note",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Note",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7591,13 +7591,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "Lease",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Lease",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7627,13 +7627,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "Receiver",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Receiver",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7663,13 +7663,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "Amount",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Amount",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7699,13 +7699,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "CloseRemainderTo",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "CloseRemainderTo",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7735,13 +7735,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "VotePK",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "VotePK",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7771,13 +7771,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "SelectionPK",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "SelectionPK",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7807,13 +7807,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "VoteFirst",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "VoteFirst",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7843,13 +7843,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "VoteLast",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "VoteLast",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7879,13 +7879,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "VoteKeyDilution",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "VoteKeyDilution",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7915,13 +7915,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "Type",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Type",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7951,13 +7951,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "TypeEnum",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "TypeEnum",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -7987,13 +7987,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "XferAsset",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "XferAsset",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8023,13 +8023,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "AssetAmount",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "AssetAmount",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8059,13 +8059,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "AssetSender",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "AssetSender",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8095,13 +8095,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "AssetReceiver",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "AssetReceiver",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8131,13 +8131,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "AssetCloseTo",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "AssetCloseTo",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8167,13 +8167,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "GroupIndex",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "GroupIndex",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8203,13 +8203,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "TxID",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "TxID",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8239,13 +8239,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ApplicationID",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ApplicationID",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8275,13 +8275,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "OnCompletion",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "OnCompletion",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8320,7 +8320,7 @@ STUB_TO_AST_MAPPER = {
             immediates=[
                 "ApplicationArgs",
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -8328,7 +8328,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
                         int,
@@ -8342,13 +8342,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxna",
             immediates=[
-                "ApplicationArgs",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ApplicationArgs",
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
@@ -8364,13 +8364,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxnas",
             immediates=[
-                "ApplicationArgs",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ApplicationArgs",
             ],
             stack_inputs=[
                 ArgMapping(
@@ -8408,13 +8408,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "NumAppArgs",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "NumAppArgs",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8453,7 +8453,7 @@ STUB_TO_AST_MAPPER = {
             immediates=[
                 "Accounts",
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -8461,7 +8461,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
                         int,
@@ -8475,13 +8475,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxna",
             immediates=[
-                "Accounts",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Accounts",
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
@@ -8497,13 +8497,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxnas",
             immediates=[
-                "Accounts",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Accounts",
             ],
             stack_inputs=[
                 ArgMapping(
@@ -8541,13 +8541,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "NumAccounts",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "NumAccounts",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8577,13 +8577,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ApprovalProgram",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ApprovalProgram",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8613,13 +8613,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ClearStateProgram",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ClearStateProgram",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8649,13 +8649,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "RekeyTo",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "RekeyTo",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8685,13 +8685,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAsset",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAsset",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8721,13 +8721,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetTotal",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetTotal",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8757,13 +8757,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetDecimals",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetDecimals",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8793,13 +8793,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetDefaultFrozen",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetDefaultFrozen",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8829,13 +8829,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetUnitName",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetUnitName",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8865,13 +8865,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetName",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetName",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8901,13 +8901,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetURL",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetURL",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8937,13 +8937,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetMetadataHash",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetMetadataHash",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -8973,13 +8973,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetManager",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetManager",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9009,13 +9009,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetReserve",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetReserve",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9045,13 +9045,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetFreeze",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetFreeze",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9081,13 +9081,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ConfigAssetClawback",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ConfigAssetClawback",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9117,13 +9117,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "FreezeAsset",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "FreezeAsset",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9153,13 +9153,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "FreezeAssetAccount",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "FreezeAssetAccount",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9189,13 +9189,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "FreezeAssetFrozen",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "FreezeAssetFrozen",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9234,7 +9234,7 @@ STUB_TO_AST_MAPPER = {
             immediates=[
                 "Assets",
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -9242,7 +9242,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
                         int,
@@ -9256,13 +9256,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxna",
             immediates=[
-                "Assets",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Assets",
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
@@ -9278,13 +9278,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxnas",
             immediates=[
-                "Assets",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Assets",
             ],
             stack_inputs=[
                 ArgMapping(
@@ -9322,13 +9322,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "NumAssets",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "NumAssets",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9367,7 +9367,7 @@ STUB_TO_AST_MAPPER = {
             immediates=[
                 "Applications",
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -9375,7 +9375,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
                         int,
@@ -9389,13 +9389,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxna",
             immediates=[
-                "Applications",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Applications",
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
@@ -9411,13 +9411,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxnas",
             immediates=[
-                "Applications",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Applications",
             ],
             stack_inputs=[
                 ArgMapping(
@@ -9455,13 +9455,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "NumApplications",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "NumApplications",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9491,13 +9491,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "GlobalNumUint",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "GlobalNumUint",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9527,13 +9527,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "GlobalNumByteSlice",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "GlobalNumByteSlice",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9563,13 +9563,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "LocalNumUint",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "LocalNumUint",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9599,13 +9599,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "LocalNumByteSlice",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "LocalNumByteSlice",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9635,13 +9635,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "ExtraProgramPages",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ExtraProgramPages",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9671,13 +9671,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "Nonparticipation",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Nonparticipation",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9716,7 +9716,7 @@ STUB_TO_AST_MAPPER = {
             immediates=[
                 "Logs",
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -9724,7 +9724,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
                         int,
@@ -9738,13 +9738,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxna",
             immediates=[
-                "Logs",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Logs",
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
@@ -9760,13 +9760,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxnas",
             immediates=[
-                "Logs",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "Logs",
             ],
             stack_inputs=[
                 ArgMapping(
@@ -9804,13 +9804,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "NumLogs",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "NumLogs",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9840,13 +9840,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "CreatedAssetID",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "CreatedAssetID",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9876,13 +9876,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "CreatedApplicationID",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "CreatedApplicationID",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9912,13 +9912,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "LastLog",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "LastLog",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9948,13 +9948,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "StateProofPK",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "StateProofPK",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -9993,7 +9993,7 @@ STUB_TO_AST_MAPPER = {
             immediates=[
                 "ApprovalProgramPages",
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -10001,7 +10001,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
                         int,
@@ -10015,13 +10015,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxna",
             immediates=[
-                "ApprovalProgramPages",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ApprovalProgramPages",
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
@@ -10037,13 +10037,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxnas",
             immediates=[
-                "ApprovalProgramPages",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ApprovalProgramPages",
             ],
             stack_inputs=[
                 ArgMapping(
@@ -10081,13 +10081,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "NumApprovalProgramPages",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "NumApprovalProgramPages",
             ],
             stack_inputs=[],
             stack_outputs=[
@@ -10126,7 +10126,7 @@ STUB_TO_AST_MAPPER = {
             immediates=[
                 "ClearStateProgramPages",
                 ArgMapping(
-                    arg_name="a",
+                    arg_name="b",
                     allowed_types=[
                         int,
                     ],
@@ -10134,7 +10134,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[
                 ArgMapping(
-                    arg_name="b",
+                    arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
                         int,
@@ -10148,13 +10148,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxna",
             immediates=[
-                "ClearStateProgramPages",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ClearStateProgramPages",
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
@@ -10170,13 +10170,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxnas",
             immediates=[
-                "ClearStateProgramPages",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "ClearStateProgramPages",
             ],
             stack_inputs=[
                 ArgMapping(
@@ -10214,13 +10214,13 @@ STUB_TO_AST_MAPPER = {
         FunctionOpMapping(
             op_code="gtxn",
             immediates=[
-                "NumClearStateProgramPages",
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        str,
+                        int,
                     ],
                 ),
+                "NumClearStateProgramPages",
             ],
             stack_inputs=[],
             stack_outputs=[

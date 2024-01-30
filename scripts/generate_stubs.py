@@ -65,27 +65,21 @@ class RenamedOpCode:
 @attrs.define(kw_only=True)
 class MergedOpCodes:
     name: str
-    stack_aliases: dict[str, str] = attrs.field(factory=dict)
-    """ops that are aliases for other ops that take stack values instead of immediates"""
-    op: str
-    merge_ops: list[str] = attrs.field(factory=list)
-    """ops to merge under the same command, should be in order such that later ops will
-    override methods from earlier ops"""
+    ops: dict[str, dict[str, list[str]]]
 
     def includes_op(self, op: str) -> bool:
-        return op in self.merge_ops or self.op == op or op in self.stack_aliases
+        return op in self.ops or any(op in alias_dict for alias_dict in self.ops.values())
 
 
 @attrs.define(kw_only=True)
 class GroupedOpCodes:
     name: str
-    stack_aliases: dict[str, str] = attrs.field(factory=dict)
     """ops that are aliases for other ops that take stack values instead of immediates"""
     ops: dict[str, str] = attrs.field(factory=dict)
     """ops to include in group, mapped to their new name"""
 
     def includes_op(self, op: str) -> bool:
-        return op in self.ops or op in self.stack_aliases
+        return op in self.ops
 
 
 OPCODE_GROUPS: list[OpCodeGroup] = [
@@ -131,41 +125,47 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     MergedOpCodes(
         name="InnerTransaction",
-        op="itxn",
-        merge_ops=["itxnas"],
-        stack_aliases={
-            "itxna": "itxnas",  # array index on stack
+        ops={
+            "itxn": {},
+            "itxnas": {
+                "itxna": ["F", "I"],
+            },
         },
     ),
     MergedOpCodes(
         name="InnerTransactionGroup",
-        op="gitxn",
-        merge_ops=["gitxnas"],
-        stack_aliases={
-            "gitxna": "gitxnas",  # array index on stack
+        ops={
+            "gitxn": {},
+            "gitxnas": {
+                "gitxna": ["T", "F", "I"],
+            },
         },
     ),
     MergedOpCodes(
         name="Global",
-        op="global",
+        ops={"global": {}},
     ),
     MergedOpCodes(
         name="Transaction",
-        op="txn",
-        merge_ops=["txnas"],
-        stack_aliases={
-            "txna": "txnas",  # array index
+        ops={
+            "txn": {},
+            "txnas": {
+                "txna": ["F", "I"],
+            },
         },
     ),
     MergedOpCodes(
         name="TransactionGroup",
-        op="gtxns",
-        merge_ops=["gtxnsas"],
-        stack_aliases={
-            "gtxnsa": "gtxnsas",  # group index on stack
-            "gtxn": "gtxns",  # no array index
-            "gtxna": "gtxnsas",  # array index is immediate
-            "gtxnas": "gtxnsas",  # array index on stack
+        ops={
+            "gtxns": {
+                "gtxn": ["F", "T"],
+            },
+            # field is immediate, first stack arg is txn index, second stack arg is array index
+            "gtxnsas": {
+                "gtxnsa": ["F", "A", "I"],  # group index on stack
+                "gtxna": ["F", "T", "I"],  # no stack args
+                "gtxnas": ["F", "T", "A"],  # array index on stack
+            },
         },
     ),
     RenamedOpCode(
@@ -501,7 +501,7 @@ def build_class_from_overriding_immediate(
     spec: LanguageSpec,
     op: Op,
     immediate: Immediate,
-    aliases: list[Op],
+    aliases: list[AliasT],
 ) -> ClassDef:
     assert immediate.arg_enum
     logger.info(f"Using overriding immediate for {op.name}")
@@ -515,7 +515,7 @@ def build_class_from_overriding_immediate(
     aliases = copy.deepcopy(aliases)
 
     # obtain a list of stack values that will be modified for each enum
-    stacks_to_modify = [_get_modified_stack_value(o) for o in [op, *aliases]]
+    stacks_to_modify = [_get_modified_stack_value(o) for o, _ in [(op, None), *aliases]]
 
     # build a method for each arg enum value
     methods = list[FunctionDef]()
@@ -527,9 +527,7 @@ def build_class_from_overriding_immediate(
             stack_to_modify.stack_type = stack_type
             stack_to_modify.doc = value.doc
 
-        method = build_operation_method(
-            op, snake_case(value.name), aliases=[(a, []) for a in aliases]
-        )
+        method = build_operation_method(op, snake_case(value.name), aliases)
 
         # remove enum arg from signature
         arg = method.args.pop(immediate_arg_index)
@@ -652,18 +650,7 @@ def build_function_op_mapping(
     if arg_map:
         arg_name_map = {n: signature_args[idx].name for idx, n in enumerate(arg_map)}
     else:
-        # TODO: the below should work, but there are bad mappings in itxna for example
-        # arg_name_map = {n.name.upper(): n.name for n in signature_args}
-        arg_name_map = {}
-        immediate_names = (im.name for im in op.immediate_args)
-        stack_names = (st.name for st in op.stack_inputs)
-        for sig_arg, spec_name in zip(
-            signature_args,
-            # stack args follow immediate args
-            itertools.chain(immediate_names, stack_names),
-            strict=True,
-        ):
-            arg_name_map[spec_name] = sig_arg.name
+        arg_name_map = {n.name.upper(): n.name for n in signature_args}
     return FunctionOpMapping(
         op_code=op.name,
         immediates=[
@@ -741,13 +728,6 @@ def build_operation_methods(
         yield build_operation_method(op, op_function_name, aliases)
 
 
-def get_op_aliases(spec: LanguageSpec, group_stack_aliases: dict[str, str]) -> dict[str, list[Op]]:
-    result = dict[str, list[Op]]()
-    for stack_alias, op in group_stack_aliases.items():
-        result.setdefault(op, []).append(spec.ops[stack_alias])
-    return result
-
-
 def build_aliased_ops(spec: LanguageSpec, group: RenamedOpCode) -> Iterable[FunctionDef]:
     op = spec.ops[group.op]
     aliases = [
@@ -758,26 +738,17 @@ def build_aliased_ops(spec: LanguageSpec, group: RenamedOpCode) -> Iterable[Func
 
 
 def build_merged_ops(spec: LanguageSpec, group: MergedOpCodes) -> ClassDef:
-    base_op = spec.ops[group.op]
-    aliased_ops = get_op_aliases(spec, group.stack_aliases)
-    overriding_immediate = get_overriding_immediate(base_op)
-    assert overriding_immediate
-    klass = build_class_from_overriding_immediate(
-        spec, base_op, overriding_immediate, aliased_ops.get(base_op.name, [])
-    )
-    merge_methods = {m.name: m for m in klass.methods}
+    merge_methods = dict[str, FunctionDef]()
 
-    for other_op_name in group.merge_ops:
+    for other_op_name, alias_dict in group.ops.items():
+        aliases = [(spec.ops[alias_op], arg_map) for alias_op, arg_map in alias_dict.items()]
         other_op = spec.ops[other_op_name]
         overriding_immediate = get_overriding_immediate(other_op)
         assert overriding_immediate
         other_class = build_class_from_overriding_immediate(
-            spec, other_op, overriding_immediate, aliased_ops.get(other_op.name, [])
+            spec, other_op, overriding_immediate, aliases
         )
         for method in other_class.methods:
-            assert (
-                method.name in merge_methods
-            ), f"override {method.name} for {other_op.name} not specified in base op {base_op}"
             merge_methods[method.name] = method
 
     methods = list(merge_methods.values())
@@ -789,26 +760,19 @@ def build_merged_ops(spec: LanguageSpec, group: MergedOpCodes) -> ClassDef:
 
 def build_grouped_ops(spec: LanguageSpec, group: GroupedOpCodes) -> ClassDef:
     methods = list[FunctionDef]()
-    alias_mappings = get_op_aliases(spec, group.stack_aliases)
-
     for rename_op_name, python_name in group.ops.items():
         rename_op = spec.ops[rename_op_name]
         rename_immediate = get_overriding_immediate(rename_op)
-        rename_aliases = alias_mappings.get(rename_op_name, [])
         if rename_immediate:
             rename_class = build_class_from_overriding_immediate(
-                spec, rename_op, rename_immediate, rename_aliases
+                spec, rename_op, rename_immediate, aliases=[]
             )
             # when grouping an op with immediate overrides, treat python_name as a prefix
             for method in rename_class.methods:
                 method.name = f"{python_name}_{method.name}"
             methods.extend(rename_class.methods)
         else:
-            methods.extend(
-                build_operation_methods(
-                    rename_op, python_name, aliases=[(a, []) for a in rename_aliases]
-                )
-            )
+            methods.extend(build_operation_methods(rename_op, python_name, aliases=[]))
 
     class_def = ClassDef(
         name=get_python_enum_class(group.name),

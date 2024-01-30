@@ -2,6 +2,7 @@ import base64
 import collections
 import inspect
 import os
+import random
 import re
 import typing
 from collections.abc import Callable, Iterable, Sequence
@@ -106,6 +107,7 @@ class AppTransactionParameters:
     on_complete: OnComplete = OnComplete.NoOpOC
     sp: transaction.SuggestedParams | None = None
     extra_pages: int | None = None
+    add_random_note: bool = False
 
 
 GroupTransactionsProvider: typing.TypeAlias = Callable[[int], Iterable[TransactionWithSigner]]
@@ -196,6 +198,7 @@ class ATCRunner:
             "foreign_assets": request.assets,
             "app_args": request.args,
             "extra_pages": request.extra_pages,
+            "note": random.randbytes(8) if request.add_random_note else None,
         }
 
     def add_transactions(
@@ -1115,3 +1118,12 @@ def test_ignored_value(harness: _TestHarness) -> None:
                 return True
 
     harness.deploy_from_closure(test)
+
+
+def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
+    sp = harness.client.suggested_params()
+    sp.fee = 10
+    harness.deploy(
+        TEST_CASES_DIR / "intrinsics" / "immediate_variants.py",
+        AppCallRequest(args=[b""], sp=sp, add_random_note=True),
+    )

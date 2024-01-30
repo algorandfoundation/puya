@@ -1,0 +1,68 @@
+contract test_cases.intrinsics.immediate_variants.ImmediateVariants:
+    program approval:
+        subroutine test_cases.intrinsics.immediate_variants.ImmediateVariants.approval_program() -> uint64:
+            block@0: // L16
+                let num_app_args#0: uint64 = (txn NumAppArgs)
+                let tmp%0#0: uint64 = (gtxn 0 NumAppArgs)
+                let tmp%1#0: uint64 = (== tmp%0#0 num_app_args#0)
+                (assert tmp%1#0)
+                let tmp%2#0: uint64 = ((gtxns NumAppArgs) 0u)
+                let tmp%3#0: uint64 = (== tmp%2#0 num_app_args#0)
+                (assert tmp%3#0)
+                let first_arg#0: bytes = (txna ApplicationArgs 0)
+                let tmp%4#0: bytes = ((txnas ApplicationArgs) 0u)
+                let tmp%5#0: uint64 = (== tmp%4#0 first_arg#0)
+                (assert tmp%5#0)
+                let tmp%6#0: bytes = (gtxna 0 ApplicationArgs 0)
+                let tmp%7#0: uint64 = (== tmp%6#0 first_arg#0)
+                (assert tmp%7#0)
+                let tmp%8#0: bytes = ((gtxnas 0 ApplicationArgs) 0u)
+                let tmp%9#0: uint64 = (== tmp%8#0 first_arg#0)
+                (assert tmp%9#0)
+                let tmp%10#0: bytes = ((gtxnsa ApplicationArgs 0) 0u)
+                let tmp%11#0: uint64 = (== tmp%10#0 first_arg#0)
+                (assert tmp%11#0)
+                let tmp%12#0: bytes = ((gtxnsas ApplicationArgs) 0u 0u)
+                let tmp%13#0: uint64 = (== tmp%12#0 first_arg#0)
+                (assert tmp%13#0)
+                itxn_begin
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApprovalProgram) 0x068101)
+                ((itxn_field ClearStateProgram) 0x068101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ApplicationArgs) first_arg#0)
+                let second_arg#0: bytes = (concat first_arg#0 "2")
+                ((itxn_field ApplicationArgs) second_arg#0)
+                itxn_submit
+                let tmp%14#0: uint64 = (itxn NumAppArgs)
+                let tmp%15#0: uint64 = (== tmp%14#0 2u)
+                (assert tmp%15#0)
+                let tmp%16#0: bytes = (itxna ApplicationArgs 0)
+                let tmp%17#0: uint64 = (== tmp%16#0 first_arg#0)
+                (assert tmp%17#0)
+                let tmp%18#0: bytes = ((itxnas ApplicationArgs) 1u)
+                let tmp%19#0: uint64 = (== tmp%18#0 second_arg#0)
+                (assert tmp%19#0)
+                let tmp%20#0: uint64 = (gitxn 0 NumAppArgs)
+                let tmp%21#0: uint64 = (== tmp%20#0 2u)
+                (assert tmp%21#0)
+                let tmp%22#0: bytes = ((gitxnas 0 ApplicationArgs) 0u)
+                let tmp%23#0: uint64 = (== tmp%22#0 first_arg#0)
+                (assert tmp%23#0)
+                let tmp%24#0: bytes = ((gitxnas 0 ApplicationArgs) 1u)
+                let tmp%25#0: uint64 = (== tmp%24#0 second_arg#0)
+                (assert tmp%25#0)
+                let tmp%26#0: bytes = (gitxna 0 ApplicationArgs 0)
+                let tmp%27#0: uint64 = (== tmp%26#0 first_arg#0)
+                (assert tmp%27#0)
+                let tmp%28#0: bytes = (gitxna 0 ApplicationArgs 1)
+                let tmp%29#0: uint64 = (== tmp%28#0 second_arg#0)
+                (assert tmp%29#0)
+                return 1u
+    
+    program clear-state:
+        subroutine test_cases.intrinsics.immediate_variants.ImmediateVariants.clear_state_program() -> uint64:
+            block@0: // L51
+                return 1u
