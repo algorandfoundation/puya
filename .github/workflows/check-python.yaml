@@ -21,12 +21,17 @@ jobs:
           cache: "poetry"
 
       - name: Install dependencies
-        run: poetry install --no-interaction --with cicd
+        run: poetry install --no-interaction --with cicd --with doc
 
       - name: Check pre-commits
         run: |
             set -o pipefail
             poetry run pre-commit run --all-files && git diff --exit-code
+
+      - name: Check documentation
+        run: |
+            set -o pipefail
+            poetry run make -C docs html SPHINXOPTS="-W --keep-going -n -E"
 
   tests:
     runs-on: "ubuntu-latest"
