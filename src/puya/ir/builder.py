@@ -1840,7 +1840,6 @@ class FunctionIRBuilder(
                 if not tuple_items:
                     logger.debug("Skipping ForInStatement which iterates an empty sequence.")
                 else:
-                    # TODO: Handle reverse iteration
                     self._iterate_tuple(
                         loop_body=statement.loop_body,
                         item_var=item_var,
@@ -1960,7 +1959,7 @@ class FunctionIRBuilder(
                     reverse_items=reverse_items,
                 )
             case _:
-                raise TodoError(statement.source_location, "TODO: IR build support")
+                raise InternalError("Unsupported for in loop sequence", statement.source_location)
 
     def _read_nth_item_of_arc4_heterogeneous_container(
         self,
