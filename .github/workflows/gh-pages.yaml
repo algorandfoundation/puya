@@ -1,0 +1,39 @@
+name: "Sphinx: Render + publish docs"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with doc
+
+      - name: Build doc
+        run: poetry run make -C docs html
+
+      - name: Upload to GitHub pages
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: docs/_build/html
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
