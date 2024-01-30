@@ -114,16 +114,10 @@ def remove_linear_jump(_context: CompileContext, subroutine: models.Subroutine) 
 
 def remove_empty_blocks(_context: CompileContext, subroutine: models.Subroutine) -> bool:
     changes = False
-    for block in subroutine.body:
+    for block in subroutine.body.copy():
         if not block.phis and not block.ops and isinstance(block.terminator, models.Goto):
             empty_block = block
             target = block.terminator.target
-
-            if not empty_block.predecessors and block is not subroutine.body[0]:
-                logger.debug(
-                    f"Not removing empty block {empty_block} because it's currently unreachable"
-                )
-                continue
 
             if target.phis:
                 logger.debug(
@@ -147,6 +141,10 @@ def remove_empty_blocks(_context: CompileContext, subroutine: models.Subroutine)
             with contextlib.suppress(ValueError):
                 target.predecessors.remove(empty_block)
 
+            if empty_block is subroutine.body[0]:
+                # place target at start of body so it's now the new entry block
+                subroutine.body.remove(target)
+                subroutine.body.insert(0, target)
             subroutine.body.remove(empty_block)
             changes = True
             logger.debug(f"Removed empty block: {empty_block}")
