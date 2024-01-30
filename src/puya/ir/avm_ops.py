@@ -462,7 +462,7 @@ class AVMOp(enum.StrEnum):
                     args=[StackType.uint64], returns=[StackType.bytes, StackType.bool]
                 ),
                 "AssetMetadataHash": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes_32, StackType.bool]
+                    args=[StackType.uint64], returns=[StackType.bytes, StackType.bool]
                 ),
                 "AssetManager": OpSignature(
                     args=[StackType.uint64], returns=[StackType.address, StackType.bool]
@@ -1037,7 +1037,7 @@ class AVMOp(enum.StrEnum):
     ecdsa_pk_recover = AVMOpData(
         op_code="ecdsa_pk_recover",
         signature=OpSignature(
-            args=[StackType.bytes_32, StackType.uint64, StackType.bytes_32, StackType.bytes_32],
+            args=[StackType.bytes, StackType.uint64, StackType.bytes, StackType.bytes],
             returns=[StackType.bytes, StackType.bytes],
         ),
         immediate_types=(ImmediateKind.arg_enum,),
@@ -1056,7 +1056,7 @@ class AVMOp(enum.StrEnum):
         op_code="ecdsa_verify",
         signature=OpSignature(
             args=[
-                StackType.bytes_32,
+                StackType.bytes,
                 StackType.bytes,
                 StackType.bytes,
                 StackType.bytes,
@@ -1081,8 +1081,7 @@ class AVMOp(enum.StrEnum):
     ed25519verify = AVMOpData(
         op_code="ed25519verify",
         signature=OpSignature(
-            args=[StackType.bytes, StackType.bytes_64, StackType.bytes_32],
-            returns=[StackType.bool],
+            args=[StackType.bytes, StackType.bytes, StackType.bytes], returns=[StackType.bool]
         ),
         immediate_types=(),
         cost=1900,
@@ -1100,8 +1099,7 @@ class AVMOp(enum.StrEnum):
     ed25519verify_bare = AVMOpData(
         op_code="ed25519verify_bare",
         signature=OpSignature(
-            args=[StackType.bytes, StackType.bytes_64, StackType.bytes_32],
-            returns=[StackType.bool],
+            args=[StackType.bytes, StackType.bytes, StackType.bytes], returns=[StackType.bool]
         ),
         immediate_types=(),
         cost=1900,
@@ -1298,12 +1296,12 @@ class AVMOp(enum.StrEnum):
                 "FirstValidTime": OpSignature(args=[], returns=[StackType.uint64]),
                 "LastValid": OpSignature(args=[], returns=[StackType.uint64]),
                 "Note": OpSignature(args=[], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "Lease": OpSignature(args=[], returns=[StackType.bytes]),
                 "Receiver": OpSignature(args=[], returns=[StackType.address]),
                 "Amount": OpSignature(args=[], returns=[StackType.uint64]),
                 "CloseRemainderTo": OpSignature(args=[], returns=[StackType.address]),
-                "VotePK": OpSignature(args=[], returns=[StackType.bytes_32]),
-                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "VotePK": OpSignature(args=[], returns=[StackType.bytes]),
+                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes]),
                 "VoteFirst": OpSignature(args=[], returns=[StackType.uint64]),
                 "VoteLast": OpSignature(args=[], returns=[StackType.uint64]),
                 "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
@@ -1315,7 +1313,7 @@ class AVMOp(enum.StrEnum):
                 "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "TxID": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
                 "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
@@ -1332,7 +1330,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetUnitName": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetName": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetURL": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetManager": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
@@ -1471,13 +1469,13 @@ class AVMOp(enum.StrEnum):
                 "CurrentApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
                 "CreatorAddress": OpSignature(args=[], returns=[StackType.address]),
                 "CurrentApplicationAddress": OpSignature(args=[], returns=[StackType.address]),
-                "GroupID": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "GroupID": OpSignature(args=[], returns=[StackType.bytes]),
                 "OpcodeBudget": OpSignature(args=[], returns=[StackType.uint64]),
                 "CallerApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
                 "CallerApplicationAddress": OpSignature(args=[], returns=[StackType.address]),
                 "AssetCreateMinBalance": OpSignature(args=[], returns=[StackType.uint64]),
                 "AssetOptInMinBalance": OpSignature(args=[], returns=[StackType.uint64]),
-                "GenesisHash": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "GenesisHash": OpSignature(args=[], returns=[StackType.bytes]),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
@@ -1544,12 +1542,12 @@ class AVMOp(enum.StrEnum):
                 "FirstValidTime": OpSignature(args=[], returns=[StackType.uint64]),
                 "LastValid": OpSignature(args=[], returns=[StackType.uint64]),
                 "Note": OpSignature(args=[], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "Lease": OpSignature(args=[], returns=[StackType.bytes]),
                 "Receiver": OpSignature(args=[], returns=[StackType.address]),
                 "Amount": OpSignature(args=[], returns=[StackType.uint64]),
                 "CloseRemainderTo": OpSignature(args=[], returns=[StackType.address]),
-                "VotePK": OpSignature(args=[], returns=[StackType.bytes_32]),
-                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "VotePK": OpSignature(args=[], returns=[StackType.bytes]),
+                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes]),
                 "VoteFirst": OpSignature(args=[], returns=[StackType.uint64]),
                 "VoteLast": OpSignature(args=[], returns=[StackType.uint64]),
                 "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
@@ -1561,7 +1559,7 @@ class AVMOp(enum.StrEnum):
                 "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "TxID": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
                 "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
@@ -1578,7 +1576,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetUnitName": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetName": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetURL": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetManager": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
@@ -1680,14 +1678,14 @@ class AVMOp(enum.StrEnum):
                 "FirstValidTime": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "LastValid": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "Note": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[StackType.uint64], returns=[StackType.bytes_32]),
+                "Lease": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "Receiver": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
                 "Amount": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "CloseRemainderTo": OpSignature(
                     args=[StackType.uint64], returns=[StackType.address]
                 ),
-                "VotePK": OpSignature(args=[StackType.uint64], returns=[StackType.bytes_32]),
-                "SelectionPK": OpSignature(args=[StackType.uint64], returns=[StackType.bytes_32]),
+                "VotePK": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                "SelectionPK": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "VoteFirst": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "VoteLast": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "VoteKeyDilution": OpSignature(
@@ -1701,7 +1699,7 @@ class AVMOp(enum.StrEnum):
                 "AssetReceiver": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[StackType.uint64], returns=[StackType.bytes_32]),
+                "TxID": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "ApplicationID": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "OnCompletion": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
@@ -1729,7 +1727,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetName": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "ConfigAssetURL": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "ConfigAssetMetadataHash": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes_32]
+                    args=[StackType.uint64], returns=[StackType.bytes]
                 ),
                 "ConfigAssetManager": OpSignature(
                     args=[StackType.uint64], returns=[StackType.address]
@@ -1888,12 +1886,12 @@ class AVMOp(enum.StrEnum):
                 "FirstValidTime": OpSignature(args=[], returns=[StackType.uint64]),
                 "LastValid": OpSignature(args=[], returns=[StackType.uint64]),
                 "Note": OpSignature(args=[], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "Lease": OpSignature(args=[], returns=[StackType.bytes]),
                 "Receiver": OpSignature(args=[], returns=[StackType.address]),
                 "Amount": OpSignature(args=[], returns=[StackType.uint64]),
                 "CloseRemainderTo": OpSignature(args=[], returns=[StackType.address]),
-                "VotePK": OpSignature(args=[], returns=[StackType.bytes_32]),
-                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "VotePK": OpSignature(args=[], returns=[StackType.bytes]),
+                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes]),
                 "VoteFirst": OpSignature(args=[], returns=[StackType.uint64]),
                 "VoteLast": OpSignature(args=[], returns=[StackType.uint64]),
                 "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
@@ -1905,7 +1903,7 @@ class AVMOp(enum.StrEnum):
                 "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "TxID": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
                 "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
@@ -1922,7 +1920,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetUnitName": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetName": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetURL": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetManager": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
@@ -1987,8 +1985,8 @@ class AVMOp(enum.StrEnum):
                 "Receiver": OpSignature(args=[StackType.address], returns=[]),
                 "Amount": OpSignature(args=[StackType.uint64], returns=[]),
                 "CloseRemainderTo": OpSignature(args=[StackType.address], returns=[]),
-                "VotePK": OpSignature(args=[StackType.bytes_32], returns=[]),
-                "SelectionPK": OpSignature(args=[StackType.bytes_32], returns=[]),
+                "VotePK": OpSignature(args=[StackType.bytes], returns=[]),
+                "SelectionPK": OpSignature(args=[StackType.bytes], returns=[]),
                 "VoteFirst": OpSignature(args=[StackType.uint64], returns=[]),
                 "VoteLast": OpSignature(args=[StackType.uint64], returns=[]),
                 "VoteKeyDilution": OpSignature(args=[StackType.uint64], returns=[]),
@@ -2013,7 +2011,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetUnitName": OpSignature(args=[StackType.bytes], returns=[]),
                 "ConfigAssetName": OpSignature(args=[StackType.bytes], returns=[]),
                 "ConfigAssetURL": OpSignature(args=[StackType.bytes], returns=[]),
-                "ConfigAssetMetadataHash": OpSignature(args=[StackType.bytes_32], returns=[]),
+                "ConfigAssetMetadataHash": OpSignature(args=[StackType.bytes], returns=[]),
                 "ConfigAssetManager": OpSignature(args=[StackType.address], returns=[]),
                 "ConfigAssetReserve": OpSignature(args=[StackType.address], returns=[]),
                 "ConfigAssetFreeze": OpSignature(args=[StackType.address], returns=[]),
@@ -2158,7 +2156,7 @@ class AVMOp(enum.StrEnum):
 
     keccak256 = AVMOpData(
         op_code="keccak256",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes_32]),
+        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
         immediate_types=(),
         cost=130,
         min_avm_version=1,
@@ -2465,7 +2463,7 @@ class AVMOp(enum.StrEnum):
 
     sha256 = AVMOpData(
         op_code="sha256",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes_32]),
+        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
         immediate_types=(),
         cost=35,
         min_avm_version=1,
@@ -2487,7 +2485,7 @@ class AVMOp(enum.StrEnum):
 
     sha512_256 = AVMOpData(
         op_code="sha512_256",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes_32]),
+        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
         immediate_types=(),
         cost=45,
         min_avm_version=1,
@@ -2618,12 +2616,12 @@ class AVMOp(enum.StrEnum):
                 "FirstValidTime": OpSignature(args=[], returns=[StackType.uint64]),
                 "LastValid": OpSignature(args=[], returns=[StackType.uint64]),
                 "Note": OpSignature(args=[], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "Lease": OpSignature(args=[], returns=[StackType.bytes]),
                 "Receiver": OpSignature(args=[], returns=[StackType.address]),
                 "Amount": OpSignature(args=[], returns=[StackType.uint64]),
                 "CloseRemainderTo": OpSignature(args=[], returns=[StackType.address]),
-                "VotePK": OpSignature(args=[], returns=[StackType.bytes_32]),
-                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "VotePK": OpSignature(args=[], returns=[StackType.bytes]),
+                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes]),
                 "VoteFirst": OpSignature(args=[], returns=[StackType.uint64]),
                 "VoteLast": OpSignature(args=[], returns=[StackType.uint64]),
                 "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
@@ -2635,7 +2633,7 @@ class AVMOp(enum.StrEnum):
                 "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "TxID": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
                 "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
@@ -2652,7 +2650,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetUnitName": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetName": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetURL": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes_32]),
+                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes]),
                 "ConfigAssetManager": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
@@ -2743,7 +2741,7 @@ class AVMOp(enum.StrEnum):
     vrf_verify = AVMOpData(
         op_code="vrf_verify",
         signature=OpSignature(
-            args=[StackType.bytes, StackType.bytes_80, StackType.bytes_32],
+            args=[StackType.bytes, StackType.bytes, StackType.bytes],
             returns=[StackType.bytes, StackType.bool],
         ),
         immediate_types=(ImmediateKind.arg_enum,),

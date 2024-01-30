@@ -7,9 +7,6 @@ import attrs
 class StackType(enum.StrEnum):
     uint64 = enum.auto()
     bytes = "[]byte"  # noqa: A003
-    bytes_32 = "[32]byte"
-    bytes_64 = "[64]byte"
-    bytes_80 = "[80]byte"
     bool = enum.auto()  # noqa: A003
     address = enum.auto()
     address_or_index = enum.auto()
