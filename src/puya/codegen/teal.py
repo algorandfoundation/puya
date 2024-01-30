@@ -29,17 +29,17 @@ class TealOp:
 
 @attrs.frozen
 class Dup(TealOp):
-    op_code: str = "dup"
+    op_code: str = attrs.field(default="dup", init=False)
 
 
 @attrs.frozen
 class Pop(TealOp):
-    op_code: str = "pop"
+    op_code: str = attrs.field(default="pop", init=False)
 
 
 @attrs.frozen
 class RetSub(TealOp):
-    op_code: str = "retsub"
+    op_code: str = attrs.field(default="retsub", init=False)
 
 
 @attrs.frozen
@@ -53,7 +53,7 @@ class TealOpN(TealOp):
 
 @attrs.frozen
 class Cover(TealOpN):
-    op_code: str = "cover"
+    op_code: str = attrs.field(default="cover", init=False)
 
     def __str__(self) -> str:
         if self.n == 1:
@@ -64,7 +64,7 @@ class Cover(TealOpN):
 
 @attrs.frozen
 class Uncover(TealOpN):
-    op_code: str = "uncover"
+    op_code: str = attrs.field(default="uncover", init=False)
 
     def __str__(self) -> str:
         if self.n == 1:
@@ -75,28 +75,28 @@ class Uncover(TealOpN):
 
 @attrs.frozen
 class Dig(TealOpN):
-    op_code: str = "dig"  # TODO: these should be field with default=... and init=False
+    op_code: str = attrs.field(default="dig", init=False)
 
 
 @attrs.frozen
 class Bury(TealOpN):
-    op_code: str = "bury"
+    op_code: str = attrs.field(default="bury", init=False)
 
 
 @attrs.frozen
 class FrameDig(TealOpN):
-    op_code: str = "frame_dig"
+    op_code: str = attrs.field(default="frame_dig", init=False)
 
 
 @attrs.frozen
 class FrameBury(TealOpN):
-    op_code: str = "frame_bury"
+    op_code: str = attrs.field(default="frame_bury", init=False)
 
 
 @attrs.frozen
 class PushInt(TealOp):
     n: int | str
-    op_code: str = "int"
+    op_code: str = attrs.field(default="int", init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -105,19 +105,19 @@ class PushInt(TealOp):
 
 @attrs.frozen
 class PopN(TealOpN):
-    op_code: str = "popn"
+    op_code: str = attrs.field(default="popn", init=False)
 
 
 @attrs.frozen
 class DupN(TealOpN):
-    op_code: str = "dupn"
+    op_code: str = attrs.field(default="dupn", init=False)
 
 
 @attrs.frozen
 class Proto(TealOp):
     parameters: int
     returns: int
-    op_code: str = "proto"
+    op_code: str = attrs.field(default="proto", init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -128,7 +128,7 @@ class Proto(TealOp):
 class PushBytes(TealOp):
     n: bytes
     encoding: AVMBytesEncoding
-    op_code: str = "byte"
+    op_code: str = attrs.field(default="byte", init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -145,7 +145,7 @@ class PushBytes(TealOp):
 @attrs.frozen
 class PushAddress(TealOp):
     a: str
-    op_code: str = "addr"
+    op_code: str = attrs.field(default="addr", init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -155,7 +155,7 @@ class PushAddress(TealOp):
 @attrs.frozen
 class PushMethod(TealOp):
     a: str
-    op_code: str = "method"
+    op_code: str = attrs.field(default="method", init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
@@ -170,7 +170,7 @@ class Intrinsic(TealOp):
 @attrs.frozen
 class CallSub(TealOp):
     target: str
-    op_code: str = "callsub"
+    op_code: str = attrs.field(default="callsub", init=False)
 
     @property
     def immediates(self) -> Sequence[int | str]:
