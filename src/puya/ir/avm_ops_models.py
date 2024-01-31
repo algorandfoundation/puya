@@ -6,11 +6,11 @@ import attrs
 
 class StackType(enum.StrEnum):
     uint64 = enum.auto()
-    bytes = "[]byte"  # noqa: A003
-    bool = enum.auto()  # noqa: A003
+    bytes = "[]byte"
+    bool = enum.auto()
     address = enum.auto()
     address_or_index = enum.auto()
-    any = enum.auto()  # noqa: A003
+    any = enum.auto()
     bigint = enum.auto()
     box_name = "boxName"
 

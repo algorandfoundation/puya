@@ -9,7 +9,7 @@ class MyContract(algo.Contract):
     def approval_program(self) -> algo.UInt64:
         a = algo.UInt64(1) + 2
         b = algo.UInt64(4) * 5
-        if (1 + 2) * (4 - 3) == a:
+        if a == (1 + 2) * (4 - 3):
             if b < 2:
                 b = 3 + algo.UInt64(2)
                 return a + b

@@ -911,7 +911,7 @@ class UInt64BinaryOperator(enum.StrEnum):
     mult = "*"
     floor_div = "//"
     mod = "%"
-    pow = "**"  # noqa: A003
+    pow = "**"
     lshift = "<<"
     rshift = ">>"
     bit_or = "|"

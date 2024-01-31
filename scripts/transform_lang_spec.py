@@ -121,14 +121,14 @@ class AlgorandLanguageSpec(typing.TypedDict):
 
 class StackType(enum.StrEnum):
     uint64 = enum.auto()
-    bytes = "[]byte"  # noqa: A003
+    bytes = "[]byte"
     bytes_32 = "[32]byte"
     bytes_64 = "[64]byte"
     bytes_80 = "[80]byte"
-    bool = enum.auto()  # noqa: A003
+    bool = enum.auto()
     address = enum.auto()
     address_or_index = enum.auto()
-    any = enum.auto()  # noqa: A003
+    any = enum.auto()
     bigint = enum.auto()
     box_name = "boxName"
 
@@ -153,7 +153,7 @@ class ImmediateKind(enum.StrEnum):
     int8 = enum.auto()
     label = enum.auto()
     uint64 = enum.auto()
-    bytes = enum.auto()  # noqa: A003
+    bytes = enum.auto()
 
     # array types
     label_array = enum.auto()

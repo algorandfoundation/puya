@@ -277,7 +277,7 @@ EXCLUDED_OPCODES = {
 @attrs.define
 class TypedName:
     name: str
-    type: StackType | ImmediateKind | str  # noqa: A003
+    type: StackType | ImmediateKind | str
     doc: str | None
 
 

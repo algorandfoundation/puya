@@ -58,7 +58,7 @@ class BuilderBinaryOp(enum.StrEnum):
     div = "/"
     floor_div = "//"
     mod = "%"
-    pow = "**"  # noqa: A003
+    pow = "**"
     mat_mult = "@"
     lshift = "<<"
     rshift = ">>"

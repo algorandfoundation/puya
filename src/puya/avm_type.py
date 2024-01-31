@@ -3,6 +3,6 @@ import enum
 
 @enum.unique
 class AVMType(enum.Flag):
-    bytes = enum.auto()  # noqa: A003
+    bytes = enum.auto()
     uint64 = enum.auto()
-    any = bytes | uint64  # noqa: A003
+    any = bytes | uint64
