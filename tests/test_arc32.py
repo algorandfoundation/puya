@@ -310,6 +310,39 @@ def voter_account(algod_client: AlgodClient) -> algokit_utils.Account:
     return voter_account
 
 
+def suggested_params(
+    *, algod_client: AlgodClient, fee: int | None = None, flat_fee: bool | None = None
+) -> algosdk.transaction.SuggestedParams:
+    sp = algod_client.suggested_params()
+
+    if fee is not None:
+        sp.fee = fee
+    if flat_fee is not None:
+        sp.flat_fee = flat_fee
+
+    return sp
+
+
+def payment_transaction(
+    *,
+    algod_client: AlgodClient,
+    amount: int,
+    receiver: str,
+    sender: algokit_utils.Account,
+    note: bytes | None = None,
+) -> TransactionWithSigner:
+    return TransactionWithSigner(
+        txn=algosdk.transaction.PaymentTxn(
+            sender=sender.address,
+            receiver=receiver,
+            amt=amount,
+            note=note,
+            sp=suggested_params(algod_client=algod_client),
+        ),
+        signer=sender.signer,
+    )
+
+
 def test_voting_app(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
@@ -344,36 +377,11 @@ def test_voting_app(
         option_counts=question_counts,
     )
 
-    def suggested_params(
-        *, fee: int | None = None, flat_fee: bool | None = None
-    ) -> algosdk.transaction.SuggestedParams:
-        sp = app_client.algod_client.suggested_params()
-
-        if fee is not None:
-            sp.fee = fee
-        if flat_fee is not None:
-            sp.flat_fee = flat_fee
-
-        return sp
-
-    def payment_transaction(
-        *, amount: int, receiver: str, sender: algokit_utils.Account, note: bytes | None = None
-    ) -> TransactionWithSigner:
-        return TransactionWithSigner(
-            txn=algosdk.transaction.PaymentTxn(
-                sender=sender.address,
-                receiver=receiver,
-                amt=amount,
-                note=note,
-                sp=suggested_params(),
-            ),
-            signer=sender.signer,
-        )
-
     app_client.call(
         call_abi_method="bootstrap",
         transaction_parameters=algokit_utils.OnCompleteCallParameters(boxes=[(0, "V")]),
         fund_min_bal_req=payment_transaction(
+            algod_client=algod_client,
             amount=(100000 * 2) + 1000 + 2500 + 400 * (1 + 8 * 10),
             sender=creator_account,
             note=b"Bootstrap payment",
@@ -391,7 +399,7 @@ def test_voting_app(
             sender=voter_account.address,
             signer=voter_account.signer,
             boxes=[(0, voter_account.public_key)],
-            suggested_params=suggested_params(fee=4000),
+            suggested_params=suggested_params(algod_client=algod_client, fee=4000),
         ),
         signature=get_account_signature(voter_account.public_key),
     )
@@ -406,10 +414,11 @@ def test_voting_app(
             boxes=[(0, "V"), (0, voter_account.public_key)],
             sender=voter_account.address,
             signer=voter_account.signer,
-            suggested_params=suggested_params(fee=12000, flat_fee=True),
+            suggested_params=suggested_params(algod_client=algod_client, fee=12000, flat_fee=True),
         ),
         answer_ids=[0] * 10,
         fund_min_bal_req=payment_transaction(
+            algod_client=algod_client,
             amount=400 * (32 + 2 + 10) + 2500,
             sender=voter_account,
             note=b"Vote payment",
@@ -424,7 +433,7 @@ def test_voting_app(
             sender=voter_account.address,
             signer=voter_account.signer,
             boxes=[(0, voter_account.public_key)],
-            suggested_params=suggested_params(fee=4000),
+            suggested_params=suggested_params(algod_client=algod_client, fee=4000),
         ),
         signature=get_account_signature(voter_account.public_key),
     )
@@ -439,7 +448,9 @@ def test_voting_app(
             boxes=[(0, "V")],
             sender=creator_account.address,
             signer=creator_account.signer,
-            suggested_params=suggested_params(fee=1000000, flat_fee=True),
+            suggested_params=suggested_params(
+                algod_client=algod_client, fee=1000000, flat_fee=True
+            ),
         ),
     )
 
@@ -447,7 +458,7 @@ def test_voting_app(
         call_abi_method="get_preconditions",
         transaction_parameters=algokit_utils.OnCompleteCallParameters(
             boxes=[(0, account.public_key)],
-            suggested_params=suggested_params(fee=4000),
+            suggested_params=suggested_params(algod_client=algod_client, fee=4000),
         ),
         signature=get_account_signature(voter_account.public_key),
     )
@@ -469,6 +480,65 @@ def test_arc4_routing(
     assert create_response.confirmed_round
 
     app_client.call("method_with_default_args")
+
+
+def test_arc4_routing_with_many_params(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+    asset_a: int,
+    asset_b: int,
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(TEST_CASES_DIR / "abi_routing")
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    # create
+    create_response = app_client.create()
+    assert create_response.confirmed_round
+
+    result = app_client.call(
+        "method_with_more_than_15_args",
+        a=1,
+        b=1,
+        c=1,
+        d=1,
+        e=1,
+        f=1,
+        g=1,
+        h=1,
+        i=1,
+        j=1,
+        k=1,
+        l=1,
+        m=1,
+        n=1,
+        o=1,
+        p=1,
+        q=1,
+        r=1,
+        s=1,
+        t=1,
+        u=1,
+        v=1,
+        pay=payment_transaction(
+            algod_client=algod_client,
+            amount=100000,
+            sender=account,
+            note=b"Test 1",
+            receiver=app_client.app_address,
+        ),
+        pay2=payment_transaction(
+            algod_client=algod_client,
+            amount=200000,
+            sender=account,
+            note=b"Test 2",
+            receiver=app_client.app_address,
+        ),
+        asset=asset_a,
+        asset2=asset_b,
+    )
+    assert result.return_value == 22
 
 
 def test_transaction(algod_client: AlgodClient, account: algokit_utils.Account) -> None:

@@ -157,3 +157,68 @@ class Reference(ARC4Contract):
         assert bytes_from_storage[2] == arc4.Byte(9), "wrong 2nd byte from storage"
         assert int_from_storage.decode() == 2, "wrong int from storage"
         assert int_from_function.decode() == 3, "wrong int from function"
+
+    @arc4.abimethod
+    def method_with_more_than_15_args(
+        self,
+        a: arc4.UInt64,
+        b: arc4.UInt64,
+        c: arc4.UInt64,
+        d: UInt64,
+        asset: Asset,
+        e: arc4.UInt64,
+        f: arc4.UInt64,
+        pay: PaymentTransaction,
+        g: arc4.UInt64,
+        h: arc4.UInt64,
+        i: arc4.UInt64,
+        j: arc4.UInt64,
+        k: arc4.UInt64,
+        # ruff: noqa: E741
+        l: arc4.UInt64,
+        m: arc4.UInt64,
+        n: arc4.UInt64,
+        o: arc4.UInt64,
+        p: UInt64,
+        q: arc4.UInt64,
+        r: arc4.UInt64,
+        s: arc4.UInt64,
+        t: arc4.UInt64,
+        asset2: Asset,
+        pay2: PaymentTransaction,
+        u: arc4.UInt64,
+        v: arc4.UInt64,
+    ) -> arc4.UInt64:
+        """
+        Application calls only support 16 args, and arc4 calls utilise the first arg for the method
+        selector. Args beyond this number are packed into a tuple and placed in the 16th slot.
+        """
+        assert Transaction.num_app_args() == 16
+        assert pay.amount == 100000
+        assert pay2.amount == 200000
+        assert asset.asset_id
+        assert asset2.asset_id
+        return arc4.UInt64(
+            a.decode()
+            + b.decode()
+            + c.decode()
+            + d
+            + e.decode()
+            + f.decode()
+            + g.decode()
+            + h.decode()
+            + i.decode()
+            + j.decode()
+            + k.decode()
+            + l.decode()
+            + m.decode()
+            + n.decode()
+            + o.decode()
+            + p
+            + q.decode()
+            + r.decode()
+            + s.decode()
+            + t.decode()
+            + u.decode()
+            + v.decode()
+        )
