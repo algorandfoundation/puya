@@ -10,7 +10,7 @@ main_on_create@1:
 
 main_entrypoint@2:
         txn NumAppArgs
-        bz main_bare_routing@17
+        bz main_bare_routing@18
 
 main_abi_routing@3:
         txna ApplicationArgs 0
@@ -25,9 +25,10 @@ main_abi_routing@3:
         method "get_application()uint64"
         method "get_an_int()uint64"
         method "method_with_default_args(asset,asset,account,account,application,application,byte[3],uint64,uint64)void"
-        uncover 11
-        match main_noop_with_uint64_route@4 main_all_the_things_route@5 main_mixed_oca_route@6 main_opt_into_asset_route@7 main_with_transactions_route@8 main_compare_assets_route@9 main_get_address_route@10 main_get_asset_route@11 main_get_application_route@12 main_get_an_int_route@13 main_method_with_default_args_route@14
-        b main_switch_case_default@15
+        method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,asset,pay,uint64,uint64)uint64"
+        uncover 12
+        match main_noop_with_uint64_route@4 main_all_the_things_route@5 main_mixed_oca_route@6 main_opt_into_asset_route@7 main_with_transactions_route@8 main_compare_assets_route@9 main_get_address_route@10 main_get_asset_route@11 main_get_application_route@12 main_get_an_int_route@13 main_method_with_default_args_route@14 main_method_with_more_than_15_args_route@15
+        b main_switch_case_default@16
 
 main_noop_with_uint64_route@4:
         txn OnCompletion
@@ -211,15 +212,115 @@ main_method_with_default_args_route@14:
         int 1
         return
 
-main_switch_case_default@15:
+main_method_with_more_than_15_args_route@15:
+        txn OnCompletion
+        !
+        assert // OnCompletion is NoOp
+        txn ApplicationID
+        assert // is not creating
+        txna ApplicationArgs 1
+        txna ApplicationArgs 2
+        txna ApplicationArgs 3
+        txna ApplicationArgs 4
+        btoi
+        txna ApplicationArgs 5
+        btoi
+        txnas Assets
+        txna ApplicationArgs 6
+        txna ApplicationArgs 7
+        txn GroupIndex
+        int 2
+        -
+        dup
+        gtxns TypeEnum
+        int pay
+        ==
+        assert // transaction type is pay
+        txna ApplicationArgs 8
+        txna ApplicationArgs 9
+        txna ApplicationArgs 10
+        txna ApplicationArgs 11
+        txna ApplicationArgs 12
+        txna ApplicationArgs 13
+        txna ApplicationArgs 14
+        txna ApplicationArgs 15
+        dup
+        extract 0 8
+        swap
+        dup
+        extract 8 8
+        swap
+        dup
+        extract 16 8
+        swap
+        dup
+        extract 24 8
+        cover 2
+        dup
+        extract 32 8
+        cover 2
+        dup
+        extract 40 8
+        cover 2
+        dup
+        extract 48 8
+        cover 2
+        dup
+        extract 56 1
+        swap
+        dup
+        extract 57 8
+        cover 3
+        extract 65 8
+        cover 2
+        swap
+        btoi
+        swap
+        btoi
+        txnas Assets
+        txn GroupIndex
+        int 1
+        -
+        dup
+        gtxns TypeEnum
+        int pay
+        ==
+        assert // transaction type is pay
+        cover 25
+        cover 25
+        cover 25
+        cover 25
+        cover 25
+        cover 25
+        cover 25
+        cover 25
+        cover 25
+        uncover 19
+        uncover 25
+        uncover 25
+        uncover 25
+        uncover 25
+        uncover 23
+        uncover 23
+        uncover 25
+        uncover 25
+        callsub method_with_more_than_15_args
+        byte 0x151f7c75
+        swap
+        concat
+        log
+        int 1
+        return
+
+main_switch_case_default@16:
         err // reject transaction
 
-main_bare_routing@17:
+main_bare_routing@18:
         txn OnCompletion
-        switch main_bare_abi_config@18 main_bare_abi_config@18 main_bare_abi_config@18 main_reject_bare_on_completion@19 main_bare_abi_config@18 main_bare_abi_config@18
-        b main_reject_bare_on_completion@19
+        switch main_bare_abi_config@19 main_bare_abi_config@19 main_bare_abi_config@19 main_reject_bare_on_completion@20 main_bare_abi_config@19 main_bare_abi_config@19
+        b main_reject_bare_on_completion@20
 
-main_bare_abi_config@18:
+main_bare_abi_config@19:
         txn ApplicationID
         !
         assert // is creating
@@ -227,7 +328,7 @@ main_bare_abi_config@18:
         int 1
         return
 
-main_reject_bare_on_completion@19:
+main_reject_bare_on_completion@20:
         err // reject transaction
 
 
@@ -436,6 +537,96 @@ method_with_default_args_block@0:
         int 3
         ==
         assert // wrong int from function
+        retsub
+
+
+// test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(a#0: bytes, b#0: bytes, c#0: bytes, d#0: uint64, asset#0: uint64, e#0: bytes, f#0: bytes, pay#0: uint64, g#0: bytes, h#0: bytes, i#0: bytes, j#0: bytes, k#0: bytes, l#0: bytes, m#0: bytes, n#0: bytes, o#0: bytes, p#0: uint64, q#0: bytes, r#0: bytes, s#0: bytes, t#0: bytes, asset2#0: uint64, pay2#0: uint64, u#0: bytes, v#0: bytes) -> bytes:
+method_with_more_than_15_args:
+        proto 26 1
+
+method_with_more_than_15_args_block@0:
+        txn NumAppArgs
+        int 16
+        ==
+        assert
+        frame_dig -19
+        gtxns Amount
+        int 100000
+        ==
+        assert
+        frame_dig -3
+        gtxns Amount
+        int 200000
+        ==
+        assert
+        frame_dig -22
+        assert
+        frame_dig -4
+        assert
+        frame_dig -26
+        btoi
+        frame_dig -25
+        btoi
+        +
+        frame_dig -24
+        btoi
+        +
+        frame_dig -23
+        +
+        frame_dig -21
+        btoi
+        +
+        frame_dig -20
+        btoi
+        +
+        frame_dig -18
+        btoi
+        +
+        frame_dig -17
+        btoi
+        +
+        frame_dig -16
+        btoi
+        +
+        frame_dig -15
+        btoi
+        +
+        frame_dig -14
+        btoi
+        +
+        frame_dig -13
+        btoi
+        +
+        frame_dig -12
+        btoi
+        +
+        frame_dig -11
+        btoi
+        +
+        frame_dig -10
+        btoi
+        +
+        frame_dig -9
+        +
+        frame_dig -8
+        btoi
+        +
+        frame_dig -7
+        btoi
+        +
+        frame_dig -6
+        btoi
+        +
+        frame_dig -5
+        btoi
+        +
+        frame_dig -2
+        btoi
+        +
+        frame_dig -1
+        btoi
+        +
+        itob
         retsub
 
 

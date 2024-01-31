@@ -9,7 +9,7 @@ from puya.awst import (
 )
 from puya.awst.nodes import NumericComparison, NumericComparisonExpression, UInt64Constant
 from puya.awst_build.eb.transaction import check_transaction_type
-from puya.awst_build.utils import create_temporary_assignment
+from puya.awst_build.utils import TemporaryAssignmentExpr, create_temporary_assignment
 from puya.errors import CodeError, InternalError
 from puya.metadata import (
     ARC4Method,
@@ -52,7 +52,9 @@ def call(
 
 
 def load_abi_arg(
-    index: int, wtype: wtypes.WType, location: SourceLocation
+    index: int,
+    wtype: wtypes.WType,
+    location: SourceLocation,
 ) -> awst_nodes.IntrinsicCall:
     return awst_nodes.IntrinsicCall(
         source_location=location,
@@ -138,7 +140,11 @@ def arc4_encode(
 
 
 def arc4_decode(
-    bytes_arg: awst_nodes.Expression, target_wtype: wtypes.WType, location: SourceLocation
+    bytes_arg: awst_nodes.Expression,
+    target_wtype: wtypes.WType,
+    location: SourceLocation,
+    *,
+    decode_nested_items: bool = False,
 ) -> awst_nodes.Expression:
     match bytes_arg.wtype:
         case wtypes.ARC4DynamicArray(
@@ -156,12 +162,15 @@ def arc4_decode(
                 ],
             )
         case wtypes.ARC4Tuple(types=tuple_types):
+            decode_expression = awst_nodes.ARC4Decode(
+                source_location=location,
+                wtype=wtypes.WTuple.from_types(tuple_types),
+                value=bytes_arg,
+            )
+            if not decode_nested_items:
+                return decode_expression
             decoded = create_temporary_assignment(
-                awst_nodes.ARC4Decode(
-                    source_location=location,
-                    wtype=wtypes.WTuple.from_types(tuple_types),
-                    value=bytes_arg,
-                ),
+                decode_expression,
                 location=location,
             )
             return awst_nodes.TupleExpression.from_items(
@@ -522,27 +531,74 @@ def current_group_index(location: SourceLocation) -> awst_nodes.Expression:
     )
 
 
+def tuple_item(
+    tuple_expression: awst_nodes.Expression, index: int, location: SourceLocation
+) -> awst_nodes.Expression:
+    return awst_nodes.TupleItemExpression(
+        source_location=location, base=tuple_expression, index=index
+    )
+
+
 def map_abi_args(
     args: Sequence[awst_nodes.SubroutineArgument], location: SourceLocation
 ) -> Iterable[awst_nodes.Expression]:
     abi_arg_index = 1  # 0th arg is for method selector
     transaction_arg_offset = sum(1 for a in args if wtypes.is_transaction_type(a.wtype))
+
+    non_transaction_args = [a for a in args if not wtypes.is_transaction_type(a.wtype)]
+    decoded_args: TemporaryAssignmentExpr | None = None
+    if len(non_transaction_args) > 15:
+
+        def map_param_wtype_to_arc4_tuple_type(wtype: wtypes.WType) -> wtypes.WType:
+            if wtypes.has_arc4_equivalent_type(wtype):
+                return wtypes.avm_to_arc4_equivalent_type(wtype)
+            elif wtypes.is_reference_type(wtype):
+                return wtypes.ARC4UIntN.from_scale(8)
+            else:
+                return wtype
+
+        args_overflow_wtype = wtypes.ARC4Tuple.from_types(
+            [map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]]
+        )
+        last_arg = load_abi_arg(15, args_overflow_wtype, location)
+        decoded_args = create_temporary_assignment(
+            value=arc4_decode(
+                last_arg, wtypes.WTuple.from_types(args_overflow_wtype.types), location
+            ),
+            location=location,
+        )
+
+    def get_arg(index: int, arg_wtype: wtypes.WType) -> awst_nodes.Expression:
+        if index < 15:
+            return load_abi_arg(index, arg_wtype, location)
+        elif index == 15:
+            if decoded_args is None:
+                return load_abi_arg(15, arg_wtype, location)
+            return tuple_item(decoded_args.define, 0, location)
+        else:
+            if decoded_args is None:
+                raise InternalError(
+                    "Decoded args should not be None if there are more than 15 args"
+                )
+            return tuple_item(decoded_args.read, index - 15, location)
+
     for arg in args:
         match arg.wtype:
             case wtypes.asset_wtype:
-                bytes_arg = load_abi_arg(abi_arg_index, arg.wtype, location)
+                bytes_arg = get_arg(abi_arg_index, arg.wtype)
                 asset_index = btoi(bytes_arg, location)
                 asset_id = asset_id_at(asset_index, location)
                 yield asset_id
                 abi_arg_index += 1
+
             case wtypes.account_wtype:
-                bytes_arg = load_abi_arg(abi_arg_index, arg.wtype, location)
+                bytes_arg = get_arg(abi_arg_index, arg.wtype)
                 account_index = btoi(bytes_arg, location)
                 account = account_at(account_index, location)
                 yield account
                 abi_arg_index += 1
             case wtypes.application_wtype:
-                bytes_arg = load_abi_arg(abi_arg_index, arg.wtype, location)
+                bytes_arg = get_arg(abi_arg_index, arg.wtype)
                 application_index = btoi(bytes_arg, location)
                 application = application_at(application_index, location)
                 yield application
@@ -559,17 +615,18 @@ def map_abi_args(
                 yield check_transaction_type(transaction_index, txn_wtype, location)
                 transaction_arg_offset -= 1
             case _ if wtypes.has_arc4_equivalent_type(arg.wtype):
-                abi_arg = load_abi_arg(
-                    abi_arg_index, wtypes.avm_to_arc4_equivalent_type(arg.wtype), location
-                )
+                abi_arg = get_arg(abi_arg_index, wtypes.avm_to_arc4_equivalent_type(arg.wtype))
                 decoded_abi_arg = arc4_decode(
-                    bytes_arg=abi_arg, target_wtype=arg.wtype, location=location
+                    bytes_arg=abi_arg,
+                    target_wtype=arg.wtype,
+                    location=location,
+                    decode_nested_items=True,
                 )
                 yield decoded_abi_arg
                 abi_arg_index += 1
 
             case _:
-                abi_arg = load_abi_arg(abi_arg_index, arg.wtype, location)
+                abi_arg = get_arg(abi_arg_index, arg.wtype)
                 yield abi_arg
                 abi_arg_index += 1
 
