@@ -291,7 +291,7 @@ class ManualIter(typing.Generic[_T]):
         self._iter = iter(items)
         self._next: _T | _Unset | None = _unset
 
-    def next(self) -> _T | None:  # noqa: A003
+    def next(self) -> _T | None:
         result = self.peek() if self._next is _unset else self._next
         assert not isinstance(result, _Unset)
         self._next = _unset
