@@ -6,19 +6,19 @@ main_block@0:
         bz main_bare_routing@5
 
 main_abi_routing@1:
-        method "say_hello(string)string"
+        method "hello(string)string"
         txna ApplicationArgs 0
-        match main_say_hello_route@2
+        match main_hello_route@2
         b main_switch_case_default@3
 
-main_say_hello_route@2:
+main_hello_route@2:
         txn OnCompletion
         !
         assert // OnCompletion is NoOp
         txn ApplicationID
         assert // is not creating
         txna ApplicationArgs 1
-        callsub say_hello
+        callsub hello
         byte 0x151f7c75
         swap
         concat
@@ -44,17 +44,17 @@ main_reject_bare_on_completion@7:
         err // reject transaction
 
 
-// examples.hello_world.arc4_contract.HelloWorldContract.say_hello(name#0: bytes) -> bytes:
-say_hello:
+// examples.hello_world.arc4_contract.HelloWorldContract.hello(name#0: bytes) -> bytes:
+hello:
         proto 1 1
 
-say_hello_block@0:
+hello_block@0:
         frame_dig -1
         int 0
         extract_uint16
         frame_dig -1
         extract 2 0
-        byte "\x00\x06Hello "
+        byte "\x00\x07Hello, "
         swap
         uncover 2
         callsub dynamic_array_concat_fixed_size
