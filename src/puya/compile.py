@@ -17,7 +17,7 @@ from puya.awst_build.main import transform_ast
 from puya.codegen.builder import compile_ir_to_teal
 from puya.codegen.emitprogram import CompiledContract
 from puya.context import CompileContext
-from puya.errors import Errors, InternalError, ParseError, log_exceptions
+from puya.errors import ErrorExitCode, Errors, InternalError, ParseError, log_exceptions
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
 from puya.ir.main import build_embedded_ir, build_ir
@@ -25,7 +25,13 @@ from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_contract_ir_to_path
 from puya.options import PuyaOptions
-from puya.parse import EMBEDDED_MODULES, TYPESHED_PATH, ParseSource, parse_and_typecheck
+from puya.parse import (
+    EMBEDDED_MODULES,
+    TYPESHED_PATH,
+    ParseSource,
+    SourceLocation,
+    parse_and_typecheck,
+)
 from puya.utils import attrs_extend, determine_out_dir, make_path_relative_to_cwd
 
 logger = structlog.get_logger(__name__)
@@ -54,11 +60,10 @@ def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
     if read_source is None:
         raise InternalError("parse_results.manager.errors.read_source is None")
 
-    errors = Errors()
     context = CompileContext(
         options=puya_options,
         parse_result=parse_result,
-        errors=errors,
+        errors=Errors(read_source),
         read_source=read_source,
     )
 
@@ -187,10 +192,14 @@ def log_options(puya_options: PuyaOptions) -> None:
 def compile_to_teal(puya_options: PuyaOptions) -> None:
     """Drive the actual core compilation step."""
     log_options(puya_options)
-    context = parse_with_mypy(puya_options)
-    awst = transform_ast(context)
+    try:
+        context = parse_with_mypy(puya_options)
+    except ParseError as ex:
+        _log_parse_errors(ex)
+        sys.exit(ErrorExitCode.code)
 
-    with log_exceptions(context.errors):
+    with log_exceptions(context.errors, exit_on_failure=True):
+        awst = transform_ast(context)
         compiled_contracts_by_source_path = awst_to_teal(context, awst)
         write_teal_to_output(context, compiled_contracts_by_source_path)
 
@@ -200,7 +209,7 @@ def write_teal_to_output(
 ) -> None:
     if contracts is None:
         logger.error("Build failed")
-        sys.exit(1)
+        sys.exit(ErrorExitCode.code)
     elif not contracts:
         logger.error("No contracts discovered in any source files")
     else:
@@ -267,3 +276,20 @@ def write_contract_files(base_path: Path, compiled_contract: CompiledContract) -
         output_text = "\n".join(src)
         logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
         output_path.write_text(output_text, encoding="utf-8")
+
+
+def _log_parse_errors(ex: ParseError) -> None:
+    location: SourceLocation | None = None
+    related_errors = list[str]()
+    for error in ex.errors:
+        if error.location:  # align related error messages
+            if related_errors:
+                logger.error(
+                    related_errors[0], location=location, related_lines=related_errors[1:]
+                )
+            related_errors = [error.message]
+            location = error.location
+        else:
+            related_errors.append(error.message)
+    if related_errors:
+        logger.error(related_errors[0], location=location, related_lines=related_errors[1:])

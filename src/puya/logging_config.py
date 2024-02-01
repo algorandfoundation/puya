@@ -82,28 +82,39 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
         _name: str,
         event_dict: structlog.typing.EventDict,
     ) -> str:
-        sio = StringIO()
-
-        location = event_dict.pop("location", None)
-        if location:
-            sio.write(self._styles.logger_name)
-            sio.write(self._location_as_link(location))
-            sio.write(" ")
-            sio.write(self._styles.reset)
-
-        level = event_dict.pop("level", None)
-        if level is not None:
-            sio.write(self.level_to_color.get(level, ""))
-            sio.write(level)
-            sio.write(": ")
-            sio.write(self._styles.reset)
-
         # force event to str for compatibility with standard library
         event = event_dict.pop("event", None)
         if not isinstance(event, str):
             event = str(event)
+        lines = [event]
+        related_errors = event_dict.pop("related_lines", None)
+        if related_errors:
+            assert isinstance(related_errors, list)
+            lines.extend(related_errors)
+        location: SourceLocation | None = event_dict.pop("location", None)
+        location_as_link = self._location_as_link(location) if location else ""
+        level = event_dict.pop("level", "")
 
-        sio.write(event)
+        align_related_lines = " " * (len(location_as_link) + 1 + len(level) + 2)
+        sio = StringIO()
+        for idx, line in enumerate(lines):
+            if idx:
+                sio.write("\n")
+                sio.write(align_related_lines)
+            else:
+                if location:
+                    sio.write(self._styles.logger_name)
+                    location_link = self._location_as_link(location)
+                    sio.write(location_link)
+                    sio.write(" ")
+                    sio.write(self._styles.reset)
+
+                if level:
+                    sio.write(self.level_to_color.get(level, ""))
+                    sio.write(level)
+                    sio.write(": ")
+                    sio.write(self._styles.reset)
+            sio.write(line)
 
         stack = event_dict.pop("stack", None)
         exc = event_dict.pop("exception", None)

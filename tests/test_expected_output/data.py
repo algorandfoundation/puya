@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import difflib
 import enum
 import tempfile
@@ -12,12 +13,15 @@ import structlog.testing
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst_build.main import transform_ast
 from puya.compile import awst_to_teal, parse_with_mypy
-from puya.errors import CodeError, ParseError, PuyaError
+from puya.errors import Errors, ParseError, PuyaError
 from puya.options import PuyaOptions
+
+from tests.utils import narrow_sources
 
 if t.TYPE_CHECKING:
     import _pytest._code.code
     from puya.awst.nodes import Module
+    from puya.context import CompileContext
     from puya.parse import SourceLocation
 
 THIS_DIR = Path(__file__).parent
@@ -296,14 +300,12 @@ def find_parse_errors_and_mark_as_failed(
 ) -> t.Iterable[TestCase]:
     outputs = dict[Path, OutputMapping]()
     for error in ex.errors:
-        error_parts = error.split(":", maxsplit=3)
-        if len(error_parts) == 4:
-            file, line_str, severity, message = error_parts
-            output_type = LOG_LEVEL_TO_OUTPUT_TYPE.get(severity.strip())
+        if error.severity and error.location:
+            output_type = LOG_LEVEL_TO_OUTPUT_TYPE.get(error.severity)
             if output_type:
-                path = Path(file)
-                line = int(line_str)
-                test_case_output = TestCaseOutput(output_type=output_type, output=message)
+                path = Path(error.location.file)
+                line = error.location.line
+                test_case_output = TestCaseOutput(output_type=output_type, output=error.message)
 
                 path_outputs = outputs.setdefault(path, {})
                 path_outputs.setdefault(line, []).append(test_case_output)
@@ -336,6 +338,9 @@ def run_compiler_and_handle_parse_errors(cases: list[TestCase]) -> None:
         # if there is more than 1 parse failure this will still fail as mypy doesn't
         # continue after a parse failure
         failed_cases = set(find_parse_errors_and_mark_as_failed(cases, ex))
+        if not failed_cases:
+            # prevent infinite looping if failed cases can't be identified
+            raise ex
         retry_cases = [c for c in cases if c not in failed_cases]
         return run_compiler_and_handle_parse_errors(retry_cases)
 
@@ -349,10 +354,14 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
     with structlog.testing.capture_logs() as logs, tempfile.TemporaryDirectory() as root_dir_str:
         root_dir = Path(root_dir_str).resolve()
         srcs = list[Path]()
+        case_path = dict[TestCase, Path]()
         for case in cases:
             case_dir = root_dir
-            if len(case.files) > 1:
-                case_dir = case_dir / get_python_file_name(case.name)
+            file, *other_files = case.files
+            if other_files:
+                case_path[case] = case_dir = case_dir / get_python_file_name(case.name)
+            else:
+                case_path[case] = case_dir / (file.path or f"{get_python_file_name(case.name)}.py")
             case_dir.mkdir(parents=True, exist_ok=True)
             for file in case.files:
                 file_name = file.path or f"{get_python_file_name(case.name)}.py"
@@ -365,16 +374,44 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
 
         context = parse_with_mypy(PuyaOptions(paths=srcs))
         awst = transform_ast(context)
-        # reset errors as some awst modules will have errors, but we want to continue anyway
-        context.errors.num_errors = 0
-        awst_to_teal(context, awst)
+        awst_log_items = [event_dict_to_log_item(log) for log in logs]
+        for case in cases:
+            if not case_has_awst_errors(awst_log_items, case):
+                # attempt to lower awst for each case individually
+                # to get logs from lower layers
+                try_lower_case_to_teal(context, awst, case_path[case])
 
-        log_items = [event_dict_to_log_item(log) for log in logs]
+        all_log_items = [event_dict_to_log_item(log) for log in logs]
         for case in cases:
             try:
-                process_test_case(case, log_items, awst)
+                process_test_case(case, all_log_items, awst)
             except TestCaseOutputDifferenceError as ex:
                 case.failure = ex
+
+
+def case_has_awst_errors(captured_logs: list[LogItem], case: TestCase) -> bool:
+    for file in case.files:
+        path = file.src_path
+        assert path is not None
+        abs_path = str(path.resolve())
+        path_records = [record for record in captured_logs if record.file == abs_path]
+        if any(r.output_type == OutputType.error and r.line is not None for r in path_records):
+            return True
+    return False
+
+
+def try_lower_case_to_teal(
+    context: CompileContext, awst: dict[str, Module], src_path: Path
+) -> None:
+    # reset errors as some awst modules will have errors, but we want to continue anyway
+    case_context = attrs.evolve(
+        context,
+        errors=Errors(context.errors.read_source),
+        parse_result=narrow_sources(context.parse_result, src_path),
+    )
+    # ignore any errors that occur during lowering
+    with contextlib.suppress(BaseException):
+        awst_to_teal(case_context, awst)
 
 
 def get_python_file_name(name: str) -> str:
@@ -576,16 +613,11 @@ class TestFile(pytest.File):
         # however a ParseError in a single case will effect all cases which is not ideal
         try:
             run_compiler_and_handle_parse_errors(self.cases)
-        except CodeError:  # expected error when compiling code with errors, we can ignore
-            pass
-        except PuyaError as ex:  # other error, probably internal - this indicates a bug
-            pytest.fail(f"Unexpected compiler error: {ex}", pytrace=False)
-        except ParseError:
-            # if code cannot even be parsed then this is a failure with the actual input test case
-            pytest.fail("Test cases could not be parsed", pytrace=False)
+        except (SystemExit, PuyaError, ParseError) as ex:
+            pytest.fail(f"Unhandled compiler error: {ex}", pytrace=False)
         except BaseException as ex:
             # unexpected error, fail immediately
-            pytest.fail(f"Unexpected compilation error: {ex}", pytrace=True)
+            pytest.fail(f"Unexpected error: {ex}", pytrace=True)
 
     def teardown(self) -> None:
         if self.auto_update_output:

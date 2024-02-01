@@ -1,8 +1,14 @@
+import os
 import shutil
 import subprocess
 from pathlib import Path
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
+
+ENV_WITH_NO_COLOR = dict(os.environ) | {
+    "NO_COLOR": "1",  # disable colour output
+    "PYTHONUTF8": "1",  # force utf8 on windows
+}
 
 
 def run_puyapy(
@@ -23,6 +29,7 @@ def run_puyapy(
         stderr=subprocess.STDOUT,
         cwd=VCS_ROOT,
         check=False,
+        env=ENV_WITH_NO_COLOR,
     )
     if check:
         assert result.returncode == 0, result.stdout
