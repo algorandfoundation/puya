@@ -13,7 +13,7 @@ from puya.awst_build.main import transform_ast
 from puya.codegen.emitprogram import CompiledContract
 from puya.compile import awst_to_teal, parse_with_mypy, write_teal_to_output
 from puya.context import CompileContext
-from puya.errors import Errors
+from puya.errors import CodeError, Errors
 from puya.options import PuyaOptions
 from puya.parse import ParseResult, ParseSource, SourceLocation, get_parse_sources
 from puya.utils import pushd
@@ -127,7 +127,7 @@ class CompileContractResult:
     output_files: dict[str, str]
 
 
-def _narrow_sources(parse_result: ParseResult, src_path: Path) -> ParseResult:
+def narrow_sources(parse_result: ParseResult, src_path: Path) -> ParseResult:
     sources = get_parse_sources(
         [src_path], parse_result.manager.fscache, parse_result.manager.options
     )
@@ -154,6 +154,10 @@ def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
     return result
 
 
+def _get_log_errors(logs: Iterable[Log]) -> str:
+    return "\n".join(str(log) for log in logs if log.log_level == "error")
+
+
 @functools.cache
 def compile_src(
     src_path: Path, optimization_level: int, debug_level: int
@@ -161,16 +165,17 @@ def compile_src(
     root_dir = _get_root_dir(src_path)
     context, awst, awst_logs = _get_awst_cache(root_dir)
     awst_logs = _filter_logs(awst_logs, root_dir, src_path)
-    awst_errors = "\n".join(str(log) for log in awst_logs if log.log_level == "error")
 
-    assert not awst_errors, f"compilation failed:\n{awst_errors}"
+    awst_errors = _get_log_errors(awst_logs)
+    if awst_errors:
+        raise CodeError(awst_errors)
     # create a new context from cache and specified src
     with tempfile.TemporaryDirectory() as tmp_dir_:
         tmp_dir = Path(tmp_dir_)
         context = attrs.evolve(
             context,
-            errors=Errors(),
-            parse_result=_narrow_sources(context.parse_result, src_path),
+            errors=Errors(context.errors.read_source),
+            parse_result=narrow_sources(context.parse_result, src_path),
             options=PuyaOptions(
                 paths=(src_path,),
                 optimization_level=optimization_level,
@@ -190,7 +195,8 @@ def compile_src(
 
         with pushd(root_dir), structlog.testing.capture_logs() as event_logs:
             teal = awst_to_teal(context, awst)
-            assert teal is not None, f"compilation failed: {src_path} at O{optimization_level}"
+            if teal is None:
+                raise CodeError(_get_log_errors(Log.parse(x, root_dir) for x in event_logs))
             write_teal_to_output(context, teal)
 
         output_files = {

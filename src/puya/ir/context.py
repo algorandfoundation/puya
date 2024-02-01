@@ -5,7 +5,7 @@ import attrs
 
 import puya.awst.nodes as awst_nodes
 from puya.context import CompileContext
-from puya.errors import CodeError, InternalError, crash_report
+from puya.errors import CodeError, InternalError, log_exceptions
 from puya.ir.models import Subroutine
 from puya.parse import SourceLocation
 from puya.utils import attrs_extend
@@ -114,16 +114,8 @@ class IRBuildContextWithFallback(IRBuildContext):
     @contextlib.contextmanager
     def log_exceptions(self, fallback_location: SourceLocation | None = None) -> Iterator[None]:
         fallback_location = fallback_location or self.default_fallback
-        try:
+        with log_exceptions(self.errors, fallback_location):
             yield
-        except CodeError as ex:
-            self.errors.error(str(ex), location=ex.location or fallback_location)
-        except InternalError as ex:
-            self.errors.error(f"FATAL {ex!s}", location=ex.location or fallback_location)
-            crash_report(ex.location or fallback_location)
-        except Exception as ex:
-            self.errors.error(f"UNEXPECTED {ex!s}", location=fallback_location)
-            crash_report(fallback_location)
 
 
 @attrs.frozen(kw_only=True)
