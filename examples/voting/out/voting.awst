@@ -3,7 +3,6 @@ VOTE_COUNT_BYTES = 8
 BOX_FLAT_MIN_BALANCE = 2500
 BOX_BYTE_MIN_BALANCE = 400
 ASSET_MIN_BALANCE = 100000
-TALLY_BOX_KEY = b'V'
 
 struct VotingPreconditions {
   is_voting_open: algopy.arc4.UInt64
@@ -59,7 +58,7 @@ contract VotingRoundApp
     min_balance_req: algopy.UInt64 = 203900u + tally_box_size * 400u
     log(itob(min_balance_req))
     assert(gtxns<Amount>(fund_min_bal_req) == min_balance_req, comment="Payment must be for the exact min balance requirement")
-    assert(box_create('V', tally_box_size))
+    assert(box_create(this.tally_box, tally_box_size))
   }
   
   abimethod close(): None
@@ -79,7 +78,7 @@ contract VotingRoundApp
           if (option_index > 0u) {
             note += ','
           }
-          votes_for_option: algopy.UInt64 = examples.voting.voting::get_vote_from_box(current_index)
+          votes_for_option: algopy.UInt64 = this::get_vote_from_box(current_index)
           note += examples.voting.voting::itoa(votes_for_option)
           current_index += 1u
         }
@@ -112,9 +111,9 @@ contract VotingRoundApp
       answer_option_index: algopy.UInt64 = arc4_decode(answer_ids[question_index], algopy.UInt64)
       options_count: algopy.UInt64 = arc4_decode(this.option_counts[question_index], algopy.UInt64)
       assert(answer_option_index < options_count, comment="Answer option index invalid")
-      examples.voting.voting::increment_vote_in_box(cumulative_offset + answer_option_index)
+      this::increment_vote_in_box(cumulative_offset + answer_option_index)
       cumulative_offset += options_count
-      box_put(reinterpret_cast<algopy.Bytes>(txn<Sender>()), reinterpret_cast<algopy.Bytes>(answer_ids))
+      this.votes_by_account.value: algopy.arc4.DynamicArray[algopy.arc4.UInt8] = answer_ids.copy()
       this.voter_count += 1u
     }
   }
@@ -126,8 +125,7 @@ contract VotingRoundApp
   
   subroutine already_voted(): bool
   {
-    (votes, exists): tuple[algopy.Bytes, bool] = box_get(reinterpret_cast<algopy.Bytes>(txn<Sender>()))
-    return exists
+    return STATE_EXISTS(this.votes_by_account.key)
   }
   
   subroutine store_option_counts(option_counts: algopy.arc4.DynamicArray[algopy.arc4.UInt8]): None
@@ -148,21 +146,17 @@ contract VotingRoundApp
     algopy::ensure_budget(required_budget=2000u, fee_source=0u)
     return ed25519verify_bare(reinterpret_cast<algopy.Bytes>(txn<Sender>()), signature, this.snapshot_public_key)
   }
-}
-
-subroutine get_vote_from_box(index: algopy.UInt64): algopy.UInt64
-{
-  (box_data, exists): tuple[algopy.Bytes, bool] = box_get('V')
-  assert(exists, comment="Box not created")
-  return btoi(extract3(box_data, index, 8u))
-}
-
-subroutine increment_vote_in_box(index: algopy.UInt64): None
-{
-  (box_data, exists): tuple[algopy.Bytes, bool] = box_get('V')
-  assert(exists, comment="Box not created")
-  current_vote: algopy.UInt64 = btoi(extract3(box_data, index, 8u))
-  box_replace('V', index, itob(current_vote + 1u))
+  
+  subroutine get_vote_from_box(index: algopy.UInt64): algopy.UInt64
+  {
+    return btoi(box_extract(this.tally_box, index, 8u))
+  }
+  
+  subroutine increment_vote_in_box(index: algopy.UInt64): None
+  {
+    current_vote: algopy.UInt64 = this::get_vote_from_box(index)
+    box_replace(this.tally_box, index, itob(current_vote + 1u))
+  }
 }
 
 subroutine itoa(i: algopy.UInt64): algopy.String

@@ -1283,3 +1283,114 @@ def test_struct_in_box(
         ),
     )
     assert user_2_result.return_value == ["Jane", 2, 0]
+
+
+def test_box_contract(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(EXAMPLES_DIR / "box_storage" / "contract.py")
+    )
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=account, min_spending_balance_micro_algos=20_000_000
+        ),
+    )
+    client = algokit_utils.ApplicationClient(
+        algod_client,
+        app_spec,
+        signer=account,
+    )
+
+    client.create()
+
+    algokit_utils.transfer(
+        algod_client,
+        algokit_utils.TransferParameters(
+            to_address=client.app_address, from_account=account, micro_algos=10_000_000
+        ),
+    )
+    transaction_parameters = algokit_utils.OnCompleteCallParameters(
+        boxes=[(0, b"BOX_A"), (0, b"b"), (0, b"BOX_C"), (0, b"0"), (0, b"d")]
+    )
+
+    (a_exist, b_exist, c_exist) = client.call(
+        call_abi_method="boxes_exist",
+        transaction_parameters=transaction_parameters,
+    ).return_value
+    assert not a_exist
+    assert not b_exist
+    assert not c_exist
+
+    client.call(
+        call_abi_method="set_boxes",
+        a=56,
+        b=b"Hello",
+        c="World",
+        transaction_parameters=transaction_parameters,
+    )
+
+    (a_exist, b_exist, c_exist) = client.call(
+        call_abi_method="boxes_exist",
+        transaction_parameters=transaction_parameters,
+    ).return_value
+    assert a_exist
+    assert b_exist
+    assert c_exist
+
+    (a, b, c) = client.call(
+        call_abi_method="read_boxes",
+        transaction_parameters=transaction_parameters,
+    ).return_value
+
+    assert (a, bytes(b), c) == (59, b"Hello", "World")
+
+    client.call(call_abi_method="slice_box", transaction_parameters=transaction_parameters)
+
+    client.call(call_abi_method="arc4_box", transaction_parameters=transaction_parameters)
+
+    client.call(
+        call_abi_method="box_blob",
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[
+                (0, b"blob"),
+                (0, b""),
+                (0, b""),
+                (0, b""),
+                (0, b""),
+                (0, b""),
+                (0, b""),
+                (0, b""),
+            ]
+        ),
+    )
+
+    client.call(
+        call_abi_method="box_map_test",
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            boxes=[(0, (0).to_bytes(length=8)), (0, (1).to_bytes(length=8))]
+        ),
+    )
+
+    key = 2
+    transaction_parameters = algokit_utils.OnCompleteCallParameters(
+        boxes=[(0, key.to_bytes(length=8))]
+    )
+    assert not client.call(
+        call_abi_method="box_map_exists",
+        key=key,
+        transaction_parameters=transaction_parameters,
+    ).return_value, "Box does not exist (yet)"
+    client.call(
+        call_abi_method="box_map_set",
+        key=key,
+        value="Hello 123",
+        transaction_parameters=transaction_parameters,
+    )
+    assert (
+        client.call(
+            call_abi_method="box_map_get",
+            key=key,
+            transaction_parameters=transaction_parameters,
+        ).return_value
+        == "Hello 123"
+    ), "Box value is what was set"

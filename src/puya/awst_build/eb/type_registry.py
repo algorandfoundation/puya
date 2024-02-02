@@ -12,6 +12,7 @@ from puya.awst_build.eb import (
     array,
     biguint,
     bool as bool_,
+    box,
     bytes as bytes_,
     ensure_budget,
     intrinsics,
@@ -49,6 +50,9 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.LOG: log.LogBuilder,
     constants.EMIT: arc4.EmitBuilder,
     constants.OP_UP_FEE_SOURCE: ensure_budget.OpUpFeeSourceClassBuilder,
+    constants.CLS_BOX_PROXY: box.BoxClassExpressionBuilder,
+    constants.CLS_BOX_BLOB_PROXY: box.BoxBlobClassExpressionBuilder,
+    constants.CLS_BOX_MAP_PROXY: box.BoxMapClassExpressionBuilder,
     constants.CLS_LOCAL_STATE: app_account_state.AppAccountStateClassExpressionBuilder,
     constants.CLS_GLOBAL_STATE: app_state.AppStateClassExpressionBuilder,
     constants.CLS_ARC4_ADDRESS: arc4.AddressClassExpressionBuilder,
@@ -142,6 +146,9 @@ WTYPE_TO_BUILDER: dict[
     wtypes.WGroupTransaction: transaction.GroupTransactionExpressionBuilder,
     wtypes.WInnerTransaction: transaction.InnerTransactionExpressionBuilder,
     wtypes.WInnerTransactionFields: transaction.InnerTxnParamsExpressionBuilder,
+    wtypes.WBoxProxy: box.BoxProxyExpressionBuilder,
+    wtypes.WBoxMapProxy: box.BoxMapProxyExpressionBuilder,
+    wtypes.box_blob_proxy_wtype: box.BoxBlobProxyExpressionBuilder,
 }
 
 

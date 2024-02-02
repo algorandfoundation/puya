@@ -10,6 +10,7 @@ from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
 from puya.ir.builder._utils import assign
+from puya.ir.builder.box import handle_box_assign
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BytesConstant,
@@ -43,10 +44,15 @@ def handle_assignment(
     target: awst_nodes.Lvalue,
     value: ValueProvider,
     assignment_location: SourceLocation,
+    *,
+    is_recursive_assign: bool = False,
 ) -> Sequence[Value]:
     match target:
         case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
-            if var_name in (p.name for p in context.subroutine.parameters if p.implicit_return):
+            if (
+                var_name in (p.name for p in context.subroutine.parameters if p.implicit_return)
+                and not is_recursive_assign
+            ):
                 raise CodeError(
                     f"Cannot reassign mutable parameter {var_name!r}"
                     " which is being passed by reference",
@@ -158,5 +164,10 @@ def handle_assignment(
                     f" not implemented for base type {field_expr.base.wtype.name}",
                     assignment_location,
                 )
+        case awst_nodes.BoxValueExpression() as box:
+            return handle_box_assign(
+                context=context, box=box, value=value, assignment_location=assignment_location
+            )
+
         case _:
             typing.assert_never(target)

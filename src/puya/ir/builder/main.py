@@ -11,7 +11,7 @@ from puya.awst import (
 from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, flow_control, state
+from puya.ir.builder import arc4, box, flow_control, state
 from puya.ir.builder._utils import (
     assert_value,
     assign,
@@ -971,6 +971,21 @@ class FunctionIRBuilder(
             temp_description=description,
             source_location=provider.source_location,
         )
+
+    def visit_box_length(self, expr: puya.awst.nodes.BoxLength) -> TExpression:
+        return box.visit_box_length(self.context, expr)
+
+    def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> TExpression:
+        return box.visit_box_value(self.context, expr)
+
+    def visit_box_proxy_field(self, expr: awst_nodes.BoxProxyField) -> TExpression:
+        return box.visit_field_box(self.context, expr)
+
+    def visit_box_proxy_expression(self, expr: awst_nodes.BoxProxyExpression) -> TExpression:
+        return box.visit_box_proxy_expression(self.context, expr)
+
+    def visit_box_key_expression(self, expr: puya.awst.nodes.BoxKeyExpression) -> TExpression:
+        return box.visit_box_key_expression(self.context, expr)
 
 
 def create_uint64_binary_op(

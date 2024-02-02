@@ -31,10 +31,15 @@ class AWSTTraverser(FunctionTraverser, ModuleStatementVisitor[None]):
             for node in statement.symtable.values():
                 if isinstance(node, awst_nodes.ContractMethod):
                     node.accept(self)
+                elif isinstance(node, awst_nodes.BoxProxyDefinition):
+                    self.visit_box_proxy_definition(node)
                 else:
                     self.visit_app_state_definition(node)
 
     def visit_app_state_definition(self, state_defn: awst_nodes.AppStateDefinition) -> None:
+        pass
+
+    def visit_box_proxy_definition(self, box_defn: awst_nodes.BoxProxyDefinition) -> None:
         pass
 
     def visit_structure_definition(self, statement: awst_nodes.StructureDefinition) -> None:

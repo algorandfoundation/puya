@@ -91,7 +91,9 @@ class ARC4Contract(algopy.Contract):
 class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
-        """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
+        """
+        Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`
+        """
 
 class String(_ABIEncoded):
     """An ARC4 sequence of bytes containing a UTF8 string"""

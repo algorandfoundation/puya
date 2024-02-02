@@ -3,12 +3,23 @@ from collections.abc import Mapping
 import mypy.nodes
 import mypy.types
 
-from puya.awst.nodes import AppStateExpression, InstanceSubroutineTarget
+from puya.awst import wtypes
+from puya.awst.nodes import AppStateExpression, BoxProxyField, InstanceSubroutineTarget
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import AppStateDeclaration, AppStateDeclType
+from puya.awst_build.contract_data import (
+    AppStateDeclaration,
+    AppStateDeclType,
+    AppStorageDeclaration,
+    BoxDeclaration,
+)
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.box import (
+    BoxBlobProxyExpressionBuilder,
+    BoxMapProxyExpressionBuilder,
+    BoxProxyExpressionBuilder,
+)
 from puya.awst_build.eb.subroutine import (
     BaseClassSubroutineInvokerExpressionBuilder,
     SubroutineInvokerExpressionBuilder,
@@ -39,18 +50,18 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,
-        app_state: Mapping[str, AppStateDeclaration],
+        app_storage: Mapping[str, AppStorageDeclaration],
         type_info: mypy.nodes.TypeInfo,
         location: SourceLocation,
     ):
         super().__init__(location)
         self.context = context
-        self._app_state = app_state
+        self._app_storage = app_storage
         self._type_info = type_info
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
-        if (state_decl := self._app_state.get(name)) is not None:
-            return _builder_for_state_access(state_decl, location)
+        if (storage_decl := self._app_storage.get(name)) is not None:
+            return _builder_for_storage_access(storage_decl, location)
 
         func_or_dec = self._type_info.get_method(name)
         if func_or_dec is None:
@@ -68,19 +79,45 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
         )
 
 
-def _builder_for_state_access(
-    state_decl: AppStateDeclaration, location: SourceLocation
+def _builder_for_storage_access(
+    storage_decl: AppStorageDeclaration, location: SourceLocation
 ) -> ExpressionBuilder:
-    match state_decl.decl_type:
-        case AppStateDeclType.local_proxy:
-            return AppAccountStateExpressionBuilder(state_decl, location)
-        case AppStateDeclType.global_proxy:
-            return AppStateExpressionBuilder(state_decl, location)
-        case AppStateDeclType.global_direct:
+    match storage_decl:
+        case BoxDeclaration(wtype=wtypes.box_blob_proxy_wtype):
+            return BoxBlobProxyExpressionBuilder(
+                BoxProxyField(
+                    source_location=storage_decl.source_location,
+                    wtype=wtypes.box_blob_proxy_wtype,
+                    field_name=storage_decl.member_name,
+                )
+            )
+        case BoxDeclaration(wtype=wtypes.WBoxProxy() as box_proxy_wtype):
+            return BoxProxyExpressionBuilder(
+                BoxProxyField(
+                    source_location=storage_decl.source_location,
+                    wtype=box_proxy_wtype,
+                    field_name=storage_decl.member_name,
+                )
+            )
+        case BoxDeclaration(wtype=wtypes.WBoxMapProxy() as box_map_proxy_wtype):
+            return BoxMapProxyExpressionBuilder(
+                BoxProxyField(
+                    source_location=storage_decl.source_location,
+                    wtype=box_map_proxy_wtype,
+                    field_name=storage_decl.member_name,
+                )
+            )
+        case AppStateDeclaration(decl_type=AppStateDeclType.local_proxy):
+            return AppAccountStateExpressionBuilder(storage_decl, location)
+        case AppStateDeclaration(decl_type=AppStateDeclType.global_proxy):
+            return AppStateExpressionBuilder(storage_decl, location)
+        case AppStateDeclaration(decl_type=AppStateDeclType.global_direct):
             return var_expression(
                 AppStateExpression(
-                    field_name=state_decl.member_name,
-                    wtype=state_decl.storage_wtype,
+                    field_name=storage_decl.member_name,
+                    wtype=storage_decl.storage_wtype,
                     source_location=location,
                 )
             )
+        case _:
+            raise ValueError(f"Unexpected storage declaration {storage_decl}")

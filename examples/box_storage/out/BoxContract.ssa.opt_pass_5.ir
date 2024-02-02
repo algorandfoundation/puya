@@ -1,0 +1,310 @@
+contract examples.box_storage.contract.BoxContract:
+    program approval:
+        subroutine examples.box_storage.contract.BoxContract.approval_program() -> bool:
+            block@0: // L8
+                let tmp%0#0: bool = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@14
+            block@1: // abi_routing_L8
+                let tmp%1#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%1#0 {method "set_boxes(uint64,byte[],string)void" => block@2, method "read_boxes()(uint64,byte[],string)" => block@3, method "boxes_exist()(bool,bool,bool)" => block@4, method "slice_box()void" => block@5, method "arc4_box()void" => block@6, method "box_blob()void" => block@7, method "box_map_test()void" => block@8, method "box_map_set(uint64,string)void" => block@9, method "box_map_get(uint64)string" => block@10, method "box_map_exists(uint64)bool" => block@11, * => fail // reject transaction}
+            block@2: // set_boxes_route_L15
+                let tmp%2#0: uint64 = (txn OnCompletion)
+                let tmp%3#0: bool = (! tmp%2#0)
+                (assert tmp%3#0) // OnCompletion is NoOp
+                let tmp%4#0: bool = (txn ApplicationID)
+                (assert tmp%4#0) // is not creating
+                let tmp%5#0: bytes = (txna ApplicationArgs 1)
+                let tmp%6#0: uint64 = (btoi tmp%5#0)
+                let tmp%7#0: bytes = (txna ApplicationArgs 2)
+                let tmp%8#0: bytes = ((extract 2 0) tmp%7#0)
+                let tmp%9#0: bytes = (txna ApplicationArgs 3)
+                examples.box_storage.contract.BoxContract.set_boxes(tmp%6#0, tmp%8#0, tmp%9#0)
+                return 1u
+            block@3: // read_boxes_route_L23
+                let tmp%10#0: uint64 = (txn OnCompletion)
+                let tmp%11#0: bool = (! tmp%10#0)
+                (assert tmp%11#0) // OnCompletion is NoOp
+                let tmp%12#0: bool = (txn ApplicationID)
+                (assert tmp%12#0) // is not creating
+                let (awst_tmp%0#0: uint64, awst_tmp%1#0: bytes, awst_tmp%2#0: bytes) = examples.box_storage.contract.BoxContract.read_boxes()
+                let val_as_bytes%0#0: bytes = (itob awst_tmp%0#0)
+                let tmp%13#0: uint64 = (len awst_tmp%1#0)
+                let tmp%14#0: bytes = (itob tmp%13#0)
+                let tmp%15#0: bytes = ((substring 6 8) tmp%14#0)
+                let tmp%16#0: bytes = (concat tmp%15#0 awst_tmp%1#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat val_as_bytes%0#0 0x000c)
+                let data_length%0#0: uint64 = (len tmp%16#0)
+                let current_tail_offset%0#1: uint64 = (+ 12u data_length%0#0)
+                let value_as_bytes%1#0: bytes = (itob current_tail_offset%0#1)
+                let value_as_uint16%1#0: bytes = ((extract 6 2) value_as_bytes%1#0)
+                let encoded_tuple_buffer%0#3: bytes = (concat encoded_tuple_buffer%0#2 value_as_uint16%1#0)
+                let encoded_tuple_buffer%0#4: bytes = (concat encoded_tuple_buffer%0#3 tmp%16#0)
+                let encoded_tuple_buffer%0#5: bytes = (concat encoded_tuple_buffer%0#4 awst_tmp%2#0)
+                let tmp%17#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%0#5)
+                (log tmp%17#0)
+                return 1u
+            block@4: // boxes_exist_route_L27
+                let tmp%18#0: uint64 = (txn OnCompletion)
+                let tmp%19#0: bool = (! tmp%18#0)
+                (assert tmp%19#0) // OnCompletion is NoOp
+                let tmp%20#0: bool = (txn ApplicationID)
+                (assert tmp%20#0) // is not creating
+                let (awst_tmp%4#0: bool, awst_tmp%5#0: bool, awst_tmp%6#0: bool) = examples.box_storage.contract.BoxContract.boxes_exist()
+                let tmp%21#0: bytes = (setbit 0x00 0u awst_tmp%4#0)
+                let tmp%22#0: bytes = (setbit 0x00 0u awst_tmp%5#0)
+                let tmp%23#0: bytes = (setbit 0x00 0u awst_tmp%6#0)
+                let is_true%0#0: uint64 = (getbit tmp%22#0 0u)
+                let encoded_tuple_buffer%1#2: bytes = (setbit tmp%21#0 1u is_true%0#0)
+                let is_true%1#0: uint64 = (getbit tmp%23#0 0u)
+                let encoded_tuple_buffer%1#3: bytes = (setbit encoded_tuple_buffer%1#2 2u is_true%1#0)
+                let tmp%24#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%1#3)
+                (log tmp%24#0)
+                return 1u
+            block@5: // slice_box_route_L31
+                let tmp%25#0: uint64 = (txn OnCompletion)
+                let tmp%26#0: bool = (! tmp%25#0)
+                (assert tmp%26#0) // OnCompletion is NoOp
+                let tmp%27#0: bool = (txn ApplicationID)
+                (assert tmp%27#0) // is not creating
+                examples.box_storage.contract.BoxContract.slice_box()
+                return 1u
+            block@6: // arc4_box_route_L40
+                let tmp%28#0: uint64 = (txn OnCompletion)
+                let tmp%29#0: bool = (! tmp%28#0)
+                (assert tmp%29#0) // OnCompletion is NoOp
+                let tmp%30#0: bool = (txn ApplicationID)
+                (assert tmp%30#0) // is not creating
+                examples.box_storage.contract.BoxContract.arc4_box()
+                return 1u
+            block@7: // box_blob_route_L50
+                let tmp%31#0: uint64 = (txn OnCompletion)
+                let tmp%32#0: bool = (! tmp%31#0)
+                (assert tmp%32#0) // OnCompletion is NoOp
+                let tmp%33#0: bool = (txn ApplicationID)
+                (assert tmp%33#0) // is not creating
+                examples.box_storage.contract.BoxContract.box_blob()
+                return 1u
+            block@8: // box_map_test_route_L69
+                let tmp%34#0: uint64 = (txn OnCompletion)
+                let tmp%35#0: bool = (! tmp%34#0)
+                (assert tmp%35#0) // OnCompletion is NoOp
+                let tmp%36#0: bool = (txn ApplicationID)
+                (assert tmp%36#0) // is not creating
+                examples.box_storage.contract.BoxContract.box_map_test()
+                return 1u
+            block@9: // box_map_set_route_L83
+                let tmp%37#0: uint64 = (txn OnCompletion)
+                let tmp%38#0: bool = (! tmp%37#0)
+                (assert tmp%38#0) // OnCompletion is NoOp
+                let tmp%39#0: bool = (txn ApplicationID)
+                (assert tmp%39#0) // is not creating
+                let tmp%40#0: bytes = (txna ApplicationArgs 1)
+                let tmp%41#0: uint64 = (btoi tmp%40#0)
+                let tmp%42#0: bytes = (txna ApplicationArgs 2)
+                let tmp%43#0: bytes = ((extract 2 0) tmp%42#0)
+                examples.box_storage.contract.BoxContract.box_map_set(tmp%41#0, tmp%43#0)
+                return 1u
+            block@10: // box_map_get_route_L87
+                let tmp%44#0: uint64 = (txn OnCompletion)
+                let tmp%45#0: bool = (! tmp%44#0)
+                (assert tmp%45#0) // OnCompletion is NoOp
+                let tmp%46#0: bool = (txn ApplicationID)
+                (assert tmp%46#0) // is not creating
+                let tmp%47#0: bytes = (txna ApplicationArgs 1)
+                let tmp%48#0: uint64 = (btoi tmp%47#0)
+                let tmp%49#0: bytes = examples.box_storage.contract.BoxContract.box_map_get(tmp%48#0)
+                let length%0#0: uint64 = (len tmp%49#0)
+                let value_as_bytes%2#0: bytes = (itob length%0#0)
+                let value_as_uint16%2#0: bytes = ((extract 6 2) value_as_bytes%2#0)
+                let tmp%50#0: bytes = (concat value_as_uint16%2#0 tmp%49#0)
+                let tmp%51#0: bytes = (concat 0x151f7c75 tmp%50#0)
+                (log tmp%51#0)
+                return 1u
+            block@11: // box_map_exists_route_L91
+                let tmp%52#0: uint64 = (txn OnCompletion)
+                let tmp%53#0: bool = (! tmp%52#0)
+                (assert tmp%53#0) // OnCompletion is NoOp
+                let tmp%54#0: bool = (txn ApplicationID)
+                (assert tmp%54#0) // is not creating
+                let tmp%55#0: bytes = (txna ApplicationArgs 1)
+                let tmp%56#0: uint64 = (btoi tmp%55#0)
+                let tmp%57#0: bool = examples.box_storage.contract.BoxContract.box_map_exists(tmp%56#0)
+                let tmp%58#0: bytes = (setbit 0x00 0u tmp%57#0)
+                let tmp%59#0: bytes = (concat 0x151f7c75 tmp%58#0)
+                (log tmp%59#0)
+                return 1u
+            block@14: // bare_routing_L8
+                let tmp%60#0: uint64 = (txn OnCompletion)
+                let not%tmp%60#0: bool = (! tmp%60#0)
+                (assert not%tmp%60#0) // reject transaction
+                let tmp%61#0: bool = (txn ApplicationID)
+                let tmp%62#0: bool = (! tmp%61#0)
+                (assert tmp%62#0) // is creating
+                return 1u
+        
+        subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: bytes, c: bytes) -> void:
+            block@0: // L15
+                let new_box_value%0#0: bytes = (itob a#0)
+                (box_put 0x424f585f41 new_box_value%0#0)
+                let box_del_res%0#0: bool = (box_del 0x62)
+                (box_put 0x62 b#0)
+                let box_del_res%1#0: bool = (box_del 0x424f585f43)
+                (box_put 0x424f585f43 c#0)
+                let (box_value%0#0: bytes, box_exists%0#0: bool) = (box_get 0x424f585f41)
+                let box_value_uint64%0#0: uint64 = (btoi box_value%0#0)
+                (assert box_exists%0#0) // Box must exist
+                let new_box_value%1#0: uint64 = (+ box_value_uint64%0#0 3u)
+                let new_box_value%2#0: bytes = (itob new_box_value%1#0)
+                (box_put 0x424f585f41 new_box_value%2#0)
+                return 
+        
+        subroutine examples.box_storage.contract.BoxContract.read_boxes() -> <uint64, bytes, bytes>:
+            block@0: // L23
+                let (box_value%0#0: bytes, box_exists%0#0: bool) = (box_get 0x424f585f41)
+                let box_value_uint64%0#0: uint64 = (btoi box_value%0#0)
+                (assert box_exists%0#0) // Box must exist
+                let (box_value%1#0: bytes, box_exists%1#0: bool) = (box_get 0x62)
+                (assert box_exists%1#0) // Box must exist
+                let (box_value%2#0: bytes, box_exists%2#0: bool) = (box_get 0x424f585f43)
+                (assert box_exists%2#0) // Box must exist
+                return box_value_uint64%0#0 box_value%1#0 box_value%2#0
+        
+        subroutine examples.box_storage.contract.BoxContract.boxes_exist() -> <bool, bool, bool>:
+            block@0: // L27
+                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len 0x424f585f41)
+                let (box_len%1#0: uint64, box_exists%1#0: bool) = (box_len 0x62)
+                let (box_len%2#0: uint64, box_exists%2#0: bool) = (box_len 0x424f585f43)
+                return box_exists%0#0 box_exists%1#0 box_exists%2#0
+        
+        subroutine examples.box_storage.contract.BoxContract.slice_box() -> void:
+            block@0: // L31
+                let box_del_res%0#0: bool = (box_del "0")
+                (box_put "0" "Testing testing 123")
+                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len "0")
+                (assert box_exists%0#0) // Box must exist
+                let tmp%1#0: uint64 = (select box_len%0#0 0u box_len%0#0)
+                let tmp%2#0: bool = (< 7u box_len%0#0)
+                let tmp%3#0: uint64 = (select box_len%0#0 7u tmp%2#0)
+                let tmp%6#0: uint64 = (- tmp%3#0 tmp%1#0)
+                let tmp%7#0: bytes = (box_extract "0" tmp%1#0 tmp%6#0)
+                let tmp%8#0: bool = (== tmp%7#0 "Testing")
+                (assert tmp%8#0)
+                let box_del_res%1#0: bool = (box_del 0x424f585f43)
+                (box_put 0x424f585f43 "\x00\x05Hello")
+                let (box_len%1#0: uint64, box_exists%1#0: bool) = (box_len 0x424f585f43)
+                (assert box_exists%1#0) // Box must exist
+                let tmp%9#0: bool = (< 2u box_len%1#0)
+                let tmp%10#0: uint64 = (select box_len%1#0 2u tmp%9#0)
+                let tmp%11#0: bool = (< 10u box_len%1#0)
+                let tmp%12#0: uint64 = (select box_len%1#0 10u tmp%11#0)
+                let tmp%15#0: uint64 = (- tmp%12#0 tmp%10#0)
+                let tmp%16#0: bytes = (box_extract 0x424f585f43 tmp%10#0 tmp%15#0)
+                let tmp%17#0: bool = (== tmp%16#0 "Hello")
+                (assert tmp%17#0)
+                return 
+        
+        subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
+            block@0: // L40
+                (box_put "d" 0x00010203)
+                let (box_value%0#0: bytes, box_exists%0#0: bool) = (box_get "d")
+                (assert box_exists%0#0) // Box must exist
+                let tmp%0#0: bytes = ((extract 0 1) box_value%0#0)
+                let tmp%1#0: bool = (b== tmp%0#0 0x00)
+                (assert tmp%1#0)
+                let (box_value%1#0: bytes, box_exists%1#0: bool) = (box_get "d")
+                (assert box_exists%1#0) // Box must exist
+                let tmp%2#0: bytes = ((extract 1 1) box_value%1#0)
+                let tmp%3#0: bool = (b== tmp%2#0 0x01)
+                (assert tmp%3#0)
+                let (box_value%2#0: bytes, box_exists%2#0: bool) = (box_get "d")
+                (assert box_exists%2#0) // Box must exist
+                let tmp%4#0: bytes = ((extract 2 1) box_value%2#0)
+                let tmp%5#0: bool = (b== tmp%4#0 0x02)
+                (assert tmp%5#0)
+                let (box_value%3#0: bytes, box_exists%3#0: bool) = (box_get "d")
+                (assert box_exists%3#0) // Box must exist
+                let tmp%6#0: bytes = ((extract 3 1) box_value%3#0)
+                let tmp%7#0: bool = (b== tmp%6#0 0x03)
+                (assert tmp%7#0)
+                return 
+        
+        subroutine examples.box_storage.contract.BoxContract.box_blob() -> void:
+            block@0: // L50
+                let sender_bytes#0: bytes = (txn Sender)
+                let app_address#0: bytes = (global CurrentApplicationAddress)
+                let tmp%0#0: bool = (box_create "blob" 8000u)
+                (assert tmp%0#0)
+                (box_replace "blob" 0u sender_bytes#0)
+                (box_splice "blob" 0u 0u app_address#0)
+                let first_64#0: bytes = (box_extract "blob" 0u 64u)
+                let tmp%1#0: bytes = (concat app_address#0 sender_bytes#0)
+                let tmp%2#0: bool = (== first_64#0 tmp%1#0)
+                (assert tmp%2#0)
+                let tmp%3#0: bool = (box_del "blob")
+                (assert tmp%3#0)
+                let (value#0: bytes, exists#0: bool) = (box_get "blob")
+                let tmp%4#0: bool = (! exists#0)
+                (assert tmp%4#0)
+                let (box_value%1#0: bytes, box_exists%1#0: bool) = (box_get "blob")
+                let tmp%5#0: bytes = (select sender_bytes#0 box_value%1#0 box_exists%1#0)
+                let tmp%6#0: bool = (== tmp%5#0 sender_bytes#0)
+                (assert tmp%6#0)
+                let tmp%7#0: bytes = (concat sender_bytes#0 app_address#0)
+                (box_put "blob" tmp%7#0)
+                let (box_len%0#0: uint64, box_exists%2#0: bool) = (box_len "blob")
+                (assert box_exists%2#0) // Blob exists
+                let (box_len%1#0: uint64, box_exists%3#0: bool) = (box_len "blob")
+                (assert box_exists%3#0) // Box must exist
+                let tmp%8#0: bool = (== box_len%1#0 64u)
+                (assert tmp%8#0)
+                return 
+        
+        subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
+            block@0: // L69
+                let tmp%0#0: bytes = (itob 0u)
+                let box_del_res%0#0: bool = (box_del tmp%0#0)
+                (box_put tmp%0#0 "Hmmmmm")
+                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len tmp%0#0)
+                (assert box_exists%0#0) // Box must exist
+                let tmp%3#0: bool = (== box_len%0#0 6u)
+                (assert tmp%3#0)
+                let (box_len%1#0: uint64, box_exists%1#0: bool) = (box_len tmp%0#0)
+                (assert box_exists%1#0) // Box must exist
+                let tmp%6#0: bool = (== box_len%1#0 6u)
+                (assert tmp%6#0)
+                let tmp%7#0: bytes = (itob 1u)
+                let (box_value%0#0: bytes, box_exists%2#0: bool) = (box_get tmp%7#0)
+                let tmp%8#0: bytes = (select "default" box_value%0#0 box_exists%2#0)
+                let tmp%9#0: bool = (== tmp%8#0 "default")
+                (assert tmp%9#0)
+                let (value#1: bytes, exists#0: bool) = (box_get tmp%7#0)
+                let tmp%11#0: bool = (! exists#0)
+                (assert tmp%11#0)
+                let (box_len%2#0: uint64, box_exists%4#0: bool) = (box_len tmp%0#0)
+                (assert box_exists%4#0)
+                return 
+        
+        subroutine examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: bytes) -> void:
+            block@0: // L83
+                let tmp%0#0: bytes = (itob key#0)
+                let box_del_res%0#0: bool = (box_del tmp%0#0)
+                (box_put tmp%0#0 value#0)
+                return 
+        
+        subroutine examples.box_storage.contract.BoxContract.box_map_get(key: uint64) -> bytes:
+            block@0: // L87
+                let tmp%0#0: bytes = (itob key#0)
+                let (box_value%0#0: bytes, box_exists%0#0: bool) = (box_get tmp%0#0)
+                (assert box_exists%0#0) // Box must exist
+                return box_value%0#0
+        
+        subroutine examples.box_storage.contract.BoxContract.box_map_exists(key: uint64) -> bool:
+            block@0: // L91
+                let tmp%0#0: bytes = (itob key#0)
+                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len tmp%0#0)
+                return box_exists%0#0
+    
+    program clear-state:
+        subroutine examples.box_storage.contract.BoxContract.clear_state_program() -> bool:
+            block@0: // L8
+                return 1u

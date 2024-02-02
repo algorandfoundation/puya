@@ -1,5 +1,7 @@
 from puya.awst import nodes as awst_nodes
+from puya.ir import intrinsic_factory
 from puya.ir.avm_ops import AVMOp
+from puya.ir.builder import box
 from puya.ir.builder._utils import assert_value, assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import BytesConstant, Intrinsic, UInt64Constant, Value, ValueProvider
@@ -26,10 +28,17 @@ def visit_app_account_state_expression(
 def visit_state_get_ex(
     context: IRFunctionBuildContext, expr: awst_nodes.StateGetEx
 ) -> ValueProvider:
+    match expr.field:
+        case awst_nodes.BoxKeyExpression():
+            return box.visit_box_state_get_ex(context, expr)
     return _build_state_get_ex(context, expr.field, expr.source_location)
 
 
 def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.StateDelete) -> None:
+    match statement.field:
+        case awst_nodes.BoxKeyExpression():
+            return box.visit_box_state_delete(context, statement)
+
     subject = statement.field
     state_def = context.resolve_state(subject.field_name, subject.source_location)
     key = BytesConstant(
@@ -54,15 +63,19 @@ def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.St
 
 
 def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) -> ValueProvider:
+    match expr.field:
+        case awst_nodes.BoxKeyExpression():
+            return box.visit_box_state_get(context, expr)
     default = context.visitor.visit_and_materialise_single(expr.default)
     get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
     maybe_value, exists = context.visitor.materialise_value_provider(
         get_ex, description=f"{expr.field.field_name}_get_ex"
     )
-    return Intrinsic(
-        op=AVMOp.select,
-        args=[default, maybe_value, exists],
-        types=[wtype_to_ir_type(expr.wtype)],
+    return intrinsic_factory.select(
+        condition=exists,
+        true=maybe_value,
+        false=default,
+        type_=wtype_to_ir_type(expr.wtype),
         source_location=expr.source_location,
     )
 
@@ -70,6 +83,9 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
 def visit_state_exists(
     context: IRFunctionBuildContext, expr: awst_nodes.StateExists
 ) -> ValueProvider:
+    match expr.field:
+        case awst_nodes.BoxKeyExpression():
+            return box.visit_box_state_exists(context, expr)
     get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
     _, exists = context.visitor.materialise_value_provider(
         get_ex, description=f"{expr.field.field_name}_exists"

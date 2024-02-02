@@ -290,10 +290,10 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     case _:
                         return []  # skip it
         const_delcs = StatementResult()
-        rvalue = stmt.rvalue.accept(self)
+
         for lvalue in stmt.lvalues:
-            match lvalue:
-                case mypy.nodes.NameExpr() as name_expr:
+            match lvalue, stmt.rvalue:
+                case mypy.nodes.NameExpr() as name_expr, rvalue:
                     fullname = ".".join((self.context.module_name, name_expr.name))
                     # fullname might be unset if this is in
                     # a conditional branch that's !TYPE_CHECKING
@@ -304,11 +304,12 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                             f" but mypy had {name_expr.fullname}",
                             lvalue,
                         )
-                    self.context.constants[fullname] = rvalue
+                    constant_value = rvalue.accept(self)
+                    self.context.constants[fullname] = constant_value
                     const_delcs.append(
                         ConstantDeclaration(
                             name=name_expr.name,
-                            value=rvalue,
+                            value=constant_value,
                             source_location=self._location(lvalue),
                         )
                     )

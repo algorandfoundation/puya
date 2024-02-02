@@ -41,6 +41,7 @@ from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
     convert_literal,
     convert_literal_to_expr,
+    eval_slice_component,
     expect_operand_wtype,
 )
 from puya.errors import CodeError, InternalError

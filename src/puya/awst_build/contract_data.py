@@ -1,4 +1,5 @@
 import enum
+import typing
 
 import attrs
 
@@ -29,3 +30,13 @@ class ContractClassOptions:
     name_override: str | None
     scratch_slot_reservations: StableSet[int]
     state_totals: StateTotals | None
+
+
+@attrs.frozen
+class BoxDeclaration:
+    member_name: str
+    wtype: WType
+    source_location: SourceLocation
+
+
+AppStorageDeclaration: typing.TypeAlias = AppStateDeclaration | BoxDeclaration

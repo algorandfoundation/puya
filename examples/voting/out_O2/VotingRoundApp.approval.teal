@@ -232,7 +232,7 @@ bootstrap:
     gtxns Amount
     ==
     assert // Payment must be for the exact min balance requirement
-    byte "V"
+    byte 0x56
     swap
     box_create
     assert
@@ -519,15 +519,13 @@ itoa_after_if_else@2:
     retsub
 
 
-// examples.voting.voting.get_vote_from_box(index: uint64) -> uint64:
+// examples.voting.voting.VotingRoundApp.get_vote_from_box(index: uint64) -> uint64:
 get_vote_from_box:
     proto 1 1
-    byte "V"
-    box_get
-    assert // Box not created
+    byte 0x56
     frame_dig -1
     int 8
-    extract3
+    box_extract
     btoi
     retsub
 
@@ -616,7 +614,7 @@ allowed_to_vote:
 already_voted:
     proto 0 1
     txn Sender
-    box_get
+    box_len
     bury 1
     retsub
 
@@ -705,6 +703,9 @@ vote_for_header@1:
     +
     frame_bury 1
     txn Sender
+    dup
+    box_del
+    pop
     frame_dig -1
     box_put
     int 0
@@ -725,20 +726,15 @@ vote_after_for@5:
     retsub
 
 
-// examples.voting.voting.increment_vote_in_box(index: uint64) -> void:
+// examples.voting.voting.VotingRoundApp.increment_vote_in_box(index: uint64) -> void:
 increment_vote_in_box:
     proto 1 0
-    byte "V"
-    box_get
-    assert // Box not created
     frame_dig -1
-    int 8
-    extract3
-    btoi
+    callsub get_vote_from_box
     int 1
     +
     itob
-    byte "V"
+    byte 0x56
     frame_dig -1
     uncover 2
     box_replace

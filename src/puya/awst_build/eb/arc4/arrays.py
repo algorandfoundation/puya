@@ -31,14 +31,12 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory
-from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
 from puya.awst_build.eb.arc4.base import (
     CopyBuilder,
     arc4_bool_bytes,
     arc4_compare_bytes,
-    get_bytes_expr,
-    get_bytes_expr_builder,
     get_integer_literal_value,
 )
 from puya.awst_build.eb.base import (

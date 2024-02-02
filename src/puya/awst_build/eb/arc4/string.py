@@ -18,11 +18,11 @@ from puya.awst.nodes import (
     Statement,
     StringConstant,
 )
+from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
     arc4_bool_bytes,
-    get_bytes_expr,
 )
 from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
