@@ -25,7 +25,7 @@ main_abi_routing@3:
         method "get_application()uint64"
         method "get_an_int()uint64"
         method "method_with_default_args(asset,asset,account,account,application,application,byte[3],uint64,uint64)void"
-        method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,asset,pay,uint64,uint64)uint64"
+        method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],asset,pay,uint64,uint64)uint64"
         uncover 12
         match main_noop_with_uint64_route@4 main_all_the_things_route@5 main_mixed_oca_route@6 main_opt_into_asset_route@7 main_with_transactions_route@8 main_compare_assets_route@9 main_get_address_route@10 main_get_asset_route@11 main_get_application_route@12 main_get_an_int_route@13 main_method_with_default_args_route@14 main_method_with_more_than_15_args_route@15
         b main_switch_case_default@16
@@ -260,21 +260,44 @@ main_method_with_more_than_15_args_route@15:
         extract 32 8
         cover 2
         dup
-        extract 40 8
+        int 40
+        extract_uint16
+        dig 1
+        dig 1
+        extract_uint16
+        int 2
+        +
+        dig 2
         cover 2
-        dup
-        extract 48 8
-        cover 2
-        dup
-        extract 56 1
+        extract3
         swap
         dup
-        extract 57 8
-        cover 3
-        extract 65 8
+        int 42
+        extract_uint16
+        dig 1
+        dig 1
+        extract_uint16
+        int 2
+        +
+        dig 2
         cover 2
+        extract3
         swap
+        dup
+        extract 44 1
+        cover 2
+        dup
+        extract 45 8
+        cover 5
+        extract 53 8
+        cover 4
+        uncover 3
         btoi
+        cover 3
+        uncover 2
+        extract 2 0
+        cover 3
+        extract 2 0
         swap
         btoi
         txnas Assets
@@ -295,11 +318,11 @@ main_method_with_more_than_15_args_route@15:
         cover 25
         cover 25
         cover 25
-        uncover 19
+        uncover 20
         uncover 25
         uncover 25
-        uncover 25
-        uncover 25
+        uncover 23
+        uncover 23
         uncover 23
         uncover 23
         uncover 25
@@ -563,6 +586,10 @@ method_with_more_than_15_args_block@0:
         assert
         frame_dig -4
         assert
+        frame_dig -6
+        frame_dig -5
+        concat
+        log
         frame_dig -26
         btoi
         frame_dig -25
@@ -612,12 +639,6 @@ method_with_more_than_15_args_block@0:
         btoi
         +
         frame_dig -7
-        btoi
-        +
-        frame_dig -6
-        btoi
-        +
-        frame_dig -5
         btoi
         +
         frame_dig -2

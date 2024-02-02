@@ -13,6 +13,7 @@ from nacl.signing import SigningKey
 from puya.arc32 import create_arc32_json
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
+from tests.test_execution import decode_logs
 from tests.utils import compile_src
 
 pytestmark = pytest.mark.localnet
@@ -517,8 +518,8 @@ def test_arc4_routing_with_many_params(
         p=1,
         q=1,
         r=1,
-        s=1,
-        t=1,
+        s=b"a",
+        t=b"b",
         u=1,
         v=1,
         pay=payment_transaction(
@@ -538,7 +539,10 @@ def test_arc4_routing_with_many_params(
         asset=asset_a,
         asset2=asset_b,
     )
-    assert result.return_value == 22
+    assert result.return_value == 20
+
+    (logged_string,) = decode_logs(result.tx_info["logs"][:-1], "u")
+    assert logged_string == "ab"
 
 
 def test_transaction(algod_client: AlgodClient, account: algokit_utils.Account) -> None:

@@ -5,6 +5,7 @@ from puyapy import (
     Application,
     ARC4Contract,
     Asset,
+    Bytes,
     CreateInnerTransaction,
     Global,
     PaymentTransaction,
@@ -182,8 +183,8 @@ class Reference(ARC4Contract):
         p: UInt64,
         q: arc4.UInt64,
         r: arc4.UInt64,
-        s: arc4.UInt64,
-        t: arc4.UInt64,
+        s: Bytes,
+        t: Bytes,
         asset2: Asset,
         pay2: PaymentTransaction,
         u: arc4.UInt64,
@@ -198,6 +199,9 @@ class Reference(ARC4Contract):
         assert pay2.amount == 200000
         assert asset.asset_id
         assert asset2.asset_id
+
+        log(s + t)
+
         return arc4.UInt64(
             a.decode()
             + b.decode()
@@ -217,8 +221,6 @@ class Reference(ARC4Contract):
             + p
             + q.decode()
             + r.decode()
-            + s.decode()
-            + t.decode()
             + u.decode()
             + v.decode()
         )
