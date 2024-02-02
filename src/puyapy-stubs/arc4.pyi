@@ -241,7 +241,8 @@ class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem], Reversible[_TAr
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
 
-class Address(StaticArray[Byte, typing.Literal[32]]): ...
+class Address(StaticArray[Byte, typing.Literal[32]]):
+    def __init__(self, account_or_bytes: puyapy.Bytes | puyapy.Account | bytes): ...
 
 DynamicBytes: typing.TypeAlias = DynamicArray[Byte]
 

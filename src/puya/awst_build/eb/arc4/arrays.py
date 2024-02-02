@@ -12,12 +12,16 @@ from puya.awst.nodes import (
     ArrayExtend,
     ArrayPop,
     BytesComparisonExpression,
+    CheckedMaybe,
     EqualityComparison,
     Expression,
     ExpressionStatement,
     IndexExpression,
     IntrinsicCall,
     Literal,
+    NumericComparison,
+    NumericComparisonExpression,
+    ReinterpretCast,
     Statement,
     TupleExpression,
     UInt64BinaryOperation,
@@ -43,6 +47,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
+    create_temporary_assignment,
     expect_operand_wtype,
     require_expression_builder,
 )
@@ -233,6 +238,46 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
         array_size = 32
         self.wtype = wtypes.ARC4StaticArray.from_element_type_and_size(
             element_wtype, array_size=array_size, alias="address"
+        )
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        match args:
+            case (ExpressionBuilder() as eb,) if eb.rvalue().wtype == wtypes.account_wtype:
+                address_bytes: Expression = get_bytes_expr(eb.rvalue())
+            case (eb_or_literal,):
+                address_bytes_temp = create_temporary_assignment(
+                    expect_operand_wtype(eb_or_literal, wtypes.bytes_wtype), location=location
+                )
+                is_correct_length = NumericComparisonExpression(
+                    operator=NumericComparison.eq,
+                    source_location=location,
+                    lhs=UInt64Constant(value=32, source_location=location),
+                    rhs=IntrinsicCall.bytes_len(
+                        expr=address_bytes_temp.read, source_location=location
+                    ),
+                )
+                address_bytes = CheckedMaybe(
+                    expr=TupleExpression.from_items(
+                        (address_bytes_temp.define, is_correct_length), location=location
+                    ),
+                    comment="Address length is 32 bytes",
+                )
+            case _:
+                raise CodeError(
+                    "Address constructor expects a single argument of type"
+                    f" {wtypes.account_wtype} or {wtypes.bytes_wtype}",
+                    location=location,
+                )
+        assert self.wtype, "wtype should not be None"
+        return var_expression(
+            ReinterpretCast(expr=address_bytes, wtype=self.wtype, source_location=location)
         )
 
     def index_multiple(
