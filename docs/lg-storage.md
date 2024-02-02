@@ -1,7 +1,7 @@
 # Storing data on-chain
 
 Algorand smart contracts have [three different types of on-chain storage](https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/state/)
-they can utilise: [Global storage](#global-storage), [Local storage](#local-storage) and [Scratch storage](#scratch-storage).
+they can utilise: [Global storage](#global-storage), [Local storage](#local-storage), [Box Storage](#box-storage), and [Scratch storage](#scratch-storage).
 
 The life-cycle of a smart contract matches the semantics of Python classes when you consider
 deploying a smart contract as "instantiating" the class. Any calls to that smart contract are made
@@ -88,9 +88,94 @@ any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/
 
 ## Box storage
 
-There isn't currently first-class support via `self.` for box storage, but this feature is coming soon.
+We provide 3 different types for accessing box storage: [Box](./api-algopy.md#algopy.Box), [BoxMap](./api-algopy.md#algopy.BoxMap), and [BoxBlob](./api-algopy.md#algopy.BoxBlob). We also expose raw operations via the [AVM ops](./lg-ops.md) module.
 
-In the meantime, you can use the box storage [AVM ops](./lg-ops.md) to interact with box storage.
+Before using box storage, be sure to familiarise yourself with the [requirements and restrictions](https://developer.algorand.org/articles/smart-contract-storage-boxes/) of the underlying API.
+
+The `Box` type provides an abstraction over storing a single value in a single box. A box can be declared against `self`
+in an `__init__` method (in which case the key must be a compile time constant); or as a local variable within any 
+subroutine. `Box` proxy instances can be passed around like any other value. 
+
+Once declared, you can interact with the box via its instance methods.
+
+
+```python
+import typing as t
+from algopy import Box, arc4, Contract, op
+
+
+class MyContract(Contract):
+    def __init__(self) -> None:
+        self.box_a = Box(arc4.StaticArray[arc4.UInt32, t.Literal[20]], key=b"a")
+    
+    def approval_program(self) -> bool:
+        box_b = Box(arc4.String, key=b"b")
+        box_b.value = arc4.String("Hello")
+        # Check if the box exists
+        if self.box_a:
+            # Reassign the value
+            self.box_a.value[2] = arc4.UInt32(40)
+        else:
+            # Assign a new value
+            self.box_a.value = arc4.StaticArray[arc4.UInt32, t.Literal[20]].from_bytes(op.bzero(20 * 4))
+        # Read a value
+        return self.box_a.value[4] == arc4.UInt32(2)    
+```
+
+`BoxMap` is similar to the `Box` type, but allows for grouping a set of boxes with a common key and content type. A `key_prefix` can optionally be provided. 
+The key can be a `Bytes` value, or anything that can be converted to `Bytes`. The final box name is the combination of `key_prefix + key`.
+
+```python
+from algopy import BoxMap, Contract, Account, Txn, String
+
+class MyContract(Contract):
+    def __init__(self) -> None:
+        self.my_map = BoxMap(Account, String, key_prefix=b"a_")
+    
+    def approval_program(self) -> bool:        
+        # Check if the box exists
+        if Txn.sender in self.my_map:
+            # Reassign the value
+            self.my_map[Txn.sender] = String(" World")
+        else:
+            # Assign a new value
+            self.my_map[Txn.sender] = String("Hello")
+        # Read a value
+        return self.my_map[Txn.sender] == String("Hello World")
+```
+
+`BoxBlob` is a specialised type for interacting with boxes which contain binary data. In addition to being able to set and read the box value, there are operations for extracting and replacing just a portion of the box data which 
+is useful for minimizing the amount of reads and writes required, but also allows you to interact with byte arrays which are longer than the AVM can support (currently 4096). 
+
+```python
+from algopy import BoxBlob, Contract, Global, Txn
+
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        my_blob = BoxBlob(key=b"blob")
+
+        sender_bytes = Txn.sender.bytes
+        app_address = Global.current_application_address.bytes
+        assert my_blob.create(8000)
+        my_blob.replace(0, sender_bytes)
+        my_blob.splice(0, 0, app_address)
+        first_64 = my_blob.extract(0, 32 * 2)
+        assert first_64 == app_address + sender_bytes
+        assert my_blob.delete()
+        value, exists = my_blob.maybe()
+        assert not exists
+        assert my_blob.get(default=sender_bytes) == sender_bytes
+        my_blob.create(sender_bytes + app_address)
+        assert my_blob, "Blob exists"
+        assert my_blob.length == 64
+        return True
+```
+
+
+
+If none of these abstractions suit your needs, you can use the box storage [AVM ops](./lg-ops.md) to interact with box storage. These ops match closely to the opcodes available on the AVM. 
 
 For example:
 

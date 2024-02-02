@@ -20,13 +20,18 @@ from puya.awst.nodes import (
     Expression,
     IntegerConstant,
     Literal,
+    NumericComparison,
+    NumericComparisonExpression,
     ReinterpretCast,
+    SingleEvaluation,
     StringConstant,
+    UInt64BinaryOperation,
+    UInt64BinaryOperator,
     UInt64Constant,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, intrinsic_factory
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb.base import ExpressionBuilder
+from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -162,6 +167,18 @@ def require_expression_builder(
         case Expression() as expr:
             return var_expression(expr)
     return builder_or_expr_or_literal
+
+
+def require_type_class_eb(
+    builder_or_literal: ExpressionBuilder | Literal,
+    *,
+    msg: str = "A Python type is required at this location",
+) -> TypeClassExpressionBuilder:
+    match builder_or_literal:
+        case TypeClassExpressionBuilder() as type_eb:
+            return type_eb
+        case _:
+            raise CodeError(msg, builder_or_literal.source_location)
 
 
 def expect_operand_wtype(
@@ -319,3 +336,53 @@ def snake_case(s: str) -> str:
     s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
     s = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", s)
     return re.sub(r"[-\s]", "_", s).lower()
+
+
+def eval_slice_component(
+    len_expr: Expression, val: ExpressionBuilder | Literal | None, location: SourceLocation
+) -> Expression | None:
+    if val is None:
+        return None
+
+    if isinstance(val, ExpressionBuilder):
+        # no negatives to deal with here, easy
+        index_expr = expect_operand_wtype(val, wtypes.uint64_wtype)
+        temp_index = SingleEvaluation(index_expr)
+        return intrinsic_factory.select(
+            false=len_expr,
+            true=temp_index,
+            condition=NumericComparisonExpression(
+                lhs=temp_index,
+                operator=NumericComparison.lt,
+                rhs=len_expr,
+                source_location=location,
+            ),
+            loc=location,
+        )
+
+    int_lit = val.value
+    if not isinstance(int_lit, int):
+        raise CodeError(f"Invalid literal for slicing: {int_lit!r}", val.source_location)
+    # take the min of abs(int_lit) and len(self.expr)
+    abs_lit_expr = UInt64Constant(value=abs(int_lit), source_location=val.source_location)
+    trunc_value_expr = intrinsic_factory.select(
+        false=len_expr,
+        true=abs_lit_expr,
+        condition=NumericComparisonExpression(
+            lhs=abs_lit_expr,
+            operator=NumericComparison.lt,
+            rhs=len_expr,
+            source_location=location,
+        ),
+        loc=location,
+    )
+    return (
+        trunc_value_expr
+        if int_lit >= 0
+        else UInt64BinaryOperation(
+            left=len_expr,
+            op=UInt64BinaryOperator.sub,
+            right=trunc_value_expr,
+            source_location=location,
+        )
+    )

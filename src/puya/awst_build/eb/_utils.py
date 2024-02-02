@@ -4,7 +4,7 @@ import typing
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import BoolConstant, Expression, Literal
+from puya.awst.nodes import BoolConstant, Expression, Literal, ReinterpretCast
 from puya.awst_build import intrinsic_factory
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import expect_operand_wtype
@@ -36,3 +36,13 @@ def uint64_to_biguint(
         wtypes.biguint_wtype,
         location,
     )
+
+
+def get_bytes_expr(expr: Expression) -> ReinterpretCast:
+    return ReinterpretCast(
+        expr=expr, wtype=wtypes.bytes_wtype, source_location=expr.source_location
+    )
+
+
+def get_bytes_expr_builder(expr: Expression) -> ExpressionBuilder:
+    return var_expression(get_bytes_expr(expr))

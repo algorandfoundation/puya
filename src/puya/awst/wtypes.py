@@ -175,6 +175,41 @@ class WInnerTransaction(WType):
         )
 
 
+@attrs.define
+class WBoxProxy(WType):
+    content_wtype: WType = attrs.field()
+
+    @classmethod
+    def from_content_type(cls, content_wtype: WType) -> "WBoxProxy":
+        return cls(
+            content_wtype=content_wtype,
+            name="box_proxy",
+            stub_name=constants.CLS_BOX_PROXY_ALIAS,
+        )
+
+
+@attrs.define
+class WBoxMapProxy(WType):
+    key_wtype: WType = attrs.field()
+    content_wtype: WType = attrs.field()
+
+    @classmethod
+    def from_key_and_content_type(
+        cls, *, key_wtype: WType, content_wtype: WType
+    ) -> "WBoxMapProxy":
+        return cls(
+            key_wtype=key_wtype,
+            content_wtype=content_wtype,
+            name="box_map_proxy",
+            stub_name=constants.CLS_BOX_MAP_PROXY_ALIAS,
+        )
+
+
+box_blob_proxy_wtype: typing.Final = WType(
+    name="box_blob_proxy", stub_name=constants.CLS_BOX_BLOB_PROXY_ALIAS
+)
+
+
 @typing.final
 @attrs.frozen(str=False, kw_only=True)
 class WStructType(WType):
@@ -564,3 +599,9 @@ def arc4_to_avm_equivalent_wtype(arc4_wtype: WType) -> WType:
         return bool_wtype
 
     raise InternalError(f"Invalid arc4_wtype: {arc4_wtype}")
+
+
+def is_uint64_on_stack(wtype: WType) -> bool:
+    if wtype in (bool_wtype, uint64_wtype, asset_wtype, application_wtype):
+        return True
+    return False

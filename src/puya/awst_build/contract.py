@@ -21,6 +21,8 @@ from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import (
     AppStateDeclaration,
     AppStateDeclType,
+    AppStorageDeclaration,
+    BoxDeclaration,
     ContractClassOptions,
 )
 from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
@@ -56,8 +58,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._clear_program: ContractMethod | None = None
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
-        this_app_state = list(_gather_app_state(context, class_def.info))
-        self.app_state = _gather_app_state_recursive(context, class_def, this_app_state)
+        this_app_state = list(_gather_app_storage(context, class_def.info))
+        self.app_state = _gather_app_storage_recursive(context, class_def, this_app_state)
 
         # note: we iterate directly and catch+log code errors here,
         #       since each statement should be somewhat independent given
@@ -72,7 +74,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             for app_state_defn in context.state_defs[self.cref]
         }
         for decl in this_app_state:
-            if decl.decl_type is AppStateDeclType.global_direct:
+            if (
+                isinstance(decl, AppStateDeclaration)
+                and decl.decl_type is AppStateDeclType.global_direct
+            ):
                 collected_app_state_definitions[decl.member_name] = AppStateDefinition(
                     member_name=decl.member_name,
                     storage_wtype=decl.storage_wtype,
@@ -82,7 +87,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     source_location=decl.source_location,
                     kind=decl.kind,
                 )
-
+        collected_box_definitions = {
+            box_def.member_name: box_def for box_def in context.static_box_defs[self.cref]
+        }
         self.result_ = ContractFragment(
             module_name=self.cref.module_name,
             name=self.cref.class_name,
@@ -95,6 +102,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             clear_program=self._clear_program,
             subroutines=self._subroutines,
             app_state=collected_app_state_definitions,
+            static_boxes=collected_box_definitions,
             docstring=class_def.docstring,
             source_location=self._location(class_def),
             reserved_scratch_space=class_options.scratch_slot_reservations,
@@ -287,7 +295,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     contract_method_info=ContractMethodInfo(
                         type_info=self.class_def.info,
                         arc4_method_config=abimethod_config,
-                        app_state=self.app_state,
+                        app_storage=self.app_state,
                         cref=self.cref,
                     ),
                 )
@@ -364,12 +372,12 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._unsupported_stmt("match", stmt)
 
 
-def _gather_app_state(
+def _gather_app_storage(
     context: ASTConversionModuleContext,
     class_info: mypy.nodes.TypeInfo,
     *,
     report_errors: bool = True,
-) -> Iterator[AppStateDeclaration]:
+) -> Iterator[AppStorageDeclaration]:
     for name, sym in class_info.names.items():
         if isinstance(sym.node, mypy.nodes.Var):
             var_loc = context.node_location(sym.node)
@@ -413,6 +421,75 @@ def _gather_app_state(
                                 var_loc,
                             )
                         continue
+                case mypy.types.Instance(
+                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_PROXY),
+                    args=args,
+                ):
+                    try:
+                        (content_type,) = args
+                        wtype: wtypes.WType = wtypes.WBoxProxy.from_content_type(
+                            context.type_to_wtype(content_type, source_location=var_loc)
+                        )
+                    except ValueError:
+                        if report_errors:
+                            context.error(
+                                f"{constants.CLS_BOX_PROXY}"
+                                f" requires exactly one type parameter",
+                                var_loc,
+                            )
+                        continue
+                    yield BoxDeclaration(
+                        wtype=wtype,
+                        member_name=name,
+                        source_location=var_loc,
+                    )
+                    continue
+                case mypy.types.Instance(
+                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_MAP_PROXY),
+                    args=args,
+                ):
+                    try:
+                        (
+                            key_type,
+                            content_type,
+                        ) = args
+                        wtype = wtypes.WBoxMapProxy.from_key_and_content_type(
+                            key_wtype=context.type_to_wtype(key_type, source_location=var_loc),
+                            content_wtype=context.type_to_wtype(
+                                content_type, source_location=var_loc
+                            ),
+                        )
+                    except ValueError:
+                        if report_errors:
+                            context.error(
+                                f"{constants.CLS_BOX_MAP_PROXY}"
+                                f" requires exactly two type parameters",
+                                var_loc,
+                            )
+                        continue
+                    yield BoxDeclaration(
+                        wtype=wtype,
+                        member_name=name,
+                        source_location=var_loc,
+                    )
+                    continue
+
+                case mypy.types.Instance(
+                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_BLOB_PROXY),
+                    args=args,
+                ):
+                    if args and report_errors:
+                        context.error(
+                            f"{constants.CLS_BOX_BLOB_PROXY} requires has no type parameters",
+                            var_loc,
+                        )
+                        continue
+                    yield BoxDeclaration(
+                        wtype=wtypes.box_blob_proxy_wtype,
+                        member_name=name,
+                        source_location=var_loc,
+                    )
+                    continue
                 case _:
                     kind = AppStateKind.app_global
                     decl_type = AppStateDeclType.global_direct
@@ -475,18 +552,18 @@ def _gather_bases(
     return contract_bases_mro
 
 
-def _gather_app_state_recursive(
+def _gather_app_storage_recursive(
     context: ASTConversionModuleContext,
     class_def: mypy.nodes.ClassDef,
-    this_app_state: list[AppStateDeclaration],
-) -> dict[str, AppStateDeclaration]:
+    this_app_state: list[AppStorageDeclaration],
+) -> dict[str, AppStorageDeclaration]:
     combined_app_state = {defn.member_name: defn for defn in this_app_state}
     for base in iterate_user_bases(class_def.info):
         base_app_state = {
             defn.member_name: defn
             # NOTE: we don't report errors for the decls themselves here,
             #       they should already have been reported when analysing the base type
-            for defn in _gather_app_state(context, base, report_errors=False)
+            for defn in _gather_app_storage(context, base, report_errors=False)
         }
         for redefined_member in combined_app_state.keys() & base_app_state.keys():
             member_redef = combined_app_state[redefined_member]

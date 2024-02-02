@@ -280,3 +280,18 @@ class FunctionTraverser(
 
     def visit_state_exists(self, expr: awst_nodes.StateExists) -> None:
         expr.field.accept(self)
+
+    def visit_box_length(self, expr: awst_nodes.BoxLength) -> None:
+        expr.box_key.accept(self)
+
+    def visit_box_proxy_expression(self, expr: awst_nodes.BoxProxyExpression) -> None:
+        expr.key.accept(self)
+
+    def visit_box_value_expression(self, expr: awst_nodes.BoxValueExpression) -> None:
+        expr.proxy.accept(self)
+
+    def visit_box_proxy_field(self, expr: awst_nodes.BoxProxyField) -> None:
+        pass
+
+    def visit_box_key_expression(self, expr: awst_nodes.BoxKeyExpression) -> None:
+        expr.proxy.accept(self)

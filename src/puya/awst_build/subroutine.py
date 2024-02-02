@@ -21,7 +21,10 @@ from puya.awst.nodes import (
     Block,
     BoolConstant,
     BooleanBinaryOperation,
+    BoxProxyDefinition,
+    BoxProxyExpression,
     BreakStatement,
+    BytesConstant,
     CompileTimeConstantExpression,
     ConditionalExpression,
     ContinueStatement,
@@ -49,7 +52,7 @@ from puya.awst.wtypes import WType
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import AppStateDeclaration
+from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
@@ -63,6 +66,11 @@ from puya.awst_build.eb.base import (
     StateProxyMemberBuilder,
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
+from puya.awst_build.eb.box import (
+    BoxBlobProxyExpressionBuilder,
+    BoxMapProxyExpressionBuilder,
+    BoxProxyExpressionBuilder,
+)
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
@@ -104,7 +112,7 @@ logger = log.get_logger(__name__)
 class ContractMethodInfo:
     type_info: mypy.nodes.TypeInfo
     cref: ContractReference
-    app_state: Mapping[str, AppStateDeclaration]
+    app_storage: Mapping[str, AppStorageDeclaration]
     arc4_method_config: ARC4MethodConfig | None
 
 
@@ -323,6 +331,13 @@ class FunctionASTConverter(
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
         if isinstance(rvalue, StateProxyDefinitionBuilder):
             return self._handle_state_proxy_assignment(rvalue, stmt.lvalues, stmt_loc)
+        elif isinstance(
+            rvalue,
+            BoxProxyExpressionBuilder
+            | BoxBlobProxyExpressionBuilder
+            | BoxMapProxyExpressionBuilder,
+        ):
+            return self._handle_box_proxy_assignment(rvalue, stmt.lvalues, stmt_loc)
         else:
             if len(stmt.lvalues) > 1:
                 rvalue = temporary_assignment_if_required(rvalue)
@@ -334,6 +349,65 @@ class FunctionASTConverter(
                 )
                 for lvalue in reversed(stmt.lvalues)
             ]
+
+    def _handle_box_proxy_assignment(
+        self,
+        rvalue_eb: (
+            BoxBlobProxyExpressionBuilder
+            | BoxProxyExpressionBuilder
+            | BoxMapProxyExpressionBuilder
+        ),
+        lvalues: list[mypy.nodes.Expression],
+        stmt_loc: SourceLocation,
+    ) -> Sequence[Statement]:
+        if len(lvalues) != 1:
+            raise CodeError(
+                f"{rvalue_eb.python_name} can only be assigned to a single member variable",
+                stmt_loc,
+            )
+        (lvalue,) = lvalues
+
+        match lvalue:
+            case mypy.nodes.MemberExpr(
+                name=member_name, expr=mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True))
+            ):
+                pass
+            case _:
+                return [
+                    AssignmentStatement(
+                        value=rvalue_eb.build_assignment_source(),
+                        target=self.resolve_lvalue(lvalue),
+                        source_location=stmt_loc,
+                    )
+                ]
+        if self.contract_method_info is None:
+            raise CodeError(
+                f"{rvalue_eb.python_name} should only be used inside a contract class", stmt_loc
+            )
+        if self.func_def.name != "__init__":
+            raise CodeError(
+                f"{rvalue_eb.python_name} can only be used in the __init__ method",
+                stmt_loc,
+            )
+        key = rvalue_eb.rvalue()
+        match key:
+            case BoxProxyExpression(
+                key=BytesConstant(value=key_bytes),
+            ):
+                self.context.static_box_defs[self.contract_method_info.cref].append(
+                    BoxProxyDefinition(
+                        member_name=member_name,
+                        key=key_bytes,
+                        source_location=key.source_location,
+                        proxy_wtype=key.wtype,
+                    )
+                )
+                return []
+        raise CodeError(
+            f"{rvalue_eb.python_name} must be declared with compile time static keys"
+            f" when assigned to 'self'",
+            stmt_loc,
+        )
 
     def _handle_state_proxy_assignment(
         self,
@@ -646,7 +720,7 @@ class FunctionASTConverter(
                 )
                 return ContractSelfExpressionBuilder(
                     context=self.context,
-                    app_state=self.contract_method_info.app_state,
+                    app_storage=self.contract_method_info.app_storage,
                     type_info=self.contract_method_info.type_info,
                     location=expr_loc,
                 )
@@ -1202,7 +1276,7 @@ class FunctionASTConverter(
                     func_type=base_method.type,
                 )
 
-        if super_expr.name in self.contract_method_info.app_state:
+        if super_expr.name in self.contract_method_info.app_storage:
             raise CodeError(
                 "super() is only supported for method calls, not member access", super_loc
             )

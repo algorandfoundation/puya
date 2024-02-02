@@ -1,0 +1,530 @@
+#pragma version 10
+
+examples.box_storage.contract.BoxContract.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@14
+    method "set_boxes(uint64,byte[],string)void"
+    method "read_boxes()(uint64,byte[],string)"
+    method "boxes_exist()(bool,bool,bool)"
+    method "slice_box()void"
+    method "arc4_box()void"
+    method "box_blob()void"
+    method "box_map_test()void"
+    method "box_map_set(uint64,string)void"
+    method "box_map_get(uint64)string"
+    method "box_map_exists(uint64)bool"
+    txna ApplicationArgs 0
+    match main_set_boxes_route@2 main_read_boxes_route@3 main_boxes_exist_route@4 main_slice_box_route@5 main_arc4_box_route@6 main_box_blob_route@7 main_box_map_test_route@8 main_box_map_set_route@9 main_box_map_get_route@10 main_box_map_exists_route@11
+    err // reject transaction
+
+main_set_boxes_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    callsub set_boxes
+    int 1
+    return
+
+main_read_boxes_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub read_boxes
+    cover 2
+    swap
+    itob
+    swap
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    swap
+    byte 0x000c
+    concat
+    swap
+    dup
+    len
+    int 12
+    +
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_boxes_exist_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub boxes_exist
+    cover 2
+    swap
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    cover 2
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    byte 0x00
+    int 0
+    uncover 3
+    setbit
+    swap
+    int 0
+    getbit
+    uncover 2
+    int 1
+    uncover 2
+    setbit
+    swap
+    int 0
+    getbit
+    int 2
+    swap
+    setbit
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_slice_box_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub slice_box
+    int 1
+    return
+
+main_arc4_box_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub arc4_box
+    int 1
+    return
+
+main_box_blob_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub box_blob
+    int 1
+    return
+
+main_box_map_test_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub box_map_test
+    int 1
+    return
+
+main_box_map_set_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    extract 2 0
+    callsub box_map_set
+    int 1
+    return
+
+main_box_map_get_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    callsub box_map_get
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_box_map_exists_route@11:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    callsub box_map_exists
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@14:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: bytes, c: bytes) -> void:
+set_boxes:
+    proto 3 0
+    frame_dig -3
+    itob
+    byte 0x424f585f41
+    swap
+    box_put
+    byte 0x62
+    box_del
+    pop
+    byte 0x62
+    frame_dig -2
+    box_put
+    byte 0x424f585f43
+    box_del
+    pop
+    byte 0x424f585f43
+    frame_dig -1
+    box_put
+    byte 0x424f585f41
+    box_get
+    swap
+    btoi
+    swap
+    assert // Box must exist
+    int 3
+    +
+    itob
+    byte 0x424f585f41
+    swap
+    box_put
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.read_boxes() -> uint64, bytes, bytes:
+read_boxes:
+    proto 0 3
+    byte 0x424f585f41
+    box_get
+    swap
+    btoi
+    swap
+    assert // Box must exist
+    byte 0x62
+    box_get
+    assert // Box must exist
+    byte 0x424f585f43
+    box_get
+    assert // Box must exist
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.boxes_exist() -> uint64, uint64, uint64:
+boxes_exist:
+    proto 0 3
+    byte 0x424f585f41
+    box_len
+    bury 1
+    byte 0x62
+    box_len
+    bury 1
+    byte 0x424f585f43
+    box_len
+    bury 1
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.slice_box() -> void:
+slice_box:
+    proto 0 0
+    byte "0"
+    box_del
+    pop
+    byte "0"
+    byte "Testing testing 123"
+    box_put
+    byte "0"
+    box_len
+    assert // Box must exist
+    dup
+    int 0
+    dig 2
+    select
+    swap
+    int 7
+    dig 1
+    <
+    int 7
+    swap
+    select
+    dig 1
+    -
+    byte "0"
+    cover 2
+    box_extract
+    byte "Testing"
+    ==
+    assert
+    byte 0x424f585f43
+    box_del
+    pop
+    byte 0x424f585f43
+    byte "\x00\x05Hello"
+    box_put
+    byte 0x424f585f43
+    box_len
+    assert // Box must exist
+    int 2
+    dig 1
+    <
+    swap
+    dup
+    int 2
+    uncover 3
+    select
+    swap
+    int 10
+    dig 1
+    <
+    int 10
+    swap
+    select
+    dig 1
+    -
+    byte 0x424f585f43
+    cover 2
+    box_extract
+    byte "Hello"
+    ==
+    assert
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.arc4_box() -> void:
+arc4_box:
+    proto 0 0
+    byte "d"
+    byte 0x00010203
+    box_put
+    byte "d"
+    box_get
+    assert // Box must exist
+    extract 0 1
+    byte 0x00
+    b==
+    assert
+    byte "d"
+    box_get
+    assert // Box must exist
+    extract 1 1
+    byte 0x01
+    b==
+    assert
+    byte "d"
+    box_get
+    assert // Box must exist
+    extract 2 1
+    byte 0x02
+    b==
+    assert
+    byte "d"
+    box_get
+    assert // Box must exist
+    extract 3 1
+    byte 0x03
+    b==
+    assert
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.box_blob() -> void:
+box_blob:
+    proto 0 0
+    global CurrentApplicationAddress
+    txn Sender
+    byte "blob"
+    int 8000
+    box_create
+    assert
+    byte "blob"
+    int 0
+    dig 2
+    box_replace
+    byte "blob"
+    int 0
+    dup
+    dig 4
+    box_splice
+    byte "blob"
+    int 0
+    int 64
+    box_extract
+    dig 2
+    dig 2
+    concat
+    ==
+    assert
+    byte "blob"
+    box_del
+    assert
+    byte "blob"
+    box_get
+    bury 1
+    !
+    assert
+    byte "blob"
+    box_get
+    dig 2
+    cover 2
+    select
+    dig 1
+    ==
+    assert
+    swap
+    concat
+    byte "blob"
+    swap
+    box_put
+    byte "blob"
+    box_len
+    bury 1
+    assert // Blob exists
+    byte "blob"
+    box_len
+    assert // Box must exist
+    int 64
+    ==
+    assert
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.box_map_test() -> void:
+box_map_test:
+    proto 0 0
+    int 0
+    itob
+    dup
+    box_del
+    pop
+    dup
+    byte "Hmmmmm"
+    box_put
+    dup
+    box_len
+    assert // Box must exist
+    int 6
+    ==
+    assert
+    dup
+    box_len
+    assert // Box must exist
+    int 6
+    ==
+    assert
+    int 1
+    itob
+    dup
+    box_get
+    byte "default"
+    cover 2
+    select
+    byte "default"
+    ==
+    assert
+    box_get
+    bury 1
+    !
+    assert
+    box_len
+    bury 1
+    assert
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: bytes) -> void:
+box_map_set:
+    proto 2 0
+    frame_dig -2
+    itob
+    dup
+    box_del
+    pop
+    frame_dig -1
+    box_put
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.box_map_get(key: uint64) -> bytes:
+box_map_get:
+    proto 1 1
+    frame_dig -1
+    itob
+    box_get
+    assert // Box must exist
+    retsub
+
+
+// examples.box_storage.contract.BoxContract.box_map_exists(key: uint64) -> uint64:
+box_map_exists:
+    proto 1 1
+    frame_dig -1
+    itob
+    box_len
+    bury 1
+    retsub

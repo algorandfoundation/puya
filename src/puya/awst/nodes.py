@@ -993,19 +993,6 @@ class ReinterpretCast(Expression):
         return visitor.visit_reinterpret_cast(self)
 
 
-# Expression types that are valid on the left hand side of assignment *statements*
-# Note that some of these can be recursive/nested, eg:
-# obj.field[index].another_field = 123
-Lvalue = (
-    VarExpression
-    | FieldExpression
-    | IndexExpression
-    | TupleExpression
-    | AppStateExpression
-    | AppAccountStateExpression
-)
-
-
 @attrs.frozen
 class NewArray(Expression):
     wtype: wtypes.WArray | wtypes.ARC4Array
@@ -1512,7 +1499,24 @@ class ForInLoop(Statement):
         return visitor.visit_for_in_loop(self)
 
 
-StateExpression: t.TypeAlias = AppStateExpression | AppAccountStateExpression
+StateExpression: t.TypeAlias = "AppStateExpression | AppAccountStateExpression | BoxKeyExpression"
+
+
+def _get_state_expression_value_wtype(expr: StateExpression) -> wtypes.WType:
+    match expr:
+        case AppStateExpression(wtype=content_wtype):
+            return content_wtype
+        case AppAccountStateExpression(wtype=content_wtype):
+            return content_wtype
+        case BoxKeyExpression(proxy=proxy):
+            match proxy.wtype:
+                case wtypes.box_blob_proxy_wtype:
+                    return wtypes.bytes_wtype
+                case wtypes.WBoxProxy(content_wtype=content_wtype):
+                    return content_wtype
+                case wtypes.WBoxMapProxy(content_wtype=content_wtype):
+                    return content_wtype
+    raise InternalError("Unexpected type of StateExpression")
 
 
 @attrs.frozen
@@ -1528,14 +1532,15 @@ class StateGet(Expression):
 
     @default.validator
     def _check_default(self, _attribute: object, default: Expression) -> None:
-        if self.field.wtype != default.wtype:
+        content_wtype = _get_state_expression_value_wtype(self.field)
+        if content_wtype != default.wtype:
             raise CodeError(
                 "Default state value should match storage type", default.source_location
             )
 
     @wtype.default
     def _wtype_factory(self) -> WType:
-        return self.field.wtype
+        return _get_state_expression_value_wtype(self.field)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_state_get(self)
@@ -1548,7 +1553,9 @@ class StateGetEx(Expression):
 
     @wtype.default
     def _wtype_factory(self) -> wtypes.WTuple:
-        return wtypes.WTuple.from_types((self.field.wtype, wtypes.bool_wtype))
+        return wtypes.WTuple.from_types(
+            (_get_state_expression_value_wtype(self.field), wtypes.bool_wtype)
+        )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_state_get_ex(self)
@@ -1595,6 +1602,106 @@ class ModuleStatement(Node, ABC):
 
     @abstractmethod
     def accept(self, visitor: ModuleStatementVisitor[T]) -> T: ...
+
+
+@attrs.frozen
+class BoxProxyField(Expression):
+    """
+    An expression representing a box proxy class instance stored on a contract field.
+
+    wtype will be WBoxProxy or wtypes.box_blob_proxy_wtype
+    """
+
+    field_name: str
+    wtype: wtypes.WType = attrs.field(
+        validator=wtype_is_one_of(
+            wtypes.box_blob_proxy_wtype, wtypes.WBoxProxy, wtypes.WBoxMapProxy
+        )
+    )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_box_proxy_field(self)
+
+
+@attrs.frozen
+class BoxProxyDefinition(Node):
+    member_name: str
+    key: bytes
+    proxy_wtype: WType
+    source_location: SourceLocation
+
+
+@attrs.frozen
+class BoxProxyExpression(Expression):
+    """
+    An expression representing the box proxy class 'instance'
+
+    wtype will be WBoxProxy or wtypes.box_blob_proxy_wtype
+    """
+
+    key: Expression
+    wtype: wtypes.WType = attrs.field(
+        validator=wtype_is_one_of(
+            wtypes.box_blob_proxy_wtype, wtypes.WBoxProxy, wtypes.WBoxMapProxy
+        )
+    )
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_box_proxy_expression(self)
+
+
+@attrs.frozen
+class BoxKeyExpression(Expression):
+    """
+    An expression for reading the key of a box from a box proxy
+    """
+
+    wtype = attrs.field(default=wtypes.bytes_wtype, init=False)
+    proxy: Expression = attrs.field()
+    item_key: Expression | None = attrs.field(default=None)
+
+    @item_key.validator
+    def _validate_item_key(self, _instance: object, item_key: Expression | None) -> None:
+        is_map_proxy = isinstance(self.proxy.wtype, wtypes.WBoxMapProxy)
+        if item_key and not is_map_proxy:
+            raise InternalError(f"item_key only valid for wtype of {wtypes.WBoxMapProxy}")
+        if not item_key and is_map_proxy:
+            raise InternalError(f"item_key required for wtype of {wtypes.WBoxMapProxy}")
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_box_key_expression(self)
+
+
+@attrs.frozen
+class BoxValueExpression(Expression):
+    """
+    An expression for reading the value of a box.
+
+    wtype will be the value type of the box
+    """
+
+    proxy: Expression
+    item_key: Expression | None = attrs.field(default=None)
+
+    @item_key.validator
+    def _validate_item_key(self, _instance: object, item_key: Expression | None) -> None:
+        is_map_proxy = isinstance(self.proxy.wtype, wtypes.WBoxMapProxy)
+        if item_key and not is_map_proxy:
+            raise InternalError(f"item_key only valid for wtype of {wtypes.WBoxMapProxy}")
+        if not item_key and is_map_proxy:
+            raise InternalError(f"item_key required for wtype of {wtypes.WBoxMapProxy}")
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_box_value_expression(self)
+
+
+@attrs.frozen
+class BoxLength(Expression):
+    box_key: BoxKeyExpression = attrs.field()
+    wtype = attrs.field(default=wtypes.uint64_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_box_length(self)
 
 
 @attrs.frozen
@@ -1711,15 +1818,23 @@ class ContractFragment(ModuleStatement):
     clear_program: ContractMethod | None = attrs.field()
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
     app_state: Mapping[str, AppStateDefinition]
+    static_boxes: Mapping[str, BoxProxyDefinition]
     reserved_scratch_space: StableSet[int]
     state_totals: StateTotals | None
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
-    symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)
+    symtable: Mapping[str, ContractMethod | AppStateDefinition | BoxProxyDefinition] = attrs.field(
+        init=False
+    )
 
     @symtable.default
-    def _symtable_factory(self) -> Mapping[str, ContractMethod | AppStateDefinition]:
-        result: dict[str, ContractMethod | AppStateDefinition] = {**self.app_state}
+    def _symtable_factory(
+        self,
+    ) -> Mapping[str, ContractMethod | AppStateDefinition | BoxProxyDefinition]:
+        result: dict[str, ContractMethod | AppStateDefinition | BoxProxyDefinition] = {
+            **self.app_state,
+            **self.static_boxes,
+        }
         all_subs = itertools.chain(
             filter(None, (self.init, self.approval_program, self.clear_program)),
             self.subroutines,
@@ -1819,3 +1934,17 @@ class Module:
     @cached_property
     def symtable(self) -> Mapping[str, ModuleStatement]:
         return {stmt.name: stmt for stmt in self.body}
+
+
+# Expression types that are valid on the left hand side of assignment *statements*
+# Note that some of these can be recursive/nested, eg:
+# obj.field[index].another_field = 123
+Lvalue = (
+    VarExpression
+    | FieldExpression
+    | IndexExpression
+    | TupleExpression
+    | AppStateExpression
+    | AppAccountStateExpression
+    | BoxValueExpression
+)

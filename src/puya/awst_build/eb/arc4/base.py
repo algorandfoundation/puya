@@ -20,6 +20,7 @@ from puya.awst.nodes import (
     TupleExpression,
 )
 from puya.awst_build import intrinsic_factory
+from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
@@ -38,16 +39,6 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
-
-
-def get_bytes_expr(expr: Expression) -> ReinterpretCast:
-    return ReinterpretCast(
-        expr=expr, wtype=wtypes.bytes_wtype, source_location=expr.source_location
-    )
-
-
-def get_bytes_expr_builder(expr: Expression) -> ExpressionBuilder:
-    return var_expression(get_bytes_expr(expr))
 
 
 class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder, abc.ABC):
