@@ -1216,7 +1216,7 @@ class Block:
 
         """
 
-class Box:
+class BoxStatic:
     @staticmethod
     def create(a: Bytes | bytes, b: UInt64 | int, /) -> bool:
         """

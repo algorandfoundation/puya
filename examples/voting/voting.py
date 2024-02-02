@@ -2,7 +2,6 @@ import typing
 
 from puyapy import (
     ARC4Contract,
-    Box,
     Bytes,
     CreateInnerTransaction,
     Global,
@@ -23,6 +22,10 @@ from puyapy import (
     subroutine,
     uenumerate,
     urange,
+    Box,
+    bzero,
+    BoxMap,
+    Account,
 )
 
 VoteIndexArray: typing.TypeAlias = arc4.DynamicArray[arc4.UInt8]
@@ -40,8 +43,6 @@ BOX_BYTE_MIN_BALANCE = 400
 #: The min balance increase for each asset opted into
 ASSET_MIN_BALANCE = 100000
 
-TALLY_BOX_KEY = b"V"
-
 
 class VotingPreconditions(arc4.Struct):
     is_voting_open: arc4.UInt64
@@ -56,6 +57,8 @@ class VotingRoundApp(ARC4Contract):
         # The minimum number of voters who have voted
         self.voter_count = UInt64(0)
         self.close_time = GlobalState(UInt64)
+        self.tallies = Box(Bytes, key=b"V")
+        self.votes = BoxMap(Account, VoteIndexArray)
 
     @arc4.abimethod(create=True)
     def create(
@@ -107,7 +110,7 @@ class VotingRoundApp(ARC4Contract):
         assert (
             fund_min_bal_req.amount == min_balance_req
         ), "Payment must be for the exact min balance requirement"
-        assert Box.create(TALLY_BOX_KEY, tally_box_size)
+        self.tallies.value = bzero(tally_box_size)
 
     @arc4.abimethod
     def close(self) -> None:
@@ -140,7 +143,7 @@ class VotingRoundApp(ARC4Contract):
                 for option_index in urange(question_options):
                     if option_index > 0:
                         note += b","
-                    votes_for_option = get_vote_from_box(current_index)
+                    votes_for_option = self.get_vote_from_box(current_index)
                     note += itoa(votes_for_option)
                     current_index += 1
                 note += b"]"
@@ -194,9 +197,9 @@ class VotingRoundApp(ARC4Contract):
             answer_option_index = answer_ids[question_index].decode()
             options_count = self.option_counts[question_index].decode()
             assert answer_option_index < options_count, "Answer option index invalid"
-            increment_vote_in_box(cumulative_offset + answer_option_index)
+            self.increment_vote_in_box(cumulative_offset + answer_option_index)
             cumulative_offset += options_count
-            Box.put(Transaction.sender().bytes, answer_ids.bytes)
+            self.votes[Transaction.sender()] = answer_ids
             self.voter_count += 1
 
     @subroutine
@@ -209,8 +212,7 @@ class VotingRoundApp(ARC4Contract):
 
     @subroutine
     def already_voted(self) -> bool:
-        (votes, exists) = Box.get(Transaction.sender().bytes)
-        return exists
+        return Transaction.sender() in self.votes
 
     @subroutine
     def store_option_counts(self, option_counts: VoteIndexArray) -> None:
@@ -234,20 +236,14 @@ class VotingRoundApp(ARC4Contract):
             self.snapshot_public_key,
         )
 
+    @subroutine
+    def get_vote_from_box(self, index: UInt64) -> UInt64:
+        return btoi(self.tallies.extract_bytes(index, VOTE_COUNT_BYTES))
 
-@subroutine
-def get_vote_from_box(index: UInt64) -> UInt64:
-    box_data, exists = Box.get(TALLY_BOX_KEY)
-    assert exists, "Box not created"
-    return btoi(extract(box_data, index, VOTE_COUNT_BYTES))
-
-
-@subroutine
-def increment_vote_in_box(index: UInt64) -> None:
-    box_data, exists = Box.get(TALLY_BOX_KEY)
-    assert exists, "Box not created"
-    current_vote = btoi(extract(box_data, index, VOTE_COUNT_BYTES))
-    Box.replace(TALLY_BOX_KEY, index, itob(current_vote + 1))
+    @subroutine
+    def increment_vote_in_box(self, index: UInt64) -> None:
+        current_vote = btoi(self.tallies.extract_bytes(index, VOTE_COUNT_BYTES))
+        self.tallies.replace_bytes(index, itob(current_vote + 1))
 
 
 @subroutine

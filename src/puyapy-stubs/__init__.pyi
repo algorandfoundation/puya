@@ -11,6 +11,7 @@ from puyapy._state import *
 from puyapy._transactions import *
 from puyapy._unsigned_builtins import *
 from puyapy._util import *
+from puyapy._box import *
 from puyapy.arc4 import (
     # this one specially because it's already prefixed with arc4
     ARC4Contract as ARC4Contract,

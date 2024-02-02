@@ -102,7 +102,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
         },
     ),
     GroupedOpCodes(
-        name="Box",
+        name="BoxStatic",
         ops={
             "box_create": "create",
             "box_del": "delete",

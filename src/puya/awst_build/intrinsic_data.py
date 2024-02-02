@@ -2541,7 +2541,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.create": [
+    "puyapy._gen.BoxStatic.create": [
         FunctionOpMapping(
             op_code="box_create",
             immediates=[],
@@ -2566,7 +2566,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.delete": [
+    "puyapy._gen.BoxStatic.delete": [
         FunctionOpMapping(
             op_code="box_del",
             immediates=[],
@@ -2584,7 +2584,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.extract": [
+    "puyapy._gen.BoxStatic.extract": [
         FunctionOpMapping(
             op_code="box_extract",
             immediates=[],
@@ -2616,7 +2616,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.get": [
+    "puyapy._gen.BoxStatic.get": [
         FunctionOpMapping(
             op_code="box_get",
             immediates=[],
@@ -2635,7 +2635,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.length": [
+    "puyapy._gen.BoxStatic.length": [
         FunctionOpMapping(
             op_code="box_len",
             immediates=[],
@@ -2654,7 +2654,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.put": [
+    "puyapy._gen.BoxStatic.put": [
         FunctionOpMapping(
             op_code="box_put",
             immediates=[],
@@ -2677,7 +2677,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.Box.replace": [
+    "puyapy._gen.BoxStatic.replace": [
         FunctionOpMapping(
             op_code="box_replace",
             immediates=[],
@@ -2707,7 +2707,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.Box.resize": [
+    "puyapy._gen.BoxStatic.resize": [
         FunctionOpMapping(
             op_code="box_resize",
             immediates=[],
@@ -2730,7 +2730,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.Box.splice": [
+    "puyapy._gen.BoxStatic.splice": [
         FunctionOpMapping(
             op_code="box_splice",
             immediates=[],
