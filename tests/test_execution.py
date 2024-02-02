@@ -60,6 +60,23 @@ def encode_bytes(value: bytes) -> str:
     return base64.b64encode(value).decode()
 
 
+def decode_logs(logs: list[str], log_format: str) -> list[str | bytes | int]:
+    assert len(logs) == len(log_format)
+    result = list[str | bytes | int]()
+
+    for fmt, log in zip(log_format, logs, strict=True):
+        match fmt:
+            case "i":
+                result.append(decode_int(log))
+            case "u":
+                result.append(decode_utf8(log))
+            case "b":
+                result.append(decode_bytes(log))
+            case _:
+                raise ValueError(f"Unexpected format: {fmt}")
+    return result
+
+
 def encode_utf8(value: str) -> str:
     return encode_bytes(value.encode("utf8"))
 
@@ -139,20 +156,7 @@ class AppCallResult:
         return algosdk.logic.get_application_address(self.app_id)
 
     def decode_logs(self, log_format: str) -> list[str | bytes | int]:
-        assert len(self.logs) == len(log_format)
-        result = list[str | bytes | int]()
-
-        for fmt, log in zip(log_format, self.logs, strict=True):
-            match fmt:
-                case "i":
-                    result.append(decode_int(log))
-                case "u":
-                    result.append(decode_utf8(log))
-                case "b":
-                    result.append(decode_bytes(log))
-                case _:
-                    raise ValueError(f"Unexpected format: {fmt}")
-        return result
+        return decode_logs(self.logs, log_format)
 
 
 class ATCRunner:
