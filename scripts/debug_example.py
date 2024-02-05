@@ -19,6 +19,7 @@ def main(example: str) -> None:
     options.output_destructured_ir = True
     options.output_optimization_ir = True
     options.output_memory_ir = True
+    options.output_arc32 = True
     options.out_dir = Path("out")
 
     compile_to_teal(options)

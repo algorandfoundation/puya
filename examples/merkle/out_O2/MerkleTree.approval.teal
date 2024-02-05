@@ -1,0 +1,133 @@
+#pragma version 10
+
+examples.merkle.contract.MerkleTree.approval_program:
+    method "create(byte[32])void"
+    method "verify(byte[32][],byte[32])bool"
+    txna ApplicationArgs 0
+    match main_create_route@1 main_verify_route@2
+    err // reject transaction
+
+main_create_route@1:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    !
+    assert // is creating
+    txna ApplicationArgs 1
+    callsub create
+    int 1
+    return
+
+main_verify_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    callsub verify
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+
+// examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
+create:
+    proto 1 0
+    byte "root"
+    frame_dig -1
+    app_global_put
+    retsub
+
+
+// examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> uint64:
+verify:
+    proto 2 1
+    int 0
+    byte "root"
+    app_global_get_ex
+    assert // check root exists
+    frame_dig -2
+    frame_dig -1
+    callsub compute_root_hash
+    frame_bury -1
+    frame_bury -2
+    ==
+    retsub
+
+
+// examples.merkle.contract.MerkleTree.compute_root_hash(proof: bytes, leaf: bytes) -> bytes, bytes, bytes:
+compute_root_hash:
+    proto 2 3
+    frame_dig -2
+    int 0
+    extract_uint16
+    frame_dig -2
+    extract 2 0
+    int 0
+    frame_dig -1
+
+compute_root_hash_for_header@1:
+    frame_dig 2
+    frame_dig 0
+    <
+    bz compute_root_hash_after_for@4
+    frame_dig 2
+    dup
+    int 32
+    *
+    frame_dig 1
+    swap
+    int 32
+    extract3
+    frame_dig 3
+    swap
+    callsub hash_pair
+    popn 2
+    frame_bury 3
+    int 1
+    +
+    frame_bury 2
+    b compute_root_hash_for_header@1
+
+compute_root_hash_after_for@4:
+    frame_dig 3
+    frame_dig -2
+    frame_dig -1
+    frame_bury 2
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+
+// examples.merkle.contract.MerkleTree.hash_pair(a: bytes, b: bytes) -> bytes, bytes, bytes:
+hash_pair:
+    proto 2 3
+    frame_dig -2
+    frame_dig -1
+    b<
+    bz hash_pair_ternary_false@2
+    frame_dig -2
+    frame_dig -1
+    concat
+    b hash_pair_ternary_merge@3
+
+hash_pair_ternary_false@2:
+    frame_dig -1
+    frame_dig -2
+    concat
+
+hash_pair_ternary_merge@3:
+    sha256
+    frame_dig -2
+    frame_dig -1
+    retsub
