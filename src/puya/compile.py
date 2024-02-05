@@ -282,14 +282,14 @@ def _log_parse_errors(ex: ParseError) -> None:
     location: SourceLocation | None = None
     related_errors = list[str]()
     for error in ex.errors:
-        if error.location:  # align related error messages
+        if not error.location:
+            related_errors.append(error.message)
+        else:  # align related error messages
             if related_errors:
                 logger.error(
                     related_errors[0], location=location, related_lines=related_errors[1:]
                 )
             related_errors = [error.message]
             location = error.location
-        else:
-            related_errors.append(error.message)
     if related_errors:
         logger.error(related_errors[0], location=location, related_lines=related_errors[1:])
