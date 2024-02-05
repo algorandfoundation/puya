@@ -278,18 +278,22 @@ def write_contract_files(base_path: Path, compiled_contract: CompiledContract) -
         output_path.write_text(output_text, encoding="utf-8")
 
 
+def _log_parse_error(errors: list[str], location: SourceLocation | None) -> None:
+    if not errors:
+        return
+    message, *related_lines = errors
+    logger.error(message, related_lines=related_lines, location=location)
+
+
 def _log_parse_errors(ex: ParseError) -> None:
     location: SourceLocation | None = None
     related_errors = list[str]()
     for error in ex.errors:
         if not error.location:
+            # collate related error messages and log together
             related_errors.append(error.message)
-        else:  # align related error messages
-            if related_errors:
-                logger.error(
-                    related_errors[0], location=location, related_lines=related_errors[1:]
-                )
+        else:
+            _log_parse_error(related_errors, location)
             related_errors = [error.message]
             location = error.location
-    if related_errors:
-        logger.error(related_errors[0], location=location, related_lines=related_errors[1:])
+    _log_parse_error(related_errors, location)
