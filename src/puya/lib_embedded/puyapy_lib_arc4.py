@@ -191,25 +191,6 @@ def dynamic_array_concat_variable_size(
 
 
 @subroutine
-def dynamic_array_concat_fixed_size(
-    source: Bytes, new_items_bytes: Bytes, new_items_count: UInt64
-) -> Bytes:
-    """
-    Concat new items to an arc4 dynamic array of fixed sized items
-
-    source: The bytes of the source array
-    new_items_bytes: The bytes for all new items, concatenated
-    new_items_counts: The count of new items being added
-
-    returns: The updated bytes for the source array
-    """
-    array_length = extract_uint16(source, 0)
-    new_length = array_length + new_items_count
-    new_length_header = extract(itob(new_length), 6, 0)
-    return new_length_header + extract(source, 2, 0) + new_items_bytes
-
-
-@subroutine
 def recalculate_array_offsets_static(
     array_data: Bytes, length: UInt64, start_at_index: UInt64
 ) -> Bytes:

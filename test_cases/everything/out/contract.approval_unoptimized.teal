@@ -217,25 +217,27 @@ say_hello_if_body@1:
         retsub
 
 say_hello_after_if_else@2:
-        frame_dig 0
-        dup
-        int 0
-        extract_uint16
-        swap
-        extract 2 0
         byte "\x00\x07Hello, "
+        extract 2 0
+        frame_dig 0
+        extract 2 0
+        concat
+        dup
+        len
+        itob
+        extract 6 0
         swap
-        uncover 2
-        callsub dynamic_array_concat_fixed_size
-        byte "\x00\x01!"
-        int 0
-        extract_uint16
+        concat
+        extract 2 0
         byte "\x00\x01!"
         extract 2 0
-        uncover 2
+        concat
+        dup
+        len
+        itob
+        extract 6 0
         swap
-        uncover 2
-        callsub dynamic_array_concat_fixed_size
+        concat
         swap
         retsub
 
@@ -310,25 +312,5 @@ __init__:
         proto 0 0
 
 __init___block@0:
-        retsub
-
-
-// puyapy_lib_arc4.dynamic_array_concat_fixed_size(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64) -> bytes:
-dynamic_array_concat_fixed_size:
-        proto 3 1
-
-dynamic_array_concat_fixed_size_block@0:
-        frame_dig -3
-        int 0
-        extract_uint16
-        frame_dig -1
-        +
-        itob
-        extract 6 0
-        frame_dig -3
-        extract 2 0
-        concat
-        frame_dig -2
-        concat
         retsub
 
