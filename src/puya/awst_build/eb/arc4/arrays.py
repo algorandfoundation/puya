@@ -12,6 +12,7 @@ from puya.awst.nodes import (
     ArrayExtend,
     ArrayPop,
     BytesComparisonExpression,
+    BytesConstant,
     CheckedMaybe,
     EqualityComparison,
     Expression,
@@ -251,10 +252,14 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
         match args:
             case (ExpressionBuilder() as eb,) if eb.rvalue().wtype == wtypes.account_wtype:
                 address_bytes: Expression = get_bytes_expr(eb.rvalue())
-            case (eb_or_literal,):
-                address_bytes_temp = create_temporary_assignment(
-                    expect_operand_wtype(eb_or_literal, wtypes.bytes_wtype), location=location
-                )
+            case (Literal(value=bytes(bytes_literal), source_location=bytes_location),):
+                if len(bytes_literal) != 32:
+                    raise CodeError(
+                        "Address literals must be exactly 32 bytes", location=bytes_location
+                    )
+                address_bytes = BytesConstant(value=bytes_literal, source_location=bytes_location)
+            case (ExpressionBuilder() as eb,) if eb.rvalue().wtype == wtypes.bytes_wtype:
+                address_bytes_temp = create_temporary_assignment(eb.rvalue(), location=location)
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
                     source_location=location,

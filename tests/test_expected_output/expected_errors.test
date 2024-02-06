@@ -37,3 +37,13 @@ class ContractWithUnreachableCode(Contract):
     def clear_state_program(self) -> bool:
         exit(1)
         return True ## E: Unreachable code
+
+## case: test_invalid_address_literal
+
+from puyapy import arc4, Contract, Transaction
+
+
+class ContractWithInvalidAddressLiteral(Contract):
+    def approval_program(self) -> bool:
+        some_address = arc4.Address(b"") ## E: Address literals must be exactly 32 bytes
+        return True
