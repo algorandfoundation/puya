@@ -361,7 +361,7 @@ def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
     account = [CLS_ACCOUNT]
     sub_types = {
         StackType.bytes: bytes_,
-        StackType.bytes_32: bytes_ + account if covariant else account,
+        StackType.bytes_32: bytes_ + account if covariant else bytes_,
         StackType.bytes_64: bytes_,
         StackType.bytes_80: bytes_,
         StackType.uint64: uint64,

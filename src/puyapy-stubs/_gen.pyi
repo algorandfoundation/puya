@@ -399,7 +399,7 @@ def itob(a: UInt64 | int, /) -> Bytes:
 
     """
 
-def keccak256(a: Bytes | bytes, /) -> Account:
+def keccak256(a: Bytes | bytes, /) -> Bytes:
     """
     Keccak256 hash of value A, yields [32]byte
 
@@ -492,7 +492,7 @@ def setbyte(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
 
     """
 
-def sha256(a: Bytes | bytes, /) -> Account:
+def sha256(a: Bytes | bytes, /) -> Bytes:
     """
     SHA256 hash of value A, yields [32]byte
 
@@ -514,7 +514,7 @@ def sha3_256(a: Bytes | bytes, /) -> Bytes:
 
     """
 
-def sha512_256(a: Bytes | bytes, /) -> Account:
+def sha512_256(a: Bytes | bytes, /) -> Bytes:
     """
     SHA512_256 hash of value A, yields [32]byte
 
@@ -1114,7 +1114,7 @@ class AssetParamsGet:
         :returns tuple[Bytes, bool]: URL with additional info about the asset
         """
     @staticmethod
-    def asset_metadata_hash(a: UInt64 | int, /) -> tuple[Account, bool]:
+    def asset_metadata_hash(a: UInt64 | int, /) -> tuple[Bytes, bool]:
         """
         X is field F from asset A. Y is 1 if A exists, else 0
         params: Txn.ForeignAssets offset (or, since v4, an _available_ asset id. Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
@@ -1124,7 +1124,7 @@ class AssetParamsGet:
         Stack: [..., A] -> [..., X, Y]
         TEAL: asset_params_get F
 
-        :returns tuple[Account, bool]: Arbitrary commitment
+        :returns tuple[Bytes, bool]: Arbitrary commitment
         """
     @staticmethod
     def asset_manager(a: UInt64 | int, /) -> tuple[Account, bool]:
@@ -2246,7 +2246,7 @@ class Global:
         :returns Account: Address that the current application controls. Application mode only.
         """
     @staticmethod
-    def group_id() -> Account:
+    def group_id() -> Bytes:
         """
         global field F
 
@@ -2255,7 +2255,7 @@ class Global:
         Stack: [...] -> [..., X]
         TEAL: global F
 
-        :returns Account: ID of the transaction group. 32 zero bytes if the transaction is not part of a group.
+        :returns Bytes: ID of the transaction group. 32 zero bytes if the transaction is not part of a group.
         """
     @staticmethod
     def opcode_budget() -> UInt64:
@@ -2318,7 +2318,7 @@ class Global:
         :returns UInt64: The additional minimum balance required to opt-in to an asset.
         """
     @staticmethod
-    def genesis_hash() -> Account:
+    def genesis_hash() -> Bytes:
         """
         global field F
 
@@ -2327,7 +2327,7 @@ class Global:
         Stack: [...] -> [..., X]
         TEAL: global F
 
-        :returns Account: The Genesis Hash for the network.
+        :returns Bytes: The Genesis Hash for the network.
         """
 
 class InnerTransaction:
@@ -2404,7 +2404,7 @@ class InnerTransaction:
         :returns Bytes: Any data up to 1024 bytes
         """
     @staticmethod
-    def lease() -> Account:
+    def lease() -> Bytes:
         """
         field F of the last inner transaction
 
@@ -2413,7 +2413,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Account: 32 byte lease value
+        :returns Bytes: 32 byte lease value
         """
     @staticmethod
     def receiver() -> Account:
@@ -2452,7 +2452,7 @@ class InnerTransaction:
         :returns Account: 32 byte address
         """
     @staticmethod
-    def vote_pk() -> Account:
+    def vote_pk() -> Bytes:
         """
         field F of the last inner transaction
 
@@ -2461,10 +2461,10 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Account: 32 byte address
+        :returns Bytes: 32 byte address
         """
     @staticmethod
-    def selection_pk() -> Account:
+    def selection_pk() -> Bytes:
         """
         field F of the last inner transaction
 
@@ -2473,7 +2473,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Account: 32 byte address
+        :returns Bytes: 32 byte address
         """
     @staticmethod
     def vote_first() -> UInt64:
@@ -2608,7 +2608,7 @@ class InnerTransaction:
         :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
         """
     @staticmethod
-    def tx_id() -> Account:
+    def tx_id() -> Bytes:
         """
         field F of the last inner transaction
 
@@ -2617,7 +2617,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Account: The computed ID for this transaction. 32 bytes.
+        :returns Bytes: The computed ID for this transaction. 32 bytes.
         """
     @staticmethod
     def application_id() -> UInt64:
@@ -2812,7 +2812,7 @@ class InnerTransaction:
         :returns Bytes: URL
         """
     @staticmethod
-    def config_asset_metadata_hash() -> Account:
+    def config_asset_metadata_hash() -> Bytes:
         """
         field F of the last inner transaction
 
@@ -2821,7 +2821,7 @@ class InnerTransaction:
         Stack: [...] -> [..., X]
         TEAL: itxn F
 
-        :returns Account: 32 byte commitment to unspecified asset metadata
+        :returns Bytes: 32 byte commitment to unspecified asset metadata
         """
     @staticmethod
     def config_asset_manager() -> Account:
@@ -3228,7 +3228,7 @@ class InnerTransactionGroup:
         :returns Bytes: Any data up to 1024 bytes
         """
     @staticmethod
-    def lease(t: int, /) -> Account:
+    def lease(t: int, /) -> Bytes:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3238,7 +3238,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Account: 32 byte lease value
+        :returns Bytes: 32 byte lease value
         """
     @staticmethod
     def receiver(t: int, /) -> Account:
@@ -3280,7 +3280,7 @@ class InnerTransactionGroup:
         :returns Account: 32 byte address
         """
     @staticmethod
-    def vote_pk(t: int, /) -> Account:
+    def vote_pk(t: int, /) -> Bytes:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3290,10 +3290,10 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Account: 32 byte address
+        :returns Bytes: 32 byte address
         """
     @staticmethod
-    def selection_pk(t: int, /) -> Account:
+    def selection_pk(t: int, /) -> Bytes:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3303,7 +3303,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Account: 32 byte address
+        :returns Bytes: 32 byte address
         """
     @staticmethod
     def vote_first(t: int, /) -> UInt64:
@@ -3449,7 +3449,7 @@ class InnerTransactionGroup:
         :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
         """
     @staticmethod
-    def tx_id(t: int, /) -> Account:
+    def tx_id(t: int, /) -> Bytes:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3459,7 +3459,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Account: The computed ID for this transaction. 32 bytes.
+        :returns Bytes: The computed ID for this transaction. 32 bytes.
         """
     @staticmethod
     def application_id(t: int, /) -> UInt64:
@@ -3670,7 +3670,7 @@ class InnerTransactionGroup:
         :returns Bytes: URL
         """
     @staticmethod
-    def config_asset_metadata_hash(t: int, /) -> Account:
+    def config_asset_metadata_hash(t: int, /) -> Bytes:
         """
         field F of the Tth transaction in the last inner group submitted
 
@@ -3680,7 +3680,7 @@ class InnerTransactionGroup:
         TEAL: gitxn T F
 
         :param int t: transaction group index
-        :returns Account: 32 byte commitment to unspecified asset metadata
+        :returns Bytes: 32 byte commitment to unspecified asset metadata
         """
     @staticmethod
     def config_asset_manager(t: int, /) -> Account:
@@ -4187,7 +4187,7 @@ class Transaction:
         :returns Bytes: Any data up to 1024 bytes
         """
     @staticmethod
-    def lease() -> Account:
+    def lease() -> Bytes:
         """
         field F of current transaction
 
@@ -4196,7 +4196,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Account: 32 byte lease value
+        :returns Bytes: 32 byte lease value
         """
     @staticmethod
     def receiver() -> Account:
@@ -4235,7 +4235,7 @@ class Transaction:
         :returns Account: 32 byte address
         """
     @staticmethod
-    def vote_pk() -> Account:
+    def vote_pk() -> Bytes:
         """
         field F of current transaction
 
@@ -4244,10 +4244,10 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Account: 32 byte address
+        :returns Bytes: 32 byte address
         """
     @staticmethod
-    def selection_pk() -> Account:
+    def selection_pk() -> Bytes:
         """
         field F of current transaction
 
@@ -4256,7 +4256,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Account: 32 byte address
+        :returns Bytes: 32 byte address
         """
     @staticmethod
     def vote_first() -> UInt64:
@@ -4391,7 +4391,7 @@ class Transaction:
         :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
         """
     @staticmethod
-    def tx_id() -> Account:
+    def tx_id() -> Bytes:
         """
         field F of current transaction
 
@@ -4400,7 +4400,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Account: The computed ID for this transaction. 32 bytes.
+        :returns Bytes: The computed ID for this transaction. 32 bytes.
         """
     @staticmethod
     def application_id() -> UInt64:
@@ -4595,7 +4595,7 @@ class Transaction:
         :returns Bytes: URL
         """
     @staticmethod
-    def config_asset_metadata_hash() -> Account:
+    def config_asset_metadata_hash() -> Bytes:
         """
         field F of current transaction
 
@@ -4604,7 +4604,7 @@ class Transaction:
         Stack: [...] -> [..., X]
         TEAL: txn F
 
-        :returns Account: 32 byte commitment to unspecified asset metadata
+        :returns Bytes: 32 byte commitment to unspecified asset metadata
         """
     @staticmethod
     def config_asset_manager() -> Account:
@@ -5011,7 +5011,7 @@ class TransactionGroup:
         :returns Bytes: Any data up to 1024 bytes
         """
     @staticmethod
-    def lease(a: UInt64 | int, /) -> Account:
+    def lease(a: UInt64 | int, /) -> Bytes:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5021,7 +5021,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Account: 32 byte lease value
+        :returns Bytes: 32 byte lease value
         """
     @staticmethod
     def receiver(a: UInt64 | int, /) -> Account:
@@ -5063,7 +5063,7 @@ class TransactionGroup:
         :returns Account: 32 byte address
         """
     @staticmethod
-    def vote_pk(a: UInt64 | int, /) -> Account:
+    def vote_pk(a: UInt64 | int, /) -> Bytes:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5073,10 +5073,10 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Account: 32 byte address
+        :returns Bytes: 32 byte address
         """
     @staticmethod
-    def selection_pk(a: UInt64 | int, /) -> Account:
+    def selection_pk(a: UInt64 | int, /) -> Bytes:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5086,7 +5086,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Account: 32 byte address
+        :returns Bytes: 32 byte address
         """
     @staticmethod
     def vote_first(a: UInt64 | int, /) -> UInt64:
@@ -5232,7 +5232,7 @@ class TransactionGroup:
         :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
         """
     @staticmethod
-    def tx_id(a: UInt64 | int, /) -> Account:
+    def tx_id(a: UInt64 | int, /) -> Bytes:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5242,7 +5242,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Account: The computed ID for this transaction. 32 bytes.
+        :returns Bytes: The computed ID for this transaction. 32 bytes.
         """
     @staticmethod
     def application_id(a: UInt64 | int, /) -> UInt64:
@@ -5451,7 +5451,7 @@ class TransactionGroup:
         :returns Bytes: URL
         """
     @staticmethod
-    def config_asset_metadata_hash(a: UInt64 | int, /) -> Account:
+    def config_asset_metadata_hash(a: UInt64 | int, /) -> Bytes:
         """
         field F of the Ath transaction in the current group
         for notes on transaction fields available, see `txn`. If top of stack is _i_, `gtxns field` is equivalent to `gtxn _i_ field`. gtxns exists so that _i_ can be calculated, often based on the index of the current transaction.
@@ -5461,7 +5461,7 @@ class TransactionGroup:
         Stack: [..., A] -> [..., X]
         TEAL: gtxns F
 
-        :returns Account: 32 byte commitment to unspecified asset metadata
+        :returns Bytes: 32 byte commitment to unspecified asset metadata
         """
     @staticmethod
     def config_asset_manager(a: UInt64 | int, /) -> Account:

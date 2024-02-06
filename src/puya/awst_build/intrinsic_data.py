@@ -985,7 +985,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -1222,7 +1222,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -1258,7 +1258,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -2391,7 +2391,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
                 wtypes.bool_wtype,
             ],
         ),
@@ -4020,7 +4020,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -4092,7 +4092,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -4176,7 +4176,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -4224,7 +4224,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -4236,7 +4236,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -4380,7 +4380,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -4632,7 +4632,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -5202,7 +5202,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -5274,7 +5274,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -5292,7 +5292,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -5508,7 +5508,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -5874,7 +5874,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -6736,7 +6736,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -6784,7 +6784,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -6796,7 +6796,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -6940,7 +6940,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -7192,7 +7192,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -7872,7 +7872,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -7888,7 +7888,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -8016,7 +8016,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -8032,7 +8032,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -8052,7 +8052,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -8068,7 +8068,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -8484,7 +8484,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -8500,7 +8500,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
@@ -9218,7 +9218,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -9234,7 +9234,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.account_wtype,
+                wtypes.bytes_wtype,
             ],
         ),
     ],
