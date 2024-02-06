@@ -31,6 +31,7 @@ class ARC4CopyValidator(AWSTTraverser):
                         | awst_nodes.Copy()
                         | awst_nodes.ArrayConcat()
                         | awst_nodes.SubroutineCallExpression()
+                        | awst_nodes.ReinterpretCast(wtype=wtypes.ARC4StaticArray(alias="address"))
                     ):
                         return
 

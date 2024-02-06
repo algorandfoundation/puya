@@ -901,6 +901,13 @@ def test_abi_string(harness: _TestHarness) -> None:
     )
 
 
+def test_abi_reference_types(harness: _TestHarness) -> None:
+    harness.deploy(
+        TEST_CASES_DIR / "arc4_types" / "reference_types.py",
+        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "reference_types.log"),
+    )
+
+
 def test_abi_numeric(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "arc4_types" / "numeric.py",

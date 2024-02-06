@@ -1,0 +1,36 @@
+#pragma version 10
+
+// test_cases.arc4_types.reference_types.MyContract.approval_program() -> uint64:
+main_block@0:
+        txn Sender
+        txn Sender
+        dup
+        cover 2
+        dup
+        len
+        int 32
+        ==
+        assert // Address length is 32 bytes
+        txn Sender
+        cover 2
+        ==
+        bz main_bool_false@3
+
+main_and_contd@1:
+        dig 1
+        dig 1
+        ==
+        bz main_bool_false@3
+
+main_bool_true@2:
+        int 1
+        b main_bool_merge@4
+
+main_bool_false@3:
+        int 0
+
+main_bool_merge@4:
+        assert
+        int 1
+        return
+
