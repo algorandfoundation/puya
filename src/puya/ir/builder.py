@@ -2846,8 +2846,12 @@ class FunctionIRBuilder(
                         method_name = "dynamic_array_concat_variable_size"
                         additional_args = []
                     case _:
-                        method_name = "dynamic_array_concat_fixed_size"
-                        additional_args = []
+                        return self._concat_dynamic_array_fixed_size(
+                            left=left,
+                            right=right,
+                            source_location=source_location,
+                            byte_size=element_size // 8,
+                        )
                 (r_data, r_length) = self._get_arc4_array_data_and_length(right, source_location)
                 l_value = self._get_arc4_array_as_dynamic_array(left)
                 (concat_result,) = self.assign(
@@ -2877,8 +2881,12 @@ class FunctionIRBuilder(
                         method_name = "dynamic_array_concat_variable_size"
                         additional_args = []
                     case _:
-                        method_name = "dynamic_array_concat_fixed_size"
-                        additional_args = []
+                        return self._concat_dynamic_array_fixed_size(
+                            left=left,
+                            right=right,
+                            source_location=source_location,
+                            byte_size=element_size // 8,
+                        )
                 (r_data, r_length) = self._get_arc4_array_data_and_length(right, source_location)
                 l_value = self._get_arc4_array_as_dynamic_array(left)
                 (concat_result,) = self.assign(
@@ -2896,25 +2904,105 @@ class FunctionIRBuilder(
                 Expression(wtype=wtypes.arc4_string_wtype),
                 Expression(wtype=wtypes.arc4_string_wtype),
             ):
-                l_value = self._visit_and_materialise_single(left)
-                (r_data, r_length) = self._get_arc4_array_data_and_length(right, source_location)
-                (concat_result,) = self.assign(
-                    temp_description="concat_result",
-                    source_location=source_location,
-                    source=self._invoke_puya_lib_subroutine(
-                        method_name="dynamic_array_concat_fixed_size",
-                        module_name="puyapy_lib_arc4",
-                        source_location=source_location,
-                        args=[l_value, r_data, r_length],
-                    ),
+                return self._concat_dynamic_array_fixed_size(
+                    left=left, right=right, source_location=source_location, byte_size=1
                 )
-                return concat_result
             case _:
                 raise CodeError(
                     f"Unexpected operand types or order for concatenation: "
                     f"{left.wtype} and {right.wtype}",
                     source_location,
                 )
+
+    def _concat_dynamic_array_fixed_size(
+        self,
+        *,
+        left: Expression,
+        right: Expression,
+        source_location: SourceLocation,
+        byte_size: int,
+    ) -> Value:
+        def array_data(expr: Expression) -> Value:
+            match expr.wtype:
+                case wtypes.ARC4StaticArray():
+                    return self._visit_and_materialise_single(expr)
+                case wtypes.ARC4DynamicArray() | wtypes.arc4_string_wtype:
+                    expr_value = self._visit_and_materialise_single(expr)
+                    (expr_value_trimmed,) = self._assign_intrinsic_op(
+                        source_location=source_location,
+                        op=AVMOp.extract,
+                        immediates=[2, 0],
+                        args=[expr_value],
+                        target="expr_value_trimmed",
+                    )
+                    return expr_value_trimmed
+                case wtypes.WTuple():
+                    values = self._visit_and_materialise(expr)
+                    (data,) = self.assign(
+                        temp_description="data",
+                        source_location=source_location,
+                        source=BytesConstant(
+                            value=b"",
+                            source_location=source_location,
+                            encoding=AVMBytesEncoding.base16,
+                        ),
+                    )
+                    for val in values:
+                        (data,) = self._assign_intrinsic_op(
+                            target=data,
+                            source_location=source_location,
+                            op=AVMOp.concat,
+                            args=[data, val],
+                        )
+                    return data
+                case _:
+                    raise InternalError(
+                        f"Unexpected operand type for concatenation {expr.wtype}", source_location
+                    )
+
+        left_data = array_data(left)
+        right_data = array_data(right)
+        (concatenated,) = self._assign_intrinsic_op(
+            source_location=source_location,
+            op=AVMOp.concat,
+            args=[left_data, right_data],
+            target="concatenated",
+        )
+        if byte_size == 1:
+            (len_,) = self._assign_intrinsic_op(
+                source_location=source_location, op=AVMOp.len_, args=[concatenated], target="len_"
+            )
+        else:
+            (byte_len,) = self._assign_intrinsic_op(
+                source_location=source_location,
+                op=AVMOp.len_,
+                args=[concatenated],
+                target="byte_len",
+            )
+            (len_,) = self._assign_intrinsic_op(
+                source_location=source_location,
+                op=AVMOp.div_floor,
+                args=[byte_len, byte_size],
+                target="len_",
+            )
+
+        (len_bytes,) = self._assign_intrinsic_op(
+            source_location=source_location, op=AVMOp.itob, args=[len_], target="len_bytes"
+        )
+        (len_16_bit,) = self._assign_intrinsic_op(
+            source_location=source_location,
+            op=AVMOp.extract,
+            args=[len_bytes],
+            immediates=[6, 0],
+            target="len_16_bit",
+        )
+        (concat_result,) = self._assign_intrinsic_op(
+            source_location=source_location,
+            op=AVMOp.concat,
+            args=[len_16_bit, concatenated],
+            target="concat_result",
+        )
+        return concat_result
 
     def _handle_arc4_assign(
         self, target: awst_nodes.Expression, value: ValueProvider, source_location: SourceLocation

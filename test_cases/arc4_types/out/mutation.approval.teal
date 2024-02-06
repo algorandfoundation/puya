@@ -19,29 +19,39 @@ dynamic_array_fixed_size:
         proto 0 0
 
 dynamic_array_fixed_size_block@0:
-        byte 0x00020102
-        byte 0x32
-        int 1
-        callsub dynamic_array_concat_fixed_size
+        int 3
+        itob
+        extract 6 0
+        byte 0x010232
+        concat
         dup
         byte 0x0003010232
         ==
         assert
         dup
-        int 0
-        extract_uint16
-        swap
-        dup
         extract 2 0
-        uncover 2
-        callsub dynamic_array_concat_fixed_size
+        swap
+        extract 2 0
+        concat
+        dup
+        len
+        itob
+        extract 6 0
+        swap
+        concat
         dup
         byte 0x0006010232010232
         ==
         assert
+        extract 2 0
         byte 0x045a
-        int 2
-        callsub dynamic_array_concat_fixed_size
+        concat
+        dup
+        len
+        itob
+        extract 6 0
+        swap
+        concat
         dup
         byte 0x0008010232010232045a
         ==
@@ -413,9 +423,15 @@ array_of_array_dynamic_block@0:
         int 2
         +
         extract3
+        extract 2 0
         byte 0xff
-        int 1
-        callsub dynamic_array_concat_fixed_size
+        concat
+        dup
+        len
+        itob
+        extract 6 0
+        swap
+        concat
         int 0
         callsub dynamic_array_replace_variable_size
         dup
@@ -614,17 +630,24 @@ array_concat:
         proto 0 0
 
 array_concat_block@0:
-        byte 0x00020102
-        byte 0x0304
-        int 2
-        callsub dynamic_array_concat_fixed_size
+        int 4
+        itob
+        extract 6 0
+        byte 0x01020304
+        concat
         dup
         byte 0x000401020304
         ==
         assert
+        extract 2 0
         byte 0x05
-        int 1
-        callsub dynamic_array_concat_fixed_size
+        concat
+        dup
+        len
+        itob
+        extract 6 0
+        swap
+        concat
         byte 0x00050102030405
         ==
         assert
@@ -1019,26 +1042,6 @@ dynamic_array_concat_variable_size_block@0:
         swap
         int 0
         callsub recalculate_array_offsets_static
-        concat
-        retsub
-
-
-// puyapy_lib_arc4.dynamic_array_concat_fixed_size(source#0: bytes, new_items_bytes#0: bytes, new_items_count#0: uint64) -> bytes:
-dynamic_array_concat_fixed_size:
-        proto 3 1
-
-dynamic_array_concat_fixed_size_block@0:
-        frame_dig -3
-        int 0
-        extract_uint16
-        frame_dig -1
-        +
-        itob
-        extract 6 0
-        frame_dig -3
-        extract 2 0
-        concat
-        frame_dig -2
         concat
         retsub
 
