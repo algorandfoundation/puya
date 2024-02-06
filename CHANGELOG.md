@@ -1,6 +1,27 @@
 # CHANGELOG
 
 
+## v0.5.0 (2024-02-06)
+
+### Feature
+
+* Check min_avm_version of intrinsic ops against target avm version for compiler ([`2b3dea0`](https://github.com/algorandfoundation/puya/commit/2b3dea0dcc183111b97ea611d7d6054f861ea304))
+
+* update langspec to v10 ([`be62082`](https://github.com/algorandfoundation/puya/commit/be62082e11d8c3438e7b9da50c26263801a53ed0))
+
+* Optimise constant mod expressions and pre-check for div 0 errors ([`24c5020`](https://github.com/algorandfoundation/puya/commit/24c5020e42b40fef7bdb955a5512879e1df5108d))
+
+### Fix
+
+* Use `Bytes` as the return type where the langspec lists `[32]byte` instead of `Account` ([`41bead7`](https://github.com/algorandfoundation/puya/commit/41bead737514a47450b4052248bd607894010a25))
+
+* improve error output when parsing fails ([`c3d8f25`](https://github.com/algorandfoundation/puya/commit/c3d8f2581a7186bcca643104d5dc0d57a50b317d))
+
+* Don&#39;t unnecessarilly pre-check uranges for forward iteration ([`066088c`](https://github.com/algorandfoundation/puya/commit/066088ce1b205c77e3181be75d7a5a9d32c26a51))
+
+* Don&#39;t raise on div 0 in optimizer as the operation might be pre-checked for != 0 in previous operations ([`6d549ed`](https://github.com/algorandfoundation/puya/commit/6d549edc2b528f19bab47cf00cf47ddc8d4c8a8b))
+
+
 ## v0.4.0 (2024-01-31)
 
 ### Feature
