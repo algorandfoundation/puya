@@ -15,6 +15,7 @@ author = "Algorand Foundation"
 
 extensions = [
     "sphinx.ext.githubpages",
+    "sphinx.ext.intersphinx",
     "myst_parser",
     "autodoc2",
 ]
@@ -22,6 +23,23 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}
+
+# warning exclusions
+suppress_warnings = [
+    "myst.xref_missing",
+    "autodoc2.dup_item",
+]
+nitpick_ignore = [
+    ("py:class", "puyapy._T"),
+    ("py:class", "puyapy._P"),
+    ("py:class", "puyapy._R"),
+    ("py:class", "puyapy.arc4._T"),
+    ("py:class", "puyapy.arc4._TArrayItem"),
+    ("py:class", "puyapy.arc4._TTuple"),
+]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

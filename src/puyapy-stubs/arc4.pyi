@@ -310,10 +310,14 @@ class ARC4Contract(puyapy.Contract):
 
 _TTuple = typing.TypeVarTuple("_TTuple")
 
-class Tuple(typing.Generic[*_TTuple], _ABIEncoded[tuple[*_TTuple]], tuple[*_TTuple]):
+class Tuple(
+    typing.Generic[typing.Unpack[_TTuple]],
+    _ABIEncoded[tuple[typing.Unpack[_TTuple]]],
+    tuple[typing.Unpack[_TTuple]],
+):
     """An ARC4 ABI tuple, containing other ARC4 ABI types"""
 
-    def __init__(self, items: tuple[*_TTuple]): ...
+    def __init__(self, items: tuple[typing.Unpack[_TTuple]]): ...
 
 @typing.dataclass_transform(
     eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()

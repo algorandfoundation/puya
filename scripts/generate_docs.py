@@ -96,7 +96,9 @@ def output_combined_stub(stubs: "StubVisitor", output: Path) -> None:
 
 
 def run_sphinx() -> None:
-    subprocess.run(["sphinx-build", ".", "_build"], check=True, cwd=DOCS_DIR)
+    subprocess.run(
+        ["sphinx-build", ".", "_build", "-W", "--keep-going", "-n", "-E"], check=True, cwd=DOCS_DIR
+    )
 
 
 @attrs.define
