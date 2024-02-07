@@ -574,7 +574,7 @@ def build_class_from_overriding_immediate(
 
 
 def get_op_doc(op: Op) -> list[str]:
-    doc = op.doc[:]
+    doc = [d.replace("\\", "\\\\") for d in op.doc]
     if op.groups:
         doc.append("")
         doc.append("Groups: " + ", ".join(op.groups))
