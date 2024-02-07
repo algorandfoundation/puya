@@ -399,7 +399,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
     def visit_unary_expr(self, expr: mypy.nodes.UnaryExpr) -> ConstantValue:
         value = expr.expr.accept(self)
         try:
-            result = eval(  # noqa: PGH001
+            result = eval(
                 f"{expr.op} value",
                 {"value": value},
             )
