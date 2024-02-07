@@ -1,8 +1,10 @@
 # ruff: noqa: PYI034
-import typing as t
 from collections.abc import Iterator, Reversible
+import typing
 
 class UInt64:
+    """A 64-bit unsigned integer, one of the primary data types on the AVM"""
+
     __match_value__: int
     __match_args__ = ("__match_value__",)
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
@@ -75,18 +77,20 @@ class UInt64:
     def __invert__(self) -> UInt64: ...
 
 class Bytes(Reversible[Bytes]):
+    """A byte sequence, with a maximum length of 4096 bytes, one of the primary data types on the AVM"""
+
     __match_value__: bytes
     __match_args__ = ("__match_value__",)
-    @t.overload
+    @typing.overload
     def __init__(self) -> None: ...
-    @t.overload
+    @typing.overload
     def __init__(self, value: bytes, /): ...
     @staticmethod
-    def from_base32(value: t.LiteralString, /) -> Bytes: ...
+    def from_base32(value: typing.LiteralString, /) -> Bytes: ...
     @staticmethod
-    def from_base64(value: t.LiteralString, /) -> Bytes: ...
+    def from_base64(value: typing.LiteralString, /) -> Bytes: ...
     @staticmethod
-    def from_hex(value: t.LiteralString, /) -> Bytes: ...
+    def from_hex(value: typing.LiteralString, /) -> Bytes: ...
     def __add__(self, other: Bytes | bytes) -> Bytes: ...
     def __radd__(self, other: Bytes | bytes) -> Bytes: ...
     def __iadd__(self, other: Bytes | bytes) -> Bytes: ...
@@ -118,6 +122,8 @@ class Bytes(Reversible[Bytes]):
     def __invert__(self) -> Bytes: ...
 
 class BigUInt:
+    """A variable length (max 512-bit) unsigned integer"""
+
     __match_value__: int
     __match_args__ = ("__match_value__",)
     # TODO: consider how to handle cases where sizes exceeds 512, which can happen on + or *,

@@ -4,7 +4,6 @@ from collections.abc import Callable, Iterable, Mapping, Sequence, Reversible
 import puyapy
 
 _P = typing.ParamSpec("_P")
-
 _R = typing.TypeVar("_R")
 
 AllowedOnCompletes: typing.TypeAlias = Sequence[
@@ -17,6 +16,8 @@ AllowedOnCompletes: typing.TypeAlias = Sequence[
         "DeleteApplication",
     ]
 ]
+"""Allowed completion types for ABI methods: 
+NoOp, OptIn, CloseOut, UpdateApplication and DeleteApplication"""
 
 # TODO: better typing for ABI methods that can be used as an argument source
 # TODO: support declaring state at the class level so it can be used as a default arg source
@@ -24,7 +25,9 @@ _TABIDefaultArgSource: typing.TypeAlias = object
 
 # if we use type aliasing here for Callable[_P, _R], mypy thinks it involves Any...
 @typing.overload
-def abimethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
+def abimethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]:
+    """Indicates a method is an ARC4 ABI method"""
+
 @typing.overload
 def abimethod(
     *,
@@ -33,15 +36,20 @@ def abimethod(
     name: str | None = None,
     readonly: bool = False,
     default_args: Mapping[str, str | _TABIDefaultArgSource] | None = None,
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]: ...
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
+    """Indicates a method is an ARC4 ABI method"""
+
 @typing.overload
-def baremethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
+def baremethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]:
+    """Indicates a method is an ARC4 bare method"""
+
 @typing.overload
 def baremethod(
     *,
     allow_actions: AllowedOnCompletes | None = None,
     create: bool | typing.Literal["allow"] = False,
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]: ...
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
+    """Indicates a method is an ARC4 bare method"""
 
 _T = typing.TypeVar("_T")
 
@@ -56,14 +64,16 @@ class _ABIBytesBacked(typing.Protocol):
     def from_bytes(cls, value: puyapy.Bytes) -> typing.Self:
         """Construct an instance from the underlying bytes[] (no validation)"""
 
-class ABIEncoded(_ABIBytesBacked, typing.Protocol[_T]):
+class _ABIEncoded(_ABIBytesBacked, typing.Protocol[_T]):
     def decode(self) -> _T:
         """Decode this ABI instance from bytes to AVM stack value"""
     @classmethod
     def encode(cls, value: _T) -> typing.Self:
         """Encode AVM stack value as an ABI bytes"""
 
-class String(ABIEncoded[puyapy.Bytes]):
+class String(_ABIEncoded[puyapy.Bytes]):
+    """An ARC4 sequence of bytes containing a UTF8 string"""
+
     def __init__(self, value: typing.LiteralString) -> None: ...
     def __add__(self, other: String | str | bytes | puyapy.Bytes) -> String: ...
     def __iadd__(self, other: String | str | bytes | puyapy.Bytes) -> String: ...
@@ -72,39 +82,71 @@ class String(ABIEncoded[puyapy.Bytes]):
 
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 
-class UIntN(typing.Generic[_TBitSize], ABIEncoded[puyapy.UInt64]):
+class UIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.UInt64]):
+    """An ARC4 UInt consisting of the number of bits specified.
+
+    Max Size: 64 bits"""
+
     def __init__(self, value: int | puyapy.UInt64 | puyapy.BigUInt) -> None: ...
 
-class BigUIntN(typing.Generic[_TBitSize], ABIEncoded[puyapy.BigUInt]):
+class BigUIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.BigUInt]):
+    """An ARC4 UInt consisting of the number of bits specified.
+
+    Max size: 512 bits"""
+
     def __init__(self, value: int | puyapy.UInt64 | puyapy.BigUInt) -> None: ...
 
 _TDecimalPlaces = typing.TypeVar("_TDecimalPlaces", bound=int)
 
-class UFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], ABIEncoded[puyapy.UInt64]):
+class UFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], _ABIEncoded[puyapy.UInt64]):
+    """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
+
+    Max size: 64 bits"""
+
     def __init__(self, value: typing.LiteralString):
         """
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
         """
 
-class BigUFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], ABIEncoded[puyapy.BigUInt]):
+class BigUFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], _ABIEncoded[puyapy.BigUInt]):
+    """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
+
+    Max size: 512 bits"""
+
     def __init__(self, value: typing.LiteralString):
         """
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
         """
 
-class Byte(UIntN[typing.Literal[8]]): ...
+class Byte(UIntN[typing.Literal[8]]):
+    """An ARC4 alias for a UInt8"""
 
 UInt8: typing.TypeAlias = UIntN[typing.Literal[8]]
-UInt16: typing.TypeAlias = UIntN[typing.Literal[16]]
-UInt32: typing.TypeAlias = UIntN[typing.Literal[32]]
-UInt64: typing.TypeAlias = UIntN[typing.Literal[64]]
-UInt128: typing.TypeAlias = BigUIntN[typing.Literal[128]]
-UInt256: typing.TypeAlias = BigUIntN[typing.Literal[256]]
-UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
+"""An ARC4 UInt8"""
 
-class Bool(ABIEncoded[bool]):
+UInt16: typing.TypeAlias = UIntN[typing.Literal[16]]
+"""An ARC4 UInt16"""
+
+UInt32: typing.TypeAlias = UIntN[typing.Literal[32]]
+"""An ARC4 UInt32"""
+
+UInt64: typing.TypeAlias = UIntN[typing.Literal[64]]
+"""An ARC4 UInt64"""
+
+UInt128: typing.TypeAlias = BigUIntN[typing.Literal[128]]
+"""An ARC4 UInt128"""
+
+UInt256: typing.TypeAlias = BigUIntN[typing.Literal[256]]
+"""An ARC4 UInt256"""
+
+UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
+"""An ARC4 UInt512"""
+
+class Bool(_ABIEncoded[bool]):
+    """An ARC4 encoded bool"""
+
     def __init__(self, value: bool) -> None: ...
 
 _TArrayItem = typing.TypeVar("_TArrayItem")
@@ -115,6 +157,8 @@ class StaticArray(
     typing.Generic[_TArrayItem, _TArrayLength],
     Reversible[_TArrayItem],
 ):
+    """A fixed length ARC4 Array of the specified type and length"""
+
     @typing.overload
     def __init__(self) -> None: ...
     @typing.overload
@@ -222,6 +266,8 @@ class StaticArray(
         """Create a copy of this array"""
 
 class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
+    """A dynamically sized ARC4 Array of the specified type"""
+
     def __init__(self, *items: _TArrayItem): ...
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
@@ -242,21 +288,32 @@ class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem], Reversible[_TAr
         """Create a copy of this array"""
 
 class Address(StaticArray[Byte, typing.Literal[32]]):
+    """An alias for an array containing 32 bytes representing an Algorand address"""
+
     def __init__(self, account_or_bytes: puyapy.Bytes | puyapy.Account | bytes): ...
 
 DynamicBytes: typing.TypeAlias = DynamicArray[Byte]
+"""A variable sized array of bytes"""
 
 class ARC4Contract(puyapy.Contract):
+    """A contract that conforms to the ARC4 ABI specification, functions decorated with
+    `@abimethod` or `@baremethod` will form the public interface of the contract
+
+    The approval_program will be implemented by the compiler, and route application args
+    according to the ARC4 ABI specification
+
+    The clear_state_program will by default return True, but can be overridden"""
+
     @typing.final
     def approval_program(self) -> puyapy.UInt64 | bool: ...
     def clear_state_program(self) -> puyapy.UInt64 | bool: ...
 
 _TTuple = typing.TypeVarTuple("_TTuple")
 
-class Tuple(typing.Generic[*_TTuple], ABIEncoded[tuple[*_TTuple]], tuple[*_TTuple]):
-    def __init__(self, items: tuple[*_TTuple]): ...
+class Tuple(typing.Generic[*_TTuple], _ABIEncoded[tuple[*_TTuple]], tuple[*_TTuple]):
+    """An ARC4 ABI tuple, containing other ARC4 ABI types"""
 
-T = typing.TypeVar("T")
+    def __init__(self, items: tuple[*_TTuple]): ...
 
 @typing.dataclass_transform(
     eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
@@ -269,7 +326,7 @@ class _StructMeta(type):
         namespace: dict[str, object],
         *,
         kw_only: bool = False,
-        # **kwargs: t.Any,
+        # **kwargs: typing.Any,
     ) -> _StructMeta: ...
 
 class Struct(metaclass=_StructMeta):

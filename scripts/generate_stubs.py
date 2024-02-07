@@ -41,7 +41,7 @@ CLS_MAPPING: dict[str, wtypes.WType | type] = {
     CLS_UINT64: wtypes.uint64_wtype,
     CLS_BIGINT: wtypes.biguint_wtype,
 }
-BYTES_LITERALS = ["bytes"]
+BYTES_LITERAL = "bytes"
 UINT64_LITERAL = "int"
 
 
@@ -302,6 +302,7 @@ class FunctionDef:
 class ClassDef:
     name: str
     methods: list[FunctionDef]
+    ops: list[str]
 
     @property
     def has_any_methods(self) -> bool:
@@ -354,7 +355,7 @@ def main() -> None:
 
 
 def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
-    bytes_ = [CLS_BYTES, *BYTES_LITERALS] if covariant else [CLS_BYTES]
+    bytes_ = [CLS_BYTES, BYTES_LITERAL] if covariant else [CLS_BYTES]
     uint64 = [CLS_UINT64, UINT64_LITERAL] if covariant else [CLS_UINT64]
     bigint = [CLS_BIGINT] if covariant else [CLS_BIGINT]
     boolean = ["bool"]
@@ -477,12 +478,15 @@ def build_stub(
 
 def build_stub_class(klass: ClassDef) -> Iterable[str]:
     decorator: str
+    ops = [f"`{op}`" for op in klass.ops]
+    docstring = f'"""Functions for the op{"s" if len(ops) > 1 else ""}: {", ".join(ops)} """'
     if klass.has_any_methods:
         decorator = "@classmethod"
         yield f"class _{klass.name}(Generic[_T, _TLiteral]):"
     else:
         decorator = "@staticmethod"
         yield f"class {klass.name}:"
+        yield INDENT + docstring
     for method in klass.methods:
         yield INDENT + decorator
         yield from build_stub(
@@ -494,8 +498,10 @@ def build_stub_class(klass: ClassDef) -> Iterable[str]:
         )
         yield ""
     if klass.has_any_methods:
-        yield f"{klass.name}{CLS_BYTES} = _{klass.name}[{', '.join([CLS_BYTES, *BYTES_LITERALS])}]"
-        yield f"{klass.name}{CLS_UINT64} = _{klass.name}[{CLS_UINT64}, {UINT64_LITERAL}]"
+        yield f"class {klass.name}{CLS_BYTES}(_{klass.name}[{CLS_BYTES}, {BYTES_LITERAL}]):"
+        yield INDENT + docstring
+        yield f"class {klass.name}{CLS_UINT64}(_{klass.name}[{CLS_UINT64}, {UINT64_LITERAL}]):"
+        yield INDENT + docstring
 
 
 def _get_modified_stack_value(alias: Op) -> StackValue:
@@ -533,6 +539,7 @@ def build_class_from_overriding_immediate(
 
     # build a method for each arg enum value
     methods = list[FunctionDef]()
+    class_ops = {op.name}
     for value in arg_enum_values:
         stack_type = value.stack_type
         assert stack_type
@@ -548,6 +555,7 @@ def build_class_from_overriding_immediate(
         assert arg.name == immediate_python_name
 
         for op_mapping in method.op_mappings:
+            class_ops.add(op_mapping.op_code)
             # replace immediate reference to arg enum with a constant enum value
             new_immediates = list[str | ArgMapping]()
             for arg_mapping in op_mapping.immediates:
@@ -562,7 +570,7 @@ def build_class_from_overriding_immediate(
 
         methods.append(method)
 
-    return ClassDef(name=get_python_enum_class(op.name), methods=methods)
+    return ClassDef(name=get_python_enum_class(op.name), methods=methods, ops=sorted(class_ops))
 
 
 def get_op_doc(op: Op) -> list[str]:
@@ -619,7 +627,7 @@ def get_op_args(op: Op) -> Iterable[TypedName]:
 
 def get_op_returns(op: Op, replace_any_with: StackType | None) -> Iterable[TypedName]:
     if op.halts:
-        yield TypedName(name="", type="Never", doc=None)
+        yield TypedName(name="", type="typing.Never", doc=None)
     else:
         yield from map_typed_names(op.stack_outputs, replace_any_with=replace_any_with)
 
@@ -640,8 +648,9 @@ def build_enum(spec: LanguageSpec, arg_enum: str) -> Iterable[str]:
     values = spec.arg_enums[arg_enum]
     enum_name = get_python_enum_class(arg_enum)
     yield f"class {enum_name}(enum.StrEnum):"
+    yield f'{INDENT}"""Available values for the `{arg_enum}` enum"""'
     for value in values:
-        yield f"{INDENT}{value.name} = enum.auto()"
+        yield f"{INDENT}{value.name} = ..."
     yield ""
 
 
@@ -766,10 +775,7 @@ def build_merged_ops(spec: LanguageSpec, group: MergedOpCodes) -> ClassDef:
             merge_methods[method.name] = method
 
     methods = list(merge_methods.values())
-    return ClassDef(
-        name=get_python_enum_class(group.name),
-        methods=methods,
-    )
+    return ClassDef(name=get_python_enum_class(group.name), methods=methods, ops=sorted(group.ops))
 
 
 def build_grouped_ops(
@@ -800,6 +806,7 @@ def build_grouped_ops(
     class_def = ClassDef(
         name=get_python_enum_class(group.name),
         methods=methods,
+        ops=sorted(group.ops),
     )
     return class_def
 
@@ -897,7 +904,7 @@ def output_stub(
 ) -> None:
     stub: list[str] = [
         "import enum",
-        "from typing import Never",
+        "import typing",
         "",
         f"from puyapy import {CLS_ACCOUNT}, {CLS_BIGINT}, {CLS_BYTES}, {CLS_UINT64}",
     ]

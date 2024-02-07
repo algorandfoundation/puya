@@ -1,24 +1,32 @@
 import enum
-from typing import Never
+import typing
 
 from puyapy import Account, BigUInt, Bytes, UInt64
 
 class Base64(enum.StrEnum):
-    URLEncoding = enum.auto()
-    StdEncoding = enum.auto()
+    """Available values for the `base64` enum"""
+
+    URLEncoding = ...
+    StdEncoding = ...
 
 class Ecdsa(enum.StrEnum):
-    Secp256k1 = enum.auto()
-    Secp256r1 = enum.auto()
+    """Available values for the `ECDSA` enum"""
+
+    Secp256k1 = ...
+    Secp256r1 = ...
 
 class VrfVerify(enum.StrEnum):
-    VrfAlgorand = enum.auto()
+    """Available values for the `vrf_verify` enum"""
+
+    VrfAlgorand = ...
 
 class Ec(enum.StrEnum):
-    BN254g1 = enum.auto()
-    BN254g2 = enum.auto()
-    BLS12_381g1 = enum.auto()
-    BLS12_381g2 = enum.auto()
+    """Available values for the `EC` enum"""
+
+    BN254g1 = ...
+    BN254g2 = ...
+    BLS12_381g1 = ...
+    BLS12_381g2 = ...
 
 def addw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
     """
@@ -242,7 +250,7 @@ def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes | Ac
 
     """
 
-def err() -> Never:
+def err() -> typing.Never:
     """
     Fail immediately.
 
@@ -253,7 +261,7 @@ def err() -> Never:
 
     """
 
-def exit(a: UInt64 | int, /) -> Never:
+def exit(a: UInt64 | int, /) -> typing.Never:
     """
     use A as success value; end
 
@@ -585,6 +593,8 @@ def vrf_verify(
     """
 
 class AcctParamsGet:
+    """Functions for the op: `acct_params_get`"""
+
     @staticmethod
     def acct_balance(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -731,6 +741,8 @@ class AcctParamsGet:
         """
 
 class AppGlobals:
+    """Functions for the ops: `app_global_del`, `app_global_get`, `app_global_get_ex`, `app_global_put`"""
+
     @staticmethod
     def get_bytes(a: Bytes | bytes, /) -> Bytes:
         """
@@ -806,6 +818,8 @@ class AppGlobals:
         """
 
 class AppLocals:
+    """Functions for the ops: `app_local_del`, `app_local_get`, `app_local_get_ex`, `app_local_put`"""
+
     @staticmethod
     def get_bytes(a: Account | UInt64 | int, b: Bytes | bytes, /) -> Bytes:
         """
@@ -888,6 +902,8 @@ class AppLocals:
         """
 
 class AppParamsGet:
+    """Functions for the op: `app_params_get`"""
+
     @staticmethod
     def app_approval_program(a: UInt64 | int, /) -> tuple[Bytes, bool]:
         """
@@ -1007,6 +1023,8 @@ class AppParamsGet:
         """
 
 class AssetHoldingGet:
+    """Functions for the op: `asset_holding_get`"""
+
     @staticmethod
     def asset_balance(a: Account | UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -1035,6 +1053,8 @@ class AssetHoldingGet:
         """
 
 class AssetParamsGet:
+    """Functions for the op: `asset_params_get`"""
+
     @staticmethod
     def asset_total(a: UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -1193,6 +1213,8 @@ class AssetParamsGet:
         """
 
 class Block:
+    """Functions for the op: `block`"""
+
     @staticmethod
     def blk_seed(a: UInt64 | int, /) -> Bytes:
         """
@@ -1217,6 +1239,8 @@ class Block:
         """
 
 class Box:
+    """Functions for the ops: `box_create`, `box_del`, `box_extract`, `box_get`, `box_len`, `box_put`, `box_replace`, `box_resize`, `box_splice`"""
+
     @staticmethod
     def create(a: Bytes | bytes, b: UInt64 | int, /) -> bool:
         """
@@ -1322,6 +1346,8 @@ class Box:
         """
 
 class CreateInnerTransaction:
+    """Functions for the ops: `itxn_begin`, `itxn_field`, `itxn_next`, `itxn_submit`"""
+
     @staticmethod
     def begin() -> None:
         """
@@ -2023,6 +2049,8 @@ class CreateInnerTransaction:
         """
 
 class EllipticCurve:
+    """Functions for the ops: `ec_add`, `ec_map_to`, `ec_multi_scalar_mul`, `ec_pairing_check`, `ec_scalar_mul`, `ec_subgroup_check`"""
+
     @staticmethod
     def add(g: Ec, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
         """
@@ -2113,6 +2141,8 @@ class EllipticCurve:
         """
 
 class Global:
+    """Functions for the op: `global`"""
+
     @staticmethod
     def min_txn_fee() -> UInt64:
         """
@@ -2331,6 +2361,8 @@ class Global:
         """
 
 class InnerTransaction:
+    """Functions for the ops: `itxn`, `itxnas`"""
+
     @staticmethod
     def sender() -> Account:
         """
@@ -3149,6 +3181,8 @@ class InnerTransaction:
         """
 
 class InnerTransactionGroup:
+    """Functions for the ops: `gitxn`, `gitxnas`"""
+
     @staticmethod
     def sender(t: int, /) -> Account:
         """
@@ -4035,6 +4069,8 @@ class InnerTransactionGroup:
         """
 
 class JsonRef:
+    """Functions for the op: `json_ref`"""
+
     @staticmethod
     def json_string(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
         """
@@ -4079,6 +4115,8 @@ class JsonRef:
         """
 
 class Scratch:
+    """Functions for the ops: `loads`, `stores`"""
+
     @staticmethod
     def load_bytes(a: UInt64 | int, /) -> Bytes:
         """
@@ -4114,6 +4152,8 @@ class Scratch:
         """
 
 class Transaction:
+    """Functions for the ops: `txn`, `txnas`"""
+
     @staticmethod
     def sender() -> Account:
         """
@@ -4932,6 +4972,8 @@ class Transaction:
         """
 
 class TransactionGroup:
+    """Functions for the ops: `gtxns`, `gtxnsas`"""
+
     @staticmethod
     def sender(a: UInt64 | int, /) -> Account:
         """

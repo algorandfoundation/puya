@@ -3,6 +3,8 @@ import typing
 from puyapy import Account, Application, Asset, Bytes, OnCompleteAction, TransactionType, UInt64
 
 class TransactionBase(typing.Protocol):
+    """Shared transaction properties"""
+
     def __init__(self, group_index: UInt64 | int): ...
     @property
     def sender(self) -> Account: ...
@@ -30,6 +32,8 @@ class TransactionBase(typing.Protocol):
     def rekey_to(self) -> Account: ...
 
 class PaymentTransaction(TransactionBase):
+    """Payment group transaction"""
+
     @property
     def receiver(self) -> Account: ...
     @property
@@ -38,6 +42,8 @@ class PaymentTransaction(TransactionBase):
     def close_remainder_to(self) -> Account: ...
 
 class KeyRegistrationTransaction(TransactionBase):
+    """Key registration group transaction"""
+
     @property
     def vote_key(self) -> Bytes: ...
     @property
@@ -54,6 +60,8 @@ class KeyRegistrationTransaction(TransactionBase):
     def state_proof_key(self) -> Bytes: ...
 
 class AssetConfigTransaction(TransactionBase):
+    """Asset config group transaction"""
+
     @property
     def config_asset(self) -> UInt64: ...
     @property
@@ -80,6 +88,8 @@ class AssetConfigTransaction(TransactionBase):
     def clawback(self) -> Account: ...
 
 class AssetTransferTransaction(TransactionBase):
+    """Asset transfer group transaction"""
+
     @property
     def xfer_asset(self) -> Asset: ...
     @property
@@ -92,6 +102,8 @@ class AssetTransferTransaction(TransactionBase):
     def asset_close_to(self) -> Account: ...
 
 class AssetFreezeTransaction(TransactionBase):
+    """Asset freeze group transaction"""
+
     @property
     def freeze_asset(self) -> Asset: ...
     @property
@@ -100,6 +112,8 @@ class AssetFreezeTransaction(TransactionBase):
     def frozen(self) -> bool: ...
 
 class ApplicationCallTransaction(TransactionBase):
+    """Application call group transaction"""
+
     @property
     def application_id(self) -> UInt64:
         """ApplicationID from ApplicationCall transaction"""

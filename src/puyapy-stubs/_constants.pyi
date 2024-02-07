@@ -4,6 +4,8 @@ from puyapy import UInt64
 
 @enum.unique
 class OnCompleteAction(UInt64, enum.ReprEnum):
+    """On Completion actions available in an application call transaction"""
+
     NoOp = ...
 
     OptIn = ...
@@ -30,6 +32,8 @@ class OnCompleteAction(UInt64, enum.ReprEnum):
 
 @enum.unique
 class TransactionType(UInt64, enum.ReprEnum):
+    """The different transaction types available in a transaction"""
+
     Payment = ...
     KeyRegistration = ...
     AssetConfig = ...
