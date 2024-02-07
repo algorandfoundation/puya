@@ -1,0 +1,83 @@
+#pragma version 10
+
+// test_cases.too_many_permutations.contract.MyContract.approval_program() -> uint64:
+main_block@0:
+        txna ApplicationArgs 0
+        dup
+        swap
+        txna ApplicationArgs 1
+        swap
+        txna ApplicationArgs 2
+        dup
+        cover 2
+        txna ApplicationArgs 3
+        cover 2
+        !=
+        bnz main_bool_true@2
+
+main_or_contd@1:
+        dig 2
+        dig 1
+        !=
+        bz main_bool_false@3
+
+main_bool_true@2:
+        int 1
+        b main_bool_merge@4
+
+main_bool_false@3:
+        int 0
+
+main_bool_merge@4:
+        assert
+        dig 3
+        dup
+        dig 4
+        dup
+        cover 3
+        dig 5
+        dup
+        cover 5
+        dig 6
+        dup
+        cover 7
+        callsub four_args
+        assert
+        swap
+        callsub two_args
+        swap
+        callsub two_args
+        int 1
+        return
+
+
+// test_cases.too_many_permutations.contract.four_args(a#0: bytes, b#0: bytes, c#0: bytes, d#0: bytes) -> uint64:
+four_args:
+        proto 4 1
+
+four_args_block@0:
+        frame_dig -4
+        frame_dig -3
+        concat
+        frame_dig -2
+        concat
+        frame_dig -1
+        concat
+        len
+        int 0
+        >
+        retsub
+
+
+// test_cases.too_many_permutations.contract.two_args(a#0: bytes, b#0: bytes) -> void:
+two_args:
+        proto 2 0
+
+two_args_block@0:
+        frame_dig -2
+        frame_dig -1
+        concat
+        len
+        assert
+        retsub
+

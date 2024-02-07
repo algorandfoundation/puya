@@ -1148,3 +1148,10 @@ def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
         TEST_CASES_DIR / "intrinsics" / "immediate_variants.py",
         AppCallRequest(args=[b""], sp=sp, add_random_note=True),
     )
+
+
+def test_too_many_permutations(harness: _TestHarness) -> None:
+    harness.deploy(
+        TEST_CASES_DIR / "too_many_permutations",
+        request=AppCallRequest(args=[1, 2, 3, 4]),
+    )
