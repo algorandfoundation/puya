@@ -1,6 +1,5 @@
 import functools
 import itertools
-import math
 import typing
 from collections.abc import Callable
 from typing import Sequence
