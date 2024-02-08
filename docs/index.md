@@ -135,5 +135,5 @@ hidden: true
 
 language_guide
 principles
-apidocs/puyapy/puyapy
+api
 ```

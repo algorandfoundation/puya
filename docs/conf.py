@@ -55,7 +55,11 @@ myst_enable_extensions = [
 
 # -- Options for autodoc2 ---
 autodoc2_packages = [
-    {"path": "./puyapy-stubs", "module": "puyapy"},
+    {
+        "path": "./puyapy-stubs",
+        "module": "puyapy",
+        "auto_mode": False,
+    },
 ]
 autodoc2_docstring_parser_regexes = [
     # this will render all docstrings as Markdown
@@ -63,6 +67,7 @@ autodoc2_docstring_parser_regexes = [
 ]
 autodoc2_hidden_objects = [
     "private",  # single-underscore methods, e.g. _private
+    "undoc",
 ]
 autodoc2_class_inheritance = False
 autodoc2_module_all_regexes = [r"puyapy"]
