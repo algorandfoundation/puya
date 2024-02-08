@@ -15,6 +15,7 @@ AllowedOnCompletes: typing.TypeAlias = Sequence[
         "UpdateApplication",
         "DeleteApplication",
     ]
+    | puyapy.OnCompleteAction
 ]
 """Allowed completion types for ABI methods: 
 NoOp, OptIn, CloseOut, UpdateApplication and DeleteApplication"""

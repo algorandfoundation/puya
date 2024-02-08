@@ -31,9 +31,11 @@ from puya.awst_build.utils import (
     qualified_class_name,
 )
 from puya.errors import CodeError, InternalError
-from puya.metadata import ARC4DefaultArgument, ARC4MethodConfig, ARC32StructDef
+from puya.metadata import ARC4DefaultArgument, ARC4MethodConfig, ARC32StructDef, OnCompletionAction
 from puya.parse import SourceLocation
 from puya.utils import StableSet
+
+ALLOWABLE_OCA = [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
 
 
 @attrs.define
@@ -487,6 +489,12 @@ def _get_arc4_method_config(
                 context.error("Cannot have duplicate allow_actions", dec_loc)
             if not allow_actions:
                 context.error("Must have at least one allow_actions", dec_loc)
+            invalid_actions = [a for a in allow_actions if a not in ALLOWABLE_OCA]
+            if invalid_actions:
+                context.error(
+                    f"Invalid allowed actions: {invalid_actions}",
+                    dec_loc,
+                )
             create = abi_hints.get("create", False)
             readonly = abi_hints.get("readonly", False)
             default_args = abi_hints.get("default_args", {})
