@@ -1,13 +1,13 @@
 import typing
 
-from puyapy import Bytes, Contract, UInt64, arc4, itob, log, uenumerate, urange
+from puyapy import Bytes, Contract, UInt64, arc4, log, op, uenumerate, urange
 
 
 class MyContract(Contract):
     def approval_program(self) -> bool:
         # Check empty iterations don't error
         for i in reversed(urange(0)):
-            log(itob(i))
+            log(op.itob(i))
         for x in reversed(arc4.StaticArray[arc4.UInt8, typing.Literal[0]]()):
             log(x.bytes)
 
@@ -34,7 +34,7 @@ class MyContract(Contract):
         # Indexable: Reversed item and index
         bytes_reversed_with_index = Bytes(b"")
         for index, bytes_item in reversed(uenumerate(Bytes(b"HELLO"))):
-            bytes_reversed_with_index += itob(index)[-1:] + bytes_item
+            bytes_reversed_with_index += op.itob(index)[-1:] + bytes_item
         assert bytes_reversed_with_index == b"\04O\03L\02L\01E\00H"
 
         # Tuple: Reversed items, forward index

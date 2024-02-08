@@ -1,6 +1,6 @@
 import typing as t
 
-from puyapy import Bytes, Contract, UInt64, sha3_256, subroutine, uenumerate
+from puyapy import Bytes, Contract, UInt64, op, subroutine, uenumerate
 from puyapy.arc4 import (
     Byte,
     DynamicArray,
@@ -74,7 +74,7 @@ class Arc4ArraysContract(Contract):
 
     @subroutine
     def hash_as_array(self, commitment_args_concat: Bytes) -> HashResult:
-        return HashResult.from_bytes(sha3_256(commitment_args_concat))
+        return HashResult.from_bytes(op.sha3_256(commitment_args_concat))
 
     def clear_state_program(self) -> bool:
         return True

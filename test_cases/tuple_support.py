@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, UInt64, addw, itob, log, subroutine, urange
+from puyapy import Bytes, Contract, UInt64, log, op, subroutine, urange
 
 
 class TupleSupport(Contract):
@@ -7,12 +7,12 @@ class TupleSupport(Contract):
 
     def approval_program(self) -> UInt64:
         total = add_three_values((UInt64(101), UInt64(102), UInt64(103)))
-        log(itob(total))
+        log(total)
         (a, b) = (UInt64(1), UInt64(2))
-        (did_overflow, self.state) = addw(a, b)
+        (did_overflow, self.state) = op.addw(a, b)
         assert not did_overflow, "overflow!"
         ab = (a, b)
-        result = addw(a, b)
+        result = op.addw(a, b)
         assert not result[0], "overflow!"
         c = d = UInt64(3)
         (a2, b2) = ab
@@ -32,10 +32,10 @@ class TupleSupport(Contract):
         # foobar = ((a, b), (c, d)) # TODO: negative test for this
         log(bytes_combine((Bytes(b"Hello, "), Bytes(b"world!"))))
         max_uint64 = UInt64(2**64 - 1)
-        hi, mid, lo = addw2(addw(max_uint64, max_uint64), addw(a, b))
-        log(itob(hi))
-        log(itob(mid))
-        log(itob(lo))
+        hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
+        log(hi)
+        log(mid)
+        log(lo)
         log(bytes_multiply((Bytes(b"na"), UInt64(5))))
         test_tuple_swap(zero=UInt64(0))
         slicing(
@@ -87,10 +87,10 @@ def add_three_values(values: tuple[UInt64, UInt64, UInt64]) -> UInt64:
 def addw2(a: tuple[UInt64, UInt64], b: tuple[UInt64, UInt64]) -> tuple[UInt64, UInt64, UInt64]:
     a_hi, a_lo = a
     b_hi, b_lo = b
-    lo_carry, c_lo = addw(a_lo, b_lo)
-    hi_carry1, c_mid = addw(a_hi, b_hi)
-    hi_carry2, c_mid = addw(c_mid, lo_carry)
-    did_overflow, c_hi = addw(hi_carry1, hi_carry2)
+    lo_carry, c_lo = op.addw(a_lo, b_lo)
+    hi_carry1, c_mid = op.addw(a_hi, b_hi)
+    hi_carry2, c_mid = op.addw(c_mid, lo_carry)
+    did_overflow, c_hi = op.addw(hi_carry1, hi_carry2)
     assert not did_overflow, "is such a thing even possible? 👽"
     return c_hi, c_mid, c_lo
 

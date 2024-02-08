@@ -4,8 +4,8 @@ from puyapy import (
     Contract,
     LocalState,
     OnCompleteAction,
-    Transaction,
     log,
+    op,
     subroutine,
 )
 
@@ -15,32 +15,32 @@ class LocalStateContract(Contract):
         self.local = LocalState(Bytes)
 
     def approval_program(self) -> bool:
-        if Transaction.application_id() == 0:
+        if op.Transaction.application_id == 0:
             return True
-        if Transaction.on_completion() not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+        if op.Transaction.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
             return False
-        if Transaction.num_app_args() == 0:
+        if op.Transaction.num_app_args == 0:
             return False
 
-        method = Transaction.application_args(0)
-        if Transaction.num_app_args() == 1:
+        method = op.Transaction.application_args(0)
+        if op.Transaction.num_app_args == 1:
             if method == b"get_guaranteed_data":
-                log(self.get_guaranteed_data(Transaction.sender()))
+                log(self.get_guaranteed_data(op.Transaction.sender))
             elif method == b"get_data_or_assert":
-                log(self.get_data_or_assert(Transaction.sender()))
+                log(self.get_data_or_assert(op.Transaction.sender))
             elif method == b"delete_data":
-                self.delete_data(Transaction.sender())
+                self.delete_data(op.Transaction.sender)
                 log(b"Deleted")
             else:
                 return False
             return True
-        elif Transaction.num_app_args() == 2:
+        elif op.Transaction.num_app_args == 2:
             if method == b"set_data":
-                self.set_data(Transaction.sender(), Transaction.application_args(1))
+                self.set_data(op.Transaction.sender, op.Transaction.application_args(1))
             elif method == b"get_data_with_default":
                 log(
                     self.get_data_with_default(
-                        Transaction.sender(), Transaction.application_args(1)
+                        op.Transaction.sender, op.Transaction.application_args(1)
                     )
                 )
             else:

@@ -39,3 +39,5 @@ class FunctionOpMapping:
     """References to an puyapy argument"""
     stack_outputs: Sequence[wtypes.WType] = attrs.field(factory=tuple)
     """Types output by TEAL op"""
+    is_property: bool = False
+    """Is this function represented as a property"""

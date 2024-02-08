@@ -1,11 +1,11 @@
-from puyapy import Bytes, Contract, UInt64, itob, log, subroutine
+from puyapy import Bytes, Contract, UInt64, log, op, subroutine
 
 
 class WithReentrancy(Contract):
     """My re-entrant contract"""
 
     def approval_program(self) -> bool:
-        log(itob(fibonacci(UInt64(5))))
+        log(op.itob(fibonacci(UInt64(5))))
         silly(UInt64(2))
         return True
 

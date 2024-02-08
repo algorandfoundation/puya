@@ -22,7 +22,7 @@ def typing_interactions() -> None:
 
 ## case: test_unreachable
 
-from puyapy import Contract, UInt64, err, exit
+from puyapy import Contract, UInt64, op
 
 
 class ContractWithUnreachableCode(Contract):
@@ -31,16 +31,16 @@ class ContractWithUnreachableCode(Contract):
         if x:
             return x
         else:
-            err()
+            op.err()
             return x ## E: Unreachable code
 
     def clear_state_program(self) -> bool:
-        exit(1)
+        op.exit(1)
         return True ## E: Unreachable code
 
 ## case: test_invalid_address_literal
 
-from puyapy import arc4, Contract, Transaction
+from puyapy import arc4, Contract
 
 
 class ContractWithInvalidAddressLiteral(Contract):

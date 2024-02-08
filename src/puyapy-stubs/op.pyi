@@ -2142,150 +2142,138 @@ class EllipticCurve:
 class Global:
     """Functions for the op: `global`"""
 
-    @staticmethod
-    def min_txn_fee() -> UInt64:
-        """
-        global field F
+    min_txn_fee: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Groups: Loading Values
+    min_balance: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: global F
+    max_txn_life: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        :returns UInt64: microalgos
-        """
-    @staticmethod
-    def min_balance() -> UInt64:
-        """
-        global field F
+    zero_address: Account = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Groups: Loading Values
+    group_size: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: global F
+    logic_sig_version: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        :returns UInt64: microalgos
-        """
-    @staticmethod
-    def max_txn_life() -> UInt64:
-        """
-        global field F
+    round: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Groups: Loading Values
+    latest_timestamp: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: global F
+    current_application_id: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        :returns UInt64: rounds
-        """
-    @staticmethod
-    def zero_address() -> Account:
-        """
-        global field F
+    creator_address: Account = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Groups: Loading Values
+    current_application_address: Account = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: global F
+    group_id: Bytes = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        :returns Account: 32 byte address of all zero bytes
-        """
-    @staticmethod
-    def group_size() -> UInt64:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns UInt64: Number of transactions in this atomic transaction group. At least 1
-        """
-    @staticmethod
-    def logic_sig_version() -> UInt64:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns UInt64: Maximum supported version
-        """
-    @staticmethod
-    def round() -> UInt64:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns UInt64: Current round number. Application mode only.
-        """
-    @staticmethod
-    def latest_timestamp() -> UInt64:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns UInt64: Last confirmed block UNIX timestamp. Fails if negative. Application mode only.
-        """
-    @staticmethod
-    def current_application_id() -> UInt64:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns UInt64: ID of current application executing. Application mode only.
-        """
-    @staticmethod
-    def creator_address() -> Account:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns Account: Address of the creator of the current application. Application mode only.
-        """
-    @staticmethod
-    def current_application_address() -> Account:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns Account: Address that the current application controls. Application mode only.
-        """
-    @staticmethod
-    def group_id() -> Bytes:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns Bytes: ID of the transaction group. 32 zero bytes if the transaction is not part of a group.
-        """
     @staticmethod
     def opcode_budget() -> UInt64:
         """
@@ -2298,382 +2286,350 @@ class Global:
 
         :returns UInt64: The remaining cost that can be spent by opcodes in this program.
         """
-    @staticmethod
-    def caller_application_id() -> UInt64:
-        """
-        global field F
+    caller_application_id: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Groups: Loading Values
+    caller_application_address: Account = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: global F
+    asset_create_min_balance: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        :returns UInt64: The application ID of the application that called this application. 0 if this application is at the top-level. Application mode only.
-        """
-    @staticmethod
-    def caller_application_address() -> Account:
-        """
-        global field F
+    asset_opt_in_min_balance: UInt64 = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns Account: The application address of the application that called this application. ZeroAddress if this application is at the top-level. Application mode only.
-        """
-    @staticmethod
-    def asset_create_min_balance() -> UInt64:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns UInt64: The additional minimum balance required to create (and opt-in to) an asset.
-        """
-    @staticmethod
-    def asset_opt_in_min_balance() -> UInt64:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns UInt64: The additional minimum balance required to opt-in to an asset.
-        """
-    @staticmethod
-    def genesis_hash() -> Bytes:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns Bytes: The Genesis Hash for the network.
-        """
+    genesis_hash: Bytes = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
 
 class InnerTransaction:
     """Functions for the ops: `itxn`, `itxnas`"""
 
-    @staticmethod
-    def sender() -> Account:
-        """
-        field F of the last inner transaction
+    sender: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    fee: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    first_valid: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    first_valid_time: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    last_valid: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    note: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    lease: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    receiver: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    amount: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    close_remainder_to: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    vote_pk: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    selection_pk: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    vote_first: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    vote_last: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    vote_key_dilution: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    type: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    type_enum: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    xfer_asset: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    asset_amount: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    asset_sender: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    asset_receiver: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    asset_close_to: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    group_index: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    tx_id: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    application_id: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
+
+    on_completion: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def fee() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: microalgos
-        """
-    @staticmethod
-    def first_valid() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: round number
-        """
-    @staticmethod
-    def first_valid_time() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: UNIX timestamp of block before txn.FirstValid. Fails if negative
-        """
-    @staticmethod
-    def last_valid() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: round number
-        """
-    @staticmethod
-    def note() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: Any data up to 1024 bytes
-        """
-    @staticmethod
-    def lease() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 32 byte lease value
-        """
-    @staticmethod
-    def receiver() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def amount() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: microalgos
-        """
-    @staticmethod
-    def close_remainder_to() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def vote_pk() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 32 byte address
-        """
-    @staticmethod
-    def selection_pk() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 32 byte address
-        """
-    @staticmethod
-    def vote_first() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: The first round that the participation key is valid.
-        """
-    @staticmethod
-    def vote_last() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: The last round that the participation key is valid.
-        """
-    @staticmethod
-    def vote_key_dilution() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Dilution for the 2-level participation key
-        """
-    @staticmethod
-    def type() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: Transaction type as bytes
-        """
-    @staticmethod
-    def type_enum() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Transaction type as integer
-        """
-    @staticmethod
-    def xfer_asset() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Asset ID
-        """
-    @staticmethod
-    def asset_amount() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: value in Asset's units
-        """
-    @staticmethod
-    def asset_sender() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
-        """
-    @staticmethod
-    def asset_receiver() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def asset_close_to() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def group_index() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
-        """
-    @staticmethod
-    def tx_id() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: The computed ID for this transaction. 32 bytes.
-        """
-    @staticmethod
-    def application_id() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: ApplicationID from ApplicationCall transaction
-        """
-    @staticmethod
-    def on_completion() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: ApplicationCall transaction on completion action
-        """
     @staticmethod
     def application_args(a: UInt64 | int, /) -> Bytes:
         """
@@ -2686,18 +2642,17 @@ class InnerTransaction:
 
         :returns Bytes: Arguments passed to the application in the ApplicationCall transaction
         """
-    @staticmethod
-    def num_app_args() -> UInt64:
-        """
-        field F of the last inner transaction
+    num_app_args: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of ApplicationArgs
-        """
     @staticmethod
     def accounts(a: UInt64 | int, /) -> Account:
         """
@@ -2710,234 +2665,215 @@ class InnerTransaction:
 
         :returns Account: Accounts listed in the ApplicationCall transaction
         """
-    @staticmethod
-    def num_accounts() -> UInt64:
-        """
-        field F of the last inner transaction
+    num_accounts: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    approval_program: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
+    clear_state_program: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        :returns UInt64: Number of Accounts
-        """
-    @staticmethod
-    def approval_program() -> Bytes:
-        """
-        field F of the last inner transaction
+    rekey_to: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    config_asset: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
+    config_asset_total: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        :returns Bytes: Approval program
-        """
-    @staticmethod
-    def clear_state_program() -> Bytes:
-        """
-        field F of the last inner transaction
+    config_asset_decimals: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    config_asset_default_frozen: bool = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
+    config_asset_unit_name: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        :returns Bytes: Clear state program
-        """
-    @staticmethod
-    def rekey_to() -> Account:
-        """
-        field F of the last inner transaction
+    config_asset_name: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    config_asset_url: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
+    config_asset_metadata_hash: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        :returns Account: 32 byte Sender's new AuthAddr
-        """
-    @staticmethod
-    def config_asset() -> UInt64:
-        """
-        field F of the last inner transaction
+    config_asset_manager: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    config_asset_reserve: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
+    config_asset_freeze: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        :returns UInt64: Asset ID in asset config transaction
-        """
-    @staticmethod
-    def config_asset_total() -> UInt64:
-        """
-        field F of the last inner transaction
+    config_asset_clawback: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    freeze_asset: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
+    freeze_asset_account: Account = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        :returns UInt64: Total number of units of this asset created
-        """
-    @staticmethod
-    def config_asset_decimals() -> UInt64:
-        """
-        field F of the last inner transaction
+    freeze_asset_frozen: bool = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of digits to display after the decimal place when displaying the asset
-        """
-    @staticmethod
-    def config_asset_default_frozen() -> bool:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns bool: Whether the asset's slots are frozen by default or not, 0 or 1
-        """
-    @staticmethod
-    def config_asset_unit_name() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: Unit name of the asset
-        """
-    @staticmethod
-    def config_asset_name() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: The asset name
-        """
-    @staticmethod
-    def config_asset_url() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: URL
-        """
-    @staticmethod
-    def config_asset_metadata_hash() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 32 byte commitment to unspecified asset metadata
-        """
-    @staticmethod
-    def config_asset_manager() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def config_asset_reserve() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def config_asset_freeze() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def config_asset_clawback() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def freeze_asset() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Asset ID being frozen or un-frozen
-        """
-    @staticmethod
-    def freeze_asset_account() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address of the account whose asset slot is being frozen or un-frozen
-        """
-    @staticmethod
-    def freeze_asset_frozen() -> bool:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns bool: The new frozen value, 0 or 1
-        """
     @staticmethod
     def assets(a: UInt64 | int, /) -> UInt64:
         """
@@ -2950,18 +2886,17 @@ class InnerTransaction:
 
         :returns UInt64: Foreign Assets listed in the ApplicationCall transaction
         """
-    @staticmethod
-    def num_assets() -> UInt64:
-        """
-        field F of the last inner transaction
+    num_assets: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of Assets
-        """
     @staticmethod
     def applications(a: UInt64 | int, /) -> UInt64:
         """
@@ -2974,90 +2909,83 @@ class InnerTransaction:
 
         :returns UInt64: Foreign Apps listed in the ApplicationCall transaction
         """
-    @staticmethod
-    def num_applications() -> UInt64:
-        """
-        field F of the last inner transaction
+    num_applications: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    global_num_uint: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
+    global_num_byte_slice: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        :returns UInt64: Number of Applications
-        """
-    @staticmethod
-    def global_num_uint() -> UInt64:
-        """
-        field F of the last inner transaction
+    local_num_uint: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    local_num_byte_slice: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
+    extra_program_pages: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        :returns UInt64: Number of global state integers in ApplicationCall
-        """
-    @staticmethod
-    def global_num_byte_slice() -> UInt64:
-        """
-        field F of the last inner transaction
+    nonparticipation: bool = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of global state byteslices in ApplicationCall
-        """
-    @staticmethod
-    def local_num_uint() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of local state integers in ApplicationCall
-        """
-    @staticmethod
-    def local_num_byte_slice() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of local state byteslices in ApplicationCall
-        """
-    @staticmethod
-    def extra_program_pages() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program.
-        """
-    @staticmethod
-    def nonparticipation() -> bool:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns bool: Marks an account nonparticipating for rewards
-        """
     @staticmethod
     def logs(a: UInt64 | int, /) -> Bytes:
         """
@@ -3070,66 +2998,61 @@ class InnerTransaction:
 
         :returns Bytes: Log messages emitted by an application call (only with `itxn` in v5). Application mode only
         """
-    @staticmethod
-    def num_logs() -> UInt64:
-        """
-        field F of the last inner transaction
+    num_logs: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    created_asset_id: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
+    created_application_id: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        :returns UInt64: Number of Logs (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def created_asset_id() -> UInt64:
-        """
-        field F of the last inner transaction
+    last_log: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
+    state_proof_pk: Bytes = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def created_application_id() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def last_log() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: The last message emitted. Empty bytes if none were emitted. Application mode only
-        """
-    @staticmethod
-    def state_proof_pk() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 64 byte state proof public key
-        """
     @staticmethod
     def approval_program_pages(a: UInt64 | int, /) -> Bytes:
         """
@@ -3142,18 +3065,17 @@ class InnerTransaction:
 
         :returns Bytes: Approval Program as an array of pages
         """
-    @staticmethod
-    def num_approval_program_pages() -> UInt64:
-        """
-        field F of the last inner transaction
+    num_approval_program_pages: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of Approval Program pages
-        """
     @staticmethod
     def clear_state_program_pages(a: UInt64 | int, /) -> Bytes:
         """
@@ -3166,18 +3088,16 @@ class InnerTransaction:
 
         :returns Bytes: ClearState Program as an array of pages
         """
-    @staticmethod
-    def num_clear_state_program_pages() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of ClearState Program pages
-        """
+    num_clear_state_program_pages: UInt64 = ...
+    """
+    field F of the last inner transaction
+    
+    Groups: Inner Transactions
+    
+    Stack: [...] -> [..., X]
+    TEAL: itxn F
+    
+    """
 
 class InnerTransactionGroup:
     """Functions for the ops: `gitxn`, `gitxnas`"""
@@ -4153,318 +4073,292 @@ class Scratch:
 class Transaction:
     """Functions for the ops: `txn`, `txnas`"""
 
-    @staticmethod
-    def sender() -> Account:
-        """
-        field F of current transaction
+    sender: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    fee: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    first_valid: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    first_valid_time: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    last_valid: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    note: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    lease: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    receiver: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    amount: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    close_remainder_to: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    vote_pk: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    selection_pk: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    vote_first: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    vote_last: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    vote_key_dilution: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    type: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    type_enum: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    xfer_asset: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    asset_amount: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    asset_sender: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    asset_receiver: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    asset_close_to: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    group_index: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    tx_id: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    application_id: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    on_completion: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def fee() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: microalgos
-        """
-    @staticmethod
-    def first_valid() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: round number
-        """
-    @staticmethod
-    def first_valid_time() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: UNIX timestamp of block before txn.FirstValid. Fails if negative
-        """
-    @staticmethod
-    def last_valid() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: round number
-        """
-    @staticmethod
-    def note() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: Any data up to 1024 bytes
-        """
-    @staticmethod
-    def lease() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: 32 byte lease value
-        """
-    @staticmethod
-    def receiver() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def amount() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: microalgos
-        """
-    @staticmethod
-    def close_remainder_to() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def vote_pk() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: 32 byte address
-        """
-    @staticmethod
-    def selection_pk() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: 32 byte address
-        """
-    @staticmethod
-    def vote_first() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: The first round that the participation key is valid.
-        """
-    @staticmethod
-    def vote_last() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: The last round that the participation key is valid.
-        """
-    @staticmethod
-    def vote_key_dilution() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Dilution for the 2-level participation key
-        """
-    @staticmethod
-    def type() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: Transaction type as bytes
-        """
-    @staticmethod
-    def type_enum() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Transaction type as integer
-        """
-    @staticmethod
-    def xfer_asset() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Asset ID
-        """
-    @staticmethod
-    def asset_amount() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: value in Asset's units
-        """
-    @staticmethod
-    def asset_sender() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
-        """
-    @staticmethod
-    def asset_receiver() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def asset_close_to() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def group_index() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
-        """
-    @staticmethod
-    def tx_id() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: The computed ID for this transaction. 32 bytes.
-        """
-    @staticmethod
-    def application_id() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: ApplicationID from ApplicationCall transaction
-        """
-    @staticmethod
-    def on_completion() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: ApplicationCall transaction on completion action
-        """
     @staticmethod
     def application_args(a: UInt64 | int, /) -> Bytes:
         """
@@ -4477,18 +4371,17 @@ class Transaction:
 
         :returns Bytes: Arguments passed to the application in the ApplicationCall transaction
         """
-    @staticmethod
-    def num_app_args() -> UInt64:
-        """
-        field F of current transaction
+    num_app_args: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Number of ApplicationArgs
-        """
     @staticmethod
     def accounts(a: UInt64 | int, /) -> Account:
         """
@@ -4501,234 +4394,215 @@ class Transaction:
 
         :returns Account: Accounts listed in the ApplicationCall transaction
         """
-    @staticmethod
-    def num_accounts() -> UInt64:
-        """
-        field F of current transaction
+    num_accounts: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    approval_program: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
+    clear_state_program: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        :returns UInt64: Number of Accounts
-        """
-    @staticmethod
-    def approval_program() -> Bytes:
-        """
-        field F of current transaction
+    rekey_to: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    config_asset: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
+    config_asset_total: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        :returns Bytes: Approval program
-        """
-    @staticmethod
-    def clear_state_program() -> Bytes:
-        """
-        field F of current transaction
+    config_asset_decimals: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    config_asset_default_frozen: bool = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
+    config_asset_unit_name: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        :returns Bytes: Clear state program
-        """
-    @staticmethod
-    def rekey_to() -> Account:
-        """
-        field F of current transaction
+    config_asset_name: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    config_asset_url: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
+    config_asset_metadata_hash: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        :returns Account: 32 byte Sender's new AuthAddr
-        """
-    @staticmethod
-    def config_asset() -> UInt64:
-        """
-        field F of current transaction
+    config_asset_manager: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    config_asset_reserve: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
+    config_asset_freeze: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        :returns UInt64: Asset ID in asset config transaction
-        """
-    @staticmethod
-    def config_asset_total() -> UInt64:
-        """
-        field F of current transaction
+    config_asset_clawback: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    freeze_asset: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
+    freeze_asset_account: Account = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        :returns UInt64: Total number of units of this asset created
-        """
-    @staticmethod
-    def config_asset_decimals() -> UInt64:
-        """
-        field F of current transaction
+    freeze_asset_frozen: bool = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Number of digits to display after the decimal place when displaying the asset
-        """
-    @staticmethod
-    def config_asset_default_frozen() -> bool:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns bool: Whether the asset's slots are frozen by default or not, 0 or 1
-        """
-    @staticmethod
-    def config_asset_unit_name() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: Unit name of the asset
-        """
-    @staticmethod
-    def config_asset_name() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: The asset name
-        """
-    @staticmethod
-    def config_asset_url() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: URL
-        """
-    @staticmethod
-    def config_asset_metadata_hash() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: 32 byte commitment to unspecified asset metadata
-        """
-    @staticmethod
-    def config_asset_manager() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def config_asset_reserve() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def config_asset_freeze() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def config_asset_clawback() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def freeze_asset() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Asset ID being frozen or un-frozen
-        """
-    @staticmethod
-    def freeze_asset_account() -> Account:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Account: 32 byte address of the account whose asset slot is being frozen or un-frozen
-        """
-    @staticmethod
-    def freeze_asset_frozen() -> bool:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns bool: The new frozen value, 0 or 1
-        """
     @staticmethod
     def assets(a: UInt64 | int, /) -> UInt64:
         """
@@ -4741,18 +4615,17 @@ class Transaction:
 
         :returns UInt64: Foreign Assets listed in the ApplicationCall transaction
         """
-    @staticmethod
-    def num_assets() -> UInt64:
-        """
-        field F of current transaction
+    num_assets: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Number of Assets
-        """
     @staticmethod
     def applications(a: UInt64 | int, /) -> UInt64:
         """
@@ -4765,90 +4638,83 @@ class Transaction:
 
         :returns UInt64: Foreign Apps listed in the ApplicationCall transaction
         """
-    @staticmethod
-    def num_applications() -> UInt64:
-        """
-        field F of current transaction
+    num_applications: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    global_num_uint: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
+    global_num_byte_slice: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        :returns UInt64: Number of Applications
-        """
-    @staticmethod
-    def global_num_uint() -> UInt64:
-        """
-        field F of current transaction
+    local_num_uint: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    local_num_byte_slice: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
+    extra_program_pages: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        :returns UInt64: Number of global state integers in ApplicationCall
-        """
-    @staticmethod
-    def global_num_byte_slice() -> UInt64:
-        """
-        field F of current transaction
+    nonparticipation: bool = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Number of global state byteslices in ApplicationCall
-        """
-    @staticmethod
-    def local_num_uint() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Number of local state integers in ApplicationCall
-        """
-    @staticmethod
-    def local_num_byte_slice() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Number of local state byteslices in ApplicationCall
-        """
-    @staticmethod
-    def extra_program_pages() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program.
-        """
-    @staticmethod
-    def nonparticipation() -> bool:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns bool: Marks an account nonparticipating for rewards
-        """
     @staticmethod
     def logs(a: UInt64 | int, /) -> Bytes:
         """
@@ -4861,66 +4727,61 @@ class Transaction:
 
         :returns Bytes: Log messages emitted by an application call (only with `itxn` in v5). Application mode only
         """
-    @staticmethod
-    def num_logs() -> UInt64:
-        """
-        field F of current transaction
+    num_logs: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    created_asset_id: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
+    created_application_id: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        :returns UInt64: Number of Logs (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def created_asset_id() -> UInt64:
-        """
-        field F of current transaction
+    last_log: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
+    state_proof_pk: Bytes = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def created_application_id() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def last_log() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: The last message emitted. Empty bytes if none were emitted. Application mode only
-        """
-    @staticmethod
-    def state_proof_pk() -> Bytes:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns Bytes: 64 byte state proof public key
-        """
     @staticmethod
     def approval_program_pages(a: UInt64 | int, /) -> Bytes:
         """
@@ -4933,18 +4794,17 @@ class Transaction:
 
         :returns Bytes: Approval Program as an array of pages
         """
-    @staticmethod
-    def num_approval_program_pages() -> UInt64:
-        """
-        field F of current transaction
+    num_approval_program_pages: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Number of Approval Program pages
-        """
     @staticmethod
     def clear_state_program_pages(a: UInt64 | int, /) -> Bytes:
         """
@@ -4957,18 +4817,16 @@ class Transaction:
 
         :returns Bytes: ClearState Program as an array of pages
         """
-    @staticmethod
-    def num_clear_state_program_pages() -> UInt64:
-        """
-        field F of current transaction
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: txn F
-
-        :returns UInt64: Number of ClearState Program pages
-        """
+    num_clear_state_program_pages: UInt64 = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
 
 class TransactionGroup:
     """Functions for the ops: `gtxns`, `gtxnsas`"""

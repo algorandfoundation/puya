@@ -1,0 +1,196 @@
+#pragma version 10
+
+test_cases.log.contract.MyContract.approval_program:
+    int 0
+    dup
+    // log/contract.py:6
+    // log(0)
+    int 0
+    itob
+    log
+    // log/contract.py:7
+    // log(b"1")
+    byte "1"
+    log
+    // log/contract.py:8
+    // log("2")
+    byte "2"
+    log
+    // log/contract.py:9
+    // log(op.Transaction.num_app_args + 3)
+    txn NumAppArgs
+    int 3
+    +
+    itob
+    log
+    // log/contract.py:10
+    // log(Bytes(b"4") if op.Transaction.num_app_args else Bytes())
+    txn NumAppArgs
+    bz main_ternary_false@2
+    byte "4"
+    b main_ternary_merge@3
+
+main_ternary_false@2:
+    // log/contract.py:10
+    // log(Bytes(b"4") if op.Transaction.num_app_args else Bytes())
+    byte ""
+
+main_ternary_merge@3:
+    // log/contract.py:10
+    // log(Bytes(b"4") if op.Transaction.num_app_args else Bytes())
+    log
+    // log/contract.py:12
+    // b"5",
+    byte "5"
+    // log/contract.py:11-17
+    // log(
+    //     b"5",
+    //     6,
+    //     op.Transaction.num_app_args + 7,
+    //     BigUInt(8),
+    //     Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    // )
+    byte ""
+    // log/contract.py:13
+    // 6,
+    concat
+    int 6
+    itob
+    concat
+    // log/contract.py:11-17
+    // log(
+    //     b"5",
+    //     6,
+    //     op.Transaction.num_app_args + 7,
+    //     BigUInt(8),
+    //     Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    // )
+    byte ""
+    // log/contract.py:14
+    // op.Transaction.num_app_args + 7,
+    concat
+    txn NumAppArgs
+    int 7
+    +
+    itob
+    concat
+    // log/contract.py:11-17
+    // log(
+    //     b"5",
+    //     6,
+    //     op.Transaction.num_app_args + 7,
+    //     BigUInt(8),
+    //     Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    // )
+    byte ""
+    // log/contract.py:15
+    // BigUInt(8),
+    concat
+    byte 0x08
+    concat
+    // log/contract.py:11-17
+    // log(
+    //     b"5",
+    //     6,
+    //     op.Transaction.num_app_args + 7,
+    //     BigUInt(8),
+    //     Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    // )
+    byte ""
+    // log/contract.py:16
+    // Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    concat
+    bury 2
+    txn NumAppArgs
+    bz main_ternary_false@5
+    byte "9"
+    b main_ternary_merge@6
+
+main_ternary_false@5:
+    // log/contract.py:16
+    // Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    byte ""
+
+main_ternary_merge@6:
+    // log/contract.py:16
+    // Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    dig 2
+    swap
+    concat
+    // log/contract.py:11-17
+    // log(
+    //     b"5",
+    //     6,
+    //     op.Transaction.num_app_args + 7,
+    //     BigUInt(8),
+    //     Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    // )
+    log
+    // log/contract.py:19
+    // b"5",
+    byte "5"
+    // log/contract.py:24
+    // sep=b"_",
+    byte "_"
+    // log/contract.py:20
+    // 6,
+    concat
+    int 6
+    itob
+    concat
+    // log/contract.py:24
+    // sep=b"_",
+    byte "_"
+    // log/contract.py:21
+    // op.Transaction.num_app_args + 7,
+    concat
+    txn NumAppArgs
+    int 7
+    +
+    itob
+    concat
+    // log/contract.py:24
+    // sep=b"_",
+    byte "_"
+    // log/contract.py:22
+    // BigUInt(8),
+    concat
+    byte 0x08
+    concat
+    // log/contract.py:24
+    // sep=b"_",
+    byte "_"
+    // log/contract.py:23
+    // Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    concat
+    bury 1
+    txn NumAppArgs
+    bz main_ternary_false@8
+    byte "9"
+    b main_ternary_merge@9
+
+main_ternary_false@8:
+    // log/contract.py:23
+    // Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    byte ""
+
+main_ternary_merge@9:
+    // log/contract.py:23
+    // Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    dig 1
+    swap
+    concat
+    // log/contract.py:18-25
+    // log(
+    //     b"5",
+    //     6,
+    //     op.Transaction.num_app_args + 7,
+    //     BigUInt(8),
+    //     Bytes(b"9") if op.Transaction.num_app_args else Bytes(),
+    //     sep=b"_",
+    // )
+    log
+    // log/contract.py:26
+    // return True
+    int 1
+    return

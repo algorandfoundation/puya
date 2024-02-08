@@ -1,0 +1,103 @@
+// Op                                                    // Op Description                        Stack (out)                                                   X stack             Source code                                                    Source line
+
+#pragma version 10
+
+// test_cases.log.contract.MyContract.approval_program() -> uint64:
+main:
+        int 0
+        dup                                              // allocate 2 to stack                   (𝕗) tmp%14#0,tmp%26#0 |
+
+main_block@0:
+        int 0                                            //                                       (𝕗) tmp%14#0,tmp%26#0 | 0                                                         0                                                              File "log/contract.py", line 6
+        itob                                             //                                       (𝕗) tmp%14#0,tmp%26#0 | {itob}                                                    0                                                              File "log/contract.py", line 6
+        log                                              //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           log(0)                                                         File "log/contract.py", line 6
+        byte "1"                                         //                                       (𝕗) tmp%14#0,tmp%26#0 | "1"                                                       b"1"                                                           File "log/contract.py", line 7
+        log                                              //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           log(b"1")                                                      File "log/contract.py", line 7
+        byte "2"                                         //                                       (𝕗) tmp%14#0,tmp%26#0 | "2"                                                       "2"                                                            File "log/contract.py", line 8
+        log                                              //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           log("2")                                                       File "log/contract.py", line 8
+        txn NumAppArgs                                   //                                       (𝕗) tmp%14#0,tmp%26#0 | {txn}                                                     op.Transaction.num_app_args()                                  File "log/contract.py", line 9
+        int 3                                            //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%1#0,3                                                 3                                                              File "log/contract.py", line 9
+        +                                                //                                       (𝕗) tmp%14#0,tmp%26#0 | {+}                                                       op.Transaction.num_app_args() + 3                              File "log/contract.py", line 9
+        itob                                             //                                       (𝕗) tmp%14#0,tmp%26#0 | {itob}                                                    op.Transaction.num_app_args() + 3                              File "log/contract.py", line 9
+        log                                              //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           log(op.Transaction.num_app_args() + 3)                         File "log/contract.py", line 9
+        txn NumAppArgs                                   //                                       (𝕗) tmp%14#0,tmp%26#0 | {txn}                                                     op.Transaction.num_app_args()                                  File "log/contract.py", line 10
+        bz main_ternary_false@2                          //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           Bytes(b"4") if op.Transaction.num_app_args() else Bytes()      File "log/contract.py", line 10
+        // Implicit fall through to main_ternary_true@1  //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           Bytes(b"4") if op.Transaction.num_app_args() else Bytes()      File "log/contract.py", line 10
+
+main_ternary_true@1:
+        byte "4"                                         //                                       (𝕗) tmp%14#0,tmp%26#0 | "4"                                                       b"4"                                                           File "log/contract.py", line 10
+        b main_ternary_merge@3                           //                                       (𝕗) tmp%14#0,tmp%26#0 | (𝕏) ternary_result%5#0 |              ternary_result%5#0
+
+main_ternary_false@2:
+        byte ""                                          //                                       (𝕗) tmp%14#0,tmp%26#0 | ""                                                        Bytes()                                                        File "log/contract.py", line 10
+        // Implicit fall through to main_ternary_merge@3 //                                       (𝕗) tmp%14#0,tmp%26#0 | (𝕏) ternary_result%5#0 |              ternary_result%5#0
+
+main_ternary_merge@3:
+        log                                              //                                       (𝕗) tmp%14#0,tmp%26#0 |                                       ternary_result%5#0  log(Bytes(b"4") if op.Transaction.num_app_args() else Bytes()) File "log/contract.py", line 10
+        int 6                                            //                                       (𝕗) tmp%14#0,tmp%26#0 | 6                                                         6                                                              File "log/contract.py", line 13
+        itob                                             //                                       (𝕗) tmp%14#0,tmp%26#0 | {itob}                                                    6                                                              File "log/contract.py", line 13
+        byte "5 "                                        //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%7#0,"5 "                                              b"5"                                                           File "log/contract.py", line 12
+        swap                                             // load tmp%7#0 from l-stack (no copy)   (𝕗) tmp%14#0,tmp%26#0 | "5 ",tmp%7#0                                              6                                                              File "log/contract.py", line 13
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  6                                                              File "log/contract.py", line 13
+        byte " "                                         //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%8#0," "                                               log(                                                           File "log/contract.py", line 11
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  6                                                              File "log/contract.py", line 13
+        txn NumAppArgs                                   //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%9#0,{txn}                                             op.Transaction.num_app_args()                                  File "log/contract.py", line 14
+        int 7                                            //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%9#0,tmp%10#0,7                                        7                                                              File "log/contract.py", line 14
+        +                                                //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%9#0,{+}                                               op.Transaction.num_app_args() + 7                              File "log/contract.py", line 14
+        itob                                             //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%9#0,{itob}                                            op.Transaction.num_app_args() + 7                              File "log/contract.py", line 14
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  op.Transaction.num_app_args() + 7                              File "log/contract.py", line 14
+        byte " "                                         //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%13#0," "                                              log(                                                           File "log/contract.py", line 11
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  op.Transaction.num_app_args() + 7                              File "log/contract.py", line 14
+        bury 2                                           // store tmp%14#0 to f-stack             (𝕗) tmp%14#0,tmp%26#0 |                                                           op.Transaction.num_app_args() + 7                              File "log/contract.py", line 14
+        txn NumAppArgs                                   //                                       (𝕗) tmp%14#0,tmp%26#0 | {txn}                                                     op.Transaction.num_app_args()                                  File "log/contract.py", line 15
+        bz main_ternary_false@5                          //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           Bytes(b"8") if op.Transaction.num_app_args() else Bytes()      File "log/contract.py", line 15
+        // Implicit fall through to main_ternary_true@4  //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           Bytes(b"8") if op.Transaction.num_app_args() else Bytes()      File "log/contract.py", line 15
+
+main_ternary_true@4:
+        byte "8"                                         //                                       (𝕗) tmp%14#0,tmp%26#0 | "8"                                                       b"8"                                                           File "log/contract.py", line 15
+        b main_ternary_merge@6                           //                                       (𝕗) tmp%14#0,tmp%26#0 | (𝕏) ternary_result%16#0 |             ternary_result%16#0
+
+main_ternary_false@5:
+        byte ""                                          //                                       (𝕗) tmp%14#0,tmp%26#0 | ""                                                        Bytes()                                                        File "log/contract.py", line 15
+        // Implicit fall through to main_ternary_merge@6 //                                       (𝕗) tmp%14#0,tmp%26#0 | (𝕏) ternary_result%16#0 |             ternary_result%16#0
+
+main_ternary_merge@6:
+        dig 2                                            // load tmp%14#0 from f-stack            (𝕗) tmp%14#0,tmp%26#0 | (𝕏) ternary_result%16#0 | tmp%14#0    ternary_result%16#0 op.Transaction.num_app_args() + 7                              File "log/contract.py", line 14
+        swap                                             // load ternary_result%16#0 from x-stack (𝕗) tmp%14#0,tmp%26#0 | tmp%14#0,ternary_result%16#0                              b"8"                                                           File "log/contract.py", line 15
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  Bytes(b"8") if op.Transaction.num_app_args() else Bytes()      File "log/contract.py", line 15
+        log                                              //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           log(                                                           File "log/contract.py", line 11
+        int 6                                            //                                       (𝕗) tmp%14#0,tmp%26#0 | 6                                                         6                                                              File "log/contract.py", line 19
+        itob                                             //                                       (𝕗) tmp%14#0,tmp%26#0 | {itob}                                                    6                                                              File "log/contract.py", line 19
+        byte "5_"                                        //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%19#0,"5_"                                             b"5"                                                           File "log/contract.py", line 18
+        swap                                             // load tmp%19#0 from l-stack (no copy)  (𝕗) tmp%14#0,tmp%26#0 | "5_",tmp%19#0                                             6                                                              File "log/contract.py", line 19
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  6                                                              File "log/contract.py", line 19
+        byte "_"                                         //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%20#0,"_"                                              b"_"                                                           File "log/contract.py", line 22
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  6                                                              File "log/contract.py", line 19
+        txn NumAppArgs                                   //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%21#0,{txn}                                            op.Transaction.num_app_args()                                  File "log/contract.py", line 20
+        int 7                                            //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%21#0,tmp%22#0,7                                       7                                                              File "log/contract.py", line 20
+        +                                                //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%21#0,{+}                                              op.Transaction.num_app_args() + 7                              File "log/contract.py", line 20
+        itob                                             //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%21#0,{itob}                                           op.Transaction.num_app_args() + 7                              File "log/contract.py", line 20
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  op.Transaction.num_app_args() + 7                              File "log/contract.py", line 20
+        byte "_"                                         //                                       (𝕗) tmp%14#0,tmp%26#0 | tmp%25#0,"_"                                              b"_"                                                           File "log/contract.py", line 22
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  op.Transaction.num_app_args() + 7                              File "log/contract.py", line 20
+        bury 1                                           // store tmp%26#0 to f-stack             (𝕗) tmp%14#0,tmp%26#0 |                                                           op.Transaction.num_app_args() + 7                              File "log/contract.py", line 20
+        txn NumAppArgs                                   //                                       (𝕗) tmp%14#0,tmp%26#0 | {txn}                                                     op.Transaction.num_app_args()                                  File "log/contract.py", line 21
+        bz main_ternary_false@8                          //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           Bytes(b"8") if op.Transaction.num_app_args() else Bytes()      File "log/contract.py", line 21
+        // Implicit fall through to main_ternary_true@7  //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           Bytes(b"8") if op.Transaction.num_app_args() else Bytes()      File "log/contract.py", line 21
+
+main_ternary_true@7:
+        byte "8"                                         //                                       (𝕗) tmp%14#0,tmp%26#0 | "8"                                                       b"8"                                                           File "log/contract.py", line 21
+        b main_ternary_merge@9                           //                                       (𝕗) tmp%14#0,tmp%26#0 | (𝕏) ternary_result%28#0 |             ternary_result%28#0
+
+main_ternary_false@8:
+        byte ""                                          //                                       (𝕗) tmp%14#0,tmp%26#0 | ""                                                        Bytes()                                                        File "log/contract.py", line 21
+        // Implicit fall through to main_ternary_merge@9 //                                       (𝕗) tmp%14#0,tmp%26#0 | (𝕏) ternary_result%28#0 |             ternary_result%28#0
+
+main_ternary_merge@9:
+        dig 1                                            // load tmp%26#0 from f-stack            (𝕗) tmp%14#0,tmp%26#0 | (𝕏) ternary_result%28#0 | tmp%26#0    ternary_result%28#0 op.Transaction.num_app_args() + 7                              File "log/contract.py", line 20
+        swap                                             // load ternary_result%28#0 from x-stack (𝕗) tmp%14#0,tmp%26#0 | tmp%26#0,ternary_result%28#0                              b"8"                                                           File "log/contract.py", line 21
+        concat                                           //                                       (𝕗) tmp%14#0,tmp%26#0 | {concat}                                                  Bytes(b"8") if op.Transaction.num_app_args() else Bytes()      File "log/contract.py", line 21
+        log                                              //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           log(                                                           File "log/contract.py", line 17
+        int 1                                            //                                       (𝕗) tmp%14#0,tmp%26#0 | 1                                                         True                                                           File "log/contract.py", line 24
+        return                                           //                                       (𝕗) tmp%14#0,tmp%26#0 |                                                           return True                                                    File "log/contract.py", line 24
+

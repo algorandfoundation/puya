@@ -3,10 +3,9 @@ from puyapy import (
     Contract,
     LocalState,
     OnCompleteAction,
-    Transaction,
     UInt64,
-    btoi,
     log,
+    op,
     subroutine,
 )
 
@@ -16,16 +15,16 @@ class LocalStateContract(Contract):
         self.local = LocalState(Bytes)
 
     def approval_program(self) -> bool:
-        if Transaction.application_id() == 0:
+        if op.Transaction.application_id == 0:
             return True
-        if Transaction.on_completion() not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+        if op.Transaction.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
             return False
-        if Transaction.num_app_args() < 1:
+        if op.Transaction.num_app_args < 1:
             return False
 
-        offset = btoi(Transaction.application_args(0))
-        method = Transaction.application_args(1)
-        if Transaction.num_app_args() == 2:
+        offset = op.btoi(op.Transaction.application_args(0))
+        method = op.Transaction.application_args(1)
+        if op.Transaction.num_app_args == 2:
             if method == b"get_guaranteed_data":
                 log(self.get_guaranteed_data(offset))
             elif method == b"get_data_or_assert":
@@ -36,11 +35,11 @@ class LocalStateContract(Contract):
             else:
                 return False
             return True
-        elif Transaction.num_app_args() == 3:
+        elif op.Transaction.num_app_args == 3:
             if method == b"set_data":
-                self.set_data(offset, Transaction.application_args(2))
+                self.set_data(offset, op.Transaction.application_args(2))
             elif method == b"get_data_with_default":
-                log(self.get_data_with_default(offset, Transaction.application_args(2)))
+                log(self.get_data_with_default(offset, op.Transaction.application_args(2)))
             else:
                 return False
             return True

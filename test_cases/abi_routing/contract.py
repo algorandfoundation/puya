@@ -6,15 +6,13 @@ from puyapy import (
     ARC4Contract,
     Asset,
     Bytes,
-    CreateInnerTransaction,
-    Global,
     OnCompleteAction,
     PaymentTransaction,
-    Transaction,
     TransactionType,
     UInt64,
     arc4,
     log,
+    op,
 )
 
 Bytes3: typing.TypeAlias = arc4.StaticArray[arc4.Byte, typing.Literal[3]]
@@ -25,7 +23,7 @@ class Reference(ARC4Contract):
         self.asa = Asset(123)
         self.an_int = UInt64(2)
         self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
-        self.creator = Transaction.sender()
+        self.creator = op.Transaction.sender
         self.app = Application(123)
 
         assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
@@ -80,19 +78,19 @@ class Reference(ARC4Contract):
     @arc4.abimethod
     def opt_into_asset(self, asset: Asset) -> None:
         # Only allow app creator to opt the app account into a ASA
-        assert Transaction.sender() == Global.creator_address(), "Only creator can opt in to ASA"
+        assert op.Transaction.sender == op.Global.creator_address, "Only creator can opt in to ASA"
         # Verify a ASA hasn't already been opted into
         assert not self.asa, "ASA already opted in"
         # Save ASA ID in global state
         self.asa = asset
 
         # Submit opt-in transaction: 0 asset transfer to self
-        CreateInnerTransaction.begin()
-        CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-        CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
-        CreateInnerTransaction.set_asset_receiver(Global.current_application_address())
-        CreateInnerTransaction.set_xfer_asset(asset.asset_id)
-        CreateInnerTransaction.submit()
+        op.CreateInnerTransaction.begin()
+        op.CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
+        op.CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
+        op.CreateInnerTransaction.set_asset_receiver(op.Global.current_application_address)
+        op.CreateInnerTransaction.set_xfer_asset(asset.asset_id)
+        op.CreateInnerTransaction.submit()
 
     @arc4.abimethod
     def with_transactions(
@@ -100,7 +98,7 @@ class Reference(ARC4Contract):
     ) -> None:
         assert self.asa == asset, "is correct asset"
         assert an_int.decode() == 1, "is correct int"
-        assert pay.receiver == Global.current_application_address(), "is payment to app"
+        assert pay.receiver == op.Global.current_application_address, "is payment to app"
         assert another_int.decode() == 2, "is correct int"
 
     @arc4.abimethod
@@ -109,7 +107,7 @@ class Reference(ARC4Contract):
 
     @arc4.abimethod(readonly=True)
     def get_address(self) -> arc4.Address:
-        return arc4.Address.from_bytes(Global.zero_address().bytes)
+        return arc4.Address.from_bytes(op.Global.zero_address.bytes)
 
     @arc4.abimethod(readonly=True)
     def get_asset(self) -> arc4.UInt64:
@@ -150,8 +148,8 @@ class Reference(ARC4Contract):
     ) -> None:
         assert asset_from_storage == Asset(123), "wrong asset from storage"
         assert asset_from_function == Asset(456), "wrong asset from function"
-        assert account_from_storage == Global.creator_address(), "wrong account from storage"
-        assert account_from_function == Global.zero_address(), "wrong account from function"
+        assert account_from_storage == op.Global.creator_address, "wrong account from storage"
+        assert account_from_function == op.Global.zero_address, "wrong account from function"
         assert application_from_storage == Application(123), "wrong application from storage"
         assert application_from_function == Application(456), "wrong application from function"
         assert bytes_from_storage[0] == arc4.Byte(7), "wrong 0th byte from storage"
@@ -195,7 +193,7 @@ class Reference(ARC4Contract):
         Application calls only support 16 args, and arc4 calls utilise the first arg for the method
         selector. Args beyond this number are packed into a tuple and placed in the 16th slot.
         """
-        assert Transaction.num_app_args() == 16
+        assert op.Transaction.num_app_args == 16
         assert pay.amount == 100000
         assert pay2.amount == 200000
         assert asset.asset_id

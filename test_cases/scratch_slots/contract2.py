@@ -1,7 +1,7 @@
 import typing
 
 import puyapy
-from puyapy import Bytes, Scratch, UInt64, subroutine, urange
+from puyapy import Bytes, UInt64, op, subroutine, urange
 
 from test_cases.scratch_slots.contract import MyContract
 
@@ -14,6 +14,6 @@ class MyContract2(
 ):
     @subroutine
     def my_sub(self) -> None:
-        Scratch.store(UInt64(1), Bytes(b"abc"))
+        op.Scratch.store(UInt64(1), Bytes(b"abc"))
 
-        Scratch.store(52, Bytes(b"52"))
+        op.Scratch.store(52, Bytes(b"52"))

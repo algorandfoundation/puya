@@ -1,12 +1,12 @@
-from puyapy import Bytes, Contract, Transaction, subroutine
+from puyapy import Bytes, Contract, op, subroutine
 
 
 class MyContract(Contract):
     def approval_program(self) -> bool:
-        a = Transaction.application_args(0)
-        b = Transaction.application_args(1)
-        c = Transaction.application_args(2)
-        d = Transaction.application_args(3)
+        a = op.Transaction.application_args(0)
+        b = op.Transaction.application_args(1)
+        c = op.Transaction.application_args(2)
+        d = op.Transaction.application_args(3)
 
         assert (a != c) or (b != d)
         assert four_args(a, b, c, d)

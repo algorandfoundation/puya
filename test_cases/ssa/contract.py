@@ -1,4 +1,4 @@
-from puyapy import Contract, UInt64, itob, log, subroutine, urange
+from puyapy import Contract, UInt64, log, op, subroutine, urange
 
 
 class MyContract(Contract):
@@ -34,7 +34,7 @@ class MyContract(Contract):
         else:
             c = a - b
         c = c + one_hundred(c)
-        c_bytes = itob(c)
+        c_bytes = op.itob(c)
         log(c_bytes)
         assert phi_in_equiv_class(UInt64(3), True) == 4
         assert phi_in_equiv_class(UInt64(3), False) == 4

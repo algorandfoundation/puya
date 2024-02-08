@@ -1,4 +1,4 @@
-from puyapy import Contract, UInt64, itob, log, uenumerate, urange
+from puyapy import Contract, UInt64, log, op, uenumerate, urange
 
 LOOP_ITERATIONS = 2  # max op code budget is exceeded with more
 
@@ -19,13 +19,13 @@ class Nested(Contract):
             # should not affect the next iteration
             a += n
 
-        log(itob(x))
+        log(op.itob(x))
 
         y = UInt64(0)
         for index, item in uenumerate(urange(UInt64(10))):
             y += item * index
 
-        log(itob(y))
+        log(op.itob(y))
         return x
 
     def clear_state_program(self) -> UInt64:

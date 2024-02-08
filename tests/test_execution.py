@@ -589,13 +589,13 @@ def test_calculator(harness: _TestHarness) -> None:
 
 def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
     def test() -> None:
-        from puyapy import Bytes, Contract, Transaction, log, subroutine
+        from puyapy import Bytes, Contract, log, op, subroutine
 
         class Exclaimer(Contract):
             def approval_program(self) -> bool:
-                num_args = Transaction.num_app_args()
+                num_args = op.Transaction.num_app_args
                 assert num_args == 1, "expected one arg"
-                msg = Transaction.application_args(0)
+                msg = op.Transaction.application_args(0)
                 exclaimed = self.exclaim(msg)
                 log(exclaimed)
                 return True
@@ -871,11 +871,11 @@ def test_biguint_stubs(harness: _TestHarness) -> None:
 
 def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
     def test() -> None:
-        from puyapy import BigUInt, Contract, Transaction, log
+        from puyapy import BigUInt, Contract, log, op
 
         class BigUIntByteTests(Contract):
             def approval_program(self) -> bool:
-                arg = Transaction.application_args(0)
+                arg = op.Transaction.application_args(0)
                 big_uint = BigUInt.from_bytes(arg)
                 big_uint += 1
                 log(big_uint.bytes)
@@ -1173,3 +1173,18 @@ def test_control_op_simplification(
         TEST_CASES_DIR / "control_op_simplification", request=AppCallRequest(args=[*args])
     )
     assert result.decode_logs("i" * len(expected_logs)) == expected_logs
+
+
+def test_log(harness: _TestHarness) -> None:
+    result = harness.deploy(TEST_CASES_DIR / "log")
+    u64_bytes = [x.to_bytes(length=8) for x in range(8)]
+    bytes_8 = b"\x08"
+    assert result.decode_logs("b" * 7) == [
+        u64_bytes[0],
+        b"1",
+        b"2",
+        u64_bytes[3],
+        b"",
+        b"5" + u64_bytes[6] + u64_bytes[7] + bytes_8 + b"",
+        b"_".join((b"5", u64_bytes[6], u64_bytes[7], bytes_8, b"")),
+    ]

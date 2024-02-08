@@ -4,8 +4,8 @@ from puyapy import (
     Contract,
     LocalState,
     OnCompleteAction,
-    Transaction,
     UInt64,
+    op,
 )
 
 
@@ -17,14 +17,14 @@ class Augmented(Contract):
         self.global_bytes = Bytes(b"")
 
     def approval_program(self) -> bool:
-        me = Transaction.sender()
+        me = op.Transaction.sender
 
-        if Transaction.on_completion() == OnCompleteAction.OptIn:
+        if op.Transaction.on_completion == OnCompleteAction.OptIn:
             self.my_uint[me] = UInt64(0)
             self.my_bytes[me] = Bytes(b"")
-        if Transaction.application_id() > 0:
+        if op.Transaction.application_id > 0:
             # variable augmented assignment
-            n = Transaction.num_app_args()
+            n = op.Transaction.num_app_args
             bytes_to_add = BigUInt(n).bytes
 
             # local augmented assignment

@@ -1,14 +1,14 @@
-from puyapy import Contract, UInt64, itob, log, subroutine, urange
+from puyapy import Contract, UInt64, log, op, subroutine, urange
 
 
 class UnSSAContract(Contract):
     def approval_program(self) -> bool:
         test_self_ref_phi()
         result1 = test_swap(UInt64(1))
-        log(itob(result1))
+        log(op.itob(result1))
         assert 1 <= result1 <= 2
         result2 = test_swap(UInt64(2))
-        log(itob(result2))
+        log(op.itob(result2))
         assert 1 <= result2 <= 2
         test_swap_loop(UInt64(7), UInt64(11))
         assert test_param_update_with_reentrant_entry_block(UInt64(0)) == 10

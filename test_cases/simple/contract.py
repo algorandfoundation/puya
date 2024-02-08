@@ -23,5 +23,5 @@ class MyContract(algo.Contract):
             return pkg_a.MyUInt64(4)
 
     def clear_state_program(self) -> algo.UInt64:
-        assert pkg_a.Txn.num_app_args() == 0
+        assert pkg_a.Txn.num_app_args == 0
         return subs.zero() * pkg_a.pkg_1.subs.one()

@@ -1,20 +1,22 @@
 from puyapy import (
     Bytes,
     Contract,
+    OnCompleteAction,
+    TransactionType,
+    UInt64,
+)
+from puyapy.op import (
     CreateInnerTransaction,
     InnerTransaction,
     InnerTransactionGroup,
-    OnCompleteAction,
     Transaction,
     TransactionGroup,
-    TransactionType,
-    UInt64,
 )
 
 
 class ImmediateVariants(Contract):
     def approval_program(self) -> bool:
-        num_app_args = Transaction.num_app_args()
+        num_app_args = Transaction.num_app_args
         assert TransactionGroup.num_app_args(0) == num_app_args
         assert TransactionGroup.num_app_args(UInt64(0)) == num_app_args
         first_arg = Transaction.application_args(0)
@@ -36,7 +38,7 @@ class ImmediateVariants(Contract):
         CreateInnerTransaction.set_application_args(second_arg)
         CreateInnerTransaction.submit()
 
-        assert InnerTransaction.num_app_args() == 2
+        assert InnerTransaction.num_app_args == 2
         assert InnerTransaction.application_args(0) == first_arg
         assert InnerTransaction.application_args(UInt64(1)) == second_arg
 

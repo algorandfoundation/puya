@@ -1,4 +1,4 @@
-from puyapy import UInt64
+from puyapy import BigUInt, Bytes, UInt64
 
 class OpUpFeeSource(UInt64):
     """Defines the source of fees for the OpUp utility."""
@@ -14,3 +14,10 @@ def ensure_budget(
     required_budget: UInt64 | int, fee_source: OpUpFeeSource = OpUpFeeSource.Any
 ) -> None:
     """Ensure the available op code budget is greater than or equal to required_budget"""
+
+def log(
+    *args: BigUInt | UInt64 | Bytes | str | bytes | int, sep: Bytes | bytes | str = b""
+) -> None:
+    """Concatenates and logs supplied args as a single bytes value.
+
+    UInt64 args are converted to bytes and each argument is separated by `sep`."""
