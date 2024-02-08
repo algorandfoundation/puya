@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable, Iterable, Mapping, Sequence, Reversible
+from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
 import puyapy
 
@@ -25,9 +25,7 @@ _TABIDefaultArgSource: typing.TypeAlias = object
 
 # if we use type aliasing here for Callable[_P, _R], mypy thinks it involves Any...
 @typing.overload
-def abimethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]:
-    """Indicates a method is an ARC4 ABI method"""
-
+def abimethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
 @typing.overload
 def abimethod(
     *,
@@ -37,19 +35,17 @@ def abimethod(
     readonly: bool = False,
     default_args: Mapping[str, str | _TABIDefaultArgSource] | None = None,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
-    """Indicates a method is an ARC4 ABI method"""
+    """Decorator that indicates a method is an ARC4 ABI method"""
 
 @typing.overload
-def baremethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]:
-    """Indicates a method is an ARC4 bare method"""
-
+def baremethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
 @typing.overload
 def baremethod(
     *,
     allow_actions: AllowedOnCompletes | None = None,
     create: bool | typing.Literal["allow"] = False,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
-    """Indicates a method is an ARC4 bare method"""
+    """Decorator that indicates a method is an ARC4 bare method"""
 
 _T = typing.TypeVar("_T")
 
@@ -147,7 +143,7 @@ UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
 class Bool(_ABIEncoded[bool]):
     """An ARC4 encoded bool"""
 
-    def __init__(self, value: bool) -> None: ...
+    def __init__(self, value: bool) -> None: ...  # noqa: FBT001
 
 _TArrayItem = typing.TypeVar("_TArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
@@ -324,7 +320,7 @@ class Tuple(
 )
 class _StructMeta(type):
     def __new__(
-        mcs,
+        cls,
         name: str,
         bases: tuple[type, ...],
         namespace: dict[str, object],
