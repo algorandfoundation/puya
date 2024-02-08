@@ -1,6 +1,5 @@
 import functools
 import itertools
-import math
 import typing
 from collections.abc import Callable
 from typing import Sequence
@@ -20,6 +19,7 @@ SimplifyFunction: typing.TypeAlias = Callable[
     [tuple[teal.TealOp, ...]], Sequence[teal.TealOp] | None
 ]
 TealOpSequence = tuple[teal.TealOp, ...]
+MAX_PERMUTATIONS = 2000
 
 
 @attrs.define
@@ -318,12 +318,17 @@ def simplify_rotation_ops(
     possible_rotation_ops = get_possible_rotation_ops(n)
 
     # TODO: use a non-bruteforce approach and/or capture common simplifications as data
+    permutations = 0
     for num_rotation_ops in range(len(rot_op_ns)):
         num_possible_ops = num_rotation_ops + len(fixed_ops)
         for maybe_rotation_ops in itertools.permutations(possible_rotation_ops, num_rotation_ops):
             assert isinstance(maybe_rotation_ops, tuple)
             possible_ops = maybe_rotation_ops + fixed_ops
             for maybe_ops in itertools.permutations(possible_ops, num_possible_ops):
+                permutations += 1
+                if permutations > MAX_PERMUTATIONS:
+                    # too many permutations, abandon search
+                    return None
                 assert isinstance(maybe_ops, tuple)
                 stack = original_stack.clone()
                 try:
@@ -457,23 +462,6 @@ def try_simplify_triple_ops(subroutine: ops.MemorySubroutine, block: ops.MemoryB
     return modified
 
 
-MAX_PERMUTATIONS = 2000
-
-
-def get_estimated_permutations(maybe_simplify: Sequence[MIRTealOps]) -> int:
-    teal_ops = itertools.chain.from_iterable(o.teal_ops for o in maybe_simplify)
-    rot_op_ns = [o.n for o in teal_ops if isinstance(o, teal.Cover | teal.Uncover)]
-    if not rot_op_ns:
-        return 0
-    fixed_permutations = math.factorial(len(maybe_simplify) - len(rot_op_ns))
-    max_n = max(rot_op_ns) + 1
-    rotation_choices = max_n * 2
-    total = 0
-    for num_rot_ops in range(len(rot_op_ns)):
-        total += rotation_choices**num_rot_ops * fixed_permutations
-    return total
-
-
 def _can_maybe_be_simplified(op: MIRTealOps) -> bool:
     return all(
         isinstance(
@@ -498,12 +486,6 @@ def try_simplify_rotation_ops(
     for mir_teal_op in mir_teal_ops:
         if _can_maybe_be_simplified(mir_teal_op):
             maybe_remove_rotations.append(mir_teal_op)
-            if get_estimated_permutations(maybe_remove_rotations) >= MAX_PERMUTATIONS:
-                modified = try_simplify(maybe_remove_rotations, simplify_rotation_ops, block.ops)
-                if modified:
-                    maybe_remove_rotations = []
-                else:
-                    maybe_remove_rotations.pop(0)
         elif maybe_remove_rotations:
             try_simplify(maybe_remove_rotations, simplify_rotation_ops, block.ops)
             maybe_remove_rotations = []
