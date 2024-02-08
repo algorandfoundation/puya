@@ -1,17 +1,22 @@
-import typing as t
+import typing
 
 from puyapy import Bytes, UInt64
 
 class Account:
+    """An Account on the Algorand network.
+
+    Note: must be an available resource to access properties other than `bytes`
+    """
+
     __match_value__: str
     __match_args__ = ("__match_value__",)
-    def __init__(self, address: t.LiteralString):
+    def __init__(self, address: typing.LiteralString):
         """
         `value` should be a 58 character base32 string,
          ie a base32 string-encoded 32 bytes public key + 4 bytes checksum
         """
-    def __eq__(self, other: Account | t.LiteralString) -> bool: ...  # type: ignore[override]
-    def __ne__(self, other: Account | t.LiteralString) -> bool: ...  # type: ignore[override]
+    def __eq__(self, other: Account | typing.LiteralString) -> bool: ...  # type: ignore[override]
+    def __ne__(self, other: Account | typing.LiteralString) -> bool: ...  # type: ignore[override]
     # truthiness
     def __bool__(self) -> bool: ...  # returns True iff not equal to the zero address
     @property
@@ -58,6 +63,11 @@ class Account:
         """The total number of bytes used by this account's app's box keys and values."""
 
 class Asset:
+    """An Asset on the Algorand network.
+
+    Note: must be an available resource to access properties other than `asset_id`
+    """
+
     def __init__(self, asset_id: UInt64 | int): ...
     @property
     def asset_id(self) -> UInt64: ...
@@ -108,6 +118,11 @@ class Asset:
         """Is the asset frozen or not"""
 
 class Application:
+    """An Application on the Algorand network.
+
+    Note: must be an available resource to access properties other than `application_id`
+    """
+
     def __init__(self, application_id: UInt64 | int): ...
     @property
     def application_id(self) -> UInt64: ...

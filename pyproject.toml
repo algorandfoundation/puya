@@ -40,18 +40,20 @@ black = [
     {version = "^23.10.1", markers = "sys_platform == 'win32'"}
 ]
 mypy = "1.7.1"
-ruff = "^0.1.15"
+ruff = "^0.2.1"
 pre-commit = "^3.3.3"
 cattrs = "^23.1.2"
 ruff-lsp = "^0.0.45"
+poethepoet = "^0.24.4"
 
 [tool.poetry.group.doc]
 optional = true
 
 [tool.poetry.group.doc.dependencies]
 sphinx = "^7.2.6"
-sphinx-rtd-theme = "^2.0.0"
+furo = "^2024.1.29"
 myst-parser = "^2.0.0"
+sphinx-autodoc2 = "^0.5.0"
 
 [tool.poetry.group.cicd]
 optional = true
@@ -115,6 +117,15 @@ disallow_untyped_calls = false
 
 [tool.ruff]
 line-length = 99
+extend-exclude = [
+    "src/puya/_typeshed",
+    "src/puya/_vendor",
+    "test_cases/non_utf8.py", # E902 ruff doesn't read this file encoding
+]
+# force-exclude ensures these files are excluded even when run via pre-commit
+force-exclude = true
+
+[tool.ruff.lint]
 select = [
       # all possible codes as of this ruff version are listed here,
       # ones we don't want/need are commented out to make it clear
@@ -190,14 +201,7 @@ unfixable = [
     "B011", # don't automatically convert assert False -> raise AssertionError - we want the former
             # in any smart contracts in this repo
 ]
-extend-exclude = [
-    "src/puya/_typeshed",
-    "src/puya/_vendor",
-    "test_cases/non_utf8.py", # E902 ruff doesn't read this file encoding
-]
-# force-exclude ensures these files are excluded even when run via pre-commit
-force-exclude = true
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "src/**" = [
     "PT",       # no pytest rules
 ]
@@ -219,16 +223,16 @@ force-exclude = true
     "ARG002",
 ]
 
-[tool.ruff.flake8-annotations]
+[tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
 suppress-none-returning = true
 mypy-init-return = true
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 combine-as-imports = true
 force-wrap-aliases = true
 
-[tool.ruff.flake8-builtins]
+[tool.ruff.lint.flake8-builtins]
 builtins-ignorelist = ["id"]
 
 [tool.semantic_release]
@@ -257,3 +261,6 @@ upload_to_vcs_release = true
 
 [tool.semantic_release.remote.token]
 env = "GITHUB_TOKEN"
+
+[tool.poe.tasks]
+docs = "poetry run scripts/generate_docs.py"

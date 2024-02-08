@@ -135,4 +135,5 @@ hidden: true
 
 language_guide
 principles
+api
 ```

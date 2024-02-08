@@ -4,7 +4,10 @@ from puyapy import UInt64
 
 @enum.unique
 class OnCompleteAction(UInt64, enum.ReprEnum):
+    """On Completion actions available in an application call transaction"""
+
     NoOp = ...
+    """NoOP indicates that no additional action is performed when the transaction completes"""
 
     OptIn = ...
     """OptIn indicates that an application transaction will allocate some
@@ -30,9 +33,17 @@ class OnCompleteAction(UInt64, enum.ReprEnum):
 
 @enum.unique
 class TransactionType(UInt64, enum.ReprEnum):
+    """The different transaction types available in a transaction"""
+
     Payment = ...
+    """A Payment transaction"""
     KeyRegistration = ...
+    """A Key Registration transaction"""
     AssetConfig = ...
+    """An Asset Config transaction"""
     AssetTransfer = ...
+    """An Asset Transfer transaction"""
     AssetFreeze = ...
+    """An Asset Freeze transaction"""
     ApplicationCall = ...
+    """An Application Call transaction"""

@@ -109,7 +109,7 @@ def fold_unary_expr(
     expr: ConstantValue,
 ) -> ConstantValue:
     try:
-        result = eval(  # noqa: PGH001
+        result = eval(
             f"{op} expr",
             {"expr": expr},
         )
@@ -132,7 +132,7 @@ def fold_binary_expr(
     rhs: ConstantValue,
 ) -> ConstantValue:
     try:
-        result = eval(  # noqa: PGH001
+        result = eval(
             f"lhs {op} rhs",
             {"lhs": lhs, "rhs": rhs},
         )
