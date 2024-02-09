@@ -9,7 +9,7 @@ from puya.parse import SourceLocation
 
 
 class NamedIntegerConstsTypeBuilder(TypeClassExpressionBuilder):
-    def __init__(self, enum_name: str, data: dict[str, enum.IntEnum], location: SourceLocation):
+    def __init__(self, location: SourceLocation, *, enum_name: str, data: dict[str, enum.IntEnum]):
         super().__init__(location=location)
         self.enum_name = enum_name
         self.data = data

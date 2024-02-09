@@ -61,14 +61,11 @@ from puya.awst_build.eb.bool import BoolClassExpressionBuilder
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
 )
-from puya.awst_build.eb.ensure_budget import EnsureBudgetBuilder, OpUpFeeSourceClassBuilder
 from puya.awst_build.eb.intrinsics import (
-    Arc4SignatureBuilder,
     IntrinsicEnumClassExpressionBuilder,
     IntrinsicFunctionExpressionBuilder,
     IntrinsicNamespaceClassExpressionBuilder,
 )
-from puya.awst_build.eb.named_int_constants import NamedIntegerConstsTypeBuilder
 from puya.awst_build.eb.struct import StructSubclassExpressionBuilder
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.temporary_assignment import TemporaryAssignmentExpressionBuilder
@@ -76,8 +73,6 @@ from puya.awst_build.eb.tuple import TupleTypeExpressionBuilder
 from puya.awst_build.eb.type_registry import get_type_builder
 from puya.awst_build.eb.unsigned_builtins import (
     ReversedFunctionExpressionBuilder,
-    UnsignedEnumerateBuilder,
-    UnsignedRangeBuilder,
 )
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import UnsupportedASTError
@@ -754,39 +749,14 @@ class FunctionASTConverter(
                     return IntrinsicFunctionExpressionBuilder(func_def, location=location)
                 case _:
                     raise InternalError(f"Unhandled puyapy name: {fullname}", location)
-        match fullname:
-            case constants.URANGE:
-                return UnsignedRangeBuilder(location=location)
-            case constants.UENUMERATE:
-                return UnsignedEnumerateBuilder(location=location)
-            case constants.ARC4_SIGNATURE:
-                return Arc4SignatureBuilder(location=location)
-            case constants.ENSURE_BUDGET:
-                return EnsureBudgetBuilder(location=location)
-            case constants.OP_UP_FEE_SOURCE:
-                return OpUpFeeSourceClassBuilder(location=location)
-            case constants.CLS_LOCAL_STATE:
-                if self.contract_method_info is None:
-                    raise CodeError(
-                        f"{constants.CLS_LOCAL_STATE} is only usable in "
-                        "contract instance methods",
-                        location,
-                    )
-                return AppAccountStateClassExpressionBuilder(location=location)
-            case constants.CLS_GLOBAL_STATE:
-                if self.contract_method_info is None:
-                    raise CodeError(
-                        f"{constants.CLS_GLOBAL_STATE} is only usable in "
-                        "contract instance methods",
-                        location,
-                    )
-                return AppStateClassExpressionBuilder(location=location)
-            case _ as enum_name if enum_name in constants.NAMED_INT_CONST_ENUM_DATA:
-                return NamedIntegerConstsTypeBuilder(
-                    enum_name=enum_name,
-                    data=constants.NAMED_INT_CONST_ENUM_DATA[enum_name],
-                    location=location,
-                )
+        if (
+            fullname in (constants.CLS_LOCAL_STATE, constants.CLS_GLOBAL_STATE)
+            and self.contract_method_info is None
+        ):
+            raise CodeError(
+                f"{fullname} is only usable in contract instance methods",
+                location,
+            )
         return get_type_builder(fullname, location)
 
     def visit_name_expr(self, expr: mypy.nodes.NameExpr) -> ExpressionBuilder | Literal:
