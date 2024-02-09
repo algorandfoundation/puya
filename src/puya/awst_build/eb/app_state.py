@@ -25,8 +25,8 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
 )
-from puya.awst_build.eb.type_registry import var_expression
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
+from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import create_temporary_assignment, expect_operand_wtype
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation

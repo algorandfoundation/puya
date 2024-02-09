@@ -6,14 +6,14 @@ ENUM_CLASSES = {
         "URLEncoding": "URLEncoding",
         "StdEncoding": "StdEncoding",
     },
-    "puyapy._gen.Ecdsa": {
+    "puyapy._gen.ECDSA": {
         "Secp256k1": "Secp256k1",
         "Secp256r1": "Secp256r1",
     },
     "puyapy._gen.VrfVerify": {
         "VrfAlgorand": "VrfAlgorand",
     },
-    "puyapy._gen.Ec": {
+    "puyapy._gen.EC": {
         "BN254g1": "BN254g1",
         "BN254g2": "BN254g2",
         "BLS12_381g1": "BLS12_381g1",

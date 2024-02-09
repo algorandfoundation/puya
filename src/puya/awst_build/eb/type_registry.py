@@ -1,35 +1,50 @@
-from puya.awst import (
-    wtypes,
-)
+import functools
+from collections.abc import Callable
+
+from puya.awst import wtypes
 from puya.awst.nodes import Expression
 from puya.awst_build import constants
 from puya.awst_build.eb import (
+    app_account_state,
+    app_state,
     arc4,
     array,
     biguint,
     bool as bool_,
     bytes as bytes_,
+    ensure_budget,
+    intrinsics,
+    named_int_constants,
     struct,
     transaction,
     tuple as tuple_,
     uint64,
+    unsigned_builtins,
     void,
 )
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    GenericClassExpressionBuilder,
-    TypeClassExpressionBuilder,
-)
+from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.reference_types import account, application, asset
-from puya.errors import CodeError
+from puya.errors import InternalError
 from puya.parse import SourceLocation
 
-TYPE_NAME_CLS_MAPPING: dict[
-    str, type[TypeClassExpressionBuilder | GenericClassExpressionBuilder]
-] = {
+__all__ = [
+    "get_type_builder",
+    "var_expression",
+]
+
+ExpressionBuilderFromSourceFactory = Callable[[SourceLocation], ExpressionBuilder]
+ExpressionBuilderFromExpressionFactory = Callable[[Expression], ExpressionBuilder]
+CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     "builtins.None": void.VoidTypeExpressionBuilder,
     "builtins.bool": bool_.BoolClassExpressionBuilder,
     "builtins.tuple": tuple_.TupleTypeExpressionBuilder,
+    constants.URANGE: unsigned_builtins.UnsignedRangeBuilder,
+    constants.UENUMERATE: unsigned_builtins.UnsignedEnumerateBuilder,
+    constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
+    constants.ENSURE_BUDGET: ensure_budget.EnsureBudgetBuilder,
+    constants.OP_UP_FEE_SOURCE: ensure_budget.OpUpFeeSourceClassBuilder,
+    constants.CLS_LOCAL_STATE: app_account_state.AppAccountStateClassExpressionBuilder,
+    constants.CLS_GLOBAL_STATE: app_state.AppStateClassExpressionBuilder,
     constants.CLS_ARC4_ADDRESS: arc4.AddressClassExpressionBuilder,
     constants.CLS_ARC4_BIG_UFIXEDNXM: arc4.UFixedNxMClassExpressionBuilder,
     constants.CLS_ARC4_BIG_UINTN: arc4.UIntNClassExpressionBuilder,
@@ -65,9 +80,18 @@ TYPE_NAME_CLS_MAPPING: dict[
     ),
     constants.CLS_PAYMENT_TRANSACTION: transaction.PaymentTransactionClassExpressionBuilder,
     constants.CLS_UINT64: uint64.UInt64ClassExpressionBuilder,
+    **{
+        enum_name: functools.partial(
+            named_int_constants.NamedIntegerConstsTypeBuilder,
+            enum_name=enum_name,
+            data=enum_data,
+        )
+        for enum_name, enum_data in constants.NAMED_INT_CONST_ENUM_DATA.items()
+    },
 }
-
-WTYPE_BUILDER_MAPPING = {
+WTYPE_TO_BUILDER: dict[
+    wtypes.WType | type[wtypes.WType], ExpressionBuilderFromExpressionFactory
+] = {
     wtypes.ARC4DynamicArray: arc4.DynamicArrayExpressionBuilder,
     wtypes.ARC4Struct: arc4.ARC4StructExpressionBuilder,
     wtypes.ARC4StaticArray: arc4.StaticArrayExpressionBuilder,
@@ -97,21 +121,18 @@ WTYPE_BUILDER_MAPPING = {
 }
 
 
-def get_type_builder(
-    python_type: str, source_location: SourceLocation
-) -> TypeClassExpressionBuilder | GenericClassExpressionBuilder:
+def get_type_builder(python_type: str, source_location: SourceLocation) -> ExpressionBuilder:
     try:
-        type_class = TYPE_NAME_CLS_MAPPING[python_type]
+        type_class = CLS_NAME_TO_BUILDER[python_type]
     except KeyError as ex:
-        # TODO: make an InternalError before alpha
-        raise CodeError(f"Unhandled puyapy name: {python_type}", source_location) from ex
+        raise InternalError(f"Unhandled puyapy name: {python_type}", source_location) from ex
     else:
         return type_class(source_location)
 
 
 def var_expression(expr: Expression) -> ExpressionBuilder:
     try:
-        builder = WTYPE_BUILDER_MAPPING[expr.wtype]
+        builder = WTYPE_TO_BUILDER[expr.wtype]
     except KeyError:
-        builder = WTYPE_BUILDER_MAPPING[type(expr.wtype)]
+        builder = WTYPE_TO_BUILDER[type(expr.wtype)]
     return builder(expr)

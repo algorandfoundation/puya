@@ -8,6 +8,7 @@ from puyapy import (
     Bytes,
     CreateInnerTransaction,
     Global,
+    OnCompleteAction,
     PaymentTransaction,
     Transaction,
     TransactionType,
@@ -37,10 +38,10 @@ class Reference(ARC4Contract):
     @arc4.abimethod(
         allow_actions=[
             "NoOp",
-            "OptIn",
+            OnCompleteAction.OptIn,
             "CloseOut",
-            "UpdateApplication",
-            "DeleteApplication",
+            OnCompleteAction.UpdateApplication,
+            OnCompleteAction.DeleteApplication,
         ],
         name="all_the_things",
         create="allow",

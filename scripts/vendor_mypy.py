@@ -8,6 +8,18 @@ from pathlib import Path
 
 MYPY_REPO = "https://github.com/python/mypy.git"
 VCS_ROOT = Path(__file__).parent.parent
+TYPESHED_README = """
+This is PuyaPy's custom typeshed, which is a curated subset of the official MyPy typeshed.
+It only includes the required stubs used by PuyaPy as this speeds up MyPy's parsing speed
+significantly.
+
+However this means certain python modules such as `enum` or `dataclasses` cannot be used in
+PuyaPy stubs unless this typeshed is updated.
+
+The contents of the typeshed are populated by the `scripts/vendor_mypy.py` script, which is used
+to vendor new versions of MyPy or to update the stubs included in this typeshed. So to add new
+stubs, update that script and rerun.
+""".strip()
 
 
 def clone_branch(version: str) -> str:
@@ -63,7 +75,7 @@ def update_puya_typeshed(mypy_typeshed: Path, puya_typeshed: Path) -> None:
         stdlib / "sys.pyi",
         stdlib / "abc.pyi",
         # needed for puyapy
-        stdlib / "enum.pyi",
+        # stdlib / "enum.pyi"
     ]
 
     (puya_typeshed / stdlib).mkdir(exist_ok=True, parents=True)
@@ -77,6 +89,7 @@ def update_puya_typeshed(mypy_typeshed: Path, puya_typeshed: Path) -> None:
             copy_dst.parent.mkdir(exist_ok=True, parents=True)
             shutil.copy(copy_src, copy_dst)
     (puya_typeshed / stdlib / "collections" / "__init__.pyi").touch()
+    (puya_typeshed / "README.md").write_text(TYPESHED_README)
 
 
 if __name__ == "__main__":

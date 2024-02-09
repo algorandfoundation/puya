@@ -534,19 +534,6 @@ def test_assignment_statements() -> None:
     tree.accept(vis)
 
 
-def test_type_ctor_chained_assignment() -> None:
-    def test():
-        import enum
-
-        Foo = Bar = enum.Enum("Bar", ["spam", "eggs"])
-        Baz = enum.Enum("Baz", ["spam", "eggs"])
-
-    result = mypy_parse_and_type_check(test)
-    tree = result.graph[TEST_MODULE].tree
-    assert tree
-    assert not result.errors
-
-
 def test_super_exprs() -> None:
     def test():
         class Base:
