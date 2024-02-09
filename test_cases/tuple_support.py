@@ -66,8 +66,8 @@ def bytes_combine(arg: tuple[Bytes, Bytes]) -> Bytes:
 @subroutine
 def bytes_multiply(arg: tuple[Bytes, UInt64]) -> Bytes:
     b, count = arg
-    result = Bytes(b"")  # TODO: allow no-args -> empty
-    for _i in urange(count):  # TODO: allow _
+    result = Bytes()
+    for _i in urange(count):
         result += b
     return result
 
