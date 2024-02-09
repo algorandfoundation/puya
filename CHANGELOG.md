@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## v0.5.1 (2024-02-09)
+
+### Performance
+
+* prevent too many permutations during O2 stack optimizations (#85) ([`4dcdd6a`](https://github.com/algorandfoundation/puya/commit/4dcdd6aff6f511ef5a1a20588fb17bbf25cc3875))
+
+
 ## v0.5.0 (2024-02-06)
 
 ### Feature
