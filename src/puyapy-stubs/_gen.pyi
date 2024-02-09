@@ -1,32 +1,31 @@
-import enum
 import typing
 
 from puyapy import Account, BigUInt, Bytes, UInt64
 
-class Base64(enum.StrEnum):
+class Base64(str):
     """Available values for the `base64` enum"""
 
-    URLEncoding = ...
-    StdEncoding = ...
+    URLEncoding: Base64 = ...
+    StdEncoding: Base64 = ...
 
-class Ecdsa(enum.StrEnum):
+class ECDSA(str):
     """Available values for the `ECDSA` enum"""
 
-    Secp256k1 = ...
-    Secp256r1 = ...
+    Secp256k1: ECDSA = ...
+    Secp256r1: ECDSA = ...
 
-class VrfVerify(enum.StrEnum):
+class VrfVerify(str):
     """Available values for the `vrf_verify` enum"""
 
-    VrfAlgorand = ...
+    VrfAlgorand: VrfVerify = ...
 
-class Ec(enum.StrEnum):
+class EC(str):
     """Available values for the `EC` enum"""
 
-    BN254g1 = ...
-    BN254g2 = ...
-    BLS12_381g1 = ...
-    BLS12_381g2 = ...
+    BN254g1: EC = ...
+    BN254g2: EC = ...
+    BLS12_381g1: EC = ...
+    BLS12_381g2: EC = ...
 
 def addw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
     """
@@ -173,7 +172,7 @@ def divw(a: UInt64 | int, b: UInt64 | int, c: UInt64 | int, /) -> UInt64:
 
     """
 
-def ecdsa_pk_decompress(v: Ecdsa, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
+def ecdsa_pk_decompress(v: ECDSA, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
     """
     decompress pubkey A into components X, Y
     The 33 byte public key in a compressed form to be decompressed into X and Y (top) components. All values are big-endian encoded.
@@ -183,11 +182,11 @@ def ecdsa_pk_decompress(v: Ecdsa, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
     Stack: [..., A] -> [..., X, Y]
     TEAL: ecdsa_pk_decompress V
 
-    :param Ecdsa v: curve index
+    :param ECDSA v: curve index
     """
 
 def ecdsa_pk_recover(
-    v: Ecdsa,
+    v: ECDSA,
     a: Bytes | bytes | Account,
     b: UInt64 | int,
     c: Bytes | bytes | Account,
@@ -203,11 +202,11 @@ def ecdsa_pk_recover(
     Stack: [..., A, B, C, D] -> [..., X, Y]
     TEAL: ecdsa_pk_recover V
 
-    :param Ecdsa v: curve index
+    :param ECDSA v: curve index
     """
 
 def ecdsa_verify(
-    v: Ecdsa,
+    v: ECDSA,
     a: Bytes | bytes | Account,
     b: Bytes | bytes,
     c: Bytes | bytes,
@@ -224,7 +223,7 @@ def ecdsa_verify(
     Stack: [..., A, B, C, D, E] -> [..., X]
     TEAL: ecdsa_verify V
 
-    :param Ecdsa v: curve index
+    :param ECDSA v: curve index
     """
 
 def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes | Account, /) -> bool:
@@ -2052,7 +2051,7 @@ class EllipticCurve:
     """Functions for the ops: `ec_add`, `ec_map_to`, `ec_multi_scalar_mul`, `ec_pairing_check`, `ec_scalar_mul`, `ec_subgroup_check`"""
 
     @staticmethod
-    def add(g: Ec, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+    def add(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
         """
         for curve points A and B, return the curve point A + B
         A and B are curve points in affine representation: field element X concatenated with field element Y. Field element `Z` is encoded as follows.
@@ -2071,10 +2070,10 @@ class EllipticCurve:
         Stack: [..., A, B] -> [..., X]
         TEAL: ec_add G
 
-        :param Ec g: curve index
+        :param EC g: curve index
         """
     @staticmethod
-    def map_to(g: Ec, a: Bytes | bytes, /) -> Bytes:
+    def map_to(g: EC, a: Bytes | bytes, /) -> Bytes:
         """
         maps field element A to group G
         BN254 points are mapped by the SVDW map. BLS12-381 points are mapped by the SSWU map.
@@ -2085,10 +2084,10 @@ class EllipticCurve:
         Stack: [..., A] -> [..., X]
         TEAL: ec_map_to G
 
-        :param Ec g: curve index
+        :param EC g: curve index
         """
     @staticmethod
-    def scalar_mul_multi(g: Ec, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+    def scalar_mul_multi(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
         """
         for curve points A and scalars B, return curve point B0A0 + B1A1 + B2A2 + ... + BnAn
         A is a list of concatenated points, encoded and checked as described in `ec_add`. B is a list of concatenated scalars which, unlike ec_scalar_mul, must all be exactly 32 bytes long.
@@ -2099,10 +2098,10 @@ class EllipticCurve:
         Stack: [..., A, B] -> [..., X]
         TEAL: ec_multi_scalar_mul G
 
-        :param Ec g: curve index
+        :param EC g: curve index
         """
     @staticmethod
-    def pairing_check(g: Ec, a: Bytes | bytes, b: Bytes | bytes, /) -> bool:
+    def pairing_check(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> bool:
         """
         1 if the product of the pairing of each point in A with its respective point in B is equal to the identity element of the target group Gt, else 0
         A and B are concatenated points, encoded and checked as described in `ec_add`. A contains points of the group G, B contains points of the associated group (G2 if G is G1, and vice versa). Fails if A and B have a different number of points, or if any point is not in its described group or outside the main prime-order subgroup - a stronger condition than other opcodes. AVM values are limited to 4096 bytes, so `ec_pairing_check` is limited by the size of the points in the groups being operated upon.
@@ -2112,10 +2111,10 @@ class EllipticCurve:
         Stack: [..., A, B] -> [..., X]
         TEAL: ec_pairing_check G
 
-        :param Ec g: curve index
+        :param EC g: curve index
         """
     @staticmethod
-    def scalar_mul(g: Ec, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+    def scalar_mul(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
         """
         for curve point A and scalar B, return the curve point BA, the point A multiplied by the scalar B.
         A is a curve point encoded and checked as described in `ec_add`. Scalar B is interpreted as a big-endian unsigned integer. Fails if B exceeds 32 bytes.
@@ -2125,10 +2124,10 @@ class EllipticCurve:
         Stack: [..., A, B] -> [..., X]
         TEAL: ec_scalar_mul G
 
-        :param Ec g: curve index
+        :param EC g: curve index
         """
     @staticmethod
-    def subgroup_check(g: Ec, a: Bytes | bytes, /) -> bool:
+    def subgroup_check(g: EC, a: Bytes | bytes, /) -> bool:
         """
         1 if A is in the main prime-order subgroup of G (including the point at infinity) else 0. Program fails if A is not in G at all.
 
@@ -2137,7 +2136,7 @@ class EllipticCurve:
         Stack: [..., A] -> [..., X]
         TEAL: ec_subgroup_check G
 
-        :param Ec g: curve index
+        :param EC g: curve index
         """
 
 class Global:

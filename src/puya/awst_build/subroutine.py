@@ -44,7 +44,7 @@ from puya.awst.nodes import (
     WhileLoop,
 )
 from puya.awst.wtypes import WType
-from puya.awst_build import constants
+from puya.awst_build import constants, intrinsic_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStateDeclaration
@@ -746,7 +746,7 @@ class FunctionASTConverter(
                 if isinstance(t, mypy.types.Instance):
                     node = t.type
             match node:
-                case mypy.nodes.TypeInfo(is_enum=True):
+                case mypy.nodes.TypeInfo() if fullname in intrinsic_data.ENUM_CLASSES:
                     return IntrinsicEnumClassExpressionBuilder(fullname, location=location)
                 case mypy.nodes.TypeInfo() as type_info:
                     return IntrinsicNamespaceClassExpressionBuilder(type_info, location=location)

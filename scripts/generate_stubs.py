@@ -606,6 +606,9 @@ def map_typed_names(
 
 
 def get_python_enum_class(arg_enum: str) -> str:
+    # don't change acronyms
+    if arg_enum.isupper():
+        return arg_enum
     return snake_case(arg_enum).replace("_", " ").title().replace(" ", "")
 
 
@@ -647,10 +650,10 @@ def get_overriding_immediate(op: Op) -> Immediate | None:
 def build_enum(spec: LanguageSpec, arg_enum: str) -> Iterable[str]:
     values = spec.arg_enums[arg_enum]
     enum_name = get_python_enum_class(arg_enum)
-    yield f"class {enum_name}(enum.StrEnum):"
+    yield f"class {enum_name}(str):"
     yield f'{INDENT}"""Available values for the `{arg_enum}` enum"""'
     for value in values:
-        yield f"{INDENT}{value.name} = ..."
+        yield f"{INDENT}{value.name}: {enum_name} = ..."
     yield ""
 
 
@@ -903,7 +906,6 @@ def output_stub(
     class_ops: list[ClassDef],
 ) -> None:
     stub: list[str] = [
-        "import enum",
         "import typing",
         "",
         f"from puyapy import {CLS_ACCOUNT}, {CLS_BIGINT}, {CLS_BYTES}, {CLS_UINT64}",
