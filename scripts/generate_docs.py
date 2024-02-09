@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import shutil
 import subprocess
 import sys
 from collections.abc import Callable
@@ -13,7 +12,7 @@ import mypy.build
 import mypy.nodes
 from mypy.visitor import NodeVisitor
 from puya.compile import get_mypy_options
-from puya.parse import parse_and_typecheck
+from puya.parse import ParseResult, parse_and_typecheck
 
 SCRIPTS_DIR = Path(__file__).parent
 VCS_ROOT = SCRIPTS_DIR.parent
@@ -31,37 +30,44 @@ class ModuleImports:
 
 
 def main() -> None:
-    stubs = combine_stubs(STUBS_DIR / "__init__.pyi")
-    output_combined_stub(stubs, STUBS_DOC_DIR / "__init__.pyi")
+    parse_result = parse_and_typecheck([STUBS_DIR], get_mypy_options())
+    output_doc_stubs(parse_result)
     run_sphinx()
 
 
-def combine_stubs(path: Path) -> "StubVisitor":
-    mypy_options = get_mypy_options()
-    parse_result = parse_and_typecheck([path], mypy_options)
+def output_doc_stubs(parse_result: ParseResult) -> None:
+    # parse and output reformatted __init__.pyi
+    puyapy_stubs = parse_stubs(parse_result, "puyapy")
+    puyapy_direct_imports = puyapy_stubs.collected_imports["puyapy"]
+    # remove any puyapy imports that are now defined in __init__.py itself
+    for name in list(puyapy_direct_imports.from_imports):
+        if name in puyapy_stubs.collected_symbols:
+            del puyapy_direct_imports.from_imports[name]
+    output_combined_stub(puyapy_stubs, STUBS_DOC_DIR / "__init__.pyi")
+
+    # remaining imports from puyapy are other public modules
+    # parse and output them too
+    for other_stub_name in puyapy_direct_imports.from_imports:
+        other_stubs = parse_stubs(parse_result, f"puyapy.{other_stub_name}")
+        output_combined_stub(other_stubs, STUBS_DOC_DIR / f"{other_stub_name}.pyi")
+
+
+def parse_stubs(parse_result: ParseResult, module_id: str) -> "StubVisitor":
     read_source = parse_result.manager.errors.read_source
     assert read_source
     modules = parse_result.manager.modules
-    puyapy_module: mypy.nodes.MypyFile = modules["puyapy"]
-    stub_visitor = StubVisitor(read_source=read_source, file=puyapy_module, modules=modules)
-    puyapy_module.accept(stub_visitor)
+    module: mypy.nodes.MypyFile = modules[module_id]
+    stub_visitor = StubVisitor(read_source=read_source, file=module, modules=modules)
+    module.accept(stub_visitor)
     return stub_visitor
 
 
 def output_combined_stub(stubs: "StubVisitor", output: Path) -> None:
     # remove puyapy imports that have been inlined
-    puyapy_direct_imports = stubs.collected_imports.get("puyapy", ModuleImports())
-    other_puyapy_stubs = []
-    for name in list(puyapy_direct_imports.from_imports):
-        if name in stubs.collected_symbols or name in stubs.collected_assignments:
-            del puyapy_direct_imports.from_imports[name]
-        else:
-            other_puyapy_stubs.append(name)
-
     lines = ["# ruff: noqa: A001, E501, F403, PYI021, PYI034"]
     rexported = list[str]()
     for module, imports in stubs.collected_imports.items():
-        if imports.import_all:
+        if imports.import_module:
             lines.append(f"import {module}")
         if imports.from_imports:
             rexported.extend(filter(None, imports.from_imports.values()))
@@ -71,26 +77,20 @@ def output_combined_stub(stubs: "StubVisitor", output: Path) -> None:
 
     # assemble __all__
     lines.append("__all__ = [")
-    for symbol in (*rexported, *stubs.collected_assignments, *stubs.collected_symbols):
+    for symbol in (*rexported, *stubs.collected_symbols):
         if symbol.startswith("_"):
             continue
         lines.append(f'    "{symbol}",')
     lines.append("]")
 
-    # assemble assignments
-    for symbol in stubs.collected_assignments.values():
-        lines.append(symbol)
-
     # assemble symbols
     for symbol in stubs.collected_symbols.values():
-        lines.extend(["", "", symbol])
+        lines.append(symbol)
 
     # output and linting
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("\n".join(lines))
-    for other_stub in other_puyapy_stubs:
-        stub_file = f"{other_stub}.pyi"
-        shutil.copy2(STUBS_DIR / stub_file, STUBS_DOC_DIR / stub_file)
+
     subprocess.run(["black", str(output)], check=True, cwd=VCS_ROOT)
     subprocess.run(["ruff", "--fix", str(output)], check=True, cwd=VCS_ROOT)
 
@@ -104,21 +104,43 @@ def run_sphinx() -> None:
 @attrs.define
 class SymbolCollector(NodeVisitor[None]):
     file: mypy.nodes.MypyFile
-    symbols: dict[str, mypy.nodes.Node] = attrs.field(factory=dict)
-    assignments: dict[str, mypy.nodes.Node] = attrs.field(factory=dict)
+    read_source: Callable[[str], list[str] | None]
+    symbols: dict[str, str] = attrs.field(factory=dict)
+
+    def get_src(self, node: mypy.nodes.Node) -> str:
+        return self.get_src_from_lines(node.line, node.end_line or node.line)
+
+    def get_src_from_lines(self, line: int, end_line: int) -> str:
+        src = self.read_source(self.file.path)
+        if not src:
+            raise Exception("Could not get src")
+        return "\n".join(src[line - 1 : end_line])
 
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
             stmt.accept(self)
 
     def visit_class_def(self, o: mypy.nodes.ClassDef) -> None:
-        self.symbols[o.name] = o
+        self.symbols[o.name] = self.get_src(o)
 
     def visit_func_def(self, o: mypy.nodes.FuncDef) -> None:
-        self.symbols[o.name] = o
+        self.symbols[o.name] = self.get_src(o)
 
     def visit_overloaded_func_def(self, o: mypy.nodes.OverloadedFuncDef) -> None:
-        self.symbols[o.name] = o
+        line = o.line
+        end_line = o.end_line or o.line
+        for item in o.items:
+            end_line = max(end_line, item.end_line or item.line)
+        overloaded_src = self.get_src_from_lines(line, end_line)
+        best_sig = _get_documented_overload(o)
+
+        if not best_sig:
+            src = overloaded_src
+        else:
+            best_sig_src = self.get_src(best_sig)
+            src = f"{overloaded_src}\n{best_sig_src}"
+
+        self.symbols[o.name] = src
 
     def visit_assignment_stmt(self, o: mypy.nodes.AssignmentStmt) -> None:
         try:
@@ -127,7 +149,46 @@ class SymbolCollector(NodeVisitor[None]):
             raise Exception(f"Multi assignments are not supported: {o}") from ex
         if not isinstance(lvalue, mypy.nodes.NameExpr):
             raise Exception(f"Multi assignments are not supported: {lvalue}")
-        self.assignments[lvalue.name] = o.rvalue
+        self.symbols[lvalue.name] = self.get_src(o.rvalue)
+
+
+def _get_documented_overload(o: mypy.nodes.OverloadedFuncDef) -> mypy.nodes.FuncDef | None:
+    best_overload: mypy.nodes.FuncDef | None = None
+    for overload in o.items:
+        match overload:
+            case mypy.nodes.Decorator(func=func_def):
+                pass
+            case mypy.nodes.FuncDef() as func_def:
+                pass
+            case _:
+                raise Exception("Only function overloads supported")
+
+        docstring = _get_docstring(func_def)
+
+        # this is good enough until a more complex case arises
+        if docstring and (
+            not best_overload or len(func_def.arguments) > len(best_overload.arguments)
+        ):
+            best_overload = func_def
+    return best_overload
+
+
+def _get_docstring(func_def: mypy.nodes.FuncDef) -> str | None:
+    match func_def:
+        case mypy.nodes.FuncDef(docstring=str() as docstring):
+            return docstring
+        case mypy.nodes.FuncDef(
+            body=mypy.nodes.Block(
+                body=[
+                    mypy.nodes.ExpressionStmt(
+                        expr=mypy.nodes.StrExpr(value=docstring),
+                    )
+                ]
+            )
+        ):
+            return docstring
+        case _:
+            return None
 
 
 @attrs.define
@@ -156,7 +217,7 @@ class ImportCollector(NodeVisitor[None]):
                 raise Exception("Aliasing symbols in stubs is not supported")
 
             imports = self.get_imports(name)
-            imports.import_all = True
+            imports.import_module = True
 
 
 @attrs.define
@@ -166,7 +227,6 @@ class StubVisitor(NodeVisitor[None]):
     modules: dict[str, mypy.nodes.MypyFile]
     parsed_modules: dict[str, SymbolCollector] = attrs.field(factory=dict)
     collected_imports: dict[str, ModuleImports] = attrs.field(factory=dict)
-    collected_assignments: dict[str, str] = attrs.field(factory=dict)
     collected_symbols: dict[str, str] = attrs.field(factory=dict)
 
     def _get_module(self, module_id: str) -> SymbolCollector:
@@ -174,7 +234,9 @@ class StubVisitor(NodeVisitor[None]):
             return self.parsed_modules[module_id]
         except KeyError:
             file = self.modules[module_id]
-            self.parsed_modules[module_id] = collector = SymbolCollector(file=file)
+            self.parsed_modules[module_id] = collector = SymbolCollector(
+                file=file, read_source=self.read_source
+            )
             file.accept(collector)
             self._collect_imports(file)
             return collector
@@ -185,6 +247,7 @@ class StubVisitor(NodeVisitor[None]):
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
             stmt.accept(self)
+        self._add_all_symbols(o.fullname)
 
     def visit_import_from(self, o: mypy.nodes.ImportFrom) -> None:
         if not _should_inline_module(o.id):
@@ -195,36 +258,28 @@ class StubVisitor(NodeVisitor[None]):
             if name != (name_as or name):
                 raise Exception("Aliasing symbols in stubs is not supported")
 
-            self.add_symbol(module, name, is_symbol=name in module.symbols)
+            self.add_symbol(module, name)
 
     def visit_import_all(self, o: mypy.nodes.ImportAll) -> None:
         if not _should_inline_module(o.id):
             self._collect_imports(o)
-            return
-        module = self._get_module(o.id)
+        else:
+            self._add_all_symbols(o.id)
+
+    def _add_all_symbols(self, module_id: str) -> None:
+        module = self._get_module(module_id)
         for sym in module.symbols:
             self.add_symbol(module, sym)
-        for ass in module.assignments:
-            self.add_symbol(module, ass, is_symbol=False)
 
     def visit_import(self, o: mypy.nodes.Import) -> None:
         self._collect_imports(o)
 
-    def add_symbol(self, module: SymbolCollector, name: str, *, is_symbol: bool = True) -> None:
-        src = self.read_source(module.file.path)
-        if not src:
-            raise Exception("Could not get src")
-        node = module.symbols[name] if is_symbol else module.assignments[name]
-        lines = "\n".join(src[node.line - 1 : node.end_line])
-        existing = (
-            self.collected_symbols.get(name) if is_symbol else self.collected_assignments.get(name)
-        )
+    def add_symbol(self, module: SymbolCollector, name: str) -> None:
+        lines = module.symbols[name]
+        existing = self.collected_symbols.get(name)
         if existing is not None and existing != lines:
             raise Exception(f"Duplicate definitions are not supported: {name}\n{lines}")
-        if is_symbol:
-            self.collected_symbols[name] = lines
-        else:
-            self.collected_assignments[name] = lines
+        self.collected_symbols[name] = lines
 
 
 def _name_as(name: str, name_as: str | None) -> str:

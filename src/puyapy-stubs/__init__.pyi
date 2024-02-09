@@ -1,5 +1,7 @@
 # ruff: noqa: F403
 # note: arc4 deliberately imported as module instead of re-exporting
+# this order is intentional, so that when the stubs are processed for documentation the
+# types are in the correct dependency order
 from puyapy import arc4 as arc4
 from puyapy._primitives import *
 from puyapy._constants import *
