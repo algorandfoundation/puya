@@ -184,9 +184,9 @@ test1:
 test2:
     proto 0 0
     int 0
-    dupn 5
+    dupn 3
     byte ""
-    dupn 2
+    dup
     txn NumAppArgs
     bz test2_else_body@2
     byte "1"
@@ -194,14 +194,7 @@ test2:
     byte "2"
     frame_bury 1
     int 2
-    frame_bury 7
-    byte 0x098101
-    frame_bury 3
-    byte 0x098101
-    frame_bury 4
-    int 0
-    frame_bury 8
-    int appl
+    frame_bury 5
     int 0
     b test2_after_if_else@3
 
@@ -213,40 +206,33 @@ test2_else_body@2:
     byte "5"
     frame_bury 2
     int 3
-    frame_bury 7
-    byte 0x098101
-    frame_bury 3
-    byte 0x098101
-    frame_bury 4
-    int 0
-    frame_bury 8
-    byte "different param set"
     frame_bury 5
-    int appl
+    byte "different param set"
+    frame_bury 3
     int 1
 
 test2_after_if_else@3:
     itxn_begin
-    swap
+    int appl
     itxn_field TypeEnum
     int 1
     >=
     bz test2_next_field@5
-    frame_dig 5
+    frame_dig 3
     itxn_field Note
 
 test2_next_field@5:
-    frame_dig 8
+    int 0
     itxn_field Fee
-    frame_dig 4
+    byte 0x098101
     itxn_field ClearStateProgramPages
-    frame_dig 3
+    byte 0x098101
     itxn_field ApprovalProgramPages
     frame_dig 0
     itxn_field ApplicationArgs
     frame_dig 1
     itxn_field ApplicationArgs
-    frame_dig 7
+    frame_dig 5
     int 3
     >=
     bz test2_next_field@7
@@ -256,7 +242,7 @@ test2_next_field@5:
 test2_next_field@7:
     itxn_submit
     int 1
-    frame_bury 6
+    frame_bury 4
     itxna ApplicationArgs 0
     byte "1"
     ==
@@ -284,14 +270,14 @@ test2_next_field@7:
     itxn_field ApplicationArgs
     itxn_submit
     int 2
-    frame_bury 6
+    frame_bury 4
     itxna ApplicationArgs 0
     byte "42"
     ==
     assert // correct args used 2
 
 test2_after_if_else@11:
-    frame_dig 6
+    frame_dig 4
     int 1
     ==
     assert // 'create_app_txn' can still be accessed

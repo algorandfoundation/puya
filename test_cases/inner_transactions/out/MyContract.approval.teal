@@ -335,9 +335,9 @@ test2:
     // def test2(self) -> None:
     proto 0 0
     int 0
-    dupn 5
+    dupn 3
     byte ""
-    dupn 2
+    dup
     // inner_transactions/contract.py:91
     // if op.Txn.num_app_args:
     txn NumAppArgs
@@ -351,22 +351,9 @@ test2:
     // inner_transactions/contract.py:96
     // app_args=args,
     int 2
-    frame_bury 7
-    // inner_transactions/contract.py:94
-    // approval_program=ALWAYS_APPROVE,
-    byte 0x098101
-    frame_bury 3
-    // inner_transactions/contract.py:95
-    // clear_state_program=ALWAYS_APPROVE,
-    byte 0x098101
-    frame_bury 4
-    // inner_transactions/contract.py:97
-    // fee=0,
-    int 0
-    frame_bury 8
+    frame_bury 5
     // inner_transactions/contract.py:93
     // create_app_params = itxn.ApplicationCall(
-    int appl
     int 0
     b test2_after_if_else@3
 
@@ -380,54 +367,45 @@ test2_else_body@2:
     byte "5"
     frame_bury 2
     int 3
-    frame_bury 7
-    // inner_transactions/contract.py:101
-    // approval_program=ALWAYS_APPROVE,
-    byte 0x098101
-    frame_bury 3
-    // inner_transactions/contract.py:102
-    // clear_state_program=ALWAYS_APPROVE,
-    byte 0x098101
-    frame_bury 4
-    // inner_transactions/contract.py:105
-    // fee=0,
-    int 0
-    frame_bury 8
+    frame_bury 5
     // inner_transactions/contract.py:104
     // note=b"different param set",
     byte "different param set"
-    frame_bury 5
-    // inner_transactions/contract.py:100
-    // create_app_params = itxn.ApplicationCall(
-    int appl
-    // inner_transactions/contract.py:104
-    // note=b"different param set",
+    frame_bury 3
     int 1
 
 test2_after_if_else@3:
     // inner_transactions/contract.py:107
     // create_app_txn = create_app_params.submit()
     itxn_begin
-    swap
+    // inner_transactions/contract.py:93
+    // create_app_params = itxn.ApplicationCall(
+    int appl
     itxn_field TypeEnum
     int 1
     >=
     bz test2_next_field@5
-    frame_dig 5
+    frame_dig 3
     itxn_field Note
 
 test2_next_field@5:
-    frame_dig 8
+    // inner_transactions/contract.py:97
+    // fee=0,
+    int 0
     itxn_field Fee
-    frame_dig 4
+    // inner_transactions/contract.py:95
+    // clear_state_program=ALWAYS_APPROVE,
+    byte 0x098101
     itxn_field ClearStateProgramPages
-    frame_dig 3
+    // inner_transactions/contract.py:94
+    // approval_program=ALWAYS_APPROVE,
+    byte 0x098101
     itxn_field ApprovalProgramPages
     frame_dig 0
     itxn_field ApplicationArgs
     frame_dig 1
     itxn_field ApplicationArgs
-    frame_dig 7
+    frame_dig 5
     int 3
     >=
     bz test2_next_field@7
@@ -439,7 +417,7 @@ test2_next_field@7:
     // create_app_txn = create_app_params.submit()
     itxn_submit
     int 1
-    frame_bury 6
+    frame_bury 4
     // inner_transactions/contract.py:108
     // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
     itxna ApplicationArgs 0
@@ -501,7 +479,7 @@ test2_next_field@7:
     // ).submit()
     itxn_submit
     int 2
-    frame_bury 6
+    frame_bury 4
     // inner_transactions/contract.py:119
     // assert create_app_txn2.app_args(0) == b"42", "correct args used 2"
     itxna ApplicationArgs 0
@@ -512,7 +490,7 @@ test2_next_field@7:
 test2_after_if_else@11:
     // inner_transactions/contract.py:121
     // create_app_txn.app_args(0) == b"1"
-    frame_dig 6
+    frame_dig 4
     int 1
     ==
     assert // 'create_app_txn' can still be accessed

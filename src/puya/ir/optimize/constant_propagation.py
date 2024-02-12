@@ -42,7 +42,23 @@ def gather_constants(subroutine: models.Subroutine) -> dict[models.Register, mod
             match op:
                 case models.Assignment(targets=[register], source=models.Constant() as constant):
                     constants[register] = constant
+    for block in subroutine.body:
+        for phi in block.phis:
+            if phi_constant := _get_singular_phi_constant(phi, constants):
+                constants[phi.register] = phi_constant
+
     return constants
+
+
+def _get_singular_phi_constant(
+    phi: models.Phi, constants: dict[models.Register, models.Constant]
+) -> models.Constant | None:
+    try:
+        (constant,) = {constants[phi_arg.value] for phi_arg in phi.args}
+    except (KeyError, ValueError):
+        return None
+    else:
+        return constant
 
 
 def constant_replacer(_context: CompileContext, subroutine: models.Subroutine) -> bool:
