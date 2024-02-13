@@ -8,7 +8,7 @@ import structlog.typing
 
 from puya.context import CompileContext
 from puya.ir import models
-from puya.ir.builder import TMP_VAR_INDICATOR
+from puya.ir.context import TMP_VAR_INDICATOR
 
 logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
 
