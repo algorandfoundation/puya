@@ -1,4 +1,6 @@
 import contextlib
+import itertools
+import typing
 from collections.abc import Iterator, Mapping, Sequence
 
 import attrs
@@ -6,9 +8,16 @@ import attrs
 import puya.awst.nodes as awst_nodes
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, log_exceptions
+from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.models import Subroutine
+from puya.ir.ssa import BraunSSA
 from puya.parse import SourceLocation
 from puya.utils import attrs_extend
+
+if typing.TYPE_CHECKING:
+    from puya.ir.builder.main import FunctionIRBuilder
+
+TMP_VAR_INDICATOR = "%"
 
 
 @attrs.frozen(kw_only=True)
@@ -96,12 +105,13 @@ class IRBuildContext(CompileContext):
         )
 
     def for_function(
-        self, function: awst_nodes.Function, subroutine: Subroutine
+        self, function: awst_nodes.Function, subroutine: Subroutine, visitor: "FunctionIRBuilder"
     ) -> "IRFunctionBuildContext":
         return attrs_extend(
             IRFunctionBuildContext,
             self,
             default_fallback=function.source_location,
+            visitor=visitor,
             function=function,
             subroutine=subroutine,
         )
@@ -124,3 +134,32 @@ class IRFunctionBuildContext(IRBuildContextWithFallback):
 
     function: awst_nodes.Function
     subroutine: Subroutine
+    visitor: "FunctionIRBuilder"
+    block_builder: BlocksBuilder = attrs.field()
+    _tmp_counter: Iterator[int] = attrs.field(factory=itertools.count)
+    _awst_temp_var_names: dict[awst_nodes.TemporaryVariable, str] = attrs.field(factory=dict)
+
+    @property
+    def ssa(self) -> BraunSSA:
+        return self.block_builder.ssa
+
+    @block_builder.default
+    def _block_builder_factory(self) -> BlocksBuilder:
+        return BlocksBuilder(
+            self.subroutine.parameters, self.errors, self.function.source_location
+        )
+
+    def next_tmp_name(self, description: str) -> str:
+        return f"{description}{TMP_VAR_INDICATOR}{next(self._tmp_counter)}"
+
+    def get_awst_tmp_name(self, tmp_var: awst_nodes.TemporaryVariable) -> str:
+        """
+        Returns a unique and consistent name for a given AWST TemporaryVariable node.
+        """
+        try:
+            return self._awst_temp_var_names[tmp_var]
+        except KeyError:
+            pass
+        name = self.next_tmp_name("awst_tmp")
+        self._awst_temp_var_names[tmp_var] = name
+        return name

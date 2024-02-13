@@ -17,7 +17,8 @@ from puya.ir.arc4_router import (
     create_abi_router,
     create_default_clear_state,
 )
-from puya.ir.builder import FunctionIRBuilder, format_tuple_index
+from puya.ir.builder.main import FunctionIRBuilder
+from puya.ir.builder.utils import format_tuple_index
 from puya.ir.context import IRBuildContext
 from puya.ir.models import (
     Contract,

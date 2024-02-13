@@ -4,14 +4,14 @@ from collections.abc import Iterator, Sequence
 import attrs
 import structlog
 
-from puya.errors import InternalError
-from puya.ir.context import IRFunctionBuildContext
+from puya.errors import Errors, InternalError
 from puya.ir.models import (
     Assignment,
     BasicBlock,
     ControlOp,
     Goto,
     Op,
+    Register,
     SubroutineReturn,
 )
 from puya.ir.ssa import BraunSSA
@@ -27,13 +27,19 @@ class _LoopTargets:
 
 
 class BlocksBuilder:
-    def __init__(self, context: IRFunctionBuildContext) -> None:
-        self.context = context
+    def __init__(
+        self,
+        parameters: Sequence[Register],
+        errors: Errors,
+        default_source_location: SourceLocation,
+    ) -> None:
+        self._errors = errors
+        self._default_source_location = default_source_location
         self._loop_targets_stack: list[_LoopTargets] = []
-        blocks = [BasicBlock(id=0, source_location=context.function.source_location)]
+        blocks = [BasicBlock(id=0, source_location=default_source_location)]
         self._blocks = blocks
         # initialize ssa
-        self.ssa = BraunSSA(blocks, context.subroutine.parameters, self.active_block)
+        self.ssa = BraunSSA(blocks, parameters, self.active_block)
         self.ssa.seal_block(self.active_block)
 
     @property
@@ -80,10 +86,10 @@ class BlocksBuilder:
     ) -> BasicBlock | None:
         curr = self.active_block
         if curr.terminated:
-            self.context.errors.error(
+            self._errors.error(
                 "Unreachable code",
                 # function kinda sucks as a fallback, but it'll do for now
-                source_location or self.context.function.source_location,
+                source_location or self._default_source_location,
             )
             return None
         return curr
