@@ -1,35 +1,35 @@
-// Op            //                                           Op Description           Stack (out)             X stack               Source code                                                Source line
+// Op            //                                           Op Description           Stack (out)             X stack Source code                                                Source line
 
 #pragma version 10
 
 // test_cases.callsub.contract.MyContract.approval_program() -> uint64:
 main_block@0:
-    int 42       //                                                                    42                                            42                                                         callsub/contract.py:6
-    itob         //                                                                    {itob}                                        itob(UInt64(42))                                           callsub/contract.py:6
-    //           virtual: store tmp%0#0 to l-stack (no copy)  tmp%0#0                                          itob(UInt64(42))      callsub/contract.py:6
-    //           virtual: load tmp%0#0 from l-stack (no copy) tmp%0#0                                          log(itob(UInt64(42))) callsub/contract.py:6
-    log          //                                                                                                                  log(itob(UInt64(42)))                                      callsub/contract.py:6
-    int 1        //                                                                    1                                             1                                                          callsub/contract.py:7
-    int 2        //                                                                    1,2                                           2                                                          callsub/contract.py:7
-    callsub echo //                                                                                                                  self.echo(UInt64(1), UInt64(2))                            callsub/contract.py:7
-    int 1        //                                                                    1                                             1                                                          callsub/contract.py:8
-    return       //                                                                                                                  return UInt64(1)                                           callsub/contract.py:8
+    int 42       //                                                                    42                              42                                                         callsub/contract.py:6
+    itob         //                                                                    {itob}                          42                                                         callsub/contract.py:6
+    //           virtual: store tmp%0#0 to l-stack (no copy)  tmp%0#0                                          42      callsub/contract.py:6
+    //           virtual: load tmp%0#0 from l-stack (no copy) tmp%0#0                                          log(42) callsub/contract.py:6
+    log          //                                                                                                    log(42)                                                    callsub/contract.py:6
+    int 1        //                                                                    1                               1                                                          callsub/contract.py:7
+    int 2        //                                                                    1,2                             2                                                          callsub/contract.py:7
+    callsub echo //                                                                                                    self.echo(UInt64(1), UInt64(2))                            callsub/contract.py:7
+    int 1        //                                                                    1                               1                                                          callsub/contract.py:8
+    return       //                                                                                                    return UInt64(1)                                           callsub/contract.py:8
 
 
 // test_cases.callsub.contract.MyContract.echo(a: uint64, b: uint64) -> void:
 echo:
-    proto 2 0    //                                                                    (𝕡) a#0,b#0 |                                 @subroutine\ndef echo(self, a: UInt64, b: UInt64) -> None: callsub/contract.py:10-11
+    proto 2 0    //                                                                    (𝕡) a#0,b#0 |                   @subroutine\ndef echo(self, a: UInt64, b: UInt64) -> None: callsub/contract.py:10-11
 
 echo_block@0:
-    frame_dig -2 //                                           load a#0 from parameters (𝕡) a#0,b#0 | a#0                             itob(a)                                                    callsub/contract.py:12
-    itob         //                                                                    (𝕡) a#0,b#0 | {itob}                          itob(a)                                                    callsub/contract.py:12
-    //           virtual: store tmp%0#0 to l-stack (no copy)  (𝕡) a#0,b#0 | tmp%0#0                            itob(a)               callsub/contract.py:12
-    //           virtual: load tmp%0#0 from l-stack (no copy) (𝕡) a#0,b#0 | tmp%0#0                            log(itob(a))          callsub/contract.py:12
-    log          //                                                                    (𝕡) a#0,b#0 |                                 log(itob(a))                                               callsub/contract.py:12
-    frame_dig -1 //                                           load b#0 from parameters (𝕡) a#0,b#0 | b#0                             itob(b)                                                    callsub/contract.py:13
-    itob         //                                                                    (𝕡) a#0,b#0 | {itob}                          itob(b)                                                    callsub/contract.py:13
-    //           virtual: store tmp%1#0 to l-stack (no copy)  (𝕡) a#0,b#0 | tmp%1#0                            itob(b)               callsub/contract.py:13
-    //           virtual: load tmp%1#0 from l-stack (no copy) (𝕡) a#0,b#0 | tmp%1#0                            log(itob(b))          callsub/contract.py:13
-    log          //                                                                    (𝕡) a#0,b#0 |                                 log(itob(b))                                               callsub/contract.py:13
+    frame_dig -2 //                                           load a#0 from parameters (𝕡) a#0,b#0 | a#0               a                                                          callsub/contract.py:12
+    itob         //                                                                    (𝕡) a#0,b#0 | {itob}            a                                                          callsub/contract.py:12
+    //           virtual: store tmp%0#0 to l-stack (no copy)  (𝕡) a#0,b#0 | tmp%0#0                            a       callsub/contract.py:12
+    //           virtual: load tmp%0#0 from l-stack (no copy) (𝕡) a#0,b#0 | tmp%0#0                            log(a)  callsub/contract.py:12
+    log          //                                                                    (𝕡) a#0,b#0 |                   log(a)                                                     callsub/contract.py:12
+    frame_dig -1 //                                           load b#0 from parameters (𝕡) a#0,b#0 | b#0               b                                                          callsub/contract.py:13
+    itob         //                                                                    (𝕡) a#0,b#0 | {itob}            b                                                          callsub/contract.py:13
+    //           virtual: store tmp%1#0 to l-stack (no copy)  (𝕡) a#0,b#0 | tmp%1#0                            b       callsub/contract.py:13
+    //           virtual: load tmp%1#0 from l-stack (no copy) (𝕡) a#0,b#0 | tmp%1#0                            log(b)  callsub/contract.py:13
+    log          //                                                                    (𝕡) a#0,b#0 |                   log(b)                                                     callsub/contract.py:13
     retsub       //
 

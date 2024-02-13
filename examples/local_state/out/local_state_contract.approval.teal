@@ -8,7 +8,7 @@ examples.local_state.local_state_contract.LocalStateContract.approval_program:
 
 main_entrypoint@2:
     // local_state/local_state_contract.py:18
-    // if Transaction.application_id() == 0:
+    // if op.Transaction.application_id == 0:
     txn ApplicationID
     bnz main_after_if_else@4
     // local_state/local_state_contract.py:19
@@ -18,7 +18,7 @@ main_entrypoint@2:
 
 main_after_if_else@4:
     // local_state/local_state_contract.py:20
-    // if Transaction.on_completion() not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+    // if op.Transaction.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
     txn OnCompletion
     dup
     !
@@ -34,7 +34,7 @@ main_after_if_else@4:
 
 main_after_if_else@6:
     // local_state/local_state_contract.py:22
-    // if Transaction.num_app_args() == 0:
+    // if op.Transaction.num_app_args == 0:
     txn NumAppArgs
     bnz main_after_if_else@8
     // local_state/local_state_contract.py:23
@@ -44,11 +44,11 @@ main_after_if_else@6:
 
 main_after_if_else@8:
     // local_state/local_state_contract.py:25
-    // method = Transaction.application_args(0)
+    // method = op.Transaction.application_args(0)
     txna ApplicationArgs 0
     bury 1
     // local_state/local_state_contract.py:26
-    // if Transaction.num_app_args() == 1:
+    // if op.Transaction.num_app_args == 1:
     txn NumAppArgs
     int 1
     ==
@@ -60,7 +60,7 @@ main_after_if_else@8:
     ==
     bz main_else_body@11
     // local_state/local_state_contract.py:28
-    // log(self.get_guaranteed_data(Transaction.sender()))
+    // log(self.get_guaranteed_data(op.Transaction.sender))
     txn Sender
     callsub get_guaranteed_data
     log
@@ -74,7 +74,7 @@ main_else_body@11:
     ==
     bz main_else_body@13
     // local_state/local_state_contract.py:30
-    // log(self.get_data_or_assert(Transaction.sender()))
+    // log(self.get_data_or_assert(op.Transaction.sender))
     txn Sender
     callsub get_data_or_assert
     log
@@ -88,7 +88,7 @@ main_else_body@13:
     ==
     bz main_else_body@15
     // local_state/local_state_contract.py:32
-    // self.delete_data(Transaction.sender())
+    // self.delete_data(op.Transaction.sender)
     txn Sender
     callsub delete_data
     // local_state/local_state_contract.py:33
@@ -111,7 +111,7 @@ main_after_if_else@18:
 
 main_else_body@19:
     // local_state/local_state_contract.py:37
-    // elif Transaction.num_app_args() == 2:
+    // elif op.Transaction.num_app_args == 2:
     txn NumAppArgs
     int 2
     ==
@@ -123,7 +123,7 @@ main_else_body@19:
     ==
     bz main_else_body@22
     // local_state/local_state_contract.py:39
-    // self.set_data(Transaction.sender(), Transaction.application_args(1))
+    // self.set_data(op.Transaction.sender, op.Transaction.application_args(1))
     txn Sender
     txna ApplicationArgs 1
     callsub set_data
@@ -137,18 +137,18 @@ main_else_body@22:
     ==
     bz main_else_body@24
     // local_state/local_state_contract.py:43
-    // Transaction.sender(), Transaction.application_args(1)
+    // op.Transaction.sender, op.Transaction.application_args(1)
     txn Sender
     txna ApplicationArgs 1
     // local_state/local_state_contract.py:42-44
     // self.get_data_with_default(
-    //     Transaction.sender(), Transaction.application_args(1)
+    //     op.Transaction.sender, op.Transaction.application_args(1)
     // )
     callsub get_data_with_default
     // local_state/local_state_contract.py:41-45
     // log(
     //     self.get_data_with_default(
-    //         Transaction.sender(), Transaction.application_args(1)
+    //         op.Transaction.sender, op.Transaction.application_args(1)
     //     )
     // )
     log

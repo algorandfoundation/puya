@@ -1,7 +1,7 @@
 contract test_cases.simplish.contract.Simplish:
     program approval:
         subroutine test_cases.simplish.contract.Simplish.approval_program() -> uint64:
-            block@0: // L28
+            block@0: // L30
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
             block@1: // on_create_L7
@@ -11,19 +11,19 @@ contract test_cases.simplish.contract.Simplish:
                 let tmp%1#0: uint64 = (txn ApplicationID)
                 let tmp%2#0: uint64 = (== tmp%1#0 0u)
                 goto tmp%2#0 ? block@3 : block@4
-            block@3: // if_body_L29
+            block@3: // if_body_L31
                 return 1u
-            block@4: // after_if_else_L29
+            block@4: // after_if_else_L31
                 let oca#0: uint64 = (txn OnCompletion)
                 let sender#0: bytes = (txn Sender)
                 let contains%3#0: uint64 = (== oca#0 UpdateApplication)
                 let is_equal%4#0: uint64 = (== oca#0 DeleteApplication)
                 let tmp%5#0: uint64 = (|| contains%3#0 is_equal%4#0)
                 goto tmp%5#0 ? block@5 : block@8
-            block@5: // if_body_L33
+            block@5: // if_body_L35
                 let tmp%6#0: uint64 = (== oca#0 DeleteApplication)
                 goto tmp%6#0 ? block@6 : block@7
-            block@6: // if_body_L37
+            block@6: // if_body_L39
                 let (app_global_get_ex_value%7#0: uint64, app_global_get_ex_did_exist%8#0: uint64) = (app_global_get_ex 0u "counter")
                 (assert app_global_get_ex_did_exist%8#0) // check value exists
                 let tmp%9#0: bytes = test_cases.simplish.contract.itoa(app_global_get_ex_value%7#0)
@@ -31,79 +31,79 @@ contract test_cases.simplish.contract.Simplish:
                 let tmp%11#0: bytes = (concat tmp%10#0 " time(s) before I died")
                 (log tmp%11#0)
                 goto block@7
-            block@7: // after_if_else_L37
+            block@7: // after_if_else_L39
                 let tmp%12#0: bytes = (global CreatorAddress)
                 let tmp%13#0: uint64 = (== tmp%12#0 sender#0)
                 return tmp%13#0
-            block@8: // after_if_else_L33
+            block@8: // after_if_else_L35
                 let tmp%14#0: uint64 = (== oca#0 OptIn)
                 goto tmp%14#0 ? block@9 : block@12
-            block@9: // if_body_L41
+            block@9: // if_body_L43
                 let tmp%15#0: uint64 = (txn NumAppArgs)
                 let tmp%16#0: uint64 = (> tmp%15#0 0u)
                 goto tmp%16#0 ? block@10 : block@11
-            block@10: // if_body_L42
+            block@10: // if_body_L44
                 let tmp%17#0: bytes = (txna ApplicationArgs 0)
                 test_cases.simplish.base_class.CallCounter.set_sender_nickname(tmp%17#0)
                 goto block@11
-            block@11: // after_if_else_L42
+            block@11: // after_if_else_L44
                 return 1u
-            block@12: // after_if_else_L41
+            block@12: // after_if_else_L43
                 let tmp%18#0: uint64 = (!= oca#0 NoOp)
                 goto tmp%18#0 ? block@13 : block@14
-            block@13: // if_body_L45
+            block@13: // if_body_L47
                 return 0u
-            block@14: // after_if_else_L45
+            block@14: // after_if_else_L47
                 let num_app_args#0: uint64 = (txn NumAppArgs)
                 let tmp%19#0: uint64 = (> num_app_args#0 0u)
                 goto tmp%19#0 ? block@15 : block@16
-            block@15: // if_body_L48
+            block@15: // if_body_L50
                 let method_name#0: bytes = (txna ApplicationArgs 0)
                 let (tuple_assignment%20#0: bytes, tuple_assignment%21#0: uint64) = test_cases.simplish.contract.Simplish.call(method_name#0, num_app_args#0)
                 let msg#0: bytes = tuple_assignment%20#0
                 let result#0: uint64 = tuple_assignment%21#0
                 goto block@23
-            block@16: // else_body_L48
+            block@16: // else_body_L50
                 let tmp%22#0: uint64 = (txn NumAssets)
                 let tmp%23#0: uint64 = (== tmp%22#0 1u)
                 goto tmp%23#0 ? block@17 : block@21
-            block@17: // if_body_L51
+            block@17: // if_body_L53
                 let (tuple_assignment%24#0: uint64, tuple_assignment%25#0: uint64) = ((asset_holding_get AssetBalance) sender#0 0u)
                 let asset_balance#0: uint64 = tuple_assignment%24#0
                 let asset_exists#0: uint64 = tuple_assignment%25#0
                 goto asset_exists#0 ? block@19 : block@18
-            block@18: // if_body_L53
+            block@18: // if_body_L55
                 let msg#0: bytes = "You do not have any of the asset"
                 goto block@20
-            block@19: // else_body_L53
+            block@19: // else_body_L55
                 let tmp%26#0: bytes = test_cases.simplish.contract.itoa(asset_balance#0)
                 let msg#0: bytes = (concat "You have asset balance: " tmp%26#0)
                 goto block@20
-            block@20: // after_if_else_L53
+            block@20: // after_if_else_L55
                 let result#0: uint64 = 1u
                 goto block@22
-            block@21: // else_body_L51
+            block@21: // else_body_L53
                 let msg#0: bytes = "not enough app args or foreign assets"
                 let result#0: uint64 = 0u
                 goto block@22
-            block@22: // after_if_else_L51
+            block@22: // after_if_else_L53
                 goto block@23
-            block@23: // after_if_else_L48
+            block@23: // after_if_else_L50
                 (log msg#0)
                 test_cases.simplish.contract.Simplish.increment_counter()
                 return result#0
         
         subroutine test_cases.simplish.contract.itoa(i: uint64) -> bytes:
-            block@0: // L115
+            block@0: // L117
                 let digits#0: bytes = "0123456789"
                 let radix#0: uint64 = (len digits#0)
                 let tmp%0#0: uint64 = (< i#0 radix#0)
                 goto tmp%0#0 ? block@1 : block@2
-            block@1: // if_body_L120
+            block@1: // if_body_L122
                 let index_plus_1%1#0: uint64 = (+ i#0 1u)
                 let tmp%2#0: bytes = (substring3 digits#0 i#0 index_plus_1%1#0)
                 return tmp%2#0
-            block@2: // after_if_else_L120
+            block@2: // after_if_else_L122
                 let tmp%3#0: uint64 = (/ i#0 radix#0)
                 let tmp%4#0: bytes = test_cases.simplish.contract.itoa(tmp%3#0)
                 let tmp%5#0: uint64 = (% i#0 radix#0)
@@ -118,7 +118,7 @@ contract test_cases.simplish.contract.Simplish:
                 return 
         
         subroutine test_cases.simplish.contract.Simplish.call(method_name: bytes, num_app_args: uint64) -> <bytes, uint64>:
-            block@0: // L68
+            block@0: // L70
                 let tmp%0#0: uint64 = (== num_app_args#0 2u)
                 (assert tmp%0#0) // insufficient arguments
                 let tmp%1#0: bytes = (txna ApplicationArgs 1)
@@ -126,21 +126,21 @@ contract test_cases.simplish.contract.Simplish:
                 let status#0: uint64 = 1u
                 let tmp%2#0: uint64 = (== method_name#0 "circle_area")
                 goto tmp%2#0 ? block@1 : block@2
-            block@1: // if_body_L74
+            block@1: // if_body_L76
                 let area#0: uint64 = test_cases.simplish.contract.circle_area(radius#0)
                 let result#0: bytes = test_cases.simplish.contract.itoa(area#0)
                 goto block@9
-            block@2: // else_body_L74
+            block@2: // else_body_L76
                 let tmp%3#0: uint64 = (== method_name#0 "circle_circumference")
                 goto tmp%3#0 ? block@3 : block@4
-            block@3: // if_body_L77
+            block@3: // if_body_L79
                 let circumference#0: uint64 = test_cases.simplish.contract.circle_circumference(radius#0)
                 let result#0: bytes = test_cases.simplish.contract.itoa(circumference#0)
                 goto block@8
-            block@4: // else_body_L77
+            block@4: // else_body_L79
                 let tmp%4#0: uint64 = (== method_name#0 "circle_report")
                 goto tmp%4#0 ? block@5 : block@6
-            block@5: // if_body_L80
+            block@5: // if_body_L82
                 let tmp%5#0: uint64 = test_cases.simplish.contract.circle_area(radius#0)
                 let tmp%6#0: uint64 = test_cases.simplish.contract.circle_circumference(radius#0)
                 let area#0: uint64 = tmp%5#0
@@ -154,33 +154,33 @@ contract test_cases.simplish.contract.Simplish:
                 let tmp%13#0: bytes = test_cases.simplish.contract.itoa(circumference#0)
                 let result#0: bytes = (concat tmp%12#0 tmp%13#0)
                 goto block@7
-            block@6: // else_body_L80
+            block@6: // else_body_L82
                 let status#0: uint64 = 0u
                 let result#0: bytes = "unknown method name"
                 goto block@7
-            block@7: // after_if_else_L80
+            block@7: // after_if_else_L82
                 goto block@8
-            block@8: // after_if_else_L77
+            block@8: // after_if_else_L79
                 goto block@9
-            block@9: // after_if_else_L74
+            block@9: // after_if_else_L76
                 return result#0 status#0
         
         subroutine test_cases.simplish.contract.circle_area(radius: uint64) -> uint64:
-            block@0: // L108
+            block@0: // L110
                 let tmp%0#0: uint64 = (exp radius#0 2u)
                 let tmp%1#0: uint64 = (* tmp%0#0 314159u)
                 let result#0: uint64 = (/ tmp%1#0 100000u)
                 return result#0
         
         subroutine test_cases.simplish.contract.circle_circumference(radius: uint64) -> uint64:
-            block@0: // L101
+            block@0: // L103
                 let two_pi#0: uint64 = (* 2u 314159u)
                 let tmp%0#0: uint64 = (* radius#0 two_pi#0)
                 let tmp%1#0: uint64 = (/ tmp%0#0 100000u)
                 return tmp%1#0
         
         subroutine test_cases.simplish.contract.Simplish.increment_counter() -> void:
-            block@0: // L95
+            block@0: // L97
                 (log "Incrementing counter!")
                 test_cases.simplish.base_class.CallCounter.increment_counter()
                 return 
@@ -200,5 +200,5 @@ contract test_cases.simplish.contract.Simplish:
     
     program clear-state:
         subroutine test_cases.simplish.contract.Simplish.clear_state_program() -> uint64:
-            block@0: // L65
+            block@0: // L67
                 return 1u

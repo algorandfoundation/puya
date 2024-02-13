@@ -10,45 +10,45 @@ test_cases.simplish.contract.Simplish.approval_program:
     callsub __init__
 
 main_entrypoint@2:
-    // simplish/contract.py:29
-    // if Transaction.application_id() == 0:
+    // simplish/contract.py:31
+    // if Transaction.application_id == 0:
     txn ApplicationID
     bnz main_after_if_else@4
-    // simplish/contract.py:30
+    // simplish/contract.py:32
     // return True
     int 1
     return
 
 main_after_if_else@4:
-    // simplish/contract.py:31
-    // oca = Transaction.on_completion()
+    // simplish/contract.py:33
+    // oca = Transaction.on_completion
     txn OnCompletion
     dup
     bury 2
-    // simplish/contract.py:32
-    // sender = Transaction.sender()
+    // simplish/contract.py:34
+    // sender = Transaction.sender
     txn Sender
     bury 6
-    // simplish/contract.py:33-36
+    // simplish/contract.py:35-38
     // if oca in (
     //     OnCompleteAction.UpdateApplication,
     //     OnCompleteAction.DeleteApplication,
     // ):
     dup
-    // simplish/contract.py:34
+    // simplish/contract.py:36
     // OnCompleteAction.UpdateApplication,
     int UpdateApplication
-    // simplish/contract.py:33-36
+    // simplish/contract.py:35-38
     // if oca in (
     //     OnCompleteAction.UpdateApplication,
     //     OnCompleteAction.DeleteApplication,
     // ):
     ==
     swap
-    // simplish/contract.py:35
+    // simplish/contract.py:37
     // OnCompleteAction.DeleteApplication,
     int DeleteApplication
-    // simplish/contract.py:33-36
+    // simplish/contract.py:35-38
     // if oca in (
     //     OnCompleteAction.UpdateApplication,
     //     OnCompleteAction.DeleteApplication,
@@ -58,11 +58,11 @@ main_after_if_else@4:
     bury 5
     ||
     bz main_after_if_else@8
-    // simplish/contract.py:37
+    // simplish/contract.py:39
     // if oca == OnCompleteAction.DeleteApplication:
     dig 2
     bz main_after_if_else@7
-    // simplish/contract.py:38
+    // simplish/contract.py:40
     // log(Bytes(b"I was used ") + itoa(self.counter) + b" time(s) before I died")
     int 0
     byte "counter"
@@ -77,62 +77,62 @@ main_after_if_else@4:
     log
 
 main_after_if_else@7:
-    // simplish/contract.py:39
-    // return Global.creator_address() == sender
+    // simplish/contract.py:41
+    // return Global.creator_address == sender
     global CreatorAddress
     dig 5
     ==
     return
 
 main_after_if_else@8:
-    // simplish/contract.py:41
+    // simplish/contract.py:43
     // if oca == OnCompleteAction.OptIn:
     dup
     int OptIn
     ==
     bz main_after_if_else@12
-    // simplish/contract.py:42
-    // if Transaction.num_app_args() > 0:
+    // simplish/contract.py:44
+    // if Transaction.num_app_args > 0:
     txn NumAppArgs
     int 0
     >
     bz main_after_if_else@11
-    // simplish/contract.py:43
+    // simplish/contract.py:45
     // self.set_sender_nickname(Transaction.application_args(0))
     txna ApplicationArgs 0
     callsub set_sender_nickname
 
 main_after_if_else@11:
-    // simplish/contract.py:44
+    // simplish/contract.py:46
     // return True
     int 1
     return
 
 main_after_if_else@12:
-    // simplish/contract.py:45
+    // simplish/contract.py:47
     // if oca != OnCompleteAction.NoOp:
     dup
     int NoOp
     !=
     bz main_after_if_else@14
-    // simplish/contract.py:46
+    // simplish/contract.py:48
     // return False
     int 0
     return
 
 main_after_if_else@14:
-    // simplish/contract.py:48
-    // if (num_app_args := Transaction.num_app_args()) > 0:
+    // simplish/contract.py:50
+    // if (num_app_args := Transaction.num_app_args) > 0:
     txn NumAppArgs
     dup
     bury 3
     int 0
     >
     bz main_else_body@16
-    // simplish/contract.py:49
+    // simplish/contract.py:51
     // method_name = Transaction.application_args(0)
     txna ApplicationArgs 0
-    // simplish/contract.py:50
+    // simplish/contract.py:52
     // msg, result = self.call(method_name, num_app_args)
     dig 2
     callsub call
@@ -141,30 +141,30 @@ main_after_if_else@14:
     b main_after_if_else@23
 
 main_else_body@16:
-    // simplish/contract.py:51
-    // elif Transaction.num_assets() == 1:
+    // simplish/contract.py:53
+    // elif Transaction.num_assets == 1:
     txn NumAssets
     int 1
     ==
     bz main_else_body@21
-    // simplish/contract.py:52
+    // simplish/contract.py:54
     // asset_balance, asset_exists = AssetHoldingGet.asset_balance(sender, 0)
     dig 4
     int 0
     asset_holding_get AssetBalance
     swap
     bury 5
-    // simplish/contract.py:53
+    // simplish/contract.py:55
     // if not asset_exists:
     bnz main_else_body@19
-    // simplish/contract.py:54
+    // simplish/contract.py:56
     // msg = Bytes(b"You do not have any of the asset")
     byte "You do not have any of the asset"
     bury 6
     b main_after_if_else@20
 
 main_else_body@19:
-    // simplish/contract.py:56
+    // simplish/contract.py:58
     // msg = Bytes(b"You have asset balance: ") + itoa(asset_balance)
     dig 3
     callsub itoa
@@ -174,58 +174,58 @@ main_else_body@19:
     bury 6
 
 main_after_if_else@20:
-    // simplish/contract.py:57
+    // simplish/contract.py:59
     // result = True
     int 1
     b main_after_if_else@23
 
 main_else_body@21:
-    // simplish/contract.py:59
+    // simplish/contract.py:61
     // msg = Bytes(b"not enough app args or foreign assets")
     byte "not enough app args or foreign assets"
     bury 6
-    // simplish/contract.py:60
+    // simplish/contract.py:62
     // result = False
     int 0
 
 main_after_if_else@23:
-    // simplish/contract.py:61
+    // simplish/contract.py:63
     // log(msg)
     dig 6
     log
-    // simplish/contract.py:62
+    // simplish/contract.py:64
     // self.increment_counter()
     callsub increment_counter
-    // simplish/contract.py:63
+    // simplish/contract.py:65
     // return result
     return
 
 
 // test_cases.simplish.contract.itoa(i: uint64) -> bytes:
 itoa:
-    // simplish/contract.py:115-116
+    // simplish/contract.py:117-118
     // @subroutine
     // def itoa(i: UInt64) -> Bytes:
     proto 1 1
-    // simplish/contract.py:120
+    // simplish/contract.py:122
     // if i < radix:
     frame_dig -1
-    // simplish/contract.py:119
+    // simplish/contract.py:121
     // radix = digits.length
     int 10
-    // simplish/contract.py:120
+    // simplish/contract.py:122
     // if i < radix:
     <
     bz itoa_after_if_else@2
-    // simplish/contract.py:121
+    // simplish/contract.py:123
     // return digits[i]
     frame_dig -1
     int 1
     +
-    // simplish/contract.py:118
+    // simplish/contract.py:120
     // digits = Bytes(b"0123456789")
     byte "0123456789"
-    // simplish/contract.py:121
+    // simplish/contract.py:123
     // return digits[i]
     frame_dig -1
     uncover 2
@@ -233,30 +233,30 @@ itoa:
     retsub
 
 itoa_after_if_else@2:
-    // simplish/contract.py:122
+    // simplish/contract.py:124
     // return itoa(i // radix) + digits[i % radix]
     frame_dig -1
-    // simplish/contract.py:119
+    // simplish/contract.py:121
     // radix = digits.length
     int 10
-    // simplish/contract.py:122
+    // simplish/contract.py:124
     // return itoa(i // radix) + digits[i % radix]
     /
     callsub itoa
     frame_dig -1
-    // simplish/contract.py:119
+    // simplish/contract.py:121
     // radix = digits.length
     int 10
-    // simplish/contract.py:122
+    // simplish/contract.py:124
     // return itoa(i // radix) + digits[i % radix]
     %
     dup
     int 1
     +
-    // simplish/contract.py:118
+    // simplish/contract.py:120
     // digits = Bytes(b"0123456789")
     byte "0123456789"
-    // simplish/contract.py:122
+    // simplish/contract.py:124
     // return itoa(i // radix) + digits[i % radix]
     cover 2
     substring3
@@ -281,65 +281,65 @@ set_sender_nickname:
 
 // test_cases.simplish.contract.Simplish.call(method_name: bytes, num_app_args: uint64) -> bytes, uint64:
 call:
-    // simplish/contract.py:68-69
+    // simplish/contract.py:70-71
     // @subroutine
     // def call(self, method_name: Bytes, num_app_args: UInt64) -> tuple[Bytes, bool]:
     proto 2 2
     int 0
-    // simplish/contract.py:70
+    // simplish/contract.py:72
     // assert num_app_args == 2, "insufficient arguments"
     frame_dig -1
     int 2
     ==
     assert // insufficient arguments
-    // simplish/contract.py:71
+    // simplish/contract.py:73
     // radius = btoi(Transaction.application_args(1))
     txna ApplicationArgs 1
     btoi
-    // simplish/contract.py:73
+    // simplish/contract.py:75
     // status = True
     int 1
-    // simplish/contract.py:74
+    // simplish/contract.py:76
     // if method_name == b"circle_area":
     frame_dig -2
     byte "circle_area"
     ==
     bz call_else_body@2
-    // simplish/contract.py:75
+    // simplish/contract.py:77
     // area = circle_area(radius)
     frame_dig 1
     callsub circle_area
-    // simplish/contract.py:76
+    // simplish/contract.py:78
     // result = itoa(area)
     callsub itoa
     frame_bury 0
     b call_after_if_else@9
 
 call_else_body@2:
-    // simplish/contract.py:77
+    // simplish/contract.py:79
     // elif method_name == b"circle_circumference":
     frame_dig -2
     byte "circle_circumference"
     ==
     bz call_else_body@4
-    // simplish/contract.py:78
+    // simplish/contract.py:80
     // circumference = circle_circumference(radius)
     frame_dig 1
     callsub circle_circumference
-    // simplish/contract.py:79
+    // simplish/contract.py:81
     // result = itoa(circumference)
     callsub itoa
     frame_bury 0
     b call_after_if_else@8
 
 call_else_body@4:
-    // simplish/contract.py:80
+    // simplish/contract.py:82
     // elif method_name == b"circle_report":
     frame_dig -2
     byte "circle_report"
     ==
     bz call_else_body@6
-    // simplish/contract.py:81
+    // simplish/contract.py:83
     // area, circumference = circle_area(radius), circle_circumference(radius)
     frame_dig 1
     dup
@@ -348,50 +348,50 @@ call_else_body@4:
     dup
     callsub circle_circumference
     cover 2
-    // simplish/contract.py:84
+    // simplish/contract.py:86
     // + itoa(radius)
     callsub itoa
-    // simplish/contract.py:83
+    // simplish/contract.py:85
     // Bytes(b"Approximate area and circumference of circle with radius ")
     byte "Approximate area and circumference of circle with radius "
-    // simplish/contract.py:83-84
+    // simplish/contract.py:85-86
     // Bytes(b"Approximate area and circumference of circle with radius ")
     // + itoa(radius)
     swap
-    concat
-    // simplish/contract.py:85
-    // + b" = "
-    byte " = "
-    // simplish/contract.py:83-85
-    // Bytes(b"Approximate area and circumference of circle with radius ")
-    // + itoa(radius)
-    // + b" = "
-    concat
-    // simplish/contract.py:86
-    // + itoa(area)
-    swap
-    callsub itoa
-    // simplish/contract.py:83-86
-    // Bytes(b"Approximate area and circumference of circle with radius ")
-    // + itoa(radius)
-    // + b" = "
-    // + itoa(area)
     concat
     // simplish/contract.py:87
+    // + b" = "
+    byte " = "
+    // simplish/contract.py:85-87
+    // Bytes(b"Approximate area and circumference of circle with radius ")
+    // + itoa(radius)
+    // + b" = "
+    concat
+    // simplish/contract.py:88
+    // + itoa(area)
+    swap
+    callsub itoa
+    // simplish/contract.py:85-88
+    // Bytes(b"Approximate area and circumference of circle with radius ")
+    // + itoa(radius)
+    // + b" = "
+    // + itoa(area)
+    concat
+    // simplish/contract.py:89
     // + b", "
     byte ", "
-    // simplish/contract.py:83-87
+    // simplish/contract.py:85-89
     // Bytes(b"Approximate area and circumference of circle with radius ")
     // + itoa(radius)
     // + b" = "
     // + itoa(area)
     // + b", "
     concat
-    // simplish/contract.py:88
+    // simplish/contract.py:90
     // + itoa(circumference)
     swap
     callsub itoa
-    // simplish/contract.py:83-88
+    // simplish/contract.py:85-90
     // Bytes(b"Approximate area and circumference of circle with radius ")
     // + itoa(radius)
     // + b" = "
@@ -399,7 +399,7 @@ call_else_body@4:
     // + b", "
     // + itoa(circumference)
     concat
-    // simplish/contract.py:82-89
+    // simplish/contract.py:84-91
     // result = (
     //     Bytes(b"Approximate area and circumference of circle with radius ")
     //     + itoa(radius)
@@ -412,11 +412,11 @@ call_else_body@4:
     b call_after_if_else@8
 
 call_else_body@6:
-    // simplish/contract.py:91
+    // simplish/contract.py:93
     // status = False
     int 0
     frame_bury 2
-    // simplish/contract.py:92
+    // simplish/contract.py:94
     // result = Bytes(b"unknown method name")
     byte "unknown method name"
     frame_bury 0
@@ -424,7 +424,7 @@ call_else_body@6:
 call_after_if_else@8:
 
 call_after_if_else@9:
-    // simplish/contract.py:93
+    // simplish/contract.py:95
     // return result, status
     frame_dig 0
     frame_dig 2
@@ -435,11 +435,11 @@ call_after_if_else@9:
 
 // test_cases.simplish.contract.circle_area(radius: uint64) -> uint64:
 circle_area:
-    // simplish/contract.py:108-109
+    // simplish/contract.py:110-111
     // @subroutine
     // def circle_area(radius: UInt64) -> UInt64:
     proto 1 1
-    // simplish/contract.py:110-111
+    // simplish/contract.py:112-113
     // # PI * r ^ 2
     // result = radius**2 * SCALED_PI // SCALE
     frame_dig -1
@@ -449,25 +449,25 @@ circle_area:
     *
     int 100000
     /
-    // simplish/contract.py:112
+    // simplish/contract.py:114
     // return result
     retsub
 
 
 // test_cases.simplish.contract.circle_circumference(radius: uint64) -> uint64:
 circle_circumference:
-    // simplish/contract.py:101-102
+    // simplish/contract.py:103-104
     // @subroutine
     // def circle_circumference(radius: UInt64) -> UInt64:
     proto 1 1
-    // simplish/contract.py:105
+    // simplish/contract.py:107
     // return radius * two_pi // SCALE
     frame_dig -1
-    // simplish/contract.py:103-104
+    // simplish/contract.py:105-106
     // # PI * 2r
     // two_pi = UInt64(2) * SCALED_PI
     int 628318
-    // simplish/contract.py:105
+    // simplish/contract.py:107
     // return radius * two_pi // SCALE
     *
     int 100000
@@ -477,15 +477,15 @@ circle_circumference:
 
 // test_cases.simplish.contract.Simplish.increment_counter() -> void:
 increment_counter:
-    // simplish/contract.py:95-96
+    // simplish/contract.py:97-98
     // @subroutine
     // def increment_counter(self) -> None:
     proto 0 0
-    // simplish/contract.py:97
+    // simplish/contract.py:99
     // log(b"Incrementing counter!")
     byte "Incrementing counter!"
     log
-    // simplish/contract.py:98
+    // simplish/contract.py:100
     // super().increment_counter()
     callsub CallCounter.increment_counter
     retsub

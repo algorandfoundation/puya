@@ -6,7 +6,7 @@ examples.amm.contract.ConstantProductAMM.approval_program:
     callsub __init__
 
 main_entrypoint@2:
-    // amm/contract.py:30
+    // amm/contract.py:26
     // class ConstantProductAMM(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@11
@@ -20,33 +20,33 @@ main_entrypoint@2:
     err // reject transaction
 
 main_set_governor_route@4:
-    // amm/contract.py:46
+    // amm/contract.py:42
     // @arc4.abimethod()
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    // amm/contract.py:30
+    // amm/contract.py:26
     // class ConstantProductAMM(ARC4Contract):
     txna ApplicationArgs 1
     btoi
     txnas Accounts
-    // amm/contract.py:46
+    // amm/contract.py:42
     // @arc4.abimethod()
     callsub set_governor
     int 1
     return
 
 main_bootstrap_route@5:
-    // amm/contract.py:52
+    // amm/contract.py:48
     // @arc4.abimethod()
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    // amm/contract.py:30
+    // amm/contract.py:26
     // class ConstantProductAMM(ARC4Contract):
     txn GroupIndex
     int 1
@@ -62,7 +62,7 @@ main_bootstrap_route@5:
     txna ApplicationArgs 2
     btoi
     txnas Assets
-    // amm/contract.py:52
+    // amm/contract.py:48
     // @arc4.abimethod()
     callsub bootstrap
     byte 0x151f7c75
@@ -73,7 +73,7 @@ main_bootstrap_route@5:
     return
 
 main_mint_route@6:
-    // amm/contract.py:84-90
+    // amm/contract.py:80-86
     // @arc4.abimethod(
     //     default_args={
     //         "pool_asset": "pool_token",
@@ -86,7 +86,7 @@ main_mint_route@6:
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    // amm/contract.py:30
+    // amm/contract.py:26
     // class ConstantProductAMM(ARC4Contract):
     txn GroupIndex
     int 2
@@ -113,7 +113,7 @@ main_mint_route@6:
     txna ApplicationArgs 3
     btoi
     txnas Assets
-    // amm/contract.py:84-90
+    // amm/contract.py:80-86
     // @arc4.abimethod(
     //     default_args={
     //         "pool_asset": "pool_token",
@@ -126,7 +126,7 @@ main_mint_route@6:
     return
 
 main_burn_route@7:
-    // amm/contract.py:150-156
+    // amm/contract.py:146-152
     // @arc4.abimethod(
     //     default_args={
     //         "pool_asset": "pool_token",
@@ -139,7 +139,7 @@ main_burn_route@7:
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    // amm/contract.py:30
+    // amm/contract.py:26
     // class ConstantProductAMM(ARC4Contract):
     txn GroupIndex
     int 1
@@ -158,7 +158,7 @@ main_burn_route@7:
     txna ApplicationArgs 3
     btoi
     txnas Assets
-    // amm/contract.py:150-156
+    // amm/contract.py:146-152
     // @arc4.abimethod(
     //     default_args={
     //         "pool_asset": "pool_token",
@@ -171,7 +171,7 @@ main_burn_route@7:
     return
 
 main_swap_route@8:
-    // amm/contract.py:207-212
+    // amm/contract.py:203-208
     // @arc4.abimethod(
     //     default_args={
     //         "a_asset": "asset_a",
@@ -183,7 +183,7 @@ main_swap_route@8:
     assert // OnCompletion is NoOp
     txn ApplicationID
     assert // is not creating
-    // amm/contract.py:30
+    // amm/contract.py:26
     // class ConstantProductAMM(ARC4Contract):
     txn GroupIndex
     int 1
@@ -199,7 +199,7 @@ main_swap_route@8:
     txna ApplicationArgs 2
     btoi
     txnas Assets
-    // amm/contract.py:207-212
+    // amm/contract.py:203-208
     // @arc4.abimethod(
     //     default_args={
     //         "a_asset": "asset_a",
@@ -211,7 +211,7 @@ main_swap_route@8:
     return
 
 main_bare_routing@11:
-    // amm/contract.py:30
+    // amm/contract.py:26
     // class ConstantProductAMM(ARC4Contract):
     txn OnCompletion
     !
@@ -225,14 +225,14 @@ main_bare_routing@11:
 
 // examples.amm.contract.ConstantProductAMM.set_governor(new_governor: bytes) -> void:
 set_governor:
-    // amm/contract.py:46-47
+    // amm/contract.py:42-43
     // @arc4.abimethod()
     // def set_governor(self, new_governor: Account) -> None:
     proto 1 0
-    // amm/contract.py:49
+    // amm/contract.py:45
     // self._check_is_governor()
     callsub _check_is_governor
-    // amm/contract.py:50
+    // amm/contract.py:46
     // self.governor = new_governor
     byte "governor"
     frame_dig -1
@@ -242,21 +242,21 @@ set_governor:
 
 // examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:
 _check_is_governor:
-    // amm/contract.py:265-266
+    // amm/contract.py:261-262
     // @subroutine
     // def _check_is_governor(self) -> None:
     proto 0 0
-    // amm/contract.py:268
-    // Transaction.sender() == self.governor
+    // amm/contract.py:264
+    // op.Transaction.sender == self.governor
     txn Sender
     int 0
     byte "governor"
     app_global_get_ex
     assert // check value exists
     ==
-    // amm/contract.py:267-269
+    // amm/contract.py:263-265
     // assert (
-    //     Transaction.sender() == self.governor
+    //     op.Transaction.sender == self.governor
     // ), "Only the account set in global_state.governor may call this method"
     assert // Only the account set in global_state.governor may call this method
     retsub
@@ -264,11 +264,11 @@ _check_is_governor:
 
 // examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_asset: uint64, b_asset: uint64) -> bytes:
 bootstrap:
-    // amm/contract.py:52-53
+    // amm/contract.py:48-49
     // @arc4.abimethod()
     // def bootstrap(self, seed: PaymentTransaction, a_asset: Asset, b_asset: Asset) -> arc4.UInt64:
     proto 3 1
-    // amm/contract.py:69
+    // amm/contract.py:65
     // assert not self.pool_token, "application has already been bootstrapped"
     int 0
     byte "pool_token"
@@ -276,66 +276,66 @@ bootstrap:
     assert // check value exists
     !
     assert // application has already been bootstrapped
-    // amm/contract.py:70
+    // amm/contract.py:66
     // self._check_is_governor()
     callsub _check_is_governor
-    // amm/contract.py:71
-    // assert Global.group_size() == 2, "group size not 2"
+    // amm/contract.py:67
+    // assert op.Global.group_size == 2, "group size not 2"
     global GroupSize
     int 2
     ==
     assert // group size not 2
-    // amm/contract.py:72
-    // assert seed.receiver == Global.current_application_address(), "receiver not app address"
+    // amm/contract.py:68
+    // assert seed.receiver == op.Global.current_application_address, "receiver not app address"
     frame_dig -3
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     assert // receiver not app address
-    // amm/contract.py:74
+    // amm/contract.py:70
     // assert seed.amount >= 300_000, "amount minimum not met"  # 0.3 Algos
     frame_dig -3
     gtxns Amount
     int 300000
     >=
     assert // amount minimum not met
-    // amm/contract.py:75
+    // amm/contract.py:71
     // assert a_asset.asset_id < b_asset.asset_id, "asset a must be less than asset b"
     frame_dig -2
     frame_dig -1
     <
     assert // asset a must be less than asset b
-    // amm/contract.py:76
+    // amm/contract.py:72
     // self.asset_a = a_asset
     byte "asset_a"
     frame_dig -2
     app_global_put
-    // amm/contract.py:77
+    // amm/contract.py:73
     // self.asset_b = b_asset
     byte "asset_b"
     frame_dig -1
     app_global_put
-    // amm/contract.py:78
+    // amm/contract.py:74
     // self.pool_token = self._create_pool_token()
     callsub _create_pool_token
     byte "pool_token"
     swap
     app_global_put
-    // amm/contract.py:80
+    // amm/contract.py:76
     // self._do_opt_in(self.asset_a)
     int 0
     byte "asset_a"
     app_global_get_ex
     assert // check value exists
     callsub _do_opt_in
-    // amm/contract.py:81
+    // amm/contract.py:77
     // self._do_opt_in(self.asset_b)
     int 0
     byte "asset_b"
     app_global_get_ex
     assert // check value exists
     callsub _do_opt_in
-    // amm/contract.py:82
+    // amm/contract.py:78
     // return arc4.UInt64(self.pool_token.asset_id)
     int 0
     byte "pool_token"
@@ -347,18 +347,18 @@ bootstrap:
 
 // examples.amm.contract.ConstantProductAMM._create_pool_token() -> uint64:
 _create_pool_token:
-    // amm/contract.py:271-272
+    // amm/contract.py:267-268
     // @subroutine
     // def _create_pool_token(self) -> Asset:
     proto 0 1
-    // amm/contract.py:273
-    // CreateInnerTransaction.begin()
+    // amm/contract.py:269
+    // op.CreateInnerTransaction.begin()
     itxn_begin
-    // amm/contract.py:274
-    // CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
+    // amm/contract.py:270
+    // op.CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
     int acfg
     itxn_field TypeEnum
-    // amm/contract.py:276
+    // amm/contract.py:272
     // b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name
     int 0
     byte "asset_a"
@@ -378,66 +378,66 @@ _create_pool_token:
     asset_params_get AssetUnitName
     assert // asset exists
     concat
-    // amm/contract.py:275-277
-    // CreateInnerTransaction.set_config_asset_name(
+    // amm/contract.py:271-273
+    // op.CreateInnerTransaction.set_config_asset_name(
     //     b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name
     // )
     itxn_field ConfigAssetName
-    // amm/contract.py:278
-    // CreateInnerTransaction.set_config_asset_unit_name(b"dpt")
+    // amm/contract.py:274
+    // op.CreateInnerTransaction.set_config_asset_unit_name(b"dpt")
     byte "dpt"
     itxn_field ConfigAssetUnitName
-    // amm/contract.py:279
-    // CreateInnerTransaction.set_config_asset_total(TOTAL_SUPPLY)
+    // amm/contract.py:275
+    // op.CreateInnerTransaction.set_config_asset_total(TOTAL_SUPPLY)
     int 10000000000
     itxn_field ConfigAssetTotal
-    // amm/contract.py:280
-    // CreateInnerTransaction.set_config_asset_decimals(3)
+    // amm/contract.py:276
+    // op.CreateInnerTransaction.set_config_asset_decimals(3)
     int 3
     itxn_field ConfigAssetDecimals
-    // amm/contract.py:281
-    // CreateInnerTransaction.set_config_asset_manager(Global.current_application_address())
+    // amm/contract.py:277
+    // op.CreateInnerTransaction.set_config_asset_manager(op.Global.current_application_address)
     global CurrentApplicationAddress
     itxn_field ConfigAssetManager
-    // amm/contract.py:282
-    // CreateInnerTransaction.set_config_asset_reserve(Global.current_application_address())
+    // amm/contract.py:278
+    // op.CreateInnerTransaction.set_config_asset_reserve(op.Global.current_application_address)
     global CurrentApplicationAddress
     itxn_field ConfigAssetReserve
-    // amm/contract.py:283
-    // CreateInnerTransaction.set_fee(0)
+    // amm/contract.py:279
+    // op.CreateInnerTransaction.set_fee(0)
     int 0
     itxn_field Fee
-    // amm/contract.py:284
-    // CreateInnerTransaction.submit()
+    // amm/contract.py:280
+    // op.CreateInnerTransaction.submit()
     itxn_submit
-    // amm/contract.py:286
-    // return Asset(InnerTransaction.created_asset_id())
+    // amm/contract.py:282
+    // return Asset(op.InnerTransaction.created_asset_id)
     itxn CreatedAssetID
     retsub
 
 
 // examples.amm.contract.ConstantProductAMM._do_opt_in(asset: uint64) -> void:
 _do_opt_in:
-    // amm/contract.py:288-289
+    // amm/contract.py:284-285
     // @subroutine
     // def _do_opt_in(self, asset: Asset) -> None:
     proto 1 0
-    // amm/contract.py:291
-    // receiver=Global.current_application_address(),
+    // amm/contract.py:287
+    // receiver=op.Global.current_application_address,
     global CurrentApplicationAddress
-    // amm/contract.py:290-294
+    // amm/contract.py:286-290
     // do_asset_transfer(
-    //     receiver=Global.current_application_address(),
+    //     receiver=op.Global.current_application_address,
     //     asset=asset,
     //     amount=UInt64(0),
     // )
     frame_dig -1
-    // amm/contract.py:293
+    // amm/contract.py:289
     // amount=UInt64(0),
     int 0
-    // amm/contract.py:290-294
+    // amm/contract.py:286-290
     // do_asset_transfer(
-    //     receiver=Global.current_application_address(),
+    //     receiver=op.Global.current_application_address,
     //     asset=asset,
     //     amount=UInt64(0),
     // )
@@ -447,42 +447,42 @@ _do_opt_in:
 
 // examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
 do_asset_transfer:
-    // amm/contract.py:361-362
+    // amm/contract.py:357-358
     // @subroutine
     // def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
     proto 3 0
-    // amm/contract.py:363
-    // CreateInnerTransaction.begin()
+    // amm/contract.py:359
+    // op.CreateInnerTransaction.begin()
     itxn_begin
-    // amm/contract.py:364
-    // CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
+    // amm/contract.py:360
+    // op.CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
     int axfer
     itxn_field TypeEnum
-    // amm/contract.py:365
-    // CreateInnerTransaction.set_xfer_asset(asset.asset_id)
+    // amm/contract.py:361
+    // op.CreateInnerTransaction.set_xfer_asset(asset.asset_id)
     frame_dig -2
     itxn_field XferAsset
-    // amm/contract.py:366
-    // CreateInnerTransaction.set_asset_amount(amount)
+    // amm/contract.py:362
+    // op.CreateInnerTransaction.set_asset_amount(amount)
     frame_dig -1
     itxn_field AssetAmount
-    // amm/contract.py:367
-    // CreateInnerTransaction.set_asset_receiver(receiver)
+    // amm/contract.py:363
+    // op.CreateInnerTransaction.set_asset_receiver(receiver)
     frame_dig -3
     itxn_field AssetReceiver
-    // amm/contract.py:368
-    // CreateInnerTransaction.set_fee(0)
+    // amm/contract.py:364
+    // op.CreateInnerTransaction.set_fee(0)
     int 0
     itxn_field Fee
-    // amm/contract.py:369
-    // CreateInnerTransaction.submit()
+    // amm/contract.py:365
+    // op.CreateInnerTransaction.submit()
     itxn_submit
     retsub
 
 
 // examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:
 mint:
-    // amm/contract.py:84-98
+    // amm/contract.py:80-94
     // @arc4.abimethod(
     //     default_args={
     //         "pool_asset": "pool_token",
@@ -499,10 +499,10 @@ mint:
     //     b_asset: Asset,
     // ) -> None:
     proto 5 0
-    // amm/contract.py:114
+    // amm/contract.py:110
     // self._check_bootstrapped()
     callsub _check_bootstrapped
-    // amm/contract.py:116-117
+    // amm/contract.py:112-113
     // # well-formed mint
     // assert pool_asset == self.pool_token, "asset pool incorrect"
     int 0
@@ -512,7 +512,7 @@ mint:
     frame_dig -3
     ==
     assert // asset pool incorrect
-    // amm/contract.py:118
+    // amm/contract.py:114
     // assert a_asset == self.asset_a, "asset a incorrect"
     int 0
     byte "asset_a"
@@ -521,7 +521,7 @@ mint:
     frame_dig -2
     ==
     assert // asset a incorrect
-    // amm/contract.py:119
+    // amm/contract.py:115
     // assert b_asset == self.asset_b, "asset b incorrect"
     int 0
     byte "asset_b"
@@ -530,33 +530,33 @@ mint:
     frame_dig -1
     ==
     assert // asset b incorrect
-    // amm/contract.py:120
-    // assert a_xfer.sender == Transaction.sender(), "sender invalid"
+    // amm/contract.py:116
+    // assert a_xfer.sender == op.Transaction.sender, "sender invalid"
     frame_dig -5
     gtxns Sender
     txn Sender
     ==
     assert // sender invalid
-    // amm/contract.py:121
-    // assert b_xfer.sender == Transaction.sender(), "sender invalid"
+    // amm/contract.py:117
+    // assert b_xfer.sender == op.Transaction.sender, "sender invalid"
     frame_dig -4
     gtxns Sender
     txn Sender
     ==
     assert // sender invalid
-    // amm/contract.py:125
-    // a_xfer.asset_receiver == Global.current_application_address()
+    // amm/contract.py:121
+    // a_xfer.asset_receiver == op.Global.current_application_address
     frame_dig -5
     gtxns AssetReceiver
     global CurrentApplicationAddress
     ==
-    // amm/contract.py:123-126
+    // amm/contract.py:119-122
     // # valid asset a xfer
     // assert (
-    //     a_xfer.asset_receiver == Global.current_application_address()
+    //     a_xfer.asset_receiver == op.Global.current_application_address
     // ), "receiver not app address"
     assert // receiver not app address
-    // amm/contract.py:127
+    // amm/contract.py:123
     // assert a_xfer.xfer_asset == self.asset_a, "asset a incorrect"
     frame_dig -5
     gtxns XferAsset
@@ -566,7 +566,7 @@ mint:
     assert // check value exists
     ==
     assert // asset a incorrect
-    // amm/contract.py:128
+    // amm/contract.py:124
     // assert a_xfer.asset_amount > 0, "amount minimum not met"
     frame_dig -5
     gtxns AssetAmount
@@ -574,19 +574,19 @@ mint:
     int 0
     >
     assert // amount minimum not met
-    // amm/contract.py:132
-    // b_xfer.asset_receiver == Global.current_application_address()
+    // amm/contract.py:128
+    // b_xfer.asset_receiver == op.Global.current_application_address
     frame_dig -4
     gtxns AssetReceiver
     global CurrentApplicationAddress
     ==
-    // amm/contract.py:130-133
+    // amm/contract.py:126-129
     // # valid asset b xfer
     // assert (
-    //     b_xfer.asset_receiver == Global.current_application_address()
+    //     b_xfer.asset_receiver == op.Global.current_application_address
     // ), "receiver not app address"
     assert // receiver not app address
-    // amm/contract.py:134
+    // amm/contract.py:130
     // assert b_xfer.xfer_asset == self.asset_b, "asset b incorrect"
     frame_dig -4
     gtxns XferAsset
@@ -596,7 +596,7 @@ mint:
     assert // check value exists
     ==
     assert // asset b incorrect
-    // amm/contract.py:135
+    // amm/contract.py:131
     // assert b_xfer.asset_amount > 0, "amount minimum not met"
     frame_dig -4
     gtxns AssetAmount
@@ -604,16 +604,16 @@ mint:
     int 0
     >
     assert // amount minimum not met
-    // amm/contract.py:138
+    // amm/contract.py:134
     // pool_balance=self._current_pool_balance(),
     callsub _current_pool_balance
-    // amm/contract.py:139
+    // amm/contract.py:135
     // a_balance=self._current_a_balance(),
     callsub _current_a_balance
-    // amm/contract.py:140
+    // amm/contract.py:136
     // b_balance=self._current_b_balance(),
     callsub _current_b_balance
-    // amm/contract.py:137-143
+    // amm/contract.py:133-139
     // to_mint = tokens_to_mint(
     //     pool_balance=self._current_pool_balance(),
     //     a_balance=self._current_a_balance(),
@@ -624,15 +624,15 @@ mint:
     uncover 4
     uncover 4
     callsub tokens_to_mint
-    // amm/contract.py:144
+    // amm/contract.py:140
     // assert to_mint > 0, "send amount too low"
     dup
     int 0
     >
     assert // send amount too low
-    // amm/contract.py:146-147
+    // amm/contract.py:142-143
     // # mint tokens
-    // do_asset_transfer(receiver=Transaction.sender(), asset=self.pool_token, amount=to_mint)
+    // do_asset_transfer(receiver=op.Transaction.sender, asset=self.pool_token, amount=to_mint)
     txn Sender
     int 0
     byte "pool_token"
@@ -640,7 +640,7 @@ mint:
     assert // check value exists
     uncover 2
     callsub do_asset_transfer
-    // amm/contract.py:148
+    // amm/contract.py:144
     // self._update_ratio()
     callsub _update_ratio
     retsub
@@ -648,11 +648,11 @@ mint:
 
 // examples.amm.contract.ConstantProductAMM._check_bootstrapped() -> void:
 _check_bootstrapped:
-    // amm/contract.py:254-255
+    // amm/contract.py:250-251
     // @subroutine
     // def _check_bootstrapped(self) -> None:
     proto 0 0
-    // amm/contract.py:256
+    // amm/contract.py:252
     // assert self.pool_token, "bootstrap method needs to be called first"
     int 0
     byte "pool_token"
@@ -664,12 +664,12 @@ _check_bootstrapped:
 
 // examples.amm.contract.ConstantProductAMM._current_pool_balance() -> uint64:
 _current_pool_balance:
-    // amm/contract.py:296-297
+    // amm/contract.py:292-293
     // @subroutine
     // def _current_pool_balance(self) -> UInt64:
     proto 0 1
-    // amm/contract.py:298
-    // return self.pool_token.balance(Global.current_application_address())
+    // amm/contract.py:294
+    // return self.pool_token.balance(op.Global.current_application_address)
     global CurrentApplicationAddress
     int 0
     byte "pool_token"
@@ -682,12 +682,12 @@ _current_pool_balance:
 
 // examples.amm.contract.ConstantProductAMM._current_a_balance() -> uint64:
 _current_a_balance:
-    // amm/contract.py:300-301
+    // amm/contract.py:296-297
     // @subroutine
     // def _current_a_balance(self) -> UInt64:
     proto 0 1
-    // amm/contract.py:302
-    // return self.asset_a.balance(Global.current_application_address())
+    // amm/contract.py:298
+    // return self.asset_a.balance(op.Global.current_application_address)
     global CurrentApplicationAddress
     int 0
     byte "asset_a"
@@ -700,12 +700,12 @@ _current_a_balance:
 
 // examples.amm.contract.ConstantProductAMM._current_b_balance() -> uint64:
 _current_b_balance:
-    // amm/contract.py:304-305
+    // amm/contract.py:300-301
     // @subroutine
     // def _current_b_balance(self) -> UInt64:
     proto 0 1
-    // amm/contract.py:306
-    // return self.asset_b.balance(Global.current_application_address())
+    // amm/contract.py:302
+    // return self.asset_b.balance(op.Global.current_application_address)
     global CurrentApplicationAddress
     int 0
     byte "asset_b"
@@ -718,7 +718,7 @@ _current_b_balance:
 
 // examples.amm.contract.tokens_to_mint(pool_balance: uint64, a_balance: uint64, b_balance: uint64, a_amount: uint64, b_amount: uint64) -> uint64:
 tokens_to_mint:
-    // amm/contract.py:327-335
+    // amm/contract.py:323-331
     // @subroutine
     // def tokens_to_mint(
     //     *,
@@ -731,7 +731,7 @@ tokens_to_mint:
     proto 5 1
     byte ""
     dup
-    // amm/contract.py:336
+    // amm/contract.py:332
     // is_initial_mint = a_balance == a_amount and b_balance == b_amount
     frame_dig -4
     frame_dig -2
@@ -748,11 +748,11 @@ tokens_to_mint_bool_false@3:
     int 0
 
 tokens_to_mint_bool_merge@4:
-    // amm/contract.py:337
+    // amm/contract.py:333
     // if is_initial_mint:
     bz tokens_to_mint_after_if_else@6
-    // amm/contract.py:338
-    // return sqrt(a_amount * b_amount) - SCALE
+    // amm/contract.py:334
+    // return op.sqrt(a_amount * b_amount) - SCALE
     frame_dig -2
     frame_dig -1
     *
@@ -763,12 +763,12 @@ tokens_to_mint_bool_merge@4:
     retsub
 
 tokens_to_mint_after_if_else@6:
-    // amm/contract.py:339
+    // amm/contract.py:335
     // issued = TOTAL_SUPPLY - pool_balance
     int 10000000000
     frame_dig -5
     -
-    // amm/contract.py:340
+    // amm/contract.py:336
     // a_ratio = SCALE * a_amount // (a_balance - a_amount)
     int 1000
     frame_dig -2
@@ -779,7 +779,7 @@ tokens_to_mint_after_if_else@6:
     /
     dup
     frame_bury 0
-    // amm/contract.py:341
+    // amm/contract.py:337
     // b_ratio = SCALE * b_amount // (b_balance - b_amount)
     int 1000
     frame_dig -1
@@ -790,11 +790,11 @@ tokens_to_mint_after_if_else@6:
     /
     dup
     frame_bury 1
-    // amm/contract.py:342
+    // amm/contract.py:338
     // if a_ratio < b_ratio:
     <
     bz tokens_to_mint_else_body@8
-    // amm/contract.py:343
+    // amm/contract.py:339
     // return a_ratio * issued // SCALE
     frame_dig 0
     *
@@ -804,7 +804,7 @@ tokens_to_mint_after_if_else@6:
     retsub
 
 tokens_to_mint_else_body@8:
-    // amm/contract.py:345
+    // amm/contract.py:341
     // return b_ratio * issued // SCALE
     frame_dig 1
     *
@@ -816,18 +816,18 @@ tokens_to_mint_else_body@8:
 
 // examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
 _update_ratio:
-    // amm/contract.py:258-259
+    // amm/contract.py:254-255
     // @subroutine
     // def _update_ratio(self) -> None:
     proto 0 0
-    // amm/contract.py:260
+    // amm/contract.py:256
     // a_balance = self._current_a_balance()
     callsub _current_a_balance
-    // amm/contract.py:261
+    // amm/contract.py:257
     // b_balance = self._current_b_balance()
     callsub _current_b_balance
     swap
-    // amm/contract.py:263
+    // amm/contract.py:259
     // self.ratio = a_balance * SCALE // b_balance
     int 1000
     *
@@ -841,7 +841,7 @@ _update_ratio:
 
 // examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:
 burn:
-    // amm/contract.py:150-163
+    // amm/contract.py:146-159
     // @arc4.abimethod(
     //     default_args={
     //         "pool_asset": "pool_token",
@@ -857,10 +857,10 @@ burn:
     //     b_asset: Asset,
     // ) -> None:
     proto 4 0
-    // amm/contract.py:173
+    // amm/contract.py:169
     // self._check_bootstrapped()
     callsub _check_bootstrapped
-    // amm/contract.py:175
+    // amm/contract.py:171
     // assert pool_asset == self.pool_token, "asset pool incorrect"
     int 0
     byte "pool_token"
@@ -869,7 +869,7 @@ burn:
     frame_dig -3
     ==
     assert // asset pool incorrect
-    // amm/contract.py:176
+    // amm/contract.py:172
     // assert a_asset == self.asset_a, "asset a incorrect"
     int 0
     byte "asset_a"
@@ -878,7 +878,7 @@ burn:
     frame_dig -2
     ==
     assert // asset a incorrect
-    // amm/contract.py:177
+    // amm/contract.py:173
     // assert b_asset == self.asset_b, "asset b incorrect"
     int 0
     byte "asset_b"
@@ -887,18 +887,18 @@ burn:
     frame_dig -1
     ==
     assert // asset b incorrect
-    // amm/contract.py:180
-    // pool_xfer.asset_receiver == Global.current_application_address()
+    // amm/contract.py:176
+    // pool_xfer.asset_receiver == op.Global.current_application_address
     frame_dig -4
     gtxns AssetReceiver
     global CurrentApplicationAddress
     ==
-    // amm/contract.py:179-181
+    // amm/contract.py:175-177
     // assert (
-    //     pool_xfer.asset_receiver == Global.current_application_address()
+    //     pool_xfer.asset_receiver == op.Global.current_application_address
     // ), "receiver not app address"
     assert // receiver not app address
-    // amm/contract.py:182
+    // amm/contract.py:178
     // assert pool_xfer.asset_amount > 0, "amount minimum not met"
     frame_dig -4
     gtxns AssetAmount
@@ -906,7 +906,7 @@ burn:
     int 0
     >
     assert // amount minimum not met
-    // amm/contract.py:183
+    // amm/contract.py:179
     // assert pool_xfer.xfer_asset == self.pool_token, "asset pool incorrect"
     frame_dig -4
     gtxns XferAsset
@@ -916,22 +916,22 @@ burn:
     assert // check value exists
     ==
     assert // asset pool incorrect
-    // amm/contract.py:184
-    // assert pool_xfer.sender == Transaction.sender(), "sender invalid"
+    // amm/contract.py:180
+    // assert pool_xfer.sender == op.Transaction.sender, "sender invalid"
     frame_dig -4
     gtxns Sender
     txn Sender
     ==
     assert // sender invalid
-    // amm/contract.py:186-188
+    // amm/contract.py:182-184
     // # Get the total number of tokens issued
     // # !important: this happens prior to receiving the current axfer of pool tokens
     // pool_balance = self._current_pool_balance()
     callsub _current_pool_balance
-    // amm/contract.py:191
+    // amm/contract.py:187
     // supply=self._current_a_balance(),
     callsub _current_a_balance
-    // amm/contract.py:189-193
+    // amm/contract.py:185-189
     // a_amt = tokens_to_burn(
     //     pool_balance=pool_balance,
     //     supply=self._current_a_balance(),
@@ -942,10 +942,10 @@ burn:
     dig 3
     callsub tokens_to_burn
     cover 2
-    // amm/contract.py:196
+    // amm/contract.py:192
     // supply=self._current_b_balance(),
     callsub _current_b_balance
-    // amm/contract.py:194-198
+    // amm/contract.py:190-194
     // b_amt = tokens_to_burn(
     //     pool_balance=pool_balance,
     //     supply=self._current_b_balance(),
@@ -954,9 +954,9 @@ burn:
     uncover 2
     callsub tokens_to_burn
     swap
-    // amm/contract.py:200-201
+    // amm/contract.py:196-197
     // # Send back commensurate amt of a
-    // do_asset_transfer(receiver=Transaction.sender(), asset=self.asset_a, amount=a_amt)
+    // do_asset_transfer(receiver=op.Transaction.sender, asset=self.asset_a, amount=a_amt)
     txn Sender
     int 0
     byte "asset_a"
@@ -964,9 +964,9 @@ burn:
     assert // check value exists
     uncover 2
     callsub do_asset_transfer
-    // amm/contract.py:203-204
+    // amm/contract.py:199-200
     // # Send back commensurate amt of b
-    // do_asset_transfer(receiver=Transaction.sender(), asset=self.asset_b, amount=b_amt)
+    // do_asset_transfer(receiver=op.Transaction.sender, asset=self.asset_b, amount=b_amt)
     txn Sender
     int 0
     byte "asset_b"
@@ -974,7 +974,7 @@ burn:
     assert // check value exists
     uncover 2
     callsub do_asset_transfer
-    // amm/contract.py:205
+    // amm/contract.py:201
     // self._update_ratio()
     callsub _update_ratio
     retsub
@@ -982,18 +982,18 @@ burn:
 
 // examples.amm.contract.tokens_to_burn(pool_balance: uint64, supply: uint64, amount: uint64) -> uint64:
 tokens_to_burn:
-    // amm/contract.py:348-349
+    // amm/contract.py:344-345
     // @subroutine
     // def tokens_to_burn(*, pool_balance: UInt64, supply: UInt64, amount: UInt64) -> UInt64:
     proto 3 1
-    // amm/contract.py:350
+    // amm/contract.py:346
     // issued = TOTAL_SUPPLY - pool_balance - amount
     int 10000000000
     frame_dig -3
     -
     frame_dig -1
     -
-    // amm/contract.py:351
+    // amm/contract.py:347
     // return supply * amount // issued
     frame_dig -2
     frame_dig -1
@@ -1005,7 +1005,7 @@ tokens_to_burn:
 
 // examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_asset: uint64, b_asset: uint64) -> void:
 swap:
-    // amm/contract.py:207-218
+    // amm/contract.py:203-214
     // @arc4.abimethod(
     //     default_args={
     //         "a_asset": "asset_a",
@@ -1021,10 +1021,10 @@ swap:
     proto 3 0
     byte ""
     dup
-    // amm/contract.py:226
+    // amm/contract.py:222
     // self._check_bootstrapped()
     callsub _check_bootstrapped
-    // amm/contract.py:228
+    // amm/contract.py:224
     // assert a_asset == self.asset_a, "asset a incorrect"
     int 0
     byte "asset_a"
@@ -1033,7 +1033,7 @@ swap:
     frame_dig -2
     ==
     assert // asset a incorrect
-    // amm/contract.py:229
+    // amm/contract.py:225
     // assert b_asset == self.asset_b, "asset b incorrect"
     int 0
     byte "asset_b"
@@ -1042,7 +1042,7 @@ swap:
     frame_dig -1
     ==
     assert // asset b incorrect
-    // amm/contract.py:231
+    // amm/contract.py:227
     // assert swap_xfer.asset_amount > 0, "amount minimum not met"
     frame_dig -3
     gtxns AssetAmount
@@ -1050,30 +1050,30 @@ swap:
     int 0
     >
     assert // amount minimum not met
-    // amm/contract.py:232
-    // assert swap_xfer.sender == Transaction.sender(), "sender invalid"
+    // amm/contract.py:228
+    // assert swap_xfer.sender == op.Transaction.sender, "sender invalid"
     frame_dig -3
     gtxns Sender
     txn Sender
     ==
     assert // sender invalid
-    // amm/contract.py:235
+    // amm/contract.py:231
     // case self.asset_a:
     int 0
     byte "asset_a"
     app_global_get_ex
     assert // check value exists
-    // amm/contract.py:239
+    // amm/contract.py:235
     // case self.asset_b:
     int 0
     byte "asset_b"
     app_global_get_ex
     assert // check value exists
-    // amm/contract.py:234
+    // amm/contract.py:230
     // match swap_xfer.xfer_asset:
     frame_dig -3
     gtxns XferAsset
-    // amm/contract.py:234-244
+    // amm/contract.py:230-240
     // match swap_xfer.xfer_asset:
     //     case self.asset_a:
     //         in_supply = self._current_b_balance()
@@ -1086,19 +1086,19 @@ swap:
     //     case _:
     //         assert False, "asset id incorrect"
     match swap_switch_case_0@1 swap_switch_case_1@2
-    // amm/contract.py:244
+    // amm/contract.py:240
     // assert False, "asset id incorrect"
     err // asset id incorrect
 
 swap_switch_case_0@1:
-    // amm/contract.py:236
+    // amm/contract.py:232
     // in_supply = self._current_b_balance()
     callsub _current_b_balance
     frame_bury 0
-    // amm/contract.py:237
+    // amm/contract.py:233
     // out_supply = self._current_a_balance()
     callsub _current_a_balance
-    // amm/contract.py:238
+    // amm/contract.py:234
     // out_asset = self.asset_a
     int 0
     byte "asset_a"
@@ -1109,14 +1109,14 @@ swap_switch_case_0@1:
     b swap_switch_case_next@4
 
 swap_switch_case_1@2:
-    // amm/contract.py:240
+    // amm/contract.py:236
     // in_supply = self._current_a_balance()
     callsub _current_a_balance
     frame_bury 0
-    // amm/contract.py:241
+    // amm/contract.py:237
     // out_supply = self._current_b_balance()
     callsub _current_b_balance
-    // amm/contract.py:242
+    // amm/contract.py:238
     // out_asset = self.asset_b
     int 0
     byte "asset_b"
@@ -1126,7 +1126,7 @@ swap_switch_case_1@2:
     assert // check value exists
 
 swap_switch_case_next@4:
-    // amm/contract.py:246-248
+    // amm/contract.py:242-244
     // to_swap = tokens_to_swap(
     //     in_amount=swap_xfer.asset_amount, in_supply=in_supply, out_supply=out_supply
     // )
@@ -1134,19 +1134,19 @@ swap_switch_case_next@4:
     frame_dig 0
     uncover 2
     callsub tokens_to_swap
-    // amm/contract.py:249
+    // amm/contract.py:245
     // assert to_swap > 0, "send amount too low"
     dup
     int 0
     >
     assert // send amount too low
-    // amm/contract.py:251
-    // do_asset_transfer(receiver=Transaction.sender(), asset=out_asset, amount=to_swap)
+    // amm/contract.py:247
+    // do_asset_transfer(receiver=op.Transaction.sender, asset=out_asset, amount=to_swap)
     txn Sender
     frame_dig 1
     uncover 2
     callsub do_asset_transfer
-    // amm/contract.py:252
+    // amm/contract.py:248
     // self._update_ratio()
     callsub _update_ratio
     retsub
@@ -1154,11 +1154,11 @@ swap_switch_case_next@4:
 
 // examples.amm.contract.tokens_to_swap(in_amount: uint64, in_supply: uint64, out_supply: uint64) -> uint64:
 tokens_to_swap:
-    // amm/contract.py:354-355
+    // amm/contract.py:350-351
     // @subroutine
     // def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) -> UInt64:
     proto 3 1
-    // amm/contract.py:356
+    // amm/contract.py:352
     // in_total = SCALE * (in_supply - in_amount) + (in_amount * FACTOR)
     frame_dig -2
     frame_dig -3
@@ -1172,11 +1172,11 @@ tokens_to_swap:
     cover 2
     +
     swap
-    // amm/contract.py:357
+    // amm/contract.py:353
     // out_total = in_amount * FACTOR * out_supply
     frame_dig -1
     *
-    // amm/contract.py:358
+    // amm/contract.py:354
     // return out_total // in_total
     swap
     /
@@ -1185,34 +1185,34 @@ tokens_to_swap:
 
 // examples.amm.contract.ConstantProductAMM.__init__() -> void:
 __init__:
-    // amm/contract.py:31
+    // amm/contract.py:27
     // def __init__(self) -> None:
     proto 0 0
-    // amm/contract.py:35-36
+    // amm/contract.py:31-32
     // # The asset id of asset A
     // self.asset_a = Asset(0)
     byte "asset_a"
     int 0
     app_global_put
-    // amm/contract.py:37-38
+    // amm/contract.py:33-34
     // # The asset id of asset B
     // self.asset_b = Asset(0)
     byte "asset_b"
     int 0
     app_global_put
-    // amm/contract.py:39-40
+    // amm/contract.py:35-36
     // # The current governor of this contract, allowed to do admin type actions
-    // self.governor = Transaction.sender()
+    // self.governor = op.Transaction.sender
     byte "governor"
     txn Sender
     app_global_put
-    // amm/contract.py:41-42
+    // amm/contract.py:37-38
     // # The asset id of the Pool Token, used to track share of pool the holder may recover
     // self.pool_token = Asset(0)
     byte "pool_token"
     int 0
     app_global_put
-    // amm/contract.py:43-44
+    // amm/contract.py:39-40
     // # The ratio between assets (A*Scale/B)
     // self.ratio = UInt64(0)
     byte "ratio"

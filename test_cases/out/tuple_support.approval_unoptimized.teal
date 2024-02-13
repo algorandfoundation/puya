@@ -15,7 +15,7 @@ main_entrypoint@2:
     int 103
     callsub add_three_values
     // tuple_support.py:10
-    // log(itob(total))
+    // log(total)
     itob
     log
     // tuple_support.py:11
@@ -27,7 +27,7 @@ main_entrypoint@2:
     dup
     bury 6
     // tuple_support.py:12
-    // (did_overflow, self.state) = addw(a, b)
+    // (did_overflow, self.state) = op.addw(a, b)
     dig 1
     dig 1
     addw
@@ -46,7 +46,7 @@ main_entrypoint@2:
     dig 1
     cover 2
     // tuple_support.py:15
-    // result = addw(a, b)
+    // result = op.addw(a, b)
     dig 1
     dig 1
     addw
@@ -136,7 +136,7 @@ main_after_if_else@5:
     // max_uint64 = UInt64(2**64 - 1)
     int 18446744073709551615
     // tuple_support.py:35
-    // hi, mid, lo = addw2(addw(max_uint64, max_uint64), addw(a, b))
+    // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
     dup
     swap
     addw
@@ -155,15 +155,15 @@ main_after_if_else@5:
     swap
     cover 2
     // tuple_support.py:36
-    // log(itob(hi))
+    // log(hi)
     itob
     log
     // tuple_support.py:37
-    // log(itob(mid))
+    // log(mid)
     itob
     log
     // tuple_support.py:38
-    // log(itob(lo))
+    // log(lo)
     itob
     log
     // tuple_support.py:39
@@ -310,23 +310,23 @@ addw2:
     swap
     frame_dig -1
     // tuple_support.py:90
-    // lo_carry, c_lo = addw(a_lo, b_lo)
+    // lo_carry, c_lo = op.addw(a_lo, b_lo)
     addw
     swap
     cover 2
     cover 3
     // tuple_support.py:91
-    // hi_carry1, c_mid = addw(a_hi, b_hi)
+    // hi_carry1, c_mid = op.addw(a_hi, b_hi)
     uncover 2
     swap
     addw
     // tuple_support.py:92
-    // hi_carry2, c_mid = addw(c_mid, lo_carry)
+    // hi_carry2, c_mid = op.addw(c_mid, lo_carry)
     uncover 2
     addw
     cover 2
     // tuple_support.py:93
-    // did_overflow, c_hi = addw(hi_carry1, hi_carry2)
+    // did_overflow, c_hi = op.addw(hi_carry1, hi_carry2)
     addw
     swap
     // tuple_support.py:94
@@ -351,17 +351,17 @@ bytes_multiply:
     frame_dig -2
     frame_dig -1
     // tuple_support.py:69
-    // result = Bytes(b"")  # TODO: allow no-args -> empty
+    // result = Bytes()
     byte ""
     // tuple_support.py:70
-    // for _i in urange(count):  # TODO: allow _
+    // for _i in urange(count):
     int 1
     assert // Step cannot be zero
     int 0
 
 bytes_multiply_for_header@1:
     // tuple_support.py:70
-    // for _i in urange(count):  # TODO: allow _
+    // for _i in urange(count):
     frame_dig 3
     frame_dig 1
     <
@@ -373,7 +373,7 @@ bytes_multiply_for_header@1:
     concat
     frame_bury 2
     // tuple_support.py:70
-    // for _i in urange(count):  # TODO: allow _
+    // for _i in urange(count):
     frame_dig 3
     int 1
     +
