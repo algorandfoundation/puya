@@ -1,0 +1,17 @@
+from puyapy import Contract, Transaction, UInt64, itob, log
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        do_log = False
+        match Transaction.num_app_args():
+            case UInt64(1):
+                do_log = True
+            case UInt64(3):
+                do_log = True
+        if do_log:
+            log(itob(Transaction.num_app_args()))
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True

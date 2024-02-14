@@ -151,6 +151,10 @@ class AppCallResult:
         return algosdk.logic.get_application_address(self.app_id)
 
     def decode_logs(self, log_format: str) -> list[str | bytes | int]:
+        """
+        log_format should contain a sequence of characters representing the desired types:
+        b -> bytes, i -> int or u -> str
+        """
         return decode_logs(self.logs, log_format)
 
 
@@ -1151,3 +1155,21 @@ def test_too_many_permutations(harness: _TestHarness) -> None:
         TEST_CASES_DIR / "too_many_permutations",
         request=AppCallRequest(args=[1, 2, 3, 4]),
     )
+
+
+@pytest.mark.parametrize(
+    ("args", "expected_logs"),
+    [
+        ([], []),
+        ([1], [1]),
+        ([1, 2], []),
+        ([1, 2, 3], [3]),
+    ],
+)
+def test_control_op_simplification(
+    harness: _TestHarness, args: list[int], expected_logs: list[int]
+) -> None:
+    result = harness.deploy(
+        TEST_CASES_DIR / "control_op_simplification", request=AppCallRequest(args=[*args])
+    )
+    assert result.decode_logs("i" * len(expected_logs)) == expected_logs
