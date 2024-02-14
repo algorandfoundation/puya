@@ -6,6 +6,7 @@ from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
+from puya.ir.models import PhiArgument
 from puya.ir.ssa import TrivialPhiRemover
 from puya.utils import unique
 
@@ -178,7 +179,18 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 | models.GotoNth(
                     default=models.ControlOp(unique_targets=[default_block], can_exit=False)
                 )
-            ) as fallthrough_terminator if not (default_block.ops or default_block.phis):
+            ) as fallthrough_terminator if (
+                # only if the default_block is empty
+                not (default_block.ops or default_block.phis)
+                # and only if there is no overlap between the default_block successor and
+                # switch/gotonth targets, otherwise even though default_block appears empty now,
+                # it's actually filled with phi-node magic we need to retain
+                # TODO: this could be narrowed to check if the phi args are non-matching instead.
+                #       you could potentially end up with matching phi args coming from block
+                #       and default_block if there's an earlier control flow split before block
+                #       and a merge to default_block
+                and set(default_block.successors).isdisjoint(fallthrough_terminator.targets())
+            ):
                 assert (
                     default_block.terminator is not None
                 ), f"block {default_block} should already have been terminated"
@@ -190,6 +202,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 if default_block not in block.terminator.targets():
                     remove_target(block, default_block)
                 # add this block as a predecessor to any new targets
+                # and update relevant phi args in successor
                 for succ in unique(block.successors):
                     if block not in succ.predecessors:
                         logger.debug(
@@ -197,6 +210,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                             f" due to inlining of {default_block}"
                         )
                         succ.predecessors.append(block)
+                        _copy_inlined_phi_args(succ, default_block, block)
             case _:
                 continue
         changes = True
@@ -204,6 +218,22 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
     for phi in modified_phis:
         TrivialPhiRemover.try_remove(phi, subroutine.body)
     return changes
+
+
+def _copy_inlined_phi_args(
+    phi_block: models.BasicBlock, inlined_block: models.BasicBlock, new_block: models.BasicBlock
+) -> None:
+    """Updates the phis of 'phi_block' with a new PhiArgument for 'new_block' with
+    the same PhiArgument value as the 'inlined_block'"""
+    for phi in phi_block.phis:
+        existing_phi_arg = next((arg for arg in phi.args if arg.through == inlined_block), None)
+        if existing_phi_arg is None:
+            raise InternalError(
+                f"Expected a single PhiArgument for {inlined_block} in {phi}",
+                phi.source_location,
+            )
+        phi.args.append(PhiArgument(value=existing_phi_arg.value, through=new_block))
+        attrs.validate(phi)
 
 
 def _get_definition(
