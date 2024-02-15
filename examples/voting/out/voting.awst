@@ -88,17 +88,7 @@ contract VotingRoundApp
       }
     }
     note += ']}}'
-    itxn_begin()
-    itxn_field<TypeEnum>(acfg)
-    itxn_field<ConfigAssetTotal>(1u)
-    itxn_field<ConfigAssetDecimals>(0u)
-    itxn_field<ConfigAssetDefaultFrozen>(false)
-    itxn_field<ConfigAssetName>('[VOTE RESULT] ' + this.globals['vote_id'])
-    itxn_field<ConfigAssetUnitName>('VOTERSLT')
-    itxn_field<ConfigAssetURL>(this.globals['nft_image_url'])
-    itxn_field<Note>(note)
-    itxn_submit()
-    this.globals['nft_asset_id']: puyapy.UInt64 = itxn<CreatedAssetID>()
+    this.globals['nft_asset_id']: puyapy.UInt64 = reinterpret_cast<puyapy.UInt64>(submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + this.globals['vote_id'], ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=this.globals['nft_image_url'], Note=note)).CreatedAssetID)
   }
   
   abimethod get_preconditions(signature: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): examples.voting.voting.VotingPreconditions

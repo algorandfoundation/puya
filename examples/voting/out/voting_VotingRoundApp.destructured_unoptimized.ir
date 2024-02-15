@@ -54,7 +54,7 @@ contract examples.voting.voting.VotingRoundApp:
                 (assert tmp%29#0) // is not creating
                 examples.voting.voting.VotingRoundApp.close()
                 return 1u
-            block@6: // get_preconditions_route_L152
+            block@6: // get_preconditions_route_L154
                 let tmp%30#0: uint64 = (txn OnCompletion)
                 let tmp%31#0: uint64 = (== tmp%30#0 NoOp)
                 (assert tmp%31#0) // OnCompletion is NoOp
@@ -65,7 +65,7 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%35#0: bytes = (concat 0x151f7c75 tmp%34#0)
                 (log tmp%35#0)
                 return 1u
-            block@7: // vote_route_L161
+            block@7: // vote_route_L163
                 let tmp%36#0: uint64 = (txn OnCompletion)
                 let tmp%37#0: uint64 = (== tmp%36#0 NoOp)
                 (assert tmp%37#0) // OnCompletion is NoOp
@@ -109,7 +109,7 @@ contract examples.voting.voting.VotingRoundApp:
                 return 
         
         subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> void:
-            block@0: // L210
+            block@0: // L212
                 let tmp%0#0: uint64 = (extract_uint16 option_counts#0 0u)
                 (assert tmp%0#0) // option_counts should be non-empty
                 let tmp%1#0: uint64 = (extract_uint16 option_counts#0 0u)
@@ -120,19 +120,19 @@ contract examples.voting.voting.VotingRoundApp:
                 let array_value%4#0: bytes = ((extract 2 0) option_counts#0)
                 let item_index_internal%5#0: uint64 = 0u
                 goto block@1
-            block@1: // for_header_L216
+            block@1: // for_header_L218
                 let continue_looping%7#0: uint64 = (< item_index_internal%5#0 array_length%3#0)
                 goto continue_looping%7#0 ? block@2 : block@4
-            block@2: // for_body_L216
+            block@2: // for_body_L218
                 let item_index%8#0: uint64 = (* item_index_internal%5#0 1u)
                 let item#0: bytes = (extract3 array_value%4#0 item_index%8#0 1u)
                 let tmp%9#0: uint64 = (btoi item#0)
                 let total_options#0: uint64 = (+ total_options#0 tmp%9#0)
                 goto block@3
-            block@3: // for_footer_L216
+            block@3: // for_footer_L218
                 let item_index_internal%5#0: uint64 = (+ item_index_internal%5#0 1u)
                 goto block@1
-            block@4: // after_for_L216
+            block@4: // after_for_L218
                 let tmp%10#0: uint64 = (<= total_options#0 128u)
                 (assert tmp%10#0) // Can't have more than 128 vote options
                 (app_global_put "option_counts" option_counts#0)
@@ -266,22 +266,31 @@ contract examples.voting.voting.VotingRoundApp:
             block@15: // after_for_L126
                 let note#0: bytes = (concat note#0 "]}}")
                 itxn_begin
-                ((itxn_field TypeEnum) acfg)
-                ((itxn_field ConfigAssetTotal) 1u)
-                ((itxn_field ConfigAssetDecimals) 0u)
-                ((itxn_field ConfigAssetDefaultFrozen) 0u)
-                let (app_global_get_ex_value%39#0: bytes, app_global_get_ex_did_exist%40#0: uint64) = (app_global_get_ex 0u "vote_id")
-                (assert app_global_get_ex_did_exist%40#0) // check value exists
-                let tmp%41#0: bytes = (concat "[VOTE RESULT] " app_global_get_ex_value%39#0)
-                ((itxn_field ConfigAssetName) tmp%41#0)
-                ((itxn_field ConfigAssetUnitName) "VOTERSLT")
-                let (app_global_get_ex_value%42#0: bytes, app_global_get_ex_did_exist%43#0: uint64) = (app_global_get_ex 0u "nft_image_url")
-                (assert app_global_get_ex_did_exist%43#0) // check value exists
-                ((itxn_field ConfigAssetURL) app_global_get_ex_value%42#0)
-                ((itxn_field Note) note#0)
+                let (app_global_get_ex_value%41#0: bytes, app_global_get_ex_did_exist%42#0: uint64) = (app_global_get_ex 0u "vote_id")
+                (assert app_global_get_ex_did_exist%42#0) // check value exists
+                let inner_txn_params%40%%param_ConfigAssetName_idx_0#0: bytes = (concat "[VOTE RESULT] " app_global_get_ex_value%41#0)
+                let inner_txn_params%40%%param_ConfigAssetDecimals_idx_0#0: uint64 = 0u
+                let inner_txn_params%40%%param_ConfigAssetDefaultFrozen_idx_0#0: uint64 = 0u
+                let inner_txn_params%40%%param_Note_idx_0#0: bytes = note#0
+                let inner_txn_params%40%%param_ConfigAssetTotal_idx_0#0: uint64 = 1u
+                let inner_txn_params%40%%param_TypeEnum_idx_0#0: uint64 = acfg
+                let inner_txn_params%40%%param_ConfigAssetUnitName_idx_0#0: bytes = "VOTERSLT"
+                let (app_global_get_ex_value%43#0: bytes, app_global_get_ex_did_exist%44#0: uint64) = (app_global_get_ex 0u "nft_image_url")
+                (assert app_global_get_ex_did_exist%44#0) // check value exists
+                let inner_txn_params%40%%param_ConfigAssetURL_idx_0#0: bytes = app_global_get_ex_value%43#0
+                ((itxn_field ConfigAssetName) inner_txn_params%40%%param_ConfigAssetName_idx_0#0)
+                ((itxn_field ConfigAssetDecimals) inner_txn_params%40%%param_ConfigAssetDecimals_idx_0#0)
+                ((itxn_field ConfigAssetDefaultFrozen) inner_txn_params%40%%param_ConfigAssetDefaultFrozen_idx_0#0)
+                ((itxn_field Note) inner_txn_params%40%%param_Note_idx_0#0)
+                ((itxn_field ConfigAssetTotal) inner_txn_params%40%%param_ConfigAssetTotal_idx_0#0)
+                ((itxn_field TypeEnum) inner_txn_params%40%%param_TypeEnum_idx_0#0)
+                ((itxn_field ConfigAssetUnitName) inner_txn_params%40%%param_ConfigAssetUnitName_idx_0#0)
+                ((itxn_field ConfigAssetURL) inner_txn_params%40%%param_ConfigAssetURL_idx_0#0)
+                goto block@16
+            block@16: // next_txn_L141
                 itxn_submit
-                let new_state_value%44#0: uint64 = (itxn CreatedAssetID)
-                (app_global_put "nft_asset_id" new_state_value%44#0)
+                let submit_result_0%39%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
+                (app_global_put "nft_asset_id" submit_result_0%39%%CreatedAssetID#0)
                 return 
         
         subroutine puyapy.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
@@ -315,16 +324,16 @@ contract examples.voting.voting.VotingRoundApp:
                 return 
         
         subroutine examples.voting.voting.itoa(i: uint64) -> bytes:
-            block@0: // L248
+            block@0: // L250
                 let digits#0: bytes = "0123456789"
                 let radix#0: uint64 = (len digits#0)
                 let tmp%0#0: uint64 = (< i#0 radix#0)
                 goto tmp%0#0 ? block@1 : block@2
-            block@1: // if_body_L252
+            block@1: // if_body_L254
                 let index_plus_1%1#0: uint64 = (+ i#0 1u)
                 let tmp%2#0: bytes = (substring3 digits#0 i#0 index_plus_1%1#0)
                 return tmp%2#0
-            block@2: // after_if_else_L252
+            block@2: // after_if_else_L254
                 let tmp%3#0: uint64 = (/ i#0 radix#0)
                 let tmp%4#0: bytes = examples.voting.voting.itoa(tmp%3#0)
                 let tmp%5#0: uint64 = (% i#0 radix#0)
@@ -334,7 +343,7 @@ contract examples.voting.voting.VotingRoundApp:
                 return tmp%8#0
         
         subroutine examples.voting.voting.get_vote_from_box(index: uint64) -> uint64:
-            block@0: // L233
+            block@0: // L235
                 let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: uint64) = (box_get "V")
                 let box_data#0: bytes = tuple_assignment%0#0
                 let exists#0: uint64 = tuple_assignment%1#0
@@ -344,19 +353,19 @@ contract examples.voting.voting.VotingRoundApp:
                 return tmp%3#0
         
         subroutine examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> bytes:
-            block@0: // L152
+            block@0: // L154
                 let tmp%0#0: uint64 = examples.voting.voting.VotingRoundApp.voting_open()
                 let val_as_bytes%1#0: bytes = (itob tmp%0#0)
                 let awst_tmp%2#0: uint64 = (len signature#0)
                 let tmp%3#0: uint64 = (< 2u awst_tmp%2#0)
                 goto tmp%3#0 ? block@1 : block@2
-            block@1: // ternary_true_L156
+            block@1: // ternary_true_L158
                 let ternary_result%4#0: uint64 = 2u
                 goto block@3
-            block@2: // ternary_false_L156
+            block@2: // ternary_false_L158
                 let ternary_result%4#0: uint64 = awst_tmp%2#0
                 goto block@3
-            block@3: // ternary_merge_L156
+            block@3: // ternary_merge_L158
                 let base_length%5#0: uint64 = (len signature#0)
                 let tmp%6#0: bytes = (substring3 signature#0 ternary_result%4#0 base_length%5#0)
                 let tmp%7#0: uint64 = examples.voting.voting.VotingRoundApp.allowed_to_vote(tmp%6#0)
@@ -373,35 +382,35 @@ contract examples.voting.voting.VotingRoundApp:
                 return encoded_tuple_buffer%14#0
         
         subroutine examples.voting.voting.VotingRoundApp.voting_open() -> uint64:
-            block@0: // L197
+            block@0: // L199
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "is_bootstrapped")
                 (assert app_global_get_ex_did_exist%1#0) // check value exists
                 goto app_global_get_ex_value%0#0 ? block@1 : block@5
-            block@1: // and_contd_L200
+            block@1: // and_contd_L202
                 let (tmp%2#0: any, tmp%3#0: uint64) = (app_global_get_ex 0u "close_time")
                 goto tmp%3#0 ? block@5 : block@2
-            block@2: // and_contd_L200
+            block@2: // and_contd_L202
                 let (app_global_get_ex_value%4#0: uint64, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "start_time")
                 (assert app_global_get_ex_did_exist%5#0) // check value exists
                 let awst_tmp%6#0: uint64 = (global LatestTimestamp)
                 let tmp%7#0: uint64 = (<= app_global_get_ex_value%4#0 awst_tmp%6#0)
                 goto tmp%7#0 ? block@3 : block@5
-            block@3: // and_contd_L202
+            block@3: // and_contd_L204
                 let (app_global_get_ex_value%8#0: uint64, app_global_get_ex_did_exist%9#0: uint64) = (app_global_get_ex 0u "end_time")
                 (assert app_global_get_ex_did_exist%9#0) // check value exists
                 let tmp%10#0: uint64 = (<= awst_tmp%6#0 app_global_get_ex_value%8#0)
                 goto tmp%10#0 ? block@4 : block@5
-            block@4: // bool_true_L200
+            block@4: // bool_true_L202
                 let and_result%11#0: uint64 = 1u
                 goto block@6
-            block@5: // bool_false_L200
+            block@5: // bool_false_L202
                 let and_result%11#0: uint64 = 0u
                 goto block@6
-            block@6: // bool_merge_L200
+            block@6: // bool_merge_L202
                 return and_result%11#0
         
         subroutine examples.voting.voting.VotingRoundApp.allowed_to_vote(signature: bytes) -> uint64:
-            block@0: // L223
+            block@0: // L225
                 puyapy.ensure_budget(2000u, 2u)
                 let tmp%0#0: bytes = (txn Sender)
                 let (app_global_get_ex_value%1#0: bytes, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "snapshot_public_key")
@@ -410,14 +419,14 @@ contract examples.voting.voting.VotingRoundApp:
                 return tmp%3#0
         
         subroutine examples.voting.voting.VotingRoundApp.already_voted() -> uint64:
-            block@0: // L205
+            block@0: // L207
                 let tmp%0#0: bytes = (txn Sender)
                 let (tuple_assignment%1#0: bytes, tuple_assignment%2#0: uint64) = (box_get tmp%0#0)
                 let exists#0: uint64 = tuple_assignment%2#0
                 return exists#0
         
         subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: bytes) -> void:
-            block@0: // L161
+            block@0: // L163
                 puyapy.ensure_budget(7700u, 0u)
                 let tmp%0#0: uint64 = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
                 (assert tmp%0#0) // Not allowed to vote
@@ -450,10 +459,10 @@ contract examples.voting.voting.VotingRoundApp:
                 (assert 1u) // Step cannot be zero
                 let range_item%18#0: uint64 = 0u
                 goto block@1
-            block@1: // for_header_L187
+            block@1: // for_header_L189
                 let continue_looping%19#0: uint64 = (< range_item%18#0 questions_count#0)
                 goto continue_looping%19#0 ? block@2 : block@5
-            block@2: // for_body_L187
+            block@2: // for_body_L189
                 let question_index#0: uint64 = range_item%18#0
                 let array_length%20#0: uint64 = (extract_uint16 answer_ids#0 0u)
                 let index_is_in_bounds%21#0: uint64 = (< question_index#0 array_length%20#0)
@@ -483,16 +492,16 @@ contract examples.voting.voting.VotingRoundApp:
                 let new_state_value%37#0: uint64 = (+ app_global_get_ex_value%35#0 1u)
                 (app_global_put "voter_count" new_state_value%37#0)
                 goto block@3
-            block@3: // for_footer_L187
+            block@3: // for_footer_L189
                 goto block@4
-            block@4: // for_increment_L187
+            block@4: // for_increment_L189
                 let range_item%18#0: uint64 = (+ range_item%18#0 1u)
                 goto block@1
-            block@5: // after_for_L187
+            block@5: // after_for_L189
                 return 
         
         subroutine examples.voting.voting.increment_vote_in_box(index: uint64) -> void:
-            block@0: // L240
+            block@0: // L242
                 let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: uint64) = (box_get "V")
                 let box_data#0: bytes = tuple_assignment%0#0
                 let exists#0: uint64 = tuple_assignment%1#0

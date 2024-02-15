@@ -6,11 +6,11 @@ from puyapy import (
     Bytes,
     GlobalState,
     OpUpFeeSource,
-    TransactionType,
     UInt64,
     arc4,
     ensure_budget,
     gtxn,
+    itxn,
     op,
     subroutine,
     uenumerate,
@@ -137,17 +137,19 @@ class VotingRoundApp(ARC4Contract):
                     current_index += 1
                 note += b"]"
         note += b"]}}"
-        op.CreateInnerTransaction.begin()
-        op.CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
-        op.CreateInnerTransaction.set_config_asset_total(1)
-        op.CreateInnerTransaction.set_config_asset_decimals(0)
-        op.CreateInnerTransaction.set_config_asset_default_frozen(False)
-        op.CreateInnerTransaction.set_config_asset_name(b"[VOTE RESULT] " + self.vote_id)
-        op.CreateInnerTransaction.set_config_asset_unit_name(b"VOTERSLT")
-        op.CreateInnerTransaction.set_config_asset_url(self.nft_image_url)
-        op.CreateInnerTransaction.set_note(note)
-        op.CreateInnerTransaction.submit()
-        self.nft_asset_id = op.InnerTransaction.created_asset_id()
+        self.nft_asset_id = (
+            itxn.AssetConfigTransactionParams(
+                total=1,
+                decimals=0,
+                default_frozen=False,
+                asset_name=b"[VOTE RESULT] " + self.vote_id,
+                unit_name=b"VOTERSLT",
+                url=self.nft_image_url,
+                note=note,
+            )
+            .submit()
+            .created_asset.asset_id
+        )
 
     @arc4.abimethod(readonly=True)
     def get_preconditions(self, signature: arc4.DynamicBytes) -> VotingPreconditions:
