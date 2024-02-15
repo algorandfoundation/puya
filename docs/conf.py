@@ -46,6 +46,8 @@ nitpick_ignore_regex = [
 html_theme = "furo"
 # html_static_path = ["_static"]
 
+python_maximum_signature_line_length = 80
+
 # -- Options for myst ---
 myst_enable_extensions = [
     "colon_fence",
