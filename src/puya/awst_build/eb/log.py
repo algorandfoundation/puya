@@ -7,6 +7,7 @@ import mypy.nodes
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesConstant,
+    BytesEncoding,
     Expression,
     IntrinsicCall,
     Literal,
@@ -44,15 +45,24 @@ class LogBuilder(IntermediateExpressionBuilder):
         except ValueError:
             sep: Expression = BytesConstant(value=b"", source_location=location)
         else:
-            sep = expect_operand_wtype(args_.pop(sep_index), wtypes.bytes_wtype)
+            sep_arg = args_.pop(sep_index)
+            match sep_arg:
+                case Literal(value=str() as str_sep):
+                    sep = BytesConstant(
+                        value=str_sep.encode("utf8"),
+                        encoding=BytesEncoding.utf8,
+                        source_location=sep_arg.source_location,
+                    )
+                case _:
+                    sep = expect_operand_wtype(sep_arg, wtypes.bytes_wtype)
 
         log_value: Expression | None = None
         for arg in args_:
             match arg:
                 case ExpressionBuilder(value_type=wtypes.uint64_wtype):
-                    bytes_expr = itob(arg.rvalue(), arg.source_location)
+                    bytes_expr = _itob(arg.rvalue(), arg.source_location)
                 case Literal(value=int(int_literal)):
-                    bytes_expr = itob(
+                    bytes_expr = _itob(
                         UInt64Constant(value=int_literal, source_location=arg.source_location),
                         arg.source_location,
                     )
@@ -86,13 +96,13 @@ class LogBuilder(IntermediateExpressionBuilder):
             if log_value is None:
                 log_value = bytes_expr
             elif sep:
-                log_value = concat(
-                    concat(log_value, sep, arg.source_location),
+                log_value = _concat(
+                    _concat(log_value, sep, arg.source_location),
                     bytes_expr,
                     arg.source_location,
                 )
             else:
-                log_value = concat(log_value, bytes_expr, arg.source_location)
+                log_value = _concat(log_value, bytes_expr, arg.source_location)
         if log_value is None:
             log_value = BytesConstant(value=b"", source_location=location)
         return var_expression(
@@ -105,7 +115,7 @@ class LogBuilder(IntermediateExpressionBuilder):
         )
 
 
-def itob(expr: Expression, loc: SourceLocation) -> Expression:
+def _itob(expr: Expression, loc: SourceLocation) -> Expression:
     return IntrinsicCall(
         op_code="itob",
         wtype=wtypes.bytes_wtype,
@@ -114,7 +124,7 @@ def itob(expr: Expression, loc: SourceLocation) -> Expression:
     )
 
 
-def concat(a: Expression, b: Expression, loc: SourceLocation) -> Expression:
+def _concat(a: Expression, b: Expression, loc: SourceLocation) -> Expression:
     return IntrinsicCall(
         op_code="concat",
         wtype=wtypes.bytes_wtype,

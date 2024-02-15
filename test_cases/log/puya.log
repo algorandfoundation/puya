@@ -314,14 +314,24 @@ debug: Created Phi assignment: let ternary_result%32#2: bytes = undefined while 
 debug: Added ternary_result%32#0 to Phi node: let ternary_result%32#2: bytes = φ(ternary_result%32#0 <- block@7) in block@7: // ternary_true_L23
 debug: Added ternary_result%32#1 to Phi node: let ternary_result%32#2: bytes = φ(ternary_result%32#0 <- block@7, ternary_result%32#1 <- block@8) in block@8: // ternary_false_L23
 debug: Terminated block@9: // ternary_merge_L23
-debug: Sealing block@0: // L28
-debug: Terminated block@0: // L28
+debug: Sealing block@None: // ternary_true_L31
+debug: Sealing block@None: // ternary_false_L31
+debug: Terminated block@10: // ternary_true_L31
+debug: Terminated block@11: // ternary_false_L31
+debug: Sealing block@12: // ternary_merge_L31
+debug: Created Phi assignment: let ternary_result%46#2: bytes = undefined while trying to resolve 'ternary_result%46' in block@12: // ternary_merge_L31
+debug: Added ternary_result%46#0 to Phi node: let ternary_result%46#2: bytes = φ(ternary_result%46#0 <- block@10) in block@10: // ternary_true_L31
+debug: Added ternary_result%46#1 to Phi node: let ternary_result%46#2: bytes = φ(ternary_result%46#0 <- block@10, ternary_result%46#1 <- block@11) in block@11: // ternary_false_L31
+debug: Terminated block@12: // ternary_merge_L31
+debug: Sealing block@0: // L36
+debug: Terminated block@0: // L36
 debug: Output IR to log/out/contract_MyContract.ssa.ir
 info: Optimizing test_cases.log.contract.MyContract at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.log.contract.MyContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Folded concat("5", "_") to b'5_'
 debug: Folded concat("5", "_") to b'5_'
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -335,6 +345,7 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%6#0
 debug: Removing unused variable tmp%20#0
+debug: Removing unused variable tmp%34#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
@@ -343,6 +354,15 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let tmp%21#0: bytes = (itob 6u) with copy of existing registers [Register(atype=<AVMType.bytes: 1>, name='tmp%7', version=0, source_location=log/contract.py:13:12-13)]
 debug: Found equivalence set: tmp%7#0, tmp%21#0
 debug: Replacing {tmp%21#0} with tmp%7#0 made 1 modifications
+debug: Replacing redundant declaration let tmp%35#0: bytes = (itob 6u) with copy of existing registers [Register(atype=<AVMType.bytes: 1>, name='tmp%7', version=0, source_location=log/contract.py:13:12-13)]
+debug: Found equivalence set: tmp%7#0, tmp%35#0
+debug: Replacing {tmp%35#0} with tmp%7#0 made 1 modifications
+debug: Replacing redundant declaration let tmp%36#0: bytes = (concat "5_" tmp%7#0) with copy of existing registers [Register(atype=<AVMType.bytes: 1>, name='tmp%22', version=0, source_location=log/contract.py:20:12-13)]
+debug: Found equivalence set: tmp%22#0, tmp%36#0
+debug: Replacing {tmp%36#0} with tmp%22#0 made 1 modifications
+debug: Replacing redundant declaration let tmp%37#0: bytes = (concat tmp%22#0 "_") with copy of existing registers [Register(atype=<AVMType.bytes: 1>, name='tmp%23', version=0, source_location=log/contract.py:21:12-43)]
+debug: Found equivalence set: tmp%23#0, tmp%37#0
+debug: Replacing {tmp%37#0} with tmp%23#0 made 1 modifications
 debug: Optimizing subroutine test_cases.log.contract.MyContract.clear_state_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
@@ -388,7 +408,8 @@ debug: Coalescing local variables in test_cases.log.contract.MyContract.approval
 debug: Coalescing ternary_result%5#0 with [ternary_result%5#5, ternary_result%5#1, ternary_result%5#2]
 debug: Coalescing ternary_result%18#0 with [ternary_result%18#5, ternary_result%18#1, ternary_result%18#2]
 debug: Coalescing ternary_result%32#0 with [ternary_result%32#5, ternary_result%32#1, ternary_result%32#2]
-debug: Coalescing resulted in 21 replacement/s
+debug: Coalescing ternary_result%46#0 with [ternary_result%46#5, ternary_result%46#1, ternary_result%46#2]
+debug: Coalescing resulted in 28 replacement/s
 debug: Coalescing local variables in test_cases.log.contract.MyContract.clear_state_program using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
 debug: Performing post-SSA optimizations
@@ -439,15 +460,33 @@ debug: Inserted main_ternary_merge@6.ops[15]: 'store tmp%23#0 to l-stack (copy)'
 debug: Replaced main_ternary_merge@6.ops[29]: 'load tmp%23#0' with 'load tmp%23#0 from l-stack (no copy)'
 debug: Inserted main_ternary_merge@9.ops[3]: 'store tmp%33#0 to l-stack (copy)'
 debug: Replaced main_ternary_merge@9.ops[5]: 'load tmp%33#0' with 'load tmp%33#0 from l-stack (no copy)'
-debug: Found 6 edge set/s for test_cases.log.contract.MyContract.approval_program
-debug: Allocated 3 variable/s to x-stack: ternary_result%18#0, ternary_result%32#0, ternary_result%5#0
+debug: Inserted main_ternary_merge@9.ops[8]: 'store tmp%38#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@9.ops[10]: 'load tmp%38#0' with 'load tmp%38#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@9.ops[13]: 'store tmp%39#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@9.ops[15]: 'load tmp%39#0' with 'load tmp%39#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@9.ops[21]: 'store tmp%41#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@9.ops[23]: 'load tmp%41#0' with 'load tmp%41#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@9.ops[26]: 'store tmp%42#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@9.ops[28]: 'load tmp%42#0' with 'load tmp%42#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@9.ops[31]: 'store tmp%43#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@9.ops[33]: 'load tmp%43#0' with 'load tmp%43#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@9.ops[38]: 'store tmp%45#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@9.ops[40]: 'load tmp%45#0' with 'load tmp%45#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@9.ops[17]: 'store tmp%40#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@9.ops[20]: 'load tmp%40#0' with 'load tmp%40#0 from l-stack (no copy)'
+debug: Inserted main_ternary_merge@12.ops[3]: 'store tmp%47#0 to l-stack (copy)'
+debug: Replaced main_ternary_merge@12.ops[5]: 'load tmp%47#0' with 'load tmp%47#0 from l-stack (no copy)'
+debug: Found 8 edge set/s for test_cases.log.contract.MyContract.approval_program
+debug: Allocated 4 variable/s to x-stack: ternary_result%18#0, ternary_result%32#0, ternary_result%46#0, ternary_result%5#0
 debug: shared x-stack for main_ternary_true@1 -> main_ternary_merge@3: ternary_result%5#0
 debug: shared x-stack for main_ternary_false@2 -> main_ternary_merge@3: ternary_result%5#0
 debug: shared x-stack for main_ternary_true@4 -> main_ternary_merge@6: ternary_result%18#0
 debug: shared x-stack for main_ternary_false@5 -> main_ternary_merge@6: ternary_result%18#0
 debug: shared x-stack for main_ternary_true@7 -> main_ternary_merge@9: ternary_result%32#0
 debug: shared x-stack for main_ternary_false@8 -> main_ternary_merge@9: ternary_result%32#0
-debug: test_cases.log.contract.MyContract.approval_program f-stack entry: ['tmp%15#0', 'tmp%30#0', 'tmp%7#0']
+debug: shared x-stack for main_ternary_true@10 -> main_ternary_merge@12: ternary_result%46#0
+debug: shared x-stack for main_ternary_false@11 -> main_ternary_merge@12: ternary_result%46#0
+debug: test_cases.log.contract.MyContract.approval_program f-stack entry: ['tmp%15#0', 'tmp%23#0', 'tmp%30#0', 'tmp%44#0', 'tmp%7#0']
 debug: test_cases.log.contract.MyContract.approval_program f-stack on first store: []
 info: Writing log/out/contract.approval.teal
 info: Writing log/out/contract.clear.teal

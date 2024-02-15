@@ -89,6 +89,9 @@ class IntrinsicNamespaceClassExpressionBuilder(IntermediateExpressionBuilder):
                 pass
             case _:
                 raise InternalError("symbol table nodes should not be None", location)
+        # some class members in the stubs that take no arguments are typed
+        # as final class vars, for these get the intrinsic expression by explicitly
+        # mapping the member name as a call with no args
         if isinstance(sym_node, mypy.nodes.Var):
             intrinsic_expr = map_call(callee=sym_node.fullname, node_location=location, args={})
             if intrinsic_expr is None:
