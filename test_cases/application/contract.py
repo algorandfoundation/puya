@@ -2,10 +2,9 @@ from puyapy import (
     Application,
     Bytes,
     Contract,
-    Global,
     LocalState,
-    Transaction,
     UInt64,
+    op,
     subroutine,
 )
 
@@ -24,9 +23,9 @@ class Reference(Contract):
         self.bytes_l4 = LocalState(Bytes)
 
     def approval_program(self) -> bool:
-        if Transaction.num_app_args() == 1:
-            if Transaction.application_args(0) == b"validate":
-                self.validate_asset(Application(Global.current_application_id()))
+        if op.Transaction.num_app_args == 1:
+            if op.Transaction.application_args(0) == b"validate":
+                self.validate_asset(Application(op.Global.current_application_id))
             else:
                 assert False, "Expected validate"
         return True
@@ -36,7 +35,7 @@ class Reference(Contract):
 
     @subroutine
     def validate_asset(self, app: Application) -> None:
-        assert app.creator == Global.creator_address(), "expected creator"
+        assert app.creator == op.Global.creator_address, "expected creator"
         assert app.global_num_uint == 1, "expected global_num_uint"
         assert app.global_num_byte_slice == 2, "expected global_num_byte_slice"
         assert app.local_num_uint == 3, "expected local_num_uint"
@@ -44,8 +43,8 @@ class Reference(Contract):
         assert app.approval_program, "expected approval_program"
         assert app.clear_state_program, "expected clear_state_program"
         assert (
-            app.application_id == Global.current_application_id()
+            app.application_id == op.Global.current_application_id
         ), "expected current_application_id"
         assert (
-            app.address == Global.current_application_address()
+            app.address == op.Global.current_application_address
         ), "expected current_application_address"

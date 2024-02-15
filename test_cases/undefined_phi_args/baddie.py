@@ -1,11 +1,11 @@
-from puyapy import BigUInt, Contract, Transaction, UInt64, btoi, subroutine
+from puyapy import BigUInt, Contract, UInt64, op, subroutine
 
 
 class Baddie(Contract):
     def approval_program(self) -> bool:
-        test_case = Transaction.application_args(0)
+        test_case = op.Transaction.application_args(0)
         invert_second_condition = (
-            Transaction.num_app_args() > 1 and btoi(Transaction.application_args(1)) > 0
+            op.Transaction.num_app_args > 1 and op.btoi(op.Transaction.application_args(1)) > 0
         )
 
         if invert_second_condition:

@@ -1,12 +1,12 @@
 from abc import ABC
 
-from puyapy import Contract, Transaction, UInt64, arc4, subroutine
+from puyapy import Contract, UInt64, arc4, op, subroutine
 
 
 class MyBase(Contract, ABC):
     @subroutine
     def remember_creator(self) -> None:
-        self.creator = Transaction.sender()
+        self.creator = op.Transaction.sender
 
 
 class MyMiddleBase(MyBase):

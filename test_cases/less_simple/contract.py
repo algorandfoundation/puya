@@ -26,7 +26,7 @@ class MyContract(Contract):
     def clear_state_program(self) -> UInt64:
         sum_of_squares = UInt64(0)
         for i in urange(1, 100):
-            square_root = sqrt(i)
+            square_root = op.sqrt(i)
             if square_root * square_root == i:
                 sum_of_squares += i
             if sum_of_squares > 200:

@@ -744,7 +744,7 @@ class FunctionASTConverter(
     def _visit_ref_expr_of_puyapy(
         self, fullname: str, location: SourceLocation, node: mypy.nodes.SymbolNode | None
     ) -> ExpressionBuilder:
-        if fullname.startswith(constants.PUYAPY_GEN_PREFIX):
+        if fullname.startswith(constants.PUYAPY_OP_PREFIX):
             if isinstance(node, mypy.nodes.TypeAlias):
                 t = mypy.types.get_proper_type(node.target)
                 if isinstance(t, mypy.types.Instance):

@@ -1,12 +1,15 @@
 from puyapy import (
+    Bytes,
+    OnCompleteAction,
+    UInt64,
+    subroutine,
+)
+from puyapy.op import (
     AppGlobals,
     AssetHoldingGet,
     Base64,
-    Bytes,
     Global,
-    OnCompleteAction,
     Transaction,
-    UInt64,
     base64_decode,
     btoi,
     divmodw,
@@ -14,7 +17,6 @@ from puyapy import (
     log,
     setbit_bytes,
     setbit_uint64,
-    subroutine,
 )
 
 from test_cases.simplish.base_class import CallCounter
@@ -26,29 +28,29 @@ SCALED_PI = 314159
 
 class Simplish(CallCounter):
     def approval_program(self) -> bool:
-        if Transaction.application_id() == 0:
+        if Transaction.application_id == 0:
             return True
-        oca = Transaction.on_completion()
-        sender = Transaction.sender()
+        oca = Transaction.on_completion
+        sender = Transaction.sender
         if oca in (
             OnCompleteAction.UpdateApplication,
             OnCompleteAction.DeleteApplication,
         ):
             if oca == OnCompleteAction.DeleteApplication:
                 log(Bytes(b"I was used ") + itoa(self.counter) + b" time(s) before I died")
-            return Global.creator_address() == sender
+            return Global.creator_address == sender
 
         if oca == OnCompleteAction.OptIn:
-            if Transaction.num_app_args() > 0:
+            if Transaction.num_app_args > 0:
                 self.set_sender_nickname(Transaction.application_args(0))
             return True
         if oca != OnCompleteAction.NoOp:
             return False
 
-        if (num_app_args := Transaction.num_app_args()) > 0:
+        if (num_app_args := Transaction.num_app_args) > 0:
             method_name = Transaction.application_args(0)
             msg, result = self.call(method_name, num_app_args)
-        elif Transaction.num_assets() == 1:
+        elif Transaction.num_assets == 1:
             asset_balance, asset_exists = AssetHoldingGet.asset_balance(sender, 0)
             if not asset_exists:
                 msg = Bytes(b"You do not have any of the asset")

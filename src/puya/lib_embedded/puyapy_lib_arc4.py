@@ -1,6 +1,10 @@
 from puyapy import (
     Bytes,
     UInt64,
+    subroutine,
+    urange,
+)
+from puyapy.op import (
     btoi,
     bzero,
     extract,
@@ -9,9 +13,7 @@ from puyapy import (
     itob,
     replace,
     setbit_bytes,
-    subroutine,
     substring,
-    urange,
 )
 
 

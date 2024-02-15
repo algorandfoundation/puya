@@ -16,6 +16,7 @@ from puya.awst import wtypes
 from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
 
 from scripts.transform_lang_spec import (
+    ArgEnum,
     Immediate,
     ImmediateKind,
     LanguageSpec,
@@ -43,6 +44,7 @@ CLS_MAPPING: dict[str, wtypes.WType | type] = {
 }
 BYTES_LITERAL = "bytes"
 UINT64_LITERAL = "int"
+STUB_NAMESPACE = "op"
 
 
 class OpCodeGroup(typing.Protocol):
@@ -274,6 +276,13 @@ EXCLUDED_OPCODES = {
 }
 
 
+# which ops to treat as properties in the generated stubs
+PROPERTY_OPS = {
+    "global": {"exclude": ["opcode_budget"]},
+    "txn": {"exclude": list[str]()},
+}
+
+
 @attrs.define
 class TypedName:
     name: str
@@ -281,10 +290,11 @@ class TypedName:
     doc: str | None
 
 
-@attrs.define
+@attrs.define(kw_only=True)
 class FunctionDef:
     name: str
     doc: list[str]
+    is_property: bool
     args: list[TypedName] = attrs.field(factory=list)
     returns: list[TypedName] = attrs.field(factory=list)
     op_mappings: list[FunctionOpMapping] = attrs.field(factory=list)
@@ -351,7 +361,7 @@ def main() -> None:
 
     enum_names = list(enums_to_build.keys())
     output_stub(lang_spec, enum_names, function_defs, class_defs)
-    output_ast_gen(lang_spec, enum_names, function_defs, class_defs)
+    output_awst_data(lang_spec, enum_names, function_defs, class_defs)
 
 
 def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
@@ -424,7 +434,7 @@ def get_python_type(
             return typ
 
 
-def build_stub(
+def build_method_stub(
     function: FunctionDef,
     prefix: str = "",
     *,
@@ -477,31 +487,55 @@ def build_stub(
 
 
 def build_stub_class(klass: ClassDef) -> Iterable[str]:
-    decorator: str
+    method_decorator: str
     ops = [f"`{op}`" for op in klass.ops]
     docstring = f'"""Functions for the op{"s" if len(ops) > 1 else ""}: {", ".join(ops)} """'
     if klass.has_any_methods:
-        decorator = "@classmethod"
+        method_decorator = "@classmethod"
         yield f"class _{klass.name}(Generic[_T, _TLiteral]):"
     else:
-        decorator = "@staticmethod"
+        method_decorator = "@staticmethod"
         yield f"class {klass.name}:"
         yield INDENT + docstring
     for method in klass.methods:
-        yield INDENT + decorator
-        yield from build_stub(
-            method,
-            prefix=INDENT,
-            add_cls_arg=klass.has_any_methods,
-            any_input_as="_T | _TLiteral" if klass.has_any_methods else None,
-            any_output_as="_T" if klass.has_any_methods else None,
-        )
+        if method.is_property:
+            yield from build_class_var_stub(method, INDENT)
+        else:
+            yield INDENT + method_decorator
+            yield from build_method_stub(
+                method,
+                prefix=INDENT,
+                add_cls_arg=klass.has_any_methods,
+                any_input_as="_T | _TLiteral" if klass.has_any_methods else None,
+                any_output_as="_T" if klass.has_any_methods else None,
+            )
         yield ""
     if klass.has_any_methods:
         yield f"class {klass.name}{CLS_BYTES}(_{klass.name}[{CLS_BYTES}, {BYTES_LITERAL}]):"
         yield INDENT + docstring
         yield f"class {klass.name}{CLS_UINT64}(_{klass.name}[{CLS_UINT64}, {UINT64_LITERAL}]):"
         yield INDENT + docstring
+
+
+def build_class_var_stub(function: FunctionDef, indent: str) -> Iterable[str]:
+    return_types = [
+        get_python_type(ret.type, covariant=False, any_as=None) for ret in function.returns
+    ]
+    return_docs = [r.doc for r in function.returns if r.doc is not None]
+    doc = function.doc[:]
+    doc.extend(return_docs[1:])
+    match return_types:
+        case []:
+            returns = "None"
+        case [returns]:
+            pass
+        case _:
+            returns = f"tuple[{', '.join(return_types)}]"
+    yield f"{indent}{function.name}: typing.Final[{returns}] = ..."
+    yield f'{indent}"""'
+    for doc_line in doc:
+        yield f"{indent}{doc_line}"
+    yield f'{indent}"""'
 
 
 def _get_modified_stack_value(alias: Op) -> StackValue:
@@ -526,8 +560,6 @@ def build_class_from_overriding_immediate(
     assert immediate.arg_enum
     logger.info(f"Using overriding immediate for {op.name}")
 
-    immediate_arg_index = op.immediate_args.index(immediate)
-    immediate_python_name = immediate.name.lower()
     arg_enum_values = spec.arg_enums[immediate.arg_enum]
 
     # copy inputs so they can be mutated safely
@@ -548,25 +580,12 @@ def build_class_from_overriding_immediate(
             stack_to_modify.stack_type = stack_type
             stack_to_modify.doc = value.doc
 
-        method = build_operation_method(op, snake_case(value.name), aliases)
-
-        # remove enum arg from signature
-        arg = method.args.pop(immediate_arg_index)
-        assert arg.name == immediate_python_name
+        method = build_operation_method(
+            op, snake_case(value.name), aliases, const_immediate_value=(immediate, value)
+        )
 
         for op_mapping in method.op_mappings:
             class_ops.add(op_mapping.op_code)
-            # replace immediate reference to arg enum with a constant enum value
-            new_immediates = list[str | ArgMapping]()
-            for arg_mapping in op_mapping.immediates:
-                if (
-                    isinstance(arg_mapping, ArgMapping)
-                    and arg_mapping.arg_name == immediate_python_name
-                ):
-                    new_immediates.append(value.name)
-                else:
-                    new_immediates.append(arg_mapping)
-            op_mapping.immediates = new_immediates
 
         methods.append(method)
 
@@ -672,15 +691,20 @@ def build_function_op_mapping(
     arg_map: list[str],
     signature_args: list[TypedName],
     any_as: StackType | None = None,
+    const_immediate_value: tuple[Immediate, ArgEnum] | None = None,
 ) -> FunctionOpMapping:
     if arg_map:
         arg_name_map = {n: signature_args[idx].name for idx, n in enumerate(arg_map)}
     else:
         arg_name_map = {n.name.upper(): n.name for n in signature_args}
+    # replace immediate reference to arg enum with a constant enum value
+
     return FunctionOpMapping(
         op_code=op.name,
         immediates=[
-            ArgMapping(
+            const_immediate_value[1].name
+            if const_immediate_value and const_immediate_value[0] == arg
+            else ArgMapping(
                 arg_name=arg_name_map[arg.name],
                 allowed_types=[immediate_kind_to_type(arg.immediate_type)],
             )
@@ -712,18 +736,50 @@ def build_function_op_mapping(
 
 
 def build_operation_method(
-    op: Op, op_function_name: str, aliases: list[AliasT], replace_any_with: StackType | None = None
+    op: Op,
+    op_function_name: str,
+    aliases: list[AliasT],
+    replace_any_with: StackType | None = None,
+    const_immediate_value: tuple[Immediate, ArgEnum] | None = None,
 ) -> FunctionDef:
     doc = get_op_doc(op)
     doc.append("")
-    proto_function = FunctionDef(name=op_function_name, doc=doc)
-    proto_function.args.extend(get_op_args(op))
-    proto_function.returns.extend(get_op_returns(op, replace_any_with=replace_any_with))
-    proto_function.op_mappings = [
-        build_function_op_mapping(*alias, proto_function.args, any_as=replace_any_with)
-        for alias in [(op, list[str]()), *aliases]
-    ]
+    args = list(get_op_args(op))
+
+    # python stub args can be different to mapping args, due to immediate args
+    # that are inferred based on the method/property used
+    function_args = args.copy()
+    # remove immediate arg from signature
+    if const_immediate_value:
+        immediate_arg_index = op.immediate_args.index(const_immediate_value[0])
+        function_args.pop(immediate_arg_index)
+    proto_function = FunctionDef(
+        name=op_function_name,
+        doc=doc,
+        is_property=_op_is_stub_property(op.name, op_function_name),
+        args=function_args,
+        returns=list(get_op_returns(op, replace_any_with)),
+        op_mappings=[
+            build_function_op_mapping(
+                op,
+                alias_args,
+                args,
+                any_as=replace_any_with,
+                const_immediate_value=const_immediate_value,
+            )
+            for op, alias_args in [(op, list[str]()), *aliases]
+        ],
+    )
+
     return proto_function
+
+
+def _op_is_stub_property(op_name: str, op_function_name: str) -> bool:
+    try:
+        property_op = PROPERTY_OPS[op_name]
+    except KeyError:
+        return False
+    return op_function_name not in property_op["exclude"]
 
 
 def build_operation_methods(
@@ -844,10 +900,11 @@ def build_arg_mapping(arg_mapping: ArgMapping) -> Iterable[str]:
 
 
 def build_op_specification_body(name_suffix: str, function: FunctionDef) -> Iterable[str]:
-    yield f'    "puyapy._gen.{name_suffix}": ['
+    yield f'    "puyapy.{STUB_NAMESPACE}.{name_suffix}": ['
     for op_mapping in function.op_mappings:
         yield "FunctionOpMapping("
         yield f'    op_code="{op_mapping.op_code}",'
+        yield f"    is_property={op_mapping.is_property},"
         yield "    immediates=["
         for immediate in op_mapping.immediates:
             if isinstance(immediate, str):
@@ -870,7 +927,7 @@ def build_op_specification_body(name_suffix: str, function: FunctionDef) -> Iter
     yield "    ],"
 
 
-def build_ast_gen(
+def build_awst_data(
     lang_spec: LanguageSpec,
     enums: list[str],
     function_ops: list[FunctionDef],
@@ -881,7 +938,7 @@ def build_ast_gen(
     yield ""
     yield "ENUM_CLASSES = {"
     for enum_name in enums:
-        yield f'    "puyapy._gen.{get_python_enum_class(enum_name)}": {{'
+        yield f'    "puyapy.{STUB_NAMESPACE}.{get_python_enum_class(enum_name)}": {{'
         for enum_value in lang_spec.arg_enums[enum_name]:
             # enum names currently match enum immediate values
             yield f'    "{enum_value.name}": "{enum_value.name}",'
@@ -916,32 +973,32 @@ def output_stub(
 
     for function in function_ops:
         if function.has_any_return and function.has_any_arg:
-            stub.extend(build_stub(function, any_input_as="_T", any_output_as="_T"))
+            stub.extend(build_method_stub(function, any_input_as="_T", any_output_as="_T"))
         elif function.has_any_return:
             # functions with any returns should have already been transformed
             raise Exception(f"Unexpected function {function.name} with any return")
         else:
-            stub.extend(build_stub(function))
+            stub.extend(build_method_stub(function))
 
     for class_op in class_ops:
         stub.extend(build_stub_class(class_op))
 
-    stub_out_path = VCS_ROOT / "src" / "puyapy-stubs" / "_gen.pyi"
+    stub_out_path = VCS_ROOT / "src" / "puyapy-stubs" / f"{STUB_NAMESPACE}.pyi"
     stub_out_path.write_text("\n".join(stub), encoding="utf-8")
     subprocess.run(["black", str(stub_out_path)], check=True, cwd=VCS_ROOT)
 
 
-def output_ast_gen(
+def output_awst_data(
     lang_spec: LanguageSpec,
     enums: list[str],
     function_ops: list[FunctionDef],
     class_ops: list[ClassDef],
 ) -> None:
-    ast_gen = build_ast_gen(lang_spec, enums, function_ops, class_ops)
+    awst_data = build_awst_data(lang_spec, enums, function_ops, class_ops)
 
-    ast_gen_path = VCS_ROOT / "src" / "puya" / "awst_build" / "intrinsic_data.py"
-    ast_gen_path.write_text("\n".join(ast_gen), encoding="utf-8")
-    subprocess.run(["black", str(ast_gen_path)], check=True, cwd=VCS_ROOT)
+    awst_data_path = VCS_ROOT / "src" / "puya" / "awst_build" / "intrinsic_data.py"
+    awst_data_path.write_text("\n".join(awst_data), encoding="utf-8")
+    subprocess.run(["black", str(awst_data_path)], check=True, cwd=VCS_ROOT)
 
 
 def snake_case(s: str) -> str:

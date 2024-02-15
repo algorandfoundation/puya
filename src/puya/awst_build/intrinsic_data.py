@@ -2,18 +2,18 @@ from puya.awst import wtypes
 from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
 
 ENUM_CLASSES = {
-    "puyapy._gen.Base64": {
+    "puyapy.op.Base64": {
         "URLEncoding": "URLEncoding",
         "StdEncoding": "StdEncoding",
     },
-    "puyapy._gen.ECDSA": {
+    "puyapy.op.ECDSA": {
         "Secp256k1": "Secp256k1",
         "Secp256r1": "Secp256r1",
     },
-    "puyapy._gen.VrfVerify": {
+    "puyapy.op.VrfVerify": {
         "VrfAlgorand": "VrfAlgorand",
     },
-    "puyapy._gen.EC": {
+    "puyapy.op.EC": {
         "BN254g1": "BN254g1",
         "BN254g2": "BN254g2",
         "BLS12_381g1": "BLS12_381g1",
@@ -22,9 +22,10 @@ ENUM_CLASSES = {
 }
 
 STUB_TO_AST_MAPPER = {
-    "puyapy._gen.addw": [
+    "puyapy.op.addw": [
         FunctionOpMapping(
             op_code="addw",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -48,9 +49,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.app_opted_in": [
+    "puyapy.op.app_opted_in": [
         FunctionOpMapping(
             op_code="app_opted_in",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -74,9 +76,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.arg": [
+    "puyapy.op.arg": [
         FunctionOpMapping(
             op_code="args",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -93,6 +96,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="arg",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -107,9 +111,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.balance": [
+    "puyapy.op.balance": [
         FunctionOpMapping(
             op_code="balance",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -126,9 +131,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.base64_decode": [
+    "puyapy.op.base64_decode": [
         FunctionOpMapping(
             op_code="base64_decode",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="e",
@@ -151,9 +157,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.bitlen": [
+    "puyapy.op.bitlen": [
         FunctionOpMapping(
             op_code="bitlen",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -171,9 +178,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.bsqrt": [
+    "puyapy.op.bsqrt": [
         FunctionOpMapping(
             op_code="bsqrt",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -188,9 +196,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.btoi": [
+    "puyapy.op.btoi": [
         FunctionOpMapping(
             op_code="btoi",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -206,9 +215,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.bzero": [
+    "puyapy.op.bzero": [
         FunctionOpMapping(
             op_code="bzero",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -224,9 +234,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.concat": [
+    "puyapy.op.concat": [
         FunctionOpMapping(
             op_code="concat",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -249,9 +260,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.divmodw": [
+    "puyapy.op.divmodw": [
         FunctionOpMapping(
             op_code="divmodw",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -291,9 +303,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.divw": [
+    "puyapy.op.divw": [
         FunctionOpMapping(
             op_code="divw",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -323,9 +336,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.ecdsa_pk_decompress": [
+    "puyapy.op.ecdsa_pk_decompress": [
         FunctionOpMapping(
             op_code="ecdsa_pk_decompress",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="v",
@@ -349,9 +363,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.ecdsa_pk_recover": [
+    "puyapy.op.ecdsa_pk_recover": [
         FunctionOpMapping(
             op_code="ecdsa_pk_recover",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="v",
@@ -399,9 +414,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.ecdsa_verify": [
+    "puyapy.op.ecdsa_verify": [
         FunctionOpMapping(
             op_code="ecdsa_verify",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="v",
@@ -453,9 +469,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.ed25519verify": [
+    "puyapy.op.ed25519verify": [
         FunctionOpMapping(
             op_code="ed25519verify",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -486,9 +503,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.ed25519verify_bare": [
+    "puyapy.op.ed25519verify_bare": [
         FunctionOpMapping(
             op_code="ed25519verify_bare",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -519,17 +537,19 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.err": [
+    "puyapy.op.err": [
         FunctionOpMapping(
             op_code="err",
+            is_property=False,
             immediates=[],
             stack_inputs=[],
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.exit": [
+    "puyapy.op.exit": [
         FunctionOpMapping(
             op_code="return",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -543,9 +563,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.exp": [
+    "puyapy.op.exp": [
         FunctionOpMapping(
             op_code="exp",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -568,9 +589,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.expw": [
+    "puyapy.op.expw": [
         FunctionOpMapping(
             op_code="expw",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -594,9 +616,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.extract": [
+    "puyapy.op.extract": [
         FunctionOpMapping(
             op_code="extract3",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -627,6 +650,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="extract",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="b",
@@ -655,9 +679,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.extract_uint16": [
+    "puyapy.op.extract_uint16": [
         FunctionOpMapping(
             op_code="extract_uint16",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -680,9 +705,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.extract_uint32": [
+    "puyapy.op.extract_uint32": [
         FunctionOpMapping(
             op_code="extract_uint32",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -705,9 +731,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.extract_uint64": [
+    "puyapy.op.extract_uint64": [
         FunctionOpMapping(
             op_code="extract_uint64",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -730,9 +757,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.gaid": [
+    "puyapy.op.gaid": [
         FunctionOpMapping(
             op_code="gaids",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -749,6 +777,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gaid",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -763,9 +792,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.getbit": [
+    "puyapy.op.getbit": [
         FunctionOpMapping(
             op_code="getbit",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -790,9 +820,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.getbyte": [
+    "puyapy.op.getbyte": [
         FunctionOpMapping(
             op_code="getbyte",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -815,9 +846,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.gload_bytes": [
+    "puyapy.op.gload_bytes": [
         FunctionOpMapping(
             op_code="gloadss",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -841,6 +873,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gload",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -862,6 +895,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gloads",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="b",
@@ -884,9 +918,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.gload_uint64": [
+    "puyapy.op.gload_uint64": [
         FunctionOpMapping(
             op_code="gloadss",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -910,6 +945,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gload",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -931,6 +967,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gloads",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="b",
@@ -953,9 +990,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.itob": [
+    "puyapy.op.itob": [
         FunctionOpMapping(
             op_code="itob",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -971,9 +1009,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.keccak256": [
+    "puyapy.op.keccak256": [
         FunctionOpMapping(
             op_code="keccak256",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -989,9 +1028,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.log": [
+    "puyapy.op.log": [
         FunctionOpMapping(
             op_code="log",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1005,9 +1045,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.min_balance": [
+    "puyapy.op.min_balance": [
         FunctionOpMapping(
             op_code="min_balance",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1024,9 +1065,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.mulw": [
+    "puyapy.op.mulw": [
         FunctionOpMapping(
             op_code="mulw",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1050,9 +1092,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.replace": [
+    "puyapy.op.replace": [
         FunctionOpMapping(
             op_code="replace3",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1083,6 +1126,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="replace2",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="b",
@@ -1112,9 +1156,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.setbit_bytes": [
+    "puyapy.op.setbit_bytes": [
         FunctionOpMapping(
             op_code="setbit",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1144,9 +1189,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.setbit_uint64": [
+    "puyapy.op.setbit_uint64": [
         FunctionOpMapping(
             op_code="setbit",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1176,9 +1222,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.setbyte": [
+    "puyapy.op.setbyte": [
         FunctionOpMapping(
             op_code="setbyte",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1208,9 +1255,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.sha256": [
+    "puyapy.op.sha256": [
         FunctionOpMapping(
             op_code="sha256",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1226,9 +1274,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.sha3_256": [
+    "puyapy.op.sha3_256": [
         FunctionOpMapping(
             op_code="sha3_256",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1244,9 +1293,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.sha512_256": [
+    "puyapy.op.sha512_256": [
         FunctionOpMapping(
             op_code="sha512_256",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1262,9 +1312,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.shl": [
+    "puyapy.op.shl": [
         FunctionOpMapping(
             op_code="shl",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1287,9 +1338,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.shr": [
+    "puyapy.op.shr": [
         FunctionOpMapping(
             op_code="shr",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1312,9 +1364,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.sqrt": [
+    "puyapy.op.sqrt": [
         FunctionOpMapping(
             op_code="sqrt",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1330,9 +1383,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.substring": [
+    "puyapy.op.substring": [
         FunctionOpMapping(
             op_code="substring3",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1363,6 +1417,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="substring",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="b",
@@ -1391,9 +1446,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.vrf_verify": [
+    "puyapy.op.vrf_verify": [
         FunctionOpMapping(
             op_code="vrf_verify",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="s",
@@ -1432,9 +1488,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_balance": [
+    "puyapy.op.AcctParamsGet.acct_balance": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctBalance",
             ],
@@ -1454,9 +1511,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_min_balance": [
+    "puyapy.op.AcctParamsGet.acct_min_balance": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctMinBalance",
             ],
@@ -1476,9 +1534,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_auth_addr": [
+    "puyapy.op.AcctParamsGet.acct_auth_addr": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctAuthAddr",
             ],
@@ -1498,9 +1557,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_total_num_uint": [
+    "puyapy.op.AcctParamsGet.acct_total_num_uint": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctTotalNumUint",
             ],
@@ -1520,9 +1580,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_total_num_byte_slice": [
+    "puyapy.op.AcctParamsGet.acct_total_num_byte_slice": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctTotalNumByteSlice",
             ],
@@ -1542,9 +1603,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_total_extra_app_pages": [
+    "puyapy.op.AcctParamsGet.acct_total_extra_app_pages": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctTotalExtraAppPages",
             ],
@@ -1564,9 +1626,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_total_apps_created": [
+    "puyapy.op.AcctParamsGet.acct_total_apps_created": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctTotalAppsCreated",
             ],
@@ -1586,9 +1649,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_total_apps_opted_in": [
+    "puyapy.op.AcctParamsGet.acct_total_apps_opted_in": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctTotalAppsOptedIn",
             ],
@@ -1608,9 +1672,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_total_assets_created": [
+    "puyapy.op.AcctParamsGet.acct_total_assets_created": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctTotalAssetsCreated",
             ],
@@ -1630,9 +1695,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_total_assets": [
+    "puyapy.op.AcctParamsGet.acct_total_assets": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctTotalAssets",
             ],
@@ -1652,9 +1718,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_total_boxes": [
+    "puyapy.op.AcctParamsGet.acct_total_boxes": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctTotalBoxes",
             ],
@@ -1674,9 +1741,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AcctParamsGet.acct_total_box_bytes": [
+    "puyapy.op.AcctParamsGet.acct_total_box_bytes": [
         FunctionOpMapping(
             op_code="acct_params_get",
+            is_property=False,
             immediates=[
                 "AcctTotalBoxBytes",
             ],
@@ -1696,9 +1764,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppGlobals.get_bytes": [
+    "puyapy.op.AppGlobals.get_bytes": [
         FunctionOpMapping(
             op_code="app_global_get",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1714,9 +1783,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppGlobals.get_uint64": [
+    "puyapy.op.AppGlobals.get_uint64": [
         FunctionOpMapping(
             op_code="app_global_get",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1732,9 +1802,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppGlobals.get_ex_bytes": [
+    "puyapy.op.AppGlobals.get_ex_bytes": [
         FunctionOpMapping(
             op_code="app_global_get_ex",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1758,9 +1829,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppGlobals.get_ex_uint64": [
+    "puyapy.op.AppGlobals.get_ex_uint64": [
         FunctionOpMapping(
             op_code="app_global_get_ex",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1784,9 +1856,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppGlobals.delete": [
+    "puyapy.op.AppGlobals.delete": [
         FunctionOpMapping(
             op_code="app_global_del",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1800,9 +1873,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.AppGlobals.put": [
+    "puyapy.op.AppGlobals.put": [
         FunctionOpMapping(
             op_code="app_global_put",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1825,9 +1899,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.AppLocals.get_bytes": [
+    "puyapy.op.AppLocals.get_bytes": [
         FunctionOpMapping(
             op_code="app_local_get",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1851,9 +1926,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppLocals.get_uint64": [
+    "puyapy.op.AppLocals.get_uint64": [
         FunctionOpMapping(
             op_code="app_local_get",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1877,9 +1953,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppLocals.get_ex_bytes": [
+    "puyapy.op.AppLocals.get_ex_bytes": [
         FunctionOpMapping(
             op_code="app_local_get_ex",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1911,9 +1988,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppLocals.get_ex_uint64": [
+    "puyapy.op.AppLocals.get_ex_uint64": [
         FunctionOpMapping(
             op_code="app_local_get_ex",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1945,9 +2023,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppLocals.delete": [
+    "puyapy.op.AppLocals.delete": [
         FunctionOpMapping(
             op_code="app_local_del",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -1969,9 +2048,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.AppLocals.put": [
+    "puyapy.op.AppLocals.put": [
         FunctionOpMapping(
             op_code="app_local_put",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2002,9 +2082,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.AppParamsGet.app_approval_program": [
+    "puyapy.op.AppParamsGet.app_approval_program": [
         FunctionOpMapping(
             op_code="app_params_get",
+            is_property=False,
             immediates=[
                 "AppApprovalProgram",
             ],
@@ -2023,9 +2104,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppParamsGet.app_clear_state_program": [
+    "puyapy.op.AppParamsGet.app_clear_state_program": [
         FunctionOpMapping(
             op_code="app_params_get",
+            is_property=False,
             immediates=[
                 "AppClearStateProgram",
             ],
@@ -2044,9 +2126,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppParamsGet.app_global_num_uint": [
+    "puyapy.op.AppParamsGet.app_global_num_uint": [
         FunctionOpMapping(
             op_code="app_params_get",
+            is_property=False,
             immediates=[
                 "AppGlobalNumUint",
             ],
@@ -2065,9 +2148,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppParamsGet.app_global_num_byte_slice": [
+    "puyapy.op.AppParamsGet.app_global_num_byte_slice": [
         FunctionOpMapping(
             op_code="app_params_get",
+            is_property=False,
             immediates=[
                 "AppGlobalNumByteSlice",
             ],
@@ -2086,9 +2170,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppParamsGet.app_local_num_uint": [
+    "puyapy.op.AppParamsGet.app_local_num_uint": [
         FunctionOpMapping(
             op_code="app_params_get",
+            is_property=False,
             immediates=[
                 "AppLocalNumUint",
             ],
@@ -2107,9 +2192,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppParamsGet.app_local_num_byte_slice": [
+    "puyapy.op.AppParamsGet.app_local_num_byte_slice": [
         FunctionOpMapping(
             op_code="app_params_get",
+            is_property=False,
             immediates=[
                 "AppLocalNumByteSlice",
             ],
@@ -2128,9 +2214,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppParamsGet.app_extra_program_pages": [
+    "puyapy.op.AppParamsGet.app_extra_program_pages": [
         FunctionOpMapping(
             op_code="app_params_get",
+            is_property=False,
             immediates=[
                 "AppExtraProgramPages",
             ],
@@ -2149,9 +2236,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppParamsGet.app_creator": [
+    "puyapy.op.AppParamsGet.app_creator": [
         FunctionOpMapping(
             op_code="app_params_get",
+            is_property=False,
             immediates=[
                 "AppCreator",
             ],
@@ -2170,9 +2258,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AppParamsGet.app_address": [
+    "puyapy.op.AppParamsGet.app_address": [
         FunctionOpMapping(
             op_code="app_params_get",
+            is_property=False,
             immediates=[
                 "AppAddress",
             ],
@@ -2191,9 +2280,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetHoldingGet.asset_balance": [
+    "puyapy.op.AssetHoldingGet.asset_balance": [
         FunctionOpMapping(
             op_code="asset_holding_get",
+            is_property=False,
             immediates=[
                 "AssetBalance",
             ],
@@ -2220,9 +2310,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetHoldingGet.asset_frozen": [
+    "puyapy.op.AssetHoldingGet.asset_frozen": [
         FunctionOpMapping(
             op_code="asset_holding_get",
+            is_property=False,
             immediates=[
                 "AssetFrozen",
             ],
@@ -2249,9 +2340,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_total": [
+    "puyapy.op.AssetParamsGet.asset_total": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetTotal",
             ],
@@ -2270,9 +2362,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_decimals": [
+    "puyapy.op.AssetParamsGet.asset_decimals": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetDecimals",
             ],
@@ -2291,9 +2384,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_default_frozen": [
+    "puyapy.op.AssetParamsGet.asset_default_frozen": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetDefaultFrozen",
             ],
@@ -2312,9 +2406,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_unit_name": [
+    "puyapy.op.AssetParamsGet.asset_unit_name": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetUnitName",
             ],
@@ -2333,9 +2428,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_name": [
+    "puyapy.op.AssetParamsGet.asset_name": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetName",
             ],
@@ -2354,9 +2450,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_url": [
+    "puyapy.op.AssetParamsGet.asset_url": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetURL",
             ],
@@ -2375,9 +2472,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_metadata_hash": [
+    "puyapy.op.AssetParamsGet.asset_metadata_hash": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetMetadataHash",
             ],
@@ -2396,9 +2494,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_manager": [
+    "puyapy.op.AssetParamsGet.asset_manager": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetManager",
             ],
@@ -2417,9 +2516,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_reserve": [
+    "puyapy.op.AssetParamsGet.asset_reserve": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetReserve",
             ],
@@ -2438,9 +2538,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_freeze": [
+    "puyapy.op.AssetParamsGet.asset_freeze": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetFreeze",
             ],
@@ -2459,9 +2560,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_clawback": [
+    "puyapy.op.AssetParamsGet.asset_clawback": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetClawback",
             ],
@@ -2480,9 +2582,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.AssetParamsGet.asset_creator": [
+    "puyapy.op.AssetParamsGet.asset_creator": [
         FunctionOpMapping(
             op_code="asset_params_get",
+            is_property=False,
             immediates=[
                 "AssetCreator",
             ],
@@ -2501,9 +2604,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Block.blk_seed": [
+    "puyapy.op.Block.blk_seed": [
         FunctionOpMapping(
             op_code="block",
+            is_property=False,
             immediates=[
                 "BlkSeed",
             ],
@@ -2521,9 +2625,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Block.blk_timestamp": [
+    "puyapy.op.Block.blk_timestamp": [
         FunctionOpMapping(
             op_code="block",
+            is_property=False,
             immediates=[
                 "BlkTimestamp",
             ],
@@ -2541,9 +2646,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.create": [
+    "puyapy.op.Box.create": [
         FunctionOpMapping(
             op_code="box_create",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2566,9 +2672,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.delete": [
+    "puyapy.op.Box.delete": [
         FunctionOpMapping(
             op_code="box_del",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2584,9 +2691,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.extract": [
+    "puyapy.op.Box.extract": [
         FunctionOpMapping(
             op_code="box_extract",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2616,9 +2724,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.get": [
+    "puyapy.op.Box.get": [
         FunctionOpMapping(
             op_code="box_get",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2635,9 +2744,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.length": [
+    "puyapy.op.Box.length": [
         FunctionOpMapping(
             op_code="box_len",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2654,9 +2764,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Box.put": [
+    "puyapy.op.Box.put": [
         FunctionOpMapping(
             op_code="box_put",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2677,9 +2788,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.Box.replace": [
+    "puyapy.op.Box.replace": [
         FunctionOpMapping(
             op_code="box_replace",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2707,9 +2819,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.Box.resize": [
+    "puyapy.op.Box.resize": [
         FunctionOpMapping(
             op_code="box_resize",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2730,9 +2843,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.Box.splice": [
+    "puyapy.op.Box.splice": [
         FunctionOpMapping(
             op_code="box_splice",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -2767,33 +2881,37 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.begin": [
+    "puyapy.op.CreateInnerTransaction.begin": [
         FunctionOpMapping(
             op_code="itxn_begin",
+            is_property=False,
             immediates=[],
             stack_inputs=[],
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.next": [
+    "puyapy.op.CreateInnerTransaction.next": [
         FunctionOpMapping(
             op_code="itxn_next",
+            is_property=False,
             immediates=[],
             stack_inputs=[],
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.submit": [
+    "puyapy.op.CreateInnerTransaction.submit": [
         FunctionOpMapping(
             op_code="itxn_submit",
+            is_property=False,
             immediates=[],
             stack_inputs=[],
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_sender": [
+    "puyapy.op.CreateInnerTransaction.set_sender": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Sender",
             ],
@@ -2808,9 +2926,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_fee": [
+    "puyapy.op.CreateInnerTransaction.set_fee": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Fee",
             ],
@@ -2826,9 +2945,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_note": [
+    "puyapy.op.CreateInnerTransaction.set_note": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Note",
             ],
@@ -2844,9 +2964,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_receiver": [
+    "puyapy.op.CreateInnerTransaction.set_receiver": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Receiver",
             ],
@@ -2861,9 +2982,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_amount": [
+    "puyapy.op.CreateInnerTransaction.set_amount": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Amount",
             ],
@@ -2879,9 +3001,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_close_remainder_to": [
+    "puyapy.op.CreateInnerTransaction.set_close_remainder_to": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "CloseRemainderTo",
             ],
@@ -2896,9 +3019,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_vote_pk": [
+    "puyapy.op.CreateInnerTransaction.set_vote_pk": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "VotePK",
             ],
@@ -2915,9 +3039,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_selection_pk": [
+    "puyapy.op.CreateInnerTransaction.set_selection_pk": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "SelectionPK",
             ],
@@ -2934,9 +3059,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_vote_first": [
+    "puyapy.op.CreateInnerTransaction.set_vote_first": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "VoteFirst",
             ],
@@ -2952,9 +3078,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_vote_last": [
+    "puyapy.op.CreateInnerTransaction.set_vote_last": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "VoteLast",
             ],
@@ -2970,9 +3097,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_vote_key_dilution": [
+    "puyapy.op.CreateInnerTransaction.set_vote_key_dilution": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "VoteKeyDilution",
             ],
@@ -2988,9 +3116,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_type": [
+    "puyapy.op.CreateInnerTransaction.set_type": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Type",
             ],
@@ -3006,9 +3135,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_type_enum": [
+    "puyapy.op.CreateInnerTransaction.set_type_enum": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "TypeEnum",
             ],
@@ -3024,9 +3154,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_xfer_asset": [
+    "puyapy.op.CreateInnerTransaction.set_xfer_asset": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "XferAsset",
             ],
@@ -3042,9 +3173,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_asset_amount": [
+    "puyapy.op.CreateInnerTransaction.set_asset_amount": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "AssetAmount",
             ],
@@ -3060,9 +3192,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_asset_sender": [
+    "puyapy.op.CreateInnerTransaction.set_asset_sender": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "AssetSender",
             ],
@@ -3077,9 +3210,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_asset_receiver": [
+    "puyapy.op.CreateInnerTransaction.set_asset_receiver": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "AssetReceiver",
             ],
@@ -3094,9 +3228,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_asset_close_to": [
+    "puyapy.op.CreateInnerTransaction.set_asset_close_to": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "AssetCloseTo",
             ],
@@ -3111,9 +3246,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_application_id": [
+    "puyapy.op.CreateInnerTransaction.set_application_id": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ApplicationID",
             ],
@@ -3129,9 +3265,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_on_completion": [
+    "puyapy.op.CreateInnerTransaction.set_on_completion": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "OnCompletion",
             ],
@@ -3147,9 +3284,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_application_args": [
+    "puyapy.op.CreateInnerTransaction.set_application_args": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ApplicationArgs",
             ],
@@ -3165,9 +3303,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_accounts": [
+    "puyapy.op.CreateInnerTransaction.set_accounts": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Accounts",
             ],
@@ -3182,9 +3321,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_approval_program": [
+    "puyapy.op.CreateInnerTransaction.set_approval_program": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ApprovalProgram",
             ],
@@ -3200,9 +3340,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_clear_state_program": [
+    "puyapy.op.CreateInnerTransaction.set_clear_state_program": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ClearStateProgram",
             ],
@@ -3218,9 +3359,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_rekey_to": [
+    "puyapy.op.CreateInnerTransaction.set_rekey_to": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "RekeyTo",
             ],
@@ -3235,9 +3377,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAsset",
             ],
@@ -3253,9 +3396,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_total": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_total": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetTotal",
             ],
@@ -3271,9 +3415,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_decimals": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_decimals": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetDecimals",
             ],
@@ -3289,9 +3434,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_default_frozen": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetDefaultFrozen",
             ],
@@ -3308,9 +3454,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_unit_name": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_unit_name": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetUnitName",
             ],
@@ -3326,9 +3473,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_name": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_name": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetName",
             ],
@@ -3344,9 +3492,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_url": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_url": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetURL",
             ],
@@ -3362,9 +3511,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_metadata_hash": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetMetadataHash",
             ],
@@ -3381,9 +3531,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_manager": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_manager": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetManager",
             ],
@@ -3398,9 +3549,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_reserve": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_reserve": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetReserve",
             ],
@@ -3415,9 +3567,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_freeze": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_freeze": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetFreeze",
             ],
@@ -3432,9 +3585,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_config_asset_clawback": [
+    "puyapy.op.CreateInnerTransaction.set_config_asset_clawback": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ConfigAssetClawback",
             ],
@@ -3449,9 +3603,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_freeze_asset": [
+    "puyapy.op.CreateInnerTransaction.set_freeze_asset": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "FreezeAsset",
             ],
@@ -3467,9 +3622,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_freeze_asset_account": [
+    "puyapy.op.CreateInnerTransaction.set_freeze_asset_account": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "FreezeAssetAccount",
             ],
@@ -3484,9 +3640,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_freeze_asset_frozen": [
+    "puyapy.op.CreateInnerTransaction.set_freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "FreezeAssetFrozen",
             ],
@@ -3503,9 +3660,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_assets": [
+    "puyapy.op.CreateInnerTransaction.set_assets": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Assets",
             ],
@@ -3521,9 +3679,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_applications": [
+    "puyapy.op.CreateInnerTransaction.set_applications": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Applications",
             ],
@@ -3539,9 +3698,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_global_num_uint": [
+    "puyapy.op.CreateInnerTransaction.set_global_num_uint": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "GlobalNumUint",
             ],
@@ -3557,9 +3717,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_global_num_byte_slice": [
+    "puyapy.op.CreateInnerTransaction.set_global_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "GlobalNumByteSlice",
             ],
@@ -3575,9 +3736,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_local_num_uint": [
+    "puyapy.op.CreateInnerTransaction.set_local_num_uint": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "LocalNumUint",
             ],
@@ -3593,9 +3755,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_local_num_byte_slice": [
+    "puyapy.op.CreateInnerTransaction.set_local_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "LocalNumByteSlice",
             ],
@@ -3611,9 +3774,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_extra_program_pages": [
+    "puyapy.op.CreateInnerTransaction.set_extra_program_pages": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ExtraProgramPages",
             ],
@@ -3629,9 +3793,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_nonparticipation": [
+    "puyapy.op.CreateInnerTransaction.set_nonparticipation": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "Nonparticipation",
             ],
@@ -3648,9 +3813,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_state_proof_pk": [
+    "puyapy.op.CreateInnerTransaction.set_state_proof_pk": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "StateProofPK",
             ],
@@ -3666,9 +3832,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_approval_program_pages": [
+    "puyapy.op.CreateInnerTransaction.set_approval_program_pages": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ApprovalProgramPages",
             ],
@@ -3684,9 +3851,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.CreateInnerTransaction.set_clear_state_program_pages": [
+    "puyapy.op.CreateInnerTransaction.set_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="itxn_field",
+            is_property=False,
             immediates=[
                 "ClearStateProgramPages",
             ],
@@ -3702,9 +3870,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.EllipticCurve.add": [
+    "puyapy.op.EllipticCurve.add": [
         FunctionOpMapping(
             op_code="ec_add",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="g",
@@ -3734,9 +3903,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.EllipticCurve.map_to": [
+    "puyapy.op.EllipticCurve.map_to": [
         FunctionOpMapping(
             op_code="ec_map_to",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="g",
@@ -3759,9 +3929,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.EllipticCurve.scalar_mul_multi": [
+    "puyapy.op.EllipticCurve.scalar_mul_multi": [
         FunctionOpMapping(
             op_code="ec_multi_scalar_mul",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="g",
@@ -3791,9 +3962,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.EllipticCurve.pairing_check": [
+    "puyapy.op.EllipticCurve.pairing_check": [
         FunctionOpMapping(
             op_code="ec_pairing_check",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="g",
@@ -3823,9 +3995,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.EllipticCurve.scalar_mul": [
+    "puyapy.op.EllipticCurve.scalar_mul": [
         FunctionOpMapping(
             op_code="ec_scalar_mul",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="g",
@@ -3855,9 +4028,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.EllipticCurve.subgroup_check": [
+    "puyapy.op.EllipticCurve.subgroup_check": [
         FunctionOpMapping(
             op_code="ec_subgroup_check",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="g",
@@ -3880,9 +4054,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.min_txn_fee": [
+    "puyapy.op.Global.min_txn_fee": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "MinTxnFee",
             ],
@@ -3892,9 +4067,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.min_balance": [
+    "puyapy.op.Global.min_balance": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "MinBalance",
             ],
@@ -3904,9 +4080,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.max_txn_life": [
+    "puyapy.op.Global.max_txn_life": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "MaxTxnLife",
             ],
@@ -3916,9 +4093,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.zero_address": [
+    "puyapy.op.Global.zero_address": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "ZeroAddress",
             ],
@@ -3928,9 +4106,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.group_size": [
+    "puyapy.op.Global.group_size": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "GroupSize",
             ],
@@ -3940,9 +4119,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.logic_sig_version": [
+    "puyapy.op.Global.logic_sig_version": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "LogicSigVersion",
             ],
@@ -3952,9 +4132,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.round": [
+    "puyapy.op.Global.round": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "Round",
             ],
@@ -3964,9 +4145,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.latest_timestamp": [
+    "puyapy.op.Global.latest_timestamp": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "LatestTimestamp",
             ],
@@ -3976,9 +4158,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.current_application_id": [
+    "puyapy.op.Global.current_application_id": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "CurrentApplicationID",
             ],
@@ -3988,9 +4171,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.creator_address": [
+    "puyapy.op.Global.creator_address": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "CreatorAddress",
             ],
@@ -4000,9 +4184,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.current_application_address": [
+    "puyapy.op.Global.current_application_address": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "CurrentApplicationAddress",
             ],
@@ -4012,9 +4197,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.group_id": [
+    "puyapy.op.Global.group_id": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "GroupID",
             ],
@@ -4024,9 +4210,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.opcode_budget": [
+    "puyapy.op.Global.opcode_budget": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "OpcodeBudget",
             ],
@@ -4036,9 +4223,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.caller_application_id": [
+    "puyapy.op.Global.caller_application_id": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "CallerApplicationID",
             ],
@@ -4048,9 +4236,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.caller_application_address": [
+    "puyapy.op.Global.caller_application_address": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "CallerApplicationAddress",
             ],
@@ -4060,9 +4249,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.asset_create_min_balance": [
+    "puyapy.op.Global.asset_create_min_balance": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "AssetCreateMinBalance",
             ],
@@ -4072,9 +4262,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.asset_opt_in_min_balance": [
+    "puyapy.op.Global.asset_opt_in_min_balance": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "AssetOptInMinBalance",
             ],
@@ -4084,9 +4275,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Global.genesis_hash": [
+    "puyapy.op.Global.genesis_hash": [
         FunctionOpMapping(
             op_code="global",
+            is_property=False,
             immediates=[
                 "GenesisHash",
             ],
@@ -4096,9 +4288,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.sender": [
+    "puyapy.op.InnerTransaction.sender": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "Sender",
             ],
@@ -4108,9 +4301,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.fee": [
+    "puyapy.op.InnerTransaction.fee": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "Fee",
             ],
@@ -4120,9 +4314,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.first_valid": [
+    "puyapy.op.InnerTransaction.first_valid": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "FirstValid",
             ],
@@ -4132,9 +4327,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.first_valid_time": [
+    "puyapy.op.InnerTransaction.first_valid_time": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "FirstValidTime",
             ],
@@ -4144,9 +4340,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.last_valid": [
+    "puyapy.op.InnerTransaction.last_valid": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "LastValid",
             ],
@@ -4156,9 +4353,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.note": [
+    "puyapy.op.InnerTransaction.note": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "Note",
             ],
@@ -4168,9 +4366,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.lease": [
+    "puyapy.op.InnerTransaction.lease": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "Lease",
             ],
@@ -4180,9 +4379,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.receiver": [
+    "puyapy.op.InnerTransaction.receiver": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "Receiver",
             ],
@@ -4192,9 +4392,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.amount": [
+    "puyapy.op.InnerTransaction.amount": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "Amount",
             ],
@@ -4204,9 +4405,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.close_remainder_to": [
+    "puyapy.op.InnerTransaction.close_remainder_to": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "CloseRemainderTo",
             ],
@@ -4216,9 +4418,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.vote_pk": [
+    "puyapy.op.InnerTransaction.vote_pk": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "VotePK",
             ],
@@ -4228,9 +4431,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.selection_pk": [
+    "puyapy.op.InnerTransaction.selection_pk": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "SelectionPK",
             ],
@@ -4240,9 +4444,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.vote_first": [
+    "puyapy.op.InnerTransaction.vote_first": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "VoteFirst",
             ],
@@ -4252,9 +4457,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.vote_last": [
+    "puyapy.op.InnerTransaction.vote_last": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "VoteLast",
             ],
@@ -4264,9 +4470,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.vote_key_dilution": [
+    "puyapy.op.InnerTransaction.vote_key_dilution": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "VoteKeyDilution",
             ],
@@ -4276,9 +4483,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.type": [
+    "puyapy.op.InnerTransaction.type": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "Type",
             ],
@@ -4288,9 +4496,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.type_enum": [
+    "puyapy.op.InnerTransaction.type_enum": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "TypeEnum",
             ],
@@ -4300,9 +4509,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.xfer_asset": [
+    "puyapy.op.InnerTransaction.xfer_asset": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "XferAsset",
             ],
@@ -4312,9 +4522,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.asset_amount": [
+    "puyapy.op.InnerTransaction.asset_amount": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "AssetAmount",
             ],
@@ -4324,9 +4535,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.asset_sender": [
+    "puyapy.op.InnerTransaction.asset_sender": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "AssetSender",
             ],
@@ -4336,9 +4548,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.asset_receiver": [
+    "puyapy.op.InnerTransaction.asset_receiver": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "AssetReceiver",
             ],
@@ -4348,9 +4561,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.asset_close_to": [
+    "puyapy.op.InnerTransaction.asset_close_to": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "AssetCloseTo",
             ],
@@ -4360,9 +4574,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.group_index": [
+    "puyapy.op.InnerTransaction.group_index": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "GroupIndex",
             ],
@@ -4372,9 +4587,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.tx_id": [
+    "puyapy.op.InnerTransaction.tx_id": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "TxID",
             ],
@@ -4384,9 +4600,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.application_id": [
+    "puyapy.op.InnerTransaction.application_id": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ApplicationID",
             ],
@@ -4396,9 +4613,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.on_completion": [
+    "puyapy.op.InnerTransaction.on_completion": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "OnCompletion",
             ],
@@ -4408,9 +4626,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.application_args": [
+    "puyapy.op.InnerTransaction.application_args": [
         FunctionOpMapping(
             op_code="itxnas",
+            is_property=False,
             immediates=[
                 "ApplicationArgs",
             ],
@@ -4429,6 +4648,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="itxna",
+            is_property=False,
             immediates=[
                 "ApplicationArgs",
                 ArgMapping(
@@ -4444,9 +4664,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.num_app_args": [
+    "puyapy.op.InnerTransaction.num_app_args": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "NumAppArgs",
             ],
@@ -4456,9 +4677,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.accounts": [
+    "puyapy.op.InnerTransaction.accounts": [
         FunctionOpMapping(
             op_code="itxnas",
+            is_property=False,
             immediates=[
                 "Accounts",
             ],
@@ -4477,6 +4699,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="itxna",
+            is_property=False,
             immediates=[
                 "Accounts",
                 ArgMapping(
@@ -4492,9 +4715,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.num_accounts": [
+    "puyapy.op.InnerTransaction.num_accounts": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "NumAccounts",
             ],
@@ -4504,9 +4728,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.approval_program": [
+    "puyapy.op.InnerTransaction.approval_program": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ApprovalProgram",
             ],
@@ -4516,9 +4741,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.clear_state_program": [
+    "puyapy.op.InnerTransaction.clear_state_program": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ClearStateProgram",
             ],
@@ -4528,9 +4754,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.rekey_to": [
+    "puyapy.op.InnerTransaction.rekey_to": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "RekeyTo",
             ],
@@ -4540,9 +4767,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset": [
+    "puyapy.op.InnerTransaction.config_asset": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAsset",
             ],
@@ -4552,9 +4780,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_total": [
+    "puyapy.op.InnerTransaction.config_asset_total": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetTotal",
             ],
@@ -4564,9 +4793,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_decimals": [
+    "puyapy.op.InnerTransaction.config_asset_decimals": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetDecimals",
             ],
@@ -4576,9 +4806,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_default_frozen": [
+    "puyapy.op.InnerTransaction.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetDefaultFrozen",
             ],
@@ -4588,9 +4819,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_unit_name": [
+    "puyapy.op.InnerTransaction.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetUnitName",
             ],
@@ -4600,9 +4832,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_name": [
+    "puyapy.op.InnerTransaction.config_asset_name": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetName",
             ],
@@ -4612,9 +4845,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_url": [
+    "puyapy.op.InnerTransaction.config_asset_url": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetURL",
             ],
@@ -4624,9 +4858,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_metadata_hash": [
+    "puyapy.op.InnerTransaction.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetMetadataHash",
             ],
@@ -4636,9 +4871,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_manager": [
+    "puyapy.op.InnerTransaction.config_asset_manager": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetManager",
             ],
@@ -4648,9 +4884,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_reserve": [
+    "puyapy.op.InnerTransaction.config_asset_reserve": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetReserve",
             ],
@@ -4660,9 +4897,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_freeze": [
+    "puyapy.op.InnerTransaction.config_asset_freeze": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetFreeze",
             ],
@@ -4672,9 +4910,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.config_asset_clawback": [
+    "puyapy.op.InnerTransaction.config_asset_clawback": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ConfigAssetClawback",
             ],
@@ -4684,9 +4923,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.freeze_asset": [
+    "puyapy.op.InnerTransaction.freeze_asset": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "FreezeAsset",
             ],
@@ -4696,9 +4936,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.freeze_asset_account": [
+    "puyapy.op.InnerTransaction.freeze_asset_account": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "FreezeAssetAccount",
             ],
@@ -4708,9 +4949,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.freeze_asset_frozen": [
+    "puyapy.op.InnerTransaction.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "FreezeAssetFrozen",
             ],
@@ -4720,9 +4962,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.assets": [
+    "puyapy.op.InnerTransaction.assets": [
         FunctionOpMapping(
             op_code="itxnas",
+            is_property=False,
             immediates=[
                 "Assets",
             ],
@@ -4741,6 +4984,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="itxna",
+            is_property=False,
             immediates=[
                 "Assets",
                 ArgMapping(
@@ -4756,9 +5000,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.num_assets": [
+    "puyapy.op.InnerTransaction.num_assets": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "NumAssets",
             ],
@@ -4768,9 +5013,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.applications": [
+    "puyapy.op.InnerTransaction.applications": [
         FunctionOpMapping(
             op_code="itxnas",
+            is_property=False,
             immediates=[
                 "Applications",
             ],
@@ -4789,6 +5035,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="itxna",
+            is_property=False,
             immediates=[
                 "Applications",
                 ArgMapping(
@@ -4804,9 +5051,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.num_applications": [
+    "puyapy.op.InnerTransaction.num_applications": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "NumApplications",
             ],
@@ -4816,9 +5064,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.global_num_uint": [
+    "puyapy.op.InnerTransaction.global_num_uint": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "GlobalNumUint",
             ],
@@ -4828,9 +5077,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.global_num_byte_slice": [
+    "puyapy.op.InnerTransaction.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "GlobalNumByteSlice",
             ],
@@ -4840,9 +5090,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.local_num_uint": [
+    "puyapy.op.InnerTransaction.local_num_uint": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "LocalNumUint",
             ],
@@ -4852,9 +5103,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.local_num_byte_slice": [
+    "puyapy.op.InnerTransaction.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "LocalNumByteSlice",
             ],
@@ -4864,9 +5116,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.extra_program_pages": [
+    "puyapy.op.InnerTransaction.extra_program_pages": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "ExtraProgramPages",
             ],
@@ -4876,9 +5129,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.nonparticipation": [
+    "puyapy.op.InnerTransaction.nonparticipation": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "Nonparticipation",
             ],
@@ -4888,9 +5142,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.logs": [
+    "puyapy.op.InnerTransaction.logs": [
         FunctionOpMapping(
             op_code="itxnas",
+            is_property=False,
             immediates=[
                 "Logs",
             ],
@@ -4909,6 +5164,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="itxna",
+            is_property=False,
             immediates=[
                 "Logs",
                 ArgMapping(
@@ -4924,9 +5180,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.num_logs": [
+    "puyapy.op.InnerTransaction.num_logs": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "NumLogs",
             ],
@@ -4936,9 +5193,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.created_asset_id": [
+    "puyapy.op.InnerTransaction.created_asset_id": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "CreatedAssetID",
             ],
@@ -4948,9 +5206,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.created_application_id": [
+    "puyapy.op.InnerTransaction.created_application_id": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "CreatedApplicationID",
             ],
@@ -4960,9 +5219,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.last_log": [
+    "puyapy.op.InnerTransaction.last_log": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "LastLog",
             ],
@@ -4972,9 +5232,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.state_proof_pk": [
+    "puyapy.op.InnerTransaction.state_proof_pk": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "StateProofPK",
             ],
@@ -4984,9 +5245,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.approval_program_pages": [
+    "puyapy.op.InnerTransaction.approval_program_pages": [
         FunctionOpMapping(
             op_code="itxnas",
+            is_property=False,
             immediates=[
                 "ApprovalProgramPages",
             ],
@@ -5005,6 +5267,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="itxna",
+            is_property=False,
             immediates=[
                 "ApprovalProgramPages",
                 ArgMapping(
@@ -5020,9 +5283,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.num_approval_program_pages": [
+    "puyapy.op.InnerTransaction.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "NumApprovalProgramPages",
             ],
@@ -5032,9 +5296,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.clear_state_program_pages": [
+    "puyapy.op.InnerTransaction.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="itxnas",
+            is_property=False,
             immediates=[
                 "ClearStateProgramPages",
             ],
@@ -5053,6 +5318,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="itxna",
+            is_property=False,
             immediates=[
                 "ClearStateProgramPages",
                 ArgMapping(
@@ -5068,9 +5334,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransaction.num_clear_state_program_pages": [
+    "puyapy.op.InnerTransaction.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="itxn",
+            is_property=False,
             immediates=[
                 "NumClearStateProgramPages",
             ],
@@ -5080,9 +5347,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.sender": [
+    "puyapy.op.InnerTransactionGroup.sender": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5098,9 +5366,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.fee": [
+    "puyapy.op.InnerTransactionGroup.fee": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5116,9 +5385,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.first_valid": [
+    "puyapy.op.InnerTransactionGroup.first_valid": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5134,9 +5404,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.first_valid_time": [
+    "puyapy.op.InnerTransactionGroup.first_valid_time": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5152,9 +5423,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.last_valid": [
+    "puyapy.op.InnerTransactionGroup.last_valid": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5170,9 +5442,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.note": [
+    "puyapy.op.InnerTransactionGroup.note": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5188,9 +5461,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.lease": [
+    "puyapy.op.InnerTransactionGroup.lease": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5206,9 +5480,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.receiver": [
+    "puyapy.op.InnerTransactionGroup.receiver": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5224,9 +5499,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.amount": [
+    "puyapy.op.InnerTransactionGroup.amount": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5242,9 +5518,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.close_remainder_to": [
+    "puyapy.op.InnerTransactionGroup.close_remainder_to": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5260,9 +5537,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.vote_pk": [
+    "puyapy.op.InnerTransactionGroup.vote_pk": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5278,9 +5556,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.selection_pk": [
+    "puyapy.op.InnerTransactionGroup.selection_pk": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5296,9 +5575,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.vote_first": [
+    "puyapy.op.InnerTransactionGroup.vote_first": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5314,9 +5594,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.vote_last": [
+    "puyapy.op.InnerTransactionGroup.vote_last": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5332,9 +5613,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.vote_key_dilution": [
+    "puyapy.op.InnerTransactionGroup.vote_key_dilution": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5350,9 +5632,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.type": [
+    "puyapy.op.InnerTransactionGroup.type": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5368,9 +5651,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.type_enum": [
+    "puyapy.op.InnerTransactionGroup.type_enum": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5386,9 +5670,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.xfer_asset": [
+    "puyapy.op.InnerTransactionGroup.xfer_asset": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5404,9 +5689,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.asset_amount": [
+    "puyapy.op.InnerTransactionGroup.asset_amount": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5422,9 +5708,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.asset_sender": [
+    "puyapy.op.InnerTransactionGroup.asset_sender": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5440,9 +5727,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.asset_receiver": [
+    "puyapy.op.InnerTransactionGroup.asset_receiver": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5458,9 +5746,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.asset_close_to": [
+    "puyapy.op.InnerTransactionGroup.asset_close_to": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5476,9 +5765,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.group_index": [
+    "puyapy.op.InnerTransactionGroup.group_index": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5494,9 +5784,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.tx_id": [
+    "puyapy.op.InnerTransactionGroup.tx_id": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5512,9 +5803,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.application_id": [
+    "puyapy.op.InnerTransactionGroup.application_id": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5530,9 +5822,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.on_completion": [
+    "puyapy.op.InnerTransactionGroup.on_completion": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5548,9 +5841,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.application_args": [
+    "puyapy.op.InnerTransactionGroup.application_args": [
         FunctionOpMapping(
             op_code="gitxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5575,6 +5869,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gitxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5596,9 +5891,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.num_app_args": [
+    "puyapy.op.InnerTransactionGroup.num_app_args": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5614,9 +5910,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.accounts": [
+    "puyapy.op.InnerTransactionGroup.accounts": [
         FunctionOpMapping(
             op_code="gitxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5641,6 +5938,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gitxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5662,9 +5960,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.num_accounts": [
+    "puyapy.op.InnerTransactionGroup.num_accounts": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5680,9 +5979,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.approval_program": [
+    "puyapy.op.InnerTransactionGroup.approval_program": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5698,9 +5998,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.clear_state_program": [
+    "puyapy.op.InnerTransactionGroup.clear_state_program": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5716,9 +6017,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.rekey_to": [
+    "puyapy.op.InnerTransactionGroup.rekey_to": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5734,9 +6036,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset": [
+    "puyapy.op.InnerTransactionGroup.config_asset": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5752,9 +6055,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_total": [
+    "puyapy.op.InnerTransactionGroup.config_asset_total": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5770,9 +6074,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_decimals": [
+    "puyapy.op.InnerTransactionGroup.config_asset_decimals": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5788,9 +6093,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_default_frozen": [
+    "puyapy.op.InnerTransactionGroup.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5806,9 +6112,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_unit_name": [
+    "puyapy.op.InnerTransactionGroup.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5824,9 +6131,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_name": [
+    "puyapy.op.InnerTransactionGroup.config_asset_name": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5842,9 +6150,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_url": [
+    "puyapy.op.InnerTransactionGroup.config_asset_url": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5860,9 +6169,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_metadata_hash": [
+    "puyapy.op.InnerTransactionGroup.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5878,9 +6188,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_manager": [
+    "puyapy.op.InnerTransactionGroup.config_asset_manager": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5896,9 +6207,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_reserve": [
+    "puyapy.op.InnerTransactionGroup.config_asset_reserve": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5914,9 +6226,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_freeze": [
+    "puyapy.op.InnerTransactionGroup.config_asset_freeze": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5932,9 +6245,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.config_asset_clawback": [
+    "puyapy.op.InnerTransactionGroup.config_asset_clawback": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5950,9 +6264,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.freeze_asset": [
+    "puyapy.op.InnerTransactionGroup.freeze_asset": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5968,9 +6283,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.freeze_asset_account": [
+    "puyapy.op.InnerTransactionGroup.freeze_asset_account": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -5986,9 +6302,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.freeze_asset_frozen": [
+    "puyapy.op.InnerTransactionGroup.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6004,9 +6321,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.assets": [
+    "puyapy.op.InnerTransactionGroup.assets": [
         FunctionOpMapping(
             op_code="gitxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6031,6 +6349,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gitxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6052,9 +6371,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.num_assets": [
+    "puyapy.op.InnerTransactionGroup.num_assets": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6070,9 +6390,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.applications": [
+    "puyapy.op.InnerTransactionGroup.applications": [
         FunctionOpMapping(
             op_code="gitxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6097,6 +6418,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gitxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6118,9 +6440,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.num_applications": [
+    "puyapy.op.InnerTransactionGroup.num_applications": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6136,9 +6459,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.global_num_uint": [
+    "puyapy.op.InnerTransactionGroup.global_num_uint": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6154,9 +6478,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.global_num_byte_slice": [
+    "puyapy.op.InnerTransactionGroup.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6172,9 +6497,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.local_num_uint": [
+    "puyapy.op.InnerTransactionGroup.local_num_uint": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6190,9 +6516,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.local_num_byte_slice": [
+    "puyapy.op.InnerTransactionGroup.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6208,9 +6535,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.extra_program_pages": [
+    "puyapy.op.InnerTransactionGroup.extra_program_pages": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6226,9 +6554,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.nonparticipation": [
+    "puyapy.op.InnerTransactionGroup.nonparticipation": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6244,9 +6573,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.logs": [
+    "puyapy.op.InnerTransactionGroup.logs": [
         FunctionOpMapping(
             op_code="gitxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6271,6 +6601,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gitxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6292,9 +6623,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.num_logs": [
+    "puyapy.op.InnerTransactionGroup.num_logs": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6310,9 +6642,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.created_asset_id": [
+    "puyapy.op.InnerTransactionGroup.created_asset_id": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6328,9 +6661,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.created_application_id": [
+    "puyapy.op.InnerTransactionGroup.created_application_id": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6346,9 +6680,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.last_log": [
+    "puyapy.op.InnerTransactionGroup.last_log": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6364,9 +6699,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.state_proof_pk": [
+    "puyapy.op.InnerTransactionGroup.state_proof_pk": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6382,9 +6718,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.approval_program_pages": [
+    "puyapy.op.InnerTransactionGroup.approval_program_pages": [
         FunctionOpMapping(
             op_code="gitxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6409,6 +6746,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gitxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6430,9 +6768,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.num_approval_program_pages": [
+    "puyapy.op.InnerTransactionGroup.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6448,9 +6787,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.clear_state_program_pages": [
+    "puyapy.op.InnerTransactionGroup.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="gitxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6475,6 +6815,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gitxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6496,9 +6837,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.InnerTransactionGroup.num_clear_state_program_pages": [
+    "puyapy.op.InnerTransactionGroup.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="gitxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="t",
@@ -6514,9 +6856,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.JsonRef.json_string": [
+    "puyapy.op.JsonRef.json_string": [
         FunctionOpMapping(
             op_code="json_ref",
+            is_property=False,
             immediates=[
                 "JSONString",
             ],
@@ -6541,9 +6884,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.JsonRef.json_uint64": [
+    "puyapy.op.JsonRef.json_uint64": [
         FunctionOpMapping(
             op_code="json_ref",
+            is_property=False,
             immediates=[
                 "JSONUint64",
             ],
@@ -6568,9 +6912,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.JsonRef.json_object": [
+    "puyapy.op.JsonRef.json_object": [
         FunctionOpMapping(
             op_code="json_ref",
+            is_property=False,
             immediates=[
                 "JSONObject",
             ],
@@ -6595,9 +6940,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Scratch.load_bytes": [
+    "puyapy.op.Scratch.load_bytes": [
         FunctionOpMapping(
             op_code="loads",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -6613,9 +6959,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Scratch.load_uint64": [
+    "puyapy.op.Scratch.load_uint64": [
         FunctionOpMapping(
             op_code="loads",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -6631,9 +6978,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Scratch.store": [
+    "puyapy.op.Scratch.store": [
         FunctionOpMapping(
             op_code="stores",
+            is_property=False,
             immediates=[],
             stack_inputs=[
                 ArgMapping(
@@ -6656,9 +7004,10 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy._gen.Transaction.sender": [
+    "puyapy.op.Transaction.sender": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "Sender",
             ],
@@ -6668,9 +7017,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.fee": [
+    "puyapy.op.Transaction.fee": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "Fee",
             ],
@@ -6680,9 +7030,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.first_valid": [
+    "puyapy.op.Transaction.first_valid": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "FirstValid",
             ],
@@ -6692,9 +7043,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.first_valid_time": [
+    "puyapy.op.Transaction.first_valid_time": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "FirstValidTime",
             ],
@@ -6704,9 +7056,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.last_valid": [
+    "puyapy.op.Transaction.last_valid": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "LastValid",
             ],
@@ -6716,9 +7069,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.note": [
+    "puyapy.op.Transaction.note": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "Note",
             ],
@@ -6728,9 +7082,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.lease": [
+    "puyapy.op.Transaction.lease": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "Lease",
             ],
@@ -6740,9 +7095,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.receiver": [
+    "puyapy.op.Transaction.receiver": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "Receiver",
             ],
@@ -6752,9 +7108,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.amount": [
+    "puyapy.op.Transaction.amount": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "Amount",
             ],
@@ -6764,9 +7121,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.close_remainder_to": [
+    "puyapy.op.Transaction.close_remainder_to": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "CloseRemainderTo",
             ],
@@ -6776,9 +7134,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.vote_pk": [
+    "puyapy.op.Transaction.vote_pk": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "VotePK",
             ],
@@ -6788,9 +7147,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.selection_pk": [
+    "puyapy.op.Transaction.selection_pk": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "SelectionPK",
             ],
@@ -6800,9 +7160,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.vote_first": [
+    "puyapy.op.Transaction.vote_first": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "VoteFirst",
             ],
@@ -6812,9 +7173,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.vote_last": [
+    "puyapy.op.Transaction.vote_last": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "VoteLast",
             ],
@@ -6824,9 +7186,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.vote_key_dilution": [
+    "puyapy.op.Transaction.vote_key_dilution": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "VoteKeyDilution",
             ],
@@ -6836,9 +7199,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.type": [
+    "puyapy.op.Transaction.type": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "Type",
             ],
@@ -6848,9 +7212,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.type_enum": [
+    "puyapy.op.Transaction.type_enum": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "TypeEnum",
             ],
@@ -6860,9 +7225,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.xfer_asset": [
+    "puyapy.op.Transaction.xfer_asset": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "XferAsset",
             ],
@@ -6872,9 +7238,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.asset_amount": [
+    "puyapy.op.Transaction.asset_amount": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "AssetAmount",
             ],
@@ -6884,9 +7251,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.asset_sender": [
+    "puyapy.op.Transaction.asset_sender": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "AssetSender",
             ],
@@ -6896,9 +7264,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.asset_receiver": [
+    "puyapy.op.Transaction.asset_receiver": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "AssetReceiver",
             ],
@@ -6908,9 +7277,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.asset_close_to": [
+    "puyapy.op.Transaction.asset_close_to": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "AssetCloseTo",
             ],
@@ -6920,9 +7290,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.group_index": [
+    "puyapy.op.Transaction.group_index": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "GroupIndex",
             ],
@@ -6932,9 +7303,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.tx_id": [
+    "puyapy.op.Transaction.tx_id": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "TxID",
             ],
@@ -6944,9 +7316,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.application_id": [
+    "puyapy.op.Transaction.application_id": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ApplicationID",
             ],
@@ -6956,9 +7329,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.on_completion": [
+    "puyapy.op.Transaction.on_completion": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "OnCompletion",
             ],
@@ -6968,9 +7342,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.application_args": [
+    "puyapy.op.Transaction.application_args": [
         FunctionOpMapping(
             op_code="txnas",
+            is_property=False,
             immediates=[
                 "ApplicationArgs",
             ],
@@ -6989,6 +7364,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="txna",
+            is_property=False,
             immediates=[
                 "ApplicationArgs",
                 ArgMapping(
@@ -7004,9 +7380,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.num_app_args": [
+    "puyapy.op.Transaction.num_app_args": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "NumAppArgs",
             ],
@@ -7016,9 +7393,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.accounts": [
+    "puyapy.op.Transaction.accounts": [
         FunctionOpMapping(
             op_code="txnas",
+            is_property=False,
             immediates=[
                 "Accounts",
             ],
@@ -7037,6 +7415,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="txna",
+            is_property=False,
             immediates=[
                 "Accounts",
                 ArgMapping(
@@ -7052,9 +7431,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.num_accounts": [
+    "puyapy.op.Transaction.num_accounts": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "NumAccounts",
             ],
@@ -7064,9 +7444,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.approval_program": [
+    "puyapy.op.Transaction.approval_program": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ApprovalProgram",
             ],
@@ -7076,9 +7457,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.clear_state_program": [
+    "puyapy.op.Transaction.clear_state_program": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ClearStateProgram",
             ],
@@ -7088,9 +7470,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.rekey_to": [
+    "puyapy.op.Transaction.rekey_to": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "RekeyTo",
             ],
@@ -7100,9 +7483,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset": [
+    "puyapy.op.Transaction.config_asset": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAsset",
             ],
@@ -7112,9 +7496,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_total": [
+    "puyapy.op.Transaction.config_asset_total": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetTotal",
             ],
@@ -7124,9 +7509,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_decimals": [
+    "puyapy.op.Transaction.config_asset_decimals": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetDecimals",
             ],
@@ -7136,9 +7522,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_default_frozen": [
+    "puyapy.op.Transaction.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetDefaultFrozen",
             ],
@@ -7148,9 +7535,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_unit_name": [
+    "puyapy.op.Transaction.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetUnitName",
             ],
@@ -7160,9 +7548,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_name": [
+    "puyapy.op.Transaction.config_asset_name": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetName",
             ],
@@ -7172,9 +7561,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_url": [
+    "puyapy.op.Transaction.config_asset_url": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetURL",
             ],
@@ -7184,9 +7574,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_metadata_hash": [
+    "puyapy.op.Transaction.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetMetadataHash",
             ],
@@ -7196,9 +7587,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_manager": [
+    "puyapy.op.Transaction.config_asset_manager": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetManager",
             ],
@@ -7208,9 +7600,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_reserve": [
+    "puyapy.op.Transaction.config_asset_reserve": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetReserve",
             ],
@@ -7220,9 +7613,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_freeze": [
+    "puyapy.op.Transaction.config_asset_freeze": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetFreeze",
             ],
@@ -7232,9 +7626,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.config_asset_clawback": [
+    "puyapy.op.Transaction.config_asset_clawback": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ConfigAssetClawback",
             ],
@@ -7244,9 +7639,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.freeze_asset": [
+    "puyapy.op.Transaction.freeze_asset": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "FreezeAsset",
             ],
@@ -7256,9 +7652,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.freeze_asset_account": [
+    "puyapy.op.Transaction.freeze_asset_account": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "FreezeAssetAccount",
             ],
@@ -7268,9 +7665,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.freeze_asset_frozen": [
+    "puyapy.op.Transaction.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "FreezeAssetFrozen",
             ],
@@ -7280,9 +7678,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.assets": [
+    "puyapy.op.Transaction.assets": [
         FunctionOpMapping(
             op_code="txnas",
+            is_property=False,
             immediates=[
                 "Assets",
             ],
@@ -7301,6 +7700,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="txna",
+            is_property=False,
             immediates=[
                 "Assets",
                 ArgMapping(
@@ -7316,9 +7716,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.num_assets": [
+    "puyapy.op.Transaction.num_assets": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "NumAssets",
             ],
@@ -7328,9 +7729,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.applications": [
+    "puyapy.op.Transaction.applications": [
         FunctionOpMapping(
             op_code="txnas",
+            is_property=False,
             immediates=[
                 "Applications",
             ],
@@ -7349,6 +7751,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="txna",
+            is_property=False,
             immediates=[
                 "Applications",
                 ArgMapping(
@@ -7364,9 +7767,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.num_applications": [
+    "puyapy.op.Transaction.num_applications": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "NumApplications",
             ],
@@ -7376,9 +7780,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.global_num_uint": [
+    "puyapy.op.Transaction.global_num_uint": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "GlobalNumUint",
             ],
@@ -7388,9 +7793,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.global_num_byte_slice": [
+    "puyapy.op.Transaction.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "GlobalNumByteSlice",
             ],
@@ -7400,9 +7806,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.local_num_uint": [
+    "puyapy.op.Transaction.local_num_uint": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "LocalNumUint",
             ],
@@ -7412,9 +7819,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.local_num_byte_slice": [
+    "puyapy.op.Transaction.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "LocalNumByteSlice",
             ],
@@ -7424,9 +7832,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.extra_program_pages": [
+    "puyapy.op.Transaction.extra_program_pages": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "ExtraProgramPages",
             ],
@@ -7436,9 +7845,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.nonparticipation": [
+    "puyapy.op.Transaction.nonparticipation": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "Nonparticipation",
             ],
@@ -7448,9 +7858,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.logs": [
+    "puyapy.op.Transaction.logs": [
         FunctionOpMapping(
             op_code="txnas",
+            is_property=False,
             immediates=[
                 "Logs",
             ],
@@ -7469,6 +7880,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="txna",
+            is_property=False,
             immediates=[
                 "Logs",
                 ArgMapping(
@@ -7484,9 +7896,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.num_logs": [
+    "puyapy.op.Transaction.num_logs": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "NumLogs",
             ],
@@ -7496,9 +7909,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.created_asset_id": [
+    "puyapy.op.Transaction.created_asset_id": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "CreatedAssetID",
             ],
@@ -7508,9 +7922,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.created_application_id": [
+    "puyapy.op.Transaction.created_application_id": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "CreatedApplicationID",
             ],
@@ -7520,9 +7935,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.last_log": [
+    "puyapy.op.Transaction.last_log": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "LastLog",
             ],
@@ -7532,9 +7948,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.state_proof_pk": [
+    "puyapy.op.Transaction.state_proof_pk": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "StateProofPK",
             ],
@@ -7544,9 +7961,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.approval_program_pages": [
+    "puyapy.op.Transaction.approval_program_pages": [
         FunctionOpMapping(
             op_code="txnas",
+            is_property=False,
             immediates=[
                 "ApprovalProgramPages",
             ],
@@ -7565,6 +7983,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="txna",
+            is_property=False,
             immediates=[
                 "ApprovalProgramPages",
                 ArgMapping(
@@ -7580,9 +7999,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.num_approval_program_pages": [
+    "puyapy.op.Transaction.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "NumApprovalProgramPages",
             ],
@@ -7592,9 +8012,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.clear_state_program_pages": [
+    "puyapy.op.Transaction.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="txnas",
+            is_property=False,
             immediates=[
                 "ClearStateProgramPages",
             ],
@@ -7613,6 +8034,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="txna",
+            is_property=False,
             immediates=[
                 "ClearStateProgramPages",
                 ArgMapping(
@@ -7628,9 +8050,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.Transaction.num_clear_state_program_pages": [
+    "puyapy.op.Transaction.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="txn",
+            is_property=False,
             immediates=[
                 "NumClearStateProgramPages",
             ],
@@ -7640,9 +8063,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.sender": [
+    "puyapy.op.TransactionGroup.sender": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "Sender",
             ],
@@ -7661,6 +8085,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -7676,9 +8101,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.fee": [
+    "puyapy.op.TransactionGroup.fee": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "Fee",
             ],
@@ -7697,6 +8123,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -7712,9 +8139,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.first_valid": [
+    "puyapy.op.TransactionGroup.first_valid": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "FirstValid",
             ],
@@ -7733,6 +8161,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -7748,9 +8177,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.first_valid_time": [
+    "puyapy.op.TransactionGroup.first_valid_time": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "FirstValidTime",
             ],
@@ -7769,6 +8199,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -7784,9 +8215,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.last_valid": [
+    "puyapy.op.TransactionGroup.last_valid": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "LastValid",
             ],
@@ -7805,6 +8237,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -7820,9 +8253,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.note": [
+    "puyapy.op.TransactionGroup.note": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "Note",
             ],
@@ -7841,6 +8275,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -7856,9 +8291,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.lease": [
+    "puyapy.op.TransactionGroup.lease": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "Lease",
             ],
@@ -7877,6 +8313,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -7892,9 +8329,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.receiver": [
+    "puyapy.op.TransactionGroup.receiver": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "Receiver",
             ],
@@ -7913,6 +8351,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -7928,9 +8367,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.amount": [
+    "puyapy.op.TransactionGroup.amount": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "Amount",
             ],
@@ -7949,6 +8389,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -7964,9 +8405,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.close_remainder_to": [
+    "puyapy.op.TransactionGroup.close_remainder_to": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "CloseRemainderTo",
             ],
@@ -7985,6 +8427,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8000,9 +8443,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.vote_pk": [
+    "puyapy.op.TransactionGroup.vote_pk": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "VotePK",
             ],
@@ -8021,6 +8465,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8036,9 +8481,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.selection_pk": [
+    "puyapy.op.TransactionGroup.selection_pk": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "SelectionPK",
             ],
@@ -8057,6 +8503,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8072,9 +8519,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.vote_first": [
+    "puyapy.op.TransactionGroup.vote_first": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "VoteFirst",
             ],
@@ -8093,6 +8541,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8108,9 +8557,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.vote_last": [
+    "puyapy.op.TransactionGroup.vote_last": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "VoteLast",
             ],
@@ -8129,6 +8579,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8144,9 +8595,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.vote_key_dilution": [
+    "puyapy.op.TransactionGroup.vote_key_dilution": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "VoteKeyDilution",
             ],
@@ -8165,6 +8617,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8180,9 +8633,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.type": [
+    "puyapy.op.TransactionGroup.type": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "Type",
             ],
@@ -8201,6 +8655,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8216,9 +8671,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.type_enum": [
+    "puyapy.op.TransactionGroup.type_enum": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "TypeEnum",
             ],
@@ -8237,6 +8693,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8252,9 +8709,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.xfer_asset": [
+    "puyapy.op.TransactionGroup.xfer_asset": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "XferAsset",
             ],
@@ -8273,6 +8731,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8288,9 +8747,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.asset_amount": [
+    "puyapy.op.TransactionGroup.asset_amount": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "AssetAmount",
             ],
@@ -8309,6 +8769,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8324,9 +8785,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.asset_sender": [
+    "puyapy.op.TransactionGroup.asset_sender": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "AssetSender",
             ],
@@ -8345,6 +8807,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8360,9 +8823,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.asset_receiver": [
+    "puyapy.op.TransactionGroup.asset_receiver": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "AssetReceiver",
             ],
@@ -8381,6 +8845,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8396,9 +8861,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.asset_close_to": [
+    "puyapy.op.TransactionGroup.asset_close_to": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "AssetCloseTo",
             ],
@@ -8417,6 +8883,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8432,9 +8899,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.group_index": [
+    "puyapy.op.TransactionGroup.group_index": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "GroupIndex",
             ],
@@ -8453,6 +8921,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8468,9 +8937,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.tx_id": [
+    "puyapy.op.TransactionGroup.tx_id": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "TxID",
             ],
@@ -8489,6 +8959,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8504,9 +8975,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.application_id": [
+    "puyapy.op.TransactionGroup.application_id": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ApplicationID",
             ],
@@ -8525,6 +8997,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8540,9 +9013,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.on_completion": [
+    "puyapy.op.TransactionGroup.on_completion": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "OnCompletion",
             ],
@@ -8561,6 +9035,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8576,9 +9051,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.application_args": [
+    "puyapy.op.TransactionGroup.application_args": [
         FunctionOpMapping(
             op_code="gtxnsas",
+            is_property=False,
             immediates=[
                 "ApplicationArgs",
             ],
@@ -8604,6 +9080,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnsa",
+            is_property=False,
             immediates=[
                 "ApplicationArgs",
                 ArgMapping(
@@ -8628,6 +9105,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8650,6 +9128,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8673,9 +9152,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.num_app_args": [
+    "puyapy.op.TransactionGroup.num_app_args": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "NumAppArgs",
             ],
@@ -8694,6 +9174,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8709,9 +9190,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.accounts": [
+    "puyapy.op.TransactionGroup.accounts": [
         FunctionOpMapping(
             op_code="gtxnsas",
+            is_property=False,
             immediates=[
                 "Accounts",
             ],
@@ -8737,6 +9219,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnsa",
+            is_property=False,
             immediates=[
                 "Accounts",
                 ArgMapping(
@@ -8761,6 +9244,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8783,6 +9267,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8806,9 +9291,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.num_accounts": [
+    "puyapy.op.TransactionGroup.num_accounts": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "NumAccounts",
             ],
@@ -8827,6 +9313,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8842,9 +9329,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.approval_program": [
+    "puyapy.op.TransactionGroup.approval_program": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ApprovalProgram",
             ],
@@ -8863,6 +9351,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8878,9 +9367,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.clear_state_program": [
+    "puyapy.op.TransactionGroup.clear_state_program": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ClearStateProgram",
             ],
@@ -8899,6 +9389,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8914,9 +9405,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.rekey_to": [
+    "puyapy.op.TransactionGroup.rekey_to": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "RekeyTo",
             ],
@@ -8935,6 +9427,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8950,9 +9443,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset": [
+    "puyapy.op.TransactionGroup.config_asset": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAsset",
             ],
@@ -8971,6 +9465,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -8986,9 +9481,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_total": [
+    "puyapy.op.TransactionGroup.config_asset_total": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetTotal",
             ],
@@ -9007,6 +9503,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9022,9 +9519,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_decimals": [
+    "puyapy.op.TransactionGroup.config_asset_decimals": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetDecimals",
             ],
@@ -9043,6 +9541,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9058,9 +9557,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_default_frozen": [
+    "puyapy.op.TransactionGroup.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetDefaultFrozen",
             ],
@@ -9079,6 +9579,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9094,9 +9595,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_unit_name": [
+    "puyapy.op.TransactionGroup.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetUnitName",
             ],
@@ -9115,6 +9617,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9130,9 +9633,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_name": [
+    "puyapy.op.TransactionGroup.config_asset_name": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetName",
             ],
@@ -9151,6 +9655,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9166,9 +9671,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_url": [
+    "puyapy.op.TransactionGroup.config_asset_url": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetURL",
             ],
@@ -9187,6 +9693,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9202,9 +9709,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_metadata_hash": [
+    "puyapy.op.TransactionGroup.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetMetadataHash",
             ],
@@ -9223,6 +9731,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9238,9 +9747,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_manager": [
+    "puyapy.op.TransactionGroup.config_asset_manager": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetManager",
             ],
@@ -9259,6 +9769,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9274,9 +9785,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_reserve": [
+    "puyapy.op.TransactionGroup.config_asset_reserve": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetReserve",
             ],
@@ -9295,6 +9807,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9310,9 +9823,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_freeze": [
+    "puyapy.op.TransactionGroup.config_asset_freeze": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetFreeze",
             ],
@@ -9331,6 +9845,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9346,9 +9861,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.config_asset_clawback": [
+    "puyapy.op.TransactionGroup.config_asset_clawback": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ConfigAssetClawback",
             ],
@@ -9367,6 +9883,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9382,9 +9899,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.freeze_asset": [
+    "puyapy.op.TransactionGroup.freeze_asset": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "FreezeAsset",
             ],
@@ -9403,6 +9921,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9418,9 +9937,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.freeze_asset_account": [
+    "puyapy.op.TransactionGroup.freeze_asset_account": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "FreezeAssetAccount",
             ],
@@ -9439,6 +9959,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9454,9 +9975,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.freeze_asset_frozen": [
+    "puyapy.op.TransactionGroup.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "FreezeAssetFrozen",
             ],
@@ -9475,6 +9997,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9490,9 +10013,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.assets": [
+    "puyapy.op.TransactionGroup.assets": [
         FunctionOpMapping(
             op_code="gtxnsas",
+            is_property=False,
             immediates=[
                 "Assets",
             ],
@@ -9518,6 +10042,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnsa",
+            is_property=False,
             immediates=[
                 "Assets",
                 ArgMapping(
@@ -9542,6 +10067,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9564,6 +10090,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9587,9 +10114,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.num_assets": [
+    "puyapy.op.TransactionGroup.num_assets": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "NumAssets",
             ],
@@ -9608,6 +10136,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9623,9 +10152,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.applications": [
+    "puyapy.op.TransactionGroup.applications": [
         FunctionOpMapping(
             op_code="gtxnsas",
+            is_property=False,
             immediates=[
                 "Applications",
             ],
@@ -9651,6 +10181,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnsa",
+            is_property=False,
             immediates=[
                 "Applications",
                 ArgMapping(
@@ -9675,6 +10206,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9697,6 +10229,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9720,9 +10253,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.num_applications": [
+    "puyapy.op.TransactionGroup.num_applications": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "NumApplications",
             ],
@@ -9741,6 +10275,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9756,9 +10291,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.global_num_uint": [
+    "puyapy.op.TransactionGroup.global_num_uint": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "GlobalNumUint",
             ],
@@ -9777,6 +10313,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9792,9 +10329,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.global_num_byte_slice": [
+    "puyapy.op.TransactionGroup.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "GlobalNumByteSlice",
             ],
@@ -9813,6 +10351,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9828,9 +10367,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.local_num_uint": [
+    "puyapy.op.TransactionGroup.local_num_uint": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "LocalNumUint",
             ],
@@ -9849,6 +10389,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9864,9 +10405,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.local_num_byte_slice": [
+    "puyapy.op.TransactionGroup.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "LocalNumByteSlice",
             ],
@@ -9885,6 +10427,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9900,9 +10443,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.extra_program_pages": [
+    "puyapy.op.TransactionGroup.extra_program_pages": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "ExtraProgramPages",
             ],
@@ -9921,6 +10465,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9936,9 +10481,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.nonparticipation": [
+    "puyapy.op.TransactionGroup.nonparticipation": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "Nonparticipation",
             ],
@@ -9957,6 +10503,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -9972,9 +10519,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.logs": [
+    "puyapy.op.TransactionGroup.logs": [
         FunctionOpMapping(
             op_code="gtxnsas",
+            is_property=False,
             immediates=[
                 "Logs",
             ],
@@ -10000,6 +10548,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnsa",
+            is_property=False,
             immediates=[
                 "Logs",
                 ArgMapping(
@@ -10024,6 +10573,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10046,6 +10596,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10069,9 +10620,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.num_logs": [
+    "puyapy.op.TransactionGroup.num_logs": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "NumLogs",
             ],
@@ -10090,6 +10642,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10105,9 +10658,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.created_asset_id": [
+    "puyapy.op.TransactionGroup.created_asset_id": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "CreatedAssetID",
             ],
@@ -10126,6 +10680,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10141,9 +10696,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.created_application_id": [
+    "puyapy.op.TransactionGroup.created_application_id": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "CreatedApplicationID",
             ],
@@ -10162,6 +10718,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10177,9 +10734,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.last_log": [
+    "puyapy.op.TransactionGroup.last_log": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "LastLog",
             ],
@@ -10198,6 +10756,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10213,9 +10772,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.state_proof_pk": [
+    "puyapy.op.TransactionGroup.state_proof_pk": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "StateProofPK",
             ],
@@ -10234,6 +10794,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10249,9 +10810,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.approval_program_pages": [
+    "puyapy.op.TransactionGroup.approval_program_pages": [
         FunctionOpMapping(
             op_code="gtxnsas",
+            is_property=False,
             immediates=[
                 "ApprovalProgramPages",
             ],
@@ -10277,6 +10839,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnsa",
+            is_property=False,
             immediates=[
                 "ApprovalProgramPages",
                 ArgMapping(
@@ -10301,6 +10864,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10323,6 +10887,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10346,9 +10911,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.num_approval_program_pages": [
+    "puyapy.op.TransactionGroup.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "NumApprovalProgramPages",
             ],
@@ -10367,6 +10933,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10382,9 +10949,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.clear_state_program_pages": [
+    "puyapy.op.TransactionGroup.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="gtxnsas",
+            is_property=False,
             immediates=[
                 "ClearStateProgramPages",
             ],
@@ -10410,6 +10978,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnsa",
+            is_property=False,
             immediates=[
                 "ClearStateProgramPages",
                 ArgMapping(
@@ -10434,6 +11003,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxna",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10456,6 +11026,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxnas",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",
@@ -10479,9 +11050,10 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy._gen.TransactionGroup.num_clear_state_program_pages": [
+    "puyapy.op.TransactionGroup.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="gtxns",
+            is_property=False,
             immediates=[
                 "NumClearStateProgramPages",
             ],
@@ -10500,6 +11072,7 @@ STUB_TO_AST_MAPPER = {
         ),
         FunctionOpMapping(
             op_code="gtxn",
+            is_property=False,
             immediates=[
                 ArgMapping(
                     arg_name="a",

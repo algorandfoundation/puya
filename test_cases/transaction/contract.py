@@ -4,11 +4,11 @@ from puyapy import (
     AssetFreezeTransaction,
     AssetTransferTransaction,
     Bytes,
-    Global,
     KeyRegistrationTransaction,
     PaymentTransaction,
     TransactionBase,
     arc4,
+    op,
     subroutine,
 )
 
@@ -21,7 +21,7 @@ class TransactionContract(arc4.ARC4Contract):
     @subroutine
     def _common_checks(self, txn: TransactionBase) -> None:
         assert txn.txn_id, "txn_id"
-        assert txn.sender == Global.creator_address(), "sender"
+        assert txn.sender == op.Global.creator_address, "sender"
         assert txn.fee, "fee"
         assert txn.type, "type"
         assert txn.type_bytes, "type_bytes"
@@ -31,16 +31,16 @@ class TransactionContract(arc4.ARC4Contract):
         # assert txn.first_valid_time, "first_valid_time" # this value can be flaky in tests
         assert txn.last_valid, "last_valid"
         assert txn.lease, "lease"
-        assert txn.rekey_to == Global.zero_address(), "rekey_to"
+        assert txn.rekey_to == op.Global.zero_address, "rekey_to"
 
     @arc4.abimethod
     def pay(self, txn: PaymentTransaction) -> None:
         self._common_checks(txn)
         assert (
-            txn.receiver == Global.current_application_address()
+            txn.receiver == op.Global.current_application_address
         ), "Payment should be for this app"
         assert txn.amount > 1000, "Payment should be for >1000 micro algos"
-        assert txn.close_remainder_to == Global.zero_address(), "close_remainder_to"
+        assert txn.close_remainder_to == op.Global.zero_address, "close_remainder_to"
 
     @arc4.abimethod
     def key(self, txn: KeyRegistrationTransaction) -> None:

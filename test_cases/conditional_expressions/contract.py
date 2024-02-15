@@ -1,4 +1,4 @@
-from puyapy import Contract, UInt64, itob, log, subroutine
+from puyapy import Contract, UInt64, log, op, subroutine
 
 
 class MyContract(Contract):
@@ -21,7 +21,7 @@ class MyContract(Contract):
 
         result = a * b * c * d * f * h - e - g + i
 
-        log(itob(result))
+        log(op.itob(result))
 
         return result
 

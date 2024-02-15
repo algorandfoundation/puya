@@ -164,7 +164,7 @@ class ImmediateKind(enum.StrEnum):
     arg_enum = enum.auto()
 
 
-@attrs.define(kw_only=True)
+@attrs.frozen(kw_only=True)
 class Immediate:
     name: str
     """Name used to refer to this value in the Op.doc"""

@@ -1,4 +1,4 @@
-from puyapy import Bytes, UInt64, subroutine, substring
+from puyapy import Bytes, UInt64, op, subroutine
 
 
 @subroutine
@@ -9,7 +9,7 @@ def is_substring(item: Bytes, sequence: Bytes) -> bool:
 
     start = UInt64(0)
     while start + item.length <= sequence.length:
-        if item == substring(sequence, start, start + item.length):
+        if item == op.substring(sequence, start, start + item.length):
             return True
         start += 1
     return False

@@ -1,13 +1,15 @@
 from puyapy import (
     Asset,
     Contract,
+    TransactionType,
+    UInt64,
+    subroutine,
+)
+from puyapy.op import (
     CreateInnerTransaction,
     Global,
     Transaction,
-    TransactionType,
-    UInt64,
     bzero,
-    subroutine,
 )
 
 
@@ -16,7 +18,7 @@ class Reference(Contract):
         self.asa = Asset(0)
 
     def approval_program(self) -> bool:
-        if Transaction.num_app_args() == 1:
+        if Transaction.num_app_args == 1:
             if Transaction.application_args(0) == b"opt_in":
                 asset = Asset(Transaction.assets(0))
                 self.opt_into_asset(asset)
@@ -33,7 +35,7 @@ class Reference(Contract):
     @subroutine
     def opt_into_asset(self, asset: Asset) -> None:
         # Only allow app creator to opt the app account into a ASA
-        assert Transaction.sender() == Global.creator_address(), "Only creator can opt in to ASA"
+        assert Transaction.sender == Global.creator_address, "Only creator can opt in to ASA"
         # Verify a ASA hasn't already been opted into
         assert not self.asa, "ASA already opted in"
         # Save ASA ID in global state
@@ -43,7 +45,7 @@ class Reference(Contract):
         CreateInnerTransaction.begin()
         CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
         CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
-        CreateInnerTransaction.set_asset_receiver(Global.current_application_address())
+        CreateInnerTransaction.set_asset_receiver(Global.current_application_address)
         CreateInnerTransaction.set_xfer_asset(asset.asset_id)
         CreateInnerTransaction.submit()
 
@@ -57,8 +59,8 @@ class Reference(Contract):
         assert asset.name == b"asset a", "name"
         assert asset.url == b"", "URL"
         assert asset.metadata_hash == bzero(32), "hash"
-        assert asset.manager == Global.zero_address(), "manager"
-        assert asset.reserve == Global.zero_address(), "reserve"
-        assert asset.freeze == Global.zero_address(), "freeze"
-        assert asset.clawback == Global.zero_address(), "clawback"
-        assert asset.creator == Global.creator_address(), "creator"
+        assert asset.manager == Global.zero_address, "manager"
+        assert asset.reserve == Global.zero_address, "reserve"
+        assert asset.freeze == Global.zero_address, "freeze"
+        assert asset.clawback == Global.zero_address, "clawback"
+        assert asset.creator == Global.creator_address, "creator"

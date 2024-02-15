@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, UInt64, itob, log
+from puyapy import Bytes, Contract, UInt64, log, op
 
 
 class ByteConstantsContract(Contract):
@@ -10,7 +10,7 @@ class ByteConstantsContract(Contract):
 
         result = base_16 + b"|" + base_64 + b"|" + base_32 + b"|" + utf8
         log(result)
-        log(itob(result.length))
+        log(op.itob(result.length))
         return UInt64(1)
 
     def clear_state_program(self) -> bool:

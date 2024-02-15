@@ -5,15 +5,11 @@ from puyapy import (
     ARC4Contract,
     Asset,
     AssetTransferTransaction,
-    CreateInnerTransaction,
-    Global,
-    InnerTransaction,
     PaymentTransaction,
-    Transaction,
     TransactionType,
     UInt64,
     arc4,
-    sqrt,
+    op,
     subroutine,
 )
 
@@ -37,7 +33,7 @@ class ConstantProductAMM(ARC4Contract):
         # The asset id of asset B
         self.asset_b = Asset(0)
         # The current governor of this contract, allowed to do admin type actions
-        self.governor = Transaction.sender()
+        self.governor = op.Transaction.sender
         # The asset id of the Pool Token, used to track share of pool the holder may recover
         self.pool_token = Asset(0)
         # The ratio between assets (A*Scale/B)
@@ -68,8 +64,8 @@ class ConstantProductAMM(ARC4Contract):
         """
         assert not self.pool_token, "application has already been bootstrapped"
         self._check_is_governor()
-        assert Global.group_size() == 2, "group size not 2"
-        assert seed.receiver == Global.current_application_address(), "receiver not app address"
+        assert op.Global.group_size == 2, "group size not 2"
+        assert seed.receiver == op.Global.current_application_address, "receiver not app address"
 
         assert seed.amount >= 300_000, "amount minimum not met"  # 0.3 Algos
         assert a_asset.asset_id < b_asset.asset_id, "asset a must be less than asset b"
@@ -117,19 +113,19 @@ class ConstantProductAMM(ARC4Contract):
         assert pool_asset == self.pool_token, "asset pool incorrect"
         assert a_asset == self.asset_a, "asset a incorrect"
         assert b_asset == self.asset_b, "asset b incorrect"
-        assert a_xfer.sender == Transaction.sender(), "sender invalid"
-        assert b_xfer.sender == Transaction.sender(), "sender invalid"
+        assert a_xfer.sender == op.Transaction.sender, "sender invalid"
+        assert b_xfer.sender == op.Transaction.sender, "sender invalid"
 
         # valid asset a xfer
         assert (
-            a_xfer.asset_receiver == Global.current_application_address()
+            a_xfer.asset_receiver == op.Global.current_application_address
         ), "receiver not app address"
         assert a_xfer.xfer_asset == self.asset_a, "asset a incorrect"
         assert a_xfer.asset_amount > 0, "amount minimum not met"
 
         # valid asset b xfer
         assert (
-            b_xfer.asset_receiver == Global.current_application_address()
+            b_xfer.asset_receiver == op.Global.current_application_address
         ), "receiver not app address"
         assert b_xfer.xfer_asset == self.asset_b, "asset b incorrect"
         assert b_xfer.asset_amount > 0, "amount minimum not met"
@@ -144,7 +140,7 @@ class ConstantProductAMM(ARC4Contract):
         assert to_mint > 0, "send amount too low"
 
         # mint tokens
-        do_asset_transfer(receiver=Transaction.sender(), asset=self.pool_token, amount=to_mint)
+        do_asset_transfer(receiver=op.Transaction.sender, asset=self.pool_token, amount=to_mint)
         self._update_ratio()
 
     @arc4.abimethod(
@@ -177,11 +173,11 @@ class ConstantProductAMM(ARC4Contract):
         assert b_asset == self.asset_b, "asset b incorrect"
 
         assert (
-            pool_xfer.asset_receiver == Global.current_application_address()
+            pool_xfer.asset_receiver == op.Global.current_application_address
         ), "receiver not app address"
         assert pool_xfer.asset_amount > 0, "amount minimum not met"
         assert pool_xfer.xfer_asset == self.pool_token, "asset pool incorrect"
-        assert pool_xfer.sender == Transaction.sender(), "sender invalid"
+        assert pool_xfer.sender == op.Transaction.sender, "sender invalid"
 
         # Get the total number of tokens issued
         # !important: this happens prior to receiving the current axfer of pool tokens
@@ -198,10 +194,10 @@ class ConstantProductAMM(ARC4Contract):
         )
 
         # Send back commensurate amt of a
-        do_asset_transfer(receiver=Transaction.sender(), asset=self.asset_a, amount=a_amt)
+        do_asset_transfer(receiver=op.Transaction.sender, asset=self.asset_a, amount=a_amt)
 
         # Send back commensurate amt of b
-        do_asset_transfer(receiver=Transaction.sender(), asset=self.asset_b, amount=b_amt)
+        do_asset_transfer(receiver=op.Transaction.sender, asset=self.asset_b, amount=b_amt)
         self._update_ratio()
 
     @arc4.abimethod(
@@ -229,7 +225,7 @@ class ConstantProductAMM(ARC4Contract):
         assert b_asset == self.asset_b, "asset b incorrect"
 
         assert swap_xfer.asset_amount > 0, "amount minimum not met"
-        assert swap_xfer.sender == Transaction.sender(), "sender invalid"
+        assert swap_xfer.sender == op.Transaction.sender, "sender invalid"
 
         match swap_xfer.xfer_asset:
             case self.asset_a:
@@ -248,7 +244,7 @@ class ConstantProductAMM(ARC4Contract):
         )
         assert to_swap > 0, "send amount too low"
 
-        do_asset_transfer(receiver=Transaction.sender(), asset=out_asset, amount=to_swap)
+        do_asset_transfer(receiver=op.Transaction.sender, asset=out_asset, amount=to_swap)
         self._update_ratio()
 
     @subroutine
@@ -265,45 +261,45 @@ class ConstantProductAMM(ARC4Contract):
     @subroutine
     def _check_is_governor(self) -> None:
         assert (
-            Transaction.sender() == self.governor
+            op.Transaction.sender == self.governor
         ), "Only the account set in global_state.governor may call this method"
 
     @subroutine
     def _create_pool_token(self) -> Asset:
-        CreateInnerTransaction.begin()
-        CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
-        CreateInnerTransaction.set_config_asset_name(
+        op.CreateInnerTransaction.begin()
+        op.CreateInnerTransaction.set_type_enum(TransactionType.AssetConfig)
+        op.CreateInnerTransaction.set_config_asset_name(
             b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name
         )
-        CreateInnerTransaction.set_config_asset_unit_name(b"dpt")
-        CreateInnerTransaction.set_config_asset_total(TOTAL_SUPPLY)
-        CreateInnerTransaction.set_config_asset_decimals(3)
-        CreateInnerTransaction.set_config_asset_manager(Global.current_application_address())
-        CreateInnerTransaction.set_config_asset_reserve(Global.current_application_address())
-        CreateInnerTransaction.set_fee(0)
-        CreateInnerTransaction.submit()
+        op.CreateInnerTransaction.set_config_asset_unit_name(b"dpt")
+        op.CreateInnerTransaction.set_config_asset_total(TOTAL_SUPPLY)
+        op.CreateInnerTransaction.set_config_asset_decimals(3)
+        op.CreateInnerTransaction.set_config_asset_manager(op.Global.current_application_address)
+        op.CreateInnerTransaction.set_config_asset_reserve(op.Global.current_application_address)
+        op.CreateInnerTransaction.set_fee(0)
+        op.CreateInnerTransaction.submit()
 
-        return Asset(InnerTransaction.created_asset_id())
+        return Asset(op.InnerTransaction.created_asset_id())
 
     @subroutine
     def _do_opt_in(self, asset: Asset) -> None:
         do_asset_transfer(
-            receiver=Global.current_application_address(),
+            receiver=op.Global.current_application_address,
             asset=asset,
             amount=UInt64(0),
         )
 
     @subroutine
     def _current_pool_balance(self) -> UInt64:
-        return self.pool_token.balance(Global.current_application_address())
+        return self.pool_token.balance(op.Global.current_application_address)
 
     @subroutine
     def _current_a_balance(self) -> UInt64:
-        return self.asset_a.balance(Global.current_application_address())
+        return self.asset_a.balance(op.Global.current_application_address)
 
     @subroutine
     def _current_b_balance(self) -> UInt64:
-        return self.asset_b.balance(Global.current_application_address())
+        return self.asset_b.balance(op.Global.current_application_address)
 
 
 ##############
@@ -335,7 +331,7 @@ def tokens_to_mint(
 ) -> UInt64:
     is_initial_mint = a_balance == a_amount and b_balance == b_amount
     if is_initial_mint:
-        return sqrt(a_amount * b_amount) - SCALE
+        return op.sqrt(a_amount * b_amount) - SCALE
     issued = TOTAL_SUPPLY - pool_balance
     a_ratio = SCALE * a_amount // (a_balance - a_amount)
     b_ratio = SCALE * b_amount // (b_balance - b_amount)
@@ -360,10 +356,10 @@ def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) 
 
 @subroutine
 def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
-    CreateInnerTransaction.begin()
-    CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-    CreateInnerTransaction.set_xfer_asset(asset.asset_id)
-    CreateInnerTransaction.set_asset_amount(amount)
-    CreateInnerTransaction.set_asset_receiver(receiver)
-    CreateInnerTransaction.set_fee(0)
-    CreateInnerTransaction.submit()
+    op.CreateInnerTransaction.begin()
+    op.CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
+    op.CreateInnerTransaction.set_xfer_asset(asset.asset_id)
+    op.CreateInnerTransaction.set_asset_amount(amount)
+    op.CreateInnerTransaction.set_asset_receiver(receiver)
+    op.CreateInnerTransaction.set_fee(0)
+    op.CreateInnerTransaction.submit()

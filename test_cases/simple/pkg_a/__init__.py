@@ -1,7 +1,5 @@
-from typing import TypeAlias
-
 from puyapy import UInt64 as MyUInt64
-from puyapy._gen import Transaction
+from puyapy.op import Transaction
 
 from . import pkg_1
 
@@ -11,4 +9,4 @@ __all__ = [
     "Txn",
 ]
 
-Txn: TypeAlias = Transaction
+Txn = Transaction

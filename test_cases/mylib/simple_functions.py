@@ -1,4 +1,4 @@
-from puyapy import Bytes, UInt64, addw, subroutine, urange
+from puyapy import Bytes, UInt64, op, subroutine, urange
 
 ONE = 1
 HELLO = "👋".encode()
@@ -22,7 +22,7 @@ def hello_world() -> Bytes:
 @subroutine
 def safe_add(x: UInt64, y: UInt64) -> tuple[UInt64, bool]:
     """Add two UInt64 and return the result as well as whether it overflowed or not"""
-    hi, lo = addw(x, y)
+    hi, lo = op.addw(x, y)
     did_overflow = hi > 0
     return lo, did_overflow
 
