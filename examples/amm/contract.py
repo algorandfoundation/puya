@@ -279,7 +279,7 @@ class ConstantProductAMM(ARC4Contract):
         op.CreateInnerTransaction.set_fee(0)
         op.CreateInnerTransaction.submit()
 
-        return Asset(op.InnerTransaction.created_asset_id)
+        return Asset(op.InnerTransaction.created_asset_id())
 
     @subroutine
     def _do_opt_in(self, asset: Asset) -> None:

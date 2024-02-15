@@ -38,7 +38,7 @@ class ImmediateVariants(Contract):
         CreateInnerTransaction.set_application_args(second_arg)
         CreateInnerTransaction.submit()
 
-        assert InnerTransaction.num_app_args == 2
+        assert InnerTransaction.num_app_args() == 2
         assert InnerTransaction.application_args(0) == first_arg
         assert InnerTransaction.application_args(UInt64(1)) == second_arg
 

@@ -147,7 +147,7 @@ class VotingRoundApp(ARC4Contract):
         op.CreateInnerTransaction.set_config_asset_url(self.nft_image_url)
         op.CreateInnerTransaction.set_note(note)
         op.CreateInnerTransaction.submit()
-        self.nft_asset_id = op.InnerTransaction.created_asset_id
+        self.nft_asset_id = op.InnerTransaction.created_asset_id()
 
     @arc4.abimethod(readonly=True)
     def get_preconditions(self, signature: arc4.DynamicBytes) -> VotingPreconditions:

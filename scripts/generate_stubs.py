@@ -276,6 +276,13 @@ EXCLUDED_OPCODES = {
 }
 
 
+# which ops to treat as properties in the generated stubs
+PROPERTY_OPS = {
+    "global": {"exclude": ["opcode_budget"]},
+    "txn": {"exclude": list[str]()},
+}
+
+
 @attrs.define
 class TypedName:
     name: str
@@ -524,7 +531,7 @@ def build_class_var_stub(function: FunctionDef, indent: str) -> Iterable[str]:
             pass
         case _:
             returns = f"tuple[{', '.join(return_types)}]"
-    yield f"{indent}{function.name}: {returns} = ..."
+    yield f"{indent}{function.name}: typing.Final[{returns}] = ..."
     yield f'{indent}"""'
     for doc_line in doc:
         yield f"{indent}{doc_line}"
@@ -749,7 +756,7 @@ def build_operation_method(
     proto_function = FunctionDef(
         name=op_function_name,
         doc=doc,
-        is_property=_op_is_stub_property(op, op_function_name, takes_args=bool(function_args)),
+        is_property=_op_is_stub_property(op.name, op_function_name),
         args=function_args,
         returns=list(get_op_returns(op, replace_any_with)),
         op_mappings=[
@@ -767,11 +774,12 @@ def build_operation_method(
     return proto_function
 
 
-def _op_is_stub_property(op: Op, op_function_name: str, *, takes_args: bool) -> bool:
-    # TODO: special case, make this data?
-    if op.name == "global" and op_function_name == "opcode_budget":
+def _op_is_stub_property(op_name: str, op_function_name: str) -> bool:
+    try:
+        property_op = PROPERTY_OPS[op_name]
+    except KeyError:
         return False
-    return any(op.stack_outputs) and not takes_args
+    return op_function_name not in property_op["exclude"]
 
 
 def build_operation_methods(

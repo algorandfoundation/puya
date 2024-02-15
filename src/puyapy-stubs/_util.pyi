@@ -20,4 +20,6 @@ def log(
 ) -> None:
     """Concatenates and logs supplied args as a single bytes value.
 
-    UInt64 args are converted to bytes and each argument is separated by `sep`."""
+    UInt64 args are converted to bytes and each argument is separated by `sep`.
+    Literal `str` values will be encoded as UTF8.
+    """

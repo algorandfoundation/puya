@@ -2142,7 +2142,7 @@ class EllipticCurve:
 class Global:
     """Functions for the op: `global`"""
 
-    min_txn_fee: UInt64 = ...
+    min_txn_fee: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2153,7 +2153,7 @@ class Global:
     
     """
 
-    min_balance: UInt64 = ...
+    min_balance: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2164,7 +2164,7 @@ class Global:
     
     """
 
-    max_txn_life: UInt64 = ...
+    max_txn_life: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2175,7 +2175,7 @@ class Global:
     
     """
 
-    zero_address: Account = ...
+    zero_address: typing.Final[Account] = ...
     """
     global field F
     
@@ -2186,7 +2186,7 @@ class Global:
     
     """
 
-    group_size: UInt64 = ...
+    group_size: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2197,7 +2197,7 @@ class Global:
     
     """
 
-    logic_sig_version: UInt64 = ...
+    logic_sig_version: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2208,7 +2208,7 @@ class Global:
     
     """
 
-    round: UInt64 = ...
+    round: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2219,7 +2219,7 @@ class Global:
     
     """
 
-    latest_timestamp: UInt64 = ...
+    latest_timestamp: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2230,7 +2230,7 @@ class Global:
     
     """
 
-    current_application_id: UInt64 = ...
+    current_application_id: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2241,7 +2241,7 @@ class Global:
     
     """
 
-    creator_address: Account = ...
+    creator_address: typing.Final[Account] = ...
     """
     global field F
     
@@ -2252,7 +2252,7 @@ class Global:
     
     """
 
-    current_application_address: Account = ...
+    current_application_address: typing.Final[Account] = ...
     """
     global field F
     
@@ -2263,7 +2263,7 @@ class Global:
     
     """
 
-    group_id: Bytes = ...
+    group_id: typing.Final[Bytes] = ...
     """
     global field F
     
@@ -2286,7 +2286,7 @@ class Global:
 
         :returns UInt64: The remaining cost that can be spent by opcodes in this program.
         """
-    caller_application_id: UInt64 = ...
+    caller_application_id: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2297,7 +2297,7 @@ class Global:
     
     """
 
-    caller_application_address: Account = ...
+    caller_application_address: typing.Final[Account] = ...
     """
     global field F
     
@@ -2308,7 +2308,7 @@ class Global:
     
     """
 
-    asset_create_min_balance: UInt64 = ...
+    asset_create_min_balance: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2319,7 +2319,7 @@ class Global:
     
     """
 
-    asset_opt_in_min_balance: UInt64 = ...
+    asset_opt_in_min_balance: typing.Final[UInt64] = ...
     """
     global field F
     
@@ -2330,7 +2330,7 @@ class Global:
     
     """
 
-    genesis_hash: Bytes = ...
+    genesis_hash: typing.Final[Bytes] = ...
     """
     global field F
     
@@ -2344,292 +2344,318 @@ class Global:
 class InnerTransaction:
     """Functions for the ops: `itxn`, `itxnas`"""
 
-    sender: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+    @staticmethod
+    def sender() -> Account:
+        """
+        field F of the last inner transaction
 
-    fee: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    first_valid: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    first_valid_time: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def fee() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    last_valid: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    note: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    lease: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: microalgos
+        """
+    @staticmethod
+    def first_valid() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    receiver: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    amount: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    close_remainder_to: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: round number
+        """
+    @staticmethod
+    def first_valid_time() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    vote_pk: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    selection_pk: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    vote_first: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: UNIX timestamp of block before txn.FirstValid. Fails if negative
+        """
+    @staticmethod
+    def last_valid() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    vote_last: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    vote_key_dilution: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    type: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: round number
+        """
+    @staticmethod
+    def note() -> Bytes:
+        """
+        field F of the last inner transaction
 
-    type_enum: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    xfer_asset: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    asset_amount: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns Bytes: Any data up to 1024 bytes
+        """
+    @staticmethod
+    def lease() -> Bytes:
+        """
+        field F of the last inner transaction
 
-    asset_sender: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    asset_receiver: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    asset_close_to: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns Bytes: 32 byte lease value
+        """
+    @staticmethod
+    def receiver() -> Account:
+        """
+        field F of the last inner transaction
 
-    group_index: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    tx_id: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    application_id: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def amount() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    on_completion: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: microalgos
+        """
+    @staticmethod
+    def close_remainder_to() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def vote_pk() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: 32 byte address
+        """
+    @staticmethod
+    def selection_pk() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: 32 byte address
+        """
+    @staticmethod
+    def vote_first() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: The first round that the participation key is valid.
+        """
+    @staticmethod
+    def vote_last() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: The last round that the participation key is valid.
+        """
+    @staticmethod
+    def vote_key_dilution() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Dilution for the 2-level participation key
+        """
+    @staticmethod
+    def type() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: Transaction type as bytes
+        """
+    @staticmethod
+    def type_enum() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Transaction type as integer
+        """
+    @staticmethod
+    def xfer_asset() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Asset ID
+        """
+    @staticmethod
+    def asset_amount() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: value in Asset's units
+        """
+    @staticmethod
+    def asset_sender() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
+        """
+    @staticmethod
+    def asset_receiver() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def asset_close_to() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def group_index() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
+        """
+    @staticmethod
+    def tx_id() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: The computed ID for this transaction. 32 bytes.
+        """
+    @staticmethod
+    def application_id() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: ApplicationID from ApplicationCall transaction
+        """
+    @staticmethod
+    def on_completion() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: ApplicationCall transaction on completion action
+        """
     @staticmethod
     def application_args(a: UInt64 | int, /) -> Bytes:
         """
@@ -2642,17 +2668,18 @@ class InnerTransaction:
 
         :returns Bytes: Arguments passed to the application in the ApplicationCall transaction
         """
-    num_app_args: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+    @staticmethod
+    def num_app_args() -> UInt64:
+        """
+        field F of the last inner transaction
 
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of ApplicationArgs
+        """
     @staticmethod
     def accounts(a: UInt64 | int, /) -> Account:
         """
@@ -2665,215 +2692,234 @@ class InnerTransaction:
 
         :returns Account: Accounts listed in the ApplicationCall transaction
         """
-    num_accounts: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+    @staticmethod
+    def num_accounts() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    approval_program: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    clear_state_program: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    rekey_to: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: Number of Accounts
+        """
+    @staticmethod
+    def approval_program() -> Bytes:
+        """
+        field F of the last inner transaction
 
-    config_asset: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    config_asset_total: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    config_asset_decimals: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns Bytes: Approval program
+        """
+    @staticmethod
+    def clear_state_program() -> Bytes:
+        """
+        field F of the last inner transaction
 
-    config_asset_default_frozen: bool = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    config_asset_unit_name: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    config_asset_name: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns Bytes: Clear state program
+        """
+    @staticmethod
+    def rekey_to() -> Account:
+        """
+        field F of the last inner transaction
 
-    config_asset_url: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    config_asset_metadata_hash: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    config_asset_manager: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns Account: 32 byte Sender's new AuthAddr
+        """
+    @staticmethod
+    def config_asset() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    config_asset_reserve: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    config_asset_freeze: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    config_asset_clawback: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: Asset ID in asset config transaction
+        """
+    @staticmethod
+    def config_asset_total() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    freeze_asset: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    freeze_asset_account: Account = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    freeze_asset_frozen: bool = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: Total number of units of this asset created
+        """
+    @staticmethod
+    def config_asset_decimals() -> UInt64:
+        """
+        field F of the last inner transaction
 
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of digits to display after the decimal place when displaying the asset
+        """
+    @staticmethod
+    def config_asset_default_frozen() -> bool:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns bool: Whether the asset's slots are frozen by default or not, 0 or 1
+        """
+    @staticmethod
+    def config_asset_unit_name() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: Unit name of the asset
+        """
+    @staticmethod
+    def config_asset_name() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: The asset name
+        """
+    @staticmethod
+    def config_asset_url() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: URL
+        """
+    @staticmethod
+    def config_asset_metadata_hash() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: 32 byte commitment to unspecified asset metadata
+        """
+    @staticmethod
+    def config_asset_manager() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def config_asset_reserve() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def config_asset_freeze() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def config_asset_clawback() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def freeze_asset() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Asset ID being frozen or un-frozen
+        """
+    @staticmethod
+    def freeze_asset_account() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address of the account whose asset slot is being frozen or un-frozen
+        """
+    @staticmethod
+    def freeze_asset_frozen() -> bool:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns bool: The new frozen value, 0 or 1
+        """
     @staticmethod
     def assets(a: UInt64 | int, /) -> UInt64:
         """
@@ -2886,17 +2932,18 @@ class InnerTransaction:
 
         :returns UInt64: Foreign Assets listed in the ApplicationCall transaction
         """
-    num_assets: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+    @staticmethod
+    def num_assets() -> UInt64:
+        """
+        field F of the last inner transaction
 
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of Assets
+        """
     @staticmethod
     def applications(a: UInt64 | int, /) -> UInt64:
         """
@@ -2909,83 +2956,90 @@ class InnerTransaction:
 
         :returns UInt64: Foreign Apps listed in the ApplicationCall transaction
         """
-    num_applications: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+    @staticmethod
+    def num_applications() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    global_num_uint: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    global_num_byte_slice: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    local_num_uint: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: Number of Applications
+        """
+    @staticmethod
+    def global_num_uint() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    local_num_byte_slice: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    extra_program_pages: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    nonparticipation: bool = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: Number of global state integers in ApplicationCall
+        """
+    @staticmethod
+    def global_num_byte_slice() -> UInt64:
+        """
+        field F of the last inner transaction
 
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of global state byteslices in ApplicationCall
+        """
+    @staticmethod
+    def local_num_uint() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of local state integers in ApplicationCall
+        """
+    @staticmethod
+    def local_num_byte_slice() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of local state byteslices in ApplicationCall
+        """
+    @staticmethod
+    def extra_program_pages() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program.
+        """
+    @staticmethod
+    def nonparticipation() -> bool:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns bool: Marks an account nonparticipating for rewards
+        """
     @staticmethod
     def logs(a: UInt64 | int, /) -> Bytes:
         """
@@ -2998,61 +3052,66 @@ class InnerTransaction:
 
         :returns Bytes: Log messages emitted by an application call (only with `itxn` in v5). Application mode only
         """
-    num_logs: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+    @staticmethod
+    def num_logs() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    created_asset_id: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
-    created_application_id: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
 
-    last_log: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        :returns UInt64: Number of Logs (only with `itxn` in v5). Application mode only
+        """
+    @staticmethod
+    def created_asset_id() -> UInt64:
+        """
+        field F of the last inner transaction
 
-    state_proof_pk: Bytes = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+        Groups: Inner Transactions
 
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
+        """
+    @staticmethod
+    def created_application_id() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
+        """
+    @staticmethod
+    def last_log() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: The last message emitted. Empty bytes if none were emitted. Application mode only
+        """
+    @staticmethod
+    def state_proof_pk() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: 64 byte state proof public key
+        """
     @staticmethod
     def approval_program_pages(a: UInt64 | int, /) -> Bytes:
         """
@@ -3065,17 +3124,18 @@ class InnerTransaction:
 
         :returns Bytes: Approval Program as an array of pages
         """
-    num_approval_program_pages: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+    @staticmethod
+    def num_approval_program_pages() -> UInt64:
+        """
+        field F of the last inner transaction
 
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of Approval Program pages
+        """
     @staticmethod
     def clear_state_program_pages(a: UInt64 | int, /) -> Bytes:
         """
@@ -3088,16 +3148,18 @@ class InnerTransaction:
 
         :returns Bytes: ClearState Program as an array of pages
         """
-    num_clear_state_program_pages: UInt64 = ...
-    """
-    field F of the last inner transaction
-    
-    Groups: Inner Transactions
-    
-    Stack: [...] -> [..., X]
-    TEAL: itxn F
-    
-    """
+    @staticmethod
+    def num_clear_state_program_pages() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of ClearState Program pages
+        """
 
 class InnerTransactionGroup:
     """Functions for the ops: `gitxn`, `gitxnas`"""
@@ -4073,7 +4135,7 @@ class Scratch:
 class Transaction:
     """Functions for the ops: `txn`, `txnas`"""
 
-    sender: Account = ...
+    sender: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4084,7 +4146,7 @@ class Transaction:
     
     """
 
-    fee: UInt64 = ...
+    fee: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4095,7 +4157,7 @@ class Transaction:
     
     """
 
-    first_valid: UInt64 = ...
+    first_valid: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4106,7 +4168,7 @@ class Transaction:
     
     """
 
-    first_valid_time: UInt64 = ...
+    first_valid_time: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4117,7 +4179,7 @@ class Transaction:
     
     """
 
-    last_valid: UInt64 = ...
+    last_valid: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4128,7 +4190,7 @@ class Transaction:
     
     """
 
-    note: Bytes = ...
+    note: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4139,7 +4201,7 @@ class Transaction:
     
     """
 
-    lease: Bytes = ...
+    lease: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4150,7 +4212,7 @@ class Transaction:
     
     """
 
-    receiver: Account = ...
+    receiver: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4161,7 +4223,7 @@ class Transaction:
     
     """
 
-    amount: UInt64 = ...
+    amount: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4172,7 +4234,7 @@ class Transaction:
     
     """
 
-    close_remainder_to: Account = ...
+    close_remainder_to: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4183,7 +4245,7 @@ class Transaction:
     
     """
 
-    vote_pk: Bytes = ...
+    vote_pk: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4194,7 +4256,7 @@ class Transaction:
     
     """
 
-    selection_pk: Bytes = ...
+    selection_pk: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4205,7 +4267,7 @@ class Transaction:
     
     """
 
-    vote_first: UInt64 = ...
+    vote_first: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4216,7 +4278,7 @@ class Transaction:
     
     """
 
-    vote_last: UInt64 = ...
+    vote_last: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4227,7 +4289,7 @@ class Transaction:
     
     """
 
-    vote_key_dilution: UInt64 = ...
+    vote_key_dilution: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4238,7 +4300,7 @@ class Transaction:
     
     """
 
-    type: Bytes = ...
+    type: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4249,7 +4311,7 @@ class Transaction:
     
     """
 
-    type_enum: UInt64 = ...
+    type_enum: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4260,7 +4322,7 @@ class Transaction:
     
     """
 
-    xfer_asset: UInt64 = ...
+    xfer_asset: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4271,7 +4333,7 @@ class Transaction:
     
     """
 
-    asset_amount: UInt64 = ...
+    asset_amount: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4282,7 +4344,7 @@ class Transaction:
     
     """
 
-    asset_sender: Account = ...
+    asset_sender: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4293,7 +4355,7 @@ class Transaction:
     
     """
 
-    asset_receiver: Account = ...
+    asset_receiver: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4304,7 +4366,7 @@ class Transaction:
     
     """
 
-    asset_close_to: Account = ...
+    asset_close_to: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4315,7 +4377,7 @@ class Transaction:
     
     """
 
-    group_index: UInt64 = ...
+    group_index: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4326,7 +4388,7 @@ class Transaction:
     
     """
 
-    tx_id: Bytes = ...
+    tx_id: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4337,7 +4399,7 @@ class Transaction:
     
     """
 
-    application_id: UInt64 = ...
+    application_id: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4348,7 +4410,7 @@ class Transaction:
     
     """
 
-    on_completion: UInt64 = ...
+    on_completion: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4371,7 +4433,7 @@ class Transaction:
 
         :returns Bytes: Arguments passed to the application in the ApplicationCall transaction
         """
-    num_app_args: UInt64 = ...
+    num_app_args: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4394,7 +4456,7 @@ class Transaction:
 
         :returns Account: Accounts listed in the ApplicationCall transaction
         """
-    num_accounts: UInt64 = ...
+    num_accounts: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4405,7 +4467,7 @@ class Transaction:
     
     """
 
-    approval_program: Bytes = ...
+    approval_program: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4416,7 +4478,7 @@ class Transaction:
     
     """
 
-    clear_state_program: Bytes = ...
+    clear_state_program: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4427,7 +4489,7 @@ class Transaction:
     
     """
 
-    rekey_to: Account = ...
+    rekey_to: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4438,7 +4500,7 @@ class Transaction:
     
     """
 
-    config_asset: UInt64 = ...
+    config_asset: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4449,7 +4511,7 @@ class Transaction:
     
     """
 
-    config_asset_total: UInt64 = ...
+    config_asset_total: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4460,7 +4522,7 @@ class Transaction:
     
     """
 
-    config_asset_decimals: UInt64 = ...
+    config_asset_decimals: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4471,7 +4533,7 @@ class Transaction:
     
     """
 
-    config_asset_default_frozen: bool = ...
+    config_asset_default_frozen: typing.Final[bool] = ...
     """
     field F of current transaction
     
@@ -4482,7 +4544,7 @@ class Transaction:
     
     """
 
-    config_asset_unit_name: Bytes = ...
+    config_asset_unit_name: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4493,7 +4555,7 @@ class Transaction:
     
     """
 
-    config_asset_name: Bytes = ...
+    config_asset_name: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4504,7 +4566,7 @@ class Transaction:
     
     """
 
-    config_asset_url: Bytes = ...
+    config_asset_url: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4515,7 +4577,7 @@ class Transaction:
     
     """
 
-    config_asset_metadata_hash: Bytes = ...
+    config_asset_metadata_hash: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4526,7 +4588,7 @@ class Transaction:
     
     """
 
-    config_asset_manager: Account = ...
+    config_asset_manager: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4537,7 +4599,7 @@ class Transaction:
     
     """
 
-    config_asset_reserve: Account = ...
+    config_asset_reserve: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4548,7 +4610,7 @@ class Transaction:
     
     """
 
-    config_asset_freeze: Account = ...
+    config_asset_freeze: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4559,7 +4621,7 @@ class Transaction:
     
     """
 
-    config_asset_clawback: Account = ...
+    config_asset_clawback: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4570,7 +4632,7 @@ class Transaction:
     
     """
 
-    freeze_asset: UInt64 = ...
+    freeze_asset: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4581,7 +4643,7 @@ class Transaction:
     
     """
 
-    freeze_asset_account: Account = ...
+    freeze_asset_account: typing.Final[Account] = ...
     """
     field F of current transaction
     
@@ -4592,7 +4654,7 @@ class Transaction:
     
     """
 
-    freeze_asset_frozen: bool = ...
+    freeze_asset_frozen: typing.Final[bool] = ...
     """
     field F of current transaction
     
@@ -4615,7 +4677,7 @@ class Transaction:
 
         :returns UInt64: Foreign Assets listed in the ApplicationCall transaction
         """
-    num_assets: UInt64 = ...
+    num_assets: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4638,7 +4700,7 @@ class Transaction:
 
         :returns UInt64: Foreign Apps listed in the ApplicationCall transaction
         """
-    num_applications: UInt64 = ...
+    num_applications: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4649,7 +4711,7 @@ class Transaction:
     
     """
 
-    global_num_uint: UInt64 = ...
+    global_num_uint: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4660,7 +4722,7 @@ class Transaction:
     
     """
 
-    global_num_byte_slice: UInt64 = ...
+    global_num_byte_slice: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4671,7 +4733,7 @@ class Transaction:
     
     """
 
-    local_num_uint: UInt64 = ...
+    local_num_uint: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4682,7 +4744,7 @@ class Transaction:
     
     """
 
-    local_num_byte_slice: UInt64 = ...
+    local_num_byte_slice: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4693,7 +4755,7 @@ class Transaction:
     
     """
 
-    extra_program_pages: UInt64 = ...
+    extra_program_pages: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4704,7 +4766,7 @@ class Transaction:
     
     """
 
-    nonparticipation: bool = ...
+    nonparticipation: typing.Final[bool] = ...
     """
     field F of current transaction
     
@@ -4727,7 +4789,7 @@ class Transaction:
 
         :returns Bytes: Log messages emitted by an application call (only with `itxn` in v5). Application mode only
         """
-    num_logs: UInt64 = ...
+    num_logs: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4738,7 +4800,7 @@ class Transaction:
     
     """
 
-    created_asset_id: UInt64 = ...
+    created_asset_id: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4749,7 +4811,7 @@ class Transaction:
     
     """
 
-    created_application_id: UInt64 = ...
+    created_application_id: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4760,7 +4822,7 @@ class Transaction:
     
     """
 
-    last_log: Bytes = ...
+    last_log: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4771,7 +4833,7 @@ class Transaction:
     
     """
 
-    state_proof_pk: Bytes = ...
+    state_proof_pk: typing.Final[Bytes] = ...
     """
     field F of current transaction
     
@@ -4794,7 +4856,7 @@ class Transaction:
 
         :returns Bytes: Approval Program as an array of pages
         """
-    num_approval_program_pages: UInt64 = ...
+    num_approval_program_pages: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
@@ -4817,7 +4879,7 @@ class Transaction:
 
         :returns Bytes: ClearState Program as an array of pages
         """
-    num_clear_state_program_pages: UInt64 = ...
+    num_clear_state_program_pages: typing.Final[UInt64] = ...
     """
     field F of current transaction
     
