@@ -13,7 +13,7 @@ class TealOp:
     op_code: str
     consumes: int
     produces: int
-    source_location: SourceLocation | None
+    source_location: SourceLocation | None = attrs.field(eq=False)
     comment: str | None = None
     """A comment that is always emitted, should only be used for user comments related to an
     op such as assert or err"""
