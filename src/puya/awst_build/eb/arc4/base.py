@@ -10,11 +10,16 @@ from puya.awst.nodes import (
     ARC4Decode,
     ARC4Encode,
     BytesComparisonExpression,
+    BytesConstant,
+    BytesEncoding,
+    CheckedMaybe,
     Copy,
     EqualityComparison,
     Expression,
+    IntrinsicCall,
     Literal,
     ReinterpretCast,
+    TupleExpression,
 )
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
@@ -51,6 +56,8 @@ class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder, ABC):
         match name:
             case "encode":
                 return ARC4EncodeBuilder(location, self.produces())
+            case "from_log":
+                return ARC4FromLogBuilder(location, self.produces())
             case _:
                 return super().member_access(name, location)
 
@@ -91,6 +98,68 @@ class ARC4EncodeBuilder(IntermediateExpressionBuilder):
                 wtype=self.wtype,
             )
         )
+
+
+class ARC4FromLogBuilder(IntermediateExpressionBuilder):
+    def __init__(self, location: SourceLocation, wtype: wtypes.WType):
+        super().__init__(location=location)
+        self.wtype = wtype
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        match args:
+            case [ExpressionBuilder() as eb]:
+                value = eb.rvalue()
+                if value.wtype == wtypes.bytes_wtype:
+                    value_bytes = ReinterpretCast(
+                        expr=value, wtype=wtypes.bytes_wtype, source_location=value.source_location
+                    )
+                    arc4_prefix = IntrinsicCall(
+                        wtype=wtypes.bytes_wtype,
+                        op_code="extract",
+                        immediates=[0, 4],
+                        source_location=location,
+                        stack_args=[value_bytes],
+                    )
+                    arc4_prefix_is_valid = BytesComparisonExpression(
+                        lhs=arc4_prefix,
+                        rhs=BytesConstant(
+                            value=b"\x15\x1f\x7c\x75",
+                            source_location=location,
+                            encoding=BytesEncoding.base16,
+                        ),
+                        operator=EqualityComparison.eq,
+                        source_location=location,
+                    )
+                    arc4_value = IntrinsicCall(
+                        wtype=wtypes.bytes_wtype,
+                        op_code="extract",
+                        immediates=[4, 0],
+                        source_location=location,
+                        stack_args=[value_bytes],
+                    )
+                    checked_arc4_value = CheckedMaybe(
+                        expr=TupleExpression(
+                            items=(arc4_value, arc4_prefix_is_valid),
+                            wtype=wtypes.WTuple.from_types((arc4_value.wtype, wtypes.bool_wtype)),
+                            source_location=location,
+                        ),
+                        comment="ARC4 prefix is valid",
+                    )
+                    return var_expression(
+                        ReinterpretCast(
+                            source_location=location,
+                            expr=checked_arc4_value,
+                            wtype=self.wtype,
+                        )
+                    )
+        raise CodeError("Invalid/unhandled arguments", location)
 
 
 class CopyBuilder(IntermediateExpressionBuilder):

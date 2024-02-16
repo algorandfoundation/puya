@@ -59,6 +59,9 @@ class _ABIEncoded(puyapy.BytesBacked, typing.Protocol[_T]):
     @classmethod
     def encode(cls, value: _T) -> typing.Self:
         """Encode AVM stack value as an ABI bytes"""
+    @classmethod
+    def from_log(cls, log: puyapy.Bytes) -> typing.Self:
+        """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
 
 class String(_ABIEncoded[puyapy.Bytes]):
     """An ARC4 sequence of bytes containing a UTF8 string"""
