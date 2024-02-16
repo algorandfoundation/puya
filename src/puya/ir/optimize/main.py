@@ -57,7 +57,7 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(copy_propagation),
             SubroutineOptimization.from_function(intrinsic_simplifier),
             SubroutineOptimization.from_function(remove_unused_variables),
-            SubroutineOptimization.from_function(simplify_control_ops),
+            SubroutineOptimization.from_function(simplify_control_ops, loop=True),
             SubroutineOptimization.from_function(remove_linear_jump),
             SubroutineOptimization.from_function(remove_empty_blocks),
             SubroutineOptimization.from_function(remove_unreachable_blocks),
