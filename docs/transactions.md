@@ -65,13 +65,14 @@ Inner transactions are defined using the parameter types, and can then be submit
 ### Examples
 
 #### Create and submit an inner transaction
+
 ```python
-import puyapy
+from puyapy import Account, UInt64, itxn, subroutine
 
 
-@puyapy.subroutine
-def create_payment(amount: puyapy.UInt64, receiver: puyapy.Account) -> None:
-    puyapy.itxn.PaymentTransactionParams(
+@subroutine
+def example(amount: UInt64, receiver: Account) -> None:
+    itxn.PaymentTransactionParams(
         amount=amount,
         receiver=receiver,
         fee=0,
@@ -79,13 +80,14 @@ def create_payment(amount: puyapy.UInt64, receiver: puyapy.Account) -> None:
 ```
 
 #### Accessing result of a submitted inner transaction
+
 ```python
-import puyapy
+from puyapy import Asset, itxn, subroutine
 
 
-@puyapy.subroutine
-def create_asset() -> puyapy.Asset:
-    asset_txn = puyapy.itxn.AssetConfigTransactionParams(
+@subroutine
+def example() -> Asset:
+    asset_txn = itxn.AssetConfigTransactionParams(
         asset_name=b"Puya",
         unit_name=b"PYA",
         total=1000,
@@ -96,55 +98,66 @@ def create_asset() -> puyapy.Asset:
 ```
 
 #### Submitting multiple transactions
+
 ```python
-import puyapy
+from puyapy import Asset, Bytes, itxn, log, subroutine
 
 
-@puyapy.subroutine
-def create_two_assets() -> tuple[puyapy.Asset, puyapy.Asset]:
-    asset1_params = puyapy.itxn.AssetConfigTransactionParams(
+@subroutine
+def example() -> tuple[Asset, Bytes]:
+    asset1_params = itxn.AssetConfigTransactionParams(
         asset_name=b"Puya",
         unit_name=b"PYA",
         total=1000,
         decimals=3,
         fee=0,
     )
-    asset2_params = asset1_params.copy() # a parameter object can be copied and then modified
-    asset2_params.set(asset_name=b"Puya 2", unit_name="PYA2")
-    asset1_txn, asset2_txn = puyapy.itxn.submit_inner_txn(asset1_params, asset2_params)
-    return asset1_txn.created_asset, asset2_txn.created_asset
+    app_params = itxn.ApplicationCallTransactionParams(
+        application_id=1234,
+        application_args=(Bytes(b"arg1"), Bytes(b"arg1"))
+    )
+    asset1_txn, app_txn = itxn.submit_txns(asset1_params, app_params)
+    # log some details
+    log(app_txn.logs(0))
+    log(asset1_txn.txn_id)
+    log(app_txn.txn_id)
+    
+    return asset1_txn.created_asset, app_txn.logs(1)
 ```
 
 #### Create an application, and then call it
+
 ```python
-import puyapy
+from puyapy import Application, Bytes, itxn, subroutine
 
-def get_program_bytes() -> tuple[puyapy.Bytes, puyapy.Bytes]:
-    ...
-
-@puyapy.subroutine
-def create_application() -> puyapy.Application:
+@subroutine
+def example() -> Application:
     approval, clear = get_program_bytes()
-    application_txn = puyapy.itxn.ApplicationCallTransactionParams(
+    application_txn = itxn.ApplicationCallTransactionParams(
         approval_program=approval,
         clear_state_program=clear,
     ).submit()
-    puyapy.itxn.ApplicationCallTransactionParams(
+    itxn.ApplicationCallTransactionParams(
         application_id=application_txn.created_application,
-        application_args=(puyapy.Bytes(b"arg1"), puyapy.Bytes(b"arg2"))
+        application_args=(Bytes(b"arg1"), Bytes(b"arg2"))
     ).submit()
     return application_txn.created_application
+
+@subroutine
+def get_program_bytes() -> tuple[Bytes, Bytes]:
+    ...
 ```
 
 #### Create and submit transactions in a loop
-```python
-import puyapy
 
-@puyapy.subroutine
-def create_payments(receivers: tuple[puyapy.Account, puyapy.Account, puyapy.Account]) -> None:
+```python
+from puyapy import Account, UInt64, itxn, subroutine
+
+@subroutine
+def example(receivers: tuple[Account, Account, Account]) -> None:
     for receiver in receivers:
-        puyapy.itxn.PaymentTransactionParams(
-            amount=puyapy.UInt64(1_000_000),
+        itxn.PaymentTransactionParams(
+            amount=UInt64(1_000_000),
             receiver=receiver,
             fee=0,
         ).submit()
@@ -153,14 +166,69 @@ def create_payments(receivers: tuple[puyapy.Account, puyapy.Account, puyapy.Acco
 
 Inner transactions are powerful, but currently do have some restrictions in how they are used.
 
-* Inner transaction objects cannot be passed to subroutines
-  ```{note}
-  Individual fields can be passed to subroutines
-  ```
-* Inner transaction parameters cannot be reassigned without a `.copy()`
-* Inner transactions cannot be reassigned
-* Inner transactions array values cannot be accessed if there is a subsequent inner transaction submitted. 
-  An assertion will raise an error if this is attempted
-  ```{note}
-  This can be worked around by assigning array results to a local variable before submitting another transaction
-  ```
+#### Inner transaction objects cannot be passed to or returned from subroutines
+
+```python
+from puyapy import Application, Bytes, itxn, subroutine
+
+@subroutine
+def parameter_not_allowed(txn: itxn.PaymentInnerTransaction) -> None:
+    # this is a compile error
+    ...
+
+@subroutine
+def return_not_allowed() -> itxn.PaymentInnerTransaction:
+    # this is a compile error
+    ...
+
+@subroutine
+def passing_fields_allowed() -> Application:
+    txn = itxn.ApplicationCallTransactionParams(...).submit()
+    do_something(txn.txn_id, txn.logs(0)) # this is ok
+    return txn.created_application # and this is ok
+
+@subroutine
+def do_something(txn_id: Bytes): # this is just a regular subroutine
+    ...
+```
+
+#### Inner transaction parameters cannot be reassigned without a `.copy()`
+
+```python
+from puyapy import itxn, subroutine
+
+@subroutine
+def example() -> None:
+    payment = itxn.PaymentTransactionParams(...)
+    reassigned_payment = payment # this is an error
+    copied_payment = payment.copy() # this is ok
+```
+
+#### Inner transactions cannot be reassigned
+
+```python
+from puyapy import itxn, subroutine
+
+@subroutine
+def example() -> None:
+    payment_txn = itxn.PaymentTransactionParams(...).submit()
+    reassigned_payment_txn = payment_txn # this is an error
+    txn_id = payment_txn.txn_id # this is ok
+```
+
+#### Inner transactions methods cannot be called if there is a subsequent inner transaction submitted.
+
+```python
+from puyapy import itxn, subroutine
+
+@subroutine
+def example() -> None:
+    app_1 = itxn.ApplicationCallTransactionParams(...).submit()
+    log_from_call1 = app_1.logs(0) # this is ok
+    
+    # another inner transaction is submitted
+    itxn.ApplicationCallTransactionParams(...).submit()
+    
+    app1_txn_id = app_1.txn_id # this is ok, properties are still available
+    another_log_from_call1 = app_1.logs(1) # this will error at runtime as the array results are no longer available
+```
