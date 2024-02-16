@@ -156,8 +156,11 @@ class SourceLocation:
                 result += f"-{self.end_column}"
         return result
 
-    def __add__(self, other: "SourceLocation") -> "SourceLocation":
+    def __add__(self, other: "SourceLocation | None") -> "SourceLocation":
         from puya.errors import InternalError
+
+        if other is None:
+            return self
 
         if self.file != other.file:
             raise InternalError("uh oh")
