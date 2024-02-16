@@ -6,7 +6,7 @@ import algokit_utils
 import algokit_utils.config
 import algosdk
 import pytest
-from algosdk import transaction
+from algosdk import constants, transaction
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
 from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
@@ -615,3 +615,34 @@ def test_avm_types_in_abi(algod_client: AlgodClient, account: algokit_utils.Acco
     mapped_return = (result.return_value[0], result.return_value[1], bytes(result.return_value[2]))
 
     assert mapped_return == (True, 45, b"Hello world!")
+
+
+def test_inner_transactions_c2c(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    example = TEST_CASES_DIR / "inner_transactions" / "c2c.py"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+
+    # deploy greeter
+    increased_fee = algod_client.suggested_params()
+    increased_fee.flat_fee = True
+    increased_fee.fee = constants.min_txn_fee * 2
+    app_client = algokit_utils.ApplicationClient(
+        algod_client, app_spec, signer=account, suggested_params=increased_fee
+    )
+    app_client.create()
+
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=200_000,
+        ),
+    )
+    inner_app_id = app_client.call("bootstrap").return_value
+    assert isinstance(inner_app_id, int)
+
+    result = app_client.call(
+        "log_greetings",
+        name="There",
+        transaction_parameters={"foreign_apps": [inner_app_id]},
+    )
+    assert decode_logs(result.tx_info["logs"], "b") == [b"HelloWorld returned: Hello, There"]

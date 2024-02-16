@@ -1,15 +1,10 @@
 from puyapy import (
-    ApplicationCallTransaction,
-    AssetConfigTransaction,
-    AssetFreezeTransaction,
-    AssetTransferTransaction,
     Bytes,
-    KeyRegistrationTransaction,
-    PaymentTransaction,
-    TransactionBase,
     arc4,
+    gtxn,
     op,
     subroutine,
+    uenumerate,
 )
 
 
@@ -19,7 +14,7 @@ class TransactionContract(arc4.ARC4Contract):
         pass
 
     @subroutine
-    def _common_checks(self, txn: TransactionBase) -> None:
+    def _common_checks(self, txn: gtxn.TransactionBase) -> None:
         assert txn.txn_id, "txn_id"
         assert txn.sender == op.Global.creator_address, "sender"
         assert txn.fee, "fee"
@@ -34,7 +29,7 @@ class TransactionContract(arc4.ARC4Contract):
         assert txn.rekey_to == op.Global.zero_address, "rekey_to"
 
     @arc4.abimethod
-    def pay(self, txn: PaymentTransaction) -> None:
+    def pay(self, txn: gtxn.PaymentTransaction) -> None:
         self._common_checks(txn)
         assert (
             txn.receiver == op.Global.current_application_address
@@ -43,7 +38,7 @@ class TransactionContract(arc4.ARC4Contract):
         assert txn.close_remainder_to == op.Global.zero_address, "close_remainder_to"
 
     @arc4.abimethod
-    def key(self, txn: KeyRegistrationTransaction) -> None:
+    def key(self, txn: gtxn.KeyRegistrationTransaction) -> None:
         self._common_checks(txn)
         assert txn.vote_key, "vote_key"
         assert txn.selection_key, "selection_key"
@@ -54,7 +49,7 @@ class TransactionContract(arc4.ARC4Contract):
         assert txn.state_proof_key, "state_proof_key"
 
     @arc4.abimethod
-    def asset_config(self, txn: AssetConfigTransaction) -> None:
+    def asset_config(self, txn: gtxn.AssetConfigTransaction) -> None:
         self._common_checks(txn)
 
         assert txn.config_asset, "config_asset"
@@ -71,7 +66,7 @@ class TransactionContract(arc4.ARC4Contract):
         assert txn.clawback, "clawback"
 
     @arc4.abimethod
-    def asset_transfer(self, txn: AssetTransferTransaction) -> None:
+    def asset_transfer(self, txn: gtxn.AssetTransferTransaction) -> None:
         self._common_checks(txn)
         assert txn.xfer_asset, "xfer_asset"
         assert txn.asset_amount, "asset_amount"
@@ -80,7 +75,7 @@ class TransactionContract(arc4.ARC4Contract):
         assert txn.asset_close_to, "asset_close_to"
 
     @arc4.abimethod
-    def asset_freeze(self, txn: AssetFreezeTransaction) -> None:
+    def asset_freeze(self, txn: gtxn.AssetFreezeTransaction) -> None:
         self._common_checks(txn)
 
         assert txn.freeze_asset, "freeze_asset"
@@ -88,7 +83,7 @@ class TransactionContract(arc4.ARC4Contract):
         assert txn.frozen, "frozen"
 
     @arc4.abimethod
-    def application_call(self, txn: ApplicationCallTransaction) -> None:
+    def application_call(self, txn: gtxn.ApplicationCallTransaction) -> None:
         self._common_checks(txn)
         assert txn.application_id, "application_id"
         assert txn.on_completion, "on_completion"
@@ -112,3 +107,26 @@ class TransactionContract(arc4.ARC4Contract):
         assert txn.applications(0), "applications(0)"
         assert txn.approval_program_pages(0), "approval_program_pages(0)"
         assert txn.clear_state_program_pages(0), "clear_state_program_pages(0)"
+
+    @arc4.abimethod
+    def multiple_txns(
+        self,
+        txn1: gtxn.ApplicationCallTransaction,
+        txn2: gtxn.ApplicationCallTransaction,
+        txn3: gtxn.ApplicationCallTransaction,
+    ) -> None:
+        for index, app in uenumerate((txn1, txn2, txn3)):
+            assert app.group_index == index
+
+    @arc4.abimethod
+    def any_txn(
+        self,
+        _txn1: gtxn.ApplicationCallTransaction,
+        _txn2: gtxn.ApplicationCallTransaction,
+        _txn3: gtxn.ApplicationCallTransaction,
+    ) -> None:
+        txn1 = gtxn.AnyTransaction(0)
+        txn2 = gtxn.AnyTransaction(1)
+        txn3 = gtxn.AnyTransaction(2)
+        for index, txn in uenumerate((txn1, txn2, txn3)):
+            assert txn.group_index == index

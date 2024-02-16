@@ -59,7 +59,7 @@ def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str
             return alias
         case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM():
             return wtype.name.removeprefix("arc4.")
-        case wtypes.WTransaction(transaction_type=transaction_type):
+        case wtypes.WGroupTransaction(transaction_type=transaction_type):
             if transaction_type is None:
                 raise InternalError(
                     "Only specific transaction types should appear as ARC4 types", loc

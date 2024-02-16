@@ -142,16 +142,15 @@ def _contract_ir_to_teal(
     remove_unused_subroutines(context, contract_ir)
     if context.options.output_ssa_ir:
         output_contract_ir_to_path(contract_ir, contract_ir_base_path.with_suffix(".ssa.ir"))
-    if context.options.optimization_level > 0:
-        logger.info(
-            f"Optimizing {contract_ir.metadata.full_name} "
-            f"at level {context.options.optimization_level}"
-        )
-        contract_ir = optimize_contract_ir(
-            context,
-            contract_ir,
-            contract_ir_base_path if context.options.output_optimization_ir else None,
-        )
+    logger.info(
+        f"Optimizing {contract_ir.metadata.full_name} "
+        f"at level {context.options.optimization_level}"
+    )
+    contract_ir = optimize_contract_ir(
+        context,
+        contract_ir,
+        contract_ir_base_path if context.options.output_optimization_ir else None,
+    )
     contract_ir = destructure_ssa(context, contract_ir)
     if context.options.output_destructured_ir:
         output_contract_ir_to_path(

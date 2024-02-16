@@ -115,51 +115,55 @@ application_wtype: typing.Final = WType(
 
 @typing.final
 @attrs.frozen(str=False, kw_only=True)
-class WTransaction(WType):
+class WGroupTransaction(WType):
     transaction_type: constants.TransactionType | None
+
+    @classmethod
+    def from_type(cls, transaction_type: constants.TransactionType | None) -> "WGroupTransaction":
+        name = "group_transaction"
+        if transaction_type:
+            name = f"{name}_{transaction_type.name}"
+        return cls(
+            transaction_type=transaction_type,
+            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].group_transaction,
+            name=name,
+        )
+
     # TODO only allow int literals below max group size
 
 
-transaction_base_wtype: typing.Final = WTransaction(
-    transaction_type=None,
-    name="txn",
-    stub_name=constants.CLS_TRANSACTION_BASE_ALIAS,
-)
-payment_wtype: typing.Final = WTransaction(
-    transaction_type=constants.TransactionType.pay,
-    name="payment",
-    stub_name=constants.CLS_PAYMENT_TRANSACTION_ALIAS,
-)
+@attrs.define
+class WInnerTransactionParams(WType):
+    transaction_type: constants.TransactionType | None
 
-key_registration_wtype: typing.Final = WTransaction(
-    transaction_type=constants.TransactionType.keyreg,
-    name="key_registration",
-    stub_name=constants.CLS_KEY_REGISTRATION_TRANSACTION_ALIAS,
-)
+    @classmethod
+    def from_type(
+        cls, transaction_type: constants.TransactionType | None
+    ) -> "WInnerTransactionParams":
+        name = "inner_transaction_params"
+        if transaction_type:
+            name = f"{name}_{transaction_type.name}"
+        return cls(
+            transaction_type=transaction_type,
+            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].inner_transaction_params,
+            name=name,
+        )
 
-asset_config_wtype: typing.Final = WTransaction(
-    transaction_type=constants.TransactionType.acfg,
-    name="asset_config",
-    stub_name=constants.CLS_ASSET_CONFIG_TRANSACTION_ALIAS,
-)
 
-asset_transfer_wtype: typing.Final = WTransaction(
-    transaction_type=constants.TransactionType.axfer,
-    name="asset_transfer",
-    stub_name=constants.CLS_ASSET_TRANSFER_TRANSACTION_ALIAS,
-)
+@attrs.define
+class WInnerTransaction(WType):
+    transaction_type: constants.TransactionType | None
 
-asset_freeze_wtype: typing.Final = WTransaction(
-    transaction_type=constants.TransactionType.afrz,
-    name="asset_freeze",
-    stub_name=constants.CLS_ASSET_FREEZE_TRANSACTION_ALIAS,
-)
-
-application_call_wtype: typing.Final = WTransaction(
-    transaction_type=constants.TransactionType.appl,
-    name="application_call",
-    stub_name=constants.CLS_APPLICATION_CALL_TRANSACTION_ALIAS,
-)
+    @classmethod
+    def from_type(cls, transaction_type: constants.TransactionType | None) -> "WInnerTransaction":
+        name = "inner_transaction"
+        if transaction_type:
+            name = f"{name}_{transaction_type.name}"
+        return cls(
+            transaction_type=transaction_type,
+            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].inner_transaction,
+            name=name,
+        )
 
 
 @typing.final
@@ -449,8 +453,20 @@ def valid_address(address: str) -> bool:
     return check_sum == verified_check_sum
 
 
-def is_transaction_type(wtype: WType) -> typing.TypeGuard[WTransaction]:
-    return isinstance(wtype, WTransaction)
+def is_transaction_type(wtype: WType) -> typing.TypeGuard[WGroupTransaction]:
+    return isinstance(wtype, WGroupTransaction)
+
+
+def is_inner_transaction_type(wtype: WType) -> typing.TypeGuard[WInnerTransaction]:
+    return isinstance(wtype, WInnerTransaction)
+
+
+def is_inner_transaction_tuple_type(wtype: WType) -> typing.TypeGuard[WTuple]:
+    return isinstance(wtype, WTuple) and all(is_inner_transaction_type(t) for t in wtype.types)
+
+
+def is_inner_transaction_params_type(wtype: WType) -> typing.TypeGuard[WInnerTransactionParams]:
+    return isinstance(wtype, WInnerTransactionParams)
 
 
 def is_reference_type(wtype: WType) -> bool:

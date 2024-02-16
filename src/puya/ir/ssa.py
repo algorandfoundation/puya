@@ -39,6 +39,9 @@ class BraunSSA:
             self.write_variable(parameter.name, active_block, parameter)
             self._variable_versions[parameter.name] = 1
 
+    def has_version(self, variable: str) -> bool:
+        return variable in self._variable_versions
+
     def write_variable(self, variable: str, block: ir.BasicBlock, value: ir.Register) -> None:
         self._current_def.setdefault(variable, {})[block] = value
 

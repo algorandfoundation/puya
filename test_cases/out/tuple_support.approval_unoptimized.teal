@@ -2,7 +2,7 @@
 
 test_cases.tuple_support.TupleSupport.approval_program:
     byte ""
-    dupn 7
+    dupn 8
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -22,10 +22,10 @@ main_entrypoint@2:
     // (a, b) = (UInt64(1), UInt64(2))
     int 1
     dup
-    bury 9
+    bury 10
     int 2
     dup
-    bury 6
+    bury 7
     // tuple_support.py:12
     // (did_overflow, self.state) = op.addw(a, b)
     dig 1
@@ -41,10 +41,10 @@ main_entrypoint@2:
     assert // overflow!
     // tuple_support.py:14
     // ab = (a, b)
-    dup
-    cover 2
     dig 1
     cover 2
+    dup
+    cover 3
     // tuple_support.py:15
     // result = op.addw(a, b)
     dig 1
@@ -59,21 +59,20 @@ main_entrypoint@2:
     // c = d = UInt64(3)
     int 3
     int 3
-    swap
     // tuple_support.py:18
     // (a2, b2) = ab
     dig 4
-    bury 13
+    bury 14
     dig 5
-    bury 9
+    bury 10
     // tuple_support.py:19
     // cd = (c, d)
-    bury 6
+    bury 8
     bury 6
     // tuple_support.py:20
     // ab2 = ab
-    uncover 3
-    bury 8
+    uncover 2
+    bury 10
     uncover 2
     bury 8
     // tuple_support.py:21-22
@@ -83,17 +82,17 @@ main_entrypoint@2:
     bz main_else_body@4
     // tuple_support.py:23
     // tup = ab2
-    dig 4
     dig 6
-    swap
+    bury 1
+    dig 5
     b main_after_if_else@5
 
 main_else_body@4:
     // tuple_support.py:25
     // tup = cd
-    dup
     dig 2
-    swap
+    bury 1
+    dig 1
 
 main_after_if_else@5:
     // tuple_support.py:26
@@ -115,12 +114,12 @@ main_after_if_else@5:
     // tuple_support.py:28
     // assert cd[0] == tup[0]
     dig 5
-    uncover 4
+    dig 4
     ==
     assert
     // tuple_support.py:29
     // assert cd[1] == tup[1]
-    dig 3
+    dig 4
     uncover 3
     ==
     assert
@@ -425,13 +424,14 @@ slicing:
     proto 8 0
     // tuple_support.py:109
     // one_to_three = values[0:3]
-    frame_dig -6
-    frame_dig -7
     frame_dig -8
+    frame_dig -7
+    frame_dig -6
     // tuple_support.py:110
     // assert add_three_values(one_to_three) == values[0] + values[1] + values[2]
-    dig 1
-    uncover 3
+    uncover 2
+    dig 2
+    uncover 2
     callsub add_three_values
     frame_dig -8
     frame_dig -7

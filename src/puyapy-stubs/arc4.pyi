@@ -53,20 +53,15 @@ _T = typing.TypeVar("_T")
 def arc4_signature(signature: typing.LiteralString) -> puyapy.Bytes:
     """Returns the ARC4 encoded method selector for the specified signature"""
 
-class _ABIBytesBacked(typing.Protocol):
-    @property
-    def bytes(self) -> puyapy.Bytes:
-        """Get the underlying bytes[]"""
-    @classmethod
-    def from_bytes(cls, value: puyapy.Bytes) -> typing.Self:
-        """Construct an instance from the underlying bytes[] (no validation)"""
-
-class _ABIEncoded(_ABIBytesBacked, typing.Protocol[_T]):
+class _ABIEncoded(puyapy.BytesBacked, typing.Protocol[_T]):
     def decode(self) -> _T:
         """Decode this ABI instance from bytes to AVM stack value"""
     @classmethod
     def encode(cls, value: _T) -> typing.Self:
         """Encode AVM stack value as an ABI bytes"""
+    @classmethod
+    def from_log(cls, log: puyapy.Bytes) -> typing.Self:
+        """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
 
 class String(_ABIEncoded[puyapy.Bytes]):
     """An ARC4 sequence of bytes containing a UTF8 string"""
@@ -150,7 +145,7 @@ _TArrayItem = typing.TypeVar("_TArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
 
 class StaticArray(
-    _ABIBytesBacked,
+    puyapy.BytesBacked,
     typing.Generic[_TArrayItem, _TArrayLength],
     Reversible[_TArrayItem],
 ):
@@ -262,7 +257,7 @@ class StaticArray(
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
 
-class DynamicArray(_ABIBytesBacked, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
+class DynamicArray(puyapy.BytesBacked, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     """A dynamically sized ARC4 Array of the specified type"""
 
     def __init__(self, *items: _TArrayItem): ...

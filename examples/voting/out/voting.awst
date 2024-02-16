@@ -50,7 +50,7 @@ contract VotingRoundApp
     this::store_option_counts(option_counts.copy())
   }
   
-  abimethod bootstrap(fund_min_bal_req: puyapy.PaymentTransaction): None
+  abimethod bootstrap(fund_min_bal_req: puyapy.gtxn.PaymentTransaction): None
   {
     assert(!(this.globals['is_bootstrapped']), comment="Must not be already bootstrapped")
     this.globals['is_bootstrapped']: bool = true
@@ -88,17 +88,7 @@ contract VotingRoundApp
       }
     }
     note += ']}}'
-    itxn_begin()
-    itxn_field<TypeEnum>(acfg)
-    itxn_field<ConfigAssetTotal>(1u)
-    itxn_field<ConfigAssetDecimals>(0u)
-    itxn_field<ConfigAssetDefaultFrozen>(false)
-    itxn_field<ConfigAssetName>('[VOTE RESULT] ' + this.globals['vote_id'])
-    itxn_field<ConfigAssetUnitName>('VOTERSLT')
-    itxn_field<ConfigAssetURL>(this.globals['nft_image_url'])
-    itxn_field<Note>(note)
-    itxn_submit()
-    this.globals['nft_asset_id']: puyapy.UInt64 = itxn<CreatedAssetID>()
+    this.globals['nft_asset_id']: puyapy.UInt64 = reinterpret_cast<puyapy.UInt64>(submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + this.globals['vote_id'], ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=this.globals['nft_image_url'], Note=note)).CreatedAssetID)
   }
   
   abimethod get_preconditions(signature: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): examples.voting.voting.VotingPreconditions
@@ -106,7 +96,7 @@ contract VotingRoundApp
     return arc4_encode((arc4_encode(this::voting_open(), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::allowed_to_vote(reinterpret_cast<puyapy.Bytes>(signature)[(2u < tmp$0: puyapy.UInt64 := len(reinterpret_cast<puyapy.Bytes>(signature))) ? (2u) : (tmp$0):]), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::already_voted(), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(global<LatestTimestamp>(), puyapy.arc4.UIntN[typing.Literal[64]])), examples.voting.voting.VotingPreconditions)
   }
   
-  abimethod vote(fund_min_bal_req: puyapy.PaymentTransaction, signature: puyapy.Bytes, answer_ids: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): None
+  abimethod vote(fund_min_bal_req: puyapy.gtxn.PaymentTransaction, signature: puyapy.Bytes, answer_ids: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): None
   {
     puyapy::ensure_budget(required_budget=7700u, fee_source=0u)
     assert(this::allowed_to_vote(signature), comment="Not allowed to vote")

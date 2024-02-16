@@ -247,7 +247,6 @@ class UnusedRegisterCollector(visitor.IRTraverser):
                 yield block, ass, reg
 
     def visit_assignment(self, ass: models.Assignment) -> None:
-        # only consider with sources that are side-effect free as potentially removed
         for target in ass.targets:
             self.assigned[target] = (self.active_block, ass)
         ass.source.accept(self)

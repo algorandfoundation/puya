@@ -1,0 +1,208 @@
+#pragma version 10
+
+test_cases.inner_transactions.c2c.Greeter.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@8
+    method "bootstrap()uint64"
+    method "log_greetings(string)void"
+    txna ApplicationArgs 0
+    match main_bootstrap_route@4 main_log_greetings_route@5
+    err // reject transaction
+
+main_bootstrap_route@4:
+    // inner_transactions/c2c.py:10
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub bootstrap
+    itob
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_log_greetings_route@5:
+    // inner_transactions/c2c.py:24
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txna ApplicationArgs 1
+    // inner_transactions/c2c.py:24
+    // @arc4.abimethod()
+    callsub log_greetings
+    int 1
+    return
+
+main_bare_routing@8:
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
+bootstrap:
+    // inner_transactions/c2c.py:10-11
+    // @arc4.abimethod()
+    // def bootstrap(self) -> UInt64:
+    proto 0 1
+    // inner_transactions/c2c.py:12
+    // assert not self.hello_app, "already bootstrapped"
+    int 0
+    byte "hello_app"
+    app_global_get_ex
+    assert // check value exists
+    !
+    assert // already bootstrapped
+    // inner_transactions/c2c.py:14-19
+    // itxn.ApplicationCallTransactionParams(
+    //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    //     clear_state_program=HELLO_WORLD_CLEAR,
+    //     fee=0,
+    // )
+    // .submit()
+    itxn_begin
+    // inner_transactions/c2c.py:15
+    // approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    byte 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089
+    itxn_field ApprovalProgramPages
+    // inner_transactions/c2c.py:16
+    // clear_state_program=HELLO_WORLD_CLEAR,
+    byte 0x0a8101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/c2c.py:17
+    // fee=0,
+    int 0
+    itxn_field Fee
+    // inner_transactions/c2c.py:14
+    // itxn.ApplicationCallTransactionParams(
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/c2c.py:14-19
+    // itxn.ApplicationCallTransactionParams(
+    //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    //     clear_state_program=HELLO_WORLD_CLEAR,
+    //     fee=0,
+    // )
+    // .submit()
+    itxn_submit
+    // inner_transactions/c2c.py:13
+    // self.hello_app = (
+    byte "hello_app"
+    // inner_transactions/c2c.py:14-19
+    // itxn.ApplicationCallTransactionParams(
+    //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    //     clear_state_program=HELLO_WORLD_CLEAR,
+    //     fee=0,
+    // )
+    // .submit()
+    itxn CreatedApplicationID
+    // inner_transactions/c2c.py:13-21
+    // self.hello_app = (
+    //     itxn.ApplicationCallTransactionParams(
+    //         approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    //         clear_state_program=HELLO_WORLD_CLEAR,
+    //         fee=0,
+    //     )
+    //     .submit()
+    //     .created_application
+    // )
+    app_global_put
+    // inner_transactions/c2c.py:22
+    // return self.hello_app.application_id
+    int 0
+    byte "hello_app"
+    app_global_get_ex
+    assert // check value exists
+    retsub
+
+
+// test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
+log_greetings:
+    // inner_transactions/c2c.py:24-25
+    // @arc4.abimethod()
+    // def log_greetings(self, name: arc4.String) -> None:
+    proto 1 0
+    // inner_transactions/c2c.py:26-29
+    // hello_call = itxn.ApplicationCallTransactionParams(
+    //     application_id=self.hello_app.application_id,
+    //     application_args=(arc4.arc4_signature("hello(string)string"), name),
+    // ).submit()
+    itxn_begin
+    // inner_transactions/c2c.py:27
+    // application_id=self.hello_app.application_id,
+    int 0
+    byte "hello_app"
+    app_global_get_ex
+    assert // check value exists
+    // inner_transactions/c2c.py:28
+    // application_args=(arc4.arc4_signature("hello(string)string"), name),
+    method "hello(string)string"
+    itxn_field ApplicationArgs
+    frame_dig -1
+    itxn_field ApplicationArgs
+    itxn_field ApplicationID
+    // inner_transactions/c2c.py:26
+    // hello_call = itxn.ApplicationCallTransactionParams(
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/c2c.py:26-29
+    // hello_call = itxn.ApplicationCallTransactionParams(
+    //     application_id=self.hello_app.application_id,
+    //     application_args=(arc4.arc4_signature("hello(string)string"), name),
+    // ).submit()
+    itxn_submit
+    itxn LastLog
+    // inner_transactions/c2c.py:30
+    // greeting = arc4.String.from_log(hello_call.last_log)
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    // inner_transactions/c2c.py:31
+    // log(b"HelloWorld returned: ", greeting.decode())
+    extract 2 0
+    byte "HelloWorld returned: "
+    swap
+    concat
+    log
+    retsub
+
+
+// test_cases.inner_transactions.c2c.Greeter.__init__() -> void:
+__init__:
+    // inner_transactions/c2c.py:7
+    // def __init__(self) -> None:
+    proto 0 0
+    // inner_transactions/c2c.py:8
+    // self.hello_app = Application(0)
+    byte "hello_app"
+    int 0
+    app_global_put
+    retsub

@@ -28,7 +28,7 @@ contract ConstantProductAMM
     this.globals['governor']: puyapy.Account = new_governor
   }
   
-  abimethod bootstrap(seed: puyapy.PaymentTransaction, a_asset: puyapy.Asset, b_asset: puyapy.Asset): puyapy.arc4.UIntN[typing.Literal[64]]
+  abimethod bootstrap(seed: puyapy.gtxn.PaymentTransaction, a_asset: puyapy.Asset, b_asset: puyapy.Asset): puyapy.arc4.UIntN[typing.Literal[64]]
   {
     assert(!(reinterpret_cast<bool>(this.globals['pool_token'])), comment="application has already been bootstrapped")
     this::_check_is_governor()
@@ -44,7 +44,7 @@ contract ConstantProductAMM
     return arc4_encode(reinterpret_cast<puyapy.UInt64>(this.globals['pool_token']), puyapy.arc4.UIntN[typing.Literal[64]])
   }
   
-  abimethod mint(a_xfer: puyapy.AssetTransferTransaction, b_xfer: puyapy.AssetTransferTransaction, pool_asset: puyapy.Asset, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None
+  abimethod mint(a_xfer: puyapy.gtxn.AssetTransferTransaction, b_xfer: puyapy.gtxn.AssetTransferTransaction, pool_asset: puyapy.Asset, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None
   {
     this::_check_bootstrapped()
     assert(pool_asset == this.globals['pool_token'], comment="asset pool incorrect")
@@ -64,7 +64,7 @@ contract ConstantProductAMM
     this::_update_ratio()
   }
   
-  abimethod burn(pool_xfer: puyapy.AssetTransferTransaction, pool_asset: puyapy.Asset, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None
+  abimethod burn(pool_xfer: puyapy.gtxn.AssetTransferTransaction, pool_asset: puyapy.Asset, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None
   {
     this::_check_bootstrapped()
     assert(pool_asset == this.globals['pool_token'], comment="asset pool incorrect")
@@ -82,7 +82,7 @@ contract ConstantProductAMM
     this::_update_ratio()
   }
   
-  abimethod swap(swap_xfer: puyapy.AssetTransferTransaction, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None
+  abimethod swap(swap_xfer: puyapy.gtxn.AssetTransferTransaction, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None
   {
     this::_check_bootstrapped()
     assert(a_asset == this.globals['asset_a'], comment="asset a incorrect")
@@ -129,17 +129,7 @@ contract ConstantProductAMM
   
   subroutine _create_pool_token(): puyapy.Asset
   {
-    itxn_begin()
-    itxn_field<TypeEnum>(acfg)
-    itxn_field<ConfigAssetName>('DPT-' + checked_maybe(asset_params_get<AssetUnitName>(this.globals['asset_a'])) + '-' + checked_maybe(asset_params_get<AssetUnitName>(this.globals['asset_b'])))
-    itxn_field<ConfigAssetUnitName>('dpt')
-    itxn_field<ConfigAssetTotal>(10000000000u)
-    itxn_field<ConfigAssetDecimals>(3u)
-    itxn_field<ConfigAssetManager>(global<CurrentApplicationAddress>())
-    itxn_field<ConfigAssetReserve>(global<CurrentApplicationAddress>())
-    itxn_field<Fee>(0u)
-    itxn_submit()
-    return reinterpret_cast<puyapy.Asset>(itxn<CreatedAssetID>())
+    return submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetName='DPT-' + checked_maybe(asset_params_get<AssetUnitName>(this.globals['asset_a'])) + '-' + checked_maybe(asset_params_get<AssetUnitName>(this.globals['asset_b'])), ConfigAssetUnitName='dbt', ConfigAssetTotal=10000000000u, ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>(), Fee=0u)).CreatedAssetID
   }
   
   subroutine _do_opt_in(asset: puyapy.Asset): None
@@ -194,11 +184,5 @@ subroutine tokens_to_swap(in_amount: puyapy.UInt64, in_supply: puyapy.UInt64, ou
 
 subroutine do_asset_transfer(receiver: puyapy.Account, asset: puyapy.Asset, amount: puyapy.UInt64): None
 {
-  itxn_begin()
-  itxn_field<TypeEnum>(axfer)
-  itxn_field<XferAsset>(reinterpret_cast<puyapy.UInt64>(asset))
-  itxn_field<AssetAmount>(amount)
-  itxn_field<AssetReceiver>(receiver)
-  itxn_field<Fee>(0u)
-  itxn_submit()
+  submit_txn(create_inner_transaction(TypeEnum=axfer, XferAsset=asset, AssetAmount=amount, AssetReceiver=receiver, Fee=0u))
 }

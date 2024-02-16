@@ -135,5 +135,6 @@ hidden: true
 
 language_guide
 principles
+transactions
 api
 ```

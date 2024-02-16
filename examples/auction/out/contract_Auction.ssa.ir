@@ -1,19 +1,19 @@
 contract examples.auction.contract.Auction:
     program approval:
         subroutine examples.auction.contract.Auction.approval_program() -> uint64:
-            block@0: // L15
+            block@0: // L14
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L16
+            block@1: // on_create_L15
                 examples.auction.contract.Auction.__init__()
                 goto block@2
-            block@2: // entrypoint_L16
+            block@2: // entrypoint_L15
                 let tmp%1#0: uint64 = (txn NumAppArgs)
                 goto tmp%1#0 ? block@3 : block@12
-            block@3: // abi_routing_L15
+            block@3: // abi_routing_L14
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@10}
-            block@4: // opt_into_asset_route_L25
+            block@4: // opt_into_asset_route_L24
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: uint64 = (== tmp%3#0 NoOp)
                 (assert tmp%4#0) // OnCompletion is NoOp
@@ -24,7 +24,7 @@ contract examples.auction.contract.Auction:
                 let tmp%8#0: uint64 = ((txnas Assets) tmp%7#0)
                 examples.auction.contract.Auction.opt_into_asset(tmp%8#0)
                 return 1u
-            block@5: // start_auction_route_L42
+            block@5: // start_auction_route_L40
                 let tmp%9#0: uint64 = (txn OnCompletion)
                 let tmp%10#0: uint64 = (== tmp%9#0 NoOp)
                 (assert tmp%10#0) // OnCompletion is NoOp
@@ -40,7 +40,7 @@ contract examples.auction.contract.Auction:
                 (assert maybe_value_did_exist%15#0) // transaction type is axfer
                 examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%13#0, maybe_value%14#0)
                 return 1u
-            block@6: // opt_in_route_L63
+            block@6: // opt_in_route_L64
                 let tmp%20#0: uint64 = (txn OnCompletion)
                 let tmp%21#0: uint64 = (== tmp%20#0 NoOp)
                 (assert tmp%21#0) // OnCompletion is NoOp
@@ -48,7 +48,7 @@ contract examples.auction.contract.Auction:
                 (assert tmp%22#0) // is not creating
                 examples.auction.contract.Auction.opt_in()
                 return 1u
-            block@7: // bid_route_L67
+            block@7: // bid_route_L68
                 let tmp%23#0: uint64 = (txn OnCompletion)
                 let tmp%24#0: uint64 = (== tmp%23#0 NoOp)
                 (assert tmp%24#0) // OnCompletion is NoOp
@@ -62,7 +62,7 @@ contract examples.auction.contract.Auction:
                 (assert maybe_value_did_exist%27#0) // transaction type is pay
                 examples.auction.contract.Auction.bid(maybe_value%26#0)
                 return 1u
-            block@8: // claim_bids_route_L83
+            block@8: // claim_bids_route_L84
                 let tmp%31#0: uint64 = (txn OnCompletion)
                 let tmp%32#0: uint64 = (== tmp%31#0 NoOp)
                 (assert tmp%32#0) // OnCompletion is NoOp
@@ -70,7 +70,7 @@ contract examples.auction.contract.Auction:
                 (assert tmp%33#0) // is not creating
                 examples.auction.contract.Auction.claim_bids()
                 return 1u
-            block@9: // claim_asset_route_L102
+            block@9: // claim_asset_route_L100
                 let tmp%34#0: uint64 = (txn OnCompletion)
                 let tmp%35#0: uint64 = (== tmp%34#0 NoOp)
                 (assert tmp%35#0) // OnCompletion is NoOp
@@ -81,25 +81,25 @@ contract examples.auction.contract.Auction:
                 let tmp%39#0: uint64 = ((txnas Assets) tmp%38#0)
                 examples.auction.contract.Auction.claim_asset(tmp%39#0)
                 return 1u
-            block@10: // switch_case_default_L15
+            block@10: // switch_case_default_L14
                 goto block@11
-            block@11: // switch_case_next_L15
+            block@11: // switch_case_next_L14
                 goto block@15
-            block@12: // bare_routing_L15
+            block@12: // bare_routing_L14
                 let tmp%40#0: uint64 = (txn OnCompletion)
                 switch tmp%40#0 {0u => block@13, * => block@14}
-            block@13: // create_L15
+            block@13: // create_L14
                 let tmp%41#0: uint64 = (txn ApplicationID)
                 let tmp%42#0: uint64 = (! tmp%41#0)
                 (assert tmp%42#0) // is creating
                 return 1u
-            block@14: // reject_bare_on_completion_L15
+            block@14: // reject_bare_on_completion_L14
                 fail // reject transaction
-            block@15: // after_if_else_L15
+            block@15: // after_if_else_L14
                 fail // reject transaction
         
         subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
-            block@0: // L25
+            block@0: // L24
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
                 let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
@@ -110,16 +110,134 @@ contract examples.auction.contract.Auction:
                 (assert tmp%5#0) // ASA already opted in
                 (app_global_put "asa" asset#0)
                 itxn_begin
-                ((itxn_field TypeEnum) axfer)
-                ((itxn_field Fee) 0u)
-                let tmp%6#0: bytes = (global CurrentApplicationAddress)
-                ((itxn_field AssetReceiver) tmp%6#0)
-                ((itxn_field XferAsset) asset#0)
+                let inner_txn_params%7%%Accounts_length#0: uint64 = 0u
+                let inner_txn_params%7%%Amount_length#0: uint64 = 0u
+                let inner_txn_params%7%%ApplicationArgs_length#0: uint64 = 0u
+                let inner_txn_params%7%%ApplicationID_length#0: uint64 = 0u
+                let inner_txn_params%7%%Applications_length#0: uint64 = 0u
+                let inner_txn_params%7%%ApprovalProgram_length#0: uint64 = 0u
+                let inner_txn_params%7%%ApprovalProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%7%%AssetAmount_length#0: uint64 = 0u
+                let inner_txn_params%7%%AssetCloseTo_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetName_length#0: uint64 = 0u
+                let inner_txn_params%7%%param_AssetReceiver_idx_0#0: bytes = (global CurrentApplicationAddress)
+                let inner_txn_params%7%%AssetReceiver_length#0: uint64 = 1u
+                let inner_txn_params%7%%AssetSender_length#0: uint64 = 0u
+                let inner_txn_params%7%%Assets_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetClawback_length#0: uint64 = 0u
+                let inner_txn_params%7%%ClearStateProgram_length#0: uint64 = 0u
+                let inner_txn_params%7%%ClearStateProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%7%%CloseRemainderTo_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAsset_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetDecimals_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+                let inner_txn_params%7%%ExtraProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%7%%param_Fee_idx_0#0: uint64 = 0u
+                let inner_txn_params%7%%Fee_length#0: uint64 = 1u
+                let inner_txn_params%7%%ConfigAssetFreeze_length#0: uint64 = 0u
+                let inner_txn_params%7%%FreezeAssetAccount_length#0: uint64 = 0u
+                let inner_txn_params%7%%FreezeAsset_length#0: uint64 = 0u
+                let inner_txn_params%7%%FreezeAssetFrozen_length#0: uint64 = 0u
+                let inner_txn_params%7%%GlobalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%7%%GlobalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%7%%LocalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%7%%LocalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetManager_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+                let inner_txn_params%7%%Nonparticipation_length#0: uint64 = 0u
+                let inner_txn_params%7%%Note_length#0: uint64 = 0u
+                let inner_txn_params%7%%OnCompletion_length#0: uint64 = 0u
+                let inner_txn_params%7%%Receiver_length#0: uint64 = 0u
+                let inner_txn_params%7%%RekeyTo_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetReserve_length#0: uint64 = 0u
+                let inner_txn_params%7%%SelectionPK_length#0: uint64 = 0u
+                let inner_txn_params%7%%Sender_length#0: uint64 = 0u
+                let inner_txn_params%7%%StateProofPK_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetTotal_length#0: uint64 = 0u
+                let inner_txn_params%7%%param_TypeEnum_idx_0#0: uint64 = axfer
+                let inner_txn_params%7%%TypeEnum_length#0: uint64 = 1u
+                let inner_txn_params%7%%Type_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetUnitName_length#0: uint64 = 0u
+                let inner_txn_params%7%%ConfigAssetURL_length#0: uint64 = 0u
+                let inner_txn_params%7%%VoteFirst_length#0: uint64 = 0u
+                let inner_txn_params%7%%VotePK_length#0: uint64 = 0u
+                let inner_txn_params%7%%VoteKeyDilution_length#0: uint64 = 0u
+                let inner_txn_params%7%%VoteLast_length#0: uint64 = 0u
+                let inner_txn_params%7%%param_XferAsset_idx_0#0: uint64 = asset#0
+                let inner_txn_params%7%%XferAsset_length#0: uint64 = 1u
+                ((itxn_field AssetReceiver) inner_txn_params%7%%param_AssetReceiver_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%7%%param_Fee_idx_0#0)
+                ((itxn_field TypeEnum) inner_txn_params%7%%param_TypeEnum_idx_0#0)
+                ((itxn_field XferAsset) inner_txn_params%7%%param_XferAsset_idx_0#0)
+                goto block@1
+            block@1: // next_txn_L33
                 itxn_submit
+                let %%inner_txn_submit_id#0: uint64 = 1u
+                let submit_result_0%6%%Amount#0: uint64 = (itxn Amount)
+                let submit_result_0%6%%ApplicationID#0: uint64 = (itxn ApplicationID)
+                let submit_result_0%6%%ApprovalProgram#0: bytes = (itxn ApprovalProgram)
+                let submit_result_0%6%%AssetAmount#0: uint64 = (itxn AssetAmount)
+                let submit_result_0%6%%AssetCloseTo#0: bytes = (itxn AssetCloseTo)
+                let submit_result_0%6%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
+                let submit_result_0%6%%AssetReceiver#0: bytes = (itxn AssetReceiver)
+                let submit_result_0%6%%AssetSender#0: bytes = (itxn AssetSender)
+                let submit_result_0%6%%ConfigAssetClawback#0: bytes = (itxn ConfigAssetClawback)
+                let submit_result_0%6%%ClearStateProgram#0: bytes = (itxn ClearStateProgram)
+                let submit_result_0%6%%CloseRemainderTo#0: bytes = (itxn CloseRemainderTo)
+                let submit_result_0%6%%ConfigAsset#0: uint64 = (itxn ConfigAsset)
+                let submit_result_0%6%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
+                let submit_result_0%6%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
+                let submit_result_0%6%%ConfigAssetDecimals#0: uint64 = (itxn ConfigAssetDecimals)
+                let submit_result_0%6%%ConfigAssetDefaultFrozen#0: uint64 = (itxn ConfigAssetDefaultFrozen)
+                let submit_result_0%6%%ExtraProgramPages#0: uint64 = (itxn ExtraProgramPages)
+                let submit_result_0%6%%Fee#0: uint64 = (itxn Fee)
+                let submit_result_0%6%%FirstValid#0: uint64 = (itxn FirstValid)
+                let submit_result_0%6%%FirstValidTime#0: uint64 = (itxn FirstValidTime)
+                let submit_result_0%6%%ConfigAssetFreeze#0: bytes = (itxn ConfigAssetFreeze)
+                let submit_result_0%6%%FreezeAssetAccount#0: bytes = (itxn FreezeAssetAccount)
+                let submit_result_0%6%%FreezeAsset#0: uint64 = (itxn FreezeAsset)
+                let submit_result_0%6%%FreezeAssetFrozen#0: uint64 = (itxn FreezeAssetFrozen)
+                let submit_result_0%6%%GlobalNumByteSlice#0: uint64 = (itxn GlobalNumByteSlice)
+                let submit_result_0%6%%GlobalNumUint#0: uint64 = (itxn GlobalNumUint)
+                let submit_result_0%6%%GroupIndex#0: uint64 = (itxn GroupIndex)
+                let submit_result_0%6%%LastLog#0: bytes = (itxn LastLog)
+                let submit_result_0%6%%LastValid#0: uint64 = (itxn LastValid)
+                let submit_result_0%6%%Lease#0: bytes = (itxn Lease)
+                let submit_result_0%6%%LocalNumByteSlice#0: uint64 = (itxn LocalNumByteSlice)
+                let submit_result_0%6%%LocalNumUint#0: uint64 = (itxn LocalNumUint)
+                let submit_result_0%6%%ConfigAssetManager#0: bytes = (itxn ConfigAssetManager)
+                let submit_result_0%6%%ConfigAssetMetadataHash#0: bytes = (itxn ConfigAssetMetadataHash)
+                let submit_result_0%6%%Nonparticipation#0: uint64 = (itxn Nonparticipation)
+                let submit_result_0%6%%Note#0: bytes = (itxn Note)
+                let submit_result_0%6%%NumAccounts#0: uint64 = (itxn NumAccounts)
+                let submit_result_0%6%%NumAppArgs#0: uint64 = (itxn NumAppArgs)
+                let submit_result_0%6%%NumApplications#0: uint64 = (itxn NumApplications)
+                let submit_result_0%6%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
+                let submit_result_0%6%%NumAssets#0: uint64 = (itxn NumAssets)
+                let submit_result_0%6%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
+                let submit_result_0%6%%NumLogs#0: uint64 = (itxn NumLogs)
+                let submit_result_0%6%%OnCompletion#0: uint64 = (itxn OnCompletion)
+                let submit_result_0%6%%Receiver#0: bytes = (itxn Receiver)
+                let submit_result_0%6%%RekeyTo#0: bytes = (itxn RekeyTo)
+                let submit_result_0%6%%ConfigAssetReserve#0: bytes = (itxn ConfigAssetReserve)
+                let submit_result_0%6%%SelectionPK#0: bytes = (itxn SelectionPK)
+                let submit_result_0%6%%Sender#0: bytes = (itxn Sender)
+                let submit_result_0%6%%StateProofPK#0: bytes = (itxn StateProofPK)
+                let submit_result_0%6%%ConfigAssetTotal#0: uint64 = (itxn ConfigAssetTotal)
+                let submit_result_0%6%%TxID#0: bytes = (itxn TxID)
+                let submit_result_0%6%%TypeEnum#0: uint64 = (itxn TypeEnum)
+                let submit_result_0%6%%Type#0: bytes = (itxn Type)
+                let submit_result_0%6%%ConfigAssetUnitName#0: bytes = (itxn ConfigAssetUnitName)
+                let submit_result_0%6%%ConfigAssetURL#0: bytes = (itxn ConfigAssetURL)
+                let submit_result_0%6%%VoteFirst#0: uint64 = (itxn VoteFirst)
+                let submit_result_0%6%%VotePK#0: bytes = (itxn VotePK)
+                let submit_result_0%6%%VoteKeyDilution#0: uint64 = (itxn VoteKeyDilution)
+                let submit_result_0%6%%VoteLast#0: uint64 = (itxn VoteLast)
+                let submit_result_0%6%%XferAsset#0: uint64 = (itxn XferAsset)
                 return 
         
         subroutine examples.auction.contract.Auction.start_auction(starting_price: bytes, length: bytes, axfer: uint64) -> void:
-            block@0: // L42
+            block@0: // L40
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
                 let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
@@ -143,11 +261,11 @@ contract examples.auction.contract.Auction:
                 return 
         
         subroutine examples.auction.contract.Auction.opt_in() -> void:
-            block@0: // L63
+            block@0: // L64
                 return 
         
         subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
-            block@0: // L67
+            block@0: // L68
                 let tmp%0#0: uint64 = (global LatestTimestamp)
                 let (app_global_get_ex_value%1#0: uint64, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "auction_end")
                 (assert app_global_get_ex_did_exist%2#0) // check value exists
@@ -172,61 +290,301 @@ contract examples.auction.contract.Auction:
                 return 
         
         subroutine examples.auction.contract.Auction.claim_bids() -> void:
-            block@0: // L83
+            block@0: // L84
                 let tmp%0#0: bytes = (txn Sender)
                 let (app_local_get_ex_value%1#0: uint64, app_local_get_ex_did_exist%2#0: uint64) = (app_local_get_ex tmp%0#0 0u "claimable_amount")
                 (assert app_local_get_ex_did_exist%2#0) // check value exists
-                let original_amount#0: uint64 = app_local_get_ex_value%1#0
-                let amount#0: uint64 = original_amount#0
-                let tmp%3#0: bytes = (txn Sender)
-                let (app_global_get_ex_value%4#0: bytes, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "previous_bidder")
-                (assert app_global_get_ex_did_exist%5#0) // check value exists
-                let tmp%6#0: uint64 = (== tmp%3#0 app_global_get_ex_value%4#0)
-                goto tmp%6#0 ? block@1 : block@2
-            block@1: // if_body_L89
-                let (app_global_get_ex_value%7#0: uint64, app_global_get_ex_did_exist%8#0: uint64) = (app_global_get_ex 0u "previous_bid")
-                (assert app_global_get_ex_did_exist%8#0) // check value exists
-                let amount#1: uint64 = (- amount#0 app_global_get_ex_value%7#0)
+                let awst_tmp%3#0: uint64 = app_local_get_ex_value%1#0
+                let original_amount#0: uint64 = awst_tmp%3#0
+                let amount#0: uint64 = awst_tmp%3#0
+                let tmp%4#0: bytes = (txn Sender)
+                let (app_global_get_ex_value%5#0: bytes, app_global_get_ex_did_exist%6#0: uint64) = (app_global_get_ex 0u "previous_bidder")
+                (assert app_global_get_ex_did_exist%6#0) // check value exists
+                let tmp%7#0: uint64 = (== tmp%4#0 app_global_get_ex_value%5#0)
+                goto tmp%7#0 ? block@1 : block@2
+            block@1: // if_body_L88
+                let (app_global_get_ex_value%8#0: uint64, app_global_get_ex_did_exist%9#0: uint64) = (app_global_get_ex 0u "previous_bid")
+                (assert app_global_get_ex_did_exist%9#0) // check value exists
+                let amount#1: uint64 = (- amount#0 app_global_get_ex_value%8#0)
                 goto block@2
-            block@2: // after_if_else_L89
+            block@2: // after_if_else_L88
                 let amount#2: uint64 = φ(amount#0 <- block@0, amount#1 <- block@1)
                 itxn_begin
-                ((itxn_field TypeEnum) pay)
-                ((itxn_field Fee) 0u)
-                let tmp%9#0: bytes = (txn Sender)
-                ((itxn_field Receiver) tmp%9#0)
-                ((itxn_field AssetAmount) amount#2)
+                let inner_txn_params%11%%Accounts_length#0: uint64 = 0u
+                let inner_txn_params%11%%param_Amount_idx_0#0: uint64 = amount#2
+                let inner_txn_params%11%%Amount_length#0: uint64 = 1u
+                let inner_txn_params%11%%ApplicationArgs_length#0: uint64 = 0u
+                let inner_txn_params%11%%ApplicationID_length#0: uint64 = 0u
+                let inner_txn_params%11%%Applications_length#0: uint64 = 0u
+                let inner_txn_params%11%%ApprovalProgram_length#0: uint64 = 0u
+                let inner_txn_params%11%%ApprovalProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%11%%AssetAmount_length#0: uint64 = 0u
+                let inner_txn_params%11%%AssetCloseTo_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetName_length#0: uint64 = 0u
+                let inner_txn_params%11%%AssetReceiver_length#0: uint64 = 0u
+                let inner_txn_params%11%%AssetSender_length#0: uint64 = 0u
+                let inner_txn_params%11%%Assets_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetClawback_length#0: uint64 = 0u
+                let inner_txn_params%11%%ClearStateProgram_length#0: uint64 = 0u
+                let inner_txn_params%11%%ClearStateProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%11%%CloseRemainderTo_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAsset_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetDecimals_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+                let inner_txn_params%11%%ExtraProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%11%%param_Fee_idx_0#0: uint64 = 0u
+                let inner_txn_params%11%%Fee_length#0: uint64 = 1u
+                let inner_txn_params%11%%ConfigAssetFreeze_length#0: uint64 = 0u
+                let inner_txn_params%11%%FreezeAssetAccount_length#0: uint64 = 0u
+                let inner_txn_params%11%%FreezeAsset_length#0: uint64 = 0u
+                let inner_txn_params%11%%FreezeAssetFrozen_length#0: uint64 = 0u
+                let inner_txn_params%11%%GlobalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%11%%GlobalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%11%%LocalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%11%%LocalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetManager_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+                let inner_txn_params%11%%Nonparticipation_length#0: uint64 = 0u
+                let inner_txn_params%11%%Note_length#0: uint64 = 0u
+                let inner_txn_params%11%%OnCompletion_length#0: uint64 = 0u
+                let inner_txn_params%11%%param_Receiver_idx_0#0: bytes = (txn Sender)
+                let inner_txn_params%11%%Receiver_length#0: uint64 = 1u
+                let inner_txn_params%11%%RekeyTo_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetReserve_length#0: uint64 = 0u
+                let inner_txn_params%11%%SelectionPK_length#0: uint64 = 0u
+                let inner_txn_params%11%%Sender_length#0: uint64 = 0u
+                let inner_txn_params%11%%StateProofPK_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetTotal_length#0: uint64 = 0u
+                let inner_txn_params%11%%param_TypeEnum_idx_0#0: uint64 = pay
+                let inner_txn_params%11%%TypeEnum_length#0: uint64 = 1u
+                let inner_txn_params%11%%Type_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetUnitName_length#0: uint64 = 0u
+                let inner_txn_params%11%%ConfigAssetURL_length#0: uint64 = 0u
+                let inner_txn_params%11%%VoteFirst_length#0: uint64 = 0u
+                let inner_txn_params%11%%VotePK_length#0: uint64 = 0u
+                let inner_txn_params%11%%VoteKeyDilution_length#0: uint64 = 0u
+                let inner_txn_params%11%%VoteLast_length#0: uint64 = 0u
+                let inner_txn_params%11%%XferAsset_length#0: uint64 = 0u
+                ((itxn_field Amount) inner_txn_params%11%%param_Amount_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%11%%param_Fee_idx_0#0)
+                ((itxn_field Receiver) inner_txn_params%11%%param_Receiver_idx_0#0)
+                ((itxn_field TypeEnum) inner_txn_params%11%%param_TypeEnum_idx_0#0)
+                goto block@3
+            block@3: // next_txn_L92
                 itxn_submit
-                let new_state_value%10#0: uint64 = (- original_amount#0 amount#2)
-                let tmp%11#0: bytes = (txn Sender)
-                (app_local_put tmp%11#0 "claimable_amount" new_state_value%10#0)
+                let %%inner_txn_submit_id#0: uint64 = 1u
+                let submit_result_0%10%%Amount#0: uint64 = (itxn Amount)
+                let submit_result_0%10%%ApplicationID#0: uint64 = (itxn ApplicationID)
+                let submit_result_0%10%%ApprovalProgram#0: bytes = (itxn ApprovalProgram)
+                let submit_result_0%10%%AssetAmount#0: uint64 = (itxn AssetAmount)
+                let submit_result_0%10%%AssetCloseTo#0: bytes = (itxn AssetCloseTo)
+                let submit_result_0%10%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
+                let submit_result_0%10%%AssetReceiver#0: bytes = (itxn AssetReceiver)
+                let submit_result_0%10%%AssetSender#0: bytes = (itxn AssetSender)
+                let submit_result_0%10%%ConfigAssetClawback#0: bytes = (itxn ConfigAssetClawback)
+                let submit_result_0%10%%ClearStateProgram#0: bytes = (itxn ClearStateProgram)
+                let submit_result_0%10%%CloseRemainderTo#0: bytes = (itxn CloseRemainderTo)
+                let submit_result_0%10%%ConfigAsset#0: uint64 = (itxn ConfigAsset)
+                let submit_result_0%10%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
+                let submit_result_0%10%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
+                let submit_result_0%10%%ConfigAssetDecimals#0: uint64 = (itxn ConfigAssetDecimals)
+                let submit_result_0%10%%ConfigAssetDefaultFrozen#0: uint64 = (itxn ConfigAssetDefaultFrozen)
+                let submit_result_0%10%%ExtraProgramPages#0: uint64 = (itxn ExtraProgramPages)
+                let submit_result_0%10%%Fee#0: uint64 = (itxn Fee)
+                let submit_result_0%10%%FirstValid#0: uint64 = (itxn FirstValid)
+                let submit_result_0%10%%FirstValidTime#0: uint64 = (itxn FirstValidTime)
+                let submit_result_0%10%%ConfigAssetFreeze#0: bytes = (itxn ConfigAssetFreeze)
+                let submit_result_0%10%%FreezeAssetAccount#0: bytes = (itxn FreezeAssetAccount)
+                let submit_result_0%10%%FreezeAsset#0: uint64 = (itxn FreezeAsset)
+                let submit_result_0%10%%FreezeAssetFrozen#0: uint64 = (itxn FreezeAssetFrozen)
+                let submit_result_0%10%%GlobalNumByteSlice#0: uint64 = (itxn GlobalNumByteSlice)
+                let submit_result_0%10%%GlobalNumUint#0: uint64 = (itxn GlobalNumUint)
+                let submit_result_0%10%%GroupIndex#0: uint64 = (itxn GroupIndex)
+                let submit_result_0%10%%LastLog#0: bytes = (itxn LastLog)
+                let submit_result_0%10%%LastValid#0: uint64 = (itxn LastValid)
+                let submit_result_0%10%%Lease#0: bytes = (itxn Lease)
+                let submit_result_0%10%%LocalNumByteSlice#0: uint64 = (itxn LocalNumByteSlice)
+                let submit_result_0%10%%LocalNumUint#0: uint64 = (itxn LocalNumUint)
+                let submit_result_0%10%%ConfigAssetManager#0: bytes = (itxn ConfigAssetManager)
+                let submit_result_0%10%%ConfigAssetMetadataHash#0: bytes = (itxn ConfigAssetMetadataHash)
+                let submit_result_0%10%%Nonparticipation#0: uint64 = (itxn Nonparticipation)
+                let submit_result_0%10%%Note#0: bytes = (itxn Note)
+                let submit_result_0%10%%NumAccounts#0: uint64 = (itxn NumAccounts)
+                let submit_result_0%10%%NumAppArgs#0: uint64 = (itxn NumAppArgs)
+                let submit_result_0%10%%NumApplications#0: uint64 = (itxn NumApplications)
+                let submit_result_0%10%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
+                let submit_result_0%10%%NumAssets#0: uint64 = (itxn NumAssets)
+                let submit_result_0%10%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
+                let submit_result_0%10%%NumLogs#0: uint64 = (itxn NumLogs)
+                let submit_result_0%10%%OnCompletion#0: uint64 = (itxn OnCompletion)
+                let submit_result_0%10%%Receiver#0: bytes = (itxn Receiver)
+                let submit_result_0%10%%RekeyTo#0: bytes = (itxn RekeyTo)
+                let submit_result_0%10%%ConfigAssetReserve#0: bytes = (itxn ConfigAssetReserve)
+                let submit_result_0%10%%SelectionPK#0: bytes = (itxn SelectionPK)
+                let submit_result_0%10%%Sender#0: bytes = (itxn Sender)
+                let submit_result_0%10%%StateProofPK#0: bytes = (itxn StateProofPK)
+                let submit_result_0%10%%ConfigAssetTotal#0: uint64 = (itxn ConfigAssetTotal)
+                let submit_result_0%10%%TxID#0: bytes = (itxn TxID)
+                let submit_result_0%10%%TypeEnum#0: uint64 = (itxn TypeEnum)
+                let submit_result_0%10%%Type#0: bytes = (itxn Type)
+                let submit_result_0%10%%ConfigAssetUnitName#0: bytes = (itxn ConfigAssetUnitName)
+                let submit_result_0%10%%ConfigAssetURL#0: bytes = (itxn ConfigAssetURL)
+                let submit_result_0%10%%VoteFirst#0: uint64 = (itxn VoteFirst)
+                let submit_result_0%10%%VotePK#0: bytes = (itxn VotePK)
+                let submit_result_0%10%%VoteKeyDilution#0: uint64 = (itxn VoteKeyDilution)
+                let submit_result_0%10%%VoteLast#0: uint64 = (itxn VoteLast)
+                let submit_result_0%10%%XferAsset#0: uint64 = (itxn XferAsset)
+                let new_state_value%12#0: uint64 = (- original_amount#0 amount#2)
+                let tmp%13#0: bytes = (txn Sender)
+                (app_local_put tmp%13#0 "claimable_amount" new_state_value%12#0)
                 return 
         
         subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
-            block@0: // L102
+            block@0: // L100
                 let tmp%0#0: uint64 = (global LatestTimestamp)
                 let (app_global_get_ex_value%1#0: uint64, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "auction_end")
                 (assert app_global_get_ex_did_exist%2#0) // check value exists
                 let tmp%3#0: uint64 = (> tmp%0#0 app_global_get_ex_value%1#0)
                 (assert tmp%3#0) // auction has not ended
                 itxn_begin
-                ((itxn_field TypeEnum) axfer)
-                ((itxn_field Fee) 0u)
-                let (app_global_get_ex_value%4#0: bytes, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "previous_bidder")
-                (assert app_global_get_ex_did_exist%5#0) // check value exists
-                ((itxn_field AssetReceiver) app_global_get_ex_value%4#0)
-                ((itxn_field XferAsset) asset#0)
+                let inner_txn_params%5%%Accounts_length#0: uint64 = 0u
+                let inner_txn_params%5%%Amount_length#0: uint64 = 0u
+                let inner_txn_params%5%%ApplicationArgs_length#0: uint64 = 0u
+                let inner_txn_params%5%%ApplicationID_length#0: uint64 = 0u
+                let inner_txn_params%5%%Applications_length#0: uint64 = 0u
+                let inner_txn_params%5%%ApprovalProgram_length#0: uint64 = 0u
+                let inner_txn_params%5%%ApprovalProgramPages_length#0: uint64 = 0u
                 let (app_global_get_ex_value%6#0: uint64, app_global_get_ex_did_exist%7#0: uint64) = (app_global_get_ex 0u "asa_amount")
                 (assert app_global_get_ex_did_exist%7#0) // check value exists
-                ((itxn_field AssetAmount) app_global_get_ex_value%6#0)
+                let inner_txn_params%5%%param_AssetAmount_idx_0#0: uint64 = app_global_get_ex_value%6#0
+                let inner_txn_params%5%%AssetAmount_length#0: uint64 = 1u
                 let (app_global_get_ex_value%8#0: bytes, app_global_get_ex_did_exist%9#0: uint64) = (app_global_get_ex 0u "previous_bidder")
                 (assert app_global_get_ex_did_exist%9#0) // check value exists
-                ((itxn_field AssetCloseTo) app_global_get_ex_value%8#0)
+                let inner_txn_params%5%%param_AssetCloseTo_idx_0#0: bytes = app_global_get_ex_value%8#0
+                let inner_txn_params%5%%AssetCloseTo_length#0: uint64 = 1u
+                let inner_txn_params%5%%ConfigAssetName_length#0: uint64 = 0u
+                let (app_global_get_ex_value%10#0: bytes, app_global_get_ex_did_exist%11#0: uint64) = (app_global_get_ex 0u "previous_bidder")
+                (assert app_global_get_ex_did_exist%11#0) // check value exists
+                let inner_txn_params%5%%param_AssetReceiver_idx_0#0: bytes = app_global_get_ex_value%10#0
+                let inner_txn_params%5%%AssetReceiver_length#0: uint64 = 1u
+                let inner_txn_params%5%%AssetSender_length#0: uint64 = 0u
+                let inner_txn_params%5%%Assets_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAssetClawback_length#0: uint64 = 0u
+                let inner_txn_params%5%%ClearStateProgram_length#0: uint64 = 0u
+                let inner_txn_params%5%%ClearStateProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%5%%CloseRemainderTo_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAsset_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAssetDecimals_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+                let inner_txn_params%5%%ExtraProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%5%%param_Fee_idx_0#0: uint64 = 0u
+                let inner_txn_params%5%%Fee_length#0: uint64 = 1u
+                let inner_txn_params%5%%ConfigAssetFreeze_length#0: uint64 = 0u
+                let inner_txn_params%5%%FreezeAssetAccount_length#0: uint64 = 0u
+                let inner_txn_params%5%%FreezeAsset_length#0: uint64 = 0u
+                let inner_txn_params%5%%FreezeAssetFrozen_length#0: uint64 = 0u
+                let inner_txn_params%5%%GlobalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%5%%GlobalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%5%%LocalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%5%%LocalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAssetManager_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+                let inner_txn_params%5%%Nonparticipation_length#0: uint64 = 0u
+                let inner_txn_params%5%%Note_length#0: uint64 = 0u
+                let inner_txn_params%5%%OnCompletion_length#0: uint64 = 0u
+                let inner_txn_params%5%%Receiver_length#0: uint64 = 0u
+                let inner_txn_params%5%%RekeyTo_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAssetReserve_length#0: uint64 = 0u
+                let inner_txn_params%5%%SelectionPK_length#0: uint64 = 0u
+                let inner_txn_params%5%%Sender_length#0: uint64 = 0u
+                let inner_txn_params%5%%StateProofPK_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAssetTotal_length#0: uint64 = 0u
+                let inner_txn_params%5%%param_TypeEnum_idx_0#0: uint64 = axfer
+                let inner_txn_params%5%%TypeEnum_length#0: uint64 = 1u
+                let inner_txn_params%5%%Type_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAssetUnitName_length#0: uint64 = 0u
+                let inner_txn_params%5%%ConfigAssetURL_length#0: uint64 = 0u
+                let inner_txn_params%5%%VoteFirst_length#0: uint64 = 0u
+                let inner_txn_params%5%%VotePK_length#0: uint64 = 0u
+                let inner_txn_params%5%%VoteKeyDilution_length#0: uint64 = 0u
+                let inner_txn_params%5%%VoteLast_length#0: uint64 = 0u
+                let inner_txn_params%5%%param_XferAsset_idx_0#0: uint64 = asset#0
+                let inner_txn_params%5%%XferAsset_length#0: uint64 = 1u
+                ((itxn_field AssetAmount) inner_txn_params%5%%param_AssetAmount_idx_0#0)
+                ((itxn_field AssetCloseTo) inner_txn_params%5%%param_AssetCloseTo_idx_0#0)
+                ((itxn_field AssetReceiver) inner_txn_params%5%%param_AssetReceiver_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%5%%param_Fee_idx_0#0)
+                ((itxn_field TypeEnum) inner_txn_params%5%%param_TypeEnum_idx_0#0)
+                ((itxn_field XferAsset) inner_txn_params%5%%param_XferAsset_idx_0#0)
+                goto block@1
+            block@1: // next_txn_L103
                 itxn_submit
+                let %%inner_txn_submit_id#0: uint64 = 1u
+                let submit_result_0%4%%Amount#0: uint64 = (itxn Amount)
+                let submit_result_0%4%%ApplicationID#0: uint64 = (itxn ApplicationID)
+                let submit_result_0%4%%ApprovalProgram#0: bytes = (itxn ApprovalProgram)
+                let submit_result_0%4%%AssetAmount#0: uint64 = (itxn AssetAmount)
+                let submit_result_0%4%%AssetCloseTo#0: bytes = (itxn AssetCloseTo)
+                let submit_result_0%4%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
+                let submit_result_0%4%%AssetReceiver#0: bytes = (itxn AssetReceiver)
+                let submit_result_0%4%%AssetSender#0: bytes = (itxn AssetSender)
+                let submit_result_0%4%%ConfigAssetClawback#0: bytes = (itxn ConfigAssetClawback)
+                let submit_result_0%4%%ClearStateProgram#0: bytes = (itxn ClearStateProgram)
+                let submit_result_0%4%%CloseRemainderTo#0: bytes = (itxn CloseRemainderTo)
+                let submit_result_0%4%%ConfigAsset#0: uint64 = (itxn ConfigAsset)
+                let submit_result_0%4%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
+                let submit_result_0%4%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
+                let submit_result_0%4%%ConfigAssetDecimals#0: uint64 = (itxn ConfigAssetDecimals)
+                let submit_result_0%4%%ConfigAssetDefaultFrozen#0: uint64 = (itxn ConfigAssetDefaultFrozen)
+                let submit_result_0%4%%ExtraProgramPages#0: uint64 = (itxn ExtraProgramPages)
+                let submit_result_0%4%%Fee#0: uint64 = (itxn Fee)
+                let submit_result_0%4%%FirstValid#0: uint64 = (itxn FirstValid)
+                let submit_result_0%4%%FirstValidTime#0: uint64 = (itxn FirstValidTime)
+                let submit_result_0%4%%ConfigAssetFreeze#0: bytes = (itxn ConfigAssetFreeze)
+                let submit_result_0%4%%FreezeAssetAccount#0: bytes = (itxn FreezeAssetAccount)
+                let submit_result_0%4%%FreezeAsset#0: uint64 = (itxn FreezeAsset)
+                let submit_result_0%4%%FreezeAssetFrozen#0: uint64 = (itxn FreezeAssetFrozen)
+                let submit_result_0%4%%GlobalNumByteSlice#0: uint64 = (itxn GlobalNumByteSlice)
+                let submit_result_0%4%%GlobalNumUint#0: uint64 = (itxn GlobalNumUint)
+                let submit_result_0%4%%GroupIndex#0: uint64 = (itxn GroupIndex)
+                let submit_result_0%4%%LastLog#0: bytes = (itxn LastLog)
+                let submit_result_0%4%%LastValid#0: uint64 = (itxn LastValid)
+                let submit_result_0%4%%Lease#0: bytes = (itxn Lease)
+                let submit_result_0%4%%LocalNumByteSlice#0: uint64 = (itxn LocalNumByteSlice)
+                let submit_result_0%4%%LocalNumUint#0: uint64 = (itxn LocalNumUint)
+                let submit_result_0%4%%ConfigAssetManager#0: bytes = (itxn ConfigAssetManager)
+                let submit_result_0%4%%ConfigAssetMetadataHash#0: bytes = (itxn ConfigAssetMetadataHash)
+                let submit_result_0%4%%Nonparticipation#0: uint64 = (itxn Nonparticipation)
+                let submit_result_0%4%%Note#0: bytes = (itxn Note)
+                let submit_result_0%4%%NumAccounts#0: uint64 = (itxn NumAccounts)
+                let submit_result_0%4%%NumAppArgs#0: uint64 = (itxn NumAppArgs)
+                let submit_result_0%4%%NumApplications#0: uint64 = (itxn NumApplications)
+                let submit_result_0%4%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
+                let submit_result_0%4%%NumAssets#0: uint64 = (itxn NumAssets)
+                let submit_result_0%4%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
+                let submit_result_0%4%%NumLogs#0: uint64 = (itxn NumLogs)
+                let submit_result_0%4%%OnCompletion#0: uint64 = (itxn OnCompletion)
+                let submit_result_0%4%%Receiver#0: bytes = (itxn Receiver)
+                let submit_result_0%4%%RekeyTo#0: bytes = (itxn RekeyTo)
+                let submit_result_0%4%%ConfigAssetReserve#0: bytes = (itxn ConfigAssetReserve)
+                let submit_result_0%4%%SelectionPK#0: bytes = (itxn SelectionPK)
+                let submit_result_0%4%%Sender#0: bytes = (itxn Sender)
+                let submit_result_0%4%%StateProofPK#0: bytes = (itxn StateProofPK)
+                let submit_result_0%4%%ConfigAssetTotal#0: uint64 = (itxn ConfigAssetTotal)
+                let submit_result_0%4%%TxID#0: bytes = (itxn TxID)
+                let submit_result_0%4%%TypeEnum#0: uint64 = (itxn TypeEnum)
+                let submit_result_0%4%%Type#0: bytes = (itxn Type)
+                let submit_result_0%4%%ConfigAssetUnitName#0: bytes = (itxn ConfigAssetUnitName)
+                let submit_result_0%4%%ConfigAssetURL#0: bytes = (itxn ConfigAssetURL)
+                let submit_result_0%4%%VoteFirst#0: uint64 = (itxn VoteFirst)
+                let submit_result_0%4%%VotePK#0: bytes = (itxn VotePK)
+                let submit_result_0%4%%VoteKeyDilution#0: uint64 = (itxn VoteKeyDilution)
+                let submit_result_0%4%%VoteLast#0: uint64 = (itxn VoteLast)
+                let submit_result_0%4%%XferAsset#0: uint64 = (itxn XferAsset)
                 return 
         
         subroutine examples.auction.contract.Auction.__init__() -> void:
-            block@0: // L16
+            block@0: // L15
                 (app_global_put "auction_end" 0u)
                 (app_global_put "previous_bid" 0u)
                 (app_global_put "asa_amount" 0u)
@@ -237,5 +595,5 @@ contract examples.auction.contract.Auction:
     
     program clear-state:
         subroutine examples.auction.contract.Auction.clear_state_program() -> uint64:
-            block@0: // L125
+            block@0: // L120
                 return 1u

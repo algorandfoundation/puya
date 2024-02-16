@@ -45,6 +45,30 @@ class IntrinsicSimplifier(IRMutator):
     def _simplify_intrinsic(self, intrinsic: Intrinsic) -> Intrinsic:
         match intrinsic:
             case Intrinsic(
+                op=AVMOp.gitxnas,
+                args=[models.UInt64Constant(value=array_index)],
+                immediates=[group_index, field],
+            ):
+                self.modified += 1
+                return attrs.evolve(
+                    intrinsic,
+                    op=AVMOp.gitxna,
+                    args=[],
+                    immediates=[group_index, field, array_index],
+                )
+            case Intrinsic(
+                op=AVMOp.itxnas,
+                args=[models.UInt64Constant(value=array_index)],
+                immediates=[field],
+            ):
+                self.modified += 1
+                return attrs.evolve(
+                    intrinsic,
+                    op=AVMOp.itxna,
+                    args=[],
+                    immediates=[field, array_index],
+                )
+            case Intrinsic(
                 op=(AVMOp.loads | AVMOp.stores as op),
                 args=[models.UInt64Constant(value=slot), *rest],
             ):

@@ -220,7 +220,15 @@ class Bytes(Reversible[Bytes]):
     def __invert__(self) -> Bytes:
         """Bytes can be bitwise inverted e.g. `~Bytes(b"FF)`"""
 
-class BigUInt:
+class BytesBacked(typing.Protocol):
+    @property
+    def bytes(self) -> Bytes:
+        """Get the underlying bytes[]"""
+    @classmethod
+    def from_bytes(cls, value: Bytes) -> typing.Self:
+        """Construct an instance from the underlying bytes[] (no validation)"""
+
+class BigUInt(BytesBacked):
     """A variable length (max 512-bit) unsigned integer"""
 
     __match_value__: int
@@ -323,9 +331,3 @@ class BigUInt:
         """A BigUInt can bitwise or with another BigUInt, UInt64 or int e.g. `4 | BigUInt(2)`"""
     def __ior__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         """A BigUInt can bitwise or with another BigUInt, UInt64 or int e.g. `a |= BigUInt(2)`"""
-    @property
-    def bytes(self) -> Bytes:
-        """Get the byte[] backing this value. Note that Bytes is immutable"""
-    @classmethod
-    def from_bytes(cls, value: Bytes) -> BigUInt:
-        """no validation happens here wrt length"""

@@ -43,7 +43,7 @@ def wtype_to_avm_type(
             | wtypes.bool_wtype
             | wtypes.asset_wtype
             | wtypes.application_wtype
-            | wtypes.WTransaction()
+            | wtypes.WGroupTransaction()
         ):
             return AVMType.uint64
         case wtypes.bytes_wtype | wtypes.biguint_wtype | wtypes.account_wtype | wtypes.ARC4Type():

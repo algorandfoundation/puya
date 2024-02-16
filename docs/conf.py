@@ -37,8 +37,7 @@ nitpick_ignore = [
     ("py:class", "puyapy.arc4.AllowedOnCompletes"),
 ]
 nitpick_ignore_regex = [
-    ("py:class", r"puyapy\._.*"),
-    ("py:class", r"puyapy\.arc4\._.*"),
+    ("py:class", r"puyapy.*\._.*"),
 ]
 
 # -- Options for HTML output -------------------------------------------------
@@ -46,6 +45,8 @@ nitpick_ignore_regex = [
 
 html_theme = "furo"
 # html_static_path = ["_static"]
+
+python_maximum_signature_line_length = 80
 
 # -- Options for myst ---
 myst_enable_extensions = [

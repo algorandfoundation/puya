@@ -1189,3 +1189,43 @@ def test_log(harness: _TestHarness) -> None:
         b"_".join((b"5", u64_bytes[6], u64_bytes[7], bytes_8, b"")),
         b"_".join((b"5", u64_bytes[6], u64_bytes[7], bytes_8, b"")),
     ]
+
+
+def test_inner_transactions(harness: _TestHarness) -> None:
+    harness.deploy(TEST_CASES_DIR / "inner_transactions" / "contract.py")
+    # ensure app meets minimum balance requirements
+    harness.fund(8 * 100_000)
+
+    increased_fee = harness.client.suggested_params()
+    increased_fee.flat_fee = True
+    increased_fee.fee = constants.min_txn_fee * (1 + 16)
+
+    harness.call(AppCallRequest(sp=increased_fee, args=[b"test1"]))
+
+    harness.call(AppCallRequest(sp=increased_fee, args=[b"test2"]))
+
+    with pytest.raises(LogicError) as ex_info:
+        harness.call(AppCallRequest(sp=increased_fee, args=[b"test2", b"fail"]))
+    ex = ex_info.value
+    assert ex.line_no is not None
+    assert "'create_app_txn' can still be accessed" in ex.lines[ex.line_no]
+
+    harness.call(AppCallRequest(sp=increased_fee, args=[b"test3"]))
+
+    harness.call(AppCallRequest(sp=increased_fee, args=[b"test4"]))
+
+
+def test_inner_transactions_loop(harness: _TestHarness) -> None:
+    increased_fee = harness.client.suggested_params()
+    increased_fee.flat_fee = True
+    increased_fee.fee = constants.min_txn_fee * (1 + 4)
+
+    result = harness.deploy(
+        TEST_CASES_DIR / "inner_transactions" / "itxn_loop.py",
+        AppCallRequest(
+            sp=increased_fee,
+            add_random_note=True,
+        ),
+    )
+
+    assert result.decode_logs("bibibibi") == [b"", 0, b"A", 1, b"AB", 2, b"ABC", 3]

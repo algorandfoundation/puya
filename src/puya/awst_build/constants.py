@@ -25,20 +25,8 @@ CLS_BYTES = f"{PUYAPY_PREFIX}_primitives.Bytes"
 CLS_BYTES_ALIAS = f"{PUYAPY_PREFIX}Bytes"
 CLS_BIGUINT = f"{PUYAPY_PREFIX}_primitives.BigUInt"
 CLS_BIGUINT_ALIAS = f"{PUYAPY_PREFIX}BigUInt"
-CLS_TRANSACTION_BASE = f"{PUYAPY_PREFIX}_transactions.TransactionBase"
-CLS_TRANSACTION_BASE_ALIAS = f"{PUYAPY_PREFIX}TransactionBase"
-CLS_PAYMENT_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.PaymentTransaction"
-CLS_PAYMENT_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}PaymentTransaction"
-CLS_KEY_REGISTRATION_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.KeyRegistrationTransaction"
-CLS_KEY_REGISTRATION_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}KeyRegistrationTransaction"
-CLS_ASSET_CONFIG_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.AssetConfigTransaction"
-CLS_ASSET_CONFIG_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}AssetConfigTransaction"
-CLS_ASSET_TRANSFER_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.AssetTransferTransaction"
-CLS_ASSET_TRANSFER_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}AssetTransferTransaction"
-CLS_ASSET_FREEZE_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.AssetFreezeTransaction"
-CLS_ASSET_FREEZE_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}AssetFreezeTransaction"
-CLS_APPLICATION_CALL_TRANSACTION = f"{PUYAPY_PREFIX}_transactions.ApplicationCallTransaction"
-CLS_APPLICATION_CALL_TRANSACTION_ALIAS = f"{PUYAPY_PREFIX}ApplicationCallTransaction"
+CLS_TRANSACTION_BASE = f"{PUYAPY_PREFIX}gtxn.TransactionBase"
+CLS_TRANSACTION_BASE_ALIAS = CLS_TRANSACTION_BASE
 CLS_LOCAL_STATE = f"{PUYAPY_PREFIX}_state.LocalState"
 CLS_LOCAL_STATE_ALIAS = f"{PUYAPY_PREFIX}.LocalState"
 CLS_GLOBAL_STATE = f"{PUYAPY_PREFIX}_state.GlobalState"
@@ -59,7 +47,7 @@ UENUMERATE = f"{PUYAPY_PREFIX}_unsigned_builtins.uenumerate"
 ENSURE_BUDGET = f"{PUYAPY_PREFIX}_util.ensure_budget"
 LOG = f"{PUYAPY_PREFIX}_util.log"
 OP_UP_FEE_SOURCE = f"{PUYAPY_PREFIX}_util.OpUpFeeSource"
-
+SUBMIT_TXNS = f"{PUYAPY_PREFIX}itxn.submit_txns"
 CLS_ARC4_STRING = "puyapy.arc4.String"
 CLS_ARC4_ADDRESS = "puyapy.arc4.Address"
 CLS_ARC4_BOOL = "puyapy.arc4.Bool"
@@ -99,6 +87,23 @@ class TransactionType(enum.IntEnum):
     afrz = 5
     appl = 6
 
+
+class _TransactionTypeNames:
+    def __init__(self, name: str):
+        self.group_transaction = f"{PUYAPY_PREFIX}gtxn.{name}Transaction"
+        self.inner_transaction = f"{PUYAPY_PREFIX}itxn.{name}InnerTransaction"
+        self.inner_transaction_params = f"{PUYAPY_PREFIX}itxn.{name}TransactionParams"
+
+
+TRANSACTION_TYPE_TO_CLS = {
+    TransactionType.pay: _TransactionTypeNames("Payment"),
+    TransactionType.keyreg: _TransactionTypeNames("KeyRegistration"),
+    TransactionType.acfg: _TransactionTypeNames("AssetConfig"),
+    TransactionType.axfer: _TransactionTypeNames("AssetTransfer"),
+    TransactionType.afrz: _TransactionTypeNames("AssetFreeze"),
+    TransactionType.appl: _TransactionTypeNames("ApplicationCall"),
+    None: _TransactionTypeNames("Any"),
+}
 
 ENUM_CLS_ON_COMPLETE_ACTION = f"{PUYAPY_PREFIX}_constants.OnCompleteAction"
 ENUM_CLS_TRANSACTION_TYPE = f"{PUYAPY_PREFIX}_constants.TransactionType"

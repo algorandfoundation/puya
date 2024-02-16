@@ -1,0 +1,442 @@
+contract test_cases.inner_transactions.contract.MyContract:
+    program approval:
+        subroutine test_cases.inner_transactions.contract.MyContract.approval_program() -> uint64:
+            block@0: // L26
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L23
+                test_cases.inner_transactions.contract.MyContract.__init__()
+                goto block@2
+            block@2: // entrypoint_L23
+                let tmp%1#0: uint64 = (txn NumAppArgs)
+                goto tmp%1#0 ? block@3 : block@10
+            block@3: // if_body_L27
+                let awst_tmp%2#0: bytes = (txna ApplicationArgs 0)
+                switch awst_tmp%2#0 {"test1" => block@4, "test2" => block@5, "test3" => block@6, "test4" => block@7, * => return 1u}
+            block@4: // switch_case_0_L30
+                test_cases.inner_transactions.contract.MyContract.test1()
+                goto block@10
+            block@5: // switch_case_1_L32
+                test_cases.inner_transactions.contract.MyContract.test2()
+                goto block@10
+            block@6: // switch_case_2_L34
+                test_cases.inner_transactions.contract.MyContract.test3()
+                goto block@10
+            block@7: // switch_case_3_L36
+                test_cases.inner_transactions.contract.MyContract.test4()
+                goto block@10
+            block@10: // after_if_else_L27
+                return 1u
+        
+        subroutine test_cases.inner_transactions.contract.MyContract.test1() -> void:
+            block@0: // L42
+                (app_global_put "name" "AST1")
+                let (app_global_get_ex_value%0#0: bytes, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "name")
+                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                let asset_params%%param_ConfigAssetManager_idx_0#0: bytes = (global CurrentApplicationAddress)
+                let asset_params%%param_ConfigAssetReserve_idx_0#0: bytes = (global CurrentApplicationAddress)
+                (app_global_put "name" "AST2")
+                itxn_begin
+                ((itxn_field ConfigAssetName) app_global_get_ex_value%0#0)
+                ((itxn_field ConfigAssetDecimals) 3u)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
+                ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
+                ((itxn_field ConfigAssetTotal) 1000u)
+                ((itxn_field TypeEnum) acfg)
+                ((itxn_field ConfigAssetUnitName) "unit")
+                itxn_submit
+                let asset1_txn%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
+                let asset1_txn%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
+                let (app_global_get_ex_value%2#0: bytes, app_global_get_ex_did_exist%3#0: uint64) = (app_global_get_ex 0u "name")
+                (assert app_global_get_ex_did_exist%3#0) // check value exists
+                itxn_begin
+                ((itxn_field ConfigAssetName) app_global_get_ex_value%2#0)
+                ((itxn_field ConfigAssetDecimals) 3u)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
+                ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
+                ((itxn_field ConfigAssetTotal) 1000u)
+                ((itxn_field TypeEnum) acfg)
+                ((itxn_field ConfigAssetUnitName) "unit")
+                itxn_submit
+                let asset2_txn%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
+                let asset2_txn%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
+                let tmp%4#0: uint64 = (== asset1_txn%%ConfigAssetName#0 "AST1")
+                (assert tmp%4#0) // asset1_txn is correct
+                let tmp%5#0: uint64 = (== asset2_txn%%ConfigAssetName#0 "AST2")
+                (assert tmp%5#0) // asset2_txn is correct
+                let (maybe_value%6#0: bytes, maybe_value_did_exist%7#0: uint64) = ((asset_params_get AssetName) asset1_txn%%CreatedAssetID#0)
+                (assert maybe_value_did_exist%7#0) // asset exists
+                let tmp%8#0: uint64 = (== maybe_value%6#0 "AST1")
+                (assert tmp%8#0) // created asset 1 is correct
+                let (maybe_value%9#0: bytes, maybe_value_did_exist%10#0: uint64) = ((asset_params_get AssetName) asset2_txn%%CreatedAssetID#0)
+                (assert maybe_value_did_exist%10#0) // asset exists
+                let tmp%11#0: uint64 = (== maybe_value%9#0 "AST2")
+                (assert tmp%11#0) // created asset 2 is correct
+                itxn_begin
+                ((itxn_field ApprovalProgramPages) 0x098101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ConfigAssetName) "AST3")
+                ((itxn_field ConfigAssetDecimals) 3u)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
+                ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
+                ((itxn_field ConfigAssetTotal) 1000u)
+                ((itxn_field TypeEnum) acfg)
+                ((itxn_field ConfigAssetUnitName) "unit")
+                itxn_submit
+                let app_create_txn%%CreatedApplicationID#0: uint64 = (gitxn 0 CreatedApplicationID)
+                let asset3_txn%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
+                (assert app_create_txn%%CreatedApplicationID#0) // created app
+                let tmp%12#0: uint64 = (== asset3_txn%%ConfigAssetName#0 "AST3")
+                (assert tmp%12#0) // asset3_txn is correct
+                itxn_begin
+                ((itxn_field ApprovalProgramPages) 0x098101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field Note) "3rd")
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ConfigAssetName) "AST3")
+                ((itxn_field ConfigAssetDecimals) 3u)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
+                ((itxn_field Note) "3rd")
+                ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
+                ((itxn_field ConfigAssetTotal) 1000u)
+                ((itxn_field TypeEnum) acfg)
+                ((itxn_field ConfigAssetUnitName) "unit")
+                itxn_submit
+                return 
+        
+        subroutine test_cases.inner_transactions.contract.MyContract.test2() -> void:
+            block@0: // L89
+                let create_app_params%%param_ApplicationArgs_idx_2#2: bytes = undefined
+                let create_app_params%%param_Note_idx_0#3: bytes = undefined
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@2
+            block@1: // if_body_L91
+                let create_app_params%%param_ApplicationArgs_idx_0#0: bytes = "1"
+                let create_app_params%%param_ApplicationArgs_idx_1#0: bytes = "2"
+                let create_app_params%%ApplicationArgs_length#0: uint64 = 2u
+                let create_app_params%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
+                let create_app_params%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
+                let create_app_params%%param_Fee_idx_0#0: uint64 = 0u
+                let create_app_params%%Note_length#0: uint64 = 0u
+                let create_app_params%%param_TypeEnum_idx_0#0: uint64 = appl
+                goto block@3
+            block@2: // else_body_L91
+                let create_app_params%%param_ApplicationArgs_idx_0#1: bytes = "3"
+                let create_app_params%%param_ApplicationArgs_idx_1#1: bytes = "4"
+                let create_app_params%%param_ApplicationArgs_idx_2#0: bytes = "5"
+                let create_app_params%%ApplicationArgs_length#1: uint64 = 3u
+                let create_app_params%%param_ApprovalProgramPages_idx_0#1: bytes = 0x098101
+                let create_app_params%%param_ClearStateProgramPages_idx_0#1: bytes = 0x098101
+                let create_app_params%%param_Fee_idx_0#1: uint64 = 0u
+                let create_app_params%%param_Note_idx_0#0: bytes = "different param set"
+                let create_app_params%%Note_length#1: uint64 = 1u
+                let create_app_params%%param_TypeEnum_idx_0#1: uint64 = appl
+                goto block@3
+            block@3: // after_if_else_L91
+                let create_app_params%%param_ApplicationArgs_idx_0#2: bytes = φ(create_app_params%%param_ApplicationArgs_idx_0#0 <- block@1, create_app_params%%param_ApplicationArgs_idx_0#1 <- block@2)
+                let create_app_params%%param_ApplicationArgs_idx_1#2: bytes = φ(create_app_params%%param_ApplicationArgs_idx_1#0 <- block@1, create_app_params%%param_ApplicationArgs_idx_1#1 <- block@2)
+                let create_app_params%%ApplicationArgs_length#2: uint64 = φ(create_app_params%%ApplicationArgs_length#0 <- block@1, create_app_params%%ApplicationArgs_length#1 <- block@2)
+                let create_app_params%%param_ApplicationArgs_idx_2#1: bytes = φ(create_app_params%%param_ApplicationArgs_idx_2#2 <- block@1, create_app_params%%param_ApplicationArgs_idx_2#0 <- block@2)
+                let create_app_params%%param_ApprovalProgramPages_idx_0#3: bytes = φ(create_app_params%%param_ApprovalProgramPages_idx_0#0 <- block@1, create_app_params%%param_ApprovalProgramPages_idx_0#1 <- block@2)
+                let create_app_params%%param_ClearStateProgramPages_idx_0#3: bytes = φ(create_app_params%%param_ClearStateProgramPages_idx_0#0 <- block@1, create_app_params%%param_ClearStateProgramPages_idx_0#1 <- block@2)
+                let create_app_params%%param_Fee_idx_0#3: uint64 = φ(create_app_params%%param_Fee_idx_0#0 <- block@1, create_app_params%%param_Fee_idx_0#1 <- block@2)
+                let create_app_params%%Note_length#3: uint64 = φ(create_app_params%%Note_length#0 <- block@1, create_app_params%%Note_length#1 <- block@2)
+                let create_app_params%%param_Note_idx_0#2: bytes = φ(create_app_params%%param_Note_idx_0#3 <- block@1, create_app_params%%param_Note_idx_0#0 <- block@2)
+                let create_app_params%%param_TypeEnum_idx_0#4: uint64 = φ(create_app_params%%param_TypeEnum_idx_0#0 <- block@1, create_app_params%%param_TypeEnum_idx_0#1 <- block@2)
+                itxn_begin
+                ((itxn_field ApplicationArgs) create_app_params%%param_ApplicationArgs_idx_0#2)
+                ((itxn_field ApplicationArgs) create_app_params%%param_ApplicationArgs_idx_1#2)
+                let is_ApplicationArgs_count_gte_3%1#0: uint64 = (>= create_app_params%%ApplicationArgs_length#2 3u)
+                goto is_ApplicationArgs_count_gte_3%1#0 ? block@4 : block@5
+            block@4: // set_ApplicationArgs_2_to_2_L107
+                ((itxn_field ApplicationArgs) create_app_params%%param_ApplicationArgs_idx_2#1)
+                goto block@5
+            block@5: // next_field_L107
+                ((itxn_field ApprovalProgramPages) create_app_params%%param_ApprovalProgramPages_idx_0#3)
+                ((itxn_field ClearStateProgramPages) create_app_params%%param_ClearStateProgramPages_idx_0#3)
+                ((itxn_field Fee) create_app_params%%param_Fee_idx_0#3)
+                let is_Note_count_gte_1%2#0: uint64 = (>= create_app_params%%Note_length#3 1u)
+                goto is_Note_count_gte_1%2#0 ? block@6 : block@7
+            block@6: // set_Note_0_to_0_L107
+                ((itxn_field Note) create_app_params%%param_Note_idx_0#2)
+                goto block@7
+            block@7: // next_field_L107
+                ((itxn_field TypeEnum) create_app_params%%param_TypeEnum_idx_0#4)
+                itxn_submit
+                let %%inner_txn_submit_id#0: uint64 = 1u
+                let tmp%4#0: bytes = (itxna ApplicationArgs 0)
+                let tmp%5#0: uint64 = (== tmp%4#0 "1")
+                (assert tmp%5#0) // correct args used 1
+                let tmp%7#0: bytes = (itxna ApplicationArgs 1)
+                let tmp%8#0: uint64 = (== tmp%7#0 "2")
+                (assert tmp%8#0) // correct args used 2
+                let tmp%9#0: uint64 = (txn NumAppArgs)
+                let tmp%10#0: uint64 = (> tmp%9#0 1u)
+                goto tmp%10#0 ? block@9 : block@11
+            block@9: // if_body_L111
+                itxn_begin
+                ((itxn_field ApplicationArgs) "42")
+                ((itxn_field ApprovalProgramPages) 0x098101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_submit
+                let %%inner_txn_submit_id#1: uint64 = 2u
+                let tmp%13#0: bytes = (itxna ApplicationArgs 0)
+                let tmp%14#0: uint64 = (== tmp%13#0 "42")
+                (assert tmp%14#0) // correct args used 2
+                goto block@11
+            block@11: // after_if_else_L111
+                let %%inner_txn_submit_id#2: uint64 = φ(%%inner_txn_submit_id#0 <- block@7, %%inner_txn_submit_id#1 <- block@9)
+                let submit_id_is_1%15#0: uint64 = (== %%inner_txn_submit_id#2 1u)
+                (assert submit_id_is_1%15#0) // 'create_app_txn' can still be accessed
+                let tmp%16#0: bytes = (itxna ApplicationArgs 0)
+                let tmp%17#0: uint64 = (== tmp%16#0 "1")
+                (assert tmp%17#0) // this will error on access if create_app_txn2 was submitted
+                return 
+        
+        subroutine test_cases.inner_transactions.contract.MyContract.test3() -> void:
+            block@0: // L124
+                itxn_begin
+                ((itxn_field ApplicationArgs) "1")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "2")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "3")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "4")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "5")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "6")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "7")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "8")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "9")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "10")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "11")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "12")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "13")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "14")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "15")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_next
+                ((itxn_field ApplicationArgs) "16")
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_submit
+                let tmp%1#0: bytes = (gitxna 0 Logs 0)
+                let tmp%2#0: uint64 = (== tmp%1#0 "1")
+                (assert tmp%2#0)
+                let tmp%4#0: bytes = (gitxna 1 Logs 0)
+                let tmp%5#0: uint64 = (== tmp%4#0 "2")
+                (assert tmp%5#0)
+                let tmp%7#0: bytes = (gitxna 2 Logs 0)
+                let tmp%8#0: uint64 = (== tmp%7#0 "3")
+                (assert tmp%8#0)
+                let tmp%10#0: bytes = (gitxna 3 Logs 0)
+                let tmp%11#0: uint64 = (== tmp%10#0 "4")
+                (assert tmp%11#0)
+                let tmp%13#0: bytes = (gitxna 4 Logs 0)
+                let tmp%14#0: uint64 = (== tmp%13#0 "5")
+                (assert tmp%14#0)
+                let tmp%16#0: bytes = (gitxna 5 Logs 0)
+                let tmp%17#0: uint64 = (== tmp%16#0 "6")
+                (assert tmp%17#0)
+                let tmp%19#0: bytes = (gitxna 6 Logs 0)
+                let tmp%20#0: uint64 = (== tmp%19#0 "7")
+                (assert tmp%20#0)
+                let tmp%22#0: bytes = (gitxna 7 Logs 0)
+                let tmp%23#0: uint64 = (== tmp%22#0 "8")
+                (assert tmp%23#0)
+                let tmp%25#0: bytes = (gitxna 8 Logs 0)
+                let tmp%26#0: uint64 = (== tmp%25#0 "9")
+                (assert tmp%26#0)
+                let tmp%28#0: bytes = (gitxna 9 Logs 0)
+                let tmp%29#0: uint64 = (== tmp%28#0 "10")
+                (assert tmp%29#0)
+                let tmp%31#0: bytes = (gitxna 10 Logs 0)
+                let tmp%32#0: uint64 = (== tmp%31#0 "11")
+                (assert tmp%32#0)
+                let tmp%34#0: bytes = (gitxna 11 Logs 0)
+                let tmp%35#0: uint64 = (== tmp%34#0 "12")
+                (assert tmp%35#0)
+                let tmp%37#0: bytes = (gitxna 12 Logs 0)
+                let tmp%38#0: uint64 = (== tmp%37#0 "13")
+                (assert tmp%38#0)
+                let tmp%40#0: bytes = (gitxna 13 Logs 0)
+                let tmp%41#0: uint64 = (== tmp%40#0 "14")
+                (assert tmp%41#0)
+                let tmp%43#0: bytes = (gitxna 14 Logs 0)
+                let tmp%44#0: uint64 = (== tmp%43#0 "15")
+                (assert tmp%44#0)
+                let tmp%46#0: bytes = (itxna Logs 0)
+                let tmp%47#0: uint64 = (== tmp%46#0 "16")
+                (assert tmp%47#0)
+                return 
+        
+        subroutine test_cases.inner_transactions.contract.MyContract.test4() -> void:
+            block@0: // L231
+                let lots_of_bytes#0: bytes = (bzero 2044u)
+                let tmp%0#0: bytes = (concat 0x80fc0f lots_of_bytes#0)
+                let approval_2#0: bytes = (concat tmp%0#0 "H")
+                itxn_begin
+                ((itxn_field ApplicationArgs) "1")
+                ((itxn_field ApprovalProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) approval_2#0)
+                ((itxn_field ApprovalProgramPages) approval_2#0)
+                ((itxn_field ApprovalProgramPages) approval_2#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ExtraProgramPages) 3u)
+                ((itxn_field Fee) 0u)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                itxn_submit
+                let app_1%%ExtraProgramPages#0: uint64 = (itxn ExtraProgramPages)
+                let app_1%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
+                let app_1%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
+                let tmp%1#0: uint64 = (== app_1%%ExtraProgramPages#0 3u)
+                (assert tmp%1#0) // extra_pages == 3
+                let tmp%2#0: uint64 = (== app_1%%NumApprovalProgramPages#0 2u)
+                (assert tmp%2#0) // approval_pages == 2
+                let tmp%4#0: bytes = (itxna ApprovalProgramPages 0)
+                let tmp%5#0: bytes = (concat 0x098101 approval_2#0)
+                let awst_tmp%6#0: uint64 = (len approval_2#0)
+                let tmp%7#0: uint64 = (< 3u awst_tmp%6#0)
+                goto tmp%7#0 ? block@2 : block@3
+            block@2: // ternary_true_L255
+                let ternary_result%8#0: uint64 = (- awst_tmp%6#0 3u)
+                goto block@4
+            block@3: // ternary_false_L255
+                let ternary_result%8#1: uint64 = 0u
+                goto block@4
+            block@4: // ternary_merge_L255
+                let ternary_result%8#2: uint64 = φ(ternary_result%8#0 <- block@2, ternary_result%8#1 <- block@3)
+                let tmp%9#0: bytes = (substring3 approval_2#0 0u ternary_result%8#2)
+                let tmp%10#0: bytes = (concat tmp%5#0 tmp%9#0)
+                let tmp%11#0: uint64 = (== tmp%4#0 tmp%10#0)
+                (assert tmp%11#0) // expected approval page 0
+                let tmp%13#0: bytes = (itxna ApprovalProgramPages 1)
+                goto tmp%7#0 ? block@5 : block@6
+            block@5: // ternary_true_L258
+                goto block@7
+            block@6: // ternary_false_L258
+                let ternary_result%16#1: uint64 = 0u
+                goto block@7
+            block@7: // ternary_merge_L258
+                let ternary_result%16#2: uint64 = φ(ternary_result%8#0 <- block@5, ternary_result%16#1 <- block@6)
+                let tmp%18#0: bytes = (substring3 approval_2#0 ternary_result%16#2 awst_tmp%6#0)
+                let tmp%19#0: bytes = (concat tmp%18#0 approval_2#0)
+                let tmp%20#0: uint64 = (== tmp%13#0 tmp%19#0)
+                (assert tmp%20#0) // expected approval page 1
+                let tmp%21#0: uint64 = (== app_1%%NumClearStateProgramPages#0 1u)
+                (assert tmp%21#0) // clear_state_pages == 1
+                let tmp%23#0: bytes = (itxna ClearStateProgramPages 0)
+                let tmp%24#0: uint64 = (== tmp%23#0 0x098101)
+                (assert tmp%24#0) // expected clear_state_pages
+                return 
+        
+        subroutine test_cases.inner_transactions.contract.MyContract.__init__() -> void:
+            block@0: // L23
+                (app_global_put "name" "")
+                return 
+    
+    program clear-state:
+        subroutine test_cases.inner_transactions.contract.MyContract.clear_state_program() -> uint64:
+            block@0: // L39
+                return 1u

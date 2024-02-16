@@ -283,10 +283,17 @@ class FunctionASTConverter(
             )
         expr = require_expression_builder(stmt.expr.accept(self)).rvalue()
         if expr.wtype is not wtypes.void_wtype:
-            # special case to ignore ignoring the result of typing.reveal_type
-            if not (
-                isinstance(stmt.expr, mypy.nodes.CallExpr)
-                and isinstance(stmt.expr.analyzed, mypy.nodes.RevealExpr)
+            if (
+                # special case to ignore ignoring the result of typing.reveal_type
+                not (
+                    isinstance(stmt.expr, mypy.nodes.CallExpr)
+                    and isinstance(stmt.expr.analyzed, mypy.nodes.RevealExpr)
+                )
+                # special case to ignore inner transaction result types
+                # could maybe expand this check to consider whether an expression has known
+                # side-effects
+                and not wtypes.is_inner_transaction_type(expr.wtype)
+                and not wtypes.is_inner_transaction_tuple_type(expr.wtype)
             ):
                 self.context.warning("expression result is ignored", stmt_loc)
         else:
