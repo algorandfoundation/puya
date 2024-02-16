@@ -24,184 +24,6 @@ T = t.TypeVar("T")
 
 ConstantValue: t.TypeAlias = int | str | bytes | bool
 
-WTypes: t.TypeAlias = Sequence[wtypes.WType | type[wtypes.WType]]
-
-
-@attrs.define(eq=False)
-class TxnField:
-    wtype: wtypes.WType
-    additional_input_wtypes: WTypes = ()
-    """Other wtypes that are valid as inputs e.g. UInt64 for an Application field"""
-    python_name: str = ""
-    immediate: str = ""
-    num_values: int = attrs.field(default=1, validator=attrs.validators.ge(1))
-    is_inner_param: bool = True
-
-    def __set_name__(self, owner: object, name: str) -> None:
-        self.python_name = name
-        if not self.immediate:
-            self.immediate = "".join(part.capitalize() for part in self.python_name.split("_"))
-
-    @property
-    def is_array(self) -> bool:
-        return self.num_values > 1
-
-    def valid_type(self, wtype: wtypes.WType) -> bool:
-        all_types = (self.wtype, *self.additional_input_wtypes)
-        wtype_types = tuple(x for x in all_types if isinstance(x, type))
-        return wtype in all_types or isinstance(wtype, wtype_types)
-
-    @property
-    def type_desc(self) -> str:
-        return " | ".join(map(str, (self.wtype, *self.additional_input_wtypes)))
-
-
-@attrs.define(eq=False)
-class UInt64TxnField(TxnField):
-    wtype: wtypes.WType = wtypes.uint64_wtype
-
-
-@attrs.define(eq=False)
-class BytesTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.bytes_wtype
-
-
-@attrs.define(eq=False)
-class BytesBackedTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.bytes_wtype
-    additional_input_wtypes: WTypes = (
-        wtypes.biguint_wtype,
-        wtypes.account_wtype,
-        wtypes.ARC4Type,
-    )
-
-
-@attrs.define(eq=False)
-class BoolTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.bool_wtype
-
-
-@attrs.define(eq=False)
-class AccountTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.account_wtype
-    additional_input_wtypes: WTypes = (wtypes.bytes_wtype,)
-
-
-@attrs.define(eq=False)
-class AssetTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.asset_wtype
-    additional_input_wtypes: WTypes = (wtypes.uint64_wtype,)
-
-
-@attrs.define(eq=False)
-class ApplicationTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.application_wtype
-    additional_input_wtypes: WTypes = (wtypes.uint64_wtype,)
-
-
-class TxnFields:
-    sender = AccountTxnField()
-    fee = UInt64TxnField()
-    first_valid = UInt64TxnField(is_inner_param=False)
-    first_valid_time = UInt64TxnField(is_inner_param=False)
-    last_valid = UInt64TxnField(is_inner_param=False)
-    note = BytesTxnField()
-    lease = BytesTxnField(is_inner_param=False)
-    receiver = AccountTxnField()
-    amount = UInt64TxnField()
-    close_remainder_to = AccountTxnField()
-    vote_key = AccountTxnField(immediate="VotePK")
-    selection_key = AccountTxnField(immediate="SelectionPK")
-    vote_first = UInt64TxnField()
-    vote_last = UInt64TxnField()
-    vote_key_dilution = UInt64TxnField()
-    type_bytes = BytesTxnField(immediate="Type")
-    type = UInt64TxnField(immediate="TypeEnum")
-    xfer_asset = AssetTxnField()
-    asset_amount = UInt64TxnField()
-    asset_sender = AccountTxnField()
-    asset_receiver = AccountTxnField()
-    asset_close_to = AccountTxnField()
-    group_index = UInt64TxnField(is_inner_param=False)
-    txn_id = BytesTxnField(immediate="TxID", is_inner_param=False)
-    # v2
-    application_id = ApplicationTxnField(immediate="ApplicationID")
-    on_completion = UInt64TxnField()
-    num_app_args = UInt64TxnField(is_inner_param=False)
-    num_accounts = UInt64TxnField(is_inner_param=False)
-    approval_program = BytesTxnField()
-    clear_state_program = BytesTxnField()
-    rekey_to = AccountTxnField()
-    config_asset = AssetTxnField()
-    total = UInt64TxnField(immediate="ConfigAssetTotal")
-    decimals = UInt64TxnField(immediate="ConfigAssetDecimals")
-    default_frozen = BoolTxnField(immediate="ConfigAssetDefaultFrozen")
-    unit_name = BytesTxnField(immediate="ConfigAssetUnitName")
-    asset_name = BytesTxnField(immediate="ConfigAssetName")
-    url = BytesTxnField(immediate="ConfigAssetURL")
-    metadata_hash = BytesTxnField(immediate="ConfigAssetMetadataHash")
-    manager = AccountTxnField(immediate="ConfigAssetManager")
-    reserve = AccountTxnField(immediate="ConfigAssetReserve")
-    freeze = AccountTxnField(immediate="ConfigAssetFreeze")
-    clawback = AccountTxnField(immediate="ConfigAssetClawback")
-    freeze_asset = AssetTxnField()
-    freeze_account = AccountTxnField(immediate="FreezeAssetAccount")
-    frozen = AssetTxnField(immediate="FreezeAssetFrozen")
-    # v3
-    num_assets = UInt64TxnField(is_inner_param=False)
-    num_applications = UInt64TxnField(is_inner_param=False)
-    global_num_uint = UInt64TxnField()
-    global_num_byte_slice = UInt64TxnField()
-    local_num_uint = UInt64TxnField()
-    local_num_byte_slice = UInt64TxnField()
-    # v4
-    extra_program_pages = UInt64TxnField()
-    # v5
-    non_participation = BoolTxnField(immediate="Nonparticipation")
-    num_logs = UInt64TxnField(is_inner_param=False)
-    created_asset = AssetTxnField(immediate="CreatedAssetID", is_inner_param=False)
-    created_application = ApplicationTxnField(
-        immediate="CreatedApplicationID", is_inner_param=False
-    )
-    # v6
-    last_log = BytesTxnField(is_inner_param=False)
-    state_proof_key = BytesTxnField(immediate="StateProofPK")
-    # v7
-    num_approval_program_pages = UInt64TxnField(is_inner_param=False)
-    num_clear_state_program_pages = UInt64TxnField(is_inner_param=False)
-
-    # array fields
-    # TODO: allow configuring as these are consensus values
-    # v2
-    application_args = BytesBackedTxnField(num_values=16)
-    accounts = AccountTxnField(num_values=4)
-    # v3
-    assets = AssetTxnField(num_values=8)
-    applications = ApplicationTxnField(num_values=8)
-    # v5
-    logs = BytesTxnField(num_values=32, is_inner_param=False)
-    # v7
-    approval_program_pages = BytesTxnField(num_values=4)
-    clear_state_program_pages = BytesTxnField(num_values=4)
-
-    _all_fields: Iterable[TxnField] | None = None
-
-    @classmethod
-    def all_fields(cls) -> Iterable[TxnField]:
-        if cls._all_fields is None:
-            names = dir(cls)
-            values = [getattr(cls, name) for name in names]
-            cls._all_fields = tuple(v for v in values if isinstance(v, TxnField))
-        return cls._all_fields
-
-    @classmethod
-    def inner_transaction_param_fields(cls) -> "Sequence[TxnField]":
-        return tuple(f for f in cls.all_fields() if f.is_inner_param)
-
-    @classmethod
-    def inner_transaction_non_array_fields(cls) -> "Sequence[TxnField]":
-        return tuple(f for f in cls.all_fields() if not f.is_array)
-
 
 @attrs.frozen
 class Node:
@@ -660,6 +482,185 @@ class IntrinsicCall(Expression):
             stack_args=[expr],
             wtype=wtypes.uint64_wtype,
         )
+
+
+WTypes: t.TypeAlias = Sequence[wtypes.WType | type[wtypes.WType]]
+
+
+@attrs.define(eq=False)
+class TxnField:
+    wtype: wtypes.WType
+    additional_input_wtypes: WTypes = ()
+    """Other wtypes that are valid as inputs e.g. UInt64 for an Application field"""
+    python_name: str = ""
+    immediate: str = ""
+    num_values: int = attrs.field(default=1, validator=attrs.validators.ge(1))
+    is_inner_param: bool = True
+
+    def __set_name__(self, owner: object, name: str) -> None:
+        self.python_name = name
+        if not self.immediate:
+            self.immediate = "".join(part.capitalize() for part in self.python_name.split("_"))
+
+    @property
+    def is_array(self) -> bool:
+        return self.num_values > 1
+
+    def valid_type(self, wtype: wtypes.WType) -> bool:
+        all_types = (self.wtype, *self.additional_input_wtypes)
+        wtype_types = tuple(x for x in all_types if isinstance(x, type))
+        return wtype in all_types or isinstance(wtype, wtype_types)
+
+    @property
+    def type_desc(self) -> str:
+        return " | ".join(map(str, (self.wtype, *self.additional_input_wtypes)))
+
+
+@attrs.define(eq=False)
+class UInt64TxnField(TxnField):
+    wtype: wtypes.WType = wtypes.uint64_wtype
+
+
+@attrs.define(eq=False)
+class BytesTxnField(TxnField):
+    wtype: wtypes.WType = wtypes.bytes_wtype
+
+
+@attrs.define(eq=False)
+class BytesBackedTxnField(TxnField):
+    wtype: wtypes.WType = wtypes.bytes_wtype
+    additional_input_wtypes: WTypes = (
+        wtypes.biguint_wtype,
+        wtypes.account_wtype,
+        wtypes.ARC4Type,
+    )
+
+
+@attrs.define(eq=False)
+class BoolTxnField(TxnField):
+    wtype: wtypes.WType = wtypes.bool_wtype
+
+
+@attrs.define(eq=False)
+class AccountTxnField(TxnField):
+    wtype: wtypes.WType = wtypes.account_wtype
+    additional_input_wtypes: WTypes = (wtypes.bytes_wtype,)
+
+
+@attrs.define(eq=False)
+class AssetTxnField(TxnField):
+    wtype: wtypes.WType = wtypes.asset_wtype
+    additional_input_wtypes: WTypes = (wtypes.uint64_wtype,)
+
+
+@attrs.define(eq=False)
+class ApplicationTxnField(TxnField):
+    wtype: wtypes.WType = wtypes.application_wtype
+    additional_input_wtypes: WTypes = (wtypes.uint64_wtype,)
+
+
+class TxnFields:
+    sender = AccountTxnField()
+    fee = UInt64TxnField()
+    first_valid = UInt64TxnField(is_inner_param=False)
+    first_valid_time = UInt64TxnField(is_inner_param=False)
+    last_valid = UInt64TxnField(is_inner_param=False)
+    note = BytesTxnField()
+    lease = BytesTxnField(is_inner_param=False)
+    receiver = AccountTxnField()
+    amount = UInt64TxnField()
+    close_remainder_to = AccountTxnField()
+    vote_key = AccountTxnField(immediate="VotePK")
+    selection_key = AccountTxnField(immediate="SelectionPK")
+    vote_first = UInt64TxnField()
+    vote_last = UInt64TxnField()
+    vote_key_dilution = UInt64TxnField()
+    type_bytes = BytesTxnField(immediate="Type")
+    type = UInt64TxnField(immediate="TypeEnum")
+    xfer_asset = AssetTxnField()
+    asset_amount = UInt64TxnField()
+    asset_sender = AccountTxnField()
+    asset_receiver = AccountTxnField()
+    asset_close_to = AccountTxnField()
+    group_index = UInt64TxnField(is_inner_param=False)
+    txn_id = BytesTxnField(immediate="TxID", is_inner_param=False)
+    # v2
+    application_id = ApplicationTxnField(immediate="ApplicationID")
+    on_completion = UInt64TxnField()
+    num_app_args = UInt64TxnField(is_inner_param=False)
+    num_accounts = UInt64TxnField(is_inner_param=False)
+    approval_program = BytesTxnField()
+    clear_state_program = BytesTxnField()
+    rekey_to = AccountTxnField()
+    config_asset = AssetTxnField()
+    total = UInt64TxnField(immediate="ConfigAssetTotal")
+    decimals = UInt64TxnField(immediate="ConfigAssetDecimals")
+    default_frozen = BoolTxnField(immediate="ConfigAssetDefaultFrozen")
+    unit_name = BytesTxnField(immediate="ConfigAssetUnitName")
+    asset_name = BytesTxnField(immediate="ConfigAssetName")
+    url = BytesTxnField(immediate="ConfigAssetURL")
+    metadata_hash = BytesTxnField(immediate="ConfigAssetMetadataHash")
+    manager = AccountTxnField(immediate="ConfigAssetManager")
+    reserve = AccountTxnField(immediate="ConfigAssetReserve")
+    freeze = AccountTxnField(immediate="ConfigAssetFreeze")
+    clawback = AccountTxnField(immediate="ConfigAssetClawback")
+    freeze_asset = AssetTxnField()
+    freeze_account = AccountTxnField(immediate="FreezeAssetAccount")
+    frozen = AssetTxnField(immediate="FreezeAssetFrozen")
+    # v3
+    num_assets = UInt64TxnField(is_inner_param=False)
+    num_applications = UInt64TxnField(is_inner_param=False)
+    global_num_uint = UInt64TxnField()
+    global_num_byte_slice = UInt64TxnField()
+    local_num_uint = UInt64TxnField()
+    local_num_byte_slice = UInt64TxnField()
+    # v4
+    extra_program_pages = UInt64TxnField()
+    # v5
+    non_participation = BoolTxnField(immediate="Nonparticipation")
+    num_logs = UInt64TxnField(is_inner_param=False)
+    created_asset = AssetTxnField(immediate="CreatedAssetID", is_inner_param=False)
+    created_application = ApplicationTxnField(
+        immediate="CreatedApplicationID", is_inner_param=False
+    )
+    # v6
+    last_log = BytesTxnField(is_inner_param=False)
+    state_proof_key = BytesTxnField(immediate="StateProofPK")
+    # v7
+    num_approval_program_pages = UInt64TxnField(is_inner_param=False)
+    num_clear_state_program_pages = UInt64TxnField(is_inner_param=False)
+
+    # array fields
+    # TODO: allow configuring as these are consensus values
+    # v2
+    application_args = BytesBackedTxnField(num_values=16)
+    accounts = AccountTxnField(num_values=4)
+    # v3
+    assets = AssetTxnField(num_values=8)
+    applications = ApplicationTxnField(num_values=8)
+    # v5
+    logs = BytesTxnField(num_values=32, is_inner_param=False)
+    # v7
+    approval_program_pages = BytesTxnField(num_values=4)
+    clear_state_program_pages = BytesTxnField(num_values=4)
+
+    _all_fields: Iterable[TxnField] | None = None
+
+    @classmethod
+    def all_fields(cls) -> Iterable[TxnField]:
+        if cls._all_fields is None:
+            names = dir(cls)
+            values = [getattr(cls, name) for name in names]
+            cls._all_fields = tuple(v for v in values if isinstance(v, TxnField))
+        return cls._all_fields
+
+    @classmethod
+    def inner_transaction_param_fields(cls) -> "Sequence[TxnField]":
+        return tuple(f for f in cls.all_fields() if f.is_inner_param)
+
+    @classmethod
+    def inner_transaction_non_array_fields(cls) -> "Sequence[TxnField]":
+        return tuple(f for f in cls.all_fields() if not f.is_array)
 
 
 @attrs.define
