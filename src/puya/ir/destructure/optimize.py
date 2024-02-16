@@ -1,4 +1,5 @@
 import contextlib
+import itertools
 from copy import deepcopy
 
 import attrs
@@ -7,15 +8,18 @@ import structlog
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.optimize.collapse_blocks import BlockReferenceReplacer
+from puya.utils import unique
 
 logger = structlog.get_logger(__name__)
 
 
-def post_ssa_optimizer(_context: CompileContext, contract: models.Contract) -> models.Contract:
+def post_ssa_optimizer(context: CompileContext, contract: models.Contract) -> models.Contract:
     logger.debug("Performing post-SSA optimizations")
     cloned = deepcopy(contract)
     for sub in cloned.all_subroutines():
         remove_linear_jumps(sub)
+        if context.options.optimization_level >= 2:
+            block_deduplication(sub)
         attrs.validate(sub)
     return cloned
 
@@ -43,3 +47,20 @@ def remove_linear_jumps(subroutine: models.Subroutine) -> None:
                     if pred not in target.predecessors:
                         target.predecessors.append(pred)
                 subroutine.body.remove(block)
+
+
+def block_deduplication(subroutine: models.Subroutine) -> None:
+    seen = dict[tuple[object, ...], models.BasicBlock]()
+    for block in subroutine.body.copy():
+        all_ops = tuple(op.freeze() for op in block.all_ops)
+        if existing := seen.get(all_ops):
+            logger.debug(
+                f"Removing duplicated block {block} and updating references to {existing}"
+            )
+            BlockReferenceReplacer.apply(find=block, replacement=existing, blocks=subroutine.body)
+            subroutine.body.remove(block)
+            existing.predecessors = unique(
+                itertools.chain(existing.predecessors, block.predecessors)
+            )
+        else:
+            seen[all_ops] = block
