@@ -12,7 +12,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 goto tmp%1#0 ? block@3 : block@11
             block@3: // abi_routing_L25
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => block@10}
+                switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => fail // reject transaction}
             block@4: // set_governor_route_L41
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: uint64 = (! tmp%3#0)
@@ -113,18 +113,14 @@ contract examples.amm.contract.ConstantProductAMM:
                 let tmp%79#0: uint64 = ((txnas Assets) tmp%78#0)
                 examples.amm.contract.ConstantProductAMM.swap(awst_tmp%15#3, tmp%76#0, tmp%79#0)
                 return 1u
-            block@10: // switch_case_next_L25
-                fail // reject transaction
             block@11: // bare_routing_L25
                 let tmp%80#0: uint64 = (txn OnCompletion)
-                goto_nth [block@12][tmp%80#0] else goto block@13
-            block@12: // create_L25
+                let not%tmp%80#0: uint64 = (! tmp%80#0)
+                (assert not%tmp%80#0) // reject transaction
                 let tmp%81#0: uint64 = (txn ApplicationID)
                 let tmp%82#0: uint64 = (! tmp%81#0)
                 (assert tmp%82#0) // is creating
                 return 1u
-            block@13: // reject_bare_on_completion_L25
-                fail // reject transaction
         
         subroutine examples.amm.contract.ConstantProductAMM.set_governor(new_governor: bytes) -> void:
             block@0: // L41

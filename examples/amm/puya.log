@@ -496,11 +496,20 @@ debug: Optimizer: Simplify Control Ops
 debug: adding block@3: // abi_routing_L25 as a predecessor of block@10: // switch_case_next_L25 due to inlining of block@9: // switch_case_default_L25
 debug: simplified terminator of block@3: // abi_routing_L25 from switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => block@9} to switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => block@10}
 debug: simplified terminator of block@11: // bare_routing_L25 from switch tmp%80#0 {0u => block@12, * => block@13} to goto_nth [block@12][tmp%80#0] else goto block@13
+debug: adding block@3: // abi_routing_L25 as a predecessor of block@14: // after_if_else_L25 due to inlining of block@10: // switch_case_next_L25
+debug: simplified terminator of block@3: // abi_routing_L25 from switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => block@10} to switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => block@14}
+debug: simplified terminator of block@11: // bare_routing_L25 from goto_nth [block@12][tmp%80#0] else goto block@13 to goto tmp%80#0 ? block@13 : block@12
+debug: simplified terminator of block@3: // abi_routing_L25 from switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => block@14} to switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => fail // reject transaction}
+debug: inlining condition branch to err block into an assert false
+debug: simplified terminator of block@11: // bare_routing_L25 from goto tmp%80#0 ? block@13 : block@12 to goto block@12
 debug: Optimizer: Remove Linear Jump
-debug: Merged linear block@14: // after_if_else_L25 into block@10: // switch_case_next_L25
+debug: Replaced predecessor block@10: // switch_case_next_L25 with block@9: // switch_case_default_L25 in block@14: // after_if_else_L25
+debug: Merged linear block@10: // switch_case_next_L25 into block@9: // switch_case_default_L25
+debug: Merged linear block@12: // create_L25 into block@11: // bare_routing_L25
+debug: Merged linear block@14: // after_if_else_L25 into block@9: // switch_case_default_L25
 debug: Optimizer: Remove Empty Blocks
-debug: Removed empty block: block@9: // switch_case_default_L25
 debug: Optimizer: Remove Unreachable Blocks
+debug: Removing unreachable blocks: block@9: // switch_case_default_L25, block@13: // reject_bare_on_completion_L25
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.set_governor
 debug: Splitting parallel copies prior to optimization
@@ -826,10 +835,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%36#0: uint64 = ((gtxns AssetAmount) a_xfer#0) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%22', version=0, source_location=amm/contract.py:125:15-34)]
+debug: Replacing redundant declaration let tmp%36#0: uint64 = ((gtxns AssetAmount) a_xfer#0) with copy of existing registers [Register(atype=uint64, name='tmp%22', version=0, source_location=amm/contract.py:125:15-34)]
+debug: Replacing redundant declaration let tmp%37#0: uint64 = ((gtxns AssetAmount) b_xfer#0) with copy of existing registers [Register(atype=uint64, name='tmp%31', version=0, source_location=amm/contract.py:132:15-34)]
 debug: Found equivalence set: tmp%22#0, tmp%36#0
 debug: Replacing {tmp%36#0} with tmp%22#0 made 1 modifications
-debug: Replacing redundant declaration let tmp%37#0: uint64 = ((gtxns AssetAmount) b_xfer#0) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%31', version=0, source_location=amm/contract.py:132:15-34)]
 debug: Found equivalence set: tmp%31#0, tmp%37#0
 debug: Replacing {tmp%37#0} with tmp%31#0 made 1 modifications
 debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._check_bootstrapped
@@ -918,12 +927,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%22#0: uint64 = ((gtxns AssetAmount) pool_xfer#0) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%12', version=0, source_location=amm/contract.py:179:15-37)]
-debug: Found equivalence set: tmp%12#0, tmp%22#0
-debug: Replacing {tmp%22#0} with tmp%12#0 made 1 modifications
-debug: Replacing redundant declaration let tmp%24#0: uint64 = ((gtxns AssetAmount) pool_xfer#0) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%12', version=0, source_location=amm/contract.py:179:15-37)]
-debug: Found equivalence set: tmp%12#0, tmp%24#0
-debug: Replacing {tmp%24#0} with tmp%12#0 made 1 modifications
+debug: Replacing redundant declaration let tmp%22#0: uint64 = ((gtxns AssetAmount) pool_xfer#0) with copy of existing registers [Register(atype=uint64, name='tmp%12', version=0, source_location=amm/contract.py:179:15-37)]
+debug: Replacing redundant declaration let tmp%24#0: uint64 = ((gtxns AssetAmount) pool_xfer#0) with copy of existing registers [Register(atype=uint64, name='tmp%12', version=0, source_location=amm/contract.py:179:15-37)]
+debug: Found equivalence set: tmp%12#0, tmp%22#0, tmp%24#0
+debug: Replacing {tmp%22#0, tmp%24#0} with tmp%12#0 made 2 modifications
 debug: Optimizing subroutine examples.amm.contract.tokens_to_burn
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
@@ -954,7 +961,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Removing unreachable blocks: block@3: // switch_case_default_L231
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%20#0: uint64 = ((gtxns AssetAmount) swap_xfer#0) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%6', version=0, source_location=amm/contract.py:228:15-37)]
+debug: Replacing redundant declaration let tmp%20#0: uint64 = ((gtxns AssetAmount) swap_xfer#0) with copy of existing registers [Register(atype=uint64, name='tmp%6', version=0, source_location=amm/contract.py:228:15-37)]
 debug: Found equivalence set: tmp%6#0, tmp%20#0
 debug: Replacing {tmp%20#0} with tmp%6#0 made 1 modifications
 debug: Optimizing subroutine examples.amm.contract.tokens_to_swap
@@ -969,7 +976,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%3#0: uint64 = (* in_amount#0 995u) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%2', version=0, source_location=amm/contract.py:352:50-68)]
+debug: Replacing redundant declaration let tmp%3#0: uint64 = (* in_amount#0 995u) with copy of existing registers [Register(atype=uint64, name='tmp%2', version=0, source_location=amm/contract.py:352:50-68)]
 debug: Found equivalence set: tmp%2#0, tmp%3#0
 debug: Replacing {tmp%3#0} with tmp%2#0 made 1 modifications
 debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.__init__
@@ -1005,457 +1012,6 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
-debug: simplified terminator of block@3: // abi_routing_L25 from switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => block@10} to switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => fail // reject transaction}
-debug: simplified terminator of block@11: // bare_routing_L25 from goto_nth [block@12][tmp%80#0] else goto block@13 to goto tmp%80#0 ? block@13 : block@12
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@10: // switch_case_next_L25
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.set_governor
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._check_is_governor
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.bootstrap
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._create_pool_token
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._do_opt_in
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.do_asset_transfer
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.mint
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._check_bootstrapped
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._current_pool_balance
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._current_a_balance
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._current_b_balance
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.tokens_to_mint
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._update_ratio
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.burn
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.tokens_to_burn
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.swap
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.tokens_to_swap
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.__init__
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.clear_state_program
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to amm/out/contract_ConstantProductAMM.ssa.opt_pass_2.ir
-debug: Begin optimization pass 3/100
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.approval_program
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: inlining condition branch to err block into an assert false
-debug: simplified terminator of block@11: // bare_routing_L25 from goto tmp%80#0 ? block@13 : block@12 to goto block@12
-debug: Optimizer: Remove Linear Jump
-debug: Merged linear block@12: // create_L25 into block@11: // bare_routing_L25
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@13: // reject_bare_on_completion_L25
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.set_governor
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._check_is_governor
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.bootstrap
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._create_pool_token
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._do_opt_in
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.do_asset_transfer
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.mint
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._check_bootstrapped
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._current_pool_balance
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._current_a_balance
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._current_b_balance
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.tokens_to_mint
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM._update_ratio
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.burn
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.tokens_to_burn
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.swap
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.tokens_to_swap
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.__init__
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.clear_state_program
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to amm/out/contract_ConstantProductAMM.ssa.opt_pass_3.ir
-debug: Begin optimization pass 4/100
-debug: Optimizing subroutine examples.amm.contract.ConstantProductAMM.approval_program
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
@@ -1669,7 +1225,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: No optimizations performed in pass 4, ending loop
+debug: No optimizations performed in pass 2, ending loop
 debug: Removing Phis from examples.amm.contract.ConstantProductAMM.approval_program
 debug: Removing Phis from examples.amm.contract.ConstantProductAMM.set_governor
 debug: Removing Phis from examples.amm.contract.ConstantProductAMM._check_is_governor

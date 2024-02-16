@@ -11,6 +11,8 @@ main_entrypoint@2:
     // if op.Transaction.application_id == 0:
     txn ApplicationID
     bnz main_after_if_else@4
+
+main_if_body@3:
     // local_state/local_state_contract.py:19
     // return True
     int 1
@@ -27,6 +29,8 @@ main_after_if_else@4:
     ==
     ||
     bnz main_after_if_else@6
+
+main_if_body@5:
     // local_state/local_state_contract.py:21
     // return False
     int 0
@@ -36,13 +40,7 @@ main_after_if_else@6:
     // local_state/local_state_contract.py:22
     // if op.Transaction.num_app_args == 0:
     txn NumAppArgs
-    bnz main_after_if_else@8
-    // local_state/local_state_contract.py:23
-    // return False
-    int 0
-    return
-
-main_after_if_else@8:
+    bz main_if_body@5
     // local_state/local_state_contract.py:25
     // method = op.Transaction.application_args(0)
     txna ApplicationArgs 0
@@ -64,7 +62,7 @@ main_after_if_else@8:
     txn Sender
     callsub get_guaranteed_data
     log
-    b main_after_if_else@18
+    b main_if_body@3
 
 main_else_body@11:
     // local_state/local_state_contract.py:29
@@ -78,7 +76,7 @@ main_else_body@11:
     txn Sender
     callsub get_data_or_assert
     log
-    b main_after_if_else@18
+    b main_if_body@3
 
 main_else_body@13:
     // local_state/local_state_contract.py:31
@@ -86,7 +84,7 @@ main_else_body@13:
     dup
     byte "delete_data"
     ==
-    bz main_else_body@15
+    bz main_if_body@5
     // local_state/local_state_contract.py:32
     // self.delete_data(op.Transaction.sender)
     txn Sender
@@ -95,19 +93,7 @@ main_else_body@13:
     // log(b"Deleted")
     byte "Deleted"
     log
-    b main_after_if_else@18
-
-main_else_body@15:
-    // local_state/local_state_contract.py:35
-    // return False
-    int 0
-    return
-
-main_after_if_else@18:
-    // local_state/local_state_contract.py:36
-    // return True
-    int 1
-    return
+    b main_if_body@3
 
 main_else_body@19:
     // local_state/local_state_contract.py:37
@@ -115,7 +101,7 @@ main_else_body@19:
     txn NumAppArgs
     int 2
     ==
-    bz main_else_body@27
+    bz main_if_body@5
     // local_state/local_state_contract.py:38
     // if method == b"set_data":
     dup
@@ -127,7 +113,7 @@ main_else_body@19:
     txn Sender
     txna ApplicationArgs 1
     callsub set_data
-    b main_after_if_else@26
+    b main_if_body@3
 
 main_else_body@22:
     // local_state/local_state_contract.py:40
@@ -135,7 +121,7 @@ main_else_body@22:
     dup
     byte "get_data_with_default"
     ==
-    bz main_else_body@24
+    bz main_if_body@5
     // local_state/local_state_contract.py:43
     // op.Transaction.sender, op.Transaction.application_args(1)
     txn Sender
@@ -152,25 +138,7 @@ main_else_body@22:
     //     )
     // )
     log
-    b main_after_if_else@26
-
-main_else_body@24:
-    // local_state/local_state_contract.py:47
-    // return False
-    int 0
-    return
-
-main_after_if_else@26:
-    // local_state/local_state_contract.py:48
-    // return True
-    int 1
-    return
-
-main_else_body@27:
-    // local_state/local_state_contract.py:50
-    // return False
-    int 0
-    return
+    b main_if_body@3
 
 
 // examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(for_account: bytes) -> bytes:

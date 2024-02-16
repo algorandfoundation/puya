@@ -9,7 +9,7 @@ contract test_cases.everything.contract.Everything:
                 goto block@2
             block@2: // entrypoint_L38
                 let tmp%1#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%1#0 {method "create()void" => block@3, method "register(string)void" => block@4, method "say_hello()string" => block@5, method "calculate(uint64,uint64)uint64" => block@6, method "close_out()void" => block@7, * => block@9}
+                switch tmp%1#0 {method "create()void" => block@3, method "register(string)void" => block@4, method "say_hello()string" => block@5, method "calculate(uint64,uint64)uint64" => block@6, method "close_out()void" => block@7, * => fail // reject transaction}
             block@3: // create_route_L41
                 let tmp%2#0: uint64 = (txn OnCompletion)
                 let tmp%3#0: uint64 = (! tmp%2#0)
@@ -59,8 +59,6 @@ contract test_cases.everything.contract.Everything:
                 (assert tmp%25#0) // is not creating
                 test_cases.everything.contract.Everything.close_out()
                 return 1u
-            block@9: // switch_case_next_L37
-                fail // reject transaction
         
         subroutine test_cases.everything.contract.Everything.create() -> void:
             block@0: // L41

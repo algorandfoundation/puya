@@ -12,7 +12,7 @@ contract examples.auction.contract.Auction:
                 goto tmp%1#0 ? block@3 : block@12
             block@3: // abi_routing_L14
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@11}
+                switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => fail // reject transaction}
             block@4: // opt_into_asset_route_L24
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: uint64 = (! tmp%3#0)
@@ -79,18 +79,14 @@ contract examples.auction.contract.Auction:
                 let tmp%39#0: uint64 = ((txnas Assets) tmp%38#0)
                 examples.auction.contract.Auction.claim_asset(tmp%39#0)
                 return 1u
-            block@11: // switch_case_next_L14
-                fail // reject transaction
             block@12: // bare_routing_L14
                 let tmp%40#0: uint64 = (txn OnCompletion)
-                goto_nth [block@13][tmp%40#0] else goto block@14
-            block@13: // create_L14
+                let not%tmp%40#0: uint64 = (! tmp%40#0)
+                (assert not%tmp%40#0) // reject transaction
                 let tmp%41#0: uint64 = (txn ApplicationID)
                 let tmp%42#0: uint64 = (! tmp%41#0)
                 (assert tmp%42#0) // is creating
                 return 1u
-            block@14: // reject_bare_on_completion_L14
-                fail // reject transaction
         
         subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
             block@0: // L24
