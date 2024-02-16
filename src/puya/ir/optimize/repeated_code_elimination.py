@@ -11,7 +11,6 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor
-from puya.utils import StableSet
 
 logger = structlog.get_logger(__name__)
 
@@ -36,7 +35,6 @@ def repeated_expression_elimination(
 ) -> bool:
     any_modified = False
     dom = compute_dominators(subroutine)
-    dom = {k: v - StableSet(k) for k, v in dom.items()}
     modified = True
     while modified:
         modified = False
@@ -47,7 +45,7 @@ def repeated_expression_elimination(
         for block in subroutine.body:
             visitor = RCEVisitor(block)
             for op in block.ops.copy():
-                modified = modified or bool(op.accept(visitor))
+                modified = bool(op.accept(visitor)) or modified
             block_asserted[block] = visitor.asserted
             block_const_intrinsics[block] = visitor.const_intrinsics
 
@@ -64,7 +62,7 @@ def repeated_expression_elimination(
                     ),
                 )
                 for op in block.ops.copy():
-                    modified = modified or bool(op.accept(visitor))
+                    modified = bool(op.accept(visitor)) or modified
         if modified:
             any_modified = True
             copy_propagation(context, subroutine)
@@ -73,22 +71,23 @@ def repeated_expression_elimination(
 
 def compute_dominators(
     subroutine: models.Subroutine,
-) -> dict[models.BasicBlock, StableSet[models.BasicBlock]]:
-    all_blocks = StableSet(*subroutine.body)
-    dom = {b: all_blocks if b.predecessors else StableSet(b) for b in subroutine.body}
+) -> dict[models.BasicBlock, list[models.BasicBlock]]:
+    all_blocks = set(subroutine.body)
+    dom = {b: all_blocks if b.predecessors else {b} for b in subroutine.body}
     changes = True
     while changes:
         changes = False
         for block in reversed(subroutine.body):
             if block.predecessors:
-                new = functools.reduce(
-                    StableSet.intersection, (dom[p] for p in block.predecessors)
-                ) | StableSet(block)
-                old = dom[block]
-                dom[block] = new
-                if old != new:
+                pred_dom = functools.reduce(set.intersection, (dom[p] for p in block.predecessors))
+                new = pred_dom | {block}
+                if new != dom[block]:
+                    dom[block] = new
                     changes = True
-    return dom
+    return {
+        b: sorted(dom_set - {b}, key=lambda a: typing.cast(int, a.id))
+        for b, dom_set in dom.items()
+    }
 
 
 @attrs.define
