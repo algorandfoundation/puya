@@ -50,12 +50,25 @@ class IRVisitable(Context, abc.ABC):
         return self.accept(ToTextVisitor())
 
 
+class _Freezable(abc.ABC):
+    def freeze(self) -> object:
+        data = self._frozen_data()
+        hash(data)  # check we can hash
+        if data is self:
+            return data
+        return self.__class__, data
+
+    @abc.abstractmethod
+    def _frozen_data(self) -> object:
+        ...
+
+
 # NOTE! we don't want structural equality in the IR, everything needs to have eq=False
 #       the workaround to do this (trivial in Python to extend a decorator) AND have mypy
 #       not complain is ... well, see for yourself:
 #       https://www.attrs.org/en/stable/extending.html#wrapping-the-decorator
 @attrs.define(eq=False)
-class ValueProvider(IRVisitable, abc.ABC):
+class ValueProvider(IRVisitable, _Freezable, abc.ABC):
     """A node that provides/produces a value"""
 
     source_location: SourceLocation | None = attrs.field(eq=False)
@@ -80,13 +93,16 @@ class Value(ValueProvider, abc.ABC):
     def types(self) -> Sequence[AVMType]:
         return (self.atype,)
 
+    def _frozen_data(self) -> object:
+        return self
+
 
 class Constant(Value, abc.ABC):
     """Base class for value constants - any value that is known at compile time"""
 
 
 @attrs.define(eq=False)
-class Op(IRVisitable, abc.ABC):
+class Op(IRVisitable, _Freezable, abc.ABC):
     """Base class for non-control-flow, non-phi operations
 
     This is anything other than a Phi can appear inside a BasicBlock before the terminal ControlOp.
@@ -94,7 +110,7 @@ class Op(IRVisitable, abc.ABC):
 
 
 @attrs.define(eq=False)
-class ControlOp(IRVisitable, abc.ABC):
+class ControlOp(IRVisitable, _Freezable, abc.ABC):
     """Base class for control-flow operations
 
     These appear in a BasicBlock as the terminal node.
@@ -146,7 +162,7 @@ class PhiArgument(IRVisitable):
 
 
 @attrs.define(eq=False)
-class Phi(IRVisitable):
+class Phi(IRVisitable, _Freezable):
     """Phi nodes are oracles that, given a list of other variables, always produce the
     one that has been defined in the control flow thus far.
 
@@ -165,6 +181,13 @@ class Phi(IRVisitable):
     @property
     def non_self_args(self) -> Sequence[PhiArgument]:
         return tuple(a for a in self.args if a.value != self.register)
+
+    def _frozen_data(self) -> object:
+        return (
+            self.register.freeze(),
+            tuple((arg.through.id, arg.value.freeze()) for arg in self.args),
+            (b.id for b in self.undefined_predecessors),
+        )
 
     @args.validator
     def check_args(self, _attribute: object, args: Sequence[PhiArgument]) -> None:
@@ -254,6 +277,9 @@ class Intrinsic(Op, ValueProvider):
     args: list[Value] = attrs.field(factory=list)
     comment: str | None = None  # used e.g. for asserts
 
+    def _frozen_data(self) -> object:
+        return self.op, tuple(self.immediates), tuple(self.args), self.comment
+
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_intrinsic_op(self)
 
@@ -290,6 +316,9 @@ class InvokeSubroutine(Op, ValueProvider):
     # TODO: validation for args
     args: list[Value]
 
+    def _frozen_data(self) -> object:
+        return self.target.full_name, tuple(self.args)
+
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_invoke_subroutine(self)
 
@@ -309,6 +338,9 @@ class ValueTuple(ValueProvider):
     def types(self) -> Sequence[AVMType]:
         return [val.atype for val in self.values]
 
+    def _frozen_data(self) -> object:
+        return tuple(self.values)
+
 
 @attrs.define(eq=False)
 class Assignment(Op):
@@ -319,6 +351,9 @@ class Assignment(Op):
     source_location: SourceLocation | None
     targets: list[Register] = attrs.field(validator=[attrs.validators.min_len(1)])
     source: ValueProvider = attrs.field()
+
+    def _frozen_data(self) -> object:
+        return tuple(self.targets), self.source.freeze()
 
     @source.validator
     def _check_types(self, _attribute: object, source: ValueProvider) -> None:
@@ -414,6 +449,9 @@ class ConditionalBranch(ControlOp):
     non_zero: BasicBlock
     zero: BasicBlock
 
+    def _frozen_data(self) -> object:
+        return self.condition.freeze(), self.non_zero.id, self.zero.id
+
     @condition.validator
     def check(self, _attribute: object, result: Value) -> None:
         if result.atype != AVMType.uint64:
@@ -441,6 +479,9 @@ class Goto(ControlOp):
 
     target: BasicBlock
 
+    def _frozen_data(self) -> object:
+        return self.target.id
+
     def targets(self) -> Sequence[BasicBlock]:
         return (self.target,)
 
@@ -462,6 +503,9 @@ class GotoNth(ControlOp):
     value: Value
     blocks: list[BasicBlock] = attrs.field()
     default: ControlOp
+
+    def _frozen_data(self) -> object:
+        return self.value, tuple(b.id for b in self.blocks), self.default.freeze()
 
     def targets(self) -> Sequence[BasicBlock]:
         return [*self.blocks, *self.default.targets()]
@@ -495,6 +539,13 @@ class Switch(ControlOp):
                 "Switch cases types mismatch with value to match", self.source_location
             )
 
+    def _frozen_data(self) -> object:
+        return (
+            self.value,
+            tuple((v, b.id) for v, b in self.cases.items()),
+            self.default.freeze(),
+        )
+
     def targets(self) -> Sequence[BasicBlock]:
         return [*self.cases.values(), *self.default.targets()]
 
@@ -514,6 +565,9 @@ class SubroutineReturn(ControlOp):
     """
 
     result: list[Value]
+
+    def _frozen_data(self) -> object:
+        return tuple(self.result)
 
     def targets(self) -> Sequence[BasicBlock]:
         return ()
@@ -539,6 +593,9 @@ class ProgramExit(ControlOp):
     def check(self, _attribute: object, result: Value) -> None:
         if result.atype != AVMType.uint64:
             raise CodeError("Can only exit with uint64 typed value", self.source_location)
+
+    def _frozen_data(self) -> object:
+        return self.result
 
     def targets(self) -> Sequence[BasicBlock]:
         return ()
@@ -573,6 +630,9 @@ class Fail(ControlOp):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_fail(self)
+
+    def _frozen_data(self) -> object:
+        return self.comment
 
 
 @attrs.define(eq=False)
