@@ -75,25 +75,25 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
         ),
     ),
     **{
-        t.group_transaction.type_name: functools.partial(
+        txn_cls.group_transaction: functools.partial(
             transaction.GroupTransactionClassExpressionBuilder,
-            wtype=wtypes.WGroupTransaction.from_type(t.transaction_type),
+            wtype=wtypes.WGroupTransaction.from_type(txn_type),
         )
-        for t in constants.TRANSACTION_TYPE_TO_CLS.values()
+        for txn_type, txn_cls in constants.TRANSACTION_TYPE_TO_CLS.items()
     },
     **{
-        t.inner_transaction_params.type_name: functools.partial(
+        txn_cls.inner_transaction_params: functools.partial(
             transaction.InnerTxnParamsClassExpressionBuilder,
-            wtype=wtypes.WInnerTransactionParams.from_type(t.transaction_type),
+            wtype=wtypes.WInnerTransactionParams.from_type(txn_type),
         )
-        for t in constants.TRANSACTION_TYPE_TO_CLS.values()
+        for txn_type, txn_cls in constants.TRANSACTION_TYPE_TO_CLS.items()
     },
     **{
-        t.inner_transaction.type_name: functools.partial(
+        txn_cls.inner_transaction: functools.partial(
             transaction.InnerTransactionClassExpressionBuilder,
-            wtype=wtypes.WInnerTransaction.from_type(t.transaction_type),
+            wtype=wtypes.WInnerTransaction.from_type(txn_type),
         )
-        for t in constants.TRANSACTION_TYPE_TO_CLS.values()
+        for txn_type, txn_cls in constants.TRANSACTION_TYPE_TO_CLS.items()
     },
     **{
         enum_name: functools.partial(

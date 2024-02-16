@@ -125,7 +125,7 @@ class WGroupTransaction(WType):
             name = f"{name}_{transaction_type.name}"
         return cls(
             transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].group_transaction.alias,
+            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].group_transaction,
             name=name,
         )
 
@@ -145,9 +145,7 @@ class WInnerTransactionParams(WType):
             name = f"{name}_{transaction_type.name}"
         return cls(
             transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[
-                transaction_type
-            ].inner_transaction_params.alias,
+            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].inner_transaction_params,
             name=name,
         )
 
@@ -163,7 +161,7 @@ class WInnerTransaction(WType):
             name = f"{name}_{transaction_type.name}"
         return cls(
             transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].inner_transaction.alias,
+            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].inner_transaction,
             name=name,
         )
 

@@ -1,7 +1,4 @@
 import enum
-import typing
-
-import attrs
 
 from puya.models import OnCompletionAction
 
@@ -91,65 +88,21 @@ class TransactionType(enum.IntEnum):
     appl = 6
 
 
-@attrs.frozen(kw_only=True)
-class PuyaTypeName:
-    class_name: str
-    qualified_module: str
-    alias_module: str | None = None
-
-    @property
-    def alias(self) -> str:
-        return f"{self.alias_module or self.qualified_module}.{self.class_name}"
-
-    @property
-    def type_name(self) -> str:
-        return f"{self.qualified_module}.{self.class_name}"
-
-
-@attrs.frozen(kw_only=True)
 class _TransactionTypeNames:
-    transaction_type: TransactionType | None
-    group_transaction: PuyaTypeName
-    inner_transaction: PuyaTypeName
-    inner_transaction_params: PuyaTypeName
-
-    @classmethod
-    def from_name(cls, transaction_type: TransactionType | None, name: str) -> typing.Self:
-        return cls(
-            transaction_type=transaction_type,
-            group_transaction=PuyaTypeName(
-                qualified_module=f"{PUYAPY_PREFIX}gtxn",
-                class_name=f"{name}Transaction",
-            ),
-            inner_transaction=PuyaTypeName(
-                qualified_module=f"{PUYAPY_PREFIX}itxn",
-                class_name=f"{name}InnerTransaction",
-            ),
-            inner_transaction_params=PuyaTypeName(
-                qualified_module=f"{PUYAPY_PREFIX}itxn",
-                class_name=f"{name}TransactionParams",
-            ),
-        )
+    def __init__(self, name: str):
+        self.group_transaction = f"{PUYAPY_PREFIX}gtxn.{name}Transaction"
+        self.inner_transaction = f"{PUYAPY_PREFIX}itxn.{name}InnerTransaction"
+        self.inner_transaction_params = f"{PUYAPY_PREFIX}itxn.{name}TransactionParams"
 
 
-CLS_PAYMENT = _TransactionTypeNames.from_name(TransactionType.pay, "Payment")
-CLS_KEY_REGISTRATION = _TransactionTypeNames.from_name(TransactionType.keyreg, "KeyRegistration")
-CLS_ASSET_CONFIG = _TransactionTypeNames.from_name(TransactionType.acfg, "AssetConfig")
-CLS_ASSET_TRANSFER = _TransactionTypeNames.from_name(TransactionType.axfer, "AssetTransfer")
-CLS_ASSET_FREEZE = _TransactionTypeNames.from_name(TransactionType.afrz, "AssetFreeze")
-CLS_APPLICATION_CALL = _TransactionTypeNames.from_name(TransactionType.appl, "ApplicationCall")
-CLS_ANY_TRANSACTION = _TransactionTypeNames.from_name(None, "Any")
 TRANSACTION_TYPE_TO_CLS = {
-    t.transaction_type: t
-    for t in [
-        CLS_PAYMENT,
-        CLS_KEY_REGISTRATION,
-        CLS_ASSET_CONFIG,
-        CLS_ASSET_TRANSFER,
-        CLS_ASSET_FREEZE,
-        CLS_APPLICATION_CALL,
-        CLS_ANY_TRANSACTION,
-    ]
+    TransactionType.pay: _TransactionTypeNames("Payment"),
+    TransactionType.keyreg: _TransactionTypeNames("KeyRegistration"),
+    TransactionType.acfg: _TransactionTypeNames("AssetConfig"),
+    TransactionType.axfer: _TransactionTypeNames("AssetTransfer"),
+    TransactionType.afrz: _TransactionTypeNames("AssetFreeze"),
+    TransactionType.appl: _TransactionTypeNames("ApplicationCall"),
+    None: _TransactionTypeNames("Any"),
 }
 
 ENUM_CLS_ON_COMPLETE_ACTION = f"{PUYAPY_PREFIX}_constants.OnCompleteAction"
