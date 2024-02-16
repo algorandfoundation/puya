@@ -398,7 +398,7 @@ class ToCodeVisitor(
     def visit_inner_transaction_field(self, itxn_field: nodes.InnerTransactionField) -> str:
         txn = itxn_field.itxn.accept(self)
         result = f"{txn}.{itxn_field.field.immediate}"
-        if isinstance(itxn_field.array_index, nodes.Expression):
+        if itxn_field.array_index is not None:
             index = itxn_field.array_index.accept(self)
             result = f"{result}[{index}]"
         return result

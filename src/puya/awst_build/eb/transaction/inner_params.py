@@ -33,18 +33,16 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-MemberTypeMap = dict[str, TxnField]
-
-
-def _to_map(*fields: TxnField) -> MemberTypeMap:
-    return {f.python_name: f for f in fields}
+_parameter_mapping: typing.Final = {
+    f.python_name: f for f in TxnFields.inner_transaction_param_fields()
+}
 
 
 def get_field_exprs(
-    parameter_mapping: MemberTypeMap, arg_name: str, arg: ExpressionBuilder | Literal
+    arg_name: str, arg: ExpressionBuilder | Literal
 ) -> tuple[TxnField, Expression]:
     try:
-        field = parameter_mapping[arg_name]
+        field = _parameter_mapping[arg_name]
     except KeyError as ex:
         raise CodeError(f"{arg_name} is not a valid keyword argument", arg.source_location) from ex
     if field in (TxnFields.approval_program, TxnFields.clear_state_program):
@@ -79,10 +77,6 @@ def get_field_exprs(
 
 
 class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
-    parameter_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
-        *TxnFields.inner_transaction_param_fields()
-    )
-
     def __init__(self, source_location: SourceLocation, wtype: wtypes.WInnerTransactionParams):
         super().__init__(source_location)
         self.wtype = wtype
@@ -111,7 +105,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
                 raise CodeError(
                     f"Positional arguments are not supported for {self.produces()}", location
                 )
-            field, expression = get_field_exprs(self.parameter_mapping, arg_name, arg)
+            field, expression = get_field_exprs(arg_name, arg)
             transaction_fields[field] = expression
         return var_expression(
             CreateInnerTransaction(
@@ -173,10 +167,6 @@ class CopyInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
-    parameter_mapping: typing.ClassVar[MemberTypeMap] = _to_map(
-        *TxnFields.inner_transaction_param_fields()
-    )
-
     def __init__(self, expr: Expression, source_location: SourceLocation):
         super().__init__(source_location)
         self.expr = expr
@@ -197,7 +187,7 @@ class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
         transaction_fields = dict[TxnField, Expression]()
         for arg_name, arg in zip(arg_names, args, strict=True):
             assert arg_name is not None
-            field, expression = get_field_exprs(self.parameter_mapping, arg_name, arg)
+            field, expression = get_field_exprs(arg_name, arg)
             transaction_fields[field] = expression
         return var_expression(
             UpdateInnerTransaction(

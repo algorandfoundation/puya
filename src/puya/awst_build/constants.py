@@ -6,23 +6,6 @@ import attrs
 from puya.models import OnCompletionAction
 
 PUYAPY_PREFIX = "puyapy."
-
-
-@attrs.frozen(kw_only=True)
-class PuyaTypeName:
-    class_name: str
-    qualified_module: str
-    alias_module: str | None = None
-
-    @property
-    def alias(self) -> str:
-        return f"{self.alias_module or self.qualified_module}.{self.class_name}"
-
-    @property
-    def type_name(self) -> str:
-        return f"{self.qualified_module}.{self.class_name}"
-
-
 ARC4_PREFIX = f"{PUYAPY_PREFIX}arc4."
 ARC4_CONTRACT_BASE = f"{ARC4_PREFIX}ARC4Contract"
 # special case for arc4 where puyapy alias is present in puyapy namespace
@@ -47,6 +30,55 @@ CLS_BIGUINT = f"{PUYAPY_PREFIX}_primitives.BigUInt"
 CLS_BIGUINT_ALIAS = f"{PUYAPY_PREFIX}BigUInt"
 CLS_TRANSACTION_BASE = f"{PUYAPY_PREFIX}gtxn.TransactionBase"
 CLS_TRANSACTION_BASE_ALIAS = CLS_TRANSACTION_BASE
+CLS_LOCAL_STATE = f"{PUYAPY_PREFIX}_state.LocalState"
+CLS_LOCAL_STATE_ALIAS = f"{PUYAPY_PREFIX}.LocalState"
+CLS_GLOBAL_STATE = f"{PUYAPY_PREFIX}_state.GlobalState"
+CLS_GLOBAL_STATE_ALIAS = f"{PUYAPY_PREFIX}.GlobalState"
+SUBROUTINE_HINT = f"{PUYAPY_PREFIX}_hints.subroutine"
+SUBROUTINE_HINT_ALIAS = f"{PUYAPY_PREFIX}subroutine"
+ABIMETHOD_DECORATOR = f"{PUYAPY_PREFIX}arc4.abimethod"
+ABIMETHOD_DECORATOR_ALIAS = ABIMETHOD_DECORATOR
+BAREMETHOD_DECORATOR = f"{PUYAPY_PREFIX}arc4.baremethod"
+BAREMETHOD_DECORATOR_ALIAS = BAREMETHOD_DECORATOR
+CLS_ARRAY = f"{PUYAPY_PREFIX}_array.Array"
+CLS_ARRAY_ALIAS = f"{PUYAPY_PREFIX}Array"
+APPROVAL_METHOD = "approval_program"
+CLEAR_STATE_METHOD = "clear_state_program"
+PUYAPY_OP_PREFIX = f"{PUYAPY_PREFIX}op."
+URANGE = f"{PUYAPY_PREFIX}_unsigned_builtins.urange"
+UENUMERATE = f"{PUYAPY_PREFIX}_unsigned_builtins.uenumerate"
+ENSURE_BUDGET = f"{PUYAPY_PREFIX}_util.ensure_budget"
+LOG = f"{PUYAPY_PREFIX}_util.log"
+OP_UP_FEE_SOURCE = f"{PUYAPY_PREFIX}_util.OpUpFeeSource"
+SUBMIT_TXNS = f"{PUYAPY_PREFIX}itxn.submit_txns"
+CLS_ARC4_STRING = "puyapy.arc4.String"
+CLS_ARC4_ADDRESS = "puyapy.arc4.Address"
+CLS_ARC4_BOOL = "puyapy.arc4.Bool"
+CLS_ARC4_BYTE = "puyapy.arc4.Byte"
+CLS_ARC4_UINTN = "puyapy.arc4.UIntN"
+CLS_ARC4_BIG_UINTN = "puyapy.arc4.BigUIntN"
+CLS_ARC4_UFIXEDNXM = "puyapy.arc4.UFixedNxM"
+CLS_ARC4_BIG_UFIXEDNXM = "puyapy.arc4.BigUFixedNxM"
+CLS_ARC4_DYNAMIC_ARRAY = "puyapy.arc4.DynamicArray"
+CLS_ARC4_STATIC_ARRAY = "puyapy.arc4.StaticArray"
+CLS_ARC4_TUPLE = "puyapy.arc4.Tuple"
+CLS_ARC4_STRUCT = "puyapy.arc4.Struct"
+
+CONTRACT_STUB_TYPES = [
+    CONTRACT_BASE,
+    ARC4_CONTRACT_BASE,
+]
+
+
+ALLOWED_FUNCTION_DECORATORS = [
+    SUBROUTINE_HINT,
+]
+
+KNOWN_METHOD_DECORATORS = [
+    SUBROUTINE_HINT,
+    ABIMETHOD_DECORATOR,
+    BAREMETHOD_DECORATOR,
+]
 
 
 # values and names are matched to AVM definitions
@@ -57,6 +89,21 @@ class TransactionType(enum.IntEnum):
     axfer = 4
     afrz = 5
     appl = 6
+
+
+@attrs.frozen(kw_only=True)
+class PuyaTypeName:
+    class_name: str
+    qualified_module: str
+    alias_module: str | None = None
+
+    @property
+    def alias(self) -> str:
+        return f"{self.alias_module or self.qualified_module}.{self.class_name}"
+
+    @property
+    def type_name(self) -> str:
+        return f"{self.qualified_module}.{self.class_name}"
 
 
 @attrs.frozen(kw_only=True)
@@ -104,57 +151,6 @@ TRANSACTION_TYPE_TO_CLS = {
         CLS_ANY_TRANSACTION,
     ]
 }
-
-CLS_LOCAL_STATE = f"{PUYAPY_PREFIX}_state.LocalState"
-CLS_LOCAL_STATE_ALIAS = f"{PUYAPY_PREFIX}.LocalState"
-CLS_GLOBAL_STATE = f"{PUYAPY_PREFIX}_state.GlobalState"
-CLS_GLOBAL_STATE_ALIAS = f"{PUYAPY_PREFIX}.GlobalState"
-SUBROUTINE_HINT = f"{PUYAPY_PREFIX}_hints.subroutine"
-SUBROUTINE_HINT_ALIAS = f"{PUYAPY_PREFIX}subroutine"
-ABIMETHOD_DECORATOR = f"{PUYAPY_PREFIX}arc4.abimethod"
-ABIMETHOD_DECORATOR_ALIAS = ABIMETHOD_DECORATOR
-BAREMETHOD_DECORATOR = f"{PUYAPY_PREFIX}arc4.baremethod"
-BAREMETHOD_DECORATOR_ALIAS = BAREMETHOD_DECORATOR
-CLS_ARRAY = f"{PUYAPY_PREFIX}_array.Array"
-CLS_ARRAY_ALIAS = f"{PUYAPY_PREFIX}Array"
-APPROVAL_METHOD = "approval_program"
-CLEAR_STATE_METHOD = "clear_state_program"
-PUYAPY_OP_PREFIX = f"{PUYAPY_PREFIX}op."
-URANGE = f"{PUYAPY_PREFIX}_unsigned_builtins.urange"
-UENUMERATE = f"{PUYAPY_PREFIX}_unsigned_builtins.uenumerate"
-ENSURE_BUDGET = f"{PUYAPY_PREFIX}_util.ensure_budget"
-LOG = f"{PUYAPY_PREFIX}_util.log"
-OP_UP_FEE_SOURCE = f"{PUYAPY_PREFIX}_util.OpUpFeeSource"
-SUBMIT_TXNS = f"{PUYAPY_PREFIX}itxn.submit_txns"
-
-CLS_ARC4_STRING = "puyapy.arc4.String"
-CLS_ARC4_ADDRESS = "puyapy.arc4.Address"
-CLS_ARC4_BOOL = "puyapy.arc4.Bool"
-CLS_ARC4_BYTE = "puyapy.arc4.Byte"
-CLS_ARC4_UINTN = "puyapy.arc4.UIntN"
-CLS_ARC4_BIG_UINTN = "puyapy.arc4.BigUIntN"
-CLS_ARC4_UFIXEDNXM = "puyapy.arc4.UFixedNxM"
-CLS_ARC4_BIG_UFIXEDNXM = "puyapy.arc4.BigUFixedNxM"
-CLS_ARC4_DYNAMIC_ARRAY = "puyapy.arc4.DynamicArray"
-CLS_ARC4_STATIC_ARRAY = "puyapy.arc4.StaticArray"
-CLS_ARC4_TUPLE = "puyapy.arc4.Tuple"
-CLS_ARC4_STRUCT = "puyapy.arc4.Struct"
-
-CONTRACT_STUB_TYPES = [
-    CONTRACT_BASE,
-    ARC4_CONTRACT_BASE,
-]
-
-
-ALLOWED_FUNCTION_DECORATORS = [
-    SUBROUTINE_HINT,
-]
-
-KNOWN_METHOD_DECORATORS = [
-    SUBROUTINE_HINT,
-    ABIMETHOD_DECORATOR,
-    BAREMETHOD_DECORATOR,
-]
 
 ENUM_CLS_ON_COMPLETE_ACTION = f"{PUYAPY_PREFIX}_constants.OnCompleteAction"
 ENUM_CLS_TRANSACTION_TYPE = f"{PUYAPY_PREFIX}_constants.TransactionType"

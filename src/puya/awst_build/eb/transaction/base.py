@@ -4,7 +4,7 @@ import abc
 import typing
 
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, Literal, TxnField
+from puya.awst.nodes import Expression, Literal, TxnField, TxnFields
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     ValueExpressionBuilder,
@@ -16,11 +16,8 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-MemberTypeMap = dict[str, TxnField]
-
-
 class BaseTransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
-    transaction_fields_mapping: typing.ClassVar[MemberTypeMap]
+    transaction_fields_mapping: typing.Final = {f.python_name: f for f in TxnFields.all_fields()}
 
     @abc.abstractmethod
     def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
@@ -42,10 +39,6 @@ class BaseTransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
                 expr = self.get_field_value(field, location)
                 return var_expression(expr)
         return super().member_access(name, location)
-
-
-def create_map_from_fields(*fields: TxnField) -> MemberTypeMap:
-    return {f.python_name: f for f in fields}
 
 
 _WType = typing.TypeVar("_WType", bound=wtypes.WType)

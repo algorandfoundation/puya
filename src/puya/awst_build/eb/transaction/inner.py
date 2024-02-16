@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     Literal,
     SubmitInnerTransaction,
     TxnField,
-    TxnFields,
 )
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
@@ -19,8 +18,6 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.transaction.base import (
     BaseTransactionExpressionBuilder,
-    MemberTypeMap,
-    create_map_from_fields,
     expect_wtype,
 )
 from puya.awst_build.eb.var_factory import var_expression
@@ -69,10 +66,6 @@ class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
-    transaction_fields_mapping: typing.ClassVar[MemberTypeMap] = create_map_from_fields(
-        *TxnFields.all_fields()
-    )
-
     def __init__(self, expr: Expression):
         self.wtype = expect_wtype(expr, wtypes.WInnerTransaction)
         super().__init__(expr)
