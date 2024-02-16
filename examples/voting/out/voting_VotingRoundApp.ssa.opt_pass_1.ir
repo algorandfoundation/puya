@@ -9,7 +9,7 @@ contract examples.voting.voting.VotingRoundApp:
                 goto block@2
             block@2: // entrypoint_L46
                 let tmp%1#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%1#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => block@9}
+                switch tmp%1#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => fail // reject transaction}
             block@3: // create_route_L52
                 let tmp%2#0: uint64 = (txn OnCompletion)
                 let tmp%3#0: uint64 = (! tmp%2#0)
@@ -79,8 +79,6 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%46#0: bytes = (txna ApplicationArgs 2)
                 examples.voting.voting.VotingRoundApp.vote(awst_tmp%24#1, tmp%45#0, tmp%46#0)
                 return 1u
-            block@9: // switch_case_next_L45
-                fail // reject transaction
         
         subroutine examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot_public_key: bytes, metadata_ipfs_cid: bytes, start_time: uint64, end_time: uint64, option_counts: bytes, quorum: uint64, nft_image_url: bytes) -> void:
             block@0: // L52

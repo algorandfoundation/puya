@@ -581,10 +581,12 @@ debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: adding block@2: // entrypoint_L46 as a predecessor of block@9: // switch_case_next_L45 due to inlining of block@8: // switch_case_default_L45
 debug: simplified terminator of block@2: // entrypoint_L46 from switch tmp%1#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => block@8} to switch tmp%1#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => block@9}
+debug: simplified terminator of block@2: // entrypoint_L46 from switch tmp%1#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => block@9} to switch tmp%1#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => fail // reject transaction}
 debug: Optimizer: Remove Linear Jump
+debug: Merged linear block@9: // switch_case_next_L45 into block@8: // switch_case_default_L45
 debug: Optimizer: Remove Empty Blocks
-debug: Removed empty block: block@8: // switch_case_default_L45
 debug: Optimizer: Remove Unreachable Blocks
+debug: Removing unreachable blocks: block@8: // switch_case_default_L45
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.create
 debug: Splitting parallel copies prior to optimization
@@ -616,12 +618,10 @@ debug: Merged linear block@3: // for_footer_L218 into block@2: // for_body_L218
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%1#0: uint64 = (extract_uint16 option_counts#0 0u) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%0', version=0, source_location=voting/voting.py:214:15-35)]
-debug: Found equivalence set: tmp%0#0, tmp%1#0
-debug: Replacing {tmp%1#0} with tmp%0#0 made 1 modifications
-debug: Replacing redundant declaration let array_length%3#0: uint64 = (extract_uint16 option_counts#0 0u) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%0', version=0, source_location=voting/voting.py:214:15-35)]
-debug: Found equivalence set: tmp%0#0, array_length%3#0
-debug: Replacing {array_length%3#0} with tmp%0#0 made 1 modifications
+debug: Replacing redundant declaration let tmp%1#0: uint64 = (extract_uint16 option_counts#0 0u) with copy of existing registers [Register(atype=uint64, name='tmp%0', version=0, source_location=voting/voting.py:214:15-35)]
+debug: Replacing redundant declaration let array_length%3#0: uint64 = (extract_uint16 option_counts#0 0u) with copy of existing registers [Register(atype=uint64, name='tmp%0', version=0, source_location=voting/voting.py:214:15-35)]
+debug: Found equivalence set: tmp%0#0, tmp%1#0, array_length%3#0
+debug: Replacing {tmp%1#0, array_length%3#0} with tmp%0#0 made 2 modifications
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.bootstrap
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
@@ -789,6 +789,8 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: simplified terminator of block@2: // while_body_L19 from switch fee_source#0 {0u => block@3, 1u => block@4, * => block@5} to goto_nth [block@3, block@4][fee_source#0] else goto block@5
+debug: adding block@2: // while_body_L19 as a predecessor of block@6: // switch_case_next_L25 due to inlining of block@5: // switch_case_default_L25
+debug: simplified terminator of block@2: // while_body_L19 from goto_nth [block@3, block@4][fee_source#0] else goto block@5 to goto_nth [block@3, block@4][fee_source#0] else goto block@6
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Removed empty block: block@5: // switch_case_default_L25
@@ -840,7 +842,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Not removing empty block block@2: // ternary_false_L158 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let base_length%5#0: uint64 = (len signature#0) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='awst_tmp%2', version=0, source_location=voting/voting.py:158:64-83)]
+debug: Replacing redundant declaration let base_length%5#0: uint64 = (len signature#0) with copy of existing registers [Register(atype=uint64, name='awst_tmp%2', version=0, source_location=voting/voting.py:158:64-83)]
 debug: Found equivalence set: awst_tmp%2#0, base_length%5#0
 debug: Replacing {base_length%5#0} with awst_tmp%2#0 made 1 modifications
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.voting_open
@@ -906,12 +908,10 @@ debug: Merged linear block@4: // for_increment_L189 into block@2: // for_body_L1
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%8#0: uint64 = (extract_uint16 answer_ids#0 0u) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%6', version=0, source_location=voting/voting.py:176:15-32)]
-debug: Found equivalence set: tmp%6#0, tmp%8#0
-debug: Replacing {tmp%8#0} with tmp%6#0 made 1 modifications
-debug: Replacing redundant declaration let array_length%20#0: uint64 = (extract_uint16 answer_ids#0 0u) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%6', version=0, source_location=voting/voting.py:176:15-32)]
-debug: Found equivalence set: tmp%6#0, array_length%20#0
-debug: Replacing {array_length%20#0} with tmp%6#0 made 1 modifications
+debug: Replacing redundant declaration let tmp%8#0: uint64 = (extract_uint16 answer_ids#0 0u) with copy of existing registers [Register(atype=uint64, name='tmp%6', version=0, source_location=voting/voting.py:176:15-32)]
+debug: Replacing redundant declaration let array_length%20#0: uint64 = (extract_uint16 answer_ids#0 0u) with copy of existing registers [Register(atype=uint64, name='tmp%6', version=0, source_location=voting/voting.py:176:15-32)]
+debug: Found equivalence set: tmp%6#0, tmp%8#0, array_length%20#0
+debug: Replacing {tmp%8#0, array_length%20#0} with tmp%6#0 made 2 modifications
 debug: Optimizing subroutine examples.voting.voting.increment_vote_in_box
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
@@ -961,11 +961,9 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
-debug: simplified terminator of block@2: // entrypoint_L46 from switch tmp%1#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => block@9} to switch tmp%1#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => fail // reject transaction}
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@9: // switch_case_next_L45
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.create
 debug: Optimizer: Arithmetic Simplification

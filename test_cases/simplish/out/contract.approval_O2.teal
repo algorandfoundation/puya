@@ -14,6 +14,8 @@ main_entrypoint@2:
     // if Transaction.application_id == 0:
     txn ApplicationID
     bnz main_after_if_else@4
+
+main_if_body@3:
     // simplish/contract.py:32
     // return True
     int 1
@@ -96,17 +98,12 @@ main_after_if_else@8:
     txn NumAppArgs
     int 0
     >
-    bz main_after_if_else@11
+    bz main_if_body@3
     // simplish/contract.py:45
     // self.set_sender_nickname(Transaction.application_args(0))
     txna ApplicationArgs 0
     callsub set_sender_nickname
-
-main_after_if_else@11:
-    // simplish/contract.py:46
-    // return True
-    int 1
-    return
+    b main_if_body@3
 
 main_after_if_else@12:
     // simplish/contract.py:47

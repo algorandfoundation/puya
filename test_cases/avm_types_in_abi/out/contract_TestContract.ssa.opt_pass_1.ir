@@ -3,7 +3,7 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
         subroutine test_cases.avm_types_in_abi.contract.TestContract.approval_program() -> uint64:
             block@0: // L4
                 let tmp%0#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%0#0 {method "create(bool,uint64,byte[],(bool,uint64,byte[]))(bool,uint64,byte[])" => block@1, * => block@3}
+                switch tmp%0#0 {method "create(bool,uint64,byte[],(bool,uint64,byte[]))(bool,uint64,byte[])" => block@1, * => fail // reject transaction}
             block@1: // create_route_L5
                 let tmp%1#0: uint64 = (txn OnCompletion)
                 let tmp%2#0: uint64 = (! tmp%1#0)
@@ -45,8 +45,6 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
                 let tmp%36#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%32#4)
                 (log tmp%36#0)
                 return 1u
-            block@3: // switch_case_next_L4
-                fail // reject transaction
         
         subroutine test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes) -> <uint64, uint64, bytes>:
             block@0: // L5

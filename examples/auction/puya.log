@@ -376,11 +376,20 @@ debug: Optimizer: Simplify Control Ops
 debug: adding block@3: // abi_routing_L14 as a predecessor of block@11: // switch_case_next_L14 due to inlining of block@10: // switch_case_default_L14
 debug: simplified terminator of block@3: // abi_routing_L14 from switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@10} to switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@11}
 debug: simplified terminator of block@12: // bare_routing_L14 from switch tmp%40#0 {0u => block@13, * => block@14} to goto_nth [block@13][tmp%40#0] else goto block@14
+debug: adding block@3: // abi_routing_L14 as a predecessor of block@15: // after_if_else_L14 due to inlining of block@11: // switch_case_next_L14
+debug: simplified terminator of block@3: // abi_routing_L14 from switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@11} to switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@15}
+debug: simplified terminator of block@12: // bare_routing_L14 from goto_nth [block@13][tmp%40#0] else goto block@14 to goto tmp%40#0 ? block@14 : block@13
+debug: simplified terminator of block@3: // abi_routing_L14 from switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@15} to switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => fail // reject transaction}
+debug: inlining condition branch to err block into an assert false
+debug: simplified terminator of block@12: // bare_routing_L14 from goto tmp%40#0 ? block@14 : block@13 to goto block@13
 debug: Optimizer: Remove Linear Jump
-debug: Merged linear block@15: // after_if_else_L14 into block@11: // switch_case_next_L14
+debug: Replaced predecessor block@11: // switch_case_next_L14 with block@10: // switch_case_default_L14 in block@15: // after_if_else_L14
+debug: Merged linear block@11: // switch_case_next_L14 into block@10: // switch_case_default_L14
+debug: Merged linear block@13: // create_L14 into block@12: // bare_routing_L14
+debug: Merged linear block@15: // after_if_else_L14 into block@10: // switch_case_default_L14
 debug: Optimizer: Remove Empty Blocks
-debug: Removed empty block: block@10: // switch_case_default_L14
 debug: Optimizer: Remove Unreachable Blocks
+debug: Removing unreachable blocks: block@10: // switch_case_default_L14, block@14: // reject_bare_on_completion_L14
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.auction.contract.Auction.opt_into_asset
 debug: Splitting parallel copies prior to optimization
@@ -548,15 +557,13 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let new_state_value%11#0: uint64 = ((gtxns Amount) pay#0) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%7', version=0, source_location=auction/contract.py:75:15-25)]
-debug: Found equivalence set: tmp%7#0, new_state_value%11#0
-debug: Replacing {new_state_value%11#0} with tmp%7#0 made 1 modifications
-debug: Replacing redundant declaration let new_state_value%12#0: bytes = ((gtxns Sender) pay#0) with copy of existing registers [Register(atype=<AVMType.bytes: 1>, name='tmp%4', version=0, source_location=auction/contract.py:73-74:15-25)]
+debug: Replacing redundant declaration let new_state_value%11#0: uint64 = ((gtxns Amount) pay#0) with copy of existing registers [Register(atype=uint64, name='tmp%7', version=0, source_location=auction/contract.py:75:15-25)]
+debug: Replacing redundant declaration let new_state_value%12#0: bytes = ((gtxns Sender) pay#0) with copy of existing registers [Register(atype=bytes, name='tmp%4', version=0, source_location=auction/contract.py:73-74:15-25)]
+debug: Replacing redundant declaration let new_state_value%13#0: uint64 = ((gtxns Amount) pay#0) with copy of existing registers [Register(atype=uint64, name='tmp%7', version=0, source_location=auction/contract.py:75:15-25)]
+debug: Found equivalence set: tmp%7#0, new_state_value%11#0, new_state_value%13#0
+debug: Replacing {new_state_value%11#0, new_state_value%13#0} with tmp%7#0 made 2 modifications
 debug: Found equivalence set: tmp%4#0, new_state_value%12#0
 debug: Replacing {new_state_value%12#0} with tmp%4#0 made 1 modifications
-debug: Replacing redundant declaration let new_state_value%13#0: uint64 = ((gtxns Amount) pay#0) with copy of existing registers [Register(atype=<AVMType.uint64: 2>, name='tmp%7', version=0, source_location=auction/contract.py:75:15-25)]
-debug: Found equivalence set: tmp%7#0, new_state_value%13#0
-debug: Replacing {new_state_value%13#0} with tmp%7#0 made 1 modifications
 debug: Optimizing subroutine examples.auction.contract.Auction.claim_bids
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
@@ -858,215 +865,6 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
-debug: simplified terminator of block@3: // abi_routing_L14 from switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@11} to switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => fail // reject transaction}
-debug: simplified terminator of block@12: // bare_routing_L14 from goto_nth [block@13][tmp%40#0] else goto block@14 to goto tmp%40#0 ? block@14 : block@13
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@11: // switch_case_next_L14
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.opt_into_asset
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.start_auction
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.opt_in
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.bid
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.claim_bids
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.claim_asset
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.__init__
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.clear_state_program
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to auction/out/contract_Auction.ssa.opt_pass_2.ir
-debug: Begin optimization pass 3/100
-debug: Optimizing subroutine examples.auction.contract.Auction.approval_program
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: inlining condition branch to err block into an assert false
-debug: simplified terminator of block@12: // bare_routing_L14 from goto tmp%40#0 ? block@14 : block@13 to goto block@13
-debug: Optimizer: Remove Linear Jump
-debug: Merged linear block@13: // create_L14 into block@12: // bare_routing_L14
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@14: // reject_bare_on_completion_L14
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.opt_into_asset
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.start_auction
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.opt_in
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.bid
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.claim_bids
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.claim_asset
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.__init__
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizing subroutine examples.auction.contract.Auction.clear_state_program
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Output IR to auction/out/contract_Auction.ssa.opt_pass_3.ir
-debug: Begin optimization pass 4/100
-debug: Optimizing subroutine examples.auction.contract.Auction.approval_program
-debug: Optimizer: Arithmetic Simplification
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
@@ -1159,7 +957,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: No optimizations performed in pass 4, ending loop
+debug: No optimizations performed in pass 2, ending loop
 debug: Removing Phis from examples.auction.contract.Auction.approval_program
 debug: Removing Phis from examples.auction.contract.Auction.opt_into_asset
 debug: Removing Phis from examples.auction.contract.Auction.start_auction

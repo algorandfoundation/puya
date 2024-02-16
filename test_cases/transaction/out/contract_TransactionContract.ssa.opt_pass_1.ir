@@ -3,7 +3,7 @@ contract test_cases.transaction.contract.TransactionContract:
         subroutine test_cases.transaction.contract.TransactionContract.approval_program() -> uint64:
             block@0: // L11
                 let tmp%0#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%0#0 {method "create()void" => block@1, method "pay(pay)void" => block@2, method "key(keyreg)void" => block@3, method "asset_config(acfg)void" => block@4, method "asset_transfer(axfer)void" => block@5, method "asset_freeze(afrz)void" => block@6, method "application_call(appl)void" => block@7, method "multiple_txns(appl,appl,appl)void" => block@8, method "any_txn(appl,appl,appl)void" => block@9, * => block@11}
+                switch tmp%0#0 {method "create()void" => block@1, method "pay(pay)void" => block@2, method "key(keyreg)void" => block@3, method "asset_config(acfg)void" => block@4, method "asset_transfer(axfer)void" => block@5, method "asset_freeze(afrz)void" => block@6, method "application_call(appl)void" => block@7, method "multiple_txns(appl,appl,appl)void" => block@8, method "any_txn(appl,appl,appl)void" => block@9, * => fail // reject transaction}
             block@1: // create_route_L12
                 let tmp%1#0: uint64 = (txn OnCompletion)
                 let tmp%2#0: uint64 = (! tmp%1#0)
@@ -137,8 +137,6 @@ contract test_cases.transaction.contract.TransactionContract:
                 (assert tmp%91#0) // transaction type is appl
                 test_cases.transaction.contract.TransactionContract.any_txn(awst_tmp%60#1, awst_tmp%66#1, awst_tmp%11#7)
                 return 1u
-            block@11: // switch_case_next_L11
-                fail // reject transaction
         
         subroutine test_cases.transaction.contract.TransactionContract.create() -> void:
             block@0: // L12

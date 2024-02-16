@@ -12,7 +12,7 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 goto tmp%1#0 ? block@3 : block@8
             block@3: // abi_routing_L6
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {method "bootstrap()uint64" => block@4, method "log_greetings(string)void" => block@5, * => block@7}
+                switch tmp%2#0 {method "bootstrap()uint64" => block@4, method "log_greetings(string)void" => block@5, * => fail // reject transaction}
             block@4: // bootstrap_route_L10
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: uint64 = (! tmp%3#0)
@@ -33,18 +33,14 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 let tmp%12#0: bytes = (txna ApplicationArgs 1)
                 test_cases.inner_transactions.c2c.Greeter.log_greetings(tmp%12#0)
                 return 1u
-            block@7: // switch_case_next_L6
-                fail // reject transaction
             block@8: // bare_routing_L6
                 let tmp%13#0: uint64 = (txn OnCompletion)
-                goto_nth [block@9][tmp%13#0] else goto block@10
-            block@9: // create_L6
+                let not%tmp%13#0: uint64 = (! tmp%13#0)
+                (assert not%tmp%13#0) // reject transaction
                 let tmp%14#0: uint64 = (txn ApplicationID)
                 let tmp%15#0: uint64 = (! tmp%14#0)
                 (assert tmp%15#0) // is creating
                 return 1u
-            block@10: // reject_bare_on_completion_L6
-                fail // reject transaction
         
         subroutine test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
             block@0: // L10
