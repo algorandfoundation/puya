@@ -148,4 +148,4 @@ class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
                     source_location=location,
                 )
             )
-        raise CodeError("submit_inner_txn must be called with 2 or more parameters")
+        raise CodeError("submit_txns must be called with 2 or more parameters")

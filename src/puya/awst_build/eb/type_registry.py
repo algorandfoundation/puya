@@ -65,7 +65,7 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.CLS_BIGUINT: biguint.BigUIntClassExpressionBuilder,
     constants.CLS_BYTES: bytes_.BytesClassExpressionBuilder,
     constants.CLS_UINT64: uint64.UInt64ClassExpressionBuilder,
-    constants.SUBMIT_INNER_TXN: transaction.SubmitInnerTransactionExpressionBuilder,
+    constants.SUBMIT_TXNS: transaction.SubmitInnerTransactionExpressionBuilder,
     constants.CLS_TRANSACTION_BASE: functools.partial(
         transaction.GroupTransactionClassExpressionBuilder,
         wtype=wtypes.WGroupTransaction(

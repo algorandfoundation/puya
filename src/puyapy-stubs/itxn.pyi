@@ -422,18 +422,18 @@ _T15 = typing.TypeVar("_T15")
 _T16 = typing.TypeVar("_T16")
 
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1], _t2: _InnerTransactionParams[_T2], /
 ) -> tuple[_T1, _T2]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
     /,
 ) -> tuple[_T1, _T2, _T3]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -441,7 +441,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -450,7 +450,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -460,7 +460,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -471,7 +471,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -483,7 +483,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -496,7 +496,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -510,7 +510,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -525,7 +525,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -541,7 +541,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -558,7 +558,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12, _T13]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -576,7 +576,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12, _T13, _T14]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],
@@ -595,7 +595,7 @@ def submit_inner_txn(
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12, _T13, _T14, _T15]: ...
 @typing.overload
-def submit_inner_txn(
+def submit_txns(
     _t1: _InnerTransactionParams[_T1],
     _t2: _InnerTransactionParams[_T2],
     _t3: _InnerTransactionParams[_T3],

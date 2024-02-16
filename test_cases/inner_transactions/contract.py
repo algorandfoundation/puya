@@ -76,7 +76,7 @@ class MyContract(Contract):
             asset_name=Bytes(b"AST3"),
         )
 
-        app_create_txn, asset3_txn = itxn.submit_inner_txn(app_create_params, asset_params)
+        app_create_txn, asset3_txn = itxn.submit_txns(app_create_params, asset_params)
 
         assert app_create_txn.created_application, "created app"
         assert asset3_txn.asset_name == b"AST3", "asset3_txn is correct"
@@ -84,7 +84,7 @@ class MyContract(Contract):
         app_create_params.set(note=b"3rd")
         asset_params.set(note=b"3rd")
         # unassigned result
-        itxn.submit_inner_txn(app_create_params, asset_params)
+        itxn.submit_txns(app_create_params, asset_params)
 
     @subroutine
     def test2(self) -> None:
@@ -192,7 +192,7 @@ class MyContract(Contract):
             app14,
             app15,
             app16,
-        ) = itxn.submit_inner_txn(
+        ) = itxn.submit_txns(
             app_p_1,
             app_p_2,
             app_p_3,

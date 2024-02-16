@@ -125,7 +125,7 @@ UENUMERATE = f"{PUYAPY_PREFIX}_unsigned_builtins.uenumerate"
 ENSURE_BUDGET = f"{PUYAPY_PREFIX}_util.ensure_budget"
 LOG = f"{PUYAPY_PREFIX}_util.log"
 OP_UP_FEE_SOURCE = f"{PUYAPY_PREFIX}_util.OpUpFeeSource"
-SUBMIT_INNER_TXN = f"{PUYAPY_PREFIX}itxn.submit_inner_txn"
+SUBMIT_TXNS = f"{PUYAPY_PREFIX}itxn.submit_txns"
 
 CLS_ARC4_STRING = "puyapy.arc4.String"
 CLS_ARC4_ADDRESS = "puyapy.arc4.Address"
