@@ -125,27 +125,32 @@ def example() -> tuple[Asset, Bytes]:
     return asset1_txn.created_asset, app_txn.logs(1)
 ```
 
-#### Create an application, and then call it
+#### Create an ARC4 application, and then call it
 
 ```python
-from puyapy import Application, Bytes, itxn, subroutine
+from puyapy import Bytes, arc4, itxn, subroutine
+HELLO_WORLD_APPROVAL: bytes = ...
+HELLO_WORLD_CLEAR: bytes = ...
 
 @subroutine
-def example() -> Application:
-    approval, clear = get_program_bytes()
+def example() -> None:
+    # create an application
     application_txn = itxn.ApplicationCallTransactionParams(
-        approval_program=approval,
-        clear_state_program=clear,
+        approval_program=HELLO_WORLD_APPROVAL,
+        clear_state_program=HELLO_WORLD_CLEAR,
+        fee=0,
     ).submit()
-    itxn.ApplicationCallTransactionParams(
+    
+    # invoke an ABI method
+    call_txn = itxn.ApplicationCallTransactionParams(
         application_id=application_txn.created_application,
-        application_args=(Bytes(b"arg1"), Bytes(b"arg2"))
+        application_args=(arc4.arc4_signature("hello(string)string"), Bytes(b"World")),
+        fee=0,
     ).submit()
-    return application_txn.created_application
-
-@subroutine
-def get_program_bytes() -> tuple[Bytes, Bytes]:
-    ...
+    # extract result
+    hello_world_result = arc4.String.from_log(call_txn.last_log)
+    
+    assert hello_world_result.decode() == b"Hello World"
 ```
 
 #### Create and submit transactions in a loop
