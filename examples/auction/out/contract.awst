@@ -71,8 +71,7 @@ contract Auction
   abimethod claim_asset(asset: puyapy.Asset): None
   {
     assert(global<LatestTimestamp>() > this.globals['auction_end'], comment="auction has not ended")
-    previous_bidder: puyapy.Account = this.globals['previous_bidder']
-    submit_txn(create_inner_transaction(TypeEnum=axfer, Fee=0u, XferAsset=asset, AssetCloseTo=previous_bidder, AssetReceiver=previous_bidder, AssetAmount=this.globals['asa_amount']))
+    submit_txn(create_inner_transaction(TypeEnum=axfer, Fee=0u, XferAsset=asset, AssetCloseTo=this.globals['previous_bidder'], AssetReceiver=this.globals['previous_bidder'], AssetAmount=this.globals['asa_amount']))
   }
   
   subroutine delete_application(): None

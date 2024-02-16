@@ -198,14 +198,16 @@ contract examples.auction.contract.Auction:
                 (assert app_global_get_ex_did_exist%2#0) // check value exists
                 let tmp%3#0: uint64 = (> tmp%0#0 app_global_get_ex_value%1#0)
                 (assert tmp%3#0) // auction has not ended
-                let (previous_bidder#0: bytes, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "previous_bidder")
-                (assert app_global_get_ex_did_exist%5#0) // check value exists
                 itxn_begin
-                let (app_global_get_ex_value%8#0: uint64, app_global_get_ex_did_exist%9#0: uint64) = (app_global_get_ex 0u "asa_amount")
+                let (app_global_get_ex_value%6#0: uint64, app_global_get_ex_did_exist%7#0: uint64) = (app_global_get_ex 0u "asa_amount")
+                (assert app_global_get_ex_did_exist%7#0) // check value exists
+                let (app_global_get_ex_value%8#0: bytes, app_global_get_ex_did_exist%9#0: uint64) = (app_global_get_ex 0u "previous_bidder")
                 (assert app_global_get_ex_did_exist%9#0) // check value exists
-                ((itxn_field AssetAmount) app_global_get_ex_value%8#0)
-                ((itxn_field AssetCloseTo) previous_bidder#0)
-                ((itxn_field AssetReceiver) previous_bidder#0)
+                let (app_global_get_ex_value%10#0: bytes, app_global_get_ex_did_exist%11#0: uint64) = (app_global_get_ex 0u "previous_bidder")
+                (assert app_global_get_ex_did_exist%11#0) // check value exists
+                ((itxn_field AssetAmount) app_global_get_ex_value%6#0)
+                ((itxn_field AssetCloseTo) app_global_get_ex_value%8#0)
+                ((itxn_field AssetReceiver) app_global_get_ex_value%10#0)
                 ((itxn_field Fee) 0u)
                 ((itxn_field TypeEnum) axfer)
                 ((itxn_field XferAsset) asset#0)
@@ -224,5 +226,5 @@ contract examples.auction.contract.Auction:
     
     program clear-state:
         subroutine examples.auction.contract.Auction.clear_state_program() -> uint64:
-            block@0: // L121
+            block@0: // L120
                 return 1u

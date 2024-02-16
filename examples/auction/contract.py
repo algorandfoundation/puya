@@ -100,13 +100,12 @@ class Auction(ARC4Contract):
     @arc4.abimethod
     def claim_asset(self, asset: Asset) -> None:
         assert op.Global.latest_timestamp > self.auction_end, "auction has not ended"
-        previous_bidder = self.previous_bidder
         # Send ASA to previous bidder
         itxn.AssetTransferTransactionParams(
             fee=0,
             xfer_asset=asset,
-            asset_close_to=previous_bidder,
-            asset_receiver=previous_bidder,
+            asset_close_to=self.previous_bidder,
+            asset_receiver=self.previous_bidder,
             asset_amount=self.asa_amount,
         ).submit()
 

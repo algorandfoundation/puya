@@ -432,43 +432,49 @@ claim_asset:
     assert // check value exists
     >
     assert // auction has not ended
-    // auction/contract.py:103
-    // previous_bidder = self.previous_bidder
-    int 0
-    byte "previous_bidder"
-    app_global_get_ex
-    assert // check value exists
-    // auction/contract.py:104-111
+    // auction/contract.py:103-110
     // # Send ASA to previous bidder
     // itxn.AssetTransferTransactionParams(
     //     fee=0,
     //     xfer_asset=asset,
-    //     asset_close_to=previous_bidder,
-    //     asset_receiver=previous_bidder,
+    //     asset_close_to=self.previous_bidder,
+    //     asset_receiver=self.previous_bidder,
     //     asset_amount=self.asa_amount,
     // ).submit()
     itxn_begin
-    // auction/contract.py:110
+    // auction/contract.py:109
     // asset_amount=self.asa_amount,
     int 0
     byte "asa_amount"
     app_global_get_ex
     assert // check value exists
+    // auction/contract.py:107
+    // asset_close_to=self.previous_bidder,
+    int 0
+    byte "previous_bidder"
+    app_global_get_ex
+    assert // check value exists
+    // auction/contract.py:108
+    // asset_receiver=self.previous_bidder,
+    int 0
+    byte "previous_bidder"
+    app_global_get_ex
+    assert // check value exists
+    uncover 2
     itxn_field AssetAmount
-    dup
-    itxn_field AssetCloseTo
     itxn_field AssetReceiver
-    // auction/contract.py:106
+    itxn_field AssetCloseTo
+    // auction/contract.py:105
     // fee=0,
     int 0
     itxn_field Fee
-    // auction/contract.py:104-111
+    // auction/contract.py:103-110
     // # Send ASA to previous bidder
     // itxn.AssetTransferTransactionParams(
     //     fee=0,
     //     xfer_asset=asset,
-    //     asset_close_to=previous_bidder,
-    //     asset_receiver=previous_bidder,
+    //     asset_close_to=self.previous_bidder,
+    //     asset_receiver=self.previous_bidder,
     //     asset_amount=self.asa_amount,
     // ).submit()
     int axfer
