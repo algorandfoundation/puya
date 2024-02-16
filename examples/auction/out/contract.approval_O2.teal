@@ -189,6 +189,13 @@ opt_into_asset:
     // fee=0,
     int 0
     itxn_field Fee
+    // auction/contract.py:33-34
+    // # Submit opt-in transaction: 0 asset transfer to self
+    // itxn.AssetTransferTransactionParams(
+    int axfer
+    itxn_field TypeEnum
+    frame_dig -1
+    itxn_field XferAsset
     // auction/contract.py:33-38
     // # Submit opt-in transaction: 0 asset transfer to self
     // itxn.AssetTransferTransactionParams(
@@ -196,10 +203,6 @@ opt_into_asset:
     //     xfer_asset=asset,
     //     fee=0,
     // ).submit()
-    int axfer
-    itxn_field TypeEnum
-    frame_dig -1
-    itxn_field XferAsset
     itxn_submit
     retsub
 
@@ -396,14 +399,16 @@ claim_bids_after_if_else@2:
     int 0
     itxn_field Fee
     itxn_field Receiver
+    // auction/contract.py:92
+    // itxn.PaymentTransactionParams(
+    int pay
+    itxn_field TypeEnum
     // auction/contract.py:92-96
     // itxn.PaymentTransactionParams(
     //     fee=0,
     //     amount=amount,
     //     receiver=op.Transaction.sender,
     // ).submit()
-    int pay
-    itxn_field TypeEnum
     itxn_submit
     // auction/contract.py:98
     // self.claimable_amount[op.Transaction.sender] = original_amount - amount
@@ -468,6 +473,13 @@ claim_asset:
     // fee=0,
     int 0
     itxn_field Fee
+    // auction/contract.py:103-104
+    // # Send ASA to previous bidder
+    // itxn.AssetTransferTransactionParams(
+    int axfer
+    itxn_field TypeEnum
+    frame_dig -1
+    itxn_field XferAsset
     // auction/contract.py:103-110
     // # Send ASA to previous bidder
     // itxn.AssetTransferTransactionParams(
@@ -477,10 +489,6 @@ claim_asset:
     //     asset_receiver=self.previous_bidder,
     //     asset_amount=self.asa_amount,
     // ).submit()
-    int axfer
-    itxn_field TypeEnum
-    frame_dig -1
-    itxn_field XferAsset
     itxn_submit
     retsub
 

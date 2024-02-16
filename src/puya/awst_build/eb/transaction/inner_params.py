@@ -58,7 +58,7 @@ def get_field_exprs(
                 wtype=wtypes.WTuple(types=tuple_item_types) as wtype
             ) if all(field.valid_type(t) for t in tuple_item_types):
                 expr = expect_operand_wtype(arg, wtype)
-                return (field, expr)
+                return field, expr
             case _:
                 field_expr = expect_operand_wtype(arg, field.wtype)
     elif field.is_array:
@@ -67,7 +67,7 @@ def get_field_exprs(
                 wtype=wtypes.WTuple(types=tuple_item_types) as wtype
             ) if all(field.valid_type(t) for t in tuple_item_types):
                 expr = expect_operand_wtype(arg, wtype)
-                return (field, expr)
+                return field, expr
         raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
     elif (
         isinstance(arg, ExpressionBuilder) and arg.value_type and field.valid_type(arg.value_type)
@@ -75,7 +75,7 @@ def get_field_exprs(
         field_expr = arg.rvalue()
     else:
         field_expr = expect_operand_wtype(arg, field.wtype)
-    return (field, field_expr)
+    return field, field_expr
 
 
 class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
@@ -102,7 +102,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
         transaction_type = self.wtype.transaction_type
         if transaction_type:
             transaction_fields[TxnFields.type] = UInt64Constant(
-                source_location=location,
+                source_location=self.source_location,
                 value=transaction_type.value,
                 teal_alias=transaction_type.name,
             )
