@@ -74,6 +74,12 @@ class StableSet(MutableSet[T]):
     def __init__(self, *items: T) -> None:
         self._data = dict.fromkeys(items)
 
+    @classmethod
+    def from_iter(cls, items: Iterable[T]) -> "StableSet[T]":
+        result = StableSet.__new__(StableSet)
+        result._data = dict.fromkeys(items)  # noqa: SLF001
+        return result
+
     def __eq__(self, other: object) -> bool:
         if isinstance(other, StableSet):
             return self._data.__eq__(other._data)

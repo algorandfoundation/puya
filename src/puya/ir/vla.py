@@ -39,7 +39,7 @@ class _VlaTraverser(IRTraverser):
 
     def visit_assignment(self, ass: ops.Assignment) -> None:
         ass.source.accept(self)
-        self.defined = StableSet(*ass.targets)
+        self.defined = StableSet.from_iter(ass.targets)
 
     def visit_phi(self, _phi: ops.Phi) -> None:
         # WARNING: this is slightly trickier than it might seem for SSA,

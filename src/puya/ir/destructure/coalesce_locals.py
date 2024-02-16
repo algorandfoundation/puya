@@ -54,7 +54,7 @@ def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subrou
 
     variables_live_at_definition = dict[models.Register, StableSet[models.Register]]()
     for param in sub.parameters:
-        variables_live_at_definition[param] = StableSet(*sub.parameters)
+        variables_live_at_definition[param] = StableSet.from_iter(sub.parameters)
     for block in sub.body:
         for op in block.ops:
             match op:
@@ -90,7 +90,7 @@ def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subrou
                 combined_live_out |= live_set
                 break
         else:
-            coalescable_groups.append((StableSet(defined_reg), StableSet(*live_set)))
+            coalescable_groups.append((StableSet(defined_reg), StableSet.from_iter(live_set)))
 
     total_replacements = 0
     for group in coalescable_groups_by_key.values():
