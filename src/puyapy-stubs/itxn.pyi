@@ -1,6 +1,15 @@
 import typing
 
-from puyapy import Account, Application, Asset, Bytes, OnCompleteAction, TransactionType, UInt64
+from puyapy import (
+    Account,
+    Application,
+    Asset,
+    Bytes,
+    BytesBacked,
+    OnCompleteAction,
+    TransactionType,
+    UInt64,
+)
 from puyapy._transaction import (
     ApplicationCallTransactionFields,
     AssetConfigTransactionFields,
@@ -372,7 +381,7 @@ class ApplicationCallTransactionParams(_InnerTransactionParams[ApplicationCallIn
         local_num_uint: UInt64 | int = ...,
         local_num_byte_slice: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        application_args: tuple[Bytes, ...] = ...,
+        application_args: tuple[Bytes | BytesBacked, ...] = ...,
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
         applications: tuple[Application, ...] = ...,
@@ -393,7 +402,7 @@ class ApplicationCallTransactionParams(_InnerTransactionParams[ApplicationCallIn
         local_num_uint: UInt64 | int = ...,
         local_num_byte_slice: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        application_args: tuple[Bytes, ...] = ...,
+        application_args: tuple[Bytes | BytesBacked, ...] = ...,
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
         applications: tuple[Application, ...] = ...,

@@ -56,7 +56,7 @@ def get_field_exprs(
         match arg:
             case ValueExpressionBuilder(
                 wtype=wtypes.WTuple(types=tuple_item_types) as wtype
-            ) if all(t == field.wtype for t in tuple_item_types):
+            ) if all(field.valid_type(t) for t in tuple_item_types):
                 expr = expect_operand_wtype(arg, wtype)
                 return (field, expr)
             case _:
@@ -65,10 +65,14 @@ def get_field_exprs(
         match arg:
             case ValueExpressionBuilder(
                 wtype=wtypes.WTuple(types=tuple_item_types) as wtype
-            ) if all(t == field.wtype for t in tuple_item_types):
+            ) if all(field.valid_type(t) for t in tuple_item_types):
                 expr = expect_operand_wtype(arg, wtype)
                 return (field, expr)
-        raise CodeError(f"{arg_name} should be of type tuple[{field.wtype.stub_name}, ...]")
+        raise CodeError(f"{arg_name} should be of type tuple[{field.type_desc}, ...]")
+    elif (
+        isinstance(arg, ExpressionBuilder) and arg.value_type and field.valid_type(arg.value_type)
+    ):
+        field_expr = arg.rvalue()
     else:
         field_expr = expect_operand_wtype(arg, field.wtype)
     return (field, field_expr)

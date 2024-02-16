@@ -1,8 +1,8 @@
 import typing
 
-from puyapy import Bytes, UInt64
+from puyapy import Bytes, BytesBacked, UInt64
 
-class Account:
+class Account(BytesBacked):
     """An Account on the Algorand network.
 
     Note: must be an available resource to access properties other than `bytes`
@@ -21,12 +21,6 @@ class Account:
     # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero address"""
-    @property
-    def bytes(self) -> Bytes:
-        """Get the byte[] backing this value. Note that Bytes is immutable"""
-    @staticmethod
-    def from_bytes(value: Bytes) -> Account:
-        """no validation happens here wrt length"""
     @property
     def balance(self) -> UInt64:
         """Account balance in microalgos

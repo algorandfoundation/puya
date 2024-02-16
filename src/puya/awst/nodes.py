@@ -24,10 +24,14 @@ T = t.TypeVar("T")
 
 ConstantValue: t.TypeAlias = int | str | bytes | bool
 
+WTypes: t.TypeAlias = Sequence[wtypes.WType | type[wtypes.WType]]
+
 
 @attrs.define(eq=False)
 class TxnField:
     wtype: wtypes.WType
+    additional_input_wtypes: WTypes = ()
+    """Other wtypes that are valid as inputs e.g. UInt64 for an Application field"""
     python_name: str = ""
     immediate: str = ""
     num_values: int = attrs.field(default=1, validator=attrs.validators.ge(1))
@@ -42,6 +46,15 @@ class TxnField:
     def is_array(self) -> bool:
         return self.num_values > 1
 
+    def valid_type(self, wtype: wtypes.WType) -> bool:
+        all_types = (self.wtype, *self.additional_input_wtypes)
+        wtype_types = tuple(x for x in all_types if isinstance(x, type))
+        return wtype in all_types or isinstance(wtype, wtype_types)
+
+    @property
+    def type_desc(self) -> str:
+        return " | ".join(map(str, (self.wtype, *self.additional_input_wtypes)))
+
 
 @attrs.define(eq=False)
 class UInt64TxnField(TxnField):
@@ -54,6 +67,16 @@ class BytesTxnField(TxnField):
 
 
 @attrs.define(eq=False)
+class BytesBackedTxnField(TxnField):
+    wtype: wtypes.WType = wtypes.bytes_wtype
+    additional_input_wtypes: WTypes = (
+        wtypes.biguint_wtype,
+        wtypes.account_wtype,
+        wtypes.ARC4Type,
+    )
+
+
+@attrs.define(eq=False)
 class BoolTxnField(TxnField):
     wtype: wtypes.WType = wtypes.bool_wtype
 
@@ -61,16 +84,19 @@ class BoolTxnField(TxnField):
 @attrs.define(eq=False)
 class AccountTxnField(TxnField):
     wtype: wtypes.WType = wtypes.account_wtype
+    additional_input_wtypes: WTypes = (wtypes.bytes_wtype,)
 
 
 @attrs.define(eq=False)
 class AssetTxnField(TxnField):
     wtype: wtypes.WType = wtypes.asset_wtype
+    additional_input_wtypes: WTypes = (wtypes.uint64_wtype,)
 
 
 @attrs.define(eq=False)
 class ApplicationTxnField(TxnField):
     wtype: wtypes.WType = wtypes.application_wtype
+    additional_input_wtypes: WTypes = (wtypes.uint64_wtype,)
 
 
 class TxnFields:
@@ -147,11 +173,11 @@ class TxnFields:
     # array fields
     # TODO: allow configuring as these are consensus values
     # v2
-    application_args = BytesTxnField(num_values=16)
-    accounts = AccountTxnField(num_values=5)  # 4 foreign + 1
+    application_args = BytesBackedTxnField(num_values=16)
+    accounts = AccountTxnField(num_values=4)
     # v3
     assets = AssetTxnField(num_values=8)
-    applications = ApplicationTxnField(num_values=9)  # 8 foreign + 1
+    applications = ApplicationTxnField(num_values=8)
     # v5
     logs = BytesTxnField(num_values=32, is_inner_param=False)
     # v7
