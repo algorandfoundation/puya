@@ -87,7 +87,7 @@ class Value(ValueProvider, abc.ABC):
     value *producers* such as subroutine invocations
     """
 
-    atype: AVMType
+    atype: AVMType = attrs.field(repr=lambda x: x.name)
 
     @property
     def types(self) -> Sequence[AVMType]:
