@@ -911,14 +911,16 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
-debug: Folded item_index_internal%3#1 * 1u to item_index_internal%3#1
-debug: Folded len("/x00/x05Hello") to 7
-debug: Folded len("/x00/x05World") to 7
-debug: Folded 0 * 2 to 0
-debug: Folded 0u * 1u to 0u
-debug: Folded index#1 * 1u to index#1
-debug: Folded len("/x00/x04Ping") to 6
-debug: Folded len("/x00/x04Pong") to 6
+debug: Simplified (* item_index_internal%3#1 1u) to item_index_internal%3#1
+debug: Simplified (len "/x00/x05Hello") to 7u
+debug: Simplified (len "/x00/x05World") to 7u
+debug: Simplified (* 0u 2u) to 0u
+debug: Simplified (== index#0 0u) to (! index#0)
+debug: Simplified (* 0u 1u) to 0u
+debug: Simplified (* index#1 1u) to index#1
+debug: Simplified (len "/x00/x04Ping") to 6u
+debug: Simplified (len "/x00/x04Pong") to 6u
+debug: Simplified (== index#2 0u) to (! index#2)
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_data%0#2, dynamic_uint8_array#0
@@ -1031,11 +1033,15 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0002, 0x01) to b'/x00/x02/x01'
-debug: Folded concat(0x0001, 0x0001) to b'/x00/x01/x00/x01'
-debug: Folded 4 + 7 to 11
-debug: Folded 0 < 1 to 1
-debug: Folded 4 + 6 to 10
+debug: Simplified (concat 0x0002 0x01) to 0x000201
+debug: Simplified (concat 0x0001 0x0001) to 0x00010001
+debug: Simplified ((extract 6 2) value_as_bytes%20#0) to 0x0004
+debug: Simplified (+ 4u 7u) to 11u
+debug: Simplified (concat 0x 0x00000001) to 0x00000001
+debug: Simplified (concat 0x 0x65) to 0x65
+debug: Simplified (< 0u 1u) to 1u
+debug: Simplified (concat 0x value_as_uint16%21#0) to value_as_uint16%21#0
+debug: Simplified (+ 4u 6u) to 10u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1083,9 +1089,14 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000201, 0x02) to b'/x00/x02/x01/x02'
-debug: Folded concat(0x0002, 0x0004) to b'/x00/x02/x00/x04'
-debug: Folded concat(0x00000001, 0x0000000a) to b'/x00/x00/x00/x01/x00/x00/x00/n'
+debug: Simplified (concat 0x000201 0x02) to 0x00020102
+debug: Simplified (extract_uint16 0x00010001 0u) to 1u
+debug: Simplified ((extract 2 0) 0x00010001) to 0x0001
+debug: Simplified (concat 0x0002 0x0004) to 0x00020004
+debug: Simplified ((extract 6 2) value_as_bytes%23#0) to 0x000b
+debug: Simplified (concat 0x00000001 0x0000000a) to 0x000000010000000a
+debug: Simplified ((extract 0 1) 0x65) to 0x65
+debug: Simplified ((extract 6 2) value_as_bytes%73#0) to 0x000a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1131,9 +1142,12 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_3.ir
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00020004, 0x000b) to b'/x00/x02/x00/x04/x00/x0b'
-debug: Folded concat(0x000000010000000a, 0x000000ff) to b'/x00/x00/x00/x01/x00/x00/x00/n/x00/x00/x00/xff'
-debug: Folded concat(0x0004, 0x000a) to b'/x00/x04/x00/n'
+debug: Simplified (extract_uint16 0x00020102 0u) to 2u
+debug: Simplified ((extract 2 0) 0x00020102) to 0x0102
+debug: Simplified (concat 0x00020004 0x000b) to 0x00020004000b
+debug: Simplified (concat 0x000000010000000a 0x000000ff) to 0x000000010000000a000000ff
+debug: Simplified (btoi 0x65) to 101u
+debug: Simplified (concat 0x0004 0x000a) to 0x0004000a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1142,6 +1156,7 @@ debug: Removing unused variable array_length%1#0
 debug: Removing unused variable array_value%2#0
 debug: Removing unused variable array_data%18#2
 debug: Removing unused variable array_data%50#3
+debug: Removing unused variable tmp%60#0
 debug: Removing unused variable array_data%68#2
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1174,15 +1189,17 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_4.ir
 debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00020004000b, "/x00/x05Hello") to b'/x00/x02/x00/x04/x00/x0b/x00/x05Hello'
-debug: Folded concat(0x000000010000000a000000ff, 0x00000080) to b'/x00/x00/x00/x01/x00/x00/x00/n/x00/x00/x00/xff/x00/x00/x00/x80'
-debug: Folded concat(0x0004000a, "/x00/x04Ping") to b'/x00/x04/x00/n/x00/x04Ping'
+debug: Simplified (concat 0x00020004000b "/x00/x05Hello") to AAIABAALAAVIZWxsbw==
+debug: Simplified (concat 0x000000010000000a000000ff 0x00000080) to 0x000000010000000a000000ff00000080
+debug: Simplified (+ 101u 101u) to 202u
+debug: Simplified (concat 0x0004000a "/x00/x04Ping") to AAQACgAEUGluZw==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_data%18#3
 debug: Removing unused variable static_uint32_array#0
+debug: Removing unused variable tmp%66#0
 debug: Removing unused variable array_data%68#3
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1215,13 +1232,15 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_5.ir
 debug: Begin optimization pass 6/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAIABAALAAVIZWxsbw==, "/x00/x05World") to b'/x00/x02/x00/x04/x00/x0b/x00/x05Hello/x00/x05World'
-debug: Folded concat(AAQACgAEUGluZw==, "/x00/x04Pong") to b'/x00/x04/x00/n/x00/x04Ping/x00/x04Pong'
+debug: Simplified (concat AAIABAALAAVIZWxsbw== "/x00/x05World") to AAIABAALAAVIZWxsbwAFV29ybGQ=
+debug: Simplified (== 202u 202u) to 1u
+debug: Simplified (concat AAQACgAEUGluZw== "/x00/x04Pong") to AAQACgAEUGluZwAEUG9uZw==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable dynamic_string_array#0
+debug: Removing unused variable tmp%67#0
 debug: Removing unused variable static_string_array#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -1254,6 +1273,8 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_6.ir
 debug: Begin optimization pass 7/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (extract_uint16 AAIABAALAAVIZWxsbwAFV29ybGQ= 0u) to 2u
+debug: Simplified ((extract 2 0) AAIABAALAAVIZWxsbwAFV29ybGQ=) to AAQACwAFSGVsbG8ABVdvcmxk
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1291,8 +1312,9 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_7.ir
 debug: Begin optimization pass 8/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 2 == 2 to 1
-debug: Folded 0 < 2 to 1
+debug: Simplified (== 2u 2u) to 1u
+debug: Simplified (< 0u 2u) to 1u
+debug: Simplified (extract_uint16 AAQACwAFSGVsbG8ABVdvcmxk 0u) to 4u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1331,6 +1353,7 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_8.ir
 debug: Begin optimization pass 9/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (extract_uint16 AAQACwAFSGVsbG8ABVdvcmxk 4u) to 5u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1367,7 +1390,7 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_9.ir
 debug: Begin optimization pass 10/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 5 + 2 to 7
+debug: Simplified (+ 5u 2u) to 7u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1404,6 +1427,7 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_10.ir
 debug: Begin optimization pass 11/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 4 7) AAQACwAFSGVsbG8ABVdvcmxk) to AAVIZWxsbw==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1440,6 +1464,7 @@ debug: Output IR to arc4_types/out/Arc4ArraysContract.ssa.opt_pass_11.ir
 debug: Begin optimization pass 12/100
 debug: Optimizing subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== AAVIZWxsbw== "/x00/x05Hello") to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1687,16 +1712,8 @@ debug: Inserted main_for_body@17.ops[1]: 'store item_index_internal%51#0 to l-st
 debug: Replaced main_for_body@17.ops[20]: 'load item_index_internal%51#0' with 'load item_index_internal%51#0 from l-stack (no copy)'
 debug: Inserted main_after_for@19.ops[3]: 'store tmp%56#0 to l-stack (copy)'
 debug: Replaced main_after_for@19.ops[5]: 'load tmp%56#0' with 'load tmp%56#0 from l-stack (no copy)'
-debug: Inserted main_after_for@19.ops[9]: 'store tmp%60#0 to l-stack (copy)'
-debug: Replaced main_after_for@19.ops[11]: 'load tmp%60#0' with 'load tmp%60#0 from l-stack (no copy)'
-debug: Inserted main_after_for@19.ops[12]: 'store tmp%60#0 to l-stack (copy)'
-debug: Replaced main_after_for@19.ops[13]: 'load tmp%60#0' with 'load tmp%60#0 from l-stack (no copy)'
-debug: Inserted main_after_for@19.ops[15]: 'store tmp%66#0 to l-stack (copy)'
-debug: Replaced main_after_for@19.ops[17]: 'load tmp%66#0' with 'load tmp%66#0 from l-stack (no copy)'
-debug: Inserted main_after_for@19.ops[20]: 'store tmp%67#0 to l-stack (copy)'
-debug: Replaced main_after_for@19.ops[22]: 'load tmp%67#0' with 'load tmp%67#0 from l-stack (no copy)'
-debug: Inserted main_after_for@19.ops[27]: 'store item_index_internal%76#0 to l-stack (copy)'
-debug: Replaced main_after_for@19.ops[29]: 'load item_index_internal%76#0' with 'load item_index_internal%76#0 from l-stack (no copy)'
+debug: Inserted main_after_for@19.ops[10]: 'store item_index_internal%76#0 to l-stack (copy)'
+debug: Replaced main_after_for@19.ops[12]: 'load item_index_internal%76#0' with 'load item_index_internal%76#0 from l-stack (no copy)'
 debug: Inserted main_for_header@20.ops[3]: 'store continue_looping%78#0 to l-stack (copy)'
 debug: Replaced main_for_header@20.ops[5]: 'load continue_looping%78#0' with 'load continue_looping%78#0 from l-stack (no copy)'
 debug: Inserted main_for_body@21.ops[11]: 'store item_length%81#0 to l-stack (copy)'
@@ -1735,9 +1752,28 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 0u * 1u to 0u
-debug: Folded 12 - 1 to 11
-debug: Folded tmp%31#0 * 1u to tmp%31#0
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (* 0u 1u) to 0u
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (- 12u 1u) to 11u
+debug: Simplified (* tmp%31#0 1u) to tmp%31#0
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_data%14#12, static_boolean_array#0
@@ -1822,8 +1858,11 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 11 < 12 to 1
-debug: Folded concat(0x0003, 0x80) to b'/x00/x03/x80'
+debug: Simplified (concat 0x 0x80) to 0x80
+debug: Simplified (getbit 0x80 0u) to 1u
+debug: Simplified (< 11u 12u) to 1u
+debug: Simplified (concat 0x0003 0x80) to 0x000380
+debug: Simplified (getbit 0x00 0u) to 0u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1864,6 +1903,8 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x80 1u 1u) to 0xc0
+debug: Simplified (setbit 0x000380 17u 0u) to 0x000380
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1901,6 +1942,8 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_3.ir
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xc0 2u 1u) to 0xe0
+debug: Simplified (setbit 0x000380 18u 1u) to 0x0003a0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1938,6 +1981,8 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_4.ir
 debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xe0 3u 1u) to 0xf0
+debug: Simplified (== 0x0003a0 0x0003a0) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1975,6 +2020,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_5.ir
 debug: Begin optimization pass 6/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xf0 4u 1u) to 0xf8
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2011,6 +2057,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_6.ir
 debug: Begin optimization pass 7/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xf8 5u 1u) to 0xfc
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2047,6 +2094,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_7.ir
 debug: Begin optimization pass 8/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xfc 6u 1u) to 0xfe
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2083,6 +2131,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_8.ir
 debug: Begin optimization pass 9/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xfe 7u 1u) to 0xff
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2119,7 +2168,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_9.ir
 debug: Begin optimization pass 10/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0xff, 0x80) to b'/xff/x80'
+debug: Simplified (concat 0xff 0x80) to 0xff80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2156,6 +2205,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_10.ir
 debug: Begin optimization pass 11/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xff80 9u 1u) to 0xffc0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2192,6 +2242,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_11.ir
 debug: Begin optimization pass 12/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xffc0 10u 1u) to 0xffe0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2228,6 +2279,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_12.ir
 debug: Begin optimization pass 13/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xffe0 11u 1u) to 0xfff0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2264,6 +2316,9 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_13.ir
 debug: Begin optimization pass 14/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0xfff0 0xfff0) to 1u
+debug: Simplified (getbit 0xfff0 0u) to 1u
+debug: Simplified (getbit 0xfff0 11u) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2309,6 +2364,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_14.ir
 debug: Begin optimization pass 15/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2345,6 +2401,7 @@ debug: Output IR to arc4_types/out/Arc4BoolTypeContract.ssa.opt_pass_15.ir
 debug: Begin optimization pass 16/100
 debug: Optimizing subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x80 0x80) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2451,6 +2508,28 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (== "/x00/x00" 0x0000) to 1u
+debug: Simplified (!= "/x00/x01." 0x0000) to 1u
+debug: Simplified (== 0x00 0x00) to 1u
+debug: Simplified (!= 0x01 0x00) to 1u
+debug: Simplified (== 0x0000 0x0000) to 1u
+debug: Simplified (!= 0x0001 0x0000) to 1u
+debug: Simplified (== 0x00000000 0x00000000) to 1u
+debug: Simplified (!= 0x00000001 0x00000000) to 1u
+debug: Simplified (== 0x0000000000000000 0x0000000000000000) to 1u
+debug: Simplified (!= 0x0000000000000001 0x0000000000000000) to 1u
+debug: Simplified (== 0x00000000000000000000000000000000 0x00000000000000000000000000000000) to 1u
+debug: Simplified (!= 0x00000000000000000000000000000001 0x00000000000000000000000000000000) to 1u
+debug: Simplified (== 0x0000000000000000000000000000000000000000000000000000000000000000 0x0000000000000000000000000000000000000000000000000000000000000000) to 1u
+debug: Simplified (!= 0x0000000000000000000000000000000000000000000000000000000000000001 0x0000000000000000000000000000000000000000000000000000000000000000) to 1u
+debug: Simplified (== 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) to 1u
+debug: Simplified (!= 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) to 1u
+debug: Simplified (== 0x000000 0x000000) to 1u
+debug: Simplified (!= 0x000001 0x000000) to 1u
+debug: Simplified (== 0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) to 1u
+debug: Simplified (!= 0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: concat_result%38#0, dynamic_arr#1
@@ -2502,6 +2581,11 @@ debug: Output IR to arc4_types/out/Arc4BoolEvalContract.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x00 0x00) to 1u
+debug: Simplified (!= 0x80 0x00) to 1u
+debug: Simplified (== 0x0000 0x0000) to 1u
+debug: Simplified ((extract 2 0) 0x0000) to 0x
+debug: Simplified (concat 0x 0x0000000000000000) to 0x0000000000000000
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2531,6 +2615,7 @@ debug: Output IR to arc4_types/out/Arc4BoolEvalContract.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (concat 0x 0x0000000000000000) to 0x0000000000000000
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2556,7 +2641,7 @@ debug: Output IR to arc4_types/out/Arc4BoolEvalContract.ssa.opt_pass_3.ir
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(0x0000000000000000) to 8
+debug: Simplified (len 0x0000000000000000) to 8u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2582,7 +2667,7 @@ debug: Output IR to arc4_types/out/Arc4BoolEvalContract.ssa.opt_pass_4.ir
 debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 8 / 8 to 1
+debug: Simplified (/ 8u 8u) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2608,6 +2693,7 @@ debug: Output IR to arc4_types/out/Arc4BoolEvalContract.ssa.opt_pass_5.ir
 debug: Begin optimization pass 6/100
 debug: Optimizing subroutine test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 6 0) len_bytes%36#0) to 0x0001
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2634,7 +2720,7 @@ debug: Output IR to arc4_types/out/Arc4BoolEvalContract.ssa.opt_pass_6.ir
 debug: Begin optimization pass 7/100
 debug: Optimizing subroutine test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0001, 0x0000000000000000) to b'/x00/x01/x00/x00/x00/x00/x00/x00/x00/x00'
+debug: Simplified (concat 0x0001 0x0000000000000000) to 0x00010000000000000000
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2660,6 +2746,7 @@ debug: Output IR to arc4_types/out/Arc4BoolEvalContract.ssa.opt_pass_7.ir
 debug: Begin optimization pass 8/100
 debug: Optimizing subroutine test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (!= 0x00010000000000000000 0x0000) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2734,6 +2821,8 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== tmp%2#0 NoOp) to (! tmp%2#0)
+debug: Simplified (== tmp%7#0 NoOp) to (! tmp%7#0)
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2760,9 +2849,9 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len("/x00/x01X") to 3
-debug: Folded len("/x00/x01Y") to 3
-debug: Folded len("/x00/x01Z") to 3
+debug: Simplified (len "/x00/x01X") to 3u
+debug: Simplified (len "/x00/x01Y") to 3u
+debug: Simplified (len "/x00/x01Z") to 3u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2825,7 +2914,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 6 + 3 to 9
+debug: Simplified ((extract 6 2) value_as_bytes%2#0) to 0x0006
+debug: Simplified (+ 6u 3u) to 9u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2840,9 +2930,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0001, 0x58) to b'/x00/x01X'
-debug: Folded concat(0x0001, 0x59) to b'/x00/x01Y'
-debug: Folded concat(0x0001, 0x5a) to b'/x00/x01Z'
+debug: Simplified (concat 0x0001 0x58) to 0x000158
+debug: Simplified (concat 0x0001 0x59) to 0x000159
+debug: Simplified (concat 0x0001 0x5a) to 0x00015a
+debug: Simplified ((extract 6 2) value_as_bytes%5#0) to 0x0006
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2884,8 +2975,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0003, 0x0006) to b'/x00/x03/x00/x06'
-debug: Folded 9 + 3 to 12
+debug: Simplified (concat 0x0003 0x0006) to 0x00030006
+debug: Simplified ((extract 6 2) value_as_bytes%5#0) to 0x0009
+debug: Simplified (+ 9u 3u) to 12u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2901,9 +2993,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0003, 0x0006) to b'/x00/x03/x00/x06'
-debug: Folded len(0x000158) to 3
-debug: Folded len(0x000159) to 3
+debug: Simplified (concat 0x0003 0x0006) to 0x00030006
+debug: Simplified (len 0x000158) to 3u
+debug: Simplified (len 0x000159) to 3u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2942,7 +3034,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00030006, 0x0009) to b'/x00/x03/x00/x06/x00/t'
+debug: Simplified (concat 0x00030006 0x0009) to 0x000300060009
+debug: Simplified ((extract 6 2) value_as_bytes%8#0) to 0x000c
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2957,7 +3050,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 6 + 3 to 9
+debug: Simplified (+ 6u 3u) to 9u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -2994,7 +3087,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000300060009, 0x000c) to b'/x00/x03/x00/x06/x00/t/x00/x0c'
+debug: Simplified (concat 0x000300060009 0x000c) to 0x000300060009000c
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3007,7 +3100,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 9 + 3 to 12
+debug: Simplified ((extract 6 2) value_as_bytes%8#0) to 0x0009
+debug: Simplified (+ 9u 3u) to 12u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3046,7 +3140,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000300060009000c, "/x00/x01X") to b'/x00/x03/x00/x06/x00/t/x00/x0c/x00/x01X'
+debug: Simplified (concat 0x000300060009000c "/x00/x01X") to AAMABgAJAAwAAVg=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3059,7 +3153,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00030006, 0x0009) to b'/x00/x03/x00/x06/x00/t'
+debug: Simplified (concat 0x00030006 0x0009) to 0x000300060009
+debug: Simplified ((extract 6 2) value_as_bytes%11#0) to 0x000c
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3098,7 +3193,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAMABgAJAAwAAVg=, "/x00/x01Y") to b'/x00/x03/x00/x06/x00/t/x00/x0c/x00/x01X/x00/x01Y'
+debug: Simplified (concat AAMABgAJAAwAAVg= "/x00/x01Y") to AAMABgAJAAwAAVgAAVk=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3111,7 +3206,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000300060009, 0x000c) to b'/x00/x03/x00/x06/x00/t/x00/x0c'
+debug: Simplified (concat 0x000300060009 0x000c) to 0x000300060009000c
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3148,7 +3243,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAMABgAJAAwAAVgAAVk=, "/x00/x01Z") to b'/x00/x03/x00/x06/x00/t/x00/x0c/x00/x01X/x00/x01Y/x00/x01Z'
+debug: Simplified (concat AAMABgAJAAwAAVgAAVk= "/x00/x01Z") to AAMABgAJAAwAAVgAAVkAAVo=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3161,7 +3256,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000300060009000c, 0x000158) to b'/x00/x03/x00/x06/x00/t/x00/x0c/x00/x01X'
+debug: Simplified (concat 0x000300060009000c 0x000158) to 0x000300060009000c000158
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3209,7 +3304,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000300060009000c000158, 0x000159) to b'/x00/x03/x00/x06/x00/t/x00/x0c/x00/x01X/x00/x01Y'
+debug: Simplified (concat 0x000300060009000c000158 0x000159) to 0x000300060009000c000158000159
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3257,7 +3352,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000300060009000c000158000159, 0x00015a) to b'/x00/x03/x00/x06/x00/t/x00/x0c/x00/x01X/x00/x01Y/x00/x01Z'
+debug: Simplified (concat 0x000300060009000c000158000159 0x00015a) to 0x000300060009000c00015800015900015a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -3429,6 +3524,41 @@ debug: Replacing {expr_value_trimmed%11#0} with expr_value_trimmed%10#0 made 1 m
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_data%2#2, dynamic_bool_array#0
@@ -3742,8 +3872,8 @@ debug: Replacing {array_data%17#16} with dynamic_string_array#3 made 2 modificat
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dynamic
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 0 * 2 to 0
-debug: Folded 0 * 2 to 0
+debug: Simplified (* 0u 2u) to 0u
+debug: Simplified (* 0u 2u) to 0u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: concat_result%3#0, array_of_array#1
@@ -3777,7 +3907,7 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_static
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 1u * 2u to 2u
+debug: Simplified (* 1u 2u) to 2u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_data%2#2, array_of_array#0
@@ -3806,6 +3936,12 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_data%0#2, dynamic_uint8_array#0
@@ -3850,12 +3986,16 @@ debug: Replacing {is_true%17#0, is_true%25#0} with is_true%13#0 made 2 modificat
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len("/x00/x05Happy") to 7
-debug: Folded len("/x00/x04Days") to 6
-debug: Folded len("/x00/x05Happy") to 7
-debug: Folded len("/x00/x04Days") to 6
-debug: Folded len("/x00/x05Hmmmm") to 7
-debug: Folded len("/x00/x07Oh well") to 9
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (len "/x00/x05Happy") to 7u
+debug: Simplified (len "/x00/x04Days") to 6u
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (len "/x00/x05Happy") to 7u
+debug: Simplified (len "/x00/x04Days") to 6u
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (len "/x00/x05Hmmmm") to 7u
+debug: Simplified (len "/x00/x07Oh well") to 9u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_tuple_buffer%2#6, test_struct#0
@@ -3932,10 +4072,10 @@ debug: Replacing {encoded_tuple_buffer%40#4} with encoded_tuple_buffer%16#4 made
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len("/x00/x05Hello") to 7
-debug: Folded len("/x00/x05World") to 7
-debug: Folded len("/x00/x05World") to 7
-debug: Folded len("/x00/x05Hello") to 7
+debug: Simplified (len "/x00/x05Hello") to 7u
+debug: Simplified (len "/x00/x05World") to 7u
+debug: Simplified (len "/x00/x05World") to 7u
+debug: Simplified (len "/x00/x05Hello") to 7u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_data%0#2, uint8_array#0
@@ -4075,6 +4215,7 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine puyapy_lib_arc4.recalculate_array_offsets_static
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== start_at_index#0 0u) to (! start_at_index#0)
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: start_at_index#0, range_item%1#0
@@ -4121,11 +4262,13 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0002, 0x01) to b'/x00/x02/x01'
-debug: Folded concat(0x0003, 0x01) to b'/x00/x03/x01'
-debug: Folded concat(0x0006, 0x01) to b'/x00/x06/x01'
-debug: Folded concat(0x0008, 0x01) to b'/x00/x08/x01'
-debug: Folded concat(0x0007, 0x01) to b'/x00/x07/x01'
+debug: Simplified (concat 0x0002 0x01) to 0x000201
+debug: Simplified (concat 0x 0x32) to 0x32
+debug: Simplified (concat 0x0003 0x01) to 0x000301
+debug: Simplified (concat 0x0006 0x01) to 0x000601
+debug: Simplified (concat 0x 0x04) to 0x04
+debug: Simplified (concat 0x0008 0x01) to 0x000801
+debug: Simplified (concat 0x0007 0x01) to 0x000701
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4144,11 +4287,14 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0002, 0x80) to b'/x00/x02/x80'
-debug: Folded concat(0x0004, 0x80) to b'/x00/x04/x80'
-debug: Folded concat(0x0008, 0x80) to b'/x00/x08/x80'
-debug: Folded concat(0x0009, 0x80) to b'/x00/t/x80'
-debug: Folded concat(0x0007, 0x80) to b'/x00/x07/x80'
+debug: Simplified (concat 0x0002 0x80) to 0x000280
+debug: Simplified (getbit 0x00 0u) to 0u
+debug: Simplified (concat 0x 0x80) to 0x80
+debug: Simplified (concat 0x0004 0x80) to 0x000480
+debug: Simplified (getbit 0x80 0u) to 1u
+debug: Simplified (concat 0x0008 0x80) to 0x000880
+debug: Simplified (concat 0x0009 0x80) to 0x000980
+debug: Simplified (concat 0x0007 0x80) to 0x000780
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4168,10 +4314,14 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len("/x00/x05Hello") to 7
-debug: Folded len("/x00/x05World") to 7
-debug: Folded len("/x00/x03Foo") to 5
-debug: Folded len("/x00/x03Bar") to 5
+debug: Simplified ((extract 6 2) value_as_bytes%2#0) to 0x0004
+debug: Simplified (len "/x00/x05Hello") to 7u
+debug: Simplified (len "/x00/x05World") to 7u
+debug: Simplified (concat 0x "/x00/x03Foo") to "/x00/x03Foo"
+debug: Simplified ((extract 6 2) value_as_bytes%19#0) to 0x0010
+debug: Simplified (len "/x00/x03Foo") to 5u
+debug: Simplified (len "/x00/x03Bar") to 5u
+debug: Simplified ((extract 6 2) value_as_bytes%109#0) to 0x000c
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4194,8 +4344,12 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dynamic
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0001, 0x0a) to b'/x00/x01/n'
-debug: Folded concat(0x0001, 0x10) to b'/x00/x01/x10'
+debug: Simplified (== 0x0000 0x0000) to 1u
+debug: Simplified (concat 0x0001 0x0a) to 0x00010a
+debug: Simplified (concat 0x array_data%1#1) to array_data%1#1
+debug: Simplified (concat 0x0001 0x10) to 0x000110
+debug: Simplified (concat 0x array_data%5#1) to array_data%5#1
+debug: Simplified (concat 0x 0xff) to 0xff
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4213,6 +4367,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_static
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (concat 0x 0x0a) to 0x0a
+debug: Simplified (concat 0x 0x40) to 0x40
+debug: Simplified (concat 0x array_data%0#2) to array_data%0#2
+debug: Simplified (concat 0x 0xff) to 0xff
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_data%0#2, array_data%2#1
@@ -4229,8 +4387,12 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0002, 0x01) to b'/x00/x02/x01'
-debug: Folded concat(0x0002, 0x80) to b'/x00/x02/x80'
+debug: Simplified (concat 0x0002 0x01) to 0x000201
+debug: Simplified (concat 0x 0x01) to 0x01
+debug: Simplified (concat 0x0002 0x80) to 0x000280
+debug: Simplified (getbit 0x00 0u) to 0u
+debug: Simplified (concat 0x 0x80) to 0x80
+debug: Simplified (getbit 0x80 0u) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4248,8 +4410,12 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 6 + 7 to 13
-debug: Folded len("/x00/x05Hmmmm") to 7
+debug: Simplified (concat 0x 0x80) to 0x80
+debug: Simplified ((extract 6 2) value_as_bytes%3#0) to 0x0006
+debug: Simplified (+ 6u 7u) to 13u
+debug: Simplified (getbit 0x00 0u) to 0u
+debug: Simplified (concat 0x 0x00) to 0x00
+debug: Simplified (len "/x00/x05Hmmmm") to 7u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4268,10 +4434,14 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0002, 0x01) to b'/x00/x02/x01'
-debug: Folded concat(0x0004, 0x01) to b'/x00/x04/x01'
-debug: Folded concat(0x0005, 0x01) to b'/x00/x05/x01'
-debug: Folded 4 + 7 to 11
+debug: Simplified (concat 0x0002 0x01) to 0x000201
+debug: Simplified (concat 0x 0x03) to 0x03
+debug: Simplified (concat 0x0004 0x01) to 0x000401
+debug: Simplified (concat 0x 0x05) to 0x05
+debug: Simplified (concat 0x0005 0x01) to 0x000501
+debug: Simplified ((extract 6 2) value_as_bytes%21#0) to 0x0004
+debug: Simplified (+ 4u 7u) to 11u
+debug: Simplified ((extract 6 2) value_as_bytes%29#0) to 0x0002
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4406,12 +4576,12 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000201, 0x02) to b'/x00/x02/x01/x02'
-debug: Folded concat(0x000301, 0x02) to b'/x00/x03/x01/x02'
-debug: Folded concat(0x000601, 0x02) to b'/x00/x06/x01/x02'
-debug: Folded concat(0x04, 0x5a) to b'/x04Z'
-debug: Folded concat(0x000801, 0x02) to b'/x00/x08/x01/x02'
-debug: Folded concat(0x000701, 0x02) to b'/x00/x07/x01/x02'
+debug: Simplified (concat 0x000201 0x02) to 0x00020102
+debug: Simplified (concat 0x000301 0x02) to 0x00030102
+debug: Simplified (concat 0x000601 0x02) to 0x00060102
+debug: Simplified (concat 0x04 0x5a) to 0x045a
+debug: Simplified (concat 0x000801 0x02) to 0x00080102
+debug: Simplified (concat 0x000701 0x02) to 0x00070102
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4429,7 +4599,12 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x80, 0x00) to b'/x80/x00'
+debug: Simplified (setbit 0x000280 17u 0u) to 0x000280
+debug: Simplified (concat 0x80 0x00) to 0x8000
+debug: Simplified (setbit 0x000480 17u 0u) to 0x000480
+debug: Simplified (setbit 0x000880 17u 0u) to 0x000880
+debug: Simplified (setbit 0x000980 17u 0u) to 0x000980
+debug: Simplified (setbit 0x000780 17u 0u) to 0x000780
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4447,13 +4622,13 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0002, 0x0004) to b'/x00/x02/x00/x04'
-debug: Folded 4 + 7 to 11
-debug: Folded concat("/x00/x03Foo", "/x00/x03Bar") to b'/x00/x03Foo/x00/x03Bar'
-debug: Folded concat(0x0008, 0x0010) to b'/x00/x08/x00/x10'
-debug: Folded 16 + 7 to 23
-debug: Folded concat(0x0006, 0x000c) to b'/x00/x06/x00/x0c'
-debug: Folded 12 + 7 to 19
+debug: Simplified (concat 0x0002 0x0004) to 0x00020004
+debug: Simplified (+ 4u 7u) to 11u
+debug: Simplified (concat "/x00/x03Foo" "/x00/x03Bar") to "/x00/x03Foo/x00/x03Bar"
+debug: Simplified (concat 0x0008 0x0010) to 0x00080010
+debug: Simplified (+ 16u 7u) to 23u
+debug: Simplified (concat 0x0006 0x000c) to 0x0006000c
+debug: Simplified (+ 12u 7u) to 19u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4483,9 +4658,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_static
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0a, 0x09) to b'/n/t'
-debug: Folded concat(0x40, 0x80) to b'@/x80'
-debug: Folded concat(0xff, 0xfe) to b'/xff/xfe'
+debug: Simplified (concat 0x0a 0x09) to 0x0a09
+debug: Simplified (concat 0x40 0x80) to 0x4080
+debug: Simplified (concat 0xff 0xfe) to 0xfffe
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4500,8 +4675,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000201, 0x02) to b'/x00/x02/x01/x02'
-debug: Folded concat(0x01, 0x02) to b'/x01/x02'
+debug: Simplified (concat 0x000201 0x02) to 0x00020102
+debug: Simplified (concat 0x01 0x02) to 0x0102
+debug: Simplified (setbit 0x000280 17u 0u) to 0x000280
+debug: Simplified (setbit 0x80 1u 1u) to 0xc0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4517,8 +4694,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x80, 0x32) to b'/x802'
-debug: Folded concat(0x00, 0x0c) to b'/x00/x0c'
+debug: Simplified (concat 0x80 0x32) to 0x8032
+debug: Simplified ((extract 6 2) value_as_bytes%6#0) to 0x000d
+debug: Simplified (concat 0x00 0x0c) to 0x000c
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4534,12 +4712,13 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000201, 0x02) to b'/x00/x02/x01/x02'
-debug: Folded concat(0x03, 0x04) to b'/x03/x04'
-debug: Folded concat(0x000401, 0x02) to b'/x00/x04/x01/x02'
-debug: Folded concat(0x000501, 0x02) to b'/x00/x05/x01/x02'
-debug: Folded concat(0x0002, 0x0004) to b'/x00/x02/x00/x04'
-debug: Folded concat(0x0001, 0x0002) to b'/x00/x01/x00/x02'
+debug: Simplified (concat 0x000201 0x02) to 0x00020102
+debug: Simplified (concat 0x03 0x04) to 0x0304
+debug: Simplified (concat 0x000401 0x02) to 0x00040102
+debug: Simplified (concat 0x000501 0x02) to 0x00050102
+debug: Simplified (concat 0x0002 0x0004) to 0x00020004
+debug: Simplified ((extract 6 2) value_as_bytes%24#0) to 0x000b
+debug: Simplified (concat 0x0001 0x0002) to 0x00010002
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4671,10 +4850,11 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00030102, 0x32) to b'/x00/x03/x01/x022'
-debug: Folded concat(0x00060102, 0x32) to b'/x00/x06/x01/x022'
-debug: Folded concat(0x00080102, 0x32) to b'/x00/x08/x01/x022'
-debug: Folded concat(0x00070102, 0x32) to b'/x00/x07/x01/x022'
+debug: Simplified ((extract 2 0) 0x00020102) to 0x0102
+debug: Simplified (concat 0x00030102 0x32) to 0x0003010232
+debug: Simplified (concat 0x00060102 0x32) to 0x0006010232
+debug: Simplified (concat 0x00080102 0x32) to 0x0008010232
+debug: Simplified (concat 0x00070102 0x32) to 0x0007010232
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4691,6 +4871,11 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x000280 0x000280) to 1u
+debug: Simplified (setbit 0x000480 18u 1u) to 0x0004a0
+debug: Simplified (setbit 0x000880 18u 1u) to 0x0008a0
+debug: Simplified (setbit 0x000980 18u 1u) to 0x0009a0
+debug: Simplified (setbit 0x000780 18u 1u) to 0x0007a0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4707,8 +4892,11 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 23 + 7 to 30
-debug: Folded 19 + 7 to 26
+debug: Simplified ((extract 6 2) value_as_bytes%5#0) to 0x000b
+debug: Simplified ((extract 6 2) value_as_bytes%22#0) to 0x0017
+debug: Simplified (+ 23u 7u) to 30u
+debug: Simplified ((extract 6 2) value_as_bytes%112#0) to 0x0013
+debug: Simplified (+ 19u 7u) to 26u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4739,7 +4927,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_static
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0a09, 0x4080) to b'/n/t@/x80'
+debug: Simplified (concat 0x0a09 0x4080) to 0x0a094080
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4752,6 +4940,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (extract_uint16 0x00020102 0u) to 2u
+debug: Simplified (extract_uint16 0x000280 0u) to 2u
+debug: Simplified (setbit 0x000280 16u 0u) to 0x000200
+debug: Simplified (setbit 0xc0 1u 0u) to 0x80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4771,8 +4963,8 @@ debug: Replacing {index_is_in_bounds%16#0} with index_is_in_bounds%3#0 made 1 mo
 debug: Removing redundant assert of index_is_in_bounds%3#0
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x8032, 0x0006) to b'/x802/x00/x06'
-debug: Folded concat(0x000c, 0x0006) to b'/x00/x0c/x00/x06'
+debug: Simplified (concat 0x8032 0x0006) to 0x80320006
+debug: Simplified (concat 0x000c 0x0006) to 0x000c0006
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4786,11 +4978,12 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00040102, 0x03) to b'/x00/x04/x01/x02/x03'
-debug: Folded concat(0x00050102, 0x03) to b'/x00/x05/x01/x02/x03'
-debug: Folded concat(0x00020004, 0x000b) to b'/x00/x02/x00/x04/x00/x0b'
-debug: Folded concat(0x00010002, "/x00/x05World") to b'/x00/x01/x00/x02/x00/x05World'
-debug: Folded concat(0x00010002, "/x00/x05Hello") to b'/x00/x01/x00/x02/x00/x05Hello'
+debug: Simplified ((extract 2 0) 0x00020102) to 0x0102
+debug: Simplified (concat 0x00040102 0x03) to 0x0004010203
+debug: Simplified (concat 0x00050102 0x03) to 0x0005010203
+debug: Simplified (concat 0x00020004 0x000b) to 0x00020004000b
+debug: Simplified (concat 0x00010002 "/x00/x05World") to AAEAAgAFV29ybGQ=
+debug: Simplified (concat 0x00010002 "/x00/x05Hello") to AAEAAgAFSGVsbG8=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4920,10 +5113,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0102, 0x32) to b'/x01/x022'
-debug: Folded concat(0x0006010232, 0x01) to b'/x00/x06/x01/x022/x01'
-debug: Folded concat(0x0008010232, 0x01) to b'/x00/x08/x01/x022/x01'
-debug: Folded concat(0x0007010232, 0x01) to b'/x00/x07/x01/x022/x01'
+debug: Simplified (concat 0x0102 0x32) to 0x010232
+debug: Simplified (concat 0x0006010232 0x01) to 0x000601023201
+debug: Simplified (concat 0x0008010232 0x01) to 0x000801023201
+debug: Simplified (concat 0x0007010232 0x01) to 0x000701023201
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4939,6 +5132,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x0004a0 19u 0u) to 0x0004a0
+debug: Simplified (setbit 0x0008a0 19u 0u) to 0x0008a0
+debug: Simplified (setbit 0x0009a0 19u 0u) to 0x0009a0
+debug: Simplified (setbit 0x0007a0 19u 0u) to 0x0007a0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4958,11 +5155,13 @@ debug: Replacing {tmp%18#0} with tmp%9#0 made 1 modifications
 debug: Removing redundant assert of tmp%9#0
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00020004, 0x000b) to b'/x00/x02/x00/x04/x00/x0b'
-debug: Folded concat(0x00080010, 0x0017) to b'/x00/x08/x00/x10/x00/x17'
-debug: Folded 30 + 5 to 35
-debug: Folded concat(0x0006000c, 0x0013) to b'/x00/x06/x00/x0c/x00/x13'
-debug: Folded 26 + 5 to 31
+debug: Simplified (concat 0x00020004 0x000b) to 0x00020004000b
+debug: Simplified (concat 0x00080010 0x0017) to 0x000800100017
+debug: Simplified ((extract 6 2) value_as_bytes%25#0) to 0x001e
+debug: Simplified (+ 30u 5u) to 35u
+debug: Simplified (concat 0x0006000c 0x0013) to 0x0006000c0013
+debug: Simplified ((extract 6 2) value_as_bytes%115#0) to 0x001a
+debug: Simplified (+ 26u 5u) to 31u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -4994,6 +5193,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_static
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x0a094080 0x0a094080) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5006,7 +5206,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 0 < 2 to 1
+debug: Simplified (< 0u 2u) to 1u
+debug: Simplified (== 0x000200 0x000200) to 1u
+debug: Simplified (== 0x80 0x80) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5021,8 +5223,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x80320006, 0x000d) to b'/x802/x00/x06/x00/r'
-debug: Folded concat(0x000c0006, 0x000d) to b'/x00/x0c/x00/x06/x00/r'
+debug: Simplified (concat 0x80320006 0x000d) to 0x80320006000d
+debug: Simplified (concat 0x000c0006 0x000d) to 0x000c0006000d
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5036,11 +5238,12 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0102, 0x0304) to b'/x01/x02/x03/x04'
-debug: Folded concat(0x0004010203, 0x04) to b'/x00/x04/x01/x02/x03/x04'
-debug: Folded concat(0x0005010203, 0x04) to b'/x00/x05/x01/x02/x03/x04'
-debug: Folded concat(0x00020004000b, "/x00/x05Hello") to b'/x00/x02/x00/x04/x00/x0b/x00/x05Hello'
-debug: Folded len(AAEAAgAFV29ybGQ=) to 11
+debug: Simplified (concat 0x0102 0x0304) to 0x01020304
+debug: Simplified (concat 0x0004010203 0x04) to 0x000401020304
+debug: Simplified (concat 0x0005010203 0x04) to 0x000501020304
+debug: Simplified (concat 0x00020004000b "/x00/x05Hello") to AAIABAALAAVIZWxsbw==
+debug: Simplified (extract_uint16 AAEAAgAFV29ybGQ= 0u) to 1u
+debug: Simplified (len AAEAAgAFV29ybGQ=) to 11u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5170,10 +5373,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(0x010232) to 3
-debug: Folded concat(0x000601023201, 0x02) to b'/x00/x06/x01/x022/x01/x02'
-debug: Folded concat(0x000801023201, 0x02) to b'/x00/x08/x01/x022/x01/x02'
-debug: Folded concat(0x000701023201, 0x02) to b'/x00/x07/x01/x022/x01/x02'
+debug: Simplified (len 0x010232) to 3u
+debug: Simplified (concat 0x000601023201 0x02) to 0x00060102320102
+debug: Simplified (concat 0x000801023201 0x02) to 0x00080102320102
+debug: Simplified (concat 0x000701023201 0x02) to 0x00070102320102
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5189,6 +5392,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x0008a0 20u 1u) to 0x0008a8
+debug: Simplified (setbit 0x0009a0 20u 1u) to 0x0009a8
+debug: Simplified (setbit 0x0007a0 20u 1u) to 0x0007a8
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5203,12 +5409,14 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00020004000b, "/x00/x05Hello") to b'/x00/x02/x00/x04/x00/x0b/x00/x05Hello'
-debug: Folded concat(0x000800100017, 0x001e) to b'/x00/x08/x00/x10/x00/x17/x00/x1e'
-debug: Folded 35 + 5 to 40
-debug: Folded 35 + 7 to 42
-debug: Folded concat(0x0006000c0013, 0x001a) to b'/x00/x06/x00/x0c/x00/x13/x00/x1a'
-debug: Folded 31 + 7 to 38
+debug: Simplified (concat 0x00020004000b "/x00/x05Hello") to AAIABAALAAVIZWxsbw==
+debug: Simplified (concat 0x000800100017 0x001e) to 0x000800100017001e
+debug: Simplified ((extract 6 2) value_as_bytes%28#0) to 0x0023
+debug: Simplified (+ 35u 5u) to 40u
+debug: Simplified (+ 35u 7u) to 42u
+debug: Simplified (concat 0x0006000c0013 0x001a) to 0x0006000c0013001a
+debug: Simplified ((extract 6 2) value_as_bytes%118#0) to 0x001f
+debug: Simplified (+ 31u 7u) to 38u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5263,9 +5471,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x80320006000d, "/x00/x05Happy") to b'/x802/x00/x06/x00/r/x00/x05Happy'
-debug: Folded concat(0x000c0006000d, "/x00/x05Happy") to b'/x00/x0c/x00/x06/x00/r/x00/x05Happy'
-debug: Folded concat(0x000c0006000d, "/x00/x05Hmmmm") to b'/x00/x0c/x00/x06/x00/r/x00/x05Hmmmm'
+debug: Simplified (concat 0x80320006000d "/x00/x05Happy") to gDIABgANAAVIYXBweQ==
+debug: Simplified (concat 0x000c0006000d "/x00/x05Happy") to AAwABgANAAVIYXBweQ==
+debug: Simplified (concat 0x000c0006000d "/x00/x05Hmmmm") to AAwABgANAAVIbW1tbQ==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5280,10 +5488,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(0x01020304) to 4
-debug: Folded concat(0x000501020304, 0x05) to b'/x00/x05/x01/x02/x03/x04/x05'
-debug: Folded concat(AAIABAALAAVIZWxsbw==, "/x00/x05World") to b'/x00/x02/x00/x04/x00/x0b/x00/x05Hello/x00/x05World'
-debug: Folded 1u * 2u to 2u
+debug: Simplified (len 0x01020304) to 4u
+debug: Simplified (concat 0x000501020304 0x05) to 0x00050102030405
+debug: Simplified (concat AAIABAALAAVIZWxsbw== "/x00/x05World") to AAIABAALAAVIZWxsbwAFV29ybGQ=
+debug: Simplified (* 1u 2u) to 2u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5411,9 +5619,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00060102320102, 0x32) to b'/x00/x06/x01/x022/x01/x022'
-debug: Folded concat(0x00080102320102, 0x32) to b'/x00/x08/x01/x022/x01/x022'
-debug: Folded concat(0x00070102320102, 0x32) to b'/x00/x07/x01/x022/x01/x022'
+debug: Simplified ((extract 6 0) len_bytes%5#0) to 0x0003
+debug: Simplified (concat 0x00060102320102 0x32) to 0x0006010232010232
+debug: Simplified (concat 0x00080102320102 0x32) to 0x0008010232010232
+debug: Simplified (concat 0x00070102320102 0x32) to 0x0007010232010232
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5430,6 +5639,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x0008a8 21u 0u) to 0x0008a8
+debug: Simplified (setbit 0x0009a8 21u 0u) to 0x0009a8
+debug: Simplified (setbit 0x0007a8 21u 0u) to 0x0007a8
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5444,12 +5656,15 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAIABAALAAVIZWxsbw==, "/x00/x05World") to b'/x00/x02/x00/x04/x00/x0b/x00/x05Hello/x00/x05World'
-debug: Folded concat(0x000800100017001e, 0x0023) to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#'
-debug: Folded 40 + 7 to 47
-debug: Folded 42 + 7 to 49
-debug: Folded concat(0x0006000c0013001a, 0x001f) to b'/x00/x06/x00/x0c/x00/x13/x00/x1a/x00/x1f'
-debug: Folded 38 + 7 to 45
+debug: Simplified (concat AAIABAALAAVIZWxsbw== "/x00/x05World") to AAIABAALAAVIZWxsbwAFV29ybGQ=
+debug: Simplified (concat 0x000800100017001e 0x0023) to 0x000800100017001e0023
+debug: Simplified ((extract 6 2) value_as_bytes%31#0) to 0x0028
+debug: Simplified (+ 40u 7u) to 47u
+debug: Simplified ((extract 6 2) value_as_bytes%88#0) to 0x002a
+debug: Simplified (+ 42u 7u) to 49u
+debug: Simplified (concat 0x0006000c0013001a 0x001f) to 0x0006000c0013001a001f
+debug: Simplified ((extract 6 2) value_as_bytes%121#0) to 0x0026
+debug: Simplified (+ 38u 7u) to 45u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5506,9 +5721,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(gDIABgANAAVIYXBweQ==, "/x00/x04Days") to b'/x802/x00/x06/x00/r/x00/x05Happy/x00/x04Days'
-debug: Folded concat(AAwABgANAAVIYXBweQ==, "/x00/x04Days") to b'/x00/x0c/x00/x06/x00/r/x00/x05Happy/x00/x04Days'
-debug: Folded concat(AAwABgANAAVIbW1tbQ==, "/x00/x07Oh well") to b'/x00/x0c/x00/x06/x00/r/x00/x05Hmmmm/x00/x07Oh well'
+debug: Simplified (concat gDIABgANAAVIYXBweQ== "/x00/x04Days") to gDIABgANAAVIYXBweQAERGF5cw==
+debug: Simplified (concat AAwABgANAAVIYXBweQ== "/x00/x04Days") to AAwABgANAAVIYXBweQAERGF5cw==
+debug: Simplified (concat AAwABgANAAVIbW1tbQ== "/x00/x07Oh well") to AAwABgANAAVIbW1tbQAHT2ggd2VsbA==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5523,7 +5738,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 2 + 2 to 4
+debug: Simplified ((extract 6 0) len_bytes%5#0) to 0x0004
+debug: Simplified (+ 2u 2u) to 4u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5650,9 +5866,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0003, 0x010232) to b'/x00/x03/x01/x022'
-debug: Folded concat(0x0008010232010232, 0x04) to b'/x00/x08/x01/x022/x01/x022/x04'
-debug: Folded concat(0x0007010232010232, 0x04) to b'/x00/x07/x01/x022/x01/x022/x04'
+debug: Simplified (concat 0x0003 0x010232) to 0x0003010232
+debug: Simplified (concat 0x0008010232010232 0x04) to 0x000801023201023204
+debug: Simplified (concat 0x0007010232010232 0x04) to 0x000701023201023204
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5667,6 +5883,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x0008a8 22u 1u) to 0x0008aa
+debug: Simplified (setbit 0x0009a8 22u 1u) to 0x0009aa
+debug: Simplified (setbit 0x0007a8 22u 1u) to 0x0007aa
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5681,11 +5900,15 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000800100017001e0023, 0x0028) to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00('
-debug: Folded 47 + 7 to 54
-debug: Folded concat(0x000800100017001e0023, 0x002a) to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*'
-debug: Folded 49 + 7 to 56
-debug: Folded concat(0x0006000c0013001a001f, 0x0026) to b'/x00/x06/x00/x0c/x00/x13/x00/x1a/x00/x1f/x00&'
+debug: Simplified (== AAIABAALAAVIZWxsbwAFV29ybGQ= "/x00/x02/x00/x04/x00/x0b/x00/x05Hello/x00/x05World") to 1u
+debug: Simplified (concat 0x000800100017001e0023 0x0028) to 0x000800100017001e00230028
+debug: Simplified ((extract 6 2) value_as_bytes%34#0) to 0x002f
+debug: Simplified (+ 47u 7u) to 54u
+debug: Simplified (concat 0x000800100017001e0023 0x002a) to 0x000800100017001e0023002a
+debug: Simplified ((extract 6 2) value_as_bytes%91#0) to 0x0031
+debug: Simplified (+ 49u 7u) to 56u
+debug: Simplified (concat 0x0006000c0013001a001f 0x0026) to 0x0006000c0013001a001f0026
+debug: Simplified ((extract 6 2) value_as_bytes%124#0) to 0x002d
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5742,6 +5965,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit gDIABgANAAVIYXBweQAERGF5cw== 0u 0u) to ADIABgANAAVIYXBweQAERGF5cw==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5754,7 +5978,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0004, 0x01020304) to b'/x00/x04/x01/x02/x03/x04'
+debug: Simplified (concat 0x0004 0x01020304) to 0x000401020304
+debug: Simplified ((substring 4 11) AAEAAgAFV29ybGQ=) to AAVXb3JsZA==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5880,7 +6105,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000801023201023204, 0x5a) to b'/x00/x08/x01/x022/x01/x022/x04Z'
+debug: Simplified (== 0x0003010232 0x0003010232) to 1u
+debug: Simplified ((extract 2 0) 0x0003010232) to 0x010232
+debug: Simplified (concat 0x000801023201023204 0x5a) to 0x0008010232010232045a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5895,6 +6122,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x0008aa 23u 0u) to 0x0008aa
+debug: Simplified (setbit 0x0009aa 23u 0u) to 0x0009aa
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5908,11 +6137,13 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000800100017001e00230028, 0x002f) to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00/'
-debug: Folded 54 + 5 to 59
-debug: Folded concat(0x000800100017001e0023002a, 0x0031) to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001'
-debug: Folded 56 + 5 to 61
-debug: Folded concat(0x0006000c0013001a001f0026, 0x002d) to b'/x00/x06/x00/x0c/x00/x13/x00/x1a/x00/x1f/x00&/x00-'
+debug: Simplified (concat 0x000800100017001e00230028 0x002f) to 0x000800100017001e00230028002f
+debug: Simplified ((extract 6 2) value_as_bytes%37#0) to 0x0036
+debug: Simplified (+ 54u 5u) to 59u
+debug: Simplified (concat 0x000800100017001e0023002a 0x0031) to 0x000800100017001e0023002a0031
+debug: Simplified ((extract 6 2) value_as_bytes%94#0) to 0x0038
+debug: Simplified (+ 56u 5u) to 61u
+debug: Simplified (concat 0x0006000c0013001a001f0026 0x002d) to 0x0006000c0013001a001f0026002d
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -5977,6 +6208,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x000401020304 0x000401020304) to 1u
+debug: Simplified ((extract 2 0) 0x000401020304) to 0x01020304
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6102,7 +6335,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x010232, 0x010232) to b'/x01/x022/x01/x022'
+debug: Simplified (concat 0x010232 0x010232) to 0x010232010232
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6115,7 +6348,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0009aa, 0x80) to b'/x00/t/xaa/x80'
+debug: Simplified (concat 0x0009aa 0x80) to 0x0009aa80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6128,9 +6361,11 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000800100017001e00230028002f, 0x0036) to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006'
-debug: Folded concat(0x000800100017001e0023002a0031, 0x0038) to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008'
-debug: Folded concat(0x0006000c0013001a001f0026002d, "/x00/x05Hello") to b'/x00/x06/x00/x0c/x00/x13/x00/x1a/x00/x1f/x00&/x00-/x00/x05Hello'
+debug: Simplified (concat 0x000800100017001e00230028002f 0x0036) to 0x000800100017001e00230028002f0036
+debug: Simplified ((extract 6 2) value_as_bytes%40#0) to 0x003b
+debug: Simplified (concat 0x000800100017001e0023002a0031 0x0038) to 0x000800100017001e0023002a00310038
+debug: Simplified ((extract 6 2) value_as_bytes%97#0) to 0x003d
+debug: Simplified (concat 0x0006000c0013001a001f0026002d "/x00/x05Hello") to AAYADAATABoAHwAmAC0ABUhlbGxv
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6193,7 +6428,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x01020304, 0x05) to b'/x01/x02/x03/x04/x05'
+debug: Simplified (concat 0x01020304 0x05) to 0x0102030405
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6318,7 +6553,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(0x010232010232) to 6
+debug: Simplified (len 0x010232010232) to 6u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6342,9 +6577,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000800100017001e00230028002f0036, 0x003b) to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006/x00;'
-debug: Folded concat(0x000800100017001e0023002a00310038, 0x003d) to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008/x00='
-debug: Folded concat(AAYADAATABoAHwAmAC0ABUhlbGxv, "/x00/x05World") to b'/x00/x06/x00/x0c/x00/x13/x00/x1a/x00/x1f/x00&/x00-/x00/x05Hello/x00/x05World'
+debug: Simplified (concat 0x000800100017001e00230028002f0036 0x003b) to 0x000800100017001e00230028002f0036003b
+debug: Simplified (concat 0x000800100017001e0023002a00310038 0x003d) to 0x000800100017001e0023002a00310038003d
+debug: Simplified (concat AAYADAATABoAHwAmAC0ABUhlbGxv "/x00/x05World") to AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZA==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6403,7 +6638,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(0x0102030405) to 5
+debug: Simplified (len 0x0102030405) to 5u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6528,6 +6763,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 6 0) len_bytes%14#0) to 0x0006
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6552,9 +6788,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000800100017001e00230028002f0036003b, "/x00/x05Hello") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006/x00;/x00/x05Hello'
-debug: Folded concat(0x000800100017001e0023002a00310038003d, "/x00/x05Hello") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008/x00=/x00/x05Hello'
-debug: Folded concat(AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZA==, "/x00/x03Foo") to b'/x00/x06/x00/x0c/x00/x13/x00/x1a/x00/x1f/x00&/x00-/x00/x05Hello/x00/x05World/x00/x03Foo'
+debug: Simplified (concat 0x000800100017001e00230028002f0036003b "/x00/x05Hello") to AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbw==
+debug: Simplified (concat 0x000800100017001e0023002a00310038003d "/x00/x05Hello") to AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbw==
+debug: Simplified (concat AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZA== "/x00/x03Foo") to AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9v
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6613,6 +6849,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 6 0) len_bytes%14#0) to 0x0005
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6738,7 +6975,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0006, 0x010232010232) to b'/x00/x06/x01/x022/x01/x022'
+debug: Simplified (concat 0x0006 0x010232010232) to 0x0006010232010232
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6762,9 +6999,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbw==, "/x00/x05World") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006/x00;/x00/x05Hello/x00/x05World'
-debug: Folded concat(AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbw==, "/x00/x05World") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008/x00=/x00/x05Hello/x00/x05World'
-debug: Folded concat(AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9v, "/x00/x05Hello") to b'/x00/x06/x00/x0c/x00/x13/x00/x1a/x00/x1f/x00&/x00-/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x05Hello'
+debug: Simplified (concat AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbw== "/x00/x05World") to AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQ=
+debug: Simplified (concat AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbw== "/x00/x05World") to AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQ=
+debug: Simplified (concat AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9v "/x00/x05Hello") to AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9vAAVIZWxsbw==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6823,7 +7060,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0005, 0x0102030405) to b'/x00/x05/x01/x02/x03/x04/x05'
+debug: Simplified (concat 0x0005 0x0102030405) to 0x00050102030405
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6948,6 +7185,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x0006010232010232 0x0006010232010232) to 1u
+debug: Simplified ((extract 2 0) 0x0006010232010232) to 0x010232010232
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -6972,9 +7211,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQ=, "/x00/x03Foo") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006/x00;/x00/x05Hello/x00/x05World/x00/x03Foo'
-debug: Folded concat(AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQ=, "/x00/x03Foo") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008/x00=/x00/x05Hello/x00/x05World/x00/x03Foo'
-debug: Folded concat(AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9vAAVIZWxsbw==, "/x00/x05Hello") to b'/x00/x06/x00/x0c/x00/x13/x00/x1a/x00/x1f/x00&/x00-/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x05Hello/x00/x05Hello'
+debug: Simplified (concat AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQ= "/x00/x03Foo") to AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0Zvbw==
+debug: Simplified (concat AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQ= "/x00/x03Foo") to AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0Zvbw==
+debug: Simplified (concat AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9vAAVIZWxsbw== "/x00/x05Hello") to AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9vAAVIZWxsbwAFSGVsbG8=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7033,6 +7272,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x00050102030405 0x00050102030405) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7157,7 +7397,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x010232010232, 0x045a) to b'/x01/x022/x01/x022/x04Z'
+debug: Simplified (concat 0x010232010232 0x045a) to 0x010232010232045a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7181,9 +7421,9 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0Zvbw==, "/x00/x03Bar") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006/x00;/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x03Bar'
-debug: Folded concat(AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0Zvbw==, "/x00/x05Hello") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008/x00=/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x05Hello'
-debug: Folded concat(AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9vAAVIZWxsbwAFSGVsbG8=, "/x00/x05Hello") to b'/x00/x06/x00/x0c/x00/x13/x00/x1a/x00/x1f/x00&/x00-/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x05Hello/x00/x05Hello/x00/x05Hello'
+debug: Simplified (concat AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0Zvbw== "/x00/x03Bar") to AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFy
+debug: Simplified (concat AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0Zvbw== "/x00/x05Hello") to AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8=
+debug: Simplified (concat AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9vAAVIZWxsbwAFSGVsbG8= "/x00/x05Hello") to AAYADAATABoAHwAmAC0ABUhlbGxvAAVXb3JsZAADRm9vAAVIZWxsbwAFSGVsbG8ABUhlbGxv
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7365,7 +7605,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(0x010232010232045a) to 8
+debug: Simplified (len 0x010232010232045a) to 8u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7389,8 +7629,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFy, "/x00/x05Hello") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006/x00;/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x03Bar/x00/x05Hello'
-debug: Folded concat(AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8=, "/x00/x05Hello") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008/x00=/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x05Hello/x00/x05Hello'
+debug: Simplified (concat AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFy "/x00/x05Hello") to AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbw==
+debug: Simplified (concat AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8= "/x00/x05Hello") to AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxv
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7571,6 +7811,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 6 0) len_bytes%23#0) to 0x0008
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7595,8 +7836,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbw==, "/x00/x05World") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006/x00;/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x03Bar/x00/x05Hello/x00/x05World'
-debug: Folded concat(AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxv, "/x00/x05Hello") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008/x00=/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x05Hello/x00/x05Hello/x00/x05Hello'
+debug: Simplified (concat AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbw== "/x00/x05World") to AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbwAFV29ybGQ=
+debug: Simplified (concat AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxv "/x00/x05Hello") to AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxvAAVIZWxsbw==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7777,7 +8018,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0008, 0x010232010232045a) to b'/x00/x08/x01/x022/x01/x022/x04Z'
+debug: Simplified (concat 0x0008 0x010232010232045a) to 0x0008010232010232045a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7801,8 +8042,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbwAFV29ybGQ=, "/x00/x03Foo") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006/x00;/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x03Bar/x00/x05Hello/x00/x05World/x00/x03Foo'
-debug: Folded concat(AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxvAAVIZWxsbw==, "/x00/x03Foo") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008/x00=/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x05Hello/x00/x05Hello/x00/x05Hello/x00/x03Foo'
+debug: Simplified (concat AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbwAFV29ybGQ= "/x00/x03Foo") to AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbwAFV29ybGQAA0Zvbw==
+debug: Simplified (concat AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxvAAVIZWxsbw== "/x00/x03Foo") to AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxvAAVIZWxsbwADRm9v
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -7983,6 +8224,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x0008010232010232045a 0x0008010232010232045a) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -8006,8 +8248,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbwAFV29ybGQAA0Zvbw==, "/x00/x03Bar") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00(/x00//x006/x00;/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x03Bar/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x03Bar'
-debug: Folded concat(AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxvAAVIZWxsbwADRm9v, "/x00/x03Bar") to b'/x00/x08/x00/x10/x00/x17/x00/x1e/x00#/x00*/x001/x008/x00=/x00/x05Hello/x00/x05World/x00/x03Foo/x00/x05Hello/x00/x05Hello/x00/x05Hello/x00/x03Foo/x00/x03Bar'
+debug: Simplified (concat AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbwAFV29ybGQAA0Zvbw== "/x00/x03Bar") to AAgAEAAXAB4AIwAoAC8ANgA7AAVIZWxsbwAFV29ybGQAA0ZvbwADQmFyAAVIZWxsbwAFV29ybGQAA0ZvbwADQmFy
+debug: Simplified (concat AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxvAAVIZWxsbwADRm9v "/x00/x03Bar") to AAgAEAAXAB4AIwAqADEAOAA9AAVIZWxsbwAFV29ybGQAA0ZvbwAFSGVsbG8ABUhlbGxvAAVIZWxsbwADRm9vAANCYXI=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9043,6 +9285,8 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (len 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b) to 64u
+debug: Simplified (b| 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b b_zeros%43#0) to 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: awst_tmp%2#0, ternary_result%4#1
@@ -9061,6 +9305,9 @@ debug: Removing unused variable uint8#0
 debug: Removing unused variable test_bytes#0
 debug: Removing unused variable decimals#0
 debug: Removing unused variable really_big_int#0
+debug: Removing unused variable len_%41#0
+debug: Removing unused variable b_zeros%43#0
+debug: Removing unused variable really_big_decimal#0
 debug: Removing unused variable biguint#0
 debug: Removing unused variable arc4_biguint_const#0
 debug: Optimizer: Simplify Control Ops
@@ -9074,17 +9321,19 @@ debug: Not removing empty block block@14: // ternary_false_L41 because it's used
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let len_%36#0: uint64 = (len 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) with copy of existing registers [Register(atype=uint64, name='tmp%34', version=0, source_location=arc4_types/numeric.py:49:15-42)]
-debug: Replacing redundant declaration let b_zeros%43#0: bytes = (bzero 64u) with copy of existing registers [Register(atype=bytes, name='b_zeros%38', version=0, source_location=arc4_types/numeric.py:50:33-82)]
+debug: Replacing redundant declaration let tmp%51#0: uint64 = (len 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) with copy of existing registers [Register(atype=uint64, name='tmp%34', version=0, source_location=arc4_types/numeric.py:49:15-42)]
 debug: Replacing redundant declaration let awst_tmp%8#0: uint64 = (len 0x7fffffffffffffff00) with copy of existing registers [Register(atype=uint64, name='awst_tmp%2', version=0, source_location=arc4_types/numeric.py:35:32-46)]
 debug: Replacing redundant declaration let awst_tmp%14#0: uint64 = (len 0x7fffffffffffffff00) with copy of existing registers [Register(atype=uint64, name='awst_tmp%8', version=0, source_location=arc4_types/numeric.py:37:49-63)]
 debug: Replacing redundant declaration let awst_tmp%20#0: uint64 = (len 0x7fffffffffffffff00) with copy of existing registers [Register(atype=uint64, name='awst_tmp%14', version=0, source_location=arc4_types/numeric.py:39:33-47)]
 debug: Replacing redundant declaration let awst_tmp%26#0: uint64 = (len 0x7fffffffffffffff00) with copy of existing registers [Register(atype=uint64, name='awst_tmp%20', version=0, source_location=arc4_types/numeric.py:40:33-47)]
 debug: Found equivalence set: awst_tmp%2#0, awst_tmp%8#0, awst_tmp%14#0, awst_tmp%20#0, awst_tmp%26#0
 debug: Replacing {awst_tmp%8#0, awst_tmp%14#0, awst_tmp%20#0, awst_tmp%26#0} with awst_tmp%2#0 made 8 modifications
-debug: Found equivalence set: tmp%34#0, len_%36#0
-debug: Replacing {len_%36#0} with tmp%34#0 made 1 modifications
-debug: Found equivalence set: b_zeros%38#0, b_zeros%43#0
-debug: Replacing {b_zeros%43#0} with b_zeros%38#0 made 1 modifications
+debug: Found equivalence set: tmp%34#0, len_%36#0, tmp%51#0
+debug: Replacing {len_%36#0, tmp%51#0} with tmp%34#0 made 2 modifications
+debug: Replacing redundant declaration let tmp%52#0: uint64 = (== tmp%34#0 64u) with copy of existing registers [Register(atype=uint64, name='tmp%35', version=0, source_location=arc4_types/numeric.py:49:15)]
+debug: Found equivalence set: tmp%35#0, tmp%52#0
+debug: Replacing {tmp%52#0} with tmp%35#0 made 1 modifications
+debug: Removing redundant assert of tmp%35#0
 debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.clear_state_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
@@ -9101,10 +9350,14 @@ debug: Output IR to arc4_types/out/Arc4NumericTypesContract.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(0x7fffffffffffffff00) to 9
-debug: Folded len(0x0000015333430684) to 8
-debug: Folded len(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) to 64
-debug: Folded 1 b+ 1 to 2
+debug: Simplified ((extract 7 1) val_as_bytes%0#0) to 0xff
+debug: Simplified (len 0x7fffffffffffffff00) to 9u
+debug: Simplified (len 0x0000015333430684) to 8u
+debug: Simplified (len 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) to 64u
+debug: Simplified (b| 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff b_zeros%38#0) to 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+debug: Simplified (<= 64u 64u) to 1u
+debug: Simplified (b+ 1b 1b) to 2b
+debug: Simplified (b== 1b 0x00000000000000000000000000000001) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9113,7 +9366,11 @@ debug: Removing unused variable val_as_bytes%0#0
 debug: Removing unused variable int8_encoded#0
 debug: Removing unused variable tmp%32#0
 debug: Removing unused variable tmp%34#0
+debug: Removing unused variable b_zeros%38#0
+debug: Removing unused variable tmp%39#0
+debug: Removing unused variable no_overflow%42#0
 debug: Removing unused variable tmp%44#0
+debug: Removing unused variable tmp%48#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
@@ -9139,18 +9396,23 @@ debug: Output IR to arc4_types/out/Arc4NumericTypesContract.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 1 < 9 to 1
-debug: Folded 3 < 9 to 1
-debug: Folded 2 < 9 to 1
-debug: Folded 4 < 9 to 1
-debug: Folded 8 < 9 to 1
-debug: Folded 8 == 8 to 1
-debug: Folded 64 == 64 to 1
-debug: Folded 64 <= 64 to 1
+debug: Simplified (btoi 0xff) to 255u
+debug: Simplified (< 1u 9u) to 1u
+debug: Simplified (< 3u 9u) to 1u
+debug: Simplified (< 2u 9u) to 1u
+debug: Simplified (< 4u 9u) to 1u
+debug: Simplified (< 8u 9u) to 1u
+debug: Simplified (== 8u 8u) to 1u
+debug: Simplified (== 64u 64u) to 1u
+debug: Simplified (<= 64u 64u) to 1u
+debug: Simplified (== 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) to 1u
+debug: Simplified (len 2b) to 1u
+debug: Simplified (b| 2b b_zeros%47#0) to 0x00000000000000000000000000000002
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable int8_decoded#0
 debug: Removing unused variable tmp%3#0
 debug: Removing unused variable tmp%9#0
 debug: Removing unused variable tmp%15#0
@@ -9159,6 +9421,10 @@ debug: Removing unused variable tmp%27#0
 debug: Removing unused variable tmp%33#0
 debug: Removing unused variable tmp%35#0
 debug: Removing unused variable no_overflow%37#0
+debug: Removing unused variable tmp%40#0
+debug: Removing unused variable len_%45#0
+debug: Removing unused variable b_zeros%47#0
+debug: Removing unused variable arc4_biguint_dynamic#0
 debug: Optimizer: Simplify Control Ops
 debug: simplified terminator of block@0: // L25 from goto 1u ? block@1 : block@2 to goto block@1
 debug: simplified terminator of block@3: // ternary_merge_L35 from goto 1u ? block@4 : block@5 to goto block@4
@@ -9220,16 +9486,22 @@ debug: Output IR to arc4_types/out/Arc4NumericTypesContract.ssa.opt_pass_3.ir
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 255u 255u) to 1u
+debug: Simplified (<= 1u 16u) to 1u
+debug: Simplified (len 0x00000000000000000000000000000002) to 16u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%1#0
 debug: Removing unused variable awst_tmp%2#0
 debug: Removing unused variable ternary_result%4#0
 debug: Removing unused variable ternary_result%10#0
 debug: Removing unused variable ternary_result%16#0
 debug: Removing unused variable ternary_result%22#0
 debug: Removing unused variable ternary_result%28#0
+debug: Removing unused variable no_overflow%46#0
+debug: Removing unused variable tmp%49#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Replaced predecessor block@3: // ternary_merge_L35 with block@0: // L25 in block@6: // ternary_merge_L37
@@ -9259,6 +9531,12 @@ debug: Output IR to arc4_types/out/Arc4NumericTypesContract.ssa.opt_pass_4.ir
 debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((substring 0 1) 0x7fffffffffffffff00) to 0x7f
+debug: Simplified ((substring 0 3) 0x7fffffffffffffff00) to 0x7fffff
+debug: Simplified ((substring 0 2) 0x7fffffffffffffff00) to 0x7fff
+debug: Simplified ((substring 0 4) 0x7fffffffffffffff00) to 0x7fffffff
+debug: Simplified ((substring 0 8) 0x7fffffffffffffff00) to 0x7fffffffffffffff
+debug: Simplified (== 16u 16u) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9268,6 +9546,7 @@ debug: Removing unused variable tmp%11#0
 debug: Removing unused variable tmp%17#0
 debug: Removing unused variable tmp%23#0
 debug: Removing unused variable tmp%29#0
+debug: Removing unused variable tmp%50#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
@@ -9286,6 +9565,74 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Output IR to arc4_types/out/Arc4NumericTypesContract.ssa.opt_pass_5.ir
 debug: Begin optimization pass 6/100
+debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
+debug: Optimizer: Arithmetic Simplification
+debug: Simplified (btoi 0x7f) to 127u
+debug: Simplified (btoi 0x7fffff) to 8388607u
+debug: Simplified (btoi 0x7fff) to 32767u
+debug: Simplified (btoi 0x7fffffff) to 2147483647u
+debug: Simplified (btoi 0x7fffffffffffffff) to 9223372036854775807u
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%6#0
+debug: Removing unused variable tmp%12#0
+debug: Removing unused variable tmp%18#0
+debug: Removing unused variable tmp%24#0
+debug: Removing unused variable tmp%30#0
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.clear_state_program
+debug: Optimizer: Arithmetic Simplification
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to arc4_types/out/Arc4NumericTypesContract.ssa.opt_pass_6.ir
+debug: Begin optimization pass 7/100
+debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
+debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 127u 127u) to 1u
+debug: Simplified (== 8388607u 8388607u) to 1u
+debug: Simplified (== 32767u 32767u) to 1u
+debug: Simplified (== 2147483647u 2147483647u) to 1u
+debug: Simplified (== 9223372036854775807u 9223372036854775807u) to 1u
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%7#0
+debug: Removing unused variable tmp%13#0
+debug: Removing unused variable tmp%19#0
+debug: Removing unused variable tmp%25#0
+debug: Removing unused variable tmp%31#0
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.clear_state_program
+debug: Optimizer: Arithmetic Simplification
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to arc4_types/out/Arc4NumericTypesContract.ssa.opt_pass_7.ir
+debug: Begin optimization pass 8/100
 debug: Optimizing subroutine test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
@@ -9308,7 +9655,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: No optimizations performed in pass 6, ending loop
+debug: No optimizations performed in pass 8, ending loop
 debug: Removing Phis from test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program
 debug: Removing Phis from test_cases.arc4_types.numeric.Arc4NumericTypesContract.clear_state_program
 debug: Coalescing local variables in test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program using strategy RootOperandGrouping
@@ -9319,62 +9666,6 @@ debug: Sequentializing parallel copies in test_cases.arc4_types.numeric.Arc4Nume
 debug: Sequentializing parallel copies in test_cases.arc4_types.numeric.Arc4NumericTypesContract.clear_state_program
 debug: Performing post-SSA optimizations
 debug: Output IR to arc4_types/out/Arc4NumericTypesContract.destructured.ir
-debug: Inserted main_block@0.ops[6]: 'store tmp%1#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[8]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[12]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[14]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[17]: 'store tmp%7#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[19]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[23]: 'store tmp%12#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[25]: 'load tmp%12#0' with 'load tmp%12#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[28]: 'store tmp%13#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[30]: 'load tmp%13#0' with 'load tmp%13#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[34]: 'store tmp%18#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[36]: 'load tmp%18#0' with 'load tmp%18#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[39]: 'store tmp%19#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[41]: 'load tmp%19#0' with 'load tmp%19#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[45]: 'store tmp%24#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[47]: 'load tmp%24#0' with 'load tmp%24#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[50]: 'store tmp%25#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[52]: 'load tmp%25#0' with 'load tmp%25#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[56]: 'store tmp%30#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[58]: 'load tmp%30#0' with 'load tmp%30#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[61]: 'store tmp%31#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[63]: 'load tmp%31#0' with 'load tmp%31#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[75]: 'store tmp%40#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[77]: 'load tmp%40#0' with 'load tmp%40#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[81]: 'store len_%41#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[83]: 'load len_%41#0' with 'load len_%41#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[86]: 'store no_overflow%42#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[88]: 'load no_overflow%42#0' with 'load no_overflow%42#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[96]: 'store len_%45#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[98]: 'load len_%45#0' with 'load len_%45#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[101]: 'store no_overflow%46#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[103]: 'load no_overflow%46#0' with 'load no_overflow%46#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[115]: 'store tmp%48#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[117]: 'load tmp%48#0' with 'load tmp%48#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[121]: 'store tmp%49#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[123]: 'load tmp%49#0' with 'load tmp%49#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[126]: 'store tmp%50#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[128]: 'load tmp%50#0' with 'load tmp%50#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[132]: 'store tmp%51#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[134]: 'load tmp%51#0' with 'load tmp%51#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[137]: 'store tmp%52#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[139]: 'load tmp%52#0' with 'load tmp%52#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[2]: 'store int8_decoded#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[5]: 'load int8_decoded#0' with 'load int8_decoded#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[68]: 'store b_zeros%38#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[71]: 'load b_zeros%38#0' with 'load b_zeros%38#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[73]: 'store tmp%39#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[76]: 'load tmp%39#0' with 'load tmp%39#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[110]: 'store b_zeros%47#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[113]: 'load b_zeros%47#0' with 'load b_zeros%47#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[115]: 'store arc4_biguint_dynamic#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[124]: 'load arc4_biguint_dynamic#0' with 'load arc4_biguint_dynamic#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[72]: 'store b_zeros%38#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[95]: 'load b_zeros%38#0' with 'load b_zeros%38#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[97]: 'store really_big_decimal#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[137]: 'load really_big_decimal#0' with 'load really_big_decimal#0 from l-stack (no copy)'
 debug: Output IR to arc4_types/out/Arc4RefTypesContract.ssa.ir
 info: Optimizing test_cases.arc4_types.reference_types.Arc4RefTypesContract at level 1
 debug: Begin optimization pass 1/100
@@ -9468,6 +9759,13 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 2 0) "/x00/x01a") to "a"
+debug: Simplified ((extract 2 0) "/x00/x01b") to "b"
+debug: Simplified ((extract 2 0) "/x00/x01c") to "c"
+debug: Simplified ((extract 2 0) "/x00/x01d") to "d"
+debug: Simplified ((extract 2 0) "/x00/x01e") to "e"
+debug: Simplified ((extract 2 0) "/x00/x01f") to "f"
+debug: Simplified ((extract 2 0) "/x00/x01g") to "g"
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: awst_tmp%4#0, ternary_result%6#1
@@ -9524,8 +9822,12 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len("Hello World!") to 12
-debug: Folded concat("a", "b") to b'ab'
+debug: Simplified (len "Hello World!") to 12u
+debug: Simplified ((extract 2 0) "/x00/x05Hello") to "Hello"
+debug: Simplified ((extract 2 0) "/x00/x01 ") to " "
+debug: Simplified ((extract 2 0) "/x00/x06World!") to "World!"
+debug: Simplified ((extract 2 0) "/x00/x02hi") to "hi"
+debug: Simplified (concat "a" "b") to "ab"
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9557,9 +9859,10 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat("Hello", " ") to b'Hello '
-debug: Folded concat("hi", "hi") to b'hihi'
-debug: Folded len("ab") to 2
+debug: Simplified ((extract 6 2) value_as_bytes%1#0) to 0x000c
+debug: Simplified (concat "Hello" " ") to "Hello "
+debug: Simplified (concat "hi" "hi") to "hihi"
+debug: Simplified (len "ab") to 2u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9590,9 +9893,10 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_3.ir
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000c, "Hello World!") to b'/x00/x0cHello World!'
-debug: Folded len("Hello ") to 6
-debug: Folded len("hihi") to 4
+debug: Simplified (concat 0x000c "Hello World!") to AAxIZWxsbyBXb3JsZCE=
+debug: Simplified (len "Hello ") to 6u
+debug: Simplified (len "hihi") to 4u
+debug: Simplified ((extract 6 0) len_bytes%38#0) to 0x0002
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9623,8 +9927,12 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_4.ir
 debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(AAxIZWxsbyBXb3JsZCE=) to 14
-debug: Folded concat(0x0002, "ab") to b'/x00/x02ab'
+debug: Simplified ((extract 2 0) AAxIZWxsbyBXb3JsZCE=) to SGVsbG8gV29ybGQh
+debug: Simplified (!= "Hello World!" AAxIZWxsbyBXb3JsZCE=) to 1u
+debug: Simplified (len AAxIZWxsbyBXb3JsZCE=) to 14u
+debug: Simplified ((extract 6 0) len_bytes%15#0) to 0x0006
+debug: Simplified ((extract 6 0) len_bytes%30#0) to 0x0004
+debug: Simplified (concat 0x0002 "ab") to AAJhYg==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9657,9 +9965,11 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_5.ir
 debug: Begin optimization pass 6/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 2 < 14 to 1
-debug: Folded concat(0x0006, "Hello ") to b'/x00/x06Hello '
-debug: Folded concat(0x0004, "hihi") to b'/x00/x04hihi'
+debug: Simplified (< 2u 14u) to 1u
+debug: Simplified (== "Hello World!" SGVsbG8gV29ybGQh) to 1u
+debug: Simplified (concat 0x0006 "Hello ") to AAZIZWxsbyA=
+debug: Simplified (concat 0x0004 "hihi") to AARoaWhp
+debug: Simplified ((extract 2 0) AAJhYg==) to YWI=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9698,7 +10008,9 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_6.ir
 debug: Begin optimization pass 7/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(YWI=, "c") to b'abc'
+debug: Simplified ((extract 2 0) AAZIZWxsbyA=) to SGVsbG8g
+debug: Simplified (== AARoaWhp "/x00/x04hihi") to 1u
+debug: Simplified (concat YWI= "c") to YWJj
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9729,8 +10041,9 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_7.ir
 debug: Begin optimization pass 8/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(SGVsbG8g, "World!") to b'Hello World!'
-debug: Folded len(YWJj) to 3
+debug: Simplified ((substring 2 14) AAxIZWxsbyBXb3JsZCE=) to SGVsbG8gV29ybGQh
+debug: Simplified (concat SGVsbG8g "World!") to SGVsbG8gV29ybGQh
+debug: Simplified (len YWJj) to 3u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9758,7 +10071,9 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_8.ir
 debug: Begin optimization pass 9/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(SGVsbG8gV29ybGQh) to 12
+debug: Simplified (== "Hello World!" SGVsbG8gV29ybGQh) to 1u
+debug: Simplified (len SGVsbG8gV29ybGQh) to 12u
+debug: Simplified ((extract 6 0) len_bytes%45#0) to 0x0003
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9787,7 +10102,8 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_9.ir
 debug: Begin optimization pass 10/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0003, YWJj) to b'/x00/x03abc'
+debug: Simplified ((extract 6 0) len_bytes%22#0) to 0x000c
+debug: Simplified (concat 0x0003 YWJj) to AANhYmM=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9815,7 +10131,8 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_10.ir
 debug: Begin optimization pass 11/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000c, SGVsbG8gV29ybGQh) to b'/x00/x0cHello World!'
+debug: Simplified (concat 0x000c SGVsbG8gV29ybGQh) to AAxIZWxsbyBXb3JsZCE=
+debug: Simplified ((extract 2 0) AANhYmM=) to YWJj
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9842,7 +10159,8 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_11.ir
 debug: Begin optimization pass 12/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(YWJj, "d") to b'abcd'
+debug: Simplified (== "/x00/x0cHello World!" AAxIZWxsbyBXb3JsZCE=) to 1u
+debug: Simplified (concat YWJj "d") to YWJjZA==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9869,7 +10187,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_12.ir
 debug: Begin optimization pass 13/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(YWJjZA==) to 4
+debug: Simplified (len YWJjZA==) to 4u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9895,6 +10213,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_13.ir
 debug: Begin optimization pass 14/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 6 0) len_bytes%52#0) to 0x0004
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9921,7 +10240,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_14.ir
 debug: Begin optimization pass 15/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0004, YWJjZA==) to b'/x00/x04abcd'
+debug: Simplified (concat 0x0004 YWJjZA==) to AARhYmNk
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9947,6 +10266,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_15.ir
 debug: Begin optimization pass 16/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 2 0) AARhYmNk) to YWJjZA==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9972,7 +10292,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_16.ir
 debug: Begin optimization pass 17/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(YWJjZA==, "e") to b'abcde'
+debug: Simplified (concat YWJjZA== "e") to YWJjZGU=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -9998,7 +10318,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_17.ir
 debug: Begin optimization pass 18/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(YWJjZGU=) to 5
+debug: Simplified (len YWJjZGU=) to 5u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10024,6 +10344,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_18.ir
 debug: Begin optimization pass 19/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 6 0) len_bytes%59#0) to 0x0005
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10050,7 +10371,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_19.ir
 debug: Begin optimization pass 20/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0005, YWJjZGU=) to b'/x00/x05abcde'
+debug: Simplified (concat 0x0005 YWJjZGU=) to AAVhYmNkZQ==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10076,6 +10397,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_20.ir
 debug: Begin optimization pass 21/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 2 0) AAVhYmNkZQ==) to YWJjZGU=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10101,7 +10423,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_21.ir
 debug: Begin optimization pass 22/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(YWJjZGU=, "f") to b'abcdef'
+debug: Simplified (concat YWJjZGU= "f") to YWJjZGVm
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10127,7 +10449,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_22.ir
 debug: Begin optimization pass 23/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(YWJjZGVm) to 6
+debug: Simplified (len YWJjZGVm) to 6u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10153,6 +10475,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_23.ir
 debug: Begin optimization pass 24/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 6 0) len_bytes%66#0) to 0x0006
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10179,7 +10502,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_24.ir
 debug: Begin optimization pass 25/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0006, YWJjZGVm) to b'/x00/x06abcdef'
+debug: Simplified (concat 0x0006 YWJjZGVm) to AAZhYmNkZWY=
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10205,6 +10528,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_25.ir
 debug: Begin optimization pass 26/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 2 0) AAZhYmNkZWY=) to YWJjZGVm
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10230,7 +10554,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_26.ir
 debug: Begin optimization pass 27/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(YWJjZGVm, "g") to b'abcdefg'
+debug: Simplified (concat YWJjZGVm "g") to YWJjZGVmZw==
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10256,7 +10580,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_27.ir
 debug: Begin optimization pass 28/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len(YWJjZGVmZw==) to 7
+debug: Simplified (len YWJjZGVmZw==) to 7u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10282,6 +10606,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_28.ir
 debug: Begin optimization pass 29/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified ((extract 6 0) len_bytes%73#0) to 0x0007
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10308,7 +10633,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_29.ir
 debug: Begin optimization pass 30/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0007, YWJjZGVmZw==) to b'/x00/x07abcdefg'
+debug: Simplified (concat 0x0007 YWJjZGVmZw==) to AAdhYmNkZWZn
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10334,6 +10659,7 @@ debug: Output IR to arc4_types/out/Arc4StringTypesContract.ssa.opt_pass_30.ir
 debug: Begin optimization pass 31/100
 debug: Optimizing subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== "/x00/x07abcdefg" AAdhYmNkZWZn) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10396,6 +10722,10 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_tuple_buffer%1#2, coord_1#0
@@ -10497,6 +10827,11 @@ debug: Output IR to arc4_types/out/Arc4StructsTypeContract.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (concat 0x 0x000000083cfbf217) to 0x000000083cfbf217
+debug: Simplified (concat 0x 0x80) to 0x80
+debug: Simplified (getbit 0x00 0u) to 0u
+debug: Simplified (getbit 0x80 0u) to 1u
+debug: Simplified (concat 0x coord_1#0) to coord_1#0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: coord_1#0, encoded_tuple_buffer%17#1
@@ -10515,6 +10850,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine test_cases.arc4_types.structs.add
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (concat 0x val_as_bytes%5#0) to val_as_bytes%5#0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: val_as_bytes%5#0, encoded_tuple_buffer%13#1
@@ -10563,7 +10899,8 @@ debug: Output IR to arc4_types/out/Arc4StructsTypeContract.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000000083cfbf217, 0x000000230384b842) to b'/x00/x00/x00/x08</xfb/xf2/x17/x00/x00/x00#/x03/x84/xb8B'
+debug: Simplified (concat 0x000000083cfbf217 0x000000230384b842) to 0x000000083cfbf217000000230384b842
+debug: Simplified (setbit 0x80 1u 0u) to 0x80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10624,6 +10961,7 @@ debug: Output IR to arc4_types/out/Arc4StructsTypeContract.ssa.opt_pass_3.ir
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x80 2u 1u) to 0xa0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10683,6 +11021,7 @@ debug: Output IR to arc4_types/out/Arc4StructsTypeContract.ssa.opt_pass_4.ir
 debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xa0 3u 0u) to 0xa0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10742,7 +11081,7 @@ debug: Output IR to arc4_types/out/Arc4StructsTypeContract.ssa.opt_pass_5.ir
 debug: Begin optimization pass 6/100
 debug: Optimizing subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000000083cfbf217000000230384b842, 0xa0) to b'/x00/x00/x00/x08</xfb/xf2/x17/x00/x00/x00#/x03/x84/xb8B/xa0'
+debug: Simplified (concat 0x000000083cfbf217000000230384b842 0xa0) to 0x000000083cfbf217000000230384b842a0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -10991,6 +11330,10 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.structs2.Arc4StructsFromAnotherModule.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_tuple_buffer%5#4, flags#0
@@ -11027,6 +11370,9 @@ debug: Output IR to arc4_types/out/Arc4StructsFromAnotherModule.ssa.opt_pass_1.i
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.arc4_types.structs2.Arc4StructsFromAnotherModule.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (concat 0x 0x80) to 0x80
+debug: Simplified (getbit 0x00 0u) to 0u
+debug: Simplified (getbit 0x80 0u) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11054,6 +11400,7 @@ debug: Output IR to arc4_types/out/Arc4StructsFromAnotherModule.ssa.opt_pass_2.i
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.arc4_types.structs2.Arc4StructsFromAnotherModule.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x80 1u 0u) to 0x80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11079,6 +11426,7 @@ debug: Output IR to arc4_types/out/Arc4StructsFromAnotherModule.ssa.opt_pass_3.i
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.arc4_types.structs2.Arc4StructsFromAnotherModule.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x80 2u 1u) to 0xa0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11104,6 +11452,7 @@ debug: Output IR to arc4_types/out/Arc4StructsFromAnotherModule.ssa.opt_pass_4.i
 debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.arc4_types.structs2.Arc4StructsFromAnotherModule.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0xa0 3u 0u) to 0xa0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11166,8 +11515,17 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
-debug: Folded len("/x00/x05hello") to 7
-debug: Folded len("/x00/x05world") to 7
+debug: Simplified (len "/x00/x05hello") to 7u
+debug: Simplified (len "/x00/x05world") to 7u
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_tuple_buffer%1#7, my_tuple#0
@@ -11352,8 +11710,14 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 7 + 7 to 14
-debug: Folded k#0 == k#0 to 1
+debug: Simplified (concat 0x 0x01) to 0x01
+debug: Simplified ((extract 6 2) value_as_bytes%2#0) to 0x0007
+debug: Simplified (+ 7u 7u) to 14u
+debug: Simplified (concat 0x 0x04) to 0x04
+debug: Simplified (getbit 0x00 0u) to 0u
+debug: Simplified (getbit 0x80 0u) to 1u
+debug: Simplified (== k#0 k#0) to 1u
+debug: Simplified (concat 0x a#0) to a#0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: a#0, encoded_tuple_buffer%91#1
@@ -11408,8 +11772,9 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x01, 0x02) to b'/x01/x02'
-debug: Folded concat(0x04, 0x80) to b'/x04/x80'
+debug: Simplified (concat 0x01 0x02) to 0x0102
+debug: Simplified ((extract 6 2) value_as_bytes%5#0) to 0x000e
+debug: Simplified (concat 0x04 0x80) to 0x0480
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11458,7 +11823,8 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_3.ir
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0102, 0x0007) to b'/x01/x02/x00/x07'
+debug: Simplified (concat 0x0102 0x0007) to 0x01020007
+debug: Simplified (setbit 0x0480 9u 0u) to 0x0480
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11505,7 +11871,8 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_4.ir
 debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x01020007, 0x000e) to b'/x01/x02/x00/x07/x00/x0e'
+debug: Simplified (concat 0x01020007 0x000e) to 0x01020007000e
+debug: Simplified (setbit 0x0480 10u 1u) to 0x04a0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11552,7 +11919,8 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_5.ir
 debug: Begin optimization pass 6/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x01020007000e, 0xff) to b'/x01/x02/x00/x07/x00/x0e/xff'
+debug: Simplified (concat 0x01020007000e 0xff) to 0x01020007000eff
+debug: Simplified (setbit 0x04a0 11u 1u) to 0x04b0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11599,7 +11967,8 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_6.ir
 debug: Begin optimization pass 7/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x01020007000eff, "/x00/x05hello") to b'/x01/x02/x00/x07/x00/x0e/xff/x00/x05hello'
+debug: Simplified (concat 0x01020007000eff "/x00/x05hello") to AQIABwAO/wAFaGVsbG8=
+debug: Simplified (setbit 0x04b0 12u 1u) to 0x04b8
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11646,7 +12015,8 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_7.ir
 debug: Begin optimization pass 8/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AQIABwAO/wAFaGVsbG8=, "/x00/x05world") to b'/x01/x02/x00/x07/x00/x0e/xff/x00/x05hello/x00/x05world'
+debug: Simplified (concat AQIABwAO/wAFaGVsbG8= "/x00/x05world") to AQIABwAO/wAFaGVsbG8ABXdvcmxk
+debug: Simplified (setbit 0x04b8 13u 1u) to 0x04bc
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11693,6 +12063,8 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_8.ir
 debug: Begin optimization pass 9/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== AQIABwAO/wAFaGVsbG8ABXdvcmxk 0x01020007000eff000568656c6c6f0005776f726c64) to 1u
+debug: Simplified (setbit 0x04bc 14u 0u) to 0x04bc
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11739,6 +12111,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_9.ir
 debug: Begin optimization pass 10/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x04bc 15u 1u) to 0x04bd
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11784,7 +12157,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_10.ir
 debug: Begin optimization pass 11/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x04bd, 0x80) to b'/x04/xbd/x80'
+debug: Simplified (concat 0x04bd 0x80) to 0x04bd80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11830,7 +12203,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_11.ir
 debug: Begin optimization pass 12/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x04bd80, 0x10) to b'/x04/xbd/x80/x10'
+debug: Simplified (concat 0x04bd80 0x10) to 0x04bd8010
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11876,6 +12249,18 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_12.ir
 debug: Begin optimization pass 13/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x04bd8010 0x04bd8010) to 1u
+debug: Simplified ((extract 0 1) 0x04bd8010) to 0x04
+debug: Simplified (getbit 0x04bd8010 8u) to 1u
+debug: Simplified (getbit 0x04bd8010 9u) to 0u
+debug: Simplified (getbit 0x04bd8010 10u) to 1u
+debug: Simplified (getbit 0x04bd8010 11u) to 1u
+debug: Simplified (getbit 0x04bd8010 12u) to 1u
+debug: Simplified (getbit 0x04bd8010 13u) to 1u
+debug: Simplified (getbit 0x04bd8010 14u) to 0u
+debug: Simplified (getbit 0x04bd8010 15u) to 1u
+debug: Simplified (getbit 0x04bd8010 16u) to 1u
+debug: Simplified ((extract 3 1) 0x04bd8010) to 0x10
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -11959,11 +12344,17 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_13.ir
 debug: Begin optimization pass 14/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x00 0u 1u) to 0x80
+debug: Simplified (setbit 0x00 0u 0u) to 0x00
+debug: Simplified (btoi 0x04) to 4u
+debug: Simplified (btoi 0x10) to 16u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable c#0
+debug: Removing unused variable tmp%50#0
+debug: Removing unused variable tmp%68#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
@@ -12007,14 +12398,23 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_14.ir
 debug: Begin optimization pass 15/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x04, 0x80) to b'/x04/x80'
+debug: Simplified (== 4u 4u) to 1u
+debug: Simplified (== 0x80 0x00) to 0u
+debug: Simplified (!= 0x00 0x00) to 0u
+debug: Simplified (== 0x00 0x00) to 1u
+debug: Simplified (== 16u 16u) to 1u
+debug: Simplified (concat 0x04 0x80) to 0x0480
+debug: Simplified (getbit 0x00 0u) to 0u
+debug: Simplified (getbit 0x80 0u) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%51#0
 debug: Removing unused variable tmp%52#0
 debug: Removing unused variable tmp%65#0
 debug: Removing unused variable tmp%67#0
+debug: Removing unused variable tmp%69#0
 debug: Removing unused variable encoded_tuple_buffer%91#2
 debug: Removing unused variable is_true%92#0
 debug: Removing unused variable is_true%93#0
@@ -12089,6 +12489,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_15.ir
 debug: Begin optimization pass 16/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x0480 9u 0u) to 0x0480
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12135,6 +12536,8 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_16.ir
 debug: Begin optimization pass 17/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (!= 0x80 0x00) to 1u
+debug: Simplified (setbit 0x0480 10u 1u) to 0x04a0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12172,6 +12575,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_17.ir
 debug: Begin optimization pass 18/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x04a0 11u 1u) to 0x04b0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12208,6 +12612,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_18.ir
 debug: Begin optimization pass 19/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x04b0 12u 1u) to 0x04b8
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12244,6 +12649,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_19.ir
 debug: Begin optimization pass 20/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x04b8 13u 1u) to 0x04bc
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12280,6 +12686,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_20.ir
 debug: Begin optimization pass 21/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x04bc 14u 0u) to 0x04bc
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12316,6 +12723,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_21.ir
 debug: Begin optimization pass 22/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (setbit 0x04bc 15u 1u) to 0x04bd
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12352,7 +12760,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_22.ir
 debug: Begin optimization pass 23/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x04bd, 0x80) to b'/x04/xbd/x80'
+debug: Simplified (concat 0x04bd 0x80) to 0x04bd80
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12389,7 +12797,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_23.ir
 debug: Begin optimization pass 24/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x04bd80, 0x10) to b'/x04/xbd/x80/x10'
+debug: Simplified (concat 0x04bd80 0x10) to 0x04bd8010
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12426,6 +12834,7 @@ debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.ssa.opt_pass_24.ir
 debug: Begin optimization pass 25/100
 debug: Optimizing subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program
 debug: Optimizer: Arithmetic Simplification
+debug: Simplified (== 0x04bd8010 0x04bd8010) to 1u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -12508,24 +12917,16 @@ debug: Sequentializing parallel copies in test_cases.arc4_types.tuples.Arc4Tuple
 debug: Sequentializing parallel copies in test_cases.arc4_types.tuples.Arc4TuplesTypeContract.clear_state_program
 debug: Performing post-SSA optimizations
 debug: Output IR to arc4_types/out/Arc4TuplesTypeContract.destructured.ir
-debug: Inserted main_block@0.ops[2]: 'store tmp%50#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[4]: 'load tmp%50#0' with 'load tmp%50#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[7]: 'store tmp%51#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[9]: 'load tmp%51#0' with 'load tmp%51#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[13]: 'store tmp%68#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[15]: 'load tmp%68#0' with 'load tmp%68#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[18]: 'store tmp%69#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[20]: 'load tmp%69#0' with 'load tmp%69#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[28]: 'store tmp%102#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[30]: 'load tmp%102#0' with 'load tmp%102#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[33]: 'store tmp%103#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[35]: 'load tmp%103#0' with 'load tmp%103#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[40]: 'store tmp%104#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[42]: 'load tmp%104#0' with 'load tmp%104#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[24]: 'store concat#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[27]: 'load concat#0' with 'load concat#0 from l-stack (no copy)'
-debug: Inserted main_block@0.ops[26]: 'store total#0 to l-stack (copy)'
-debug: Replaced main_block@0.ops[39]: 'load total#0' with 'load total#0 from l-stack (no copy)'
+debug: Inserted main_block@0.ops[6]: 'store tmp%102#0 to l-stack (copy)'
+debug: Replaced main_block@0.ops[8]: 'load tmp%102#0' with 'load tmp%102#0 from l-stack (no copy)'
+debug: Inserted main_block@0.ops[11]: 'store tmp%103#0 to l-stack (copy)'
+debug: Replaced main_block@0.ops[13]: 'load tmp%103#0' with 'load tmp%103#0 from l-stack (no copy)'
+debug: Inserted main_block@0.ops[18]: 'store tmp%104#0 to l-stack (copy)'
+debug: Replaced main_block@0.ops[20]: 'load tmp%104#0' with 'load tmp%104#0 from l-stack (no copy)'
+debug: Inserted main_block@0.ops[2]: 'store concat#0 to l-stack (copy)'
+debug: Replaced main_block@0.ops[5]: 'load concat#0' with 'load concat#0 from l-stack (no copy)'
+debug: Inserted main_block@0.ops[4]: 'store total#0 to l-stack (copy)'
+debug: Replaced main_block@0.ops[17]: 'load total#0' with 'load total#0 from l-stack (no copy)'
 debug: Inserted test_stuff_block@0.ops[13]: 'store item_length%3#0 to l-stack (copy)'
 debug: Replaced test_stuff_block@0.ops[15]: 'load item_length%3#0' with 'load item_length%3#0 from l-stack (no copy)'
 debug: Inserted test_stuff_block@0.ops[31]: 'store item_length%7#0 to l-stack (copy)'
