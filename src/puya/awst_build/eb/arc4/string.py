@@ -21,6 +21,7 @@ from puya.awst.nodes import (
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
+    arc4_bool_bytes,
     get_bytes_expr,
 )
 from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, ExpressionBuilder
@@ -172,4 +173,9 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
                 operator=EqualityComparison(op.value),
                 rhs=get_bytes_expr(other_expr),
             )
+        )
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return arc4_bool_bytes(
+            self.expr, false_bytes=b"\x00\x00", location=location, negate=negate
         )

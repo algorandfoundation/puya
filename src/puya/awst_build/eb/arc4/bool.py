@@ -7,16 +7,12 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
-    BytesComparisonExpression,
-    BytesConstant,
-    BytesEncoding,
-    EqualityComparison,
     Literal,
 )
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
-    get_bytes_expr,
+    arc4_bool_bytes,
 )
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import expect_operand_wtype
@@ -66,15 +62,4 @@ class ARC4BoolExpressionBuilder(ARC4EncodedExpressionBuilder):
     wtype = wtypes.arc4_bool_wtype
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        return var_expression(
-            BytesComparisonExpression(
-                operator=EqualityComparison.eq if negate else EqualityComparison.ne,
-                lhs=get_bytes_expr(self.expr),
-                rhs=BytesConstant(
-                    value=b"\x00",
-                    source_location=location,
-                    encoding=BytesEncoding.base16,
-                ),
-                source_location=location,
-            )
-        )
+        return arc4_bool_bytes(self.expr, false_bytes=b"\x00", location=location, negate=negate)

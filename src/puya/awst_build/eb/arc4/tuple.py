@@ -13,6 +13,7 @@ from puya.awst.nodes import (
     TupleExpression,
     UInt64Constant,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
@@ -170,3 +171,6 @@ class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
                 )
             case _:
                 raise CodeError(f"{self.wtype.name} can only be indexed with literal values")
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return bool_eval_to_constant(value=True, location=location, negate=negate)

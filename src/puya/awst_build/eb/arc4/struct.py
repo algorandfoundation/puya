@@ -13,6 +13,7 @@ from puya.awst.nodes import (
     TupleExpression,
     UInt64Constant,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes, get_bytes_expr_builder
 from puya.awst_build.eb.base import BuilderComparisonOp, ValueExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
@@ -109,3 +110,6 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
         return arc4_compare_bytes(self, op, other, location)
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return bool_eval_to_constant(value=True, location=location, negate=negate)

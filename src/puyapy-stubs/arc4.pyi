@@ -71,6 +71,8 @@ class String(_ABIEncoded[puyapy.Bytes]):
     def __iadd__(self, other: String | str | bytes | puyapy.Bytes) -> String: ...
     def __radd__(self, other: String | str | bytes | puyapy.Bytes) -> String: ...
     def __eq__(self, other: String | str) -> bool: ...  # type: ignore[override]
+    def __bool__(self) -> bool:
+        """Returns `True` if length is not zero"""
 
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 
@@ -80,6 +82,8 @@ class UIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.UInt64]):
     Max Size: 64 bits"""
 
     def __init__(self, value: int | puyapy.UInt64 | puyapy.BigUInt) -> None: ...
+    def __bool__(self) -> bool:
+        """Returns `True` if not equal to zero"""
 
 class BigUIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.BigUInt]):
     """An ARC4 UInt consisting of the number of bits specified.
@@ -87,6 +91,8 @@ class BigUIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.BigUInt]):
     Max size: 512 bits"""
 
     def __init__(self, value: int | puyapy.UInt64 | puyapy.BigUInt) -> None: ...
+    def __bool__(self) -> bool:
+        """Returns `True` if not equal to zero"""
 
 _TDecimalPlaces = typing.TypeVar("_TDecimalPlaces", bound=int)
 
@@ -100,6 +106,8 @@ class UFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], _ABIEncoded[puyapy.U
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
         """
+    def __bool__(self) -> bool:
+        """Returns `True` if not equal to zero"""
 
 class BigUFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], _ABIEncoded[puyapy.BigUInt]):
     """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
@@ -111,6 +119,8 @@ class BigUFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], _ABIEncoded[puyap
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
         """
+    def __bool__(self) -> bool:
+        """Returns `True` if not equal to zero"""
 
 class Byte(UIntN[typing.Literal[8]]):
     """An ARC4 alias for a UInt8"""
@@ -278,11 +288,15 @@ class DynamicArray(puyapy.BytesBacked, typing.Generic[_TArrayItem], Reversible[_
     def pop(self) -> _TArrayItem: ...
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
+    def __bool__(self) -> bool:
+        """Returns `True` if not an empty array"""
 
 class Address(StaticArray[Byte, typing.Literal[32]]):
     """An alias for an array containing 32 bytes representing an Algorand address"""
 
     def __init__(self, account_or_bytes: puyapy.Bytes | puyapy.Account | bytes): ...
+    def __bool__(self) -> bool:
+        """Returns `True` if not equal to the zero address"""
 
 DynamicBytes: typing.TypeAlias = DynamicArray[Byte]
 """A variable sized array of bytes"""
