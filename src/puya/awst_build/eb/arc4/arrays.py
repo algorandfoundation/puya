@@ -11,10 +11,8 @@ from puya.awst.nodes import (
     ArrayConcat,
     ArrayExtend,
     ArrayPop,
-    BytesComparisonExpression,
     BytesConstant,
     CheckedMaybe,
-    EqualityComparison,
     Expression,
     ExpressionStatement,
     IndexExpression,
@@ -31,6 +29,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build.eb.arc4.base import (
     CopyBuilder,
+    arc4_compare_bytes,
     get_bytes_expr,
     get_bytes_expr_builder,
     get_integer_literal_value,
@@ -337,20 +336,7 @@ class ARC4ArrayExpressionBuilder(ValueExpressionBuilder, ABC):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        if isinstance(other, Literal):
-            raise CodeError(
-                f"Cannot compare arc4 encoded value of {self.wtype} to a literal value", location
-            )
-        other_expr = other.rvalue()
-        if other_expr.wtype != self.wtype:
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=get_bytes_expr(self.expr),
-            operator=EqualityComparison(op.value),
-            rhs=get_bytes_expr(other_expr),
-        )
-        return var_expression(cmp_expr)
+        return arc4_compare_bytes(self, op, other, location)
 
 
 class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):

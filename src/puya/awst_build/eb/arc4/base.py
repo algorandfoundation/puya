@@ -233,17 +233,26 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        if isinstance(other, Literal):
-            raise CodeError(
-                f"Cannot compare arc4 encoded value of {self.wtype} to a literal value", location
-            )
-        other_expr = other.rvalue()
-        if other_expr.wtype != self.wtype:
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=get_bytes_expr(self.expr),
-            operator=EqualityComparison(op.value),
-            rhs=get_bytes_expr(other_expr),
+        return arc4_compare_bytes(self, op, other, location)
+
+
+def arc4_compare_bytes(
+    lhs: ValueExpressionBuilder,
+    op: BuilderComparisonOp,
+    rhs: ExpressionBuilder | Literal,
+    location: SourceLocation,
+) -> ExpressionBuilder:
+    if isinstance(rhs, Literal):
+        raise CodeError(
+            f"Cannot compare arc4 encoded value of {lhs.wtype} to a literal value", location
         )
-        return var_expression(cmp_expr)
+    other_expr = rhs.rvalue()
+    if other_expr.wtype != lhs.wtype:
+        return NotImplemented
+    cmp_expr = BytesComparisonExpression(
+        source_location=location,
+        lhs=get_bytes_expr(lhs.expr),
+        operator=EqualityComparison(op.value),
+        rhs=get_bytes_expr(other_expr),
+    )
+    return var_expression(cmp_expr)
