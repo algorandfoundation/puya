@@ -77,11 +77,11 @@ def get_field_exprs(
 
 
 class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
-    def __init__(self, source_location: SourceLocation, wtype: wtypes.WInnerTransactionParams):
+    def __init__(self, source_location: SourceLocation, wtype: wtypes.WInnerTransactionFields):
         super().__init__(source_location)
         self.wtype = wtype
 
-    def produces(self) -> wtypes.WInnerTransactionParams:
+    def produces(self) -> wtypes.WInnerTransactionFields:
         return self.wtype
 
     def call(
@@ -119,7 +119,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
 class ParamsSubmitExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, expr: Expression, location: SourceLocation) -> None:
         super().__init__(location)
-        self.wtype = expect_wtype(expr, wtypes.WInnerTransactionParams)
+        self.wtype = expect_wtype(expr, wtypes.WInnerTransactionFields)
         self.expr = expr
 
     def call(
@@ -144,7 +144,7 @@ class ParamsSubmitExpressionBuilder(IntermediateExpressionBuilder):
 class CopyInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, expr: Expression, location: SourceLocation) -> None:
         super().__init__(location)
-        self.wtype = expect_wtype(expr, wtypes.WInnerTransactionParams)
+        self.wtype = expect_wtype(expr, wtypes.WInnerTransactionFields)
         self.expr = expr
 
     def call(
@@ -199,10 +199,10 @@ class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class InnerTxnParamsExpressionBuilder(ValueExpressionBuilder):
-    wtype: wtypes.WInnerTransactionParams
+    wtype: wtypes.WInnerTransactionFields
 
     def __init__(self, expr: Expression):
-        self.wtype = expect_wtype(expr, wtypes.WInnerTransactionParams)
+        self.wtype = expect_wtype(expr, wtypes.WInnerTransactionFields)
         super().__init__(expr)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:

@@ -11,63 +11,59 @@ from puyapy import (
     UInt64,
 )
 from puyapy._transaction import (
-    ApplicationCallTransactionFields,
-    AssetConfigTransactionFields,
-    AssetFreezeTransactionFields,
-    AssetTransferTransactionFields,
-    KeyRegistrationTransactionFields,
-    PaymentTransactionFields,
-    SharedTransactionFields,
+    ApplicationProtocol,
+    AssetConfigProtocol,
+    AssetFreezeProtocol,
+    AssetTransferProtocol,
+    KeyRegistrationProtocol,
+    PaymentProtocol,
+    TransactionBaseProtocol,
 )
 
-class PaymentInnerTransaction(PaymentTransactionFields, SharedTransactionFields, typing.Protocol):
+class PaymentInnerTransaction(PaymentProtocol, TransactionBaseProtocol, typing.Protocol):
     """Payment inner transaction"""
 
 class KeyRegistrationInnerTransaction(
-    KeyRegistrationTransactionFields, SharedTransactionFields, typing.Protocol
+    KeyRegistrationProtocol, TransactionBaseProtocol, typing.Protocol
 ):
     """Key Registration inner transaction"""
 
-class AssetConfigInnerTransaction(
-    AssetConfigTransactionFields, SharedTransactionFields, typing.Protocol
-):
+class AssetConfigInnerTransaction(AssetConfigProtocol, TransactionBaseProtocol, typing.Protocol):
     """Asset Config inner transaction"""
 
     @property
     def created_asset(self) -> Asset: ...
 
 class AssetTransferInnerTransaction(
-    AssetTransferTransactionFields, SharedTransactionFields, typing.Protocol
+    AssetTransferProtocol, TransactionBaseProtocol, typing.Protocol
 ):
     """Asset Transfer inner transaction"""
 
-class AssetFreezeInnerTransaction(
-    AssetFreezeTransactionFields, SharedTransactionFields, typing.Protocol
-):
+class AssetFreezeInnerTransaction(AssetFreezeProtocol, TransactionBaseProtocol, typing.Protocol):
     """Asset Freeze inner transaction"""
 
 class ApplicationCallInnerTransaction(
-    ApplicationCallTransactionFields, SharedTransactionFields, typing.Protocol
+    ApplicationProtocol, TransactionBaseProtocol, typing.Protocol
 ):
     """Application Call inner transaction"""
 
     def logs(self, index: UInt64 | int) -> Bytes:
-        """Log messages emitted by an application call (inner transactions only)"""
+        """Log messages emitted by an application call"""
     @property
     def num_logs(self) -> UInt64:
-        """Number of logs (inner transactions only)"""
+        """Number of logs"""
     @property
     def created_application(self) -> Application:
-        """ApplicationID allocated by the creation of an application (inner transactions only)"""
+        """ApplicationID allocated by the creation of an application"""
 
-class AnyInnerTransaction(
+class InnerTransactionResult(
     PaymentInnerTransaction,
     KeyRegistrationInnerTransaction,
     AssetConfigInnerTransaction,
     AssetTransferInnerTransaction,
     AssetFreezeInnerTransaction,
     ApplicationCallInnerTransaction,
-    SharedTransactionFields,
+    TransactionBaseProtocol,
 ):
     """An inner transaction of any type"""
 
@@ -76,14 +72,14 @@ _TResult_co = typing.TypeVar(
     covariant=True,
 )
 
-class _InnerTransactionParams(typing.Protocol[_TResult_co]):
+class _InnerTransaction(typing.Protocol[_TResult_co]):
     def submit(self) -> _TResult_co:
         """Submits inner transaction parameters and returns the resulting inner transaction"""
     def copy(self) -> typing.Self:
         """Copies a set of inner transaction parameters"""
 
-class AnyTransactionParams(_InnerTransactionParams[AnyInnerTransaction]):
-    """Parameters for an inner transaction of any type"""
+class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
+    """Creates a set of fields used to submit an inner transaction of any type"""
 
     def __init__(
         self,
@@ -203,8 +199,8 @@ class AnyTransactionParams(_InnerTransactionParams[AnyInnerTransaction]):
     ) -> None:
         """Updates inner transaction parameter values"""
 
-class PaymentTransactionParams(_InnerTransactionParams[PaymentInnerTransaction]):
-    """Parameters for a Payment inner transaction"""
+class Payment(_InnerTransaction[PaymentInnerTransaction]):
+    """Creates a set of fields used to submit a Payment inner transaction"""
 
     def __init__(
         self,
@@ -230,8 +226,8 @@ class PaymentTransactionParams(_InnerTransactionParams[PaymentInnerTransaction])
     ) -> None:
         """Updates inner transaction parameter values"""
 
-class KeyRegistrationTransactionParams(_InnerTransactionParams[KeyRegistrationInnerTransaction]):
-    """Parameters for a Key Registration inner transaction"""
+class KeyRegistration(_InnerTransaction[KeyRegistrationInnerTransaction]):
+    """Creates a set of fields used to submit a Key Registration inner transaction"""
 
     def __init__(
         self,
@@ -265,8 +261,8 @@ class KeyRegistrationTransactionParams(_InnerTransactionParams[KeyRegistrationIn
     ) -> None:
         """Updates inner transaction parameter values"""
 
-class AssetConfigTransactionParams(_InnerTransactionParams[AssetConfigInnerTransaction]):
-    """Parameters for an Asset Config inner transaction"""
+class AssetConfig(_InnerTransaction[AssetConfigInnerTransaction]):
+    """Creates a set of fields used to submit an Asset Config inner transaction"""
 
     def __init__(
         self,
@@ -310,8 +306,8 @@ class AssetConfigTransactionParams(_InnerTransactionParams[AssetConfigInnerTrans
     ) -> None:
         """Updates inner transaction parameter values"""
 
-class AssetTransferTransactionParams(_InnerTransactionParams[AssetTransferInnerTransaction]):
-    """Parameters for an Asset Transfer inner transaction"""
+class AssetTransfer(_InnerTransaction[AssetTransferInnerTransaction]):
+    """Creates a set of fields used to submit an Asset Transfer inner transaction"""
 
     def __init__(
         self,
@@ -339,8 +335,8 @@ class AssetTransferTransactionParams(_InnerTransactionParams[AssetTransferInnerT
     ) -> None:
         """Updates transaction parameter values"""
 
-class AssetFreezeTransactionParams(_InnerTransactionParams[AssetFreezeInnerTransaction]):
-    """Parameters for an Asset Freeze inner transaction"""
+class AssetFreeze(_InnerTransaction[AssetFreezeInnerTransaction]):
+    """Creates a set of fields used to submit a Asset Freeze inner transaction"""
 
     def __init__(
         self,
@@ -366,8 +362,8 @@ class AssetFreezeTransactionParams(_InnerTransactionParams[AssetFreezeInnerTrans
     ) -> None:
         """Updates inner transaction parameter values"""
 
-class ApplicationCallTransactionParams(_InnerTransactionParams[ApplicationCallInnerTransaction]):
-    """Parameters for an Application Call inner transaction"""
+class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
+    """Creates a set of fields used to submit an Application Call inner transaction"""
 
     def __init__(
         self,
@@ -432,195 +428,195 @@ _T16 = typing.TypeVar("_T16")
 
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1], _t2: _InnerTransactionParams[_T2], /
+    _t1: _InnerTransaction[_T1], _t2: _InnerTransaction[_T2], /
 ) -> tuple[_T1, _T2]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
     /,
 ) -> tuple[_T1, _T2, _T3]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
-    _t8: _InnerTransactionParams[_T8],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
+    _t8: _InnerTransaction[_T8],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
-    _t8: _InnerTransactionParams[_T8],
-    _t9: _InnerTransactionParams[_T9],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
+    _t8: _InnerTransaction[_T8],
+    _t9: _InnerTransaction[_T9],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
-    _t8: _InnerTransactionParams[_T8],
-    _t9: _InnerTransactionParams[_T9],
-    _t10: _InnerTransactionParams[_T10],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
+    _t8: _InnerTransaction[_T8],
+    _t9: _InnerTransaction[_T9],
+    _t10: _InnerTransaction[_T10],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
-    _t8: _InnerTransactionParams[_T8],
-    _t9: _InnerTransactionParams[_T9],
-    _t10: _InnerTransactionParams[_T10],
-    _t11: _InnerTransactionParams[_T11],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
+    _t8: _InnerTransaction[_T8],
+    _t9: _InnerTransaction[_T9],
+    _t10: _InnerTransaction[_T10],
+    _t11: _InnerTransaction[_T11],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
-    _t8: _InnerTransactionParams[_T8],
-    _t9: _InnerTransactionParams[_T9],
-    _t10: _InnerTransactionParams[_T10],
-    _t11: _InnerTransactionParams[_T11],
-    _t12: _InnerTransactionParams[_T12],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
+    _t8: _InnerTransaction[_T8],
+    _t9: _InnerTransaction[_T9],
+    _t10: _InnerTransaction[_T10],
+    _t11: _InnerTransaction[_T11],
+    _t12: _InnerTransaction[_T12],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
-    _t8: _InnerTransactionParams[_T8],
-    _t9: _InnerTransactionParams[_T9],
-    _t10: _InnerTransactionParams[_T10],
-    _t11: _InnerTransactionParams[_T11],
-    _t12: _InnerTransactionParams[_T12],
-    _t13: _InnerTransactionParams[_T13],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
+    _t8: _InnerTransaction[_T8],
+    _t9: _InnerTransaction[_T9],
+    _t10: _InnerTransaction[_T10],
+    _t11: _InnerTransaction[_T11],
+    _t12: _InnerTransaction[_T12],
+    _t13: _InnerTransaction[_T13],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12, _T13]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
-    _t8: _InnerTransactionParams[_T8],
-    _t9: _InnerTransactionParams[_T9],
-    _t10: _InnerTransactionParams[_T10],
-    _t11: _InnerTransactionParams[_T11],
-    _t12: _InnerTransactionParams[_T12],
-    _t13: _InnerTransactionParams[_T13],
-    _t14: _InnerTransactionParams[_T14],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
+    _t8: _InnerTransaction[_T8],
+    _t9: _InnerTransaction[_T9],
+    _t10: _InnerTransaction[_T10],
+    _t11: _InnerTransaction[_T11],
+    _t12: _InnerTransaction[_T12],
+    _t13: _InnerTransaction[_T13],
+    _t14: _InnerTransaction[_T14],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12, _T13, _T14]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
-    _t8: _InnerTransactionParams[_T8],
-    _t9: _InnerTransactionParams[_T9],
-    _t10: _InnerTransactionParams[_T10],
-    _t11: _InnerTransactionParams[_T11],
-    _t12: _InnerTransactionParams[_T12],
-    _t13: _InnerTransactionParams[_T13],
-    _t14: _InnerTransactionParams[_T14],
-    _t15: _InnerTransactionParams[_T15],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
+    _t8: _InnerTransaction[_T8],
+    _t9: _InnerTransaction[_T9],
+    _t10: _InnerTransaction[_T10],
+    _t11: _InnerTransaction[_T11],
+    _t12: _InnerTransaction[_T12],
+    _t13: _InnerTransaction[_T13],
+    _t14: _InnerTransaction[_T14],
+    _t15: _InnerTransaction[_T15],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12, _T13, _T14, _T15]: ...
 @typing.overload
 def submit_txns(
-    _t1: _InnerTransactionParams[_T1],
-    _t2: _InnerTransactionParams[_T2],
-    _t3: _InnerTransactionParams[_T3],
-    _t4: _InnerTransactionParams[_T4],
-    _t5: _InnerTransactionParams[_T5],
-    _t6: _InnerTransactionParams[_T6],
-    _t7: _InnerTransactionParams[_T7],
-    _t8: _InnerTransactionParams[_T8],
-    _t9: _InnerTransactionParams[_T9],
-    _t10: _InnerTransactionParams[_T10],
-    _t11: _InnerTransactionParams[_T11],
-    _t12: _InnerTransactionParams[_T12],
-    _t13: _InnerTransactionParams[_T13],
-    _t14: _InnerTransactionParams[_T14],
-    _t15: _InnerTransactionParams[_T15],
-    _t16: _InnerTransactionParams[_T16],
+    _t1: _InnerTransaction[_T1],
+    _t2: _InnerTransaction[_T2],
+    _t3: _InnerTransaction[_T3],
+    _t4: _InnerTransaction[_T4],
+    _t5: _InnerTransaction[_T5],
+    _t6: _InnerTransaction[_T6],
+    _t7: _InnerTransaction[_T7],
+    _t8: _InnerTransaction[_T8],
+    _t9: _InnerTransaction[_T9],
+    _t10: _InnerTransaction[_T10],
+    _t11: _InnerTransaction[_T11],
+    _t12: _InnerTransaction[_T12],
+    _t13: _InnerTransaction[_T13],
+    _t14: _InnerTransaction[_T14],
+    _t15: _InnerTransaction[_T15],
+    _t16: _InnerTransaction[_T16],
     /,
 ) -> tuple[_T1, _T2, _T3, _T4, _T5, _T6, _T7, _T8, _T9, _T10, _T11, _T12, _T13, _T14, _T15, _T16]:
     """Submits a group of up to 16 inner transactions parameters

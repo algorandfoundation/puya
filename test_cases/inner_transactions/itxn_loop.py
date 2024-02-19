@@ -18,7 +18,7 @@ class MyContract(Contract):
 
     def approval_program(self) -> bool:
         note = Bytes(b"ABCDE")
-        app_params = itxn.ApplicationCallTransactionParams(
+        app_params = itxn.ApplicationCall(
             approval_program=programs.ALWAYS_APPROVE,
             clear_state_program=programs.ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,

@@ -125,7 +125,7 @@ class WGroupTransaction(WType):
             name = f"{name}_{transaction_type.name}"
         return cls(
             transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].group_transaction,
+            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].gtxn,
             name=name,
         )
 
@@ -133,19 +133,19 @@ class WGroupTransaction(WType):
 
 
 @attrs.define
-class WInnerTransactionParams(WType):
+class WInnerTransactionFields(WType):
     transaction_type: constants.TransactionType | None
 
     @classmethod
     def from_type(
         cls, transaction_type: constants.TransactionType | None
-    ) -> "WInnerTransactionParams":
-        name = "inner_transaction_params"
+    ) -> "WInnerTransactionFields":
+        name = "inner_transaction_fields"
         if transaction_type:
             name = f"{name}_{transaction_type.name}"
         return cls(
             transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].inner_transaction_params,
+            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].itxn_fields,
             name=name,
         )
 
@@ -161,7 +161,7 @@ class WInnerTransaction(WType):
             name = f"{name}_{transaction_type.name}"
         return cls(
             transaction_type=transaction_type,
-            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].inner_transaction,
+            stub_name=constants.TRANSACTION_TYPE_TO_CLS[transaction_type].itxn_result,
             name=name,
         )
 
@@ -465,8 +465,8 @@ def is_inner_transaction_tuple_type(wtype: WType) -> typing.TypeGuard[WTuple]:
     return isinstance(wtype, WTuple) and all(is_inner_transaction_type(t) for t in wtype.types)
 
 
-def is_inner_transaction_params_type(wtype: WType) -> typing.TypeGuard[WInnerTransactionParams]:
-    return isinstance(wtype, WInnerTransactionParams)
+def is_inner_transaction_params_type(wtype: WType) -> typing.TypeGuard[WInnerTransactionFields]:
+    return isinstance(wtype, WInnerTransactionFields)
 
 
 def is_reference_type(wtype: WType) -> bool:

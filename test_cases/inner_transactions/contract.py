@@ -42,7 +42,7 @@ class MyContract(Contract):
     @subroutine
     def test1(self) -> None:
         self.name = Bytes(b"AST1")
-        asset_params = itxn.AssetConfigTransactionParams(
+        asset_params = itxn.AssetConfig(
             total=1000,
             asset_name=self.name,
             unit_name=b"unit",
@@ -66,7 +66,7 @@ class MyContract(Contract):
         assert asset1_txn.created_asset.name == b"AST1", "created asset 1 is correct"
         assert asset2_txn.created_asset.name == b"AST2", "created asset 2 is correct"
 
-        app_create_params = itxn.ApplicationCallTransactionParams(
+        app_create_params = itxn.ApplicationCall(
             approval_program=b"\x09\x81\x01",
             clear_state_program=Bytes.from_hex("098101"),
             fee=0,
@@ -90,14 +90,14 @@ class MyContract(Contract):
     def test2(self) -> None:
         if op.Txn.num_app_args:
             args = Bytes(b"1"), Bytes(b"2")
-            create_app_params = itxn.ApplicationCallTransactionParams(
+            create_app_params = itxn.ApplicationCall(
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
                 application_args=args,
                 fee=0,
             )
         else:
-            create_app_params = itxn.ApplicationCallTransactionParams(
+            create_app_params = itxn.ApplicationCall(
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
                 application_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
@@ -109,7 +109,7 @@ class MyContract(Contract):
         assert create_app_txn.application_args(1) == b"2", "correct args used 2"
 
         if op.Txn.num_app_args > 1:
-            create_app_txn2 = itxn.ApplicationCallTransactionParams(
+            create_app_txn2 = itxn.ApplicationCall(
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
                 on_completion=OnCompleteAction.DeleteApplication,
@@ -123,7 +123,7 @@ class MyContract(Contract):
 
     @subroutine
     def test3(self) -> None:
-        app_p_1 = itxn.ApplicationCallTransactionParams(
+        app_p_1 = itxn.ApplicationCall(
             approval_program=LOG_1ST_ARG_AND_APPROVE,
             clear_state_program=ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,
@@ -240,7 +240,7 @@ class MyContract(Contract):
             + lots_of_bytes
             + Bytes(b"\x48")  # pop
         )
-        app_p_1 = itxn.ApplicationCallTransactionParams(
+        app_p_1 = itxn.ApplicationCall(
             approval_program=(approval_1, approval_2, approval_2, approval_2),
             clear_state_program=ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,

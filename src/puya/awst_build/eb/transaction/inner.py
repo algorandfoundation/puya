@@ -98,7 +98,7 @@ class InnerTransactionClassExpressionBuilder(TypeClassExpressionBuilder):
         location: SourceLocation,
         original_expr: mypy.nodes.CallExpr,
     ) -> typing.Never:
-        params_wtype = wtypes.WInnerTransactionParams.from_type(self.wtype.transaction_type)
+        params_wtype = wtypes.WInnerTransactionFields.from_type(self.wtype.transaction_type)
         raise CodeError(
             f"{self.wtype} cannot be instantiated directly, "
             f"create a {params_wtype} and submit instead",
@@ -111,7 +111,7 @@ def _get_transaction_type_from_arg(
 ) -> TransactionType | None:
     if isinstance(literal_or_expr, ExpressionBuilder):
         wtype = literal_or_expr.rvalue().wtype
-        if isinstance(wtype, wtypes.WInnerTransactionParams):
+        if isinstance(wtype, wtypes.WInnerTransactionFields):
             return wtype.transaction_type
     raise CodeError("Expected an InnerTxnParams argument", literal_or_expr.source_location)
 
@@ -134,7 +134,7 @@ class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
                     ),
                     itxns=tuple(
                         expect_operand_wtype(
-                            a, wtypes.WInnerTransactionParams.from_type(transaction_types[a])
+                            a, wtypes.WInnerTransactionFields.from_type(transaction_types[a])
                         )
                         for a in args
                     ),

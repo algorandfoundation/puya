@@ -32,7 +32,7 @@ class Auction(ARC4Contract):
         self.asa = asset
 
         # Submit opt-in transaction: 0 asset transfer to self
-        itxn.AssetTransferTransactionParams(
+        itxn.AssetTransfer(
             asset_receiver=Global.current_application_address,
             xfer_asset=asset,
             fee=0,
@@ -88,7 +88,7 @@ class Auction(ARC4Contract):
         if Txn.sender == self.previous_bidder:
             amount -= self.previous_bid
 
-        itxn.PaymentTransactionParams(
+        itxn.Payment(
             fee=0,
             amount=amount,
             receiver=Txn.sender,
@@ -100,7 +100,7 @@ class Auction(ARC4Contract):
     def claim_asset(self, asset: Asset) -> None:
         assert Global.latest_timestamp > self.auction_end, "auction has not ended"
         # Send ASA to previous bidder
-        itxn.AssetTransferTransactionParams(
+        itxn.AssetTransfer(
             fee=0,
             xfer_asset=asset,
             asset_close_to=self.previous_bidder,
@@ -110,7 +110,7 @@ class Auction(ARC4Contract):
 
     @subroutine
     def delete_application(self) -> None:
-        itxn.PaymentTransactionParams(
+        itxn.Payment(
             fee=0,
             receiver=Global.creator_address,
             close_remainder_to=Global.creator_address,

@@ -125,8 +125,8 @@ class TransactionContract(arc4.ARC4Contract):
         _txn2: gtxn.ApplicationCallTransaction,
         _txn3: gtxn.ApplicationCallTransaction,
     ) -> None:
-        txn1 = gtxn.AnyTransaction(0)
-        txn2 = gtxn.AnyTransaction(1)
-        txn3 = gtxn.AnyTransaction(2)
+        txn1 = gtxn.Transaction(0)
+        txn2 = gtxn.Transaction(1)
+        txn3 = gtxn.Transaction(2)
         for index, txn in uenumerate((txn1, txn2, txn3)):
             assert txn.group_index == index

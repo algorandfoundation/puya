@@ -112,7 +112,7 @@ class InnerTransactionBuilder:
                         stmt.source_location,
                     )
             self.handle_submit_inner_transaction(stmt.value, names)
-        elif isinstance(stmt.value.wtype, wtypes.WInnerTransactionParams):
+        elif isinstance(stmt.value.wtype, wtypes.WInnerTransactionFields):
             match stmt.target:
                 case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
                     pass
@@ -136,7 +136,7 @@ class InnerTransactionBuilder:
                     )
 
         elif isinstance(
-            stmt.value.wtype, (wtypes.WInnerTransaction, wtypes.WInnerTransactionParams)
+            stmt.value.wtype, (wtypes.WInnerTransaction, wtypes.WInnerTransactionFields)
         ):
             raise CodeError(
                 "Inner Transactions cannot be reassigned",

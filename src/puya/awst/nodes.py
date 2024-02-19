@@ -665,7 +665,7 @@ class TxnFields:
 
 @attrs.define
 class CreateInnerTransaction(Expression):
-    wtype: wtypes.WInnerTransactionParams
+    wtype: wtypes.WInnerTransactionFields
     fields: Mapping[TxnField, Expression] = attrs.field(
         converter=immutabledict[TxnField, Expression]
     )
@@ -676,7 +676,7 @@ class CreateInnerTransaction(Expression):
 
 @attrs.define
 class UpdateInnerTransaction(Expression):
-    itxn: Expression = attrs.field(validator=expression_has_wtype(wtypes.WInnerTransactionParams))
+    itxn: Expression = attrs.field(validator=expression_has_wtype(wtypes.WInnerTransactionFields))
     fields: Mapping[TxnField, Expression] = attrs.field(
         converter=immutabledict[TxnField, Expression]
     )
@@ -808,7 +808,7 @@ class SubmitInnerTransaction(Expression):
     wtype: wtypes.WType = attrs.field()
     itxns: tuple[Expression, ...] = attrs.field(
         validator=attrs.validators.deep_iterable(
-            member_validator=expression_has_wtype(wtypes.WInnerTransactionParams)
+            member_validator=expression_has_wtype(wtypes.WInnerTransactionFields)
         )
     )
 

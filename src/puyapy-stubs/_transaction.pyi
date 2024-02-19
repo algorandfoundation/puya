@@ -2,7 +2,7 @@ import typing
 
 from puyapy import Account, Application, Asset, Bytes, OnCompleteAction, TransactionType, UInt64
 
-class SharedTransactionFields(typing.Protocol):
+class TransactionBaseProtocol(typing.Protocol):
     @property
     def sender(self) -> Account: ...
     @property
@@ -28,7 +28,7 @@ class SharedTransactionFields(typing.Protocol):
     @property
     def rekey_to(self) -> Account: ...
 
-class PaymentTransactionFields(typing.Protocol):
+class PaymentProtocol(typing.Protocol):
     @property
     def receiver(self) -> Account: ...
     @property
@@ -36,7 +36,7 @@ class PaymentTransactionFields(typing.Protocol):
     @property
     def close_remainder_to(self) -> Account: ...
 
-class KeyRegistrationTransactionFields(typing.Protocol):
+class KeyRegistrationProtocol(typing.Protocol):
     @property
     def vote_key(self) -> Bytes: ...
     @property
@@ -52,7 +52,7 @@ class KeyRegistrationTransactionFields(typing.Protocol):
     @property
     def state_proof_key(self) -> Bytes: ...
 
-class AssetConfigTransactionFields(typing.Protocol):
+class AssetConfigProtocol(typing.Protocol):
     @property
     def config_asset(self) -> Asset: ...
     @property
@@ -78,7 +78,7 @@ class AssetConfigTransactionFields(typing.Protocol):
     @property
     def clawback(self) -> Account: ...
 
-class AssetTransferTransactionFields(typing.Protocol):
+class AssetTransferProtocol(typing.Protocol):
     @property
     def xfer_asset(self) -> Asset: ...
     @property
@@ -90,7 +90,7 @@ class AssetTransferTransactionFields(typing.Protocol):
     @property
     def asset_close_to(self) -> Account: ...
 
-class AssetFreezeTransactionFields(typing.Protocol):
+class AssetFreezeProtocol(typing.Protocol):
     @property
     def freeze_asset(self) -> Asset: ...
     @property
@@ -98,7 +98,7 @@ class AssetFreezeTransactionFields(typing.Protocol):
     @property
     def frozen(self) -> bool: ...
 
-class ApplicationCallTransactionFields(typing.Protocol):
+class ApplicationProtocol(typing.Protocol):
     @property
     def application_id(self) -> Application:
         """ApplicationID from ApplicationCall transaction"""
