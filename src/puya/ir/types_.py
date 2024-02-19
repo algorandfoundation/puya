@@ -37,7 +37,6 @@ def wtype_to_avm_type(
         )
     else:
         wtype = expr_or_wtype
-    # TODO: compound types 🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔
     match wtype:
         case (
             wtypes.uint64_wtype
@@ -53,7 +52,7 @@ def wtype_to_avm_type(
             raise InternalError("Can't translate void WType to AVMType", source_location)
         case _:
             raise InternalError(
-                f"UH OH SPAGHETTI-O's, darn tooting compound type(?!) encountered: {wtype}",
+                f"Unsupported nested/compound type encountered: {wtype}",
                 source_location,
             )
 
