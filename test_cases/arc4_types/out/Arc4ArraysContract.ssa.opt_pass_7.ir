@@ -3,13 +3,12 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
         subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
             block@0: // L24
                 let total#0: uint64 = 0u
-                let array_length%1#0: uint64 = (extract_uint16 0x00020102 0u)
                 let item_index_internal%3#0: uint64 = 0u
                 goto block@1
             block@1: // for_header_L27
                 let item_index_internal%3#1: uint64 = φ(item_index_internal%3#0 <- block@0, item_index_internal%3#2 <- block@2)
                 let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@2)
-                let continue_looping%5#0: uint64 = (< item_index_internal%3#1 array_length%1#0)
+                let continue_looping%5#0: uint64 = (< item_index_internal%3#1 2u)
                 goto continue_looping%5#0 ? block@2 : block@4
             block@2: // for_body_L27
                 let uint8_item#0: bytes = (extract3 0x0102 item_index_internal%3#1 1u)
@@ -20,13 +19,12 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
             block@4: // after_for_L27
                 let tmp%8#0: uint64 = (== total#1 3u)
                 (assert tmp%8#0) // Total should be sum of dynamic_uint8_array items
-                let array_length%10#0: uint64 = (extract_uint16 0x00010001 0u)
                 let item_index_internal%12#0: uint64 = 0u
                 goto block@5
             block@5: // for_header_L32
                 let item_index_internal%12#1: uint64 = φ(item_index_internal%12#0 <- block@4, item_index_internal%12#2 <- block@6)
                 let total#3: uint64 = φ(total#1 <- block@4, total#4 <- block@6)
-                let continue_looping%14#0: uint64 = (< item_index_internal%12#1 array_length%10#0)
+                let continue_looping%14#0: uint64 = (< item_index_internal%12#1 1u)
                 goto continue_looping%14#0 ? block@6 : block@8
             block@6: // for_body_L32
                 let item_index%15#0: uint64 = (* item_index_internal%12#1 2u)
@@ -38,10 +36,9 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
             block@8: // after_for_L32
                 let tmp%17#0: uint64 = (== total#3 4u)
                 (assert tmp%17#0) // Total should now include sum of aliased_dynamic items
-                let tmp%26#0: uint64 = (extract_uint16 AAIABAALAAVIZWxsbwAFV29ybGQ= 0u)
-                let tmp%27#0: uint64 = (== tmp%26#0 2u)
+                let tmp%27#0: uint64 = (== 2u 2u)
                 (assert tmp%27#0)
-                let index_is_in_bounds%29#0: uint64 = (< 0u tmp%26#0)
+                let index_is_in_bounds%29#0: uint64 = (< 0u 2u)
                 (assert index_is_in_bounds%29#0) // Index access is out of bounds
                 let item_index%32#0: uint64 = (extract_uint16 AAQACwAFSGVsbG8ABVdvcmxk 0u)
                 let item_length%33#0: uint64 = (extract_uint16 AAQACwAFSGVsbG8ABVdvcmxk item_index%32#0)
@@ -55,7 +52,7 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
             block@9: // for_header_L39
                 let index#0: uint64 = φ(item_index_internal%39#0 <- block@8, item_index_internal%39#3 <- block@13)
                 let result#2: bytes = φ(result#0 <- block@8, result#4 <- block@13)
-                let continue_looping%41#0: uint64 = (< index#0 tmp%26#0)
+                let continue_looping%41#0: uint64 = (< index#0 2u)
                 goto continue_looping%41#0 ? block@10 : block@15
             block@10: // for_body_L39
                 let item_index_index%42#0: uint64 = (* index#0 2u)

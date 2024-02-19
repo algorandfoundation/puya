@@ -36,16 +36,7 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
             block@8: // after_for_L32
                 let tmp%17#0: uint64 = (== total#3 4u)
                 (assert tmp%17#0) // Total should now include sum of aliased_dynamic items
-                let tmp%26#0: uint64 = (extract_uint16 AAIABAALAAVIZWxsbwAFV29ybGQ= 0u)
-                let tmp%27#0: uint64 = (== tmp%26#0 2u)
-                (assert tmp%27#0)
-                let index_is_in_bounds%29#0: uint64 = (< 0u tmp%26#0)
-                (assert index_is_in_bounds%29#0) // Index access is out of bounds
-                let array_data_sans_header%30#0: bytes = ((extract 2 0) AAIABAALAAVIZWxsbwAFV29ybGQ=)
-                let item_index%32#0: uint64 = (extract_uint16 array_data_sans_header%30#0 0u)
-                let item_length%33#0: uint64 = (extract_uint16 array_data_sans_header%30#0 item_index%32#0)
-                let item_length_plus_2%34#0: uint64 = (+ item_length%33#0 2u)
-                let tmp%35#0: bytes = (extract3 array_data_sans_header%30#0 item_index%32#0 item_length_plus_2%34#0)
+                let tmp%35#0: bytes = ((extract 4 7) AAQACwAFSGVsbG8ABVdvcmxk)
                 let tmp%36#0: uint64 = (== tmp%35#0 "\x00\x05Hello")
                 (assert tmp%36#0)
                 let result#0: bytes = ""
@@ -54,14 +45,14 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
             block@9: // for_header_L39
                 let index#0: uint64 = φ(item_index_internal%39#0 <- block@8, item_index_internal%39#3 <- block@13)
                 let result#2: bytes = φ(result#0 <- block@8, result#4 <- block@13)
-                let continue_looping%41#0: uint64 = (< index#0 tmp%26#0)
+                let continue_looping%41#0: uint64 = (< index#0 2u)
                 goto continue_looping%41#0 ? block@10 : block@15
             block@10: // for_body_L39
                 let item_index_index%42#0: uint64 = (* index#0 2u)
-                let item_index%43#0: uint64 = (extract_uint16 array_data_sans_header%30#0 item_index_index%42#0)
-                let item_length%44#0: uint64 = (extract_uint16 array_data_sans_header%30#0 item_index%43#0)
+                let item_index%43#0: uint64 = (extract_uint16 AAQACwAFSGVsbG8ABVdvcmxk item_index_index%42#0)
+                let item_length%44#0: uint64 = (extract_uint16 AAQACwAFSGVsbG8ABVdvcmxk item_index%43#0)
                 let item_length_plus_2%45#0: uint64 = (+ item_length%44#0 2u)
-                let string_item#0: bytes = (extract3 array_data_sans_header%30#0 item_index%43#0 item_length_plus_2%45#0)
+                let string_item#0: bytes = (extract3 AAQACwAFSGVsbG8ABVdvcmxk item_index%43#0 item_length_plus_2%45#0)
                 goto index#0 ? block@12 : block@11
             block@11: // if_body_L40
                 let result#1: bytes = ((extract 2 0) string_item#0)

@@ -157,6 +157,26 @@ def try_simplify_arithmetic_ops(
                 source_location=op_loc, encoding=byte_const.encoding, value=extracted
             )
         case models.Intrinsic(
+            op=(
+                AVMOp.extract_uint16 | AVMOp.extract_uint32 | AVMOp.extract_uint64
+            ) as extract_uint_op,
+            args=[
+                models.BytesConstant(value=bytes_value),
+                models.UInt64Constant(value=offset),
+            ],
+            source_location=op_loc,
+        ):
+            bit_size = int(extract_uint_op.code.removeprefix("extract_uint"))
+            byte_size = bit_size // 8
+            extracted = bytes_value[offset : offset + byte_size]
+            if len(extracted) != byte_size:
+                raise CodeError(f"{extract_uint_op.code} would fail at runtime", op_loc)
+            uint64_result = int.from_bytes(extracted, byteorder="big", signed=False)
+            return models.UInt64Constant(
+                value=uint64_result,
+                source_location=op_loc,
+            )
+        case models.Intrinsic(
             op=AVMOp.concat,
             args=[models.Value(atype=AVMType.bytes) as ba, models.BytesConstant(value=b"")],
         ):
