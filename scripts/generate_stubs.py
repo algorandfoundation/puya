@@ -474,8 +474,11 @@ def build_method_stub(
         case _:
             returns = f"tuple[{', '.join(return_types)}]"
     if return_docs:
-        doc.append(f":returns {returns}: {return_docs[0]}")
-        doc.extend(return_docs[1:])
+        if doc:
+            doc.append(f":returns {returns}: {return_docs[0]}")
+            doc.extend(return_docs[1:])
+        else:
+            doc = return_docs
     signature.append(f") -> {returns}:")
 
     body = list[str]()
@@ -526,8 +529,7 @@ def build_class_var_stub(function: FunctionDef, indent: str) -> Iterable[str]:
         get_python_type(ret.type, covariant=False, any_as=None) for ret in function.returns
     ]
     return_docs = [r.doc for r in function.returns if r.doc is not None]
-    doc = function.doc[:]
-    doc.extend(return_docs[1:])
+    doc = return_docs if return_docs else function.doc[:]
     match return_types:
         case []:
             returns = "None"
@@ -599,17 +601,6 @@ def build_class_from_overriding_immediate(
 
 def get_op_doc(op: Op) -> list[str]:
     doc = [d.replace("\\", "\\\\") for d in op.doc]
-    if op.groups:
-        doc.append("")
-        doc.append("Groups: " + ", ".join(op.groups))
-
-    teal = " ".join([op.name] + [i.name for i in op.immediate_args])
-    stack_before = ", ".join(["..."] + [a.name for a in op.stack_inputs])
-    stack_after = ", ".join(["..."] + [a.name for a in op.stack_outputs])
-
-    doc.append("")
-    doc.append(f"Stack: [{stack_before}] -> [{stack_after}]")
-    doc.append(f"TEAL: {teal}")
 
     return doc
 
@@ -654,7 +645,7 @@ def get_op_args(op: Op) -> Iterable[TypedName]:
 
 def get_op_returns(op: Op, replace_any_with: StackType | None) -> Iterable[TypedName]:
     if op.halts:
-        yield TypedName(name="", type="typing.Never", doc=None)
+        yield TypedName(name="", type="typing.Never", doc="Halts program")
     else:
         yield from map_typed_names(op.stack_outputs, replace_any_with=replace_any_with)
 
@@ -747,8 +738,6 @@ def build_operation_method(
     replace_any_with: StackType | None = None,
     const_immediate_value: tuple[Immediate, ArgEnum] | None = None,
 ) -> FunctionDef:
-    doc = get_op_doc(op)
-    doc.append("")
     args = list(get_op_args(op))
 
     # python stub args can be different to mapping args, due to immediate args
@@ -756,8 +745,11 @@ def build_operation_method(
     function_args = args.copy()
     # remove immediate arg from signature
     if const_immediate_value:
+        doc = []
         immediate_arg_index = op.immediate_args.index(const_immediate_value[0])
         function_args.pop(immediate_arg_index)
+    else:
+        doc = get_op_doc(op)
     proto_function = FunctionDef(
         name=op_function_name,
         doc=doc,
