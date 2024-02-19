@@ -613,23 +613,23 @@ debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 0 < 0 to 0
-debug: Folded 0u - 0u to 0u
-debug: Folded 1u * iteration_count_minus_one%6#0 to iteration_count_minus_one%6#0
-debug: Folded 0u + range_delta%7#0 to range_delta%7#0
-debug: Folded reverse_index_internal%15#2 * 1u to reverse_index_internal%15#2
-debug: Folded 0 < 4 to 1
-debug: Folded 4u - 0u to 4u
-debug: Folded 1u * iteration_count_minus_one%25#0 to iteration_count_minus_one%25#0
-debug: Folded 0u + range_delta%26#0 to range_delta%26#0
-debug: Folded index#0 * 1u to index#0
-debug: Folded 4 < 8 to 1
-debug: Folded 8 - 4 to 4
-debug: Folded index#1 * 1u to index#1
-debug: Folded len("/x00/x01a") to 3
-debug: Folded len("/x00/x01b") to 3
-debug: Folded len("/x00/x01c") to 3
-debug: Folded len("HELLO") to 5
+debug: Simplified (< 0u 0u) to 0u
+debug: Simplified (- 0u 0u) to 0u
+debug: Simplified (* 1u iteration_count_minus_one%6#0) to iteration_count_minus_one%6#0
+debug: Simplified (+ 0u range_delta%7#0) to range_delta%7#0
+debug: Simplified (* reverse_index_internal%15#2 1u) to reverse_index_internal%15#2
+debug: Simplified (< 0u 4u) to 1u
+debug: Simplified (- 4u 0u) to 4u
+debug: Simplified (* 1u iteration_count_minus_one%25#0) to iteration_count_minus_one%25#0
+debug: Simplified (+ 0u range_delta%26#0) to range_delta%26#0
+debug: Simplified (* index#0 1u) to index#0
+debug: Simplified (< 4u 8u) to 1u
+debug: Simplified (- 8u 4u) to 4u
+debug: Simplified (* index#1 1u) to index#1
+debug: Simplified (len "/x00/x01a") to 3u
+debug: Simplified (len "/x00/x01b") to 3u
+debug: Simplified (len "/x00/x01c") to 3u
+debug: Simplified (len "HELLO") to 5u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: iteration_count_minus_one%6#0, range_delta%7#0, start%9#0, range_item%10#0
@@ -775,9 +775,12 @@ debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 4 % 1 to 0
-debug: Folded 4 / 1 to 4
-debug: Folded 6 + 3 to 9
+debug: Simplified (concat 0x 0x00) to 0x00
+debug: Simplified (% 4u 1u) to 0u
+debug: Simplified (/ 4u 1u) to 4u
+debug: Simplified ((extract 6 2) value_as_bytes%61#0) to 0x0006
+debug: Simplified (concat 0x value_as_uint16%62#0) to value_as_uint16%62#0
+debug: Simplified (+ 6u 3u) to 9u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -810,9 +813,10 @@ debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x00, 0x00) to b'/x00/x00'
-debug: Folded 0 != 0 to 0
-debug: Folded 9 + 3 to 12
+debug: Simplified (concat 0x00 0x00) to 0x0000
+debug: Simplified (!= 0u 0u) to 0u
+debug: Simplified ((extract 6 2) value_as_bytes%64#0) to 0x0009
+debug: Simplified (+ 9u 3u) to 12u
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -843,9 +847,10 @@ debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_3.ir
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x0000, 0x00) to b'/x00/x00/x00'
-debug: Folded 4u + 0u to 4u
-debug: Folded concat(0x0006, 0x0009) to b'/x00/x06/x00/t'
+debug: Simplified (concat 0x0000 0x00) to 0x000000
+debug: Simplified (+ 4u 0u) to 4u
+debug: Simplified (concat 0x0006 0x0009) to 0x00060009
+debug: Simplified ((extract 6 2) value_as_bytes%67#0) to 0x000c
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -876,9 +881,9 @@ debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_4.ir
 debug: Begin optimization pass 5/100
 debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(0x000000, 0x00) to b'/x00/x00/x00/x00'
-debug: Folded 4 - 1 to 3
-debug: Folded concat(0x00060009, 0x000c) to b'/x00/x06/x00/t/x00/x0c'
+debug: Simplified (concat 0x000000 0x00) to 0x00000000
+debug: Simplified (- 4u 1u) to 3u
+debug: Simplified (concat 0x00060009 0x000c) to 0x00060009000c
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -905,8 +910,8 @@ debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_5.ir
 debug: Begin optimization pass 6/100
 debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded 3 >= 0 to 1
-debug: Folded concat(0x00060009000c, "/x00/x01a") to b'/x00/x06/x00/t/x00/x0c/x00/x01a'
+debug: Simplified (>= 3u 0u) to 1u
+debug: Simplified (concat 0x00060009000c "/x00/x01a") to AAYACQAMAAFh
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -937,7 +942,7 @@ debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_6.ir
 debug: Begin optimization pass 7/100
 debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAYACQAMAAFh, "/x00/x01b") to b'/x00/x06/x00/t/x00/x0c/x00/x01a/x00/x01b'
+debug: Simplified (concat AAYACQAMAAFh "/x00/x01b") to AAYACQAMAAFhAAFi
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -964,7 +969,7 @@ debug: Output IR to reversed_iteration/out/MyContract.ssa.opt_pass_7.ir
 debug: Begin optimization pass 8/100
 debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.approval_program
 debug: Optimizer: Arithmetic Simplification
-debug: Folded concat(AAYACQAMAAFhAAFi, "/x00/x01c") to b'/x00/x06/x00/t/x00/x0c/x00/x01a/x00/x01b/x00/x01c'
+debug: Simplified (concat AAYACQAMAAFhAAFi "/x00/x01c") to AAYACQAMAAFhAAFiAAFj
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier

@@ -51,6 +51,7 @@ def wtype_to_avm_type(
         case wtypes.void_wtype:
             raise InternalError("Can't translate void WType to AVMType", source_location)
         case _:
+            # TODO: make this a CodeError
             raise InternalError(
                 f"Unsupported nested/compound type encountered: {wtype}",
                 source_location,

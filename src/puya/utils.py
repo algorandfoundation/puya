@@ -219,3 +219,10 @@ def pushd(new_dir: Path) -> Iterator[None]:
 
 def normalise_path_to_str(path: Path) -> str:
     return str(path).replace("\\", "/")
+
+
+def biguint_bytes_eval(value: int) -> bytes:
+    byte_length = math.ceil(value.bit_length() / 8.0)
+    assert byte_length <= 64, "Biguints must be 64 bytes or less"
+    big_uint_bytes = value.to_bytes(byteorder="big", length=byte_length)
+    return big_uint_bytes
