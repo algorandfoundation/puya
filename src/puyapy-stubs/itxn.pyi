@@ -53,7 +53,7 @@ class ApplicationCallInnerTransaction(
     def num_logs(self) -> UInt64:
         """Number of logs"""
     @property
-    def created_application(self) -> Application:
+    def created_app(self) -> Application:
         """ApplicationID allocated by the creation of an application"""
 
 class InnerTransactionResult(
@@ -120,7 +120,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         freeze_account: Account | str = ...,
         frozen: bool = ...,
         ## application call
-        application_id: Application | UInt64 | int = ...,
+        app_id: Application | UInt64 | int = ...,
         approval_program: Bytes | bytes = ...,
         clear_state_program: Bytes | bytes = ...,
         on_completion: OnCompleteAction | UInt64 | int = ...,
@@ -129,10 +129,10 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         local_num_uint: UInt64 | int = ...,
         local_num_byte_slice: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        application_args: tuple[Bytes, ...] = ...,
+        app_args: tuple[Bytes, ...] = ...,
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
-        applications: tuple[Application, ...] = ...,
+        apps: tuple[Application, ...] = ...,
         ## shared
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
@@ -178,7 +178,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         freeze_account: Account | str = ...,
         frozen: bool = ...,
         ## application call
-        application_id: Application | UInt64 | int = ...,
+        app_id: Application | UInt64 | int = ...,
         approval_program: Bytes | bytes = ...,
         clear_state_program: Bytes | bytes = ...,
         on_completion: OnCompleteAction | UInt64 | int = ...,
@@ -187,10 +187,10 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         local_num_uint: UInt64 | int = ...,
         local_num_byte_slice: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        application_args: tuple[Bytes, ...] = ...,
+        app_args: tuple[Bytes, ...] = ...,
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
-        applications: tuple[Application, ...] = ...,
+        apps: tuple[Application, ...] = ...,
         ## shared
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
@@ -368,7 +368,7 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
     def __init__(
         self,
         *,
-        application_id: Application | UInt64 | int = ...,
+        app_id: Application | UInt64 | int = ...,
         approval_program: Bytes | bytes | tuple[Bytes, ...] = ...,
         clear_state_program: Bytes | bytes | tuple[Bytes, ...] = ...,
         on_completion: OnCompleteAction | UInt64 | int = ...,
@@ -377,10 +377,10 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
         local_num_uint: UInt64 | int = ...,
         local_num_byte_slice: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        application_args: tuple[Bytes | BytesBacked, ...] = ...,
+        app_args: tuple[Bytes | BytesBacked, ...] = ...,
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
-        applications: tuple[Application, ...] = ...,
+        apps: tuple[Application, ...] = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
         note: Bytes | bytes = ...,
@@ -389,7 +389,7 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
     def set(
         self,
         *,
-        application_id: Application | UInt64 | int = ...,
+        app_id: Application | UInt64 | int = ...,
         approval_program: Bytes | bytes | tuple[Bytes, ...] = ...,
         clear_state_program: Bytes | bytes | tuple[Bytes, ...] = ...,
         on_completion: OnCompleteAction | UInt64 | int = ...,
@@ -398,10 +398,10 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
         local_num_uint: UInt64 | int = ...,
         local_num_byte_slice: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        application_args: tuple[Bytes | BytesBacked, ...] = ...,
+        app_args: tuple[Bytes | BytesBacked, ...] = ...,
         accounts: tuple[Account, ...] = ...,
         assets: tuple[Asset, ...] = ...,
-        applications: tuple[Application, ...] = ...,
+        apps: tuple[Application, ...] = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
         note: Bytes | bytes = ...,

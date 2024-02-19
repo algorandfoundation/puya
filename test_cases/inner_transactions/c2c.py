@@ -17,15 +17,15 @@ class Greeter(ARC4Contract):
                 fee=0,
             )
             .submit()
-            .created_application
+            .created_app
         )
         return self.hello_app.application_id
 
     @arc4.abimethod()
     def log_greetings(self, name: arc4.String) -> None:
         hello_call = itxn.ApplicationCall(
-            application_id=self.hello_app.application_id,
-            application_args=(arc4.arc4_signature("hello(string)string"), name),
+            app_id=self.hello_app,
+            app_args=(arc4.arc4_signature("hello(string)string"), name),
         ).submit()
         greeting = arc4.String.from_log(hello_call.last_log)
         log(b"HelloWorld returned: ", greeting.decode())

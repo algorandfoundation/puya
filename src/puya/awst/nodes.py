@@ -585,7 +585,7 @@ class TxnFields:
     group_index = UInt64TxnField(is_inner_param=False)
     txn_id = BytesTxnField(immediate="TxID", is_inner_param=False)
     # v2
-    application_id = ApplicationTxnField(immediate="ApplicationID")
+    app_id = ApplicationTxnField(immediate="ApplicationID")
     on_completion = UInt64TxnField()
     num_app_args = UInt64TxnField(is_inner_param=False)
     num_accounts = UInt64TxnField(is_inner_param=False)
@@ -609,7 +609,7 @@ class TxnFields:
     frozen = AssetTxnField(immediate="FreezeAssetFrozen")
     # v3
     num_assets = UInt64TxnField(is_inner_param=False)
-    num_applications = UInt64TxnField(is_inner_param=False)
+    num_apps = UInt64TxnField(immediate="NumApplications", is_inner_param=False)
     global_num_uint = UInt64TxnField()
     global_num_byte_slice = UInt64TxnField()
     local_num_uint = UInt64TxnField()
@@ -620,9 +620,7 @@ class TxnFields:
     non_participation = BoolTxnField(immediate="Nonparticipation")
     num_logs = UInt64TxnField(is_inner_param=False)
     created_asset = AssetTxnField(immediate="CreatedAssetID", is_inner_param=False)
-    created_application = ApplicationTxnField(
-        immediate="CreatedApplicationID", is_inner_param=False
-    )
+    created_app = ApplicationTxnField(immediate="CreatedApplicationID", is_inner_param=False)
     # v6
     last_log = BytesTxnField(is_inner_param=False)
     state_proof_key = BytesTxnField(immediate="StateProofPK")
@@ -633,11 +631,11 @@ class TxnFields:
     # array fields
     # TODO: allow configuring as these are consensus values
     # v2
-    application_args = BytesBackedTxnField(num_values=16)
+    app_args = BytesBackedTxnField(immediate="ApplicationArgs", num_values=16)
     accounts = AccountTxnField(num_values=4)
     # v3
     assets = AssetTxnField(num_values=8)
-    applications = ApplicationTxnField(num_values=8)
+    apps = ApplicationTxnField(immediate="Applications", num_values=8)
     # v5
     logs = BytesTxnField(num_values=32, is_inner_param=False)
     # v7

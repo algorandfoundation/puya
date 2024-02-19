@@ -100,7 +100,7 @@ class AssetFreezeProtocol(typing.Protocol):
 
 class ApplicationProtocol(typing.Protocol):
     @property
-    def application_id(self) -> Application:
+    def app_id(self) -> Application:
         """ApplicationID from ApplicationCall transaction"""
     @property
     def on_completion(self) -> OnCompleteAction:
@@ -121,7 +121,7 @@ class ApplicationProtocol(typing.Protocol):
     def num_assets(self) -> UInt64:
         """Number of Assets"""
     @property
-    def num_applications(self) -> UInt64:
+    def num_apps(self) -> UInt64:
         """Number of Applications"""
     @property
     def global_num_uint(self) -> UInt64:
@@ -148,13 +148,13 @@ class ApplicationProtocol(typing.Protocol):
     def num_clear_state_program_pages(self) -> UInt64:
         """Number of Clear State Program pages"""
     # TODO: make the following sequences instead?
-    def application_args(self, index: UInt64 | int) -> Bytes:
+    def app_args(self, index: UInt64 | int) -> Bytes:
         """Arguments passed to the application in the ApplicationCall transaction"""
     def accounts(self, index: UInt64 | int) -> Account:
         """Accounts listed in the ApplicationCall transaction"""
     def assets(self, index: UInt64 | int) -> Asset:
         """Foreign Assets listed in the ApplicationCall transaction"""
-    def applications(self, index: UInt64 | int) -> Application:
+    def apps(self, index: UInt64 | int) -> Application:
         """Foreign Apps listed in the ApplicationCall transaction"""
     def approval_program_pages(self, index: UInt64 | int) -> Bytes:
         """Approval Program as an array of pages"""

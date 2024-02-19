@@ -78,7 +78,7 @@ class MyContract(Contract):
 
         app_create_txn, asset3_txn = itxn.submit_txns(app_create_params, asset_params)
 
-        assert app_create_txn.created_application, "created app"
+        assert app_create_txn.created_app, "created app"
         assert asset3_txn.asset_name == b"AST3", "asset3_txn is correct"
 
         app_create_params.set(note=b"3rd")
@@ -93,32 +93,32 @@ class MyContract(Contract):
             create_app_params = itxn.ApplicationCall(
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
-                application_args=args,
+                app_args=args,
                 fee=0,
             )
         else:
             create_app_params = itxn.ApplicationCall(
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
-                application_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
+                app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
                 note=b"different param set",
                 fee=0,
             )
         create_app_txn = create_app_params.submit()
-        assert create_app_txn.application_args(0) == b"1", "correct args used 1"
-        assert create_app_txn.application_args(1) == b"2", "correct args used 2"
+        assert create_app_txn.app_args(0) == b"1", "correct args used 1"
+        assert create_app_txn.app_args(1) == b"2", "correct args used 2"
 
         if op.Txn.num_app_args > 1:
             create_app_txn2 = itxn.ApplicationCall(
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
                 on_completion=OnCompleteAction.DeleteApplication,
-                application_args=(Bytes(b"42"),),
+                app_args=(Bytes(b"42"),),
                 fee=0,
             ).submit()
-            assert create_app_txn2.application_args(0) == b"42", "correct args used 2"
+            assert create_app_txn2.app_args(0) == b"42", "correct args used 2"
         assert (
-            create_app_txn.application_args(0) == b"1"
+            create_app_txn.app_args(0) == b"1"
         ), "this will error on access if create_app_txn2 was submitted"
 
     @subroutine
@@ -127,54 +127,54 @@ class MyContract(Contract):
             approval_program=LOG_1ST_ARG_AND_APPROVE,
             clear_state_program=ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,
-            application_args=(Bytes(b"1"),),
+            app_args=(Bytes(b"1"),),
             fee=0,
         )
 
         app_p_2 = app_p_1.copy().copy()
-        app_p_2.set(application_args=(Bytes(b"2"),))
+        app_p_2.set(app_args=(Bytes(b"2"),))
 
         app_p_3 = app_p_1.copy()
-        app_p_3.set(application_args=(Bytes(b"3"),))
+        app_p_3.set(app_args=(Bytes(b"3"),))
 
         app_p_4 = app_p_1.copy()
-        app_p_4.set(application_args=(Bytes(b"4"),))
+        app_p_4.set(app_args=(Bytes(b"4"),))
 
         app_p_5 = app_p_1.copy()
-        app_p_5.set(application_args=(Bytes(b"5"),))
+        app_p_5.set(app_args=(Bytes(b"5"),))
 
         app_p_6 = app_p_1.copy()
-        app_p_6.set(application_args=(Bytes(b"6"),))
+        app_p_6.set(app_args=(Bytes(b"6"),))
 
         app_p_7 = app_p_1.copy()
-        app_p_7.set(application_args=(Bytes(b"7"),))
+        app_p_7.set(app_args=(Bytes(b"7"),))
 
         app_p_8 = app_p_1.copy()
-        app_p_8.set(application_args=(Bytes(b"8"),))
+        app_p_8.set(app_args=(Bytes(b"8"),))
 
         app_p_9 = app_p_1.copy()
-        app_p_9.set(application_args=(Bytes(b"9"),))
+        app_p_9.set(app_args=(Bytes(b"9"),))
 
         app_p_10 = app_p_1.copy()
-        app_p_10.set(application_args=(Bytes(b"10"),))
+        app_p_10.set(app_args=(Bytes(b"10"),))
 
         app_p_11 = app_p_1.copy()
-        app_p_11.set(application_args=(Bytes(b"11"),))
+        app_p_11.set(app_args=(Bytes(b"11"),))
 
         app_p_12 = app_p_1.copy()
-        app_p_12.set(application_args=(Bytes(b"12"),))
+        app_p_12.set(app_args=(Bytes(b"12"),))
 
         app_p_13 = app_p_1.copy()
-        app_p_13.set(application_args=(Bytes(b"13"),))
+        app_p_13.set(app_args=(Bytes(b"13"),))
 
         app_p_14 = app_p_1.copy()
-        app_p_14.set(application_args=(Bytes(b"14"),))
+        app_p_14.set(app_args=(Bytes(b"14"),))
 
         app_p_15 = app_p_1.copy()
-        app_p_15.set(application_args=(Bytes(b"15"),))
+        app_p_15.set(app_args=(Bytes(b"15"),))
 
         app_p_16 = app_p_1.copy()
-        app_p_16.set(application_args=(Bytes(b"16"),))
+        app_p_16.set(app_args=(Bytes(b"16"),))
         (
             app1,
             app2,
@@ -244,7 +244,7 @@ class MyContract(Contract):
             approval_program=(approval_1, approval_2, approval_2, approval_2),
             clear_state_program=ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,
-            application_args=(Bytes(b"1"),),
+            app_args=(Bytes(b"1"),),
             extra_program_pages=3,
             fee=0,
         )
