@@ -1,0 +1,85 @@
+contract test_cases.log.contract.MyContract:
+    program approval:
+        subroutine test_cases.log.contract.MyContract.approval_program() -> uint64:
+            block@0: // L5
+                let tmp%0#0: bytes = (itob 0u)
+                (log tmp%0#0)
+                (log "1")
+                (log "2")
+                let tmp%1#0: uint64 = (txn NumAppArgs)
+                let tmp%2#0: uint64 = (+ tmp%1#0 3u)
+                let tmp%3#0: bytes = (itob tmp%2#0)
+                (log tmp%3#0)
+                let tmp%4#0: uint64 = (txn NumAppArgs)
+                goto tmp%4#0 ? block@1 : block@2
+            block@1: // ternary_true_L10
+                let ternary_result%5#0: bytes = "4"
+                goto block@3
+            block@2: // ternary_false_L10
+                let ternary_result%5#1: bytes = ""
+                goto block@3
+            block@3: // ternary_merge_L10
+                let ternary_result%5#2: bytes = φ(ternary_result%5#0 <- block@1, ternary_result%5#1 <- block@2)
+                (log ternary_result%5#2)
+                let tmp%10#0: uint64 = (txn NumAppArgs)
+                let tmp%11#0: uint64 = (+ tmp%10#0 7u)
+                let tmp%12#0: bytes = (itob tmp%11#0)
+                let tmp%13#0: bytes = (concat NQAAAAAAAAAG tmp%12#0)
+                let tmp%15#0: bytes = (concat tmp%13#0 8b)
+                let tmp%17#0: uint64 = (txn NumAppArgs)
+                goto tmp%17#0 ? block@4 : block@5
+            block@4: // ternary_true_L16
+                let ternary_result%18#0: bytes = "9"
+                goto block@6
+            block@5: // ternary_false_L16
+                let ternary_result%18#1: bytes = ""
+                goto block@6
+            block@6: // ternary_merge_L16
+                let ternary_result%18#2: bytes = φ(ternary_result%18#0 <- block@4, ternary_result%18#1 <- block@5)
+                let tmp%19#0: bytes = (concat tmp%15#0 ternary_result%18#2)
+                (log tmp%19#0)
+                let tmp%23#0: bytes = (concat NV8AAAAAAAAABg== "_")
+                let tmp%24#0: uint64 = (txn NumAppArgs)
+                let tmp%25#0: uint64 = (+ tmp%24#0 7u)
+                let tmp%26#0: bytes = (itob tmp%25#0)
+                let tmp%27#0: bytes = (concat tmp%23#0 tmp%26#0)
+                let tmp%28#0: bytes = (concat tmp%27#0 "_")
+                let tmp%29#0: bytes = (concat tmp%28#0 8b)
+                let tmp%30#0: bytes = (concat tmp%29#0 "_")
+                let tmp%31#0: uint64 = (txn NumAppArgs)
+                goto tmp%31#0 ? block@7 : block@8
+            block@7: // ternary_true_L23
+                let ternary_result%32#0: bytes = "9"
+                goto block@9
+            block@8: // ternary_false_L23
+                let ternary_result%32#1: bytes = ""
+                goto block@9
+            block@9: // ternary_merge_L23
+                let ternary_result%32#2: bytes = φ(ternary_result%32#0 <- block@7, ternary_result%32#1 <- block@8)
+                let tmp%33#0: bytes = (concat tmp%30#0 ternary_result%32#2)
+                (log tmp%33#0)
+                let tmp%38#0: uint64 = (txn NumAppArgs)
+                let tmp%39#0: uint64 = (+ tmp%38#0 7u)
+                let tmp%40#0: bytes = (itob tmp%39#0)
+                let tmp%41#0: bytes = (concat tmp%23#0 tmp%40#0)
+                let tmp%42#0: bytes = (concat tmp%41#0 "_")
+                let tmp%43#0: bytes = (concat tmp%42#0 8b)
+                let tmp%44#0: bytes = (concat tmp%43#0 "_")
+                let tmp%45#0: uint64 = (txn NumAppArgs)
+                goto tmp%45#0 ? block@10 : block@11
+            block@10: // ternary_true_L31
+                let ternary_result%46#0: bytes = "9"
+                goto block@12
+            block@11: // ternary_false_L31
+                let ternary_result%46#1: bytes = ""
+                goto block@12
+            block@12: // ternary_merge_L31
+                let ternary_result%46#2: bytes = φ(ternary_result%46#0 <- block@10, ternary_result%46#1 <- block@11)
+                let tmp%47#0: bytes = (concat tmp%44#0 ternary_result%46#2)
+                (log tmp%47#0)
+                return 1u
+    
+    program clear-state:
+        subroutine test_cases.log.contract.MyContract.clear_state_program() -> uint64:
+            block@0: // L36
+                return 1u

@@ -2,7 +2,6 @@
 
 test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     int 0
-    dupn 2
     byte ""
     dupn 4
     int 0
@@ -70,16 +69,11 @@ main_after_for@8:
     int 4
     ==
     assert // Total should now include sum of aliased_dynamic items
-    byte 0x00020004000b
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05World"
-    concat
-    dup
+    byte base64 AAIABAALAAVIZWxsbwAFV29ybGQ=
     int 0
     extract_uint16
     dup
-    bury 6
+    bury 5
     dup
     int 2
     ==
@@ -87,22 +81,22 @@ main_after_for@8:
     int 0
     >
     assert // Index access is out of bounds
-    extract 2 0
-    dup
-    bury 12
-    dup
+    byte base64 AAQACwAFSGVsbG8ABVdvcmxk
     int 0
     extract_uint16
-    dup2
+    byte base64 AAQACwAFSGVsbG8ABVdvcmxk
+    dig 1
     extract_uint16
     int 2
     +
+    byte base64 AAQACwAFSGVsbG8ABVdvcmxk
+    cover 2
     extract3
     byte "\x00\x05Hello"
     ==
     assert
     byte ""
-    bury 10
+    bury 9
     int 0
     bury 7
 
@@ -115,19 +109,21 @@ main_for_header@9:
     dup
     int 2
     *
-    dig 12
-    dup
-    uncover 2
+    byte base64 AAQACwAFSGVsbG8ABVdvcmxk
+    swap
     extract_uint16
-    dup2
+    byte base64 AAQACwAFSGVsbG8ABVdvcmxk
+    dig 1
     extract_uint16
     int 2
     +
+    byte base64 AAQACwAFSGVsbG8ABVdvcmxk
+    cover 2
     extract3
     swap
     bnz main_else_body@12
     extract 2 0
-    bury 10
+    bury 9
     b main_after_if_else@13
 
 main_else_body@12:
@@ -135,10 +131,10 @@ main_else_body@12:
     byte " "
     swap
     concat
-    dig 10
+    dig 9
     swap
     concat
-    bury 10
+    bury 9
 
 main_after_if_else@13:
     dig 6
@@ -148,7 +144,7 @@ main_after_if_else@13:
     b main_for_header@9
 
 main_after_for@15:
-    dig 9
+    dig 8
     byte "Hello World"
     ==
     assert
@@ -189,14 +185,8 @@ main_after_for@19:
     int 202
     ==
     assert
-    byte 0x0004000a
-    byte "\x00\x04Ping"
-    concat
-    byte "\x00\x04Pong"
-    concat
-    bury 9
     byte ""
-    bury 10
+    bury 9
     int 0
     bury 7
 
@@ -209,19 +199,21 @@ main_for_header@20:
     dup
     int 2
     *
-    dig 10
-    dup
-    uncover 2
+    byte base64 AAQACgAEUGluZwAEUG9uZw==
+    swap
     extract_uint16
-    dup2
+    byte base64 AAQACgAEUGluZwAEUG9uZw==
+    dig 1
     extract_uint16
     int 2
     +
+    byte base64 AAQACgAEUGluZwAEUG9uZw==
+    cover 2
     extract3
     swap
     bnz main_else_body@23
     extract 2 0
-    bury 10
+    bury 9
     b main_after_if_else@24
 
 main_else_body@23:
@@ -229,10 +221,10 @@ main_else_body@23:
     byte " "
     swap
     concat
-    dig 10
+    dig 9
     swap
     concat
-    bury 10
+    bury 9
 
 main_after_if_else@24:
     dig 6
@@ -242,7 +234,7 @@ main_after_if_else@24:
     b main_for_header@20
 
 main_after_for@26:
-    dig 9
+    dig 8
     byte "Ping Pong"
     ==
     assert

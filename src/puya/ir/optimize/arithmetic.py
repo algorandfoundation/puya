@@ -185,16 +185,19 @@ def try_simplify_arithmetic_ops(
             encoding_a = byte_const_a.encoding
             b = byte_const_b.value
             encoding_b = byte_const_b.encoding
+            if encoding_a == encoding_b:
+                target_encoding = encoding_a  # preserve encoding if both equal
+            else:
+                target_encoding = AVMBytesEncoding.base64  # go with most compact if they differ
             if bytes_op == AVMOp.concat:
-                if encoding_a == encoding_b:  # TODO: remove or restrict this condition
-                    a_b = a + b
-                    logger.debug(
-                        f"Folded concat({format_bytes(a, encoding_a)},"
-                        f" {format_bytes(b, encoding_b)}) to {a_b!r}"
-                    )
-                    return models.BytesConstant(
-                        source_location=op_loc, value=a_b, encoding=encoding_a
-                    )
+                a_b = a + b
+                logger.debug(
+                    f"Folded concat({format_bytes(a, encoding_a)},"
+                    f" {format_bytes(b, encoding_b)}) to {a_b!r}"
+                )
+                return models.BytesConstant(
+                    source_location=op_loc, value=a_b, encoding=target_encoding
+                )
             elif bytes_op == AVMOp.eq:
                 return models.UInt64Constant(value=int(a == b), source_location=op_loc)
             elif bytes_op == AVMOp.neq:
@@ -206,7 +209,7 @@ def try_simplify_arithmetic_ops(
                     AVMOp.bitwise_xor_bytes: operator.xor,
                 }[bytes_op]
                 return models.BytesConstant(
-                    value=byte_wise(do_op, a, b), encoding=encoding_a, source_location=op_loc
+                    value=byte_wise(do_op, a, b), encoding=target_encoding, source_location=op_loc
                 )
         case models.Intrinsic(
             args=[
