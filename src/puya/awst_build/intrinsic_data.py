@@ -1028,23 +1028,6 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.log": [
-        FunctionOpMapping(
-            op_code="log",
-            is_property=False,
-            immediates=[],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
     "puyapy.op.min_balance": [
         FunctionOpMapping(
             op_code="min_balance",

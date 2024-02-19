@@ -11,6 +11,7 @@ from puyapy import (
     ensure_budget,
     gtxn,
     itxn,
+    log,
     op,
     subroutine,
     uenumerate,
@@ -95,7 +96,7 @@ class VotingRoundApp(ARC4Contract):
             # tally box value
             + (tally_box_size * BOX_BYTE_MIN_BALANCE)
         )
-        op.log(op.itob(min_balance_req))
+        log(min_balance_req)
         assert (
             fund_min_bal_req.amount == min_balance_req
         ), "Payment must be for the exact min balance requirement"
@@ -182,7 +183,7 @@ class VotingRoundApp(ARC4Contract):
             fund_min_bal_req.receiver == op.Global.current_application_address
         ), "Payment must be to app address"
 
-        op.log(op.itob(min_bal_req))
+        log(min_bal_req)
         assert fund_min_bal_req.amount == min_bal_req, "Payment must be the exact min balance"
         # Record the vote for each question
         cumulative_offset = UInt64(0)

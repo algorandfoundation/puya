@@ -273,6 +273,8 @@ EXCLUDED_OPCODES = {
     "arg_1",
     "arg_2",
     "arg_3",
+    # have a higher level abstraction that supersedes it
+    "log",
 }
 
 
