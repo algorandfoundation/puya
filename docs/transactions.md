@@ -38,14 +38,14 @@ class MyContract(puyapy.ARC4Contract):
 ```
 
 ```{note}
-The [AnyTransaction](puyapy.gtxn.AnyTransaction) type cannot be used as an ARC4 ABI argument
+The [Transaction](puyapy.gtxn.Transaction) type cannot be used as an ARC4 ABI argument
 ```
 
 ### Group Index
 
 Group transactions can also be created using the group index of the transaction. 
 If instantiating one of the type specific transactions they will be checked to ensure the transaction is of the expected type.
-The [AnyTransaction](puyapy.gtxn.AnyTransaction) is not checked for a specific type and provides access to all transaction fields
+[Transaction](puyapy.gtxn.Transaction) is not checked for a specific type and provides access to all transaction fields
 
 For example, to obtain a reference to a payment transaction:
 
@@ -148,7 +148,7 @@ def example() -> None:
 
     # invoke an ABI method
     call_txn = itxn.ApplicationCall(
-        application_id=application_txn.created_application,
+        application_id=application_txn.created_app,
         application_args=(arc4.arc4_signature("hello(string)string"), Bytes(b"World")),
         fee=0,
     ).submit()
@@ -199,7 +199,7 @@ def return_not_allowed() -> itxn.PaymentInnerTransaction:
 def passing_fields_allowed() -> Application:
     txn = itxn.ApplicationCall(...).submit()
     do_something(txn.txn_id, txn.logs(0))  # this is ok
-    return txn.created_application  # and this is ok
+    return txn.created_app  # and this is ok
 
 
 @subroutine
