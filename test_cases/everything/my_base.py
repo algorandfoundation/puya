@@ -6,7 +6,7 @@ from puyapy import Contract, UInt64, arc4, op, subroutine
 class MyBase(Contract, ABC):
     @subroutine
     def remember_creator(self) -> None:
-        self.creator = op.Transaction.sender
+        self.creator = op.Txn.sender
 
 
 class MyMiddleBase(MyBase):

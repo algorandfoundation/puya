@@ -1747,7 +1747,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobals.get_bytes": [
+    "puyapy.op.AppGlobal.get_bytes": [
         FunctionOpMapping(
             op_code="app_global_get",
             is_property=False,
@@ -1766,7 +1766,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobals.get_uint64": [
+    "puyapy.op.AppGlobal.get_uint64": [
         FunctionOpMapping(
             op_code="app_global_get",
             is_property=False,
@@ -1785,7 +1785,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobals.get_ex_bytes": [
+    "puyapy.op.AppGlobal.get_ex_bytes": [
         FunctionOpMapping(
             op_code="app_global_get_ex",
             is_property=False,
@@ -1812,7 +1812,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobals.get_ex_uint64": [
+    "puyapy.op.AppGlobal.get_ex_uint64": [
         FunctionOpMapping(
             op_code="app_global_get_ex",
             is_property=False,
@@ -1839,7 +1839,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobals.delete": [
+    "puyapy.op.AppGlobal.delete": [
         FunctionOpMapping(
             op_code="app_global_del",
             is_property=False,
@@ -1856,7 +1856,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.AppGlobals.put": [
+    "puyapy.op.AppGlobal.put": [
         FunctionOpMapping(
             op_code="app_global_put",
             is_property=False,
@@ -1882,7 +1882,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.AppLocals.get_bytes": [
+    "puyapy.op.AppLocal.get_bytes": [
         FunctionOpMapping(
             op_code="app_local_get",
             is_property=False,
@@ -1909,7 +1909,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppLocals.get_uint64": [
+    "puyapy.op.AppLocal.get_uint64": [
         FunctionOpMapping(
             op_code="app_local_get",
             is_property=False,
@@ -1936,7 +1936,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppLocals.get_ex_bytes": [
+    "puyapy.op.AppLocal.get_ex_bytes": [
         FunctionOpMapping(
             op_code="app_local_get_ex",
             is_property=False,
@@ -1971,7 +1971,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppLocals.get_ex_uint64": [
+    "puyapy.op.AppLocal.get_ex_uint64": [
         FunctionOpMapping(
             op_code="app_local_get_ex",
             is_property=False,
@@ -2006,7 +2006,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppLocals.delete": [
+    "puyapy.op.AppLocal.delete": [
         FunctionOpMapping(
             op_code="app_local_del",
             is_property=False,
@@ -2031,7 +2031,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.AppLocals.put": [
+    "puyapy.op.AppLocal.put": [
         FunctionOpMapping(
             op_code="app_local_put",
             is_property=False,
@@ -2864,995 +2864,6 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.CreateInnerTransaction.begin": [
-        FunctionOpMapping(
-            op_code="itxn_begin",
-            is_property=False,
-            immediates=[],
-            stack_inputs=[],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.next": [
-        FunctionOpMapping(
-            op_code="itxn_next",
-            is_property=False,
-            immediates=[],
-            stack_inputs=[],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.submit": [
-        FunctionOpMapping(
-            op_code="itxn_submit",
-            is_property=False,
-            immediates=[],
-            stack_inputs=[],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_sender": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Sender",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_fee": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Fee",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_note": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Note",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_receiver": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Receiver",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_amount": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Amount",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_close_remainder_to": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "CloseRemainderTo",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_vote_pk": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "VotePK",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_selection_pk": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "SelectionPK",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_vote_first": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "VoteFirst",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_vote_last": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "VoteLast",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_vote_key_dilution": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "VoteKeyDilution",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_type": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Type",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_type_enum": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "TypeEnum",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_xfer_asset": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "XferAsset",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_asset_amount": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "AssetAmount",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_asset_sender": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "AssetSender",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_asset_receiver": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "AssetReceiver",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_asset_close_to": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "AssetCloseTo",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_application_id": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ApplicationID",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_on_completion": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "OnCompletion",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_application_args": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ApplicationArgs",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_accounts": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Accounts",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_approval_program": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ApprovalProgram",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_clear_state_program": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ClearStateProgram",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_rekey_to": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "RekeyTo",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAsset",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_total": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetTotal",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_decimals": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetDecimals",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_default_frozen": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetDefaultFrozen",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bool_wtype,
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_unit_name": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetUnitName",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_name": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetName",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_url": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetURL",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_metadata_hash": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetMetadataHash",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_manager": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetManager",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_reserve": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetReserve",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_freeze": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetFreeze",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_config_asset_clawback": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ConfigAssetClawback",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_freeze_asset": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "FreezeAsset",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_freeze_asset_account": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "FreezeAssetAccount",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.account_wtype,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_freeze_asset_frozen": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "FreezeAssetFrozen",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bool_wtype,
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_assets": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Assets",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_applications": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Applications",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_global_num_uint": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "GlobalNumUint",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_global_num_byte_slice": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "GlobalNumByteSlice",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_local_num_uint": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "LocalNumUint",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_local_num_byte_slice": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "LocalNumByteSlice",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_extra_program_pages": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ExtraProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_nonparticipation": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "Nonparticipation",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bool_wtype,
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_state_proof_pk": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "StateProofPK",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_approval_program_pages": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ApprovalProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
-    "puyapy.op.CreateInnerTransaction.set_clear_state_program_pages": [
-        FunctionOpMapping(
-            op_code="itxn_field",
-            is_property=False,
-            immediates=[
-                "ClearStateProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.bytes_wtype,
-                        bytes,
-                    ],
-                ),
-            ],
-            stack_outputs=[],
-        ),
-    ],
     "puyapy.op.EllipticCurve.add": [
         FunctionOpMapping(
             op_code="ec_add",
@@ -4034,6 +3045,4540 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_outputs=[
                 wtypes.bool_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.sender": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Sender",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.fee": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Fee",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.first_valid": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FirstValid",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.first_valid_time": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FirstValidTime",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.last_valid": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "LastValid",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.note": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Note",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.lease": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Lease",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.receiver": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Receiver",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.amount": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Amount",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.close_remainder_to": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "CloseRemainderTo",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.vote_pk": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "VotePK",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.selection_pk": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "SelectionPK",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.vote_first": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "VoteFirst",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.vote_last": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "VoteLast",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.vote_key_dilution": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "VoteKeyDilution",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.type": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Type",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.type_enum": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "TypeEnum",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.xfer_asset": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "XferAsset",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.asset_amount": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "AssetAmount",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.asset_sender": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "AssetSender",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.asset_receiver": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "AssetReceiver",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.asset_close_to": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "AssetCloseTo",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.group_index": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "GroupIndex",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.tx_id": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "TxID",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.application_id": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApplicationID",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.on_completion": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "OnCompletion",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.application_args": [
+        FunctionOpMapping(
+            op_code="gitxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApplicationArgs",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gitxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApplicationArgs",
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.num_app_args": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumAppArgs",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.accounts": [
+        FunctionOpMapping(
+            op_code="gitxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Accounts",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gitxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Accounts",
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.num_accounts": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumAccounts",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.approval_program": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApprovalProgram",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.clear_state_program": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ClearStateProgram",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.rekey_to": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "RekeyTo",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAsset",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_total": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetTotal",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_decimals": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetDecimals",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_default_frozen": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetDefaultFrozen",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_unit_name": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetUnitName",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_name": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetName",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_url": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetURL",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_metadata_hash": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetMetadataHash",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_manager": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetManager",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_reserve": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetReserve",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_freeze": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetFreeze",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.config_asset_clawback": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetClawback",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.freeze_asset": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FreezeAsset",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.freeze_asset_account": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FreezeAssetAccount",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.freeze_asset_frozen": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FreezeAssetFrozen",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.assets": [
+        FunctionOpMapping(
+            op_code="gitxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Assets",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gitxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Assets",
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.num_assets": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumAssets",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.applications": [
+        FunctionOpMapping(
+            op_code="gitxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Applications",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gitxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Applications",
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.num_applications": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumApplications",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.global_num_uint": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "GlobalNumUint",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.global_num_byte_slice": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "GlobalNumByteSlice",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.local_num_uint": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "LocalNumUint",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.local_num_byte_slice": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "LocalNumByteSlice",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.extra_program_pages": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ExtraProgramPages",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.nonparticipation": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Nonparticipation",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.logs": [
+        FunctionOpMapping(
+            op_code="gitxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Logs",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gitxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Logs",
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.num_logs": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumLogs",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.created_asset_id": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "CreatedAssetID",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.created_application_id": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "CreatedApplicationID",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.last_log": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "LastLog",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.state_proof_pk": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "StateProofPK",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.approval_program_pages": [
+        FunctionOpMapping(
+            op_code="gitxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApprovalProgramPages",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gitxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApprovalProgramPages",
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.num_approval_program_pages": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumApprovalProgramPages",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.clear_state_program_pages": [
+        FunctionOpMapping(
+            op_code="gitxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ClearStateProgramPages",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gitxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ClearStateProgramPages",
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GITxn.num_clear_state_program_pages": [
+        FunctionOpMapping(
+            op_code="gitxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="t",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumClearStateProgramPages",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.sender": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "Sender",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Sender",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.fee": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "Fee",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Fee",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.first_valid": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "FirstValid",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FirstValid",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.first_valid_time": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "FirstValidTime",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FirstValidTime",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.last_valid": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "LastValid",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "LastValid",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.note": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "Note",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Note",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.lease": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "Lease",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Lease",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.receiver": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "Receiver",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Receiver",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.amount": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "Amount",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Amount",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.close_remainder_to": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "CloseRemainderTo",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "CloseRemainderTo",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.vote_pk": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "VotePK",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "VotePK",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.selection_pk": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "SelectionPK",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "SelectionPK",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.vote_first": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "VoteFirst",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "VoteFirst",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.vote_last": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "VoteLast",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "VoteLast",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.vote_key_dilution": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "VoteKeyDilution",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "VoteKeyDilution",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.type": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "Type",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Type",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.type_enum": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "TypeEnum",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "TypeEnum",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.xfer_asset": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "XferAsset",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "XferAsset",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.asset_amount": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "AssetAmount",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "AssetAmount",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.asset_sender": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "AssetSender",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "AssetSender",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.asset_receiver": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "AssetReceiver",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "AssetReceiver",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.asset_close_to": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "AssetCloseTo",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "AssetCloseTo",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.group_index": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "GroupIndex",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "GroupIndex",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.tx_id": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "TxID",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "TxID",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.application_id": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ApplicationID",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApplicationID",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.on_completion": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "OnCompletion",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "OnCompletion",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.application_args": [
+        FunctionOpMapping(
+            op_code="gtxnsas",
+            is_property=False,
+            immediates=[
+                "ApplicationArgs",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnsa",
+            is_property=False,
+            immediates=[
+                "ApplicationArgs",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApplicationArgs",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApplicationArgs",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.num_app_args": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "NumAppArgs",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumAppArgs",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.accounts": [
+        FunctionOpMapping(
+            op_code="gtxnsas",
+            is_property=False,
+            immediates=[
+                "Accounts",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnsa",
+            is_property=False,
+            immediates=[
+                "Accounts",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Accounts",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Accounts",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.num_accounts": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "NumAccounts",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumAccounts",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.approval_program": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ApprovalProgram",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApprovalProgram",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.clear_state_program": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ClearStateProgram",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ClearStateProgram",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.rekey_to": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "RekeyTo",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "RekeyTo",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAsset",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAsset",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_total": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetTotal",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetTotal",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_decimals": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetDecimals",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetDecimals",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_default_frozen": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetDefaultFrozen",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetDefaultFrozen",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_unit_name": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetUnitName",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetUnitName",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_name": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetName",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetName",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_url": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetURL",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetURL",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_metadata_hash": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetMetadataHash",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetMetadataHash",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_manager": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetManager",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetManager",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_reserve": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetReserve",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetReserve",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_freeze": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetFreeze",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetFreeze",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.config_asset_clawback": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ConfigAssetClawback",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ConfigAssetClawback",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.freeze_asset": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "FreezeAsset",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FreezeAsset",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.freeze_asset_account": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "FreezeAssetAccount",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FreezeAssetAccount",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.account_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.freeze_asset_frozen": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "FreezeAssetFrozen",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "FreezeAssetFrozen",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.assets": [
+        FunctionOpMapping(
+            op_code="gtxnsas",
+            is_property=False,
+            immediates=[
+                "Assets",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnsa",
+            is_property=False,
+            immediates=[
+                "Assets",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Assets",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Assets",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.num_assets": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "NumAssets",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumAssets",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.applications": [
+        FunctionOpMapping(
+            op_code="gtxnsas",
+            is_property=False,
+            immediates=[
+                "Applications",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnsa",
+            is_property=False,
+            immediates=[
+                "Applications",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Applications",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Applications",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.num_applications": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "NumApplications",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumApplications",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.global_num_uint": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "GlobalNumUint",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "GlobalNumUint",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.global_num_byte_slice": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "GlobalNumByteSlice",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "GlobalNumByteSlice",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.local_num_uint": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "LocalNumUint",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "LocalNumUint",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.local_num_byte_slice": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "LocalNumByteSlice",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "LocalNumByteSlice",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.extra_program_pages": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "ExtraProgramPages",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ExtraProgramPages",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.nonparticipation": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "Nonparticipation",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Nonparticipation",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bool_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.logs": [
+        FunctionOpMapping(
+            op_code="gtxnsas",
+            is_property=False,
+            immediates=[
+                "Logs",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnsa",
+            is_property=False,
+            immediates=[
+                "Logs",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Logs",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "Logs",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.num_logs": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "NumLogs",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumLogs",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.created_asset_id": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "CreatedAssetID",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "CreatedAssetID",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.created_application_id": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "CreatedApplicationID",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "CreatedApplicationID",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.last_log": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "LastLog",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "LastLog",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.state_proof_pk": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "StateProofPK",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "StateProofPK",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.approval_program_pages": [
+        FunctionOpMapping(
+            op_code="gtxnsas",
+            is_property=False,
+            immediates=[
+                "ApprovalProgramPages",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnsa",
+            is_property=False,
+            immediates=[
+                "ApprovalProgramPages",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApprovalProgramPages",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ApprovalProgramPages",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.num_approval_program_pages": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "NumApprovalProgramPages",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumApprovalProgramPages",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.clear_state_program_pages": [
+        FunctionOpMapping(
+            op_code="gtxnsas",
+            is_property=False,
+            immediates=[
+                "ClearStateProgramPages",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnsa",
+            is_property=False,
+            immediates=[
+                "ClearStateProgramPages",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxna",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ClearStateProgramPages",
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxnas",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "ClearStateProgramPages",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "puyapy.op.GTxn.num_clear_state_program_pages": [
+        FunctionOpMapping(
+            op_code="gtxns",
+            is_property=False,
+            immediates=[
+                "NumClearStateProgramPages",
+            ],
+            stack_inputs=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                        int,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+        FunctionOpMapping(
+            op_code="gtxn",
+            is_property=False,
+            immediates=[
+                ArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        int,
+                    ],
+                ),
+                "NumClearStateProgramPages",
+            ],
+            stack_inputs=[],
+            stack_outputs=[
+                wtypes.uint64_wtype,
             ],
         ),
     ],
@@ -4271,7 +7816,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.sender": [
+    "puyapy.op.ITxn.sender": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4284,7 +7829,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.fee": [
+    "puyapy.op.ITxn.fee": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4297,7 +7842,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.first_valid": [
+    "puyapy.op.ITxn.first_valid": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4310,7 +7855,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.first_valid_time": [
+    "puyapy.op.ITxn.first_valid_time": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4323,7 +7868,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.last_valid": [
+    "puyapy.op.ITxn.last_valid": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4336,7 +7881,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.note": [
+    "puyapy.op.ITxn.note": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4349,7 +7894,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.lease": [
+    "puyapy.op.ITxn.lease": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4362,7 +7907,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.receiver": [
+    "puyapy.op.ITxn.receiver": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4375,7 +7920,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.amount": [
+    "puyapy.op.ITxn.amount": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4388,7 +7933,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.close_remainder_to": [
+    "puyapy.op.ITxn.close_remainder_to": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4401,7 +7946,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.vote_pk": [
+    "puyapy.op.ITxn.vote_pk": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4414,7 +7959,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.selection_pk": [
+    "puyapy.op.ITxn.selection_pk": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4427,7 +7972,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.vote_first": [
+    "puyapy.op.ITxn.vote_first": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4440,7 +7985,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.vote_last": [
+    "puyapy.op.ITxn.vote_last": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4453,7 +7998,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.vote_key_dilution": [
+    "puyapy.op.ITxn.vote_key_dilution": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4466,7 +8011,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.type": [
+    "puyapy.op.ITxn.type": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4479,7 +8024,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.type_enum": [
+    "puyapy.op.ITxn.type_enum": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4492,7 +8037,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.xfer_asset": [
+    "puyapy.op.ITxn.xfer_asset": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4505,7 +8050,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.asset_amount": [
+    "puyapy.op.ITxn.asset_amount": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4518,7 +8063,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.asset_sender": [
+    "puyapy.op.ITxn.asset_sender": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4531,7 +8076,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.asset_receiver": [
+    "puyapy.op.ITxn.asset_receiver": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4544,7 +8089,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.asset_close_to": [
+    "puyapy.op.ITxn.asset_close_to": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4557,7 +8102,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.group_index": [
+    "puyapy.op.ITxn.group_index": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4570,7 +8115,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.tx_id": [
+    "puyapy.op.ITxn.tx_id": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4583,7 +8128,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.application_id": [
+    "puyapy.op.ITxn.application_id": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4596,7 +8141,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.on_completion": [
+    "puyapy.op.ITxn.on_completion": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4609,7 +8154,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.application_args": [
+    "puyapy.op.ITxn.application_args": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -4647,7 +8192,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.num_app_args": [
+    "puyapy.op.ITxn.num_app_args": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4660,7 +8205,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.accounts": [
+    "puyapy.op.ITxn.accounts": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -4698,7 +8243,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.num_accounts": [
+    "puyapy.op.ITxn.num_accounts": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4711,7 +8256,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.approval_program": [
+    "puyapy.op.ITxn.approval_program": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4724,7 +8269,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.clear_state_program": [
+    "puyapy.op.ITxn.clear_state_program": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4737,7 +8282,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.rekey_to": [
+    "puyapy.op.ITxn.rekey_to": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4750,7 +8295,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset": [
+    "puyapy.op.ITxn.config_asset": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4763,7 +8308,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_total": [
+    "puyapy.op.ITxn.config_asset_total": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4776,7 +8321,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_decimals": [
+    "puyapy.op.ITxn.config_asset_decimals": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4789,7 +8334,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_default_frozen": [
+    "puyapy.op.ITxn.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4802,7 +8347,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_unit_name": [
+    "puyapy.op.ITxn.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4815,7 +8360,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_name": [
+    "puyapy.op.ITxn.config_asset_name": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4828,7 +8373,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_url": [
+    "puyapy.op.ITxn.config_asset_url": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4841,7 +8386,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_metadata_hash": [
+    "puyapy.op.ITxn.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4854,7 +8399,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_manager": [
+    "puyapy.op.ITxn.config_asset_manager": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4867,7 +8412,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_reserve": [
+    "puyapy.op.ITxn.config_asset_reserve": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4880,7 +8425,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_freeze": [
+    "puyapy.op.ITxn.config_asset_freeze": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4893,7 +8438,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.config_asset_clawback": [
+    "puyapy.op.ITxn.config_asset_clawback": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4906,7 +8451,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.freeze_asset": [
+    "puyapy.op.ITxn.freeze_asset": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4919,7 +8464,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.freeze_asset_account": [
+    "puyapy.op.ITxn.freeze_asset_account": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4932,7 +8477,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.freeze_asset_frozen": [
+    "puyapy.op.ITxn.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4945,7 +8490,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.assets": [
+    "puyapy.op.ITxn.assets": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -4983,7 +8528,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.num_assets": [
+    "puyapy.op.ITxn.num_assets": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -4996,7 +8541,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.applications": [
+    "puyapy.op.ITxn.applications": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -5034,7 +8579,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.num_applications": [
+    "puyapy.op.ITxn.num_applications": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5047,7 +8592,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.global_num_uint": [
+    "puyapy.op.ITxn.global_num_uint": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5060,7 +8605,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.global_num_byte_slice": [
+    "puyapy.op.ITxn.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5073,7 +8618,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.local_num_uint": [
+    "puyapy.op.ITxn.local_num_uint": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5086,7 +8631,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.local_num_byte_slice": [
+    "puyapy.op.ITxn.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5099,7 +8644,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.extra_program_pages": [
+    "puyapy.op.ITxn.extra_program_pages": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5112,7 +8657,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.nonparticipation": [
+    "puyapy.op.ITxn.nonparticipation": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5125,7 +8670,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.logs": [
+    "puyapy.op.ITxn.logs": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -5163,7 +8708,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.num_logs": [
+    "puyapy.op.ITxn.num_logs": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5176,7 +8721,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.created_asset_id": [
+    "puyapy.op.ITxn.created_asset_id": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5189,7 +8734,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.created_application_id": [
+    "puyapy.op.ITxn.created_application_id": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5202,7 +8747,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.last_log": [
+    "puyapy.op.ITxn.last_log": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5215,7 +8760,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.state_proof_pk": [
+    "puyapy.op.ITxn.state_proof_pk": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5228,7 +8773,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.approval_program_pages": [
+    "puyapy.op.ITxn.approval_program_pages": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -5266,7 +8811,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.num_approval_program_pages": [
+    "puyapy.op.ITxn.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5279,7 +8824,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.clear_state_program_pages": [
+    "puyapy.op.ITxn.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -5317,7 +8862,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransaction.num_clear_state_program_pages": [
+    "puyapy.op.ITxn.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -5330,513 +8875,397 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.sender": [
+    "puyapy.op.ITxnCreate.begin": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_begin",
+            is_property=False,
+            immediates=[],
+            stack_inputs=[],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.next": [
+        FunctionOpMapping(
+            op_code="itxn_next",
+            is_property=False,
+            immediates=[],
+            stack_inputs=[],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.submit": [
+        FunctionOpMapping(
+            op_code="itxn_submit",
+            is_property=False,
+            immediates=[],
+            stack_inputs=[],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_sender": [
+        FunctionOpMapping(
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "Sender",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.fee": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_fee": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "Fee",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.first_valid": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
-                "FirstValid",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.first_valid_time": [
+    "puyapy.op.ITxnCreate.set_note": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "FirstValidTime",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.last_valid": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "LastValid",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.note": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "Note",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.lease": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
-                "Lease",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.receiver": [
+    "puyapy.op.ITxnCreate.set_receiver": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "Receiver",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.amount": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_amount": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "Amount",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.close_remainder_to": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_close_remainder_to": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "CloseRemainderTo",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.vote_pk": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_vote_pk": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "VotePK",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.selection_pk": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_selection_pk": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "SelectionPK",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.vote_first": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_vote_first": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "VoteFirst",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.vote_last": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_vote_last": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "VoteLast",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.vote_key_dilution": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_vote_key_dilution": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "VoteKeyDilution",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.type": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_type": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "Type",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.type_enum": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_type_enum": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "TypeEnum",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.xfer_asset": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_xfer_asset": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "XferAsset",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.asset_amount": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_asset_amount": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "AssetAmount",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.asset_sender": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_asset_sender": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "AssetSender",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.asset_receiver": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_asset_receiver": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "AssetReceiver",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.asset_close_to": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_asset_close_to": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "AssetCloseTo",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.group_index": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
-                "GroupIndex",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.tx_id": [
+    "puyapy.op.ITxnCreate.set_application_id": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "TxID",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.application_id": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "ApplicationID",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.on_completion": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_on_completion": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "OnCompletion",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.application_args": [
-        FunctionOpMapping(
-            op_code="gitxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ApplicationArgs",
-            ],
             stack_inputs=[
                 ArgMapping(
                     arg_name="a",
@@ -5846,475 +9275,390 @@ STUB_TO_AST_MAPPER = {
                     ],
                 ),
             ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
+            stack_outputs=[],
         ),
+    ],
+    "puyapy.op.ITxnCreate.set_application_args": [
         FunctionOpMapping(
-            op_code="gitxna",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "ApplicationArgs",
+            ],
+            stack_inputs=[
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.num_app_args": [
+    "puyapy.op.ITxnCreate.set_accounts": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumAppArgs",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.accounts": [
-        FunctionOpMapping(
-            op_code="gitxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "Accounts",
             ],
             stack_inputs=[
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
             ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gitxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Accounts",
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.num_accounts": [
+    "puyapy.op.ITxnCreate.set_approval_program": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumAccounts",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.approval_program": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "ApprovalProgram",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.clear_state_program": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_clear_state_program": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ClearStateProgram",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.rekey_to": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_rekey_to": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "RekeyTo",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAsset",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_total": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_total": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetTotal",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_decimals": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_decimals": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetDecimals",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_default_frozen": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_default_frozen": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetDefaultFrozen",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bool_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_unit_name": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.bool_wtype,
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_unit_name": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetUnitName",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_name": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_name": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetName",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_url": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_url": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetURL",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_metadata_hash": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_metadata_hash": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetMetadataHash",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_manager": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_manager": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetManager",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_reserve": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_reserve": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetReserve",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_freeze": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_freeze": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetFreeze",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.config_asset_clawback": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_config_asset_clawback": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ConfigAssetClawback",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.freeze_asset": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_freeze_asset": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "FreezeAsset",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.freeze_asset_account": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_freeze_asset_account": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "FreezeAssetAccount",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.freeze_asset_frozen": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.account_wtype,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_freeze_asset_frozen": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "FreezeAssetFrozen",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bool_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.assets": [
-        FunctionOpMapping(
-            op_code="gitxnas",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.bool_wtype,
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_assets": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "Assets",
             ],
             stack_inputs=[
@@ -6326,64 +9670,14 @@ STUB_TO_AST_MAPPER = {
                     ],
                 ),
             ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gitxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Assets",
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.num_assets": [
+    "puyapy.op.ITxnCreate.set_applications": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumAssets",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.applications": [
-        FunctionOpMapping(
-            op_code="gitxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "Applications",
             ],
             stack_inputs=[
@@ -6395,448 +9689,179 @@ STUB_TO_AST_MAPPER = {
                     ],
                 ),
             ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gitxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Applications",
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.num_applications": [
+    "puyapy.op.ITxnCreate.set_global_num_uint": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumApplications",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.global_num_uint": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "GlobalNumUint",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.global_num_byte_slice": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_global_num_byte_slice": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "GlobalNumByteSlice",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.local_num_uint": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_local_num_uint": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "LocalNumUint",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.local_num_byte_slice": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_local_num_byte_slice": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "LocalNumByteSlice",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.extra_program_pages": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_extra_program_pages": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ExtraProgramPages",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.nonparticipation": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
+                        wtypes.uint64_wtype,
                         int,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_nonparticipation": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "Nonparticipation",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bool_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.logs": [
-        FunctionOpMapping(
-            op_code="gitxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Logs",
-            ],
             stack_inputs=[
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.bool_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
                 ),
             ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gitxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Logs",
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.num_logs": [
+    "puyapy.op.ITxnCreate.set_state_proof_pk": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumLogs",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.created_asset_id": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "CreatedAssetID",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.created_application_id": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "CreatedApplicationID",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.last_log": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "LastLog",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.state_proof_pk": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "StateProofPK",
             ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.approval_program_pages": [
-        FunctionOpMapping(
-            op_code="gitxnas",
-            is_property=False,
-            immediates=[
+            stack_inputs=[
                 ArgMapping(
-                    arg_name="t",
+                    arg_name="a",
                     allowed_types=[
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
+            ],
+            stack_outputs=[],
+        ),
+    ],
+    "puyapy.op.ITxnCreate.set_approval_program_pages": [
+        FunctionOpMapping(
+            op_code="itxn_field",
+            is_property=False,
+            immediates=[
                 "ApprovalProgramPages",
             ],
             stack_inputs=[
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
             ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gitxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ApprovalProgramPages",
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
-    "puyapy.op.InnerTransactionGroup.num_approval_program_pages": [
+    "puyapy.op.ITxnCreate.set_clear_state_program_pages": [
         FunctionOpMapping(
-            op_code="gitxn",
+            op_code="itxn_field",
             is_property=False,
             immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumApprovalProgramPages",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.clear_state_program_pages": [
-        FunctionOpMapping(
-            op_code="gitxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "ClearStateProgramPages",
             ],
             stack_inputs=[
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
+                        wtypes.bytes_wtype,
+                        bytes,
                     ],
                 ),
             ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gitxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ClearStateProgramPages",
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.InnerTransactionGroup.num_clear_state_program_pages": [
-        FunctionOpMapping(
-            op_code="gitxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumClearStateProgramPages",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
+            stack_outputs=[],
         ),
     ],
     "puyapy.op.JsonRef.json_string": [
@@ -6987,7 +10012,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.Transaction.sender": [
+    "puyapy.op.Txn.sender": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7000,7 +10025,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.fee": [
+    "puyapy.op.Txn.fee": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7013,7 +10038,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.first_valid": [
+    "puyapy.op.Txn.first_valid": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7026,7 +10051,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.first_valid_time": [
+    "puyapy.op.Txn.first_valid_time": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7039,7 +10064,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.last_valid": [
+    "puyapy.op.Txn.last_valid": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7052,7 +10077,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.note": [
+    "puyapy.op.Txn.note": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7065,7 +10090,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.lease": [
+    "puyapy.op.Txn.lease": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7078,7 +10103,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.receiver": [
+    "puyapy.op.Txn.receiver": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7091,7 +10116,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.amount": [
+    "puyapy.op.Txn.amount": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7104,7 +10129,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.close_remainder_to": [
+    "puyapy.op.Txn.close_remainder_to": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7117,7 +10142,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.vote_pk": [
+    "puyapy.op.Txn.vote_pk": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7130,7 +10155,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.selection_pk": [
+    "puyapy.op.Txn.selection_pk": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7143,7 +10168,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.vote_first": [
+    "puyapy.op.Txn.vote_first": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7156,7 +10181,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.vote_last": [
+    "puyapy.op.Txn.vote_last": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7169,7 +10194,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.vote_key_dilution": [
+    "puyapy.op.Txn.vote_key_dilution": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7182,7 +10207,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.type": [
+    "puyapy.op.Txn.type": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7195,7 +10220,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.type_enum": [
+    "puyapy.op.Txn.type_enum": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7208,7 +10233,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.xfer_asset": [
+    "puyapy.op.Txn.xfer_asset": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7221,7 +10246,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.asset_amount": [
+    "puyapy.op.Txn.asset_amount": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7234,7 +10259,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.asset_sender": [
+    "puyapy.op.Txn.asset_sender": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7247,7 +10272,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.asset_receiver": [
+    "puyapy.op.Txn.asset_receiver": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7260,7 +10285,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.asset_close_to": [
+    "puyapy.op.Txn.asset_close_to": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7273,7 +10298,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.group_index": [
+    "puyapy.op.Txn.group_index": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7286,7 +10311,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.tx_id": [
+    "puyapy.op.Txn.tx_id": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7299,7 +10324,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.application_id": [
+    "puyapy.op.Txn.application_id": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7312,7 +10337,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.on_completion": [
+    "puyapy.op.Txn.on_completion": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7325,7 +10350,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.application_args": [
+    "puyapy.op.Txn.application_args": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -7363,7 +10388,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.num_app_args": [
+    "puyapy.op.Txn.num_app_args": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7376,7 +10401,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.accounts": [
+    "puyapy.op.Txn.accounts": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -7414,7 +10439,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.num_accounts": [
+    "puyapy.op.Txn.num_accounts": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7427,7 +10452,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.approval_program": [
+    "puyapy.op.Txn.approval_program": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7440,7 +10465,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.clear_state_program": [
+    "puyapy.op.Txn.clear_state_program": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7453,7 +10478,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.rekey_to": [
+    "puyapy.op.Txn.rekey_to": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7466,7 +10491,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset": [
+    "puyapy.op.Txn.config_asset": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7479,7 +10504,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_total": [
+    "puyapy.op.Txn.config_asset_total": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7492,7 +10517,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_decimals": [
+    "puyapy.op.Txn.config_asset_decimals": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7505,7 +10530,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_default_frozen": [
+    "puyapy.op.Txn.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7518,7 +10543,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_unit_name": [
+    "puyapy.op.Txn.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7531,7 +10556,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_name": [
+    "puyapy.op.Txn.config_asset_name": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7544,7 +10569,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_url": [
+    "puyapy.op.Txn.config_asset_url": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7557,7 +10582,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_metadata_hash": [
+    "puyapy.op.Txn.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7570,7 +10595,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_manager": [
+    "puyapy.op.Txn.config_asset_manager": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7583,7 +10608,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_reserve": [
+    "puyapy.op.Txn.config_asset_reserve": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7596,7 +10621,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_freeze": [
+    "puyapy.op.Txn.config_asset_freeze": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7609,7 +10634,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.config_asset_clawback": [
+    "puyapy.op.Txn.config_asset_clawback": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7622,7 +10647,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.freeze_asset": [
+    "puyapy.op.Txn.freeze_asset": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7635,7 +10660,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.freeze_asset_account": [
+    "puyapy.op.Txn.freeze_asset_account": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7648,7 +10673,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.freeze_asset_frozen": [
+    "puyapy.op.Txn.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7661,7 +10686,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.assets": [
+    "puyapy.op.Txn.assets": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -7699,7 +10724,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.num_assets": [
+    "puyapy.op.Txn.num_assets": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7712,7 +10737,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.applications": [
+    "puyapy.op.Txn.applications": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -7750,7 +10775,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.num_applications": [
+    "puyapy.op.Txn.num_applications": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7763,7 +10788,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.global_num_uint": [
+    "puyapy.op.Txn.global_num_uint": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7776,7 +10801,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.global_num_byte_slice": [
+    "puyapy.op.Txn.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7789,7 +10814,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.local_num_uint": [
+    "puyapy.op.Txn.local_num_uint": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7802,7 +10827,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.local_num_byte_slice": [
+    "puyapy.op.Txn.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7815,7 +10840,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.extra_program_pages": [
+    "puyapy.op.Txn.extra_program_pages": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7828,7 +10853,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.nonparticipation": [
+    "puyapy.op.Txn.nonparticipation": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7841,7 +10866,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.logs": [
+    "puyapy.op.Txn.logs": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -7879,7 +10904,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.num_logs": [
+    "puyapy.op.Txn.num_logs": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7892,7 +10917,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.created_asset_id": [
+    "puyapy.op.Txn.created_asset_id": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7905,7 +10930,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.created_application_id": [
+    "puyapy.op.Txn.created_application_id": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7918,7 +10943,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.last_log": [
+    "puyapy.op.Txn.last_log": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7931,7 +10956,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.state_proof_pk": [
+    "puyapy.op.Txn.state_proof_pk": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7944,7 +10969,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.approval_program_pages": [
+    "puyapy.op.Txn.approval_program_pages": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -7982,7 +11007,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.num_approval_program_pages": [
+    "puyapy.op.Txn.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -7995,7 +11020,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.clear_state_program_pages": [
+    "puyapy.op.Txn.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -8033,3036 +11058,11 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Transaction.num_clear_state_program_pages": [
+    "puyapy.op.Txn.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
             immediates=[
-                "NumClearStateProgramPages",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.sender": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "Sender",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Sender",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.fee": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "Fee",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Fee",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.first_valid": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "FirstValid",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "FirstValid",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.first_valid_time": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "FirstValidTime",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "FirstValidTime",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.last_valid": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "LastValid",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "LastValid",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.note": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "Note",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Note",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.lease": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "Lease",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Lease",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.receiver": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "Receiver",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Receiver",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.amount": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "Amount",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Amount",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.close_remainder_to": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "CloseRemainderTo",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "CloseRemainderTo",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.vote_pk": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "VotePK",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "VotePK",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.selection_pk": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "SelectionPK",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "SelectionPK",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.vote_first": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "VoteFirst",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "VoteFirst",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.vote_last": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "VoteLast",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "VoteLast",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.vote_key_dilution": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "VoteKeyDilution",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "VoteKeyDilution",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.type": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "Type",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Type",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.type_enum": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "TypeEnum",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "TypeEnum",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.xfer_asset": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "XferAsset",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "XferAsset",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.asset_amount": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "AssetAmount",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "AssetAmount",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.asset_sender": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "AssetSender",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "AssetSender",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.asset_receiver": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "AssetReceiver",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "AssetReceiver",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.asset_close_to": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "AssetCloseTo",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "AssetCloseTo",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.group_index": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "GroupIndex",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "GroupIndex",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.tx_id": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "TxID",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "TxID",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.application_id": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ApplicationID",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ApplicationID",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.on_completion": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "OnCompletion",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "OnCompletion",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.application_args": [
-        FunctionOpMapping(
-            op_code="gtxnsas",
-            is_property=False,
-            immediates=[
-                "ApplicationArgs",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnsa",
-            is_property=False,
-            immediates=[
-                "ApplicationArgs",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ApplicationArgs",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ApplicationArgs",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.num_app_args": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "NumAppArgs",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumAppArgs",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.accounts": [
-        FunctionOpMapping(
-            op_code="gtxnsas",
-            is_property=False,
-            immediates=[
-                "Accounts",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnsa",
-            is_property=False,
-            immediates=[
-                "Accounts",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Accounts",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Accounts",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.num_accounts": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "NumAccounts",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumAccounts",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.approval_program": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ApprovalProgram",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ApprovalProgram",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.clear_state_program": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ClearStateProgram",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ClearStateProgram",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.rekey_to": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "RekeyTo",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "RekeyTo",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAsset",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAsset",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_total": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetTotal",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetTotal",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_decimals": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetDecimals",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetDecimals",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_default_frozen": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetDefaultFrozen",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bool_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetDefaultFrozen",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bool_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_unit_name": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetUnitName",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetUnitName",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_name": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetName",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetName",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_url": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetURL",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetURL",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_metadata_hash": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetMetadataHash",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetMetadataHash",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_manager": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetManager",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetManager",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_reserve": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetReserve",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetReserve",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_freeze": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetFreeze",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetFreeze",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.config_asset_clawback": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ConfigAssetClawback",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ConfigAssetClawback",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.freeze_asset": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "FreezeAsset",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "FreezeAsset",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.freeze_asset_account": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "FreezeAssetAccount",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "FreezeAssetAccount",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.account_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.freeze_asset_frozen": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "FreezeAssetFrozen",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bool_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "FreezeAssetFrozen",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bool_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.assets": [
-        FunctionOpMapping(
-            op_code="gtxnsas",
-            is_property=False,
-            immediates=[
-                "Assets",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnsa",
-            is_property=False,
-            immediates=[
-                "Assets",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Assets",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Assets",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.num_assets": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "NumAssets",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumAssets",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.applications": [
-        FunctionOpMapping(
-            op_code="gtxnsas",
-            is_property=False,
-            immediates=[
-                "Applications",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnsa",
-            is_property=False,
-            immediates=[
-                "Applications",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Applications",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Applications",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.num_applications": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "NumApplications",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumApplications",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.global_num_uint": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "GlobalNumUint",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "GlobalNumUint",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.global_num_byte_slice": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "GlobalNumByteSlice",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "GlobalNumByteSlice",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.local_num_uint": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "LocalNumUint",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "LocalNumUint",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.local_num_byte_slice": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "LocalNumByteSlice",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "LocalNumByteSlice",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.extra_program_pages": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "ExtraProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ExtraProgramPages",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.nonparticipation": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "Nonparticipation",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bool_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Nonparticipation",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bool_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.logs": [
-        FunctionOpMapping(
-            op_code="gtxnsas",
-            is_property=False,
-            immediates=[
-                "Logs",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnsa",
-            is_property=False,
-            immediates=[
-                "Logs",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Logs",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "Logs",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.num_logs": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "NumLogs",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumLogs",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.created_asset_id": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "CreatedAssetID",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "CreatedAssetID",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.created_application_id": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "CreatedApplicationID",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "CreatedApplicationID",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.last_log": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "LastLog",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "LastLog",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.state_proof_pk": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "StateProofPK",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "StateProofPK",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.approval_program_pages": [
-        FunctionOpMapping(
-            op_code="gtxnsas",
-            is_property=False,
-            immediates=[
-                "ApprovalProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnsa",
-            is_property=False,
-            immediates=[
-                "ApprovalProgramPages",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ApprovalProgramPages",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ApprovalProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.num_approval_program_pages": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "NumApprovalProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "NumApprovalProgramPages",
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.clear_state_program_pages": [
-        FunctionOpMapping(
-            op_code="gtxnsas",
-            is_property=False,
-            immediates=[
-                "ClearStateProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnsa",
-            is_property=False,
-            immediates=[
-                "ClearStateProgramPages",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxna",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ClearStateProgramPages",
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-            ],
-            stack_inputs=[],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxnas",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
-                "ClearStateProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="b",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.bytes_wtype,
-            ],
-        ),
-    ],
-    "puyapy.op.TransactionGroup.num_clear_state_program_pages": [
-        FunctionOpMapping(
-            op_code="gtxns",
-            is_property=False,
-            immediates=[
-                "NumClearStateProgramPages",
-            ],
-            stack_inputs=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        wtypes.uint64_wtype,
-                        int,
-                    ],
-                ),
-            ],
-            stack_outputs=[
-                wtypes.uint64_wtype,
-            ],
-        ),
-        FunctionOpMapping(
-            op_code="gtxn",
-            is_property=False,
-            immediates=[
-                ArgMapping(
-                    arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
-                ),
                 "NumClearStateProgramPages",
             ],
             stack_inputs=[],

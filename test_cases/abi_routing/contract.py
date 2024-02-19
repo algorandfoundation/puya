@@ -23,7 +23,7 @@ class Reference(ARC4Contract):
         self.asa = Asset(123)
         self.an_int = UInt64(2)
         self.some_bytes = Bytes3(arc4.Byte(7), arc4.Byte(8), arc4.Byte(9))
-        self.creator = op.Transaction.sender
+        self.creator = op.Txn.sender
         self.app = Application(123)
 
         assert arc4.arc4_signature("get(uint64,byte[])byte[]"), "has method selector"
@@ -78,19 +78,19 @@ class Reference(ARC4Contract):
     @arc4.abimethod
     def opt_into_asset(self, asset: Asset) -> None:
         # Only allow app creator to opt the app account into a ASA
-        assert op.Transaction.sender == op.Global.creator_address, "Only creator can opt in to ASA"
+        assert op.Txn.sender == op.Global.creator_address, "Only creator can opt in to ASA"
         # Verify a ASA hasn't already been opted into
         assert not self.asa, "ASA already opted in"
         # Save ASA ID in global state
         self.asa = asset
 
         # Submit opt-in transaction: 0 asset transfer to self
-        op.CreateInnerTransaction.begin()
-        op.CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
-        op.CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
-        op.CreateInnerTransaction.set_asset_receiver(op.Global.current_application_address)
-        op.CreateInnerTransaction.set_xfer_asset(asset.asset_id)
-        op.CreateInnerTransaction.submit()
+        op.ITxnCreate.begin()
+        op.ITxnCreate.set_type_enum(TransactionType.AssetTransfer)
+        op.ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
+        op.ITxnCreate.set_asset_receiver(op.Global.current_application_address)
+        op.ITxnCreate.set_xfer_asset(asset.asset_id)
+        op.ITxnCreate.submit()
 
     @arc4.abimethod
     def with_transactions(
@@ -197,7 +197,7 @@ class Reference(ARC4Contract):
         Application calls only support 16 args, and arc4 calls utilise the first arg for the method
         selector. Args beyond this number are packed into a tuple and placed in the 16th slot.
         """
-        assert op.Transaction.num_app_args == 16
+        assert op.Txn.num_app_args == 16
         assert pay.amount == 100000
         assert pay2.amount == 200000
         assert asset.asset_id

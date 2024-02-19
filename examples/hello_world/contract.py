@@ -1,9 +1,9 @@
-from puyapy import Contract, log, op
+from puyapy import Contract, Txn, log
 
 
 class HelloWorldContract(Contract):
     def approval_program(self) -> bool:
-        name = op.Transaction.application_args(0)
+        name = Txn.application_args(0)
         log(b"Hello, " + name)
         return True
 

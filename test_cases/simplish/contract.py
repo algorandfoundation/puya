@@ -6,11 +6,11 @@ from puyapy import (
     subroutine,
 )
 from puyapy.op import (
-    AppGlobals,
+    AppGlobal,
     AssetHoldingGet,
     Base64,
     Global,
-    Transaction,
+    Txn,
     base64_decode,
     btoi,
     divmodw,
@@ -28,10 +28,10 @@ SCALED_PI = 314159
 
 class Simplish(CallCounter):
     def approval_program(self) -> bool:
-        if Transaction.application_id == 0:
+        if Txn.application_id == 0:
             return True
-        oca = Transaction.on_completion
-        sender = Transaction.sender
+        oca = Txn.on_completion
+        sender = Txn.sender
         if oca in (
             OnCompleteAction.UpdateApplication,
             OnCompleteAction.DeleteApplication,
@@ -41,16 +41,16 @@ class Simplish(CallCounter):
             return Global.creator_address == sender
 
         if oca == OnCompleteAction.OptIn:
-            if Transaction.num_app_args > 0:
-                self.set_sender_nickname(Transaction.application_args(0))
+            if Txn.num_app_args > 0:
+                self.set_sender_nickname(Txn.application_args(0))
             return True
         if oca != OnCompleteAction.NoOp:
             return False
 
-        if (num_app_args := Transaction.num_app_args) > 0:
-            method_name = Transaction.application_args(0)
+        if (num_app_args := Txn.num_app_args) > 0:
+            method_name = Txn.application_args(0)
             msg, result = self.call(method_name, num_app_args)
-        elif Transaction.num_assets == 1:
+        elif Txn.num_assets == 1:
             asset_balance, asset_exists = AssetHoldingGet.asset_balance(sender, 0)
             if not asset_exists:
                 msg = Bytes(b"You do not have any of the asset")
@@ -70,7 +70,7 @@ class Simplish(CallCounter):
     @subroutine
     def call(self, method_name: Bytes, num_app_args: UInt64) -> tuple[Bytes, bool]:
         assert num_app_args == 2, "insufficient arguments"
-        radius = btoi(Transaction.application_args(1))
+        radius = btoi(Txn.application_args(1))
 
         status = True
         if method_name == b"circle_area":
@@ -133,9 +133,9 @@ def test_intrinsics() -> UInt64:
     _foo_uint: UInt64 = setbit_uint64(UInt64(32), 0, 3)
     _foo_int = setbit_uint64(32, 0, 3)
     _foo_bytes: Bytes = setbit_bytes(Bytes(b"32"), 0, 3)
-    test = AppGlobals.get_bytes(b"foo")
-    AppGlobals.put(b"b", b"yeah")
-    AppGlobals.delete(b"foo")
+    test = AppGlobal.get_bytes(b"foo")
+    AppGlobal.put(b"b", b"yeah")
+    AppGlobal.delete(b"foo")
     _expect_bytes: Bytes = test
     _abcd = divmodw(1, 2, 3, 4)
     _hello_str = base64_decode(Base64.StdEncoding, Bytes(b"SGVsbG8="))

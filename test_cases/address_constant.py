@@ -8,10 +8,10 @@ class AddressConstantContract(Contract):
         some_address = Account(SOME_ADDRESS)
         some_address = Account.from_bytes(some_address.bytes)
 
-        sender = op.Transaction.sender
+        sender = op.Txn.sender
         sender_bytes = sender.bytes
         log(sender_bytes)
-        is_some_address = op.Transaction.sender == some_address
+        is_some_address = op.Txn.sender == some_address
 
         return not is_some_address
 

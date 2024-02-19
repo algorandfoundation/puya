@@ -1,19 +1,19 @@
 contract examples.amm.contract.ConstantProductAMM:
     program approval:
         subroutine examples.amm.contract.ConstantProductAMM.approval_program() -> uint64:
-            block@0: // L25
+            block@0: // L27
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L26
+            block@1: // on_create_L28
                 examples.amm.contract.ConstantProductAMM.__init__()
                 goto block@2
-            block@2: // entrypoint_L26
+            block@2: // entrypoint_L28
                 let tmp%1#0: uint64 = (txn NumAppArgs)
                 goto tmp%1#0 ? block@3 : block@11
-            block@3: // abi_routing_L25
+            block@3: // abi_routing_L27
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%2#0 {method "set_governor(account)void" => block@4, method "bootstrap(pay,asset,asset)uint64" => block@5, method "mint(axfer,axfer,asset,asset,asset)void" => block@6, method "burn(axfer,asset,asset,asset)void" => block@7, method "swap(axfer,asset,asset)void" => block@8, * => fail // reject transaction}
-            block@4: // set_governor_route_L41
+            block@4: // set_governor_route_L43
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: uint64 = (! tmp%3#0)
                 (assert tmp%4#0) // OnCompletion is NoOp
@@ -24,7 +24,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 let tmp%8#0: bytes = ((txnas Accounts) tmp%7#0)
                 examples.amm.contract.ConstantProductAMM.set_governor(tmp%8#0)
                 return 1u
-            block@5: // bootstrap_route_L47
+            block@5: // bootstrap_route_L49
                 let tmp%9#0: uint64 = (txn OnCompletion)
                 let tmp%10#0: uint64 = (! tmp%9#0)
                 (assert tmp%10#0) // OnCompletion is NoOp
@@ -45,7 +45,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 let tmp%25#0: bytes = (concat 0x151f7c75 tmp%24#0)
                 (log tmp%25#0)
                 return 1u
-            block@6: // mint_route_L81
+            block@6: // mint_route_L83
                 let tmp%26#0: uint64 = (txn OnCompletion)
                 let tmp%27#0: uint64 = (! tmp%26#0)
                 (assert tmp%27#0) // OnCompletion is NoOp
@@ -72,7 +72,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 let tmp%48#0: uint64 = ((txnas Assets) tmp%47#0)
                 examples.amm.contract.ConstantProductAMM.mint(awst_tmp%32#0, awst_tmp%15#1, tmp%42#0, tmp%45#0, tmp%48#0)
                 return 1u
-            block@7: // burn_route_L147
+            block@7: // burn_route_L149
                 let tmp%49#0: uint64 = (txn OnCompletion)
                 let tmp%50#0: uint64 = (! tmp%49#0)
                 (assert tmp%50#0) // OnCompletion is NoOp
@@ -94,7 +94,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 let tmp%65#0: uint64 = ((txnas Assets) tmp%64#0)
                 examples.amm.contract.ConstantProductAMM.burn(awst_tmp%15#2, tmp%59#0, tmp%62#0, tmp%65#0)
                 return 1u
-            block@8: // swap_route_L204
+            block@8: // swap_route_L206
                 let tmp%66#0: uint64 = (txn OnCompletion)
                 let tmp%67#0: uint64 = (! tmp%66#0)
                 (assert tmp%67#0) // OnCompletion is NoOp
@@ -113,7 +113,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 let tmp%79#0: uint64 = ((txnas Assets) tmp%78#0)
                 examples.amm.contract.ConstantProductAMM.swap(awst_tmp%15#3, tmp%76#0, tmp%79#0)
                 return 1u
-            block@11: // bare_routing_L25
+            block@11: // bare_routing_L27
                 let tmp%80#0: uint64 = (txn OnCompletion)
                 let not%tmp%80#0: uint64 = (! tmp%80#0)
                 (assert not%tmp%80#0) // reject transaction
@@ -123,13 +123,13 @@ contract examples.amm.contract.ConstantProductAMM:
                 return 1u
         
         subroutine examples.amm.contract.ConstantProductAMM.set_governor(new_governor: bytes) -> void:
-            block@0: // L41
+            block@0: // L43
                 examples.amm.contract.ConstantProductAMM._check_is_governor()
                 (app_global_put "governor" new_governor#0)
                 return 
         
         subroutine examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:
-            block@0: // L262
+            block@0: // L264
                 let tmp%0#0: bytes = (txn Sender)
                 let (app_global_get_ex_value%1#0: bytes, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "governor")
                 (assert app_global_get_ex_did_exist%2#0) // check value exists
@@ -138,7 +138,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return 
         
         subroutine examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_asset: uint64, b_asset: uint64) -> bytes:
-            block@0: // L47
+            block@0: // L49
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "pool_token")
                 (assert app_global_get_ex_did_exist%1#0) // check value exists
                 let tmp%2#0: uint64 = (! app_global_get_ex_value%0#0)
@@ -172,7 +172,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return val_as_bytes%18#0
         
         subroutine examples.amm.contract.ConstantProductAMM._create_pool_token() -> uint64:
-            block@0: // L268
+            block@0: // L270
                 itxn_begin
                 let (app_global_get_ex_value%4#0: uint64, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "asset_a")
                 (assert app_global_get_ex_did_exist%5#0) // check value exists
@@ -200,13 +200,13 @@ contract examples.amm.contract.ConstantProductAMM:
                 return submit_result_0%0%%CreatedAssetID#0
         
         subroutine examples.amm.contract.ConstantProductAMM._do_opt_in(asset: uint64) -> void:
-            block@0: // L284
+            block@0: // L286
                 let tmp%0#0: bytes = (global CurrentApplicationAddress)
                 examples.amm.contract.do_asset_transfer(tmp%0#0, asset#0, 0u)
                 return 
         
         subroutine examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
-            block@0: // L357
+            block@0: // L359
                 itxn_begin
                 ((itxn_field AssetAmount) amount#0)
                 ((itxn_field AssetReceiver) receiver#0)
@@ -217,7 +217,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return 
         
         subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:
-            block@0: // L81
+            block@0: // L83
                 examples.amm.contract.ConstantProductAMM._check_bootstrapped()
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "pool_token")
                 (assert app_global_get_ex_did_exist%1#0) // check value exists
@@ -277,14 +277,14 @@ contract examples.amm.contract.ConstantProductAMM:
                 return 
         
         subroutine examples.amm.contract.ConstantProductAMM._check_bootstrapped() -> void:
-            block@0: // L251
+            block@0: // L253
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "pool_token")
                 (assert app_global_get_ex_did_exist%1#0) // check value exists
                 (assert app_global_get_ex_value%0#0) // bootstrap method needs to be called first
                 return 
         
         subroutine examples.amm.contract.ConstantProductAMM._current_pool_balance() -> uint64:
-            block@0: // L292
+            block@0: // L294
                 let tmp%2#0: bytes = (global CurrentApplicationAddress)
                 let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "pool_token")
                 (assert app_global_get_ex_did_exist%4#0) // check value exists
@@ -293,7 +293,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return maybe_value%0#0
         
         subroutine examples.amm.contract.ConstantProductAMM._current_a_balance() -> uint64:
-            block@0: // L296
+            block@0: // L298
                 let tmp%2#0: bytes = (global CurrentApplicationAddress)
                 let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asset_a")
                 (assert app_global_get_ex_did_exist%4#0) // check value exists
@@ -302,7 +302,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return maybe_value%0#0
         
         subroutine examples.amm.contract.ConstantProductAMM._current_b_balance() -> uint64:
-            block@0: // L300
+            block@0: // L302
                 let tmp%2#0: bytes = (global CurrentApplicationAddress)
                 let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asset_b")
                 (assert app_global_get_ex_did_exist%4#0) // check value exists
@@ -311,27 +311,27 @@ contract examples.amm.contract.ConstantProductAMM:
                 return maybe_value%0#0
         
         subroutine examples.amm.contract.tokens_to_mint(pool_balance: uint64, a_balance: uint64, b_balance: uint64, a_amount: uint64, b_amount: uint64) -> uint64:
-            block@0: // L323
+            block@0: // L325
                 let tmp%0#0: uint64 = (== a_balance#0 a_amount#0)
                 goto tmp%0#0 ? block@1 : block@3
-            block@1: // and_contd_L332
+            block@1: // and_contd_L334
                 let tmp%1#0: uint64 = (== b_balance#0 b_amount#0)
                 goto tmp%1#0 ? block@2 : block@3
-            block@2: // bool_true_L332
+            block@2: // bool_true_L334
                 let and_result%2#0: uint64 = 1u
                 goto block@4
-            block@3: // bool_false_L332
+            block@3: // bool_false_L334
                 let and_result%2#1: uint64 = 0u
                 goto block@4
-            block@4: // bool_merge_L332
+            block@4: // bool_merge_L334
                 let is_initial_mint#0: uint64 = φ(and_result%2#0 <- block@2, and_result%2#1 <- block@3)
                 goto is_initial_mint#0 ? block@5 : block@6
-            block@5: // if_body_L333
+            block@5: // if_body_L335
                 let tmp%3#0: uint64 = (* a_amount#0 b_amount#0)
                 let tmp%4#0: uint64 = (sqrt tmp%3#0)
                 let tmp%5#0: uint64 = (- tmp%4#0 1000u)
                 return tmp%5#0
-            block@6: // after_if_else_L333
+            block@6: // after_if_else_L335
                 let issued#0: uint64 = (- 10000000000u pool_balance#0)
                 let tmp%6#0: uint64 = (* 1000u a_amount#0)
                 let tmp%7#0: uint64 = (- a_balance#0 a_amount#0)
@@ -341,17 +341,17 @@ contract examples.amm.contract.ConstantProductAMM:
                 let b_ratio#0: uint64 = (/ tmp%8#0 tmp%9#0)
                 let tmp%10#0: uint64 = (< a_ratio#0 b_ratio#0)
                 goto tmp%10#0 ? block@7 : block@8
-            block@7: // if_body_L338
+            block@7: // if_body_L340
                 let tmp%11#0: uint64 = (* a_ratio#0 issued#0)
                 let tmp%12#0: uint64 = (/ tmp%11#0 1000u)
                 return tmp%12#0
-            block@8: // else_body_L338
+            block@8: // else_body_L340
                 let tmp%13#0: uint64 = (* b_ratio#0 issued#0)
                 let tmp%14#0: uint64 = (/ tmp%13#0 1000u)
                 return tmp%14#0
         
         subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
-            block@0: // L255
+            block@0: // L257
                 let a_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
                 let b_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
                 let tmp%0#0: uint64 = (* a_balance#0 1000u)
@@ -360,7 +360,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return 
         
         subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:
-            block@0: // L147
+            block@0: // L149
                 examples.amm.contract.ConstantProductAMM._check_bootstrapped()
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "pool_token")
                 (assert app_global_get_ex_did_exist%1#0) // check value exists
@@ -407,7 +407,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return 
         
         subroutine examples.amm.contract.tokens_to_burn(pool_balance: uint64, supply: uint64, amount: uint64) -> uint64:
-            block@0: // L344
+            block@0: // L346
                 let tmp%0#0: uint64 = (- 10000000000u pool_balance#0)
                 let issued#0: uint64 = (- tmp%0#0 amount#0)
                 let tmp%1#0: uint64 = (* supply#0 amount#0)
@@ -415,7 +415,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return tmp%2#0
         
         subroutine examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_asset: uint64, b_asset: uint64) -> void:
-            block@0: // L204
+            block@0: // L206
                 examples.amm.contract.ConstantProductAMM._check_bootstrapped()
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "asset_a")
                 (assert app_global_get_ex_did_exist%1#0) // check value exists
@@ -438,19 +438,19 @@ contract examples.amm.contract.ConstantProductAMM:
                 (assert app_global_get_ex_did_exist%14#0) // check value exists
                 let awst_tmp%15#0: uint64 = ((gtxns XferAsset) swap_xfer#0)
                 switch awst_tmp%15#0 {app_global_get_ex_value%11#0 => block@1, app_global_get_ex_value%13#0 => block@2, * => fail // asset id incorrect}
-            block@1: // switch_case_0_L233
+            block@1: // switch_case_0_L235
                 let in_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
                 let out_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
                 let (out_asset#0: uint64, app_global_get_ex_did_exist%17#0: uint64) = (app_global_get_ex 0u "asset_a")
                 (assert app_global_get_ex_did_exist%17#0) // check value exists
                 goto block@4
-            block@2: // switch_case_1_L237
+            block@2: // switch_case_1_L239
                 let in_supply#1: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
                 let out_supply#1: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
                 let (out_asset#1: uint64, app_global_get_ex_did_exist%19#0: uint64) = (app_global_get_ex 0u "asset_b")
                 (assert app_global_get_ex_did_exist%19#0) // check value exists
                 goto block@4
-            block@4: // switch_case_next_L231
+            block@4: // switch_case_next_L233
                 let in_supply#2: uint64 = φ(in_supply#0 <- block@1, in_supply#1 <- block@2)
                 let out_supply#2: uint64 = φ(out_supply#0 <- block@1, out_supply#1 <- block@2)
                 let out_asset#2: uint64 = φ(out_asset#0 <- block@1, out_asset#1 <- block@2)
@@ -463,7 +463,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return 
         
         subroutine examples.amm.contract.tokens_to_swap(in_amount: uint64, in_supply: uint64, out_supply: uint64) -> uint64:
-            block@0: // L350
+            block@0: // L352
                 let tmp%0#0: uint64 = (- in_supply#0 in_amount#0)
                 let tmp%1#0: uint64 = (* 1000u tmp%0#0)
                 let tmp%2#0: uint64 = (* in_amount#0 995u)
@@ -473,7 +473,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 return tmp%4#0
         
         subroutine examples.amm.contract.ConstantProductAMM.__init__() -> void:
-            block@0: // L26
+            block@0: // L28
                 (app_global_put "asset_a" 0u)
                 (app_global_put "asset_b" 0u)
                 let new_state_value%0#0: bytes = (txn Sender)
@@ -484,5 +484,5 @@ contract examples.amm.contract.ConstantProductAMM:
     
     program clear-state:
         subroutine examples.amm.contract.ConstantProductAMM.clear_state_program() -> uint64:
-            block@0: // L25
+            block@0: // L27
                 return 1u

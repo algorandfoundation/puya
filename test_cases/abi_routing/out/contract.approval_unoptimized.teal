@@ -619,7 +619,7 @@ opt_into_asset:
     proto 1 0
     // abi_routing/contract.py:80-81
     // # Only allow app creator to opt the app account into a ASA
-    // assert op.Transaction.sender == op.Global.creator_address, "Only creator can opt in to ASA"
+    // assert op.Txn.sender == op.Global.creator_address, "Only creator can opt in to ASA"
     txn Sender
     global CreatorAddress
     ==
@@ -641,26 +641,26 @@ opt_into_asset:
     app_global_put
     // abi_routing/contract.py:87-88
     // # Submit opt-in transaction: 0 asset transfer to self
-    // op.CreateInnerTransaction.begin()
+    // op.ITxnCreate.begin()
     itxn_begin
     // abi_routing/contract.py:89
-    // op.CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
+    // op.ITxnCreate.set_type_enum(TransactionType.AssetTransfer)
     int axfer
     itxn_field TypeEnum
     // abi_routing/contract.py:90
-    // op.CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
+    // op.ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
     int 0
     itxn_field Fee
     // abi_routing/contract.py:91
-    // op.CreateInnerTransaction.set_asset_receiver(op.Global.current_application_address)
+    // op.ITxnCreate.set_asset_receiver(op.Global.current_application_address)
     global CurrentApplicationAddress
     itxn_field AssetReceiver
     // abi_routing/contract.py:92
-    // op.CreateInnerTransaction.set_xfer_asset(asset.asset_id)
+    // op.ITxnCreate.set_xfer_asset(asset.asset_id)
     frame_dig -1
     itxn_field XferAsset
     // abi_routing/contract.py:93
-    // op.CreateInnerTransaction.submit()
+    // op.ITxnCreate.submit()
     itxn_submit
     retsub
 
@@ -929,7 +929,7 @@ method_with_more_than_15_args:
     // ) -> arc4.UInt64:
     proto 26 1
     // abi_routing/contract.py:200
-    // assert op.Transaction.num_app_args == 16
+    // assert op.Txn.num_app_args == 16
     txn NumAppArgs
     int 16
     ==
@@ -1360,7 +1360,7 @@ __init__:
     swap
     app_global_put
     // abi_routing/contract.py:26
-    // self.creator = op.Transaction.sender
+    // self.creator = op.Txn.sender
     txn Sender
     byte "creator"
     swap

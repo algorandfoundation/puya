@@ -593,9 +593,9 @@ def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
 
         class Exclaimer(Contract):
             def approval_program(self) -> bool:
-                num_args = op.Transaction.num_app_args
+                num_args = op.Txn.num_app_args
                 assert num_args == 1, "expected one arg"
-                msg = op.Transaction.application_args(0)
+                msg = op.Txn.application_args(0)
                 exclaimed = self.exclaim(msg)
                 log(exclaimed)
                 return True
@@ -875,7 +875,7 @@ def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
 
         class BigUIntByteTests(Contract):
             def approval_program(self) -> bool:
-                arg = op.Transaction.application_args(0)
+                arg = op.Txn.application_args(0)
                 big_uint = BigUInt.from_bytes(arg)
                 big_uint += 1
                 log(big_uint.bytes)
@@ -902,10 +902,7 @@ def test_abi_string(harness: _TestHarness) -> None:
 
 
 def test_abi_reference_types(harness: _TestHarness) -> None:
-    harness.deploy(
-        TEST_CASES_DIR / "arc4_types" / "reference_types.py",
-        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "reference_types.log"),
-    )
+    harness.deploy(TEST_CASES_DIR / "arc4_types" / "reference_types.py")
 
 
 def test_abi_numeric(harness: _TestHarness) -> None:

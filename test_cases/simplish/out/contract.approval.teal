@@ -11,7 +11,7 @@ test_cases.simplish.contract.Simplish.approval_program:
 
 main_entrypoint@2:
     // simplish/contract.py:31
-    // if Transaction.application_id == 0:
+    // if Txn.application_id == 0:
     txn ApplicationID
     bnz main_after_if_else@4
     // simplish/contract.py:32
@@ -21,12 +21,12 @@ main_entrypoint@2:
 
 main_after_if_else@4:
     // simplish/contract.py:33
-    // oca = Transaction.on_completion
+    // oca = Txn.on_completion
     txn OnCompletion
     dup
     bury 2
     // simplish/contract.py:34
-    // sender = Transaction.sender
+    // sender = Txn.sender
     txn Sender
     bury 6
     // simplish/contract.py:35-38
@@ -92,13 +92,13 @@ main_after_if_else@8:
     ==
     bz main_after_if_else@12
     // simplish/contract.py:44
-    // if Transaction.num_app_args > 0:
+    // if Txn.num_app_args > 0:
     txn NumAppArgs
     int 0
     >
     bz main_after_if_else@11
     // simplish/contract.py:45
-    // self.set_sender_nickname(Transaction.application_args(0))
+    // self.set_sender_nickname(Txn.application_args(0))
     txna ApplicationArgs 0
     callsub set_sender_nickname
 
@@ -122,7 +122,7 @@ main_after_if_else@12:
 
 main_after_if_else@14:
     // simplish/contract.py:50
-    // if (num_app_args := Transaction.num_app_args) > 0:
+    // if (num_app_args := Txn.num_app_args) > 0:
     txn NumAppArgs
     dup
     bury 3
@@ -130,7 +130,7 @@ main_after_if_else@14:
     >
     bz main_else_body@16
     // simplish/contract.py:51
-    // method_name = Transaction.application_args(0)
+    // method_name = Txn.application_args(0)
     txna ApplicationArgs 0
     // simplish/contract.py:52
     // msg, result = self.call(method_name, num_app_args)
@@ -142,7 +142,7 @@ main_after_if_else@14:
 
 main_else_body@16:
     // simplish/contract.py:53
-    // elif Transaction.num_assets == 1:
+    // elif Txn.num_assets == 1:
     txn NumAssets
     int 1
     ==
@@ -293,7 +293,7 @@ call:
     ==
     assert // insufficient arguments
     // simplish/contract.py:73
-    // radius = btoi(Transaction.application_args(1))
+    // radius = btoi(Txn.application_args(1))
     txna ApplicationArgs 1
     btoi
     // simplish/contract.py:75

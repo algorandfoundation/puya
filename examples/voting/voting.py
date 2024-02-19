@@ -4,8 +4,10 @@ import typing
 from puyapy import (
     ARC4Contract,
     Bytes,
+    Global,
     GlobalState,
     OpUpFeeSource,
+    Txn,
     UInt64,
     arc4,
     ensure_budget,
@@ -63,7 +65,7 @@ class VotingRoundApp(ARC4Contract):
         nft_image_url: arc4.String,
     ) -> None:
         assert start_time < end_time, "End time should be after start time"
-        assert end_time >= op.Global.latest_timestamp, "End time should be in the future"
+        assert end_time >= Global.latest_timestamp, "End time should be in the future"
 
         self.vote_id = vote_id.decode()
         self.snapshot_public_key = snapshot_public_key
@@ -80,7 +82,7 @@ class VotingRoundApp(ARC4Contract):
         self.is_bootstrapped = True
 
         assert (
-            fund_min_bal_req.receiver == op.Global.current_application_address
+            fund_min_bal_req.receiver == Global.current_application_address
         ), "Payment must be to app address"
 
         tally_box_size = self.total_options * VOTE_COUNT_BYTES
@@ -106,7 +108,7 @@ class VotingRoundApp(ARC4Contract):
     def close(self) -> None:
         ensure_budget(20000, fee_source=OpUpFeeSource.GroupCredit)
         assert not self.close_time, "Already closed"
-        self.close_time.value = op.Global.latest_timestamp
+        self.close_time.value = Global.latest_timestamp
 
         note = (
             b'{"standard":"arc69",'
@@ -158,7 +160,7 @@ class VotingRoundApp(ARC4Contract):
             is_voting_open=arc4.UInt64(self.voting_open()),
             is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature.bytes[2:])),
             has_already_voted=arc4.UInt64(self.already_voted()),
-            current_time=arc4.UInt64(op.Global.latest_timestamp),
+            current_time=arc4.UInt64(Global.latest_timestamp),
         )
 
     @arc4.abimethod
@@ -180,7 +182,7 @@ class VotingRoundApp(ARC4Contract):
             (32 + 2 + VOTE_INDEX_BYTES * answer_ids.length) * BOX_BYTE_MIN_BALANCE
         )
         assert (
-            fund_min_bal_req.receiver == op.Global.current_application_address
+            fund_min_bal_req.receiver == Global.current_application_address
         ), "Payment must be to app address"
 
         log(min_bal_req)
@@ -194,7 +196,7 @@ class VotingRoundApp(ARC4Contract):
             assert answer_option_index < options_count, "Answer option index invalid"
             increment_vote_in_box(cumulative_offset + answer_option_index)
             cumulative_offset += options_count
-            op.Box.put(op.Transaction.sender.bytes, answer_ids.bytes)
+            op.Box.put(Txn.sender.bytes, answer_ids.bytes)
             self.voter_count += 1
 
     @subroutine
@@ -202,12 +204,12 @@ class VotingRoundApp(ARC4Contract):
         return (
             self.is_bootstrapped
             and not self.close_time
-            and self.start_time <= op.Global.latest_timestamp <= self.end_time
+            and self.start_time <= Global.latest_timestamp <= self.end_time
         )
 
     @subroutine
     def already_voted(self) -> bool:
-        (votes, exists) = op.Box.get(op.Transaction.sender.bytes)
+        (votes, exists) = op.Box.get(Txn.sender.bytes)
         return exists
 
     @subroutine
@@ -227,7 +229,7 @@ class VotingRoundApp(ARC4Contract):
     def allowed_to_vote(self, signature: Bytes) -> bool:
         ensure_budget(2000)
         return op.ed25519verify_bare(
-            op.Transaction.sender.bytes,
+            Txn.sender.bytes,
             signature,
             self.snapshot_public_key,
         )

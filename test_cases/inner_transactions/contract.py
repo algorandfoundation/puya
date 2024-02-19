@@ -24,8 +24,8 @@ class MyContract(Contract):
         self.name = Bytes(b"")
 
     def approval_program(self) -> bool:
-        if op.Transaction.num_app_args:
-            match op.Transaction.application_args(0):
+        if op.Txn.num_app_args:
+            match op.Txn.application_args(0):
                 case Bytes(b"test1"):
                     self.test1()
                 case Bytes(b"test2"):
@@ -88,7 +88,7 @@ class MyContract(Contract):
 
     @subroutine
     def test2(self) -> None:
-        if op.Transaction.num_app_args:
+        if op.Txn.num_app_args:
             args = Bytes(b"1"), Bytes(b"2")
             create_app_params = itxn.ApplicationCallTransactionParams(
                 approval_program=ALWAYS_APPROVE,
@@ -108,7 +108,7 @@ class MyContract(Contract):
         assert create_app_txn.application_args(0) == b"1", "correct args used 1"
         assert create_app_txn.application_args(1) == b"2", "correct args used 2"
 
-        if op.Transaction.num_app_args > 1:
+        if op.Txn.num_app_args > 1:
             create_app_txn2 = itxn.ApplicationCallTransactionParams(
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
