@@ -2,7 +2,7 @@
 
 test_cases.reversed_iteration.contract.MyContract.approval_program:
     int 0
-    dupn 6
+    dupn 5
     byte ""
     dupn 12
     int 0
@@ -162,21 +162,10 @@ main_after_for@24:
     byte 0x03020504
     ==
     assert
-    // reversed_iteration/contract.py:27-28
-    // # Indexable: Reversed items
-    // some_strings = arc4.StaticArray(arc4.String("a"), arc4.String("b"), arc4.String("c"))
-    byte 0x00060009000c
-    byte "\x00\x01a"
-    concat
-    byte "\x00\x01b"
-    concat
-    byte "\x00\x01c"
-    concat
-    bury 19
     // reversed_iteration/contract.py:29
     // some_string_reversed = arc4.String("")
     byte "\x00\x00"
-    bury 20
+    bury 19
     int 0
     bury 12
     // reversed_iteration/contract.py:30
@@ -198,18 +187,35 @@ main_for_header@25:
     bury 9
     int 2
     *
-    dig 19
-    dup
-    uncover 2
+    // reversed_iteration/contract.py:27-28
+    // # Indexable: Reversed items
+    // some_strings = arc4.StaticArray(arc4.String("a"), arc4.String("b"), arc4.String("c"))
+    byte base64 AAYACQAMAAFhAAFiAAFj
+    // reversed_iteration/contract.py:30
+    // for str_item in reversed(some_strings):
+    swap
     extract_uint16
-    dup2
+    // reversed_iteration/contract.py:27-28
+    // # Indexable: Reversed items
+    // some_strings = arc4.StaticArray(arc4.String("a"), arc4.String("b"), arc4.String("c"))
+    byte base64 AAYACQAMAAFhAAFiAAFj
+    // reversed_iteration/contract.py:30
+    // for str_item in reversed(some_strings):
+    dig 1
     extract_uint16
     int 2
     +
+    // reversed_iteration/contract.py:27-28
+    // # Indexable: Reversed items
+    // some_strings = arc4.StaticArray(arc4.String("a"), arc4.String("b"), arc4.String("c"))
+    byte base64 AAYACQAMAAFhAAFiAAFj
+    // reversed_iteration/contract.py:30
+    // for str_item in reversed(some_strings):
+    cover 2
     extract3
     // reversed_iteration/contract.py:31
     // some_string_reversed += str_item
-    dig 20
+    dig 19
     extract 2 0
     swap
     extract 2 0
@@ -220,7 +226,7 @@ main_for_header@25:
     extract 6 0
     swap
     concat
-    bury 20
+    bury 19
     dig 11
     int 1
     +
@@ -230,7 +236,7 @@ main_for_header@25:
 main_after_for@28:
     // reversed_iteration/contract.py:32
     // assert some_string_reversed == "cba"
-    dig 19
+    dig 18
     byte "\x00\x03cba"
     ==
     assert
@@ -238,7 +244,7 @@ main_after_for@28:
     // # Indexable: Reversed item and index
     // bytes_reversed_with_index = Bytes(b"")
     byte ""
-    bury 21
+    bury 20
     int 0
     bury 11
     // reversed_iteration/contract.py:36
@@ -262,7 +268,7 @@ main_for_header@29:
     dig 1
     int 1
     extract3
-    bury 23
+    bury 22
     // reversed_iteration/contract.py:37
     // bytes_reversed_with_index += op.itob(index)[-1:] + bytes_item
     itob
@@ -291,12 +297,12 @@ main_ternary_merge@33:
     swap
     dig 16
     substring3
-    dig 22
-    concat
     dig 21
+    concat
+    dig 20
     swap
     concat
-    bury 21
+    bury 20
     dig 10
     int 1
     +
@@ -308,7 +314,7 @@ main_ternary_merge@33:
 main_after_for@35:
     // reversed_iteration/contract.py:38
     // assert bytes_reversed_with_index == b"\04O\03L\02L\01E\00H"
-    dig 20
+    dig 19
     byte "\x04O\x03L\x02L\x01E\x00H"
     ==
     assert

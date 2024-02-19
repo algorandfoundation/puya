@@ -1,0 +1,186 @@
+contract test_cases.reversed_iteration.contract.MyContract:
+    program approval:
+        subroutine test_cases.reversed_iteration.contract.MyContract.approval_program() -> uint64:
+            block@6: // after_for_L8
+                let item_index_internal%14#0: uint64 = 0u
+                let reverse_index_internal%15#0: uint64 = 0u
+                goto block@7
+            block@7: // for_header_L11
+                let item_index_internal%14#1: uint64 = φ(item_index_internal%14#0 <- block@6, item_index_internal%14#2 <- block@8)
+                let reverse_index_internal%15#1: uint64 = φ(reverse_index_internal%15#0 <- block@6, reverse_index_internal%15#2 <- block@8)
+                let continue_looping%16#0: uint64 = (< item_index_internal%14#1 0u)
+                goto continue_looping%16#0 ? block@8 : block@10
+            block@8: // for_body_L11
+                let reverse_index_internal%15#2: uint64 = (- reverse_index_internal%15#1 1u)
+                let x#0: bytes = (extract3 0x reverse_index_internal%15#2 1u)
+                (log x#0)
+                let item_index_internal%14#2: uint64 = (+ item_index_internal%14#1 1u)
+                goto block@7
+            block@10: // after_for_L11
+                let test_array#0: bytes = 0x00000000
+                let iteration_count_minus_one%25#0: uint64 = 3u
+                let range_index%30#0: uint64 = 0u
+                goto block@13
+            block@13: // for_body_L15
+                let item#0: uint64 = φ(iteration_count_minus_one%25#0 <- block@10, range_item%29#3 <- block@15)
+                let index#0: uint64 = φ(range_index%30#0 <- block@10, range_index%30#2 <- block@15)
+                let test_array#1: bytes = φ(test_array#0 <- block@10, test_array#2 <- block@15)
+                let val_as_bytes%32#0: bytes = (itob item#0)
+                let assigned_value%33#0: bytes = ((extract 7 1) val_as_bytes%32#0)
+                let index_is_in_bounds%35#0: uint64 = (< index#0 4u)
+                (assert index_is_in_bounds%35#0) // Index access is out of bounds
+                let test_array#2: bytes = (replace3 test_array#1 index#0 assigned_value%33#0)
+                let continue_looping%38#0: uint64 = (> item#0 0u)
+                goto continue_looping%38#0 ? block@15 : block@16
+            block@15: // for_increment_L15
+                let range_item%29#3: uint64 = (- item#0 1u)
+                let range_index%30#2: uint64 = (+ index#0 1u)
+                goto block@13
+            block@16: // after_for_L15
+                let tmp%39#0: uint64 = (== test_array#2 0x03020100)
+                (assert tmp%39#0)
+                let range_item%47#0: uint64 = 4u
+                let range_index%48#0: uint64 = 0u
+                goto block@18
+            block@18: // for_header_L20
+                let item#1: uint64 = φ(range_item%47#0 <- block@16, range_item%47#3 <- block@21)
+                let range_index%48#3: uint64 = φ(range_index%48#0 <- block@16, range_index%48#2 <- block@21)
+                let test_array#6: bytes = φ(test_array#2 <- block@16, test_array#5 <- block@21)
+                let continue_looping%49#0: uint64 = (< item#1 8u)
+                goto continue_looping%49#0 ? block@19 : block@24
+            block@19: // for_body_L20
+                let index#1: uint64 = (- 3u range_index%48#3)
+                let val_as_bytes%51#0: bytes = (itob item#1)
+                let assigned_value%52#0: bytes = ((extract 7 1) val_as_bytes%51#0)
+                let index_is_in_bounds%54#0: uint64 = (< index#1 4u)
+                (assert index_is_in_bounds%54#0) // Index access is out of bounds
+                let test_array#5: bytes = (replace3 test_array#6 index#1 assigned_value%52#0)
+                let tmp%57#0: uint64 = (== index#1 2u)
+                goto tmp%57#0 ? block@20 : block@21
+            block@20: // if_body_L23
+                goto block@24
+            block@21: // after_if_else_L23
+                let range_item%47#3: uint64 = (+ item#1 1u)
+                let range_index%48#2: uint64 = (+ range_index%48#3 1u)
+                goto block@18
+            block@24: // after_for_L20
+                let test_array#7: bytes = φ(test_array#6 <- block@18, test_array#5 <- block@20)
+                let tmp%58#0: uint64 = (== test_array#7 0x03020504)
+                (assert tmp%58#0)
+                let some_string_reversed#0: bytes = "\x00\x00"
+                let item_index_internal%70#0: uint64 = 0u
+                let reverse_index_internal%71#0: uint64 = 3u
+                goto block@25
+            block@25: // for_header_L30
+                let item_index_internal%70#1: uint64 = φ(item_index_internal%70#0 <- block@24, item_index_internal%70#2 <- block@26)
+                let reverse_index_internal%71#1: uint64 = φ(reverse_index_internal%71#0 <- block@24, reverse_index_internal%71#2 <- block@26)
+                let some_string_reversed#1: bytes = φ(some_string_reversed#0 <- block@24, some_string_reversed#2 <- block@26)
+                let continue_looping%72#0: uint64 = (< item_index_internal%70#1 3u)
+                goto continue_looping%72#0 ? block@26 : block@28
+            block@26: // for_body_L30
+                let reverse_index_internal%71#2: uint64 = (- reverse_index_internal%71#1 1u)
+                let item_index_index%73#0: uint64 = (* reverse_index_internal%71#2 2u)
+                let item_index%74#0: uint64 = (extract_uint16 AAYACQAMAAFhAAFiAAFj item_index_index%73#0)
+                let item_length%75#0: uint64 = (extract_uint16 AAYACQAMAAFhAAFiAAFj item_index%74#0)
+                let item_length_plus_2%76#0: uint64 = (+ item_length%75#0 2u)
+                let str_item#0: bytes = (extract3 AAYACQAMAAFhAAFiAAFj item_index%74#0 item_length_plus_2%76#0)
+                let expr_value_trimmed%77#0: bytes = ((extract 2 0) some_string_reversed#1)
+                let expr_value_trimmed%78#0: bytes = ((extract 2 0) str_item#0)
+                let concatenated%79#0: bytes = (concat expr_value_trimmed%77#0 expr_value_trimmed%78#0)
+                let len_%80#0: uint64 = (len concatenated%79#0)
+                let len_bytes%81#0: bytes = (itob len_%80#0)
+                let len_16_bit%82#0: bytes = ((extract 6 0) len_bytes%81#0)
+                let some_string_reversed#2: bytes = (concat len_16_bit%82#0 concatenated%79#0)
+                let item_index_internal%70#2: uint64 = (+ item_index_internal%70#1 1u)
+                goto block@25
+            block@28: // after_for_L30
+                let tmp%84#0: uint64 = (== some_string_reversed#1 "\x00\x03cba")
+                (assert tmp%84#0)
+                let bytes_reversed_with_index#0: bytes = ""
+                let item_index_internal%86#0: uint64 = 0u
+                let reverse_index_internal%87#0: uint64 = 5u
+                goto block@29
+            block@29: // for_header_L36
+                let item_index_internal%86#1: uint64 = φ(item_index_internal%86#0 <- block@28, item_index_internal%86#3 <- block@33)
+                let reverse_index_internal%87#1: uint64 = φ(reverse_index_internal%87#0 <- block@28, index#2 <- block@33)
+                let bytes_reversed_with_index#1: bytes = φ(bytes_reversed_with_index#0 <- block@28, bytes_reversed_with_index#2 <- block@33)
+                let continue_looping%88#0: uint64 = (< item_index_internal%86#1 5u)
+                goto continue_looping%88#0 ? block@30 : block@35
+            block@30: // for_body_L36
+                let index#2: uint64 = (- reverse_index_internal%87#1 1u)
+                let bytes_item#0: bytes = (extract3 "HELLO" index#2 1u)
+                let tmp%89#0: bytes = (itob index#2)
+                let awst_tmp%91#0: uint64 = (len tmp%89#0)
+                let tmp%92#0: uint64 = (< 1u awst_tmp%91#0)
+                goto tmp%92#0 ? block@31 : block@32
+            block@31: // ternary_true_L37
+                let ternary_result%93#0: uint64 = (- awst_tmp%91#0 1u)
+                goto block@33
+            block@32: // ternary_false_L37
+                let ternary_result%93#1: uint64 = 0u
+                goto block@33
+            block@33: // ternary_merge_L37
+                let ternary_result%93#2: uint64 = φ(ternary_result%93#0 <- block@31, ternary_result%93#1 <- block@32)
+                let tmp%95#0: bytes = (substring3 tmp%89#0 ternary_result%93#2 awst_tmp%91#0)
+                let tmp%96#0: bytes = (concat tmp%95#0 bytes_item#0)
+                let bytes_reversed_with_index#2: bytes = (concat bytes_reversed_with_index#1 tmp%96#0)
+                let item_index_internal%86#3: uint64 = (+ item_index_internal%86#1 1u)
+                goto block@29
+            block@35: // after_for_L36
+                let tmp%97#0: uint64 = (== bytes_reversed_with_index#1 "\x04O\x03L\x02L\x01E\x00H")
+                (assert tmp%97#0)
+                let tuple_index%98#0: uint64 = 0u
+                let tuple_item#0: uint64 = 3u
+                goto block@40
+            block@37: // for_header_2_L40
+                let tuple_item#1: uint64 = 2u
+                goto block@40
+            block@38: // for_header_1_L40
+                let tuple_item#2: uint64 = 1u
+                goto block@40
+            block@39: // for_header_0_L40
+                let tuple_item#3: uint64 = 0u
+                goto block@40
+            block@40: // for_body_L40
+                let index#3: uint64 = φ(tuple_index%98#0 <- block@35, tuple_index%98#5 <- block@37, tuple_index%98#5 <- block@38, tuple_index%98#5 <- block@39)
+                let tuple_item#4: uint64 = φ(tuple_item#0 <- block@35, tuple_item#1 <- block@37, tuple_item#2 <- block@38, tuple_item#3 <- block@39)
+                let tmp%99#0: uint64 = (+ index#3 tuple_item#4)
+                let tmp%100#0: uint64 = (== tmp%99#0 3u)
+                (assert tmp%100#0)
+                let tuple_index%98#5: uint64 = (+ index#3 1u)
+                goto_nth [block@37, block@38, block@39][index#3] else goto block@42
+            block@42: // after_for_L40
+                let prev_item#0: uint64 = 0u
+                let prev_index#0: uint64 = 99u
+                let tuple_index%101#0: uint64 = 0u
+                let tuple_item#5: uint64 = 5u
+                goto block@47
+            block@44: // for_header_1_L56
+                let tuple_item#6: uint64 = 6u
+                goto block@47
+            block@45: // for_header_2_L56
+                let tuple_item#7: uint64 = 7u
+                goto block@47
+            block@46: // for_header_3_L56
+                let tuple_item#8: uint64 = 8u
+                goto block@47
+            block@47: // for_body_L56
+                let tuple_index%101#1: uint64 = φ(tuple_index%101#0 <- block@42, tuple_index%101#5 <- block@44, tuple_index%101#5 <- block@45, tuple_index%101#5 <- block@46)
+                let prev_item#1: uint64 = φ(prev_item#0 <- block@42, tuple_item#9 <- block@44, tuple_item#9 <- block@45, tuple_item#9 <- block@46)
+                let tuple_item#9: uint64 = φ(tuple_item#5 <- block@42, tuple_item#6 <- block@44, tuple_item#7 <- block@45, tuple_item#8 <- block@46)
+                let prev_index#1: uint64 = φ(prev_index#0 <- block@42, index#4 <- block@44, index#4 <- block@45, index#4 <- block@46)
+                let index#4: uint64 = (- 3u tuple_index%101#1)
+                let tmp%103#0: uint64 = (< prev_item#1 tuple_item#9)
+                (assert tmp%103#0)
+                let tmp%104#0: uint64 = (> prev_index#1 index#4)
+                (assert tmp%104#0)
+                let tmp%105#0: uint64 = (+ index#4 tuple_item#9)
+                let tmp%106#0: uint64 = (== tmp%105#0 8u)
+                (assert tmp%106#0)
+                let tuple_index%101#5: uint64 = (+ tuple_index%101#1 1u)
+                goto_nth [block@44, block@45, block@46][tuple_index%101#1] else return 1u
+    
+    program clear-state:
+        subroutine test_cases.reversed_iteration.contract.MyContract.clear_state_program() -> uint64:
+            block@0: // L77
+                return 1u

@@ -2,12 +2,8 @@ contract test_cases.arc4_types.string.Arc4StringTypesContract:
     program approval:
         subroutine test_cases.arc4_types.string.Arc4StringTypesContract.approval_program() -> uint64:
             block@0: // L8
-                let some_bytes_as_string#0: bytes = (concat 0x000c "Hello World!")
-                let some_bytes_as_bytes_again#0: bytes = ((extract 2 0) some_bytes_as_string#0)
-                let tmp%3#0: uint64 = (!= "Hello World!" some_bytes_as_string#0)
-                (assert tmp%3#0) // Original bytes should not match encoded bytes
-                let awst_tmp%4#0: uint64 = (len some_bytes_as_string#0)
-                let tmp%5#0: uint64 = (< 2u awst_tmp%4#0)
+                let awst_tmp%4#0: uint64 = 14u
+                let tmp%5#0: uint64 = (< 2u 14u)
                 goto tmp%5#0 ? block@1 : block@2
             block@1: // ternary_true_L20
                 let ternary_result%6#0: uint64 = 2u
@@ -16,10 +12,10 @@ contract test_cases.arc4_types.string.Arc4StringTypesContract:
                 goto block@3
             block@3: // ternary_merge_L20
                 let ternary_result%6#2: uint64 = φ(ternary_result%6#0 <- block@1, awst_tmp%4#0 <- block@2)
-                let tmp%8#0: bytes = (substring3 some_bytes_as_string#0 ternary_result%6#2 awst_tmp%4#0)
+                let tmp%8#0: bytes = (substring3 AAxIZWxsbyBXb3JsZCE= ternary_result%6#2 14u)
                 let tmp%9#0: uint64 = (== "Hello World!" tmp%8#0)
                 (assert tmp%9#0) // Original bytes should match encoded if we strip the length header
-                let tmp%10#0: uint64 = (== "Hello World!" some_bytes_as_bytes_again#0)
+                let tmp%10#0: uint64 = (== "Hello World!" SGVsbG8gV29ybGQh)
                 (assert tmp%10#0)
                 let concat_result%17#0: bytes = (concat 0x0006 "Hello ")
                 let expr_value_trimmed%18#0: bytes = ((extract 2 0) concat_result%17#0)
@@ -33,8 +29,7 @@ contract test_cases.arc4_types.string.Arc4StringTypesContract:
                 let thing#1: bytes = (concat 0x0004 "hihi")
                 let tmp%33#0: uint64 = (== thing#1 "\x00\x04hihi")
                 (assert tmp%33#0)
-                let concat_result%40#0: bytes = (concat 0x0002 "ab")
-                let expr_value_trimmed%41#0: bytes = ((extract 2 0) concat_result%40#0)
+                let expr_value_trimmed%41#0: bytes = ((extract 2 0) AAJhYg==)
                 let concatenated%43#0: bytes = (concat expr_value_trimmed%41#0 "c")
                 let len_%44#0: uint64 = (len concatenated%43#0)
                 let len_bytes%45#0: bytes = (itob len_%44#0)
