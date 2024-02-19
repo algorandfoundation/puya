@@ -956,6 +956,13 @@ def test_abi_mutations(harness: _TestHarness) -> None:
     )
 
 
+def test_abi_bool_eval(harness: _TestHarness) -> None:
+    harness.deploy(
+        TEST_CASES_DIR / "arc4_types" / "bool_eval.py",
+        AppCallRequest(extra_pages=1),
+    )
+
+
 @pytest.mark.parametrize(
     ("test_case", "expected_logic_error"),
     [

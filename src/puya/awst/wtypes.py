@@ -239,6 +239,8 @@ class ARC4UIntN(ARC4Type):
 
     @classmethod
     def from_scale(cls, n: int, *, alias: str | None = None) -> typing.Self:
+        assert n % 8 == 0, "bit size must be multiple of 8"
+        assert 8 <= n <= 512, "bit size must be between 8 and 512 inclusive"
         name = f"arc4.uint{n}"
         base_cls = constants.CLS_ARC4_UINTN if n <= 64 else constants.CLS_ARC4_BIG_UINTN
 

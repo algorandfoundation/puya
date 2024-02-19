@@ -399,6 +399,7 @@ class ValueExpressionBuilder(ExpressionBuilder):
         raise CodeError(f"{type(self).__name__} does not support iteration", self.source_location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        # TODO: this should be abstract, we always want to consider this for types
         raise CodeError(f"{self.wtype} does not support boolean evaluation", location)
 
     def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:

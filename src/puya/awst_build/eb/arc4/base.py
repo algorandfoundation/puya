@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+import abc
 from typing import TYPE_CHECKING
 
 import structlog
@@ -50,7 +50,7 @@ def get_bytes_expr_builder(expr: Expression) -> ExpressionBuilder:
     return var_expression(get_bytes_expr(expr))
 
 
-class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder, ABC):
+class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder, abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
             case "encode":
@@ -220,7 +220,7 @@ class ARC4DecodeBuilder(IntermediateExpressionBuilder):
         return var_expression(expr)
 
 
-class ARC4EncodedExpressionBuilder(ValueExpressionBuilder):
+class ARC4EncodedExpressionBuilder(ValueExpressionBuilder, abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
             case "decode":
@@ -234,6 +234,11 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder):
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
         return arc4_compare_bytes(self, op, other, location)
+
+    @abc.abstractmethod
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        # TODO: lift this up to ValueExpressionBuilder
+        raise NotImplementedError
 
 
 def arc4_compare_bytes(
@@ -256,3 +261,20 @@ def arc4_compare_bytes(
         rhs=get_bytes_expr(other_expr),
     )
     return var_expression(cmp_expr)
+
+
+def arc4_bool_bytes(
+    expr: Expression, false_bytes: bytes, location: SourceLocation, *, negate: bool
+) -> ExpressionBuilder:
+    return var_expression(
+        BytesComparisonExpression(
+            operator=EqualityComparison.eq if negate else EqualityComparison.ne,
+            lhs=get_bytes_expr(expr),
+            rhs=BytesConstant(
+                value=false_bytes,
+                encoding=BytesEncoding.base16,
+                source_location=location,
+            ),
+            source_location=location,
+        )
+    )

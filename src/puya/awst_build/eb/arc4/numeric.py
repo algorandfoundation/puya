@@ -16,6 +16,7 @@ from puya.awst.nodes import (
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
+    arc4_bool_bytes,
     get_integer_literal_value,
 )
 from puya.awst_build.eb.base import ExpressionBuilder
@@ -167,11 +168,29 @@ class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
 
 class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
     def __init__(self, expr: Expression):
-        self.wtype = expr.wtype
+        assert isinstance(expr.wtype, wtypes.ARC4UIntN)
+        self.wtype: wtypes.ARC4UIntN = expr.wtype
         super().__init__(expr)
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return arc4_bool_bytes(
+            self.expr,
+            false_bytes=b"\x00" * (self.wtype.n // 8),
+            location=location,
+            negate=negate,
+        )
 
 
 class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder):
     def __init__(self, expr: Expression):
-        self.wtype = expr.wtype
+        assert isinstance(expr.wtype, wtypes.ARC4UFixedNxM)
+        self.wtype: wtypes.ARC4UFixedNxM = expr.wtype
         super().__init__(expr)
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return arc4_bool_bytes(
+            self.expr,
+            false_bytes=b"\x00" * (self.wtype.n // 8),
+            location=location,
+            negate=negate,
+        )

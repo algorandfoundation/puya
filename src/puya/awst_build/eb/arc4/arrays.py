@@ -11,8 +11,10 @@ from puya.awst.nodes import (
     ArrayConcat,
     ArrayExtend,
     ArrayPop,
+    BytesComparisonExpression,
     BytesConstant,
     CheckedMaybe,
+    EqualityComparison,
     Expression,
     ExpressionStatement,
     IndexExpression,
@@ -27,8 +29,10 @@ from puya.awst.nodes import (
     UInt64BinaryOperator,
     UInt64Constant,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import (
     CopyBuilder,
+    arc4_bool_bytes,
     arc4_compare_bytes,
     get_bytes_expr,
     get_bytes_expr_builder,
@@ -420,6 +424,14 @@ class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
             case _:
                 return super().binary_op(other, op, location, reverse=reverse)
 
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return arc4_bool_bytes(
+            expr=self.expr,
+            false_bytes=b"\x00\x00",
+            location=location,
+            negate=negate,
+        )
+
 
 class AppendExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, expr: Expression, location: SourceLocation):
@@ -549,3 +561,23 @@ class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
                 )
             case _:
                 return super().member_access(name, location)
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        if self.wtype.alias != "address":
+            return bool_eval_to_constant(
+                value=self.wtype.array_size > 0, location=location, negate=negate
+            )
+        else:
+            cmp_with_zero_expr = BytesComparisonExpression(
+                lhs=get_bytes_expr(self.expr),
+                operator=EqualityComparison.eq if negate else EqualityComparison.ne,
+                rhs=IntrinsicCall(
+                    wtype=wtypes.bytes_wtype,
+                    op_code="global",
+                    immediates=["ZeroAddress"],
+                    source_location=location,
+                ),
+                source_location=location,
+            )
+
+            return var_expression(cmp_with_zero_expr)
