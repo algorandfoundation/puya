@@ -83,7 +83,7 @@ class _CompileCache(typing.NamedTuple):
 
 
 @functools.cache
-def _get_awst_cache(root_dir: Path) -> _CompileCache:
+def get_awst_cache(root_dir: Path) -> _CompileCache:
     # note that this caching assumes that AWST is the same across all
     # optimisation and debug levels, which is currently true.
     # if this were to no longer be true, this test speedup strategy would need to be revisited
@@ -163,7 +163,7 @@ def compile_src(
     src_path: Path, optimization_level: int, debug_level: int
 ) -> CompileContractResult:
     root_dir = _get_root_dir(src_path)
-    context, awst, awst_logs = _get_awst_cache(root_dir)
+    context, awst, awst_logs = get_awst_cache(root_dir)
     awst_logs = _filter_logs(awst_logs, root_dir, src_path)
 
     awst_errors = _get_log_errors(awst_logs)

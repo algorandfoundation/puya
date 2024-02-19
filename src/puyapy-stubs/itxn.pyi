@@ -98,7 +98,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         non_participation: UInt64 | int | bool = ...,
         state_proof_key: Bytes | bytes = ...,
         ## asset config
-        asset: Asset | UInt64 | int = ...,
+        config_asset: Asset | UInt64 | int = ...,
         total: UInt64 | int = ...,
         unit_name: Bytes | bytes = ...,
         asset_name: Bytes | bytes = ...,
@@ -156,7 +156,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         non_participation: UInt64 | int | bool = ...,
         state_proof_key: Bytes | bytes = ...,
         ## asset config
-        asset: Asset | UInt64 | int = ...,
+        config_asset: Asset | UInt64 | int = ...,
         total: UInt64 | int = ...,
         unit_name: Bytes | bytes = ...,
         asset_name: Bytes | bytes = ...,
@@ -267,7 +267,7 @@ class AssetConfig(_InnerTransaction[AssetConfigInnerTransaction]):
     def __init__(
         self,
         *,
-        asset: Asset | UInt64 | int = ...,
+        config_asset: Asset | UInt64 | int = ...,
         total: UInt64 | int = ...,
         unit_name: Bytes | bytes = ...,
         asset_name: Bytes | bytes = ...,
@@ -287,7 +287,7 @@ class AssetConfig(_InnerTransaction[AssetConfigInnerTransaction]):
     def set(
         self,
         *,
-        asset: Asset | UInt64 | int = ...,
+        config_asset: Asset | UInt64 | int = ...,
         total: UInt64 | int = ...,
         unit_name: Bytes | bytes = ...,
         asset_name: Bytes | bytes = ...,
