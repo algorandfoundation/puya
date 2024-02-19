@@ -45,6 +45,7 @@ CLS_MAPPING: dict[str, wtypes.WType | type] = {
 BYTES_LITERAL = "bytes"
 UINT64_LITERAL = "int"
 STUB_NAMESPACE = "op"
+ALGORAND_OP_URL = "https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/"
 
 
 class OpCodeGroup(typing.Protocol):
@@ -480,7 +481,10 @@ def build_method_stub(
         else:
             doc = return_docs
     signature.append(f") -> {returns}:")
-
+    teal_ops = sorted({op.op_code for op in function.op_mappings})
+    teal_op_desc = ", ".join(_get_algorand_doc(teal_op) for teal_op in teal_ops)
+    doc.append("")
+    doc.append(f"Native TEAL opcode: {teal_op_desc}")
     body = list[str]()
     if doc:
         body.append('"""')
@@ -495,7 +499,7 @@ def build_method_stub(
 
 def build_stub_class(klass: ClassDef) -> Iterable[str]:
     method_decorator: str
-    ops = [f"`{op}`" for op in klass.ops]
+    ops = [f"{_get_algorand_doc(op)}" for op in klass.ops]
     docstring = f'"""Functions for the op{"s" if len(ops) > 1 else ""}: {", ".join(ops)} """'
     if klass.has_any_methods:
         method_decorator = "@classmethod"
@@ -1003,6 +1007,10 @@ def snake_case(s: str) -> str:
     s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
     s = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", s)
     return re.sub(r"[-\s]", "_", s).lower()
+
+
+def _get_algorand_doc(op: str) -> str:
+    return f"[`{op}`]({ALGORAND_OP_URL}#{op})"
 
 
 if __name__ == "__main__":
