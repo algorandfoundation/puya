@@ -49,10 +49,10 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 let tmp%2#0: uint64 = (! app_global_get_ex_value%0#0)
                 (assert tmp%2#0) // already bootstrapped
                 itxn_begin
-                ((itxn_field ApprovalProgramPages) 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089)
-                ((itxn_field ClearStateProgramPages) 0x0a8101)
-                ((itxn_field Fee) 0u)
                 ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ClearStateProgramPages) 0x0a8101)
+                ((itxn_field ApprovalProgramPages) 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089)
                 itxn_submit
                 let submit_result_0%3%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
                 (app_global_put "hello_app" submit_result_0%3%%CreatedApplicationID#0)
@@ -65,10 +65,10 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 itxn_begin
                 let (app_global_get_ex_value%1#0: uint64, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "hello_app")
                 (assert app_global_get_ex_did_exist%2#0) // check value exists
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field ApplicationID) app_global_get_ex_value%1#0)
                 ((itxn_field ApplicationArgs) method "hello(string)string")
                 ((itxn_field ApplicationArgs) name#0)
-                ((itxn_field ApplicationID) app_global_get_ex_value%1#0)
-                ((itxn_field TypeEnum) appl)
                 itxn_submit
                 let hello_call%%LastLog#0: bytes = (itxn LastLog)
                 let greeting#0: bytes = ((extract 4 0) hello_call%%LastLog#0)

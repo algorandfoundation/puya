@@ -184,18 +184,18 @@ opt_into_asset:
     // auction/contract.py:36
     // asset_receiver=Global.current_application_address,
     global CurrentApplicationAddress
-    itxn_field AssetReceiver
-    // auction/contract.py:38
-    // fee=0,
-    int 0
-    itxn_field Fee
+    frame_dig -1
+    itxn_field XferAsset
     // auction/contract.py:34-35
     // # Submit opt-in transaction: 0 asset transfer to self
     // itxn.AssetTransfer(
     int axfer
     itxn_field TypeEnum
-    frame_dig -1
-    itxn_field XferAsset
+    // auction/contract.py:38
+    // fee=0,
+    int 0
+    itxn_field Fee
+    itxn_field AssetReceiver
     // auction/contract.py:34-39
     // # Submit opt-in transaction: 0 asset transfer to self
     // itxn.AssetTransfer(
@@ -386,19 +386,18 @@ claim_bids_after_if_else@2:
     // auction/contract.py:94
     // receiver=Txn.sender,
     txn Sender
-    frame_dig 1
-    dup
-    cover 2
-    itxn_field Amount
-    // auction/contract.py:92
-    // fee=0,
-    int 0
-    itxn_field Fee
-    itxn_field Receiver
     // auction/contract.py:91
     // itxn.Payment(
     int pay
     itxn_field TypeEnum
+    itxn_field Receiver
+    // auction/contract.py:92
+    // fee=0,
+    int 0
+    itxn_field Fee
+    frame_dig 1
+    dup
+    itxn_field Amount
     // auction/contract.py:91-95
     // itxn.Payment(
     //     fee=0,
@@ -461,21 +460,20 @@ claim_asset:
     byte "previous_bidder"
     app_global_get_ex
     assert // check value exists
-    uncover 2
-    itxn_field AssetAmount
-    itxn_field AssetReceiver
-    itxn_field AssetCloseTo
-    // auction/contract.py:104
-    // fee=0,
-    int 0
-    itxn_field Fee
+    frame_dig -1
+    itxn_field XferAsset
     // auction/contract.py:102-103
     // # Send ASA to previous bidder
     // itxn.AssetTransfer(
     int axfer
     itxn_field TypeEnum
-    frame_dig -1
-    itxn_field XferAsset
+    // auction/contract.py:104
+    // fee=0,
+    int 0
+    itxn_field Fee
+    itxn_field AssetReceiver
+    itxn_field AssetCloseTo
+    itxn_field AssetAmount
     // auction/contract.py:102-109
     // # Send ASA to previous bidder
     // itxn.AssetTransfer(
