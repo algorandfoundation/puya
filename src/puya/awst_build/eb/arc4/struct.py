@@ -7,15 +7,13 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
-    BytesComparisonExpression,
-    EqualityComparison,
     Expression,
     IndexExpression,
     Literal,
     TupleExpression,
     UInt64Constant,
 )
-from puya.awst_build.eb.arc4.base import CopyBuilder, get_bytes_expr, get_bytes_expr_builder
+from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes, get_bytes_expr_builder
 from puya.awst_build.eb.base import BuilderComparisonOp, ValueExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
@@ -110,17 +108,4 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        if isinstance(other, Literal):
-            raise CodeError(
-                f"Cannot compare arc4 encoded value of {self.wtype} to a literal value", location
-            )
-        other_expr = other.rvalue()
-        if other_expr.wtype != self.wtype:
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=get_bytes_expr(self.expr),
-            operator=EqualityComparison(op.value),
-            rhs=get_bytes_expr(other_expr),
-        )
-        return var_expression(cmp_expr)
+        return arc4_compare_bytes(self, op, other, location)
