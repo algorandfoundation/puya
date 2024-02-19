@@ -2,6 +2,7 @@ from puyapy import (
     Bytes,
     OnCompleteAction,
     UInt64,
+    log,
     subroutine,
 )
 from puyapy.op import (
@@ -14,7 +15,6 @@ from puyapy.op import (
     btoi,
     divmodw,
     gload_bytes,
-    log,
     setbit_bytes,
     setbit_uint64,
 )

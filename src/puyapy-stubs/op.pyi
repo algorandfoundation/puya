@@ -417,18 +417,6 @@ def keccak256(a: Bytes | bytes, /) -> Bytes:
 
     """
 
-def log(a: Bytes | bytes, /) -> None:
-    """
-    write A to log state of the current application
-    `log` fails if called more than MaxLogCalls times in a program, or if the sum of logged bytes exceeds 1024 bytes.
-
-    Groups: State Access
-
-    Stack: [..., A] -> [...]
-    TEAL: log
-
-    """
-
 def min_balance(a: Account | UInt64 | int, /) -> UInt64:
     """
     minimum required balance for account A, in microalgos. Required balance is affected by ASA, App, and Box usage. When creating or opting into an app, the minimum balance grows before the app code runs, therefore the increase is visible there. When deleting or closing out, the minimum balance decreases after the app executes. Changes caused by inner transactions or box usage are observable immediately following the opcode effecting the change.
