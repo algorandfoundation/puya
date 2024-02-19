@@ -3,6 +3,7 @@ from puyapy import (
     Contract,
     LocalState,
     OnCompleteAction,
+    Txn,
     UInt64,
     log,
     op,
@@ -15,16 +16,16 @@ class LocalStateContract(Contract):
         self.local = LocalState(Bytes)
 
     def approval_program(self) -> bool:
-        if op.Txn.application_id == 0:
+        if Txn.application_id == 0:
             return True
-        if op.Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+        if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
             return False
-        if op.Txn.num_app_args < 1:
+        if Txn.num_app_args < 1:
             return False
 
-        offset = op.btoi(op.Txn.application_args(0))
-        method = op.Txn.application_args(1)
-        if op.Txn.num_app_args == 2:
+        offset = op.btoi(Txn.application_args(0))
+        method = Txn.application_args(1)
+        if Txn.num_app_args == 2:
             if method == b"get_guaranteed_data":
                 log(self.get_guaranteed_data(offset))
             elif method == b"get_data_or_assert":
@@ -35,11 +36,11 @@ class LocalStateContract(Contract):
             else:
                 return False
             return True
-        elif op.Txn.num_app_args == 3:
+        elif Txn.num_app_args == 3:
             if method == b"set_data":
-                self.set_data(offset, op.Txn.application_args(2))
+                self.set_data(offset, Txn.application_args(2))
             elif method == b"get_data_with_default":
-                log(self.get_data_with_default(offset, op.Txn.application_args(2)))
+                log(self.get_data_with_default(offset, Txn.application_args(2)))
             else:
                 return False
             return True

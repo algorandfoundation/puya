@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, UInt64, log, op, subroutine
+from puyapy import Bytes, Contract, Txn, UInt64, log, op, subroutine
 
 ADD = 1
 SUB = 2
@@ -17,7 +17,7 @@ def itoa(i: UInt64) -> Bytes:
 
 class MyContract(Contract):
     def approval_program(self) -> UInt64:
-        num_args = op.Txn.num_app_args
+        num_args = Txn.num_app_args
         if num_args == 0:
             a = UInt64(0)
             b = UInt64(0)
@@ -26,10 +26,10 @@ class MyContract(Contract):
             log(b)
         else:
             assert num_args == 3, "Expected 3 args"
-            action_b = op.Txn.application_args(0)
+            action_b = Txn.application_args(0)
             action = op.btoi(action_b)
-            a_bytes = op.Txn.application_args(1)
-            b_bytes = op.Txn.application_args(2)
+            a_bytes = Txn.application_args(1)
+            b_bytes = Txn.application_args(2)
             log(a_bytes)
             log(b_bytes)
             a = op.btoi(a_bytes)

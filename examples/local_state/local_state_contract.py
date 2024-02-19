@@ -4,8 +4,8 @@ from puyapy import (
     Contract,
     LocalState,
     OnCompleteAction,
+    Txn,
     log,
-    op,
     subroutine,
 )
 
@@ -15,30 +15,30 @@ class LocalStateContract(Contract):
         self.local = LocalState(Bytes)
 
     def approval_program(self) -> bool:
-        if op.Txn.application_id == 0:
+        if Txn.application_id == 0:
             return True
-        if op.Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+        if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
             return False
-        if op.Txn.num_app_args == 0:
+        if Txn.num_app_args == 0:
             return False
 
-        method = op.Txn.application_args(0)
-        if op.Txn.num_app_args == 1:
+        method = Txn.application_args(0)
+        if Txn.num_app_args == 1:
             if method == b"get_guaranteed_data":
-                log(self.get_guaranteed_data(op.Txn.sender))
+                log(self.get_guaranteed_data(Txn.sender))
             elif method == b"get_data_or_assert":
-                log(self.get_data_or_assert(op.Txn.sender))
+                log(self.get_data_or_assert(Txn.sender))
             elif method == b"delete_data":
-                self.delete_data(op.Txn.sender)
+                self.delete_data(Txn.sender)
                 log(b"Deleted")
             else:
                 return False
             return True
-        elif op.Txn.num_app_args == 2:
+        elif Txn.num_app_args == 2:
             if method == b"set_data":
-                self.set_data(op.Txn.sender, op.Txn.application_args(1))
+                self.set_data(Txn.sender, Txn.application_args(1))
             elif method == b"get_data_with_default":
-                log(self.get_data_with_default(op.Txn.sender, op.Txn.application_args(1)))
+                log(self.get_data_with_default(Txn.sender, Txn.application_args(1)))
             else:
                 return False
             return True

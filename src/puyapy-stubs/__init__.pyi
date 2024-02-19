@@ -14,7 +14,13 @@ from puyapy import arc4 as arc4
 from puyapy import gtxn as gtxn
 from puyapy import itxn as itxn
 from puyapy import op as op
+
+# import some common types into root module
 from puyapy.arc4 import (
     # this one specially because it's already prefixed with arc4
     ARC4Contract as ARC4Contract,
+)
+from puyapy.op import (
+    Global as Global,
+    Txn as Txn,
 )
