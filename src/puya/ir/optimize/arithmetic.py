@@ -10,6 +10,8 @@ from puya.context import CompileContext
 from puya.errors import CodeError
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
+from puya.ir.optimize._utils import get_definition
+from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.utils import format_bytes
 
 logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
@@ -31,7 +33,31 @@ def byte_wise(op: Callable[[int, int], int], lhs: bytes, rhs: bytes) -> bytes:
     return bytes([op(a, b) for a, b in zip_longest(lhs[::-1], rhs[::-1], fillvalue=0)][::-1])
 
 
-def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProvider | None:
+def get_byte_constant(
+    subroutine: models.Subroutine, byte_arg: models.Value
+) -> models.BytesConstant | None:
+    if isinstance(byte_arg, models.BytesConstant):
+        return byte_arg
+    if isinstance(byte_arg, models.Register):
+        byte_arg_defn = get_definition(subroutine, byte_arg)
+        if (
+            isinstance(byte_arg_defn, models.Assignment)
+            and isinstance(byte_arg_defn.source, models.Intrinsic)
+            and byte_arg_defn.source.op is AVMOp.itob
+        ):
+            (itob_arg,) = byte_arg_defn.source.args
+            if isinstance(itob_arg, models.UInt64Constant):
+                return models.BytesConstant(
+                    source_location=byte_arg_defn.source_location,
+                    value=itob_arg.value.to_bytes(8, "big"),
+                    encoding=AVMBytesEncoding.base16,
+                )
+    return None
+
+
+def try_simplify_arithmetic_ops(
+    subroutine: models.Subroutine, value: models.ValueProvider
+) -> models.ValueProvider | None:
     # TODO: handle bytes math
     # TODO: handle all math ops including shl, shr, exp, etc
     match value:
@@ -48,32 +74,28 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
                 logger.debug(f"Folded ~{x} to {not_x}")
             return not_x
         case models.Intrinsic(
-            args=[models.BytesConstant(value=bites, encoding=encoding)],
-            op=AVMOp.bitwise_not_bytes,
-            source_location=op_loc,
-        ):
+            args=[byte_arg], op=AVMOp.bitwise_not_bytes, source_location=op_loc
+        ) if (byte_const := get_byte_constant(subroutine, byte_arg)) is not None:
             not_bites = models.BytesConstant(
-                source_location=op_loc, value=bytes([x ^ 0xFF for x in bites]), encoding=encoding
+                source_location=op_loc,
+                value=bytes([x ^ 0xFF for x in byte_const.value]),
+                encoding=byte_const.encoding,
             )
-            logger.debug(f"Folded ~{bites!r} to {not_bites.value!r}")
+            logger.debug(f"Folded ~{byte_const.value!r} to {not_bites.value!r}")
             return not_bites
-        case models.Intrinsic(
-            op=AVMOp.len_,
-            args=[models.BytesConstant(value=x, encoding=encoding)],
-            source_location=op_loc,
-        ):
-            len_x = len(x)
-            logger.debug(f"Folded len({format_bytes(x, encoding)}) to {len_x}")
+        case models.Intrinsic(op=AVMOp.len_, args=[byte_arg], source_location=op_loc) if (
+            byte_const := get_byte_constant(subroutine, byte_arg)
+        ) is not None:
+            len_x = len(byte_const.value)
+            logger.debug(
+                f"Folded len({format_bytes(byte_const.value, byte_const.encoding)}) to {len_x}"
+            )
             return models.UInt64Constant(source_location=op_loc, value=len_x)
         case models.Intrinsic(
             op=AVMOp.setbit,
-            args=[
-                models.BytesConstant() as byte_const,
-                models.UInt64Constant() as index,
-                models.UInt64Constant() as value,
-            ],
+            args=[byte_arg, models.UInt64Constant() as index, models.UInt64Constant() as value],
             source_location=op_loc,
-        ):
+        ) if (byte_const := get_byte_constant(subroutine, byte_arg)) is not None:
             binary_array = [
                 x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
             ]
@@ -87,12 +109,9 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
             )
         case models.Intrinsic(
             op=AVMOp.getbit,
-            args=[
-                models.BytesConstant() as byte_const,
-                models.UInt64Constant() as index,
-            ],
+            args=[byte_arg, models.UInt64Constant() as index],
             source_location=op_loc,
-        ):
+        ) if (byte_const := get_byte_constant(subroutine, byte_arg)) is not None:
             binary_array = [
                 x for xs in [bin(bb)[2:].zfill(8) for bb in byte_const.value] for x in xs
             ]
@@ -101,42 +120,42 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
         case models.Intrinsic(
             op=AVMOp.extract | AVMOp.extract3,
             immediates=[int(S), int(L)],
-            args=[models.BytesConstant(value=A, encoding=encoding)],
+            args=[byte_arg],
             source_location=op_loc,
         ) | models.Intrinsic(
             op=AVMOp.extract | AVMOp.extract3,
             immediates=[],
-            args=[
-                models.BytesConstant(value=A, encoding=encoding),
-                models.UInt64Constant(value=S),
-                models.UInt64Constant(value=L),
-            ],
+            args=[byte_arg, models.UInt64Constant(value=S), models.UInt64Constant(value=L)],
             source_location=op_loc,
-        ):
+        ) if (
+            byte_const := get_byte_constant(subroutine, byte_arg)
+        ) is not None:
             if L == 0:
-                extracted = A[S:]
+                extracted = byte_const.value[S:]
             else:
-                extracted = A[S : S + L]
-            return models.BytesConstant(source_location=op_loc, encoding=encoding, value=extracted)
+                extracted = byte_const.value[S : S + L]
+            return models.BytesConstant(
+                source_location=op_loc, encoding=byte_const.encoding, value=extracted
+            )
         case models.Intrinsic(
             op=AVMOp.substring | AVMOp.substring3,
             immediates=[int(S), int(E)],
-            args=[models.BytesConstant(value=A, encoding=encoding)],
+            args=[byte_arg],
             source_location=op_loc,
         ) | models.Intrinsic(
             op=AVMOp.substring | AVMOp.substring3,
             immediates=[],
-            args=[
-                models.BytesConstant(value=A, encoding=encoding),
-                models.UInt64Constant(value=S),
-                models.UInt64Constant(value=E),
-            ],
+            args=[byte_arg, models.UInt64Constant(value=S), models.UInt64Constant(value=E)],
             source_location=op_loc,
-        ):
+        ) if (
+            byte_const := get_byte_constant(subroutine, byte_arg)
+        ) is not None:
             if E < S:
                 raise CodeError("substring would fail at runtime", op_loc)
-            extracted = A[S:E]
-            return models.BytesConstant(source_location=op_loc, encoding=encoding, value=extracted)
+            extracted = byte_const.value[S:E]
+            return models.BytesConstant(
+                source_location=op_loc, encoding=byte_const.encoding, value=extracted
+            )
         case models.Intrinsic(
             op=AVMOp.concat,
             args=[models.Value(atype=AVMType.bytes) as ba, models.BytesConstant(value=b"")],
@@ -156,14 +175,18 @@ def try_simplify_arithmetic_ops(value: models.ValueProvider) -> models.ValueProv
                 | AVMOp.bitwise_or_bytes
                 | AVMOp.bitwise_xor_bytes
             ) as bytes_op,
-            args=[
-                models.BytesConstant(value=a, encoding=encoding_a),
-                models.BytesConstant(value=b, encoding=encoding_b),
-            ],
+            args=[byte_arg_a, byte_arg_b],
             source_location=op_loc,
+        ) if (
+            (byte_const_a := get_byte_constant(subroutine, byte_arg_a)) is not None
+            and (byte_const_b := get_byte_constant(subroutine, byte_arg_b)) is not None
         ):
+            a = byte_const_a.value
+            encoding_a = byte_const_a.encoding
+            b = byte_const_b.value
+            encoding_b = byte_const_b.encoding
             if bytes_op == AVMOp.concat:
-                if encoding_a == encoding_b:
+                if encoding_a == encoding_b:  # TODO: remove or restrict this condition
                     a_b = a + b
                     logger.debug(
                         f"Folded concat({format_bytes(a, encoding_a)},"
@@ -402,7 +425,7 @@ def arithmetic_simplification(_context: CompileContext, subroutine: models.Subro
         for op in block.ops:
             match op:
                 case models.Assignment(source=source) as assignment:
-                    simplified = try_simplify_arithmetic_ops(source)
+                    simplified = try_simplify_arithmetic_ops(subroutine, source)
                     if simplified is not None:
                         assignment.source = simplified
                         modified += 1

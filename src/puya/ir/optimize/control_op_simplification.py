@@ -7,6 +7,7 @@ from puya.errors import InternalError
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import PhiArgument
+from puya.ir.optimize._utils import get_definition
 from puya.ir.ssa import TrivialPhiRemover
 from puya.utils import unique
 
@@ -88,7 +89,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                     version=condition.version,
                     source_location=source_location,
                 )
-                if _get_definition(subroutine, not_condition, should_exist=False) is None:
+                if get_definition(subroutine, not_condition, should_exist=False) is None:
                     block.ops.append(
                         models.Assignment(
                             targets=[not_condition],
@@ -114,7 +115,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.ConditionalBranch(
                 condition=models.Register() as condition,
             ) as branch if (
-                isinstance(defn := _get_definition(subroutine, condition), models.Assignment)
+                isinstance(defn := get_definition(subroutine, condition), models.Assignment)
                 and isinstance(defn.source, models.Intrinsic)
                 and defn.source.op is AVMOp.not_
             ):
@@ -234,21 +235,3 @@ def _copy_inlined_phi_args(
             )
         phi.args.append(PhiArgument(value=existing_phi_arg.value, through=new_block))
         attrs.validate(phi)
-
-
-def _get_definition(
-    subroutine: models.Subroutine, register: models.Register, *, should_exist: bool = True
-) -> models.Assignment | models.Phi | None:
-    if register in subroutine.parameters:
-        return None
-    for block in subroutine.body:
-        for phi in block.phis:
-            if phi.register == register:
-                return phi
-        for op in block.ops:
-            if isinstance(op, models.Assignment) and register in op.targets:
-                return op
-    if should_exist:
-        raise InternalError(f"Register is not defined: {register}", subroutine.source_location)
-    else:
-        return None

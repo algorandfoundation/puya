@@ -1,0 +1,57 @@
+contract test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract:
+    program approval:
+        subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.approval_program() -> uint64:
+            block@0: // L4
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@6
+            block@1: // abi_routing_L4
+                let tmp%1#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%1#0 {method "xyz()string[]" => block@2, method "xyz_raw()string[]" => block@3, * => fail // reject transaction}
+            block@2: // xyz_route_L5
+                let tmp%2#0: uint64 = (txn OnCompletion)
+                let tmp%3#0: uint64 = (! tmp%2#0)
+                (assert tmp%3#0) // OnCompletion is NoOp
+                let tmp%4#0: uint64 = (txn ApplicationID)
+                (assert tmp%4#0) // is not creating
+                let tmp%5#0: bytes = test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz()
+                let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
+                (log tmp%6#0)
+                return 1u
+            block@3: // xyz_raw_route_L13
+                let tmp%7#0: uint64 = (txn OnCompletion)
+                let tmp%8#0: uint64 = (! tmp%7#0)
+                (assert tmp%8#0) // OnCompletion is NoOp
+                let tmp%9#0: uint64 = (txn ApplicationID)
+                (assert tmp%9#0) // is not creating
+                let tmp%10#0: bytes = test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw()
+                let tmp%11#0: bytes = (concat 0x151f7c75 tmp%10#0)
+                (log tmp%11#0)
+                return 1u
+            block@6: // bare_routing_L4
+                let tmp%12#0: uint64 = (txn OnCompletion)
+                let not%tmp%12#0: uint64 = (! tmp%12#0)
+                (assert not%tmp%12#0) // reject transaction
+                let tmp%13#0: uint64 = (txn ApplicationID)
+                let tmp%14#0: uint64 = (! tmp%13#0)
+                (assert tmp%14#0) // is creating
+                return 1u
+        
+        subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz() -> bytes:
+            block@0: // L5
+                let array_data%0#4: bytes = (concat 0x000300060009000c "\x00\x01X")
+                let array_data%0#5: bytes = (concat array_data%0#4 "\x00\x01Y")
+                let array_data%0#6: bytes = (concat array_data%0#5 "\x00\x01Z")
+                return array_data%0#6
+        
+        subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw() -> bytes:
+            block@0: // L13
+                let array_data%3#3: bytes = (concat 0x000300060009 0x000c)
+                let array_data%3#4: bytes = (concat array_data%3#3 0x000158)
+                let array_data%3#5: bytes = (concat array_data%3#4 0x000159)
+                let raw#0: bytes = (concat array_data%3#5 0x00015a)
+                return raw#0
+    
+    program clear-state:
+        subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.clear_state_program() -> uint64:
+            block@0: // L4
+                return 1u
