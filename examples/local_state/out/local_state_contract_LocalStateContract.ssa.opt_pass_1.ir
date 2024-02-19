@@ -89,36 +89,36 @@ contract examples.local_state.local_state_contract.LocalStateContract:
                 return 0u
         
         subroutine examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(for_account: bytes) -> bytes:
-            block@0: // L55
+            block@0: // L51
                 let (app_local_get_ex_value%0#0: bytes, app_local_get_ex_did_exist%1#0: uint64) = (app_local_get_ex for_account#0 0u "local")
                 (assert app_local_get_ex_did_exist%1#0) // check value exists
                 return app_local_get_ex_value%0#0
         
         subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(for_account: bytes) -> bytes:
-            block@0: // L63
+            block@0: // L59
                 let (result#0: any, exists#0: uint64) = (app_local_get_ex for_account#0 0u "local")
                 (assert exists#0) // no data for account
                 return result#0
         
         subroutine examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: bytes) -> void:
-            block@0: // L73
+            block@0: // L69
                 (app_local_del for_account#0 "local")
                 return 
         
         subroutine examples.local_state.local_state_contract.LocalStateContract.set_data(for_account: bytes, value: bytes) -> void:
-            block@0: // L69
+            block@0: // L65
                 (app_local_put for_account#0 "local" value#0)
                 return 
         
         subroutine examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes, default: bytes) -> bytes:
-            block@0: // L59
+            block@0: // L55
                 let (awst_tmp%0.0#0: any, awst_tmp%0.1#0: uint64) = (app_local_get_ex for_account#0 0u "local")
                 goto awst_tmp%0.1#0 ? block@1 : block@2
-            block@1: // ternary_true_L61
+            block@1: // ternary_true_L57
                 goto block@3
-            block@2: // ternary_false_L61
+            block@2: // ternary_false_L57
                 goto block@3
-            block@3: // ternary_merge_L61
+            block@3: // ternary_merge_L57
                 let ternary_result%1#2: bytes = φ(awst_tmp%0.0#0 <- block@1, default#0 <- block@2)
                 return ternary_result%1#2
         
@@ -128,5 +128,5 @@ contract examples.local_state.local_state_contract.LocalStateContract:
     
     program clear-state:
         subroutine examples.local_state.local_state_contract.LocalStateContract.clear_state_program() -> uint64:
-            block@0: // L52
+            block@0: // L48
                 return 1u

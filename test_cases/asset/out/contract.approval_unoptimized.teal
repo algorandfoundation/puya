@@ -7,19 +7,19 @@ test_cases.asset.contract.Reference.approval_program:
 
 main_entrypoint@2:
     // asset/contract.py:21
-    // if Transaction.num_app_args == 1:
+    // if Txn.num_app_args == 1:
     txn NumAppArgs
     int 1
     ==
     bz main_after_if_else@10
     // asset/contract.py:22
-    // if Transaction.application_args(0) == b"opt_in":
+    // if Txn.application_args(0) == b"opt_in":
     txna ApplicationArgs 0
     byte "opt_in"
     ==
     bz main_else_body@5
     // asset/contract.py:23
-    // asset = Asset(Transaction.assets(0))
+    // asset = Asset(Txn.assets(0))
     txna Assets 0
     // asset/contract.py:24
     // self.opt_into_asset(asset)
@@ -28,13 +28,13 @@ main_entrypoint@2:
 
 main_else_body@5:
     // asset/contract.py:25
-    // elif Transaction.application_args(0) == b"is_opted_in":
+    // elif Txn.application_args(0) == b"is_opted_in":
     txna ApplicationArgs 0
     byte "is_opted_in"
     ==
     bz main_else_body@7
     // asset/contract.py:26
-    // asset = Asset(Transaction.assets(0))
+    // asset = Asset(Txn.assets(0))
     txna Assets 0
     // asset/contract.py:27
     // self.is_opted_asset(asset)
@@ -65,7 +65,7 @@ opt_into_asset:
     proto 1 0
     // asset/contract.py:37-38
     // # Only allow app creator to opt the app account into a ASA
-    // assert Transaction.sender == Global.creator_address, "Only creator can opt in to ASA"
+    // assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
     txn Sender
     global CreatorAddress
     ==
@@ -87,26 +87,26 @@ opt_into_asset:
     app_global_put
     // asset/contract.py:44-45
     // # Submit opt-in transaction: 0 asset transfer to self
-    // CreateInnerTransaction.begin()
+    // ITxnCreate.begin()
     itxn_begin
     // asset/contract.py:46
-    // CreateInnerTransaction.set_type_enum(TransactionType.AssetTransfer)
+    // ITxnCreate.set_type_enum(TransactionType.AssetTransfer)
     int axfer
     itxn_field TypeEnum
     // asset/contract.py:47
-    // CreateInnerTransaction.set_fee(UInt64(0))  # cover fee with outer txn
+    // ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
     int 0
     itxn_field Fee
     // asset/contract.py:48
-    // CreateInnerTransaction.set_asset_receiver(Global.current_application_address)
+    // ITxnCreate.set_asset_receiver(Global.current_application_address)
     global CurrentApplicationAddress
     itxn_field AssetReceiver
     // asset/contract.py:49
-    // CreateInnerTransaction.set_xfer_asset(asset.asset_id)
+    // ITxnCreate.set_xfer_asset(asset.asset_id)
     frame_dig -1
     itxn_field XferAsset
     // asset/contract.py:50
-    // CreateInnerTransaction.submit()
+    // ITxnCreate.submit()
     itxn_submit
     retsub
 

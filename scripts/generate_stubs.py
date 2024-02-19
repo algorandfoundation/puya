@@ -85,7 +85,7 @@ class GroupedOpCodes:
 
 OPCODE_GROUPS: list[OpCodeGroup] = [
     GroupedOpCodes(
-        name="AppGlobals",
+        name="AppGlobal",
         ops={
             "app_global_get": "get",
             "app_global_get_ex": "get_ex",
@@ -95,7 +95,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     GroupedOpCodes(name="Scratch", ops={"loads": "load", "stores": "store"}),
     GroupedOpCodes(
-        name="AppLocals",
+        name="AppLocal",
         ops={
             "app_local_get": "get",
             "app_local_get_ex": "get_ex",
@@ -118,15 +118,6 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
         },
     ),
     GroupedOpCodes(
-        name="CreateInnerTransaction",
-        ops={
-            "itxn_begin": "begin",
-            "itxn_next": "next",
-            "itxn_submit": "submit",
-            "itxn_field": "set",
-        },
-    ),
-    GroupedOpCodes(
         name="EllipticCurve",
         ops={
             "ec_add": "add",
@@ -138,29 +129,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
         },
     ),
     MergedOpCodes(
-        name="InnerTransaction",
-        ops={
-            "itxn": {},
-            "itxnas": {
-                "itxna": ["F", "I"],
-            },
-        },
-    ),
-    MergedOpCodes(
-        name="InnerTransactionGroup",
-        ops={
-            "gitxn": {},
-            "gitxnas": {
-                "gitxna": ["T", "F", "I"],
-            },
-        },
-    ),
-    MergedOpCodes(
-        name="Global",
-        ops={"global": {}},
-    ),
-    MergedOpCodes(
-        name="Transaction",
+        name="Txn",
         ops={
             "txn": {},
             "txnas": {
@@ -169,7 +138,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
         },
     ),
     MergedOpCodes(
-        name="TransactionGroup",
+        name="GTxn",
         ops={
             "gtxns": {
                 "gtxn": ["F", "T"],
@@ -181,6 +150,37 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
                 "gtxnas": ["F", "T", "A"],  # array index on stack
             },
         },
+    ),
+    GroupedOpCodes(
+        name="ITxnCreate",
+        ops={
+            "itxn_begin": "begin",
+            "itxn_next": "next",
+            "itxn_submit": "submit",
+            "itxn_field": "set",
+        },
+    ),
+    MergedOpCodes(
+        name="ITxn",
+        ops={
+            "itxn": {},
+            "itxnas": {
+                "itxna": ["F", "I"],
+            },
+        },
+    ),
+    MergedOpCodes(
+        name="GITxn",
+        ops={
+            "gitxn": {},
+            "gitxnas": {
+                "gitxna": ["T", "F", "I"],
+            },
+        },
+    ),
+    MergedOpCodes(
+        name="Global",
+        ops={"global": {}},
     ),
     RenamedOpCode(
         name="arg",
@@ -335,7 +335,9 @@ def main() -> None:
             overriding_immediate = get_overriding_immediate(op)
             if overriding_immediate:
                 class_defs.append(
-                    build_class_from_overriding_immediate(lang_spec, op, overriding_immediate, [])
+                    build_class_from_overriding_immediate(
+                        lang_spec, op, get_python_enum_class(op.name), overriding_immediate, []
+                    )
                 )
             else:
                 for immediate in op.immediate_args:
@@ -556,6 +558,7 @@ AliasT: typing.TypeAlias = tuple[Op, list[str]]
 def build_class_from_overriding_immediate(
     spec: LanguageSpec,
     op: Op,
+    class_name: str,
     immediate: Immediate,
     aliases: list[AliasT],
 ) -> ClassDef:
@@ -591,7 +594,7 @@ def build_class_from_overriding_immediate(
 
         methods.append(method)
 
-    return ClassDef(name=get_python_enum_class(op.name), methods=methods, ops=sorted(class_ops))
+    return ClassDef(name=class_name, methods=methods, ops=sorted(class_ops))
 
 
 def get_op_doc(op: Op) -> list[str]:
@@ -830,13 +833,13 @@ def build_merged_ops(spec: LanguageSpec, group: MergedOpCodes) -> ClassDef:
         overriding_immediate = get_overriding_immediate(other_op)
         assert overriding_immediate
         other_class = build_class_from_overriding_immediate(
-            spec, other_op, overriding_immediate, aliases
+            spec, other_op, group.name, overriding_immediate, aliases
         )
         for method in other_class.methods:
             merge_methods[method.name] = method
 
     methods = list(merge_methods.values())
-    return ClassDef(name=get_python_enum_class(group.name), methods=methods, ops=sorted(group.ops))
+    return ClassDef(name=group.name, methods=methods, ops=sorted(group.ops))
 
 
 def build_grouped_ops(
@@ -848,7 +851,7 @@ def build_grouped_ops(
         rename_immediate = get_overriding_immediate(rename_op)
         if rename_immediate:
             rename_class = build_class_from_overriding_immediate(
-                spec, rename_op, rename_immediate, aliases=[]
+                spec, rename_op, group.name, rename_immediate, aliases=[]
             )
             # when grouping an op with immediate overrides, treat python_name as a prefix
             for method in rename_class.methods:
@@ -865,7 +868,7 @@ def build_grouped_ops(
                 enums_to_build[arg.arg_enum] = True
 
     class_def = ClassDef(
-        name=get_python_enum_class(group.name),
+        name=group.name,
         methods=methods,
         ops=sorted(group.ops),
     )

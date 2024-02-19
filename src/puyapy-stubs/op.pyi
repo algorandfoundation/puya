@@ -727,7 +727,7 @@ class AcctParamsGet:
         :returns tuple[UInt64, bool]: The total number of bytes used by this account's app's box keys and values.
         """
 
-class AppGlobals:
+class AppGlobal:
     """Functions for the ops: `app_global_del`, `app_global_get`, `app_global_get_ex`, `app_global_put`"""
 
     @staticmethod
@@ -804,7 +804,7 @@ class AppGlobals:
 
         """
 
-class AppLocals:
+class AppLocal:
     """Functions for the ops: `app_local_del`, `app_local_get`, `app_local_get_ex`, `app_local_put`"""
 
     @staticmethod
@@ -1332,709 +1332,6 @@ class Box:
 
         """
 
-class CreateInnerTransaction:
-    """Functions for the ops: `itxn_begin`, `itxn_field`, `itxn_next`, `itxn_submit`"""
-
-    @staticmethod
-    def begin() -> None:
-        """
-        begin preparation of a new inner transaction in a new transaction group
-        `itxn_begin` initializes Sender to the application address; Fee to the minimum allowable, taking into account MinTxnFee and credit from overpaying in earlier transactions; FirstValid/LastValid to the values in the invoking transaction, and all other fields to zero or empty values.
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [...]
-        TEAL: itxn_begin
-
-        """
-    @staticmethod
-    def next() -> None:
-        """
-        begin preparation of a new inner transaction in the same transaction group
-        `itxn_next` initializes the transaction exactly as `itxn_begin` does
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [...]
-        TEAL: itxn_next
-
-        """
-    @staticmethod
-    def submit() -> None:
-        """
-        execute the current inner transaction group. Fail if executing this group would exceed the inner transaction limit, or if any transaction in the group fails.
-        `itxn_submit` resets the current transaction so that it can not be resubmitted. A new `itxn_begin` is required to prepare another inner transaction.
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [...]
-        TEAL: itxn_submit
-
-        """
-    @staticmethod
-    def set_sender(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address
-        """
-    @staticmethod
-    def set_fee(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: microalgos
-        """
-    @staticmethod
-    def set_note(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: Any data up to 1024 bytes
-        """
-    @staticmethod
-    def set_receiver(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address
-        """
-    @staticmethod
-    def set_amount(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: microalgos
-        """
-    @staticmethod
-    def set_close_remainder_to(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address
-        """
-    @staticmethod
-    def set_vote_pk(a: Bytes | bytes | Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes | Account a: 32 byte address
-        """
-    @staticmethod
-    def set_selection_pk(a: Bytes | bytes | Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes | Account a: 32 byte address
-        """
-    @staticmethod
-    def set_vote_first(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: The first round that the participation key is valid.
-        """
-    @staticmethod
-    def set_vote_last(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: The last round that the participation key is valid.
-        """
-    @staticmethod
-    def set_vote_key_dilution(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Dilution for the 2-level participation key
-        """
-    @staticmethod
-    def set_type(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: Transaction type as bytes
-        """
-    @staticmethod
-    def set_type_enum(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Transaction type as integer
-        """
-    @staticmethod
-    def set_xfer_asset(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Asset ID
-        """
-    @staticmethod
-    def set_asset_amount(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: value in Asset's units
-        """
-    @staticmethod
-    def set_asset_sender(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
-        """
-    @staticmethod
-    def set_asset_receiver(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address
-        """
-    @staticmethod
-    def set_asset_close_to(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address
-        """
-    @staticmethod
-    def set_application_id(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: ApplicationID from ApplicationCall transaction
-        """
-    @staticmethod
-    def set_on_completion(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: ApplicationCall transaction on completion action
-        """
-    @staticmethod
-    def set_application_args(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: Arguments passed to the application in the ApplicationCall transaction
-        """
-    @staticmethod
-    def set_accounts(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: Accounts listed in the ApplicationCall transaction
-        """
-    @staticmethod
-    def set_approval_program(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: Approval program
-        """
-    @staticmethod
-    def set_clear_state_program(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: Clear state program
-        """
-    @staticmethod
-    def set_rekey_to(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte Sender's new AuthAddr
-        """
-    @staticmethod
-    def set_config_asset(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Asset ID in asset config transaction
-        """
-    @staticmethod
-    def set_config_asset_total(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Total number of units of this asset created
-        """
-    @staticmethod
-    def set_config_asset_decimals(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Number of digits to display after the decimal place when displaying the asset
-        """
-    @staticmethod
-    def set_config_asset_default_frozen(a: bool | UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param bool | UInt64 | int a: Whether the asset's slots are frozen by default or not, 0 or 1
-        """
-    @staticmethod
-    def set_config_asset_unit_name(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: Unit name of the asset
-        """
-    @staticmethod
-    def set_config_asset_name(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: The asset name
-        """
-    @staticmethod
-    def set_config_asset_url(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: URL
-        """
-    @staticmethod
-    def set_config_asset_metadata_hash(a: Bytes | bytes | Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes | Account a: 32 byte commitment to unspecified asset metadata
-        """
-    @staticmethod
-    def set_config_asset_manager(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address
-        """
-    @staticmethod
-    def set_config_asset_reserve(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address
-        """
-    @staticmethod
-    def set_config_asset_freeze(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address
-        """
-    @staticmethod
-    def set_config_asset_clawback(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address
-        """
-    @staticmethod
-    def set_freeze_asset(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Asset ID being frozen or un-frozen
-        """
-    @staticmethod
-    def set_freeze_asset_account(a: Account, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Account a: 32 byte address of the account whose asset slot is being frozen or un-frozen
-        """
-    @staticmethod
-    def set_freeze_asset_frozen(a: bool | UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param bool | UInt64 | int a: The new frozen value, 0 or 1
-        """
-    @staticmethod
-    def set_assets(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Foreign Assets listed in the ApplicationCall transaction
-        """
-    @staticmethod
-    def set_applications(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Foreign Apps listed in the ApplicationCall transaction
-        """
-    @staticmethod
-    def set_global_num_uint(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Number of global state integers in ApplicationCall
-        """
-    @staticmethod
-    def set_global_num_byte_slice(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Number of global state byteslices in ApplicationCall
-        """
-    @staticmethod
-    def set_local_num_uint(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Number of local state integers in ApplicationCall
-        """
-    @staticmethod
-    def set_local_num_byte_slice(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Number of local state byteslices in ApplicationCall
-        """
-    @staticmethod
-    def set_extra_program_pages(a: UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param UInt64 | int a: Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program.
-        """
-    @staticmethod
-    def set_nonparticipation(a: bool | UInt64 | int, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param bool | UInt64 | int a: Marks an account nonparticipating for rewards
-        """
-    @staticmethod
-    def set_state_proof_pk(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: 64 byte state proof public key
-        """
-    @staticmethod
-    def set_approval_program_pages(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: Approval Program as an array of pages
-        """
-    @staticmethod
-    def set_clear_state_program_pages(a: Bytes | bytes, /) -> None:
-        """
-        set field F of the current inner transaction to A
-        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [...]
-        TEAL: itxn_field F
-
-        :param Bytes | bytes a: ClearState Program as an array of pages
-        """
-
 class EllipticCurve:
     """Functions for the ops: `ec_add`, `ec_map_to`, `ec_multi_scalar_mul`, `ec_pairing_check`, `ec_scalar_mul`, `ec_subgroup_check`"""
 
@@ -2127,1029 +1424,7 @@ class EllipticCurve:
         :param EC g: curve index
         """
 
-class Global:
-    """Functions for the op: `global`"""
-
-    min_txn_fee: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    min_balance: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    max_txn_life: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    zero_address: typing.Final[Account] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    group_size: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    logic_sig_version: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    round: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    latest_timestamp: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    current_application_id: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    creator_address: typing.Final[Account] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    current_application_address: typing.Final[Account] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    group_id: typing.Final[Bytes] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    @staticmethod
-    def opcode_budget() -> UInt64:
-        """
-        global field F
-
-        Groups: Loading Values
-
-        Stack: [...] -> [..., X]
-        TEAL: global F
-
-        :returns UInt64: The remaining cost that can be spent by opcodes in this program.
-        """
-    caller_application_id: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    caller_application_address: typing.Final[Account] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    asset_create_min_balance: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    asset_opt_in_min_balance: typing.Final[UInt64] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-    genesis_hash: typing.Final[Bytes] = ...
-    """
-    global field F
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: global F
-    
-    """
-
-class InnerTransaction:
-    """Functions for the ops: `itxn`, `itxnas`"""
-
-    @staticmethod
-    def sender() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def fee() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: microalgos
-        """
-    @staticmethod
-    def first_valid() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: round number
-        """
-    @staticmethod
-    def first_valid_time() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: UNIX timestamp of block before txn.FirstValid. Fails if negative
-        """
-    @staticmethod
-    def last_valid() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: round number
-        """
-    @staticmethod
-    def note() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: Any data up to 1024 bytes
-        """
-    @staticmethod
-    def lease() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 32 byte lease value
-        """
-    @staticmethod
-    def receiver() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def amount() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: microalgos
-        """
-    @staticmethod
-    def close_remainder_to() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def vote_pk() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 32 byte address
-        """
-    @staticmethod
-    def selection_pk() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 32 byte address
-        """
-    @staticmethod
-    def vote_first() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: The first round that the participation key is valid.
-        """
-    @staticmethod
-    def vote_last() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: The last round that the participation key is valid.
-        """
-    @staticmethod
-    def vote_key_dilution() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Dilution for the 2-level participation key
-        """
-    @staticmethod
-    def type() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: Transaction type as bytes
-        """
-    @staticmethod
-    def type_enum() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Transaction type as integer
-        """
-    @staticmethod
-    def xfer_asset() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Asset ID
-        """
-    @staticmethod
-    def asset_amount() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: value in Asset's units
-        """
-    @staticmethod
-    def asset_sender() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
-        """
-    @staticmethod
-    def asset_receiver() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def asset_close_to() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def group_index() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
-        """
-    @staticmethod
-    def tx_id() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: The computed ID for this transaction. 32 bytes.
-        """
-    @staticmethod
-    def application_id() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: ApplicationID from ApplicationCall transaction
-        """
-    @staticmethod
-    def on_completion() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: ApplicationCall transaction on completion action
-        """
-    @staticmethod
-    def application_args(a: UInt64 | int, /) -> Bytes:
-        """
-        Ath value of the array field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [..., X]
-        TEAL: itxnas F
-
-        :returns Bytes: Arguments passed to the application in the ApplicationCall transaction
-        """
-    @staticmethod
-    def num_app_args() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of ApplicationArgs
-        """
-    @staticmethod
-    def accounts(a: UInt64 | int, /) -> Account:
-        """
-        Ath value of the array field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [..., X]
-        TEAL: itxnas F
-
-        :returns Account: Accounts listed in the ApplicationCall transaction
-        """
-    @staticmethod
-    def num_accounts() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of Accounts
-        """
-    @staticmethod
-    def approval_program() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: Approval program
-        """
-    @staticmethod
-    def clear_state_program() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: Clear state program
-        """
-    @staticmethod
-    def rekey_to() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte Sender's new AuthAddr
-        """
-    @staticmethod
-    def config_asset() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Asset ID in asset config transaction
-        """
-    @staticmethod
-    def config_asset_total() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Total number of units of this asset created
-        """
-    @staticmethod
-    def config_asset_decimals() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of digits to display after the decimal place when displaying the asset
-        """
-    @staticmethod
-    def config_asset_default_frozen() -> bool:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns bool: Whether the asset's slots are frozen by default or not, 0 or 1
-        """
-    @staticmethod
-    def config_asset_unit_name() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: Unit name of the asset
-        """
-    @staticmethod
-    def config_asset_name() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: The asset name
-        """
-    @staticmethod
-    def config_asset_url() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: URL
-        """
-    @staticmethod
-    def config_asset_metadata_hash() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 32 byte commitment to unspecified asset metadata
-        """
-    @staticmethod
-    def config_asset_manager() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def config_asset_reserve() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def config_asset_freeze() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def config_asset_clawback() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address
-        """
-    @staticmethod
-    def freeze_asset() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Asset ID being frozen or un-frozen
-        """
-    @staticmethod
-    def freeze_asset_account() -> Account:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Account: 32 byte address of the account whose asset slot is being frozen or un-frozen
-        """
-    @staticmethod
-    def freeze_asset_frozen() -> bool:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns bool: The new frozen value, 0 or 1
-        """
-    @staticmethod
-    def assets(a: UInt64 | int, /) -> UInt64:
-        """
-        Ath value of the array field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [..., X]
-        TEAL: itxnas F
-
-        :returns UInt64: Foreign Assets listed in the ApplicationCall transaction
-        """
-    @staticmethod
-    def num_assets() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of Assets
-        """
-    @staticmethod
-    def applications(a: UInt64 | int, /) -> UInt64:
-        """
-        Ath value of the array field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [..., X]
-        TEAL: itxnas F
-
-        :returns UInt64: Foreign Apps listed in the ApplicationCall transaction
-        """
-    @staticmethod
-    def num_applications() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of Applications
-        """
-    @staticmethod
-    def global_num_uint() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of global state integers in ApplicationCall
-        """
-    @staticmethod
-    def global_num_byte_slice() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of global state byteslices in ApplicationCall
-        """
-    @staticmethod
-    def local_num_uint() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of local state integers in ApplicationCall
-        """
-    @staticmethod
-    def local_num_byte_slice() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of local state byteslices in ApplicationCall
-        """
-    @staticmethod
-    def extra_program_pages() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program.
-        """
-    @staticmethod
-    def nonparticipation() -> bool:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns bool: Marks an account nonparticipating for rewards
-        """
-    @staticmethod
-    def logs(a: UInt64 | int, /) -> Bytes:
-        """
-        Ath value of the array field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [..., X]
-        TEAL: itxnas F
-
-        :returns Bytes: Log messages emitted by an application call (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def num_logs() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of Logs (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def created_asset_id() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def created_application_id() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
-        """
-    @staticmethod
-    def last_log() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: The last message emitted. Empty bytes if none were emitted. Application mode only
-        """
-    @staticmethod
-    def state_proof_pk() -> Bytes:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns Bytes: 64 byte state proof public key
-        """
-    @staticmethod
-    def approval_program_pages(a: UInt64 | int, /) -> Bytes:
-        """
-        Ath value of the array field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [..., X]
-        TEAL: itxnas F
-
-        :returns Bytes: Approval Program as an array of pages
-        """
-    @staticmethod
-    def num_approval_program_pages() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of Approval Program pages
-        """
-    @staticmethod
-    def clear_state_program_pages(a: UInt64 | int, /) -> Bytes:
-        """
-        Ath value of the array field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [..., A] -> [..., X]
-        TEAL: itxnas F
-
-        :returns Bytes: ClearState Program as an array of pages
-        """
-    @staticmethod
-    def num_clear_state_program_pages() -> UInt64:
-        """
-        field F of the last inner transaction
-
-        Groups: Inner Transactions
-
-        Stack: [...] -> [..., X]
-        TEAL: itxn F
-
-        :returns UInt64: Number of ClearState Program pages
-        """
-
-class InnerTransactionGroup:
+class GITxn:
     """Functions for the ops: `gitxn`, `gitxnas`"""
 
     @staticmethod
@@ -4037,848 +2312,7 @@ class InnerTransactionGroup:
         :returns UInt64: Number of ClearState Program pages
         """
 
-class JsonRef:
-    """Functions for the op: `json_ref`"""
-
-    @staticmethod
-    def json_string(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
-        """
-        key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A
-        *Warning*: Usage should be restricted to very rare use cases, as JSON decoding is expensive and quite limited. In addition, JSON objects are large and not optimized for size.
-
-        Almost all smart contracts should use simpler and smaller methods (such as the [ABI](https://arc.algorand.foundation/ARCs/arc-0004). This opcode should only be used in cases where JSON is only available option, e.g. when a third-party only signs JSON.
-
-        Groups: Byte Array Manipulation
-
-        Stack: [..., A, B] -> [..., X]
-        TEAL: json_ref R
-
-        """
-    @staticmethod
-    def json_uint64(a: Bytes | bytes, b: Bytes | bytes, /) -> UInt64:
-        """
-        key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A
-        *Warning*: Usage should be restricted to very rare use cases, as JSON decoding is expensive and quite limited. In addition, JSON objects are large and not optimized for size.
-
-        Almost all smart contracts should use simpler and smaller methods (such as the [ABI](https://arc.algorand.foundation/ARCs/arc-0004). This opcode should only be used in cases where JSON is only available option, e.g. when a third-party only signs JSON.
-
-        Groups: Byte Array Manipulation
-
-        Stack: [..., A, B] -> [..., X]
-        TEAL: json_ref R
-
-        """
-    @staticmethod
-    def json_object(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
-        """
-        key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A
-        *Warning*: Usage should be restricted to very rare use cases, as JSON decoding is expensive and quite limited. In addition, JSON objects are large and not optimized for size.
-
-        Almost all smart contracts should use simpler and smaller methods (such as the [ABI](https://arc.algorand.foundation/ARCs/arc-0004). This opcode should only be used in cases where JSON is only available option, e.g. when a third-party only signs JSON.
-
-        Groups: Byte Array Manipulation
-
-        Stack: [..., A, B] -> [..., X]
-        TEAL: json_ref R
-
-        """
-
-class Scratch:
-    """Functions for the ops: `loads`, `stores`"""
-
-    @staticmethod
-    def load_bytes(a: UInt64 | int, /) -> Bytes:
-        """
-        Ath scratch space value.  All scratch spaces are 0 at program start.
-
-        Groups: Loading Values
-
-        Stack: [..., A] -> [..., X]
-        TEAL: loads
-
-        """
-    @staticmethod
-    def load_uint64(a: UInt64 | int, /) -> UInt64:
-        """
-        Ath scratch space value.  All scratch spaces are 0 at program start.
-
-        Groups: Loading Values
-
-        Stack: [..., A] -> [..., X]
-        TEAL: loads
-
-        """
-    @staticmethod
-    def store(a: UInt64 | int, b: Bytes | bytes | UInt64 | int, /) -> None:
-        """
-        store B to the Ath scratch space
-
-        Groups: Loading Values
-
-        Stack: [..., A, B] -> [...]
-        TEAL: stores
-
-        """
-
-class Transaction:
-    """Functions for the ops: `txn`, `txnas`"""
-
-    sender: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    fee: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    first_valid: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    first_valid_time: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    last_valid: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    note: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    lease: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    receiver: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    amount: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    close_remainder_to: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    vote_pk: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    selection_pk: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    vote_first: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    vote_last: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    vote_key_dilution: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    type: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    type_enum: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    xfer_asset: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    asset_amount: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    asset_sender: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    asset_receiver: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    asset_close_to: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    group_index: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    tx_id: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    application_id: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    on_completion: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    @staticmethod
-    def application_args(a: UInt64 | int, /) -> Bytes:
-        """
-        Ath value of the array field F of the current transaction
-
-        Groups: Loading Values
-
-        Stack: [..., A] -> [..., X]
-        TEAL: txnas F
-
-        :returns Bytes: Arguments passed to the application in the ApplicationCall transaction
-        """
-    num_app_args: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    @staticmethod
-    def accounts(a: UInt64 | int, /) -> Account:
-        """
-        Ath value of the array field F of the current transaction
-
-        Groups: Loading Values
-
-        Stack: [..., A] -> [..., X]
-        TEAL: txnas F
-
-        :returns Account: Accounts listed in the ApplicationCall transaction
-        """
-    num_accounts: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    approval_program: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    clear_state_program: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    rekey_to: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_total: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_decimals: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_default_frozen: typing.Final[bool] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_unit_name: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_name: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_url: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_metadata_hash: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_manager: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_reserve: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_freeze: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    config_asset_clawback: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    freeze_asset: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    freeze_asset_account: typing.Final[Account] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    freeze_asset_frozen: typing.Final[bool] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    @staticmethod
-    def assets(a: UInt64 | int, /) -> UInt64:
-        """
-        Ath value of the array field F of the current transaction
-
-        Groups: Loading Values
-
-        Stack: [..., A] -> [..., X]
-        TEAL: txnas F
-
-        :returns UInt64: Foreign Assets listed in the ApplicationCall transaction
-        """
-    num_assets: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    @staticmethod
-    def applications(a: UInt64 | int, /) -> UInt64:
-        """
-        Ath value of the array field F of the current transaction
-
-        Groups: Loading Values
-
-        Stack: [..., A] -> [..., X]
-        TEAL: txnas F
-
-        :returns UInt64: Foreign Apps listed in the ApplicationCall transaction
-        """
-    num_applications: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    global_num_uint: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    global_num_byte_slice: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    local_num_uint: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    local_num_byte_slice: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    extra_program_pages: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    nonparticipation: typing.Final[bool] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    @staticmethod
-    def logs(a: UInt64 | int, /) -> Bytes:
-        """
-        Ath value of the array field F of the current transaction
-
-        Groups: Loading Values
-
-        Stack: [..., A] -> [..., X]
-        TEAL: txnas F
-
-        :returns Bytes: Log messages emitted by an application call (only with `itxn` in v5). Application mode only
-        """
-    num_logs: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    created_asset_id: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    created_application_id: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    last_log: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    state_proof_pk: typing.Final[Bytes] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    @staticmethod
-    def approval_program_pages(a: UInt64 | int, /) -> Bytes:
-        """
-        Ath value of the array field F of the current transaction
-
-        Groups: Loading Values
-
-        Stack: [..., A] -> [..., X]
-        TEAL: txnas F
-
-        :returns Bytes: Approval Program as an array of pages
-        """
-    num_approval_program_pages: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-    @staticmethod
-    def clear_state_program_pages(a: UInt64 | int, /) -> Bytes:
-        """
-        Ath value of the array field F of the current transaction
-
-        Groups: Loading Values
-
-        Stack: [..., A] -> [..., X]
-        TEAL: txnas F
-
-        :returns Bytes: ClearState Program as an array of pages
-        """
-    num_clear_state_program_pages: typing.Final[UInt64] = ...
-    """
-    field F of current transaction
-    
-    Groups: Loading Values
-    
-    Stack: [...] -> [..., X]
-    TEAL: txn F
-    
-    """
-
-class TransactionGroup:
+class GTxn:
     """Functions for the ops: `gtxns`, `gtxnsas`"""
 
     @staticmethod
@@ -5758,3 +3192,2569 @@ class TransactionGroup:
 
         :returns UInt64: Number of ClearState Program pages
         """
+
+class Global:
+    """Functions for the op: `global`"""
+
+    min_txn_fee: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    min_balance: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    max_txn_life: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    zero_address: typing.Final[Account] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    group_size: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    logic_sig_version: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    round: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    latest_timestamp: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    current_application_id: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    creator_address: typing.Final[Account] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    current_application_address: typing.Final[Account] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    group_id: typing.Final[Bytes] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    @staticmethod
+    def opcode_budget() -> UInt64:
+        """
+        global field F
+
+        Groups: Loading Values
+
+        Stack: [...] -> [..., X]
+        TEAL: global F
+
+        :returns UInt64: The remaining cost that can be spent by opcodes in this program.
+        """
+    caller_application_id: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    caller_application_address: typing.Final[Account] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    asset_create_min_balance: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    asset_opt_in_min_balance: typing.Final[UInt64] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+    genesis_hash: typing.Final[Bytes] = ...
+    """
+    global field F
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: global F
+    
+    """
+
+class ITxn:
+    """Functions for the ops: `itxn`, `itxnas`"""
+
+    @staticmethod
+    def sender() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def fee() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: microalgos
+        """
+    @staticmethod
+    def first_valid() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: round number
+        """
+    @staticmethod
+    def first_valid_time() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: UNIX timestamp of block before txn.FirstValid. Fails if negative
+        """
+    @staticmethod
+    def last_valid() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: round number
+        """
+    @staticmethod
+    def note() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: Any data up to 1024 bytes
+        """
+    @staticmethod
+    def lease() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: 32 byte lease value
+        """
+    @staticmethod
+    def receiver() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def amount() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: microalgos
+        """
+    @staticmethod
+    def close_remainder_to() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def vote_pk() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: 32 byte address
+        """
+    @staticmethod
+    def selection_pk() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: 32 byte address
+        """
+    @staticmethod
+    def vote_first() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: The first round that the participation key is valid.
+        """
+    @staticmethod
+    def vote_last() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: The last round that the participation key is valid.
+        """
+    @staticmethod
+    def vote_key_dilution() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Dilution for the 2-level participation key
+        """
+    @staticmethod
+    def type() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: Transaction type as bytes
+        """
+    @staticmethod
+    def type_enum() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Transaction type as integer
+        """
+    @staticmethod
+    def xfer_asset() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Asset ID
+        """
+    @staticmethod
+    def asset_amount() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: value in Asset's units
+        """
+    @staticmethod
+    def asset_sender() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
+        """
+    @staticmethod
+    def asset_receiver() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def asset_close_to() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def group_index() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Position of this transaction within an atomic transaction group. A stand-alone transaction is implicitly element 0 in a group of 1
+        """
+    @staticmethod
+    def tx_id() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: The computed ID for this transaction. 32 bytes.
+        """
+    @staticmethod
+    def application_id() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: ApplicationID from ApplicationCall transaction
+        """
+    @staticmethod
+    def on_completion() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: ApplicationCall transaction on completion action
+        """
+    @staticmethod
+    def application_args(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath value of the array field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [..., X]
+        TEAL: itxnas F
+
+        :returns Bytes: Arguments passed to the application in the ApplicationCall transaction
+        """
+    @staticmethod
+    def num_app_args() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of ApplicationArgs
+        """
+    @staticmethod
+    def accounts(a: UInt64 | int, /) -> Account:
+        """
+        Ath value of the array field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [..., X]
+        TEAL: itxnas F
+
+        :returns Account: Accounts listed in the ApplicationCall transaction
+        """
+    @staticmethod
+    def num_accounts() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of Accounts
+        """
+    @staticmethod
+    def approval_program() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: Approval program
+        """
+    @staticmethod
+    def clear_state_program() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: Clear state program
+        """
+    @staticmethod
+    def rekey_to() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte Sender's new AuthAddr
+        """
+    @staticmethod
+    def config_asset() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Asset ID in asset config transaction
+        """
+    @staticmethod
+    def config_asset_total() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Total number of units of this asset created
+        """
+    @staticmethod
+    def config_asset_decimals() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of digits to display after the decimal place when displaying the asset
+        """
+    @staticmethod
+    def config_asset_default_frozen() -> bool:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns bool: Whether the asset's slots are frozen by default or not, 0 or 1
+        """
+    @staticmethod
+    def config_asset_unit_name() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: Unit name of the asset
+        """
+    @staticmethod
+    def config_asset_name() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: The asset name
+        """
+    @staticmethod
+    def config_asset_url() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: URL
+        """
+    @staticmethod
+    def config_asset_metadata_hash() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: 32 byte commitment to unspecified asset metadata
+        """
+    @staticmethod
+    def config_asset_manager() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def config_asset_reserve() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def config_asset_freeze() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def config_asset_clawback() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address
+        """
+    @staticmethod
+    def freeze_asset() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Asset ID being frozen or un-frozen
+        """
+    @staticmethod
+    def freeze_asset_account() -> Account:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Account: 32 byte address of the account whose asset slot is being frozen or un-frozen
+        """
+    @staticmethod
+    def freeze_asset_frozen() -> bool:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns bool: The new frozen value, 0 or 1
+        """
+    @staticmethod
+    def assets(a: UInt64 | int, /) -> UInt64:
+        """
+        Ath value of the array field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [..., X]
+        TEAL: itxnas F
+
+        :returns UInt64: Foreign Assets listed in the ApplicationCall transaction
+        """
+    @staticmethod
+    def num_assets() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of Assets
+        """
+    @staticmethod
+    def applications(a: UInt64 | int, /) -> UInt64:
+        """
+        Ath value of the array field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [..., X]
+        TEAL: itxnas F
+
+        :returns UInt64: Foreign Apps listed in the ApplicationCall transaction
+        """
+    @staticmethod
+    def num_applications() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of Applications
+        """
+    @staticmethod
+    def global_num_uint() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of global state integers in ApplicationCall
+        """
+    @staticmethod
+    def global_num_byte_slice() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of global state byteslices in ApplicationCall
+        """
+    @staticmethod
+    def local_num_uint() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of local state integers in ApplicationCall
+        """
+    @staticmethod
+    def local_num_byte_slice() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of local state byteslices in ApplicationCall
+        """
+    @staticmethod
+    def extra_program_pages() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program.
+        """
+    @staticmethod
+    def nonparticipation() -> bool:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns bool: Marks an account nonparticipating for rewards
+        """
+    @staticmethod
+    def logs(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath value of the array field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [..., X]
+        TEAL: itxnas F
+
+        :returns Bytes: Log messages emitted by an application call (only with `itxn` in v5). Application mode only
+        """
+    @staticmethod
+    def num_logs() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of Logs (only with `itxn` in v5). Application mode only
+        """
+    @staticmethod
+    def created_asset_id() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
+        """
+    @staticmethod
+    def created_application_id() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
+        """
+    @staticmethod
+    def last_log() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: The last message emitted. Empty bytes if none were emitted. Application mode only
+        """
+    @staticmethod
+    def state_proof_pk() -> Bytes:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns Bytes: 64 byte state proof public key
+        """
+    @staticmethod
+    def approval_program_pages(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath value of the array field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [..., X]
+        TEAL: itxnas F
+
+        :returns Bytes: Approval Program as an array of pages
+        """
+    @staticmethod
+    def num_approval_program_pages() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of Approval Program pages
+        """
+    @staticmethod
+    def clear_state_program_pages(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath value of the array field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [..., X]
+        TEAL: itxnas F
+
+        :returns Bytes: ClearState Program as an array of pages
+        """
+    @staticmethod
+    def num_clear_state_program_pages() -> UInt64:
+        """
+        field F of the last inner transaction
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [..., X]
+        TEAL: itxn F
+
+        :returns UInt64: Number of ClearState Program pages
+        """
+
+class ITxnCreate:
+    """Functions for the ops: `itxn_begin`, `itxn_field`, `itxn_next`, `itxn_submit`"""
+
+    @staticmethod
+    def begin() -> None:
+        """
+        begin preparation of a new inner transaction in a new transaction group
+        `itxn_begin` initializes Sender to the application address; Fee to the minimum allowable, taking into account MinTxnFee and credit from overpaying in earlier transactions; FirstValid/LastValid to the values in the invoking transaction, and all other fields to zero or empty values.
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [...]
+        TEAL: itxn_begin
+
+        """
+    @staticmethod
+    def next() -> None:
+        """
+        begin preparation of a new inner transaction in the same transaction group
+        `itxn_next` initializes the transaction exactly as `itxn_begin` does
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [...]
+        TEAL: itxn_next
+
+        """
+    @staticmethod
+    def submit() -> None:
+        """
+        execute the current inner transaction group. Fail if executing this group would exceed the inner transaction limit, or if any transaction in the group fails.
+        `itxn_submit` resets the current transaction so that it can not be resubmitted. A new `itxn_begin` is required to prepare another inner transaction.
+
+        Groups: Inner Transactions
+
+        Stack: [...] -> [...]
+        TEAL: itxn_submit
+
+        """
+    @staticmethod
+    def set_sender(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address
+        """
+    @staticmethod
+    def set_fee(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: microalgos
+        """
+    @staticmethod
+    def set_note(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: Any data up to 1024 bytes
+        """
+    @staticmethod
+    def set_receiver(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address
+        """
+    @staticmethod
+    def set_amount(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: microalgos
+        """
+    @staticmethod
+    def set_close_remainder_to(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address
+        """
+    @staticmethod
+    def set_vote_pk(a: Bytes | bytes | Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes | Account a: 32 byte address
+        """
+    @staticmethod
+    def set_selection_pk(a: Bytes | bytes | Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes | Account a: 32 byte address
+        """
+    @staticmethod
+    def set_vote_first(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: The first round that the participation key is valid.
+        """
+    @staticmethod
+    def set_vote_last(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: The last round that the participation key is valid.
+        """
+    @staticmethod
+    def set_vote_key_dilution(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Dilution for the 2-level participation key
+        """
+    @staticmethod
+    def set_type(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: Transaction type as bytes
+        """
+    @staticmethod
+    def set_type_enum(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Transaction type as integer
+        """
+    @staticmethod
+    def set_xfer_asset(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Asset ID
+        """
+    @staticmethod
+    def set_asset_amount(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: value in Asset's units
+        """
+    @staticmethod
+    def set_asset_sender(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address. Source of assets if Sender is the Asset's Clawback address.
+        """
+    @staticmethod
+    def set_asset_receiver(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address
+        """
+    @staticmethod
+    def set_asset_close_to(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address
+        """
+    @staticmethod
+    def set_application_id(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: ApplicationID from ApplicationCall transaction
+        """
+    @staticmethod
+    def set_on_completion(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: ApplicationCall transaction on completion action
+        """
+    @staticmethod
+    def set_application_args(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: Arguments passed to the application in the ApplicationCall transaction
+        """
+    @staticmethod
+    def set_accounts(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: Accounts listed in the ApplicationCall transaction
+        """
+    @staticmethod
+    def set_approval_program(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: Approval program
+        """
+    @staticmethod
+    def set_clear_state_program(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: Clear state program
+        """
+    @staticmethod
+    def set_rekey_to(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte Sender's new AuthAddr
+        """
+    @staticmethod
+    def set_config_asset(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Asset ID in asset config transaction
+        """
+    @staticmethod
+    def set_config_asset_total(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Total number of units of this asset created
+        """
+    @staticmethod
+    def set_config_asset_decimals(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Number of digits to display after the decimal place when displaying the asset
+        """
+    @staticmethod
+    def set_config_asset_default_frozen(a: bool | UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param bool | UInt64 | int a: Whether the asset's slots are frozen by default or not, 0 or 1
+        """
+    @staticmethod
+    def set_config_asset_unit_name(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: Unit name of the asset
+        """
+    @staticmethod
+    def set_config_asset_name(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: The asset name
+        """
+    @staticmethod
+    def set_config_asset_url(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: URL
+        """
+    @staticmethod
+    def set_config_asset_metadata_hash(a: Bytes | bytes | Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes | Account a: 32 byte commitment to unspecified asset metadata
+        """
+    @staticmethod
+    def set_config_asset_manager(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address
+        """
+    @staticmethod
+    def set_config_asset_reserve(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address
+        """
+    @staticmethod
+    def set_config_asset_freeze(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address
+        """
+    @staticmethod
+    def set_config_asset_clawback(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address
+        """
+    @staticmethod
+    def set_freeze_asset(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Asset ID being frozen or un-frozen
+        """
+    @staticmethod
+    def set_freeze_asset_account(a: Account, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Account a: 32 byte address of the account whose asset slot is being frozen or un-frozen
+        """
+    @staticmethod
+    def set_freeze_asset_frozen(a: bool | UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param bool | UInt64 | int a: The new frozen value, 0 or 1
+        """
+    @staticmethod
+    def set_assets(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Foreign Assets listed in the ApplicationCall transaction
+        """
+    @staticmethod
+    def set_applications(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Foreign Apps listed in the ApplicationCall transaction
+        """
+    @staticmethod
+    def set_global_num_uint(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Number of global state integers in ApplicationCall
+        """
+    @staticmethod
+    def set_global_num_byte_slice(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Number of global state byteslices in ApplicationCall
+        """
+    @staticmethod
+    def set_local_num_uint(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Number of local state integers in ApplicationCall
+        """
+    @staticmethod
+    def set_local_num_byte_slice(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Number of local state byteslices in ApplicationCall
+        """
+    @staticmethod
+    def set_extra_program_pages(a: UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param UInt64 | int a: Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program.
+        """
+    @staticmethod
+    def set_nonparticipation(a: bool | UInt64 | int, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param bool | UInt64 | int a: Marks an account nonparticipating for rewards
+        """
+    @staticmethod
+    def set_state_proof_pk(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: 64 byte state proof public key
+        """
+    @staticmethod
+    def set_approval_program_pages(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: Approval Program as an array of pages
+        """
+    @staticmethod
+    def set_clear_state_program_pages(a: Bytes | bytes, /) -> None:
+        """
+        set field F of the current inner transaction to A
+        `itxn_field` fails if A is of the wrong type for F, including a byte array of the wrong size for use as an address when F is an address field. `itxn_field` also fails if A is an account, asset, or app that is not _available_, or an attempt is made extend an array field beyond the limit imposed by consensus parameters. (Addresses set into asset params of acfg transactions need not be _available_.)
+
+        Groups: Inner Transactions
+
+        Stack: [..., A] -> [...]
+        TEAL: itxn_field F
+
+        :param Bytes | bytes a: ClearState Program as an array of pages
+        """
+
+class JsonRef:
+    """Functions for the op: `json_ref`"""
+
+    @staticmethod
+    def json_string(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+        """
+        key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A
+        *Warning*: Usage should be restricted to very rare use cases, as JSON decoding is expensive and quite limited. In addition, JSON objects are large and not optimized for size.
+
+        Almost all smart contracts should use simpler and smaller methods (such as the [ABI](https://arc.algorand.foundation/ARCs/arc-0004). This opcode should only be used in cases where JSON is only available option, e.g. when a third-party only signs JSON.
+
+        Groups: Byte Array Manipulation
+
+        Stack: [..., A, B] -> [..., X]
+        TEAL: json_ref R
+
+        """
+    @staticmethod
+    def json_uint64(a: Bytes | bytes, b: Bytes | bytes, /) -> UInt64:
+        """
+        key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A
+        *Warning*: Usage should be restricted to very rare use cases, as JSON decoding is expensive and quite limited. In addition, JSON objects are large and not optimized for size.
+
+        Almost all smart contracts should use simpler and smaller methods (such as the [ABI](https://arc.algorand.foundation/ARCs/arc-0004). This opcode should only be used in cases where JSON is only available option, e.g. when a third-party only signs JSON.
+
+        Groups: Byte Array Manipulation
+
+        Stack: [..., A, B] -> [..., X]
+        TEAL: json_ref R
+
+        """
+    @staticmethod
+    def json_object(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
+        """
+        key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A
+        *Warning*: Usage should be restricted to very rare use cases, as JSON decoding is expensive and quite limited. In addition, JSON objects are large and not optimized for size.
+
+        Almost all smart contracts should use simpler and smaller methods (such as the [ABI](https://arc.algorand.foundation/ARCs/arc-0004). This opcode should only be used in cases where JSON is only available option, e.g. when a third-party only signs JSON.
+
+        Groups: Byte Array Manipulation
+
+        Stack: [..., A, B] -> [..., X]
+        TEAL: json_ref R
+
+        """
+
+class Scratch:
+    """Functions for the ops: `loads`, `stores`"""
+
+    @staticmethod
+    def load_bytes(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath scratch space value.  All scratch spaces are 0 at program start.
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: loads
+
+        """
+    @staticmethod
+    def load_uint64(a: UInt64 | int, /) -> UInt64:
+        """
+        Ath scratch space value.  All scratch spaces are 0 at program start.
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: loads
+
+        """
+    @staticmethod
+    def store(a: UInt64 | int, b: Bytes | bytes | UInt64 | int, /) -> None:
+        """
+        store B to the Ath scratch space
+
+        Groups: Loading Values
+
+        Stack: [..., A, B] -> [...]
+        TEAL: stores
+
+        """
+
+class Txn:
+    """Functions for the ops: `txn`, `txnas`"""
+
+    sender: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    fee: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    first_valid: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    first_valid_time: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    last_valid: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    note: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    lease: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    receiver: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    amount: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    close_remainder_to: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    vote_pk: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    selection_pk: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    vote_first: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    vote_last: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    vote_key_dilution: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    type: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    type_enum: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    xfer_asset: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    asset_amount: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    asset_sender: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    asset_receiver: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    asset_close_to: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    group_index: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    tx_id: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    application_id: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    on_completion: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    @staticmethod
+    def application_args(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath value of the array field F of the current transaction
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: txnas F
+
+        :returns Bytes: Arguments passed to the application in the ApplicationCall transaction
+        """
+    num_app_args: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    @staticmethod
+    def accounts(a: UInt64 | int, /) -> Account:
+        """
+        Ath value of the array field F of the current transaction
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: txnas F
+
+        :returns Account: Accounts listed in the ApplicationCall transaction
+        """
+    num_accounts: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    approval_program: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    clear_state_program: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    rekey_to: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_total: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_decimals: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_default_frozen: typing.Final[bool] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_unit_name: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_name: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_url: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_metadata_hash: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_manager: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_reserve: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_freeze: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    config_asset_clawback: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    freeze_asset: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    freeze_asset_account: typing.Final[Account] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    freeze_asset_frozen: typing.Final[bool] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    @staticmethod
+    def assets(a: UInt64 | int, /) -> UInt64:
+        """
+        Ath value of the array field F of the current transaction
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: txnas F
+
+        :returns UInt64: Foreign Assets listed in the ApplicationCall transaction
+        """
+    num_assets: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    @staticmethod
+    def applications(a: UInt64 | int, /) -> UInt64:
+        """
+        Ath value of the array field F of the current transaction
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: txnas F
+
+        :returns UInt64: Foreign Apps listed in the ApplicationCall transaction
+        """
+    num_applications: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    global_num_uint: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    global_num_byte_slice: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    local_num_uint: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    local_num_byte_slice: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    extra_program_pages: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    nonparticipation: typing.Final[bool] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    @staticmethod
+    def logs(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath value of the array field F of the current transaction
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: txnas F
+
+        :returns Bytes: Log messages emitted by an application call (only with `itxn` in v5). Application mode only
+        """
+    num_logs: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    created_asset_id: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    created_application_id: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    last_log: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    state_proof_pk: typing.Final[Bytes] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    @staticmethod
+    def approval_program_pages(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath value of the array field F of the current transaction
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: txnas F
+
+        :returns Bytes: Approval Program as an array of pages
+        """
+    num_approval_program_pages: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """
+
+    @staticmethod
+    def clear_state_program_pages(a: UInt64 | int, /) -> Bytes:
+        """
+        Ath value of the array field F of the current transaction
+
+        Groups: Loading Values
+
+        Stack: [..., A] -> [..., X]
+        TEAL: txnas F
+
+        :returns Bytes: ClearState Program as an array of pages
+        """
+    num_clear_state_program_pages: typing.Final[UInt64] = ...
+    """
+    field F of current transaction
+    
+    Groups: Loading Values
+    
+    Stack: [...] -> [..., X]
+    TEAL: txn F
+    
+    """

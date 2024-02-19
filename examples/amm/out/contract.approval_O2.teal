@@ -247,7 +247,7 @@ _check_is_governor:
     // def _check_is_governor(self) -> None:
     proto 0 0
     // amm/contract.py:265
-    // op.Transaction.sender == self.governor
+    // op.Txn.sender == self.governor
     txn Sender
     int 0
     byte "governor"
@@ -256,7 +256,7 @@ _check_is_governor:
     ==
     // amm/contract.py:264-266
     // assert (
-    //     op.Transaction.sender == self.governor
+    //     op.Txn.sender == self.governor
     // ), "Only the account set in global_state.governor may call this method"
     assert // Only the account set in global_state.governor may call this method
     retsub
@@ -565,14 +565,14 @@ mint:
     ==
     assert // asset b incorrect
     // amm/contract.py:117
-    // assert a_xfer.sender == op.Transaction.sender, "sender invalid"
+    // assert a_xfer.sender == op.Txn.sender, "sender invalid"
     frame_dig -5
     gtxns Sender
     txn Sender
     ==
     assert // sender invalid
     // amm/contract.py:118
-    // assert b_xfer.sender == op.Transaction.sender, "sender invalid"
+    // assert b_xfer.sender == op.Txn.sender, "sender invalid"
     frame_dig -4
     gtxns Sender
     txn Sender
@@ -666,7 +666,7 @@ mint:
     assert // send amount too low
     // amm/contract.py:143-144
     // # mint tokens
-    // do_asset_transfer(receiver=op.Transaction.sender, asset=self.pool_token, amount=to_mint)
+    // do_asset_transfer(receiver=op.Txn.sender, asset=self.pool_token, amount=to_mint)
     txn Sender
     int 0
     byte "pool_token"
@@ -951,7 +951,7 @@ burn:
     ==
     assert // asset pool incorrect
     // amm/contract.py:181
-    // assert pool_xfer.sender == op.Transaction.sender, "sender invalid"
+    // assert pool_xfer.sender == op.Txn.sender, "sender invalid"
     frame_dig -4
     gtxns Sender
     txn Sender
@@ -990,7 +990,7 @@ burn:
     swap
     // amm/contract.py:197-198
     // # Send back commensurate amt of a
-    // do_asset_transfer(receiver=op.Transaction.sender, asset=self.asset_a, amount=a_amt)
+    // do_asset_transfer(receiver=op.Txn.sender, asset=self.asset_a, amount=a_amt)
     txn Sender
     int 0
     byte "asset_a"
@@ -1000,7 +1000,7 @@ burn:
     callsub do_asset_transfer
     // amm/contract.py:200-201
     // # Send back commensurate amt of b
-    // do_asset_transfer(receiver=op.Transaction.sender, asset=self.asset_b, amount=b_amt)
+    // do_asset_transfer(receiver=op.Txn.sender, asset=self.asset_b, amount=b_amt)
     txn Sender
     int 0
     byte "asset_b"
@@ -1085,7 +1085,7 @@ swap:
     >
     assert // amount minimum not met
     // amm/contract.py:229
-    // assert swap_xfer.sender == op.Transaction.sender, "sender invalid"
+    // assert swap_xfer.sender == op.Txn.sender, "sender invalid"
     frame_dig -3
     gtxns Sender
     txn Sender
@@ -1175,7 +1175,7 @@ swap_switch_case_next@4:
     >
     assert // send amount too low
     // amm/contract.py:248
-    // do_asset_transfer(receiver=op.Transaction.sender, asset=out_asset, amount=to_swap)
+    // do_asset_transfer(receiver=op.Txn.sender, asset=out_asset, amount=to_swap)
     txn Sender
     frame_dig 1
     uncover 2
@@ -1236,7 +1236,7 @@ __init__:
     app_global_put
     // amm/contract.py:34-35
     // # The current governor of this contract, allowed to do admin type actions
-    // self.governor = op.Transaction.sender
+    // self.governor = op.Txn.sender
     byte "governor"
     txn Sender
     app_global_put

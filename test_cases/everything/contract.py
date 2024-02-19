@@ -47,7 +47,7 @@ class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     @abimethod(allow_actions=["NoOp", "OptIn"])
     def register(self, name: String) -> None:
         self._check_ban_list()
-        if op.Transaction.on_completion == OnCompleteAction.OptIn:
+        if op.Txn.on_completion == OnCompleteAction.OptIn:
             sender_name, sender_name_existed = self.name.maybe(account=0)
             if not sender_name_existed:
                 self.counter += multiplicative_identity()  # has full FuncDef
@@ -76,7 +76,7 @@ class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
 
     @subroutine
     def _check_ban_list(self) -> None:
-        assert op.Transaction.sender != get_banned(), "You are banned, goodbye"
+        assert op.Txn.sender != get_banned(), "You are banned, goodbye"
 
     @subroutine
     def _remove_sender(self) -> None:

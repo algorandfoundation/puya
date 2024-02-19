@@ -9,7 +9,7 @@ examples.local_state.local_state_with_offsets.LocalStateContract.approval_progra
 
 main_entrypoint@2:
     // local_state/local_state_with_offsets.py:18
-    // if op.Transaction.application_id == 0:
+    // if op.Txn.application_id == 0:
     txn ApplicationID
     bnz main_after_if_else@4
     // local_state/local_state_with_offsets.py:19
@@ -19,7 +19,7 @@ main_entrypoint@2:
 
 main_after_if_else@4:
     // local_state/local_state_with_offsets.py:20
-    // if op.Transaction.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+    // if op.Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
     txn OnCompletion
     dup
     !
@@ -35,7 +35,7 @@ main_after_if_else@4:
 
 main_after_if_else@6:
     // local_state/local_state_with_offsets.py:22
-    // if op.Transaction.num_app_args < 1:
+    // if op.Txn.num_app_args < 1:
     txn NumAppArgs
     int 1
     <
@@ -47,16 +47,16 @@ main_after_if_else@6:
 
 main_after_if_else@8:
     // local_state/local_state_with_offsets.py:25
-    // offset = op.btoi(op.Transaction.application_args(0))
+    // offset = op.btoi(op.Txn.application_args(0))
     txna ApplicationArgs 0
     btoi
     bury 1
     // local_state/local_state_with_offsets.py:26
-    // method = op.Transaction.application_args(1)
+    // method = op.Txn.application_args(1)
     txna ApplicationArgs 1
     bury 2
     // local_state/local_state_with_offsets.py:27
-    // if op.Transaction.num_app_args == 2:
+    // if op.Txn.num_app_args == 2:
     txn NumAppArgs
     int 2
     ==
@@ -119,7 +119,7 @@ main_after_if_else@18:
 
 main_else_body@19:
     // local_state/local_state_with_offsets.py:38
-    // elif op.Transaction.num_app_args == 3:
+    // elif op.Txn.num_app_args == 3:
     txn NumAppArgs
     int 3
     ==
@@ -131,7 +131,7 @@ main_else_body@19:
     ==
     bz main_else_body@22
     // local_state/local_state_with_offsets.py:40
-    // self.set_data(offset, op.Transaction.application_args(2))
+    // self.set_data(offset, op.Txn.application_args(2))
     dup
     txna ApplicationArgs 2
     callsub set_data
@@ -145,7 +145,7 @@ main_else_body@22:
     ==
     bz main_else_body@24
     // local_state/local_state_with_offsets.py:42
-    // log(self.get_data_with_default(offset, op.Transaction.application_args(2)))
+    // log(self.get_data_with_default(offset, op.Txn.application_args(2)))
     dup
     txna ApplicationArgs 2
     callsub get_data_with_default

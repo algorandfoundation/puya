@@ -194,7 +194,7 @@ class VotingRoundApp(ARC4Contract):
             assert answer_option_index < options_count, "Answer option index invalid"
             increment_vote_in_box(cumulative_offset + answer_option_index)
             cumulative_offset += options_count
-            op.Box.put(op.Transaction.sender.bytes, answer_ids.bytes)
+            op.Box.put(op.Txn.sender.bytes, answer_ids.bytes)
             self.voter_count += 1
 
     @subroutine
@@ -207,7 +207,7 @@ class VotingRoundApp(ARC4Contract):
 
     @subroutine
     def already_voted(self) -> bool:
-        (votes, exists) = op.Box.get(op.Transaction.sender.bytes)
+        (votes, exists) = op.Box.get(op.Txn.sender.bytes)
         return exists
 
     @subroutine
@@ -227,7 +227,7 @@ class VotingRoundApp(ARC4Contract):
     def allowed_to_vote(self, signature: Bytes) -> bool:
         ensure_budget(2000)
         return op.ed25519verify_bare(
-            op.Transaction.sender.bytes,
+            op.Txn.sender.bytes,
             signature,
             self.snapshot_public_key,
         )

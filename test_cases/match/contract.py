@@ -15,7 +15,7 @@ class MyContract(puyapy.Contract):
 
     @puyapy.subroutine
     def match_uint64(self) -> None:
-        n = puyapy.op.Transaction.num_app_args
+        n = puyapy.op.Txn.num_app_args
         match n:
             case puyapy.UInt64(0):
                 hello = puyapy.Bytes(b"Hello")
@@ -26,7 +26,7 @@ class MyContract(puyapy.Contract):
 
     @puyapy.subroutine
     def match_bytes(self) -> None:
-        n = puyapy.op.Transaction.application_args(0)
+        n = puyapy.op.Txn.application_args(0)
         match n:
             case puyapy.Bytes(b""):
                 hello = puyapy.Bytes(b"Hello bytes")
@@ -37,7 +37,7 @@ class MyContract(puyapy.Contract):
 
     @puyapy.subroutine
     def match_biguint(self) -> None:
-        n = puyapy.op.Transaction.num_app_args * puyapy.BigUInt(10)
+        n = puyapy.op.Txn.num_app_args * puyapy.BigUInt(10)
         match n:
             case puyapy.BigUInt(0):
                 hello = puyapy.Bytes(b"Hello biguint")
@@ -48,7 +48,7 @@ class MyContract(puyapy.Contract):
 
     @puyapy.subroutine
     def match_address(self) -> None:
-        n = puyapy.op.Transaction.sender
+        n = puyapy.op.Txn.sender
         match n:
             case puyapy.Account("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"):
                 hello = puyapy.Bytes(b"Hello address")
@@ -59,7 +59,7 @@ class MyContract(puyapy.Contract):
 
     @puyapy.subroutine
     def match_attributes(self) -> None:
-        n = puyapy.op.Transaction.num_app_args
+        n = puyapy.op.Txn.num_app_args
         match n:
             case self.case_one:
                 hello = puyapy.Bytes(b"Hello one")
@@ -73,7 +73,7 @@ class MyContract(puyapy.Contract):
 
     @puyapy.subroutine
     def match_bools(self) -> None:
-        n = puyapy.op.Transaction.num_app_args > 0
+        n = puyapy.op.Txn.num_app_args > 0
         match n:
             case True:
                 hello = puyapy.Bytes(b"Hello True")

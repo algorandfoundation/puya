@@ -8,7 +8,7 @@ examples.local_state.local_state_contract.LocalStateContract.approval_program:
 
 main_entrypoint@2:
     // local_state/local_state_contract.py:18
-    // if op.Transaction.application_id == 0:
+    // if op.Txn.application_id == 0:
     txn ApplicationID
     bnz main_after_if_else@4
     // local_state/local_state_contract.py:19
@@ -18,7 +18,7 @@ main_entrypoint@2:
 
 main_after_if_else@4:
     // local_state/local_state_contract.py:20
-    // if op.Transaction.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+    // if op.Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
     txn OnCompletion
     dup
     !
@@ -34,7 +34,7 @@ main_after_if_else@4:
 
 main_after_if_else@6:
     // local_state/local_state_contract.py:22
-    // if op.Transaction.num_app_args == 0:
+    // if op.Txn.num_app_args == 0:
     txn NumAppArgs
     bnz main_after_if_else@8
     // local_state/local_state_contract.py:23
@@ -44,11 +44,11 @@ main_after_if_else@6:
 
 main_after_if_else@8:
     // local_state/local_state_contract.py:25
-    // method = op.Transaction.application_args(0)
+    // method = op.Txn.application_args(0)
     txna ApplicationArgs 0
     bury 1
     // local_state/local_state_contract.py:26
-    // if op.Transaction.num_app_args == 1:
+    // if op.Txn.num_app_args == 1:
     txn NumAppArgs
     int 1
     ==
@@ -60,7 +60,7 @@ main_after_if_else@8:
     ==
     bz main_else_body@11
     // local_state/local_state_contract.py:28
-    // log(self.get_guaranteed_data(op.Transaction.sender))
+    // log(self.get_guaranteed_data(op.Txn.sender))
     txn Sender
     callsub get_guaranteed_data
     log
@@ -74,7 +74,7 @@ main_else_body@11:
     ==
     bz main_else_body@13
     // local_state/local_state_contract.py:30
-    // log(self.get_data_or_assert(op.Transaction.sender))
+    // log(self.get_data_or_assert(op.Txn.sender))
     txn Sender
     callsub get_data_or_assert
     log
@@ -88,7 +88,7 @@ main_else_body@13:
     ==
     bz main_else_body@15
     // local_state/local_state_contract.py:32
-    // self.delete_data(op.Transaction.sender)
+    // self.delete_data(op.Txn.sender)
     txn Sender
     callsub delete_data
     // local_state/local_state_contract.py:33
@@ -111,7 +111,7 @@ main_after_if_else@18:
 
 main_else_body@19:
     // local_state/local_state_contract.py:37
-    // elif op.Transaction.num_app_args == 2:
+    // elif op.Txn.num_app_args == 2:
     txn NumAppArgs
     int 2
     ==
@@ -123,7 +123,7 @@ main_else_body@19:
     ==
     bz main_else_body@22
     // local_state/local_state_contract.py:39
-    // self.set_data(op.Transaction.sender, op.Transaction.application_args(1))
+    // self.set_data(op.Txn.sender, op.Txn.application_args(1))
     txn Sender
     txna ApplicationArgs 1
     callsub set_data
@@ -136,38 +136,28 @@ main_else_body@22:
     byte "get_data_with_default"
     ==
     bz main_else_body@24
-    // local_state/local_state_contract.py:43
-    // op.Transaction.sender, op.Transaction.application_args(1)
+    // local_state/local_state_contract.py:41
+    // log(self.get_data_with_default(op.Txn.sender, op.Txn.application_args(1)))
     txn Sender
     txna ApplicationArgs 1
-    // local_state/local_state_contract.py:42-44
-    // self.get_data_with_default(
-    //     op.Transaction.sender, op.Transaction.application_args(1)
-    // )
     callsub get_data_with_default
-    // local_state/local_state_contract.py:41-45
-    // log(
-    //     self.get_data_with_default(
-    //         op.Transaction.sender, op.Transaction.application_args(1)
-    //     )
-    // )
     log
     b main_after_if_else@26
 
 main_else_body@24:
-    // local_state/local_state_contract.py:47
+    // local_state/local_state_contract.py:43
     // return False
     int 0
     return
 
 main_after_if_else@26:
-    // local_state/local_state_contract.py:48
+    // local_state/local_state_contract.py:44
     // return True
     int 1
     return
 
 main_else_body@27:
-    // local_state/local_state_contract.py:50
+    // local_state/local_state_contract.py:46
     // return False
     int 0
     return
@@ -175,11 +165,11 @@ main_else_body@27:
 
 // examples.local_state.local_state_contract.LocalStateContract.get_guaranteed_data(for_account: bytes) -> bytes:
 get_guaranteed_data:
-    // local_state/local_state_contract.py:55-56
+    // local_state/local_state_contract.py:51-52
     // @subroutine
     // def get_guaranteed_data(self, for_account: Account) -> Bytes:
     proto 1 1
-    // local_state/local_state_contract.py:57
+    // local_state/local_state_contract.py:53
     // return self.local[for_account]
     frame_dig -1
     int 0
@@ -191,31 +181,31 @@ get_guaranteed_data:
 
 // examples.local_state.local_state_contract.LocalStateContract.get_data_or_assert(for_account: bytes) -> bytes:
 get_data_or_assert:
-    // local_state/local_state_contract.py:63-64
+    // local_state/local_state_contract.py:59-60
     // @subroutine
     // def get_data_or_assert(self, for_account: Account) -> Bytes:
     proto 1 1
-    // local_state/local_state_contract.py:65
+    // local_state/local_state_contract.py:61
     // result, exists = self.local.maybe(for_account)
     frame_dig -1
     int 0
     byte "local"
     app_local_get_ex
-    // local_state/local_state_contract.py:66
+    // local_state/local_state_contract.py:62
     // assert exists, "no data for account"
     assert // no data for account
-    // local_state/local_state_contract.py:67
+    // local_state/local_state_contract.py:63
     // return result
     retsub
 
 
 // examples.local_state.local_state_contract.LocalStateContract.delete_data(for_account: bytes) -> void:
 delete_data:
-    // local_state/local_state_contract.py:73-74
+    // local_state/local_state_contract.py:69-70
     // @subroutine
     // def delete_data(self, for_account: Account) -> None:
     proto 1 0
-    // local_state/local_state_contract.py:75
+    // local_state/local_state_contract.py:71
     // del self.local[for_account]
     frame_dig -1
     byte "local"
@@ -225,11 +215,11 @@ delete_data:
 
 // examples.local_state.local_state_contract.LocalStateContract.set_data(for_account: bytes, value: bytes) -> void:
 set_data:
-    // local_state/local_state_contract.py:69-70
+    // local_state/local_state_contract.py:65-66
     // @subroutine
     // def set_data(self, for_account: Account, value: Bytes) -> None:
     proto 2 0
-    // local_state/local_state_contract.py:71
+    // local_state/local_state_contract.py:67
     // self.local[for_account] = value
     frame_dig -2
     byte "local"
@@ -240,11 +230,11 @@ set_data:
 
 // examples.local_state.local_state_contract.LocalStateContract.get_data_with_default(for_account: bytes, default: bytes) -> bytes:
 get_data_with_default:
-    // local_state/local_state_contract.py:59-60
+    // local_state/local_state_contract.py:55-56
     // @subroutine
     // def get_data_with_default(self, for_account: Account, default: Bytes) -> Bytes:
     proto 2 1
-    // local_state/local_state_contract.py:61
+    // local_state/local_state_contract.py:57
     // return self.local.get(for_account, default)
     frame_dig -2
     int 0
@@ -258,7 +248,7 @@ get_data_with_default_ternary_false@2:
     frame_dig -1
 
 get_data_with_default_ternary_merge@3:
-    // local_state/local_state_contract.py:61
+    // local_state/local_state_contract.py:57
     // return self.local.get(for_account, default)
     swap
     retsub

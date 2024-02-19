@@ -24,7 +24,7 @@ class Auction(ARC4Contract):
     @arc4.abimethod
     def opt_into_asset(self, asset: Asset) -> None:
         # Only allow app creator to opt the app account into a ASA
-        assert op.Transaction.sender == op.Global.creator_address, "Only creator can opt in to ASA"
+        assert op.Txn.sender == op.Global.creator_address, "Only creator can opt in to ASA"
         # Verify a ASA hasn't already been opted into
         assert self.asa.asset_id == 0, "ASA already opted in"
         # Save ASA ID in global state
@@ -44,9 +44,7 @@ class Auction(ARC4Contract):
         length: arc4.UInt64,
         axfer: gtxn.AssetTransferTransaction,
     ) -> None:
-        assert (
-            op.Transaction.sender == op.Global.creator_address
-        ), "auction must be started by creator"
+        assert op.Txn.sender == op.Global.creator_address, "auction must be started by creator"
 
         # Ensure the auction hasn't already been started
         assert self.auction_end == 0, "auction already started"
@@ -71,7 +69,7 @@ class Auction(ARC4Contract):
         assert op.Global.latest_timestamp < self.auction_end, "auction has ended"
 
         # Verify payment transaction
-        assert pay.sender == op.Transaction.sender, "payment sender must match transaction sender"
+        assert pay.sender == op.Txn.sender, "payment sender must match transaction sender"
         assert pay.amount > self.previous_bid, "Bid must be higher than previous bid"
 
         # set global state
@@ -79,23 +77,23 @@ class Auction(ARC4Contract):
         self.previous_bidder = pay.sender
 
         # Update claimable amount
-        self.claimable_amount[op.Transaction.sender] = pay.amount
+        self.claimable_amount[op.Txn.sender] = pay.amount
 
     @arc4.abimethod
     def claim_bids(self) -> None:
-        amount = original_amount = self.claimable_amount[op.Transaction.sender]
+        amount = original_amount = self.claimable_amount[op.Txn.sender]
 
         # subtract previous bid if sender is previous bidder
-        if op.Transaction.sender == self.previous_bidder:
+        if op.Txn.sender == self.previous_bidder:
             amount -= self.previous_bid
 
         itxn.PaymentTransactionParams(
             fee=0,
             amount=amount,
-            receiver=op.Transaction.sender,
+            receiver=op.Txn.sender,
         ).submit()
 
-        self.claimable_amount[op.Transaction.sender] = original_amount - amount
+        self.claimable_amount[op.Txn.sender] = original_amount - amount
 
     @arc4.abimethod
     def claim_asset(self, asset: Asset) -> None:

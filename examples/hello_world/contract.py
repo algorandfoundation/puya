@@ -3,7 +3,7 @@ from puyapy import Contract, log, op
 
 class HelloWorldContract(Contract):
     def approval_program(self) -> bool:
-        name = op.Transaction.application_args(0)
+        name = op.Txn.application_args(0)
         log(b"Hello, " + name)
         return True
 

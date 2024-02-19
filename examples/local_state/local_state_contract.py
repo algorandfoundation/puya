@@ -15,34 +15,30 @@ class LocalStateContract(Contract):
         self.local = LocalState(Bytes)
 
     def approval_program(self) -> bool:
-        if op.Transaction.application_id == 0:
+        if op.Txn.application_id == 0:
             return True
-        if op.Transaction.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
+        if op.Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
             return False
-        if op.Transaction.num_app_args == 0:
+        if op.Txn.num_app_args == 0:
             return False
 
-        method = op.Transaction.application_args(0)
-        if op.Transaction.num_app_args == 1:
+        method = op.Txn.application_args(0)
+        if op.Txn.num_app_args == 1:
             if method == b"get_guaranteed_data":
-                log(self.get_guaranteed_data(op.Transaction.sender))
+                log(self.get_guaranteed_data(op.Txn.sender))
             elif method == b"get_data_or_assert":
-                log(self.get_data_or_assert(op.Transaction.sender))
+                log(self.get_data_or_assert(op.Txn.sender))
             elif method == b"delete_data":
-                self.delete_data(op.Transaction.sender)
+                self.delete_data(op.Txn.sender)
                 log(b"Deleted")
             else:
                 return False
             return True
-        elif op.Transaction.num_app_args == 2:
+        elif op.Txn.num_app_args == 2:
             if method == b"set_data":
-                self.set_data(op.Transaction.sender, op.Transaction.application_args(1))
+                self.set_data(op.Txn.sender, op.Txn.application_args(1))
             elif method == b"get_data_with_default":
-                log(
-                    self.get_data_with_default(
-                        op.Transaction.sender, op.Transaction.application_args(1)
-                    )
-                )
+                log(self.get_data_with_default(op.Txn.sender, op.Txn.application_args(1)))
             else:
                 return False
             return True
