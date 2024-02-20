@@ -67,6 +67,7 @@ class RenamedOpCode:
 @attrs.define(kw_only=True)
 class MergedOpCodes:
     name: str
+    doc: str
     ops: dict[str, dict[str, list[str]]]
 
     def includes_op(self, op: str) -> bool:
@@ -77,6 +78,7 @@ class MergedOpCodes:
 class GroupedOpCodes:
     name: str
     """ops that are aliases for other ops that take stack values instead of immediates"""
+    doc: str
     ops: dict[str, str] = attrs.field(factory=dict)
     """ops to include in group, mapped to their new name"""
 
@@ -87,6 +89,7 @@ class GroupedOpCodes:
 OPCODE_GROUPS: list[OpCodeGroup] = [
     GroupedOpCodes(
         name="AppGlobal",
+        doc="Get or modify Global app state",
         ops={
             "app_global_get": "get",
             "app_global_get_ex": "get_ex",
@@ -94,9 +97,14 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
             "app_global_put": "put",
         },
     ),
-    GroupedOpCodes(name="Scratch", ops={"loads": "load", "stores": "store"}),
+    GroupedOpCodes(
+        name="Scratch",
+        doc="Load or store scratch values",
+        ops={"loads": "load", "stores": "store"},
+    ),
     GroupedOpCodes(
         name="AppLocal",
+        doc="Get or modify Local app state",
         ops={
             "app_local_get": "get",
             "app_local_get_ex": "get_ex",
@@ -106,6 +114,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     GroupedOpCodes(
         name="Box",
+        doc="Get or modify box state",
         ops={
             "box_create": "create",
             "box_del": "delete",
@@ -120,6 +129,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     GroupedOpCodes(
         name="EllipticCurve",
+        doc="Elliptic Curve functions",
         ops={
             "ec_add": "add",
             "ec_map_to": "map_to",
@@ -131,6 +141,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     MergedOpCodes(
         name="Txn",
+        doc="Get values for the current executing transaction",
         ops={
             "txn": {},
             "txnas": {
@@ -140,6 +151,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     MergedOpCodes(
         name="GTxn",
+        doc="Get values for transactions in the current group",
         ops={
             "gtxns": {
                 "gtxn": ["F", "T"],
@@ -154,6 +166,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     GroupedOpCodes(
         name="ITxnCreate",
+        doc="Create inner transactions",
         ops={
             "itxn_begin": "begin",
             "itxn_next": "next",
@@ -163,6 +176,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     MergedOpCodes(
         name="ITxn",
+        doc="Get values for the last inner transaction",
         ops={
             "itxn": {},
             "itxnas": {
@@ -172,6 +186,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     MergedOpCodes(
         name="GITxn",
+        doc="Get values for inner transaction in the last group submitted",
         ops={
             "gitxn": {},
             "gitxnas": {
@@ -181,6 +196,7 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
     ),
     MergedOpCodes(
         name="Global",
+        doc="Get Global values",
         ops={"global": {}},
     ),
     RenamedOpCode(
@@ -314,6 +330,7 @@ class FunctionDef:
 @attrs.define
 class ClassDef:
     name: str
+    doc: str
     methods: list[FunctionDef]
     ops: list[str]
 
@@ -337,7 +354,12 @@ def main() -> None:
             if overriding_immediate:
                 class_defs.append(
                     build_class_from_overriding_immediate(
-                        lang_spec, op, get_python_enum_class(op.name), overriding_immediate, []
+                        lang_spec,
+                        op,
+                        class_name=get_python_enum_class(op.name),
+                        class_doc=" ".join(op.doc),
+                        immediate=overriding_immediate,
+                        aliases=[],
                     )
                 )
             else:
@@ -500,14 +522,21 @@ def build_method_stub(
 def build_stub_class(klass: ClassDef) -> Iterable[str]:
     method_decorator: str
     ops = [f"{_get_algorand_doc(op)}" for op in klass.ops]
-    docstring = f'"""Functions for the op{"s" if len(ops) > 1 else ""}: {", ".join(ops)} """'
+    docstring = "\n".join(
+        [
+            INDENT + '"""',
+            INDENT + klass.doc,
+            INDENT + f"Native TEAL op{'s' if len(ops) > 1 else ''}: {', '.join(ops)}",
+            INDENT + '"""',
+        ]
+    )
     if klass.has_any_methods:
         method_decorator = "@classmethod"
         yield f"class _{klass.name}(Generic[_T, _TLiteral]):"
     else:
         method_decorator = "@staticmethod"
         yield f"class {klass.name}:"
-        yield INDENT + docstring
+        yield docstring
     for method in klass.methods:
         if method.is_property:
             yield from build_class_var_stub(method, INDENT)
@@ -565,6 +594,7 @@ def build_class_from_overriding_immediate(
     spec: LanguageSpec,
     op: Op,
     class_name: str,
+    class_doc: str,
     immediate: Immediate,
     aliases: list[AliasT],
 ) -> ClassDef:
@@ -600,7 +630,7 @@ def build_class_from_overriding_immediate(
 
         methods.append(method)
 
-    return ClassDef(name=class_name, methods=methods, ops=sorted(class_ops))
+    return ClassDef(name=class_name, doc=class_doc, methods=methods, ops=sorted(class_ops))
 
 
 def get_op_doc(op: Op) -> list[str]:
@@ -829,13 +859,18 @@ def build_merged_ops(spec: LanguageSpec, group: MergedOpCodes) -> ClassDef:
         overriding_immediate = get_overriding_immediate(other_op)
         assert overriding_immediate
         other_class = build_class_from_overriding_immediate(
-            spec, other_op, group.name, overriding_immediate, aliases
+            spec,
+            other_op,
+            class_name=group.name,
+            class_doc=group.doc,
+            immediate=overriding_immediate,
+            aliases=aliases,
         )
         for method in other_class.methods:
             merge_methods[method.name] = method
 
     methods = list(merge_methods.values())
-    return ClassDef(name=group.name, methods=methods, ops=sorted(group.ops))
+    return ClassDef(name=group.name, doc=group.doc, methods=methods, ops=sorted(group.ops))
 
 
 def build_grouped_ops(
@@ -847,7 +882,12 @@ def build_grouped_ops(
         rename_immediate = get_overriding_immediate(rename_op)
         if rename_immediate:
             rename_class = build_class_from_overriding_immediate(
-                spec, rename_op, group.name, rename_immediate, aliases=[]
+                spec,
+                rename_op,
+                class_name=group.name,
+                class_doc=group.doc,
+                immediate=rename_immediate,
+                aliases=[],
             )
             # when grouping an op with immediate overrides, treat python_name as a prefix
             for method in rename_class.methods:
@@ -865,6 +905,7 @@ def build_grouped_ops(
 
     class_def = ClassDef(
         name=group.name,
+        doc=group.doc,
         methods=methods,
         ops=sorted(group.ops),
     )

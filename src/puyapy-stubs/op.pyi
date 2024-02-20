@@ -398,7 +398,10 @@ def vrf_verify(
     """
 
 class AcctParamsGet:
-    """Functions for the op: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)"""
+    """
+    X is field F from account A. Y is 1 if A owns positive algos, else 0
+    Native TEAL op: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
+    """
 
     @staticmethod
     def acct_balance(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
@@ -486,7 +489,10 @@ class AcctParamsGet:
         """
 
 class AppGlobal:
-    """Functions for the ops: [`app_global_del`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_del), [`app_global_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get), [`app_global_get_ex`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get_ex), [`app_global_put`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_put)"""
+    """
+    Get or modify Global app state
+    Native TEAL ops: [`app_global_del`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_del), [`app_global_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get), [`app_global_get_ex`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get_ex), [`app_global_put`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_put)
+    """
 
     @staticmethod
     def get_bytes(a: Bytes | bytes, /) -> Bytes:
@@ -539,7 +545,10 @@ class AppGlobal:
         """
 
 class AppLocal:
-    """Functions for the ops: [`app_local_del`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_del), [`app_local_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_get), [`app_local_get_ex`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_get_ex), [`app_local_put`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_put)"""
+    """
+    Get or modify Local app state
+    Native TEAL ops: [`app_local_del`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_del), [`app_local_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_get), [`app_local_get_ex`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_get_ex), [`app_local_put`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_put)
+    """
 
     @staticmethod
     def get_bytes(a: Account | UInt64 | int, b: Bytes | bytes, /) -> Bytes:
@@ -599,7 +608,10 @@ class AppLocal:
         """
 
 class AppParamsGet:
-    """Functions for the op: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)"""
+    """
+    X is field F from app A. Y is 1 if A exists, else 0 params: Txn.ForeignApps offset or an _available_ app id. Return: did_exist flag (1 if the application existed and 0 otherwise), value.
+    Native TEAL op: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
+    """
 
     @staticmethod
     def app_approval_program(a: UInt64 | int, /) -> tuple[Bytes, bool]:
@@ -666,7 +678,10 @@ class AppParamsGet:
         """
 
 class AssetHoldingGet:
-    """Functions for the op: [`asset_holding_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_holding_get)"""
+    """
+    X is field F from account A's holding of asset B. Y is 1 if A is opted into B, else 0 params: Txn.Accounts offset (or, since v4, an _available_ address), asset id (or, since v4, a Txn.ForeignAssets offset). Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
+    Native TEAL op: [`asset_holding_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_holding_get)
+    """
 
     @staticmethod
     def asset_balance(a: Account | UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, bool]:
@@ -684,7 +699,10 @@ class AssetHoldingGet:
         """
 
 class AssetParamsGet:
-    """Functions for the op: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)"""
+    """
+    X is field F from asset A. Y is 1 if A exists, else 0 params: Txn.ForeignAssets offset (or, since v4, an _available_ asset id. Return: did_exist flag (1 if the asset existed and 0 otherwise), value.
+    Native TEAL op: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
+    """
 
     @staticmethod
     def asset_total(a: UInt64 | int, /) -> tuple[UInt64, bool]:
@@ -772,7 +790,10 @@ class AssetParamsGet:
         """
 
 class Block:
-    """Functions for the op: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)"""
+    """
+    field F of block A. Fail unless A falls between txn.LastValid-1002 and txn.FirstValid (exclusive)
+    Native TEAL op: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
+    """
 
     @staticmethod
     def blk_seed(a: UInt64 | int, /) -> Bytes:
@@ -788,7 +809,10 @@ class Block:
         """
 
 class Box:
-    """Functions for the ops: [`box_create`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_create), [`box_del`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_del), [`box_extract`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_extract), [`box_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_get), [`box_len`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_len), [`box_put`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_put), [`box_replace`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_replace), [`box_resize`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_resize), [`box_splice`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_splice)"""
+    """
+    Get or modify box state
+    Native TEAL ops: [`box_create`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_create), [`box_del`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_del), [`box_extract`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_extract), [`box_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_get), [`box_len`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_len), [`box_put`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_put), [`box_replace`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_replace), [`box_resize`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_resize), [`box_splice`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_splice)
+    """
 
     @staticmethod
     def create(a: Bytes | bytes, b: UInt64 | int, /) -> bool:
@@ -859,7 +883,10 @@ class Box:
         """
 
 class EllipticCurve:
-    """Functions for the ops: [`ec_add`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_add), [`ec_map_to`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_map_to), [`ec_multi_scalar_mul`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_multi_scalar_mul), [`ec_pairing_check`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_pairing_check), [`ec_scalar_mul`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_scalar_mul), [`ec_subgroup_check`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_subgroup_check)"""
+    """
+    Elliptic Curve functions
+    Native TEAL ops: [`ec_add`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_add), [`ec_map_to`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_map_to), [`ec_multi_scalar_mul`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_multi_scalar_mul), [`ec_pairing_check`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_pairing_check), [`ec_scalar_mul`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_scalar_mul), [`ec_subgroup_check`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_subgroup_check)
+    """
 
     @staticmethod
     def add(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
@@ -927,7 +954,10 @@ class EllipticCurve:
         """
 
 class GITxn:
-    """Functions for the ops: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)"""
+    """
+    Get values for inner transaction in the last group submitted
+    Native TEAL ops: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
+    """
 
     @staticmethod
     def sender(t: int, /) -> Account:
@@ -1475,7 +1505,10 @@ class GITxn:
         """
 
 class GTxn:
-    """Functions for the ops: [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns), [`gtxnsas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsas)"""
+    """
+    Get values for transactions in the current group
+    Native TEAL ops: [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns), [`gtxnsas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsas)
+    """
 
     @staticmethod
     def sender(a: UInt64 | int, /) -> Account:
@@ -1955,7 +1988,10 @@ class GTxn:
         """
 
 class Global:
-    """Functions for the op: [`global`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#global)"""
+    """
+    Get Global values
+    Native TEAL op: [`global`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#global)
+    """
 
     min_txn_fee: typing.Final[UInt64] = ...
     """
@@ -2050,7 +2086,10 @@ class Global:
     """
 
 class ITxn:
-    """Functions for the ops: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn), [`itxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxnas)"""
+    """
+    Get values for the last inner transaction
+    Native TEAL ops: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn), [`itxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxnas)
+    """
 
     @staticmethod
     def sender() -> Account:
@@ -2530,7 +2569,10 @@ class ITxn:
         """
 
 class ITxnCreate:
-    """Functions for the ops: [`itxn_begin`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_begin), [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field), [`itxn_next`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_next), [`itxn_submit`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_submit)"""
+    """
+    Create inner transactions
+    Native TEAL ops: [`itxn_begin`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_begin), [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field), [`itxn_next`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_next), [`itxn_submit`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_submit)
+    """
 
     @staticmethod
     def begin() -> None:
@@ -2915,7 +2957,10 @@ class ITxnCreate:
         """
 
 class JsonRef:
-    """Functions for the op: [`json_ref`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#json_ref)"""
+    """
+    key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A *Warning*: Usage should be restricted to very rare use cases, as JSON decoding is expensive and quite limited. In addition, JSON objects are large and not optimized for size.  Almost all smart contracts should use simpler and smaller methods (such as the [ABI](https://arc.algorand.foundation/ARCs/arc-0004). This opcode should only be used in cases where JSON is only available option, e.g. when a third-party only signs JSON.
+    Native TEAL op: [`json_ref`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#json_ref)
+    """
 
     @staticmethod
     def json_string(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
@@ -2937,7 +2982,10 @@ class JsonRef:
         """
 
 class Scratch:
-    """Functions for the ops: [`loads`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#loads), [`stores`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#stores)"""
+    """
+    Load or store scratch values
+    Native TEAL ops: [`loads`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#loads), [`stores`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#stores)
+    """
 
     @staticmethod
     def load_bytes(a: UInt64 | int, /) -> Bytes:
@@ -2962,7 +3010,10 @@ class Scratch:
         """
 
 class Txn:
-    """Functions for the ops: [`txn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#txn), [`txnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#txnas)"""
+    """
+    Get values for the current executing transaction
+    Native TEAL ops: [`txn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#txn), [`txnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#txnas)
+    """
 
     sender: typing.Final[Account] = ...
     """
