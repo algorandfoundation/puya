@@ -9,6 +9,8 @@ contract test_cases.unary.contract.UnaryContract:
         
         subroutine test_cases.unary.contract.uint_unary() -> void:
             block@0: // L25
+                let tmp%0#0: uint64 = 1u
+                (assert tmp%0#0) // not uint
                 let tuple_index%1#0: uint64 = 0u
                 let i#0: uint64 = 1u
                 goto block@5
@@ -33,15 +35,20 @@ contract test_cases.unary.contract.UnaryContract:
         
         subroutine test_cases.unary.contract.biguint_unary() -> void:
             block@0: // L35
+                let tmp%0#0: uint64 = 1u
+                (assert tmp%0#0) // not biguint
                 return 
         
         subroutine test_cases.unary.contract.bytes_unary() -> void:
             block@0: // L41
-                let tmp%1#0: uint64 = (! 0u)
+                let tmp%0#0: uint64 = 0u
+                let tmp%1#0: uint64 = (! tmp%0#0)
                 (assert tmp%1#0) // not bytes
-                let tmp%3#0: uint64 = (== 0x00 0x00)
+                let tmp%2#0: bytes = 0x00
+                let tmp%3#0: uint64 = (== tmp%2#0 0x00)
                 (assert tmp%3#0) // ~ bytes
-                let tmp%5#0: uint64 = (== 0xffff 0xffff)
+                let tmp%4#0: bytes = 0xffff
+                let tmp%5#0: uint64 = (== tmp%4#0 0xffff)
                 (assert tmp%5#0) // ~ bytes
                 return 
     

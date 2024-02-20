@@ -1,0 +1,46 @@
+contract test_cases.contains.contract.MyContract:
+    program approval:
+        subroutine test_cases.contains.contract.MyContract.approval_program() -> uint64:
+            block@0: // L7
+                let one_true#0: uint64 = test_cases.contains.contract.MyContract.is_in_tuple_1(10u, 10u, 15u, "five")
+                let one_false#0: uint64 = test_cases.contains.contract.MyContract.is_in_tuple_1(5u, 10u, 15u, "five")
+                (assert one_true#0) // Should be true
+                let tmp%0#0: uint64 = (! one_false#0)
+                (assert tmp%0#0) // Should be false
+                let two_true#0: uint64 = test_cases.contains.contract.MyContract.is_in_tuple_2("hello", "hello", 0u, "bonjour")
+                let two_false#0: uint64 = test_cases.contains.contract.MyContract.is_in_tuple_2("ciao", "hello", 0u, "bonjour")
+                (assert two_true#0) // Should be true
+                let tmp%1#0: uint64 = (! two_false#0)
+                (assert tmp%1#0) // Should be false
+                let three_true#0: uint64 = test_cases.contains.contract.MyContract.is_in_tuple_3(32323423423423b, 32323423423423b, 8439439483934b)
+                let three_false#0: uint64 = test_cases.contains.contract.MyContract.is_in_tuple_3(64646846846846b, 32323423423423b, 8439439483934b)
+                (assert three_true#0) // Should be true
+                let tmp%3#0: uint64 = (! three_false#0)
+                (assert tmp%3#0) // Should be false
+                return 1u
+        
+        subroutine test_cases.contains.contract.MyContract.is_in_tuple_1(x: uint64, y.0: uint64, y.1: uint64, y.2: bytes) -> uint64:
+            block@0: // L39
+                let contains%0#0: uint64 = (== x#0 y.0#0)
+                let is_equal%1#0: uint64 = (== x#0 y.1#0)
+                let tmp%2#0: uint64 = (|| contains%0#0 is_equal%1#0)
+                return tmp%2#0
+        
+        subroutine test_cases.contains.contract.MyContract.is_in_tuple_2(x: bytes, y.0: bytes, y.1: uint64, y.2: bytes) -> uint64:
+            block@0: // L43
+                let contains%0#0: uint64 = (== x#0 y.0#0)
+                let is_equal%1#0: uint64 = (== x#0 y.2#0)
+                let tmp%2#0: uint64 = (|| contains%0#0 is_equal%1#0)
+                return tmp%2#0
+        
+        subroutine test_cases.contains.contract.MyContract.is_in_tuple_3(x: bytes, y.0: bytes, y.1: bytes) -> uint64:
+            block@0: // L47
+                let contains%0#0: uint64 = (b== x#0 y.0#0)
+                let is_equal%1#0: uint64 = (b== x#0 y.1#0)
+                let tmp%2#0: uint64 = (|| contains%0#0 is_equal%1#0)
+                return tmp%2#0
+    
+    program clear-state:
+        subroutine test_cases.contains.contract.MyContract.clear_state_program() -> uint64:
+            block@0: // L36
+                return 1u
