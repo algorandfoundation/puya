@@ -1,0 +1,49 @@
+contract test_cases.stubs.biguint.BigUIntContract:
+    program approval:
+        subroutine test_cases.stubs.biguint.BigUIntContract.approval_program() -> uint64:
+            block@0: // L5
+                test_cases.stubs.biguint.compare_biguints(1b, 2b)
+                test_cases.stubs.biguint.compare_biguint_vs_uint64(1b, 2u)
+                test_cases.stubs.biguint.compare_uint64_vs_biguint(1u, 2b)
+                return 1u
+        
+        subroutine test_cases.stubs.biguint.compare_biguints(one: bytes, two: bytes) -> void:
+            block@0: // L15
+                let tmp%0#0: uint64 = (b< one#0 two#0)
+                (assert tmp%0#0)
+                let tmp%1#0: uint64 = (b<= one#0 two#0)
+                (assert tmp%1#0)
+                let tmp%3#0: uint64 = (b> two#0 one#0)
+                (assert tmp%3#0)
+                let tmp%4#0: uint64 = (b>= two#0 one#0)
+                (assert tmp%4#0)
+                let tmp%5#0: uint64 = (b!= one#0 two#0)
+                (assert tmp%5#0)
+                return 
+        
+        subroutine test_cases.stubs.biguint.compare_biguint_vs_uint64(one: bytes, two: uint64) -> void:
+            block@0: // L25
+                let tmp%0#0: bytes = (itob two#0)
+                let tmp%1#0: uint64 = (b< one#0 tmp%0#0)
+                (assert tmp%1#0)
+                let tmp%3#0: uint64 = (b<= one#0 tmp%0#0)
+                (assert tmp%3#0)
+                let tmp%10#0: uint64 = (b!= one#0 tmp%0#0)
+                (assert tmp%10#0)
+                return 
+        
+        subroutine test_cases.stubs.biguint.compare_uint64_vs_biguint(one: uint64, two: bytes) -> void:
+            block@0: // L35
+                let tmp%0#0: bytes = (itob one#0)
+                let tmp%1#0: uint64 = (b> two#0 tmp%0#0)
+                (assert tmp%1#0)
+                let tmp%3#0: uint64 = (b>= two#0 tmp%0#0)
+                (assert tmp%3#0)
+                let tmp%10#0: uint64 = (b!= two#0 tmp%0#0)
+                (assert tmp%10#0)
+                return 
+    
+    program clear-state:
+        subroutine test_cases.stubs.biguint.BigUIntContract.clear_state_program() -> uint64:
+            block@0: // L11
+                return 1u

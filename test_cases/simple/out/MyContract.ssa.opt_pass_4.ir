@@ -1,0 +1,24 @@
+contract test_cases.simple.contract.MyContract:
+    program approval:
+        subroutine test_cases.simple.contract.MyContract.approval_program() -> uint64:
+            block@0: // L9
+                return 2u
+    
+    program clear-state:
+        subroutine test_cases.simple.contract.MyContract.clear_state_program() -> uint64:
+            block@0: // L25
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: uint64 = (! tmp%0#0)
+                (assert tmp%1#0)
+                let tmp%2#0: uint64 = test_cases.simple.subs.zero()
+                let tmp%3#0: uint64 = test_cases.simple.pkg_a.pkg_1.subs.one()
+                let tmp%4#0: uint64 = (* tmp%2#0 tmp%3#0)
+                return tmp%4#0
+        
+        subroutine test_cases.simple.subs.zero() -> uint64:
+            block@0: // L4
+                return 0u
+        
+        subroutine test_cases.simple.pkg_a.pkg_1.subs.one() -> uint64:
+            block@0: // L4
+                return 1u
