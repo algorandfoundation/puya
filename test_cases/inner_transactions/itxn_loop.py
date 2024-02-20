@@ -18,7 +18,7 @@ class MyContract(Contract):
 
     def approval_program(self) -> bool:
         note = Bytes(b"ABCDE")
-        app_params = itxn.ApplicationCallTransactionParams(
+        app_params = itxn.ApplicationCall(
             approval_program=programs.ALWAYS_APPROVE,
             clear_state_program=programs.ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,
@@ -29,13 +29,13 @@ class MyContract(Contract):
             i_note = op.extract(note, 0, i)
             match i:
                 case UInt64(1):
-                    app_params.set(note=i_note, application_args=(Bytes(b"1"),))
+                    app_params.set(note=i_note, app_args=(Bytes(b"1"),))
                 case UInt64(2):
-                    app_params.set(note=i_note, application_args=(Bytes(b"2"), Bytes(b"1")))
+                    app_params.set(note=i_note, app_args=(Bytes(b"2"), Bytes(b"1")))
                 case UInt64(3):
                     app_params.set(
                         note=i_note,
-                        application_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
+                        app_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
                     )
             app_txn = app_params.submit()
             log(app_txn.note)

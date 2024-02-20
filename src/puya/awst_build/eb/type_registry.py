@@ -70,26 +70,26 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
         transaction.GroupTransactionClassExpressionBuilder,
         wtype=wtypes.WGroupTransaction(
             transaction_type=None,
-            stub_name=constants.CLS_TRANSACTION_BASE_ALIAS,
+            stub_name=constants.CLS_TRANSACTION_BASE,
             name="group_transaction_base",
         ),
     ),
     **{
-        txn_cls.group_transaction: functools.partial(
+        txn_cls.gtxn: functools.partial(
             transaction.GroupTransactionClassExpressionBuilder,
             wtype=wtypes.WGroupTransaction.from_type(txn_type),
         )
         for txn_type, txn_cls in constants.TRANSACTION_TYPE_TO_CLS.items()
     },
     **{
-        txn_cls.inner_transaction_params: functools.partial(
+        txn_cls.itxn_fields: functools.partial(
             transaction.InnerTxnParamsClassExpressionBuilder,
-            wtype=wtypes.WInnerTransactionParams.from_type(txn_type),
+            wtype=wtypes.WInnerTransactionFields.from_type(txn_type),
         )
         for txn_type, txn_cls in constants.TRANSACTION_TYPE_TO_CLS.items()
     },
     **{
-        txn_cls.inner_transaction: functools.partial(
+        txn_cls.itxn_result: functools.partial(
             transaction.InnerTransactionClassExpressionBuilder,
             wtype=wtypes.WInnerTransaction.from_type(txn_type),
         )
@@ -128,7 +128,7 @@ WTYPE_TO_BUILDER: dict[
     wtypes.void_wtype: void.VoidExpressionBuilder,
     wtypes.WGroupTransaction: transaction.GroupTransactionExpressionBuilder,
     wtypes.WInnerTransaction: transaction.InnerTransactionExpressionBuilder,
-    wtypes.WInnerTransactionParams: transaction.InnerTxnParamsExpressionBuilder,
+    wtypes.WInnerTransactionFields: transaction.InnerTxnParamsExpressionBuilder,
 }
 
 

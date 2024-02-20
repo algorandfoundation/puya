@@ -78,31 +78,31 @@ bootstrap:
     !
     assert // already bootstrapped
     // inner_transactions/c2c.py:14-19
-    // itxn.ApplicationCallTransactionParams(
+    // itxn.ApplicationCall(
     //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
     //     clear_state_program=HELLO_WORLD_CLEAR,
     //     fee=0,
     // )
     // .submit()
     itxn_begin
-    // inner_transactions/c2c.py:15
-    // approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
-    byte 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089
-    itxn_field ApprovalProgramPages
-    // inner_transactions/c2c.py:16
-    // clear_state_program=HELLO_WORLD_CLEAR,
-    byte 0x0a8101
-    itxn_field ClearStateProgramPages
+    // inner_transactions/c2c.py:14
+    // itxn.ApplicationCall(
+    int appl
+    itxn_field TypeEnum
     // inner_transactions/c2c.py:17
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/c2c.py:14
-    // itxn.ApplicationCallTransactionParams(
-    int appl
-    itxn_field TypeEnum
+    // inner_transactions/c2c.py:16
+    // clear_state_program=HELLO_WORLD_CLEAR,
+    byte 0x0a8101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/c2c.py:15
+    // approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    byte 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089
+    itxn_field ApprovalProgramPages
     // inner_transactions/c2c.py:14-19
-    // itxn.ApplicationCallTransactionParams(
+    // itxn.ApplicationCall(
     //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
     //     clear_state_program=HELLO_WORLD_CLEAR,
     //     fee=0,
@@ -113,7 +113,7 @@ bootstrap:
     // self.hello_app = (
     byte "hello_app"
     // inner_transactions/c2c.py:14-19
-    // itxn.ApplicationCallTransactionParams(
+    // itxn.ApplicationCall(
     //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
     //     clear_state_program=HELLO_WORLD_CLEAR,
     //     fee=0,
@@ -122,13 +122,13 @@ bootstrap:
     itxn CreatedApplicationID
     // inner_transactions/c2c.py:13-21
     // self.hello_app = (
-    //     itxn.ApplicationCallTransactionParams(
+    //     itxn.ApplicationCall(
     //         approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
     //         clear_state_program=HELLO_WORLD_CLEAR,
     //         fee=0,
     //     )
     //     .submit()
-    //     .created_application
+    //     .created_app
     // )
     app_global_put
     // inner_transactions/c2c.py:22
@@ -147,32 +147,32 @@ log_greetings:
     // def log_greetings(self, name: arc4.String) -> None:
     proto 1 0
     // inner_transactions/c2c.py:26-29
-    // hello_call = itxn.ApplicationCallTransactionParams(
-    //     application_id=self.hello_app.application_id,
-    //     application_args=(arc4.arc4_signature("hello(string)string"), name),
+    // hello_call = itxn.ApplicationCall(
+    //     app_id=self.hello_app,
+    //     app_args=(arc4.arc4_signature("hello(string)string"), name),
     // ).submit()
     itxn_begin
     // inner_transactions/c2c.py:27
-    // application_id=self.hello_app.application_id,
+    // app_id=self.hello_app,
     int 0
     byte "hello_app"
     app_global_get_ex
     assert // check value exists
+    // inner_transactions/c2c.py:26
+    // hello_call = itxn.ApplicationCall(
+    int appl
+    itxn_field TypeEnum
+    itxn_field ApplicationID
     // inner_transactions/c2c.py:28
-    // application_args=(arc4.arc4_signature("hello(string)string"), name),
+    // app_args=(arc4.arc4_signature("hello(string)string"), name),
     method "hello(string)string"
     itxn_field ApplicationArgs
     frame_dig -1
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
-    // inner_transactions/c2c.py:26
-    // hello_call = itxn.ApplicationCallTransactionParams(
-    int appl
-    itxn_field TypeEnum
     // inner_transactions/c2c.py:26-29
-    // hello_call = itxn.ApplicationCallTransactionParams(
-    //     application_id=self.hello_app.application_id,
-    //     application_args=(arc4.arc4_signature("hello(string)string"), name),
+    // hello_call = itxn.ApplicationCall(
+    //     app_id=self.hello_app,
+    //     app_args=(arc4.arc4_signature("hello(string)string"), name),
     // ).submit()
     itxn_submit
     itxn LastLog

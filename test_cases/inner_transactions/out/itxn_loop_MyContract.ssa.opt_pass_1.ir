@@ -11,11 +11,11 @@ contract test_cases.inner_transactions.itxn_loop.MyContract:
                 goto block@1
             block@1: // for_header_L28
                 let i#0: uint64 = φ(range_item%0#0 <- block@0, range_item%0#5 <- block@11)
+                let app_params%%param_Note_idx_0#6: bytes = φ(app_params%%param_Note_idx_0#0 <- block@0, app_params%%param_Note_idx_0#4 <- block@11)
                 let app_params%%ApplicationArgs_length#6: uint64 = φ(app_params%%ApplicationArgs_length#0 <- block@0, app_params%%ApplicationArgs_length#4 <- block@11)
                 let app_params%%param_ApplicationArgs_idx_0#5: bytes = φ(app_params%%param_ApplicationArgs_idx_0#6 <- block@0, app_params%%param_ApplicationArgs_idx_0#3 <- block@11)
                 let app_params%%param_ApplicationArgs_idx_1#4: bytes = φ(app_params%%param_ApplicationArgs_idx_1#5 <- block@0, app_params%%param_ApplicationArgs_idx_1#2 <- block@11)
                 let app_params%%param_ApplicationArgs_idx_2#3: bytes = φ(app_params%%param_ApplicationArgs_idx_2#4 <- block@0, app_params%%param_ApplicationArgs_idx_2#1 <- block@11)
-                let app_params%%param_Note_idx_0#7: bytes = φ(app_params%%param_Note_idx_0#0 <- block@0, app_params%%param_Note_idx_0#5 <- block@11)
                 let continue_looping%1#0: uint64 = (< i#0 4u)
                 goto continue_looping%1#0 ? block@2 : block@15
             block@2: // for_body_L28
@@ -39,12 +39,18 @@ contract test_cases.inner_transactions.itxn_loop.MyContract:
             block@6: // switch_case_default_L30
                 goto block@7
             block@7: // switch_case_next_L30
+                let app_params%%param_Note_idx_0#4: bytes = φ(i_note#0 <- block@3, i_note#0 <- block@4, i_note#0 <- block@5, app_params%%param_Note_idx_0#6 <- block@6, app_params%%param_Note_idx_0#6 <- block@2)
                 let app_params%%ApplicationArgs_length#4: uint64 = φ(app_params%%ApplicationArgs_length#1 <- block@3, app_params%%ApplicationArgs_length#2 <- block@4, app_params%%ApplicationArgs_length#3 <- block@5, app_params%%ApplicationArgs_length#6 <- block@6, app_params%%ApplicationArgs_length#6 <- block@2)
                 let app_params%%param_ApplicationArgs_idx_0#3: bytes = φ(app_params%%param_ApplicationArgs_idx_0#0 <- block@3, app_params%%param_ApplicationArgs_idx_0#1 <- block@4, app_params%%param_ApplicationArgs_idx_0#2 <- block@5, app_params%%param_ApplicationArgs_idx_0#5 <- block@6, app_params%%param_ApplicationArgs_idx_0#5 <- block@2)
                 let app_params%%param_ApplicationArgs_idx_1#2: bytes = φ(app_params%%param_ApplicationArgs_idx_1#4 <- block@3, app_params%%param_ApplicationArgs_idx_1#0 <- block@4, app_params%%param_ApplicationArgs_idx_1#1 <- block@5, app_params%%param_ApplicationArgs_idx_1#4 <- block@6, app_params%%param_ApplicationArgs_idx_1#4 <- block@2)
                 let app_params%%param_ApplicationArgs_idx_2#1: bytes = φ(app_params%%param_ApplicationArgs_idx_2#3 <- block@3, app_params%%param_ApplicationArgs_idx_2#3 <- block@4, app_params%%param_ApplicationArgs_idx_2#0 <- block@5, app_params%%param_ApplicationArgs_idx_2#3 <- block@6, app_params%%param_ApplicationArgs_idx_2#3 <- block@2)
-                let app_params%%param_Note_idx_0#5: bytes = φ(i_note#0 <- block@3, i_note#0 <- block@4, i_note#0 <- block@5, app_params%%param_Note_idx_0#7 <- block@6, app_params%%param_Note_idx_0#7 <- block@2)
                 itxn_begin
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field Note) app_params%%param_Note_idx_0#4)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ClearStateProgramPages) 0x0a8101)
+                ((itxn_field ApprovalProgramPages) 0x0a8101)
                 let is_ApplicationArgs_count_gte_1%2#0: uint64 = (>= app_params%%ApplicationArgs_length#4 1u)
                 goto is_ApplicationArgs_count_gte_1%2#0 ? block@8 : block@11
             block@8: // set_ApplicationArgs_0_to_0_L40
@@ -59,12 +65,6 @@ contract test_cases.inner_transactions.itxn_loop.MyContract:
                 ((itxn_field ApplicationArgs) app_params%%param_ApplicationArgs_idx_2#1)
                 goto block@11
             block@11: // next_field_L40
-                ((itxn_field ApprovalProgramPages) 0x0a8101)
-                ((itxn_field ClearStateProgramPages) 0x0a8101)
-                ((itxn_field Fee) 0u)
-                ((itxn_field Note) app_params%%param_Note_idx_0#5)
-                ((itxn_field OnCompletion) DeleteApplication)
-                ((itxn_field TypeEnum) appl)
                 itxn_submit
                 let app_txn%%Note#0: bytes = (itxn Note)
                 let app_txn%%NumAppArgs#0: uint64 = (itxn NumAppArgs)

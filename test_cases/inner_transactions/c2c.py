@@ -11,21 +11,21 @@ class Greeter(ARC4Contract):
     def bootstrap(self) -> UInt64:
         assert not self.hello_app, "already bootstrapped"
         self.hello_app = (
-            itxn.ApplicationCallTransactionParams(
+            itxn.ApplicationCall(
                 approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
                 clear_state_program=HELLO_WORLD_CLEAR,
                 fee=0,
             )
             .submit()
-            .created_application
+            .created_app
         )
         return self.hello_app.application_id
 
     @arc4.abimethod()
     def log_greetings(self, name: arc4.String) -> None:
-        hello_call = itxn.ApplicationCallTransactionParams(
-            application_id=self.hello_app.application_id,
-            application_args=(arc4.arc4_signature("hello(string)string"), name),
+        hello_call = itxn.ApplicationCall(
+            app_id=self.hello_app,
+            app_args=(arc4.arc4_signature("hello(string)string"), name),
         ).submit()
         greeting = arc4.String.from_log(hello_call.last_log)
         log(b"HelloWorld returned: ", greeting.decode())

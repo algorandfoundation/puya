@@ -85,14 +85,14 @@ class TransactionContract(arc4.ARC4Contract):
     @arc4.abimethod
     def application_call(self, txn: gtxn.ApplicationCallTransaction) -> None:
         self._common_checks(txn)
-        assert txn.application_id, "application_id"
+        assert txn.app_id, "app_id"
         assert txn.on_completion, "on_completion"
         assert txn.num_app_args, "num_app_args"
         assert txn.num_accounts, "num_accounts"
         assert txn.approval_program, "approval_program"
         assert txn.clear_state_program, "clear_state_program"
         assert txn.num_assets, "num_assets"
-        assert txn.num_applications, "num_applications"
+        assert txn.num_apps, "num_apps"
         assert txn.global_num_uint, "global_num_uint"
         assert txn.global_num_byte_slice, "global_num_byte_slice"
         assert txn.local_num_uint, "local_num_uint"
@@ -101,10 +101,10 @@ class TransactionContract(arc4.ARC4Contract):
         assert txn.last_log, "last_log"
         assert txn.num_approval_program_pages, "num_approval_program_pages"
         assert txn.num_clear_state_program_pages, "num_clear_state_program_pages"
-        assert txn.application_args(0), "application_args(0)"
+        assert txn.app_args(0), "app_args(0)"
         assert txn.accounts(0), "accounts(0)"
         assert txn.assets(0), "assets(0)"
-        assert txn.applications(0), "applications(0)"
+        assert txn.apps(0), "apps(0)"
         assert txn.approval_program_pages(0), "approval_program_pages(0)"
         assert txn.clear_state_program_pages(0), "clear_state_program_pages(0)"
 
@@ -125,8 +125,8 @@ class TransactionContract(arc4.ARC4Contract):
         _txn2: gtxn.ApplicationCallTransaction,
         _txn3: gtxn.ApplicationCallTransaction,
     ) -> None:
-        txn1 = gtxn.AnyTransaction(0)
-        txn2 = gtxn.AnyTransaction(1)
-        txn3 = gtxn.AnyTransaction(2)
+        txn1 = gtxn.Transaction(0)
+        txn2 = gtxn.Transaction(1)
+        txn3 = gtxn.Transaction(2)
         for index, txn in uenumerate((txn1, txn2, txn3)):
             assert txn.group_index == index

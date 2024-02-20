@@ -270,7 +270,7 @@ class ConstantProductAMM(ARC4Contract):
     @subroutine
     def _create_pool_token(self) -> Asset:
         return (
-            itxn.AssetConfigTransactionParams(
+            itxn.AssetConfig(
                 asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
                 unit_name=b"dbt",
                 total=TOTAL_SUPPLY,
@@ -358,7 +358,7 @@ def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) 
 
 @subroutine
 def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
-    itxn.AssetTransferTransactionParams(
+    itxn.AssetTransfer(
         xfer_asset=asset,
         asset_amount=amount,
         asset_receiver=receiver,

@@ -5,15 +5,15 @@ creating and submitting inner transactions.
 
 The following types are available:
 
-| Group Transaction                                                    | Inner Transaction Parameters                                                     | Inner Transaction                                                              |
-|----------------------------------------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [PaymentTransaction](puyapy.gtxn.PaymentTransaction)                 | [PaymentTransactionParams](puyapy.itxn.PaymentTransactionParams)                 | [PaymentInnerTransaction](puyapy.itxn.PaymentInnerTransaction)                 |
-| [KeyRegistrationTransaction](puyapy.gtxn.KeyRegistrationTransaction) | [KeyRegistrationTransactionParams](puyapy.itxn.KeyRegistrationTransactionParams) | [KeyRegistrationInnerTransaction](puyapy.itxn.KeyRegistrationInnerTransaction) |
-| [AssetConfigTransaction](puyapy.gtxn.AssetConfigTransaction)         | [AssetConfigTransactionParams](puyapy.itxn.AssetConfigTransactionParams)         | [AssetConfigInnerTransaction](puyapy.itxn.AssetConfigInnerTransaction)         |
-| [AssetTransferTransaction](puyapy.gtxn.AssetTransferTransaction)     | [AssetTransferTransactionParams](puyapy.itxn.AssetTransferTransactionParams)     | [AssetTransferInnerTransaction](puyapy.itxn.AssetTransferInnerTransaction)     |
-| [AssetFreezeTransaction](puyapy.gtxn.AssetFreezeTransaction)         | [AssetFreezeTransactionParams](puyapy.itxn.AssetFreezeTransactionParams)         | [AssetFreezeInnerTransaction](puyapy.itxn.AssetFreezeInnerTransaction)         |
-| [ApplicationCallTransaction](puyapy.gtxn.ApplicationCallTransaction) | [ApplicationCallTransactionParams](puyapy.itxn.ApplicationCallTransactionParams) | [ApplicationCallInnerTransaction](puyapy.itxn.ApplicationCallInnerTransaction) |
-| [AnyTransaction](puyapy.gtxn.AnyTransaction)                         | [AnyTransactionParams](puyapy.itxn.AnyTransactionParams)                         | [AnyInnerTransaction](puyapy.itxn.AnyInnerTransaction)                         |
+| Group Transactions                                                   | Inner Transaction Field sets                     | Inner Transaction                                                              |
+|----------------------------------------------------------------------|--------------------------------------------------|--------------------------------------------------------------------------------|
+| [PaymentTransaction](puyapy.gtxn.PaymentTransaction)                 | [Payment](puyapy.itxn.Payment)                   | [PaymentInnerTransaction](puyapy.itxn.PaymentInnerTransaction)                 |
+| [KeyRegistrationTransaction](puyapy.gtxn.KeyRegistrationTransaction) | [KeyRegistration](puyapy.itxn.KeyRegistration)   | [KeyRegistrationInnerTransaction](puyapy.itxn.KeyRegistrationInnerTransaction) |
+| [AssetConfigTransaction](puyapy.gtxn.AssetConfigTransaction)         | [AssetConfig](puyapy.itxn.AssetConfig)           | [AssetConfigInnerTransaction](puyapy.itxn.AssetConfigInnerTransaction)         |
+| [AssetTransferTransaction](puyapy.gtxn.AssetTransferTransaction)     | [AssetTransfer](puyapy.itxn.AssetTransfer)       | [AssetTransferInnerTransaction](puyapy.itxn.AssetTransferInnerTransaction)     |
+| [AssetFreezeTransaction](puyapy.gtxn.AssetFreezeTransaction)         | [AssetFreeze](puyapy.itxn.AssetFreeze)           | [AssetFreezeInnerTransaction](puyapy.itxn.AssetFreezeInnerTransaction)         |
+| [ApplicationCallTransaction](puyapy.gtxn.ApplicationCallTransaction) | [ApplicationCall](puyapy.itxn.ApplicationCall)   | [ApplicationCallInnerTransaction](puyapy.itxn.ApplicationCallInnerTransaction) |
+| [Transaction](puyapy.gtxn.Transaction)                               | [InnerTransaction](puyapy.itxn.InnerTransaction) | [InnerTransactionResult](puyapy.itxn.InnerTransactionResult)                   |
 
 
 ## Group Transactions
@@ -25,6 +25,7 @@ Group transactions can be used as ARC4 parameters or instantiated from a group i
 Group transactions can be used as parameters in ARC4 method
 
 For example to require a payment transaction in an ARC4 ABI method:
+
 ```python
 import puyapy
 
@@ -37,18 +38,20 @@ class MyContract(puyapy.ARC4Contract):
 ```
 
 ```{note}
-The [AnyTransaction](puyapy.gtxn.AnyTransaction) type cannot be used as an ARC4 ABI argument
+The [Transaction](puyapy.gtxn.Transaction) type cannot be used as an ARC4 ABI argument
 ```
 
 ### Group Index
 
 Group transactions can also be created using the group index of the transaction. 
 If instantiating one of the type specific transactions they will be checked to ensure the transaction is of the expected type.
-The [AnyTransaction](puyapy.gtxn.AnyTransaction) is not checked for a specific type and provides access to all transaction fields
+[Transaction](puyapy.gtxn.Transaction) is not checked for a specific type and provides access to all transaction fields
 
 For example, to obtain a reference to a payment transaction:
+
 ```python
 import puyapy
+
 
 @puyapy.subroutine()
 def process_payment(group_index: puyapy.UInt64) -> None:
@@ -72,7 +75,7 @@ from puyapy import Account, UInt64, itxn, subroutine
 
 @subroutine
 def example(amount: UInt64, receiver: Account) -> None:
-    itxn.PaymentTransactionParams(
+    itxn.Payment(
         amount=amount,
         receiver=receiver,
         fee=0,
@@ -87,7 +90,7 @@ from puyapy import Asset, itxn, subroutine
 
 @subroutine
 def example() -> Asset:
-    asset_txn = itxn.AssetConfigTransactionParams(
+    asset_txn = itxn.AssetConfig(
         asset_name=b"Puya",
         unit_name=b"PYA",
         total=1000,
@@ -105,23 +108,23 @@ from puyapy import Asset, Bytes, itxn, log, subroutine
 
 @subroutine
 def example() -> tuple[Asset, Bytes]:
-    asset1_params = itxn.AssetConfigTransactionParams(
+    asset1_params = itxn.AssetConfig(
         asset_name=b"Puya",
         unit_name=b"PYA",
         total=1000,
         decimals=3,
         fee=0,
     )
-    app_params = itxn.ApplicationCallTransactionParams(
-        application_id=1234,
-        application_args=(Bytes(b"arg1"), Bytes(b"arg1"))
+    app_params = itxn.ApplicationCall(
+        app_id=1234,
+        app_args=(Bytes(b"arg1"), Bytes(b"arg1"))
     )
     asset1_txn, app_txn = itxn.submit_txns(asset1_params, app_params)
     # log some details
     log(app_txn.logs(0))
     log(asset1_txn.txn_id)
     log(app_txn.txn_id)
-    
+
     return asset1_txn.created_asset, app_txn.logs(1)
 ```
 
@@ -129,27 +132,29 @@ def example() -> tuple[Asset, Bytes]:
 
 ```python
 from puyapy import Bytes, arc4, itxn, subroutine
+
 HELLO_WORLD_APPROVAL: bytes = ...
 HELLO_WORLD_CLEAR: bytes = ...
+
 
 @subroutine
 def example() -> None:
     # create an application
-    application_txn = itxn.ApplicationCallTransactionParams(
+    application_txn = itxn.ApplicationCall(
         approval_program=HELLO_WORLD_APPROVAL,
         clear_state_program=HELLO_WORLD_CLEAR,
         fee=0,
     ).submit()
-    
+
     # invoke an ABI method
-    call_txn = itxn.ApplicationCallTransactionParams(
-        application_id=application_txn.created_application,
-        application_args=(arc4.arc4_signature("hello(string)string"), Bytes(b"World")),
+    call_txn = itxn.ApplicationCall(
+        app_id=application_txn.created_app,
+        app_args=(arc4.arc4_signature("hello(string)string"), Bytes(b"World")),
         fee=0,
     ).submit()
     # extract result
     hello_world_result = arc4.String.from_log(call_txn.last_log)
-    
+
     assert hello_world_result.decode() == b"Hello World"
 ```
 
@@ -158,10 +163,11 @@ def example() -> None:
 ```python
 from puyapy import Account, UInt64, itxn, subroutine
 
+
 @subroutine
 def example(receivers: tuple[Account, Account, Account]) -> None:
     for receiver in receivers:
-        itxn.PaymentTransactionParams(
+        itxn.Payment(
             amount=UInt64(1_000_000),
             receiver=receiver,
             fee=0,
@@ -176,24 +182,28 @@ Inner transactions are powerful, but currently do have some restrictions in how 
 ```python
 from puyapy import Application, Bytes, itxn, subroutine
 
+
 @subroutine
 def parameter_not_allowed(txn: itxn.PaymentInnerTransaction) -> None:
     # this is a compile error
     ...
+
 
 @subroutine
 def return_not_allowed() -> itxn.PaymentInnerTransaction:
     # this is a compile error
     ...
 
-@subroutine
-def passing_fields_allowed() -> Application:
-    txn = itxn.ApplicationCallTransactionParams(...).submit()
-    do_something(txn.txn_id, txn.logs(0)) # this is ok
-    return txn.created_application # and this is ok
 
 @subroutine
-def do_something(txn_id: Bytes): # this is just a regular subroutine
+def passing_fields_allowed() -> Application:
+    txn = itxn.ApplicationCall(...).submit()
+    do_something(txn.txn_id, txn.logs(0))  # this is ok
+    return txn.created_app  # and this is ok
+
+
+@subroutine
+def do_something(txn_id: Bytes):  # this is just a regular subroutine
     ...
 ```
 
@@ -202,11 +212,12 @@ def do_something(txn_id: Bytes): # this is just a regular subroutine
 ```python
 from puyapy import itxn, subroutine
 
+
 @subroutine
 def example() -> None:
-    payment = itxn.PaymentTransactionParams(...)
-    reassigned_payment = payment # this is an error
-    copied_payment = payment.copy() # this is ok
+    payment = itxn.Payment(...)
+    reassigned_payment = payment  # this is an error
+    copied_payment = payment.copy()  # this is ok
 ```
 
 #### Inner transactions cannot be reassigned
@@ -214,11 +225,12 @@ def example() -> None:
 ```python
 from puyapy import itxn, subroutine
 
+
 @subroutine
 def example() -> None:
-    payment_txn = itxn.PaymentTransactionParams(...).submit()
-    reassigned_payment_txn = payment_txn # this is an error
-    txn_id = payment_txn.txn_id # this is ok
+    payment_txn = itxn.Payment(...).submit()
+    reassigned_payment_txn = payment_txn  # this is an error
+    txn_id = payment_txn.txn_id  # this is ok
 ```
 
 #### Inner transactions methods cannot be called if there is a subsequent inner transaction submitted.
@@ -226,14 +238,15 @@ def example() -> None:
 ```python
 from puyapy import itxn, subroutine
 
+
 @subroutine
 def example() -> None:
-    app_1 = itxn.ApplicationCallTransactionParams(...).submit()
-    log_from_call1 = app_1.logs(0) # this is ok
-    
+    app_1 = itxn.ApplicationCall(...).submit()
+    log_from_call1 = app_1.logs(0)  # this is ok
+
     # another inner transaction is submitted
-    itxn.ApplicationCallTransactionParams(...).submit()
-    
-    app1_txn_id = app_1.txn_id # this is ok, properties are still available
-    another_log_from_call1 = app_1.logs(1) # this will error at runtime as the array results are no longer available
+    itxn.ApplicationCall(...).submit()
+
+    app1_txn_id = app_1.txn_id  # this is ok, properties are still available
+    another_log_from_call1 = app_1.logs(1)  # this will error at runtime as the array results are no longer available
 ```

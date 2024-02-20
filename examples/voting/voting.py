@@ -141,7 +141,7 @@ class VotingRoundApp(ARC4Contract):
                 note += b"]"
         note += b"]}}"
         self.nft_asset_id = (
-            itxn.AssetConfigTransactionParams(
+            itxn.AssetConfig(
                 total=1,
                 decimals=0,
                 default_frozen=False,

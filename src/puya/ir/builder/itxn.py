@@ -112,7 +112,7 @@ class InnerTransactionBuilder:
                         stmt.source_location,
                     )
             self.handle_submit_inner_transaction(stmt.value, names)
-        elif isinstance(stmt.value.wtype, wtypes.WInnerTransactionParams):
+        elif isinstance(stmt.value.wtype, wtypes.WInnerTransactionFields):
             match stmt.target:
                 case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
                     pass
@@ -136,7 +136,7 @@ class InnerTransactionBuilder:
                     )
 
         elif isinstance(
-            stmt.value.wtype, (wtypes.WInnerTransaction, wtypes.WInnerTransactionParams)
+            stmt.value.wtype, (wtypes.WInnerTransaction, wtypes.WInnerTransactionFields)
         ):
             raise CodeError(
                 "Inner Transactions cannot be reassigned",
@@ -220,7 +220,10 @@ class InnerTransactionBuilder:
             next_txn = BasicBlock(comment="next_txn", source_location=submit.source_location)
             param_data = self._inner_txn_params_data[param_var_name]
 
-            for field, field_data in param_data.fields.items():
+            # with the current implementation, reversing the order itxn_field is called
+            # results in less stack manipulations as most values are naturally in the
+            # required order when stack allocation occurs
+            for field, field_data in reversed(param_data.fields.items()):
                 field_value_counts = sorted(field_data.field_counts)
                 if not field_value_counts or field_value_counts == [0]:
                     # nothing to do

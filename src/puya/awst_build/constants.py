@@ -26,7 +26,6 @@ CLS_BYTES_ALIAS = f"{PUYAPY_PREFIX}Bytes"
 CLS_BIGUINT = f"{PUYAPY_PREFIX}_primitives.BigUInt"
 CLS_BIGUINT_ALIAS = f"{PUYAPY_PREFIX}BigUInt"
 CLS_TRANSACTION_BASE = f"{PUYAPY_PREFIX}gtxn.TransactionBase"
-CLS_TRANSACTION_BASE_ALIAS = CLS_TRANSACTION_BASE
 CLS_LOCAL_STATE = f"{PUYAPY_PREFIX}_state.LocalState"
 CLS_LOCAL_STATE_ALIAS = f"{PUYAPY_PREFIX}.LocalState"
 CLS_GLOBAL_STATE = f"{PUYAPY_PREFIX}_state.GlobalState"
@@ -89,10 +88,10 @@ class TransactionType(enum.IntEnum):
 
 
 class _TransactionTypeNames:
-    def __init__(self, name: str):
-        self.group_transaction = f"{PUYAPY_PREFIX}gtxn.{name}Transaction"
-        self.inner_transaction = f"{PUYAPY_PREFIX}itxn.{name}InnerTransaction"
-        self.inner_transaction_params = f"{PUYAPY_PREFIX}itxn.{name}TransactionParams"
+    def __init__(self, name: str, itxn_fields: str | None = None, itxn_result: str | None = None):
+        self.gtxn = f"{PUYAPY_PREFIX}gtxn.{name}Transaction"
+        self.itxn_fields = itxn_fields or f"{PUYAPY_PREFIX}itxn.{name}"
+        self.itxn_result = itxn_result or f"{PUYAPY_PREFIX}itxn.{name}InnerTransaction"
 
 
 TRANSACTION_TYPE_TO_CLS = {
@@ -102,7 +101,9 @@ TRANSACTION_TYPE_TO_CLS = {
     TransactionType.axfer: _TransactionTypeNames("AssetTransfer"),
     TransactionType.afrz: _TransactionTypeNames("AssetFreeze"),
     TransactionType.appl: _TransactionTypeNames("ApplicationCall"),
-    None: _TransactionTypeNames("Any"),
+    None: _TransactionTypeNames(
+        "", f"{PUYAPY_PREFIX}itxn.InnerTransaction", f"{PUYAPY_PREFIX}itxn.InnerTransactionResult"
+    ),
 }
 
 ENUM_CLS_ON_COMPLETE_ACTION = f"{PUYAPY_PREFIX}_constants.OnCompleteAction"
