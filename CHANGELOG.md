@@ -1,6 +1,33 @@
 # CHANGELOG
 
 
+## v0.6.0 (2024-02-20)
+
+### Feature
+
+* improve coalescing by performing before sequentialisation, thus reducing chances of interference ([`a29fba9`](https://github.com/algorandfoundation/puya/commit/a29fba9d859cf8f201efe4797309f5137cfbc6cd))
+
+* reduce number of iterations required by optimiser by enabling fixed point iteration within ControlOp simplifier optimisation step ([`b7b27d3`](https://github.com/algorandfoundation/puya/commit/b7b27d3e9176c050140f1ad3b5ea66924dceb48a))
+
+* add simple pass to collapse constants repeated &gt;= 2 times by using a dupn ([`47d90d6`](https://github.com/algorandfoundation/puya/commit/47d90d61c37c41de6244171a69b3cef5fdb32556))
+
+* add duplicate block elimination as a post-SSA optimisation, at -O2 or above since it can mess with debugging info quite a bit ([`c13d8fe`](https://github.com/algorandfoundation/puya/commit/c13d8feedd55546d356348cef8acd81639fbb50f))
+
+* add API for creating and submitting inner transactions (#98) ([`6b76183`](https://github.com/algorandfoundation/puya/commit/6b76183ef6ff15b3fa8ad9b9cde60f008d063a4b))
+
+* move ops into their own module ([`7678a7e`](https://github.com/algorandfoundation/puya/commit/7678a7e862a76912b1792326532fadd08919453a))
+
+* fix generated class names that are acronyms (#91) ([`bd3f222`](https://github.com/algorandfoundation/puya/commit/bd3f222904819205b87dce574d0bbbefc6409121))
+
+### Fix
+
+* reduce number of iterations required in TEAL optimiser ([`597b939`](https://github.com/algorandfoundation/puya/commit/597b9393ffa792ec0ddb2a684b10734d5c5910e6))
+
+* reduce number of iterations required in RCE optimizer, and ensure dominator set is stable by sorting it ([`2af7135`](https://github.com/algorandfoundation/puya/commit/2af71351104b92a0cc8f9d126bb59cf2616ca320))
+
+* if simplifying a control op by inlining a block then ensure successor phi arguments are also updated ([`bdbdb11`](https://github.com/algorandfoundation/puya/commit/bdbdb112b2aa526ae4f3a3246665f0fe8adfea30))
+
+
 ## v0.5.1 (2024-02-09)
 
 ### Performance
