@@ -409,7 +409,7 @@ def _try_simplify_uint64_binary_op(
                 c = 0
             case AVMOp.eq | AVMOp.lte | AVMOp.gte:
                 c = 1
-            case AVMOp.neq:
+            case AVMOp.neq | AVMOp.lt | AVMOp.gt:
                 c = 0
             case AVMOp.div_floor:
                 c = 1
@@ -508,12 +508,16 @@ def _try_simplify_bytes_binary_op(
         match op:
             case AVMOp.sub_bytes:
                 c = 0
-            case AVMOp.eq_bytes | AVMOp.eq:
+            case AVMOp.eq_bytes | AVMOp.eq | AVMOp.lte_bytes | AVMOp.gte_bytes:
                 c = 1
-            case AVMOp.neq_bytes | AVMOp.neq:
+            case AVMOp.neq_bytes | AVMOp.neq | AVMOp.lt_bytes | AVMOp.gt_bytes:
                 c = 0
             case AVMOp.div_floor_bytes:
                 c = 1
+            case AVMOp.bitwise_xor_bytes:
+                c = 0
+            case AVMOp.bitwise_and_bytes | AVMOp.bitwise_or_bytes:
+                c = a
     if c is None:
         a_const, a_const_bytes, a_encoding = _get_biguint_constant(subroutine, a)
         b_const, b_const_bytes, b_encoding = _get_biguint_constant(subroutine, b)
