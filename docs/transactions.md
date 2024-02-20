@@ -116,8 +116,8 @@ def example() -> tuple[Asset, Bytes]:
         fee=0,
     )
     app_params = itxn.ApplicationCall(
-        application_id=1234,
-        application_args=(Bytes(b"arg1"), Bytes(b"arg1"))
+        app_id=1234,
+        app_args=(Bytes(b"arg1"), Bytes(b"arg1"))
     )
     asset1_txn, app_txn = itxn.submit_txns(asset1_params, app_params)
     # log some details
@@ -148,8 +148,8 @@ def example() -> None:
 
     # invoke an ABI method
     call_txn = itxn.ApplicationCall(
-        application_id=application_txn.created_app,
-        application_args=(arc4.arc4_signature("hello(string)string"), Bytes(b"World")),
+        app_id=application_txn.created_app,
+        app_args=(arc4.arc4_signature("hello(string)string"), Bytes(b"World")),
         fee=0,
     ).submit()
     # extract result
