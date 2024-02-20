@@ -12,14 +12,13 @@ from puya.awst.nodes import (
     BigUIntBinaryOperation,
     BigUIntBinaryOperator,
     BigUIntConstant,
-    Expression,
-    IntrinsicCall,
     Literal,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
     Statement,
 )
+from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -28,7 +27,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype
+from puya.awst_build.utils import convert_literal_to_expr
 from puya.errors import CodeError, TodoError
 
 if TYPE_CHECKING:
@@ -55,7 +54,7 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [ExpressionBuilder() as eb]:
-                itob_call = _uint64_to_biguint(eb, location)
+                itob_call = uint64_to_biguint(eb, location)
                 return var_expression(itob_call)
             case [Literal(value=int(int_value), source_location=loc)]:
                 # TODO: replace with loc with location
@@ -100,7 +99,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         if other_expr.wtype == self.wtype:
             pass
         elif other_expr.wtype == wtypes.uint64_wtype:
-            other_expr = _uint64_to_biguint(other, location)
+            other_expr = uint64_to_biguint(other, location)
         elif other_expr.wtype == wtypes.bool_wtype:
             raise TodoError(location, "TODO: support upcast from bool to biguint")
         else:
@@ -125,7 +124,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         if other_expr.wtype == self.wtype:
             pass
         elif other_expr.wtype == wtypes.uint64_wtype:
-            other_expr = _uint64_to_biguint(other, location)
+            other_expr = uint64_to_biguint(other, location)
         elif other_expr.wtype == wtypes.bool_wtype:
             raise TodoError(location, "TODO: support upcast from bool to biguint")
         else:
@@ -147,7 +146,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         if value.wtype == self.wtype:
             pass
         elif value.wtype == wtypes.uint64_wtype:
-            value = _uint64_to_biguint(rhs, location)
+            value = uint64_to_biguint(rhs, location)
         elif value.wtype == wtypes.bool_wtype:
             raise TodoError(location, "TODO: support upcast from bool to biguint")
         else:
@@ -162,19 +161,6 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
             value=value,
             op=biguint_op,
         )
-
-
-def _uint64_to_biguint(
-    arg_in: ExpressionBuilder | Expression | Literal, location: SourceLocation
-) -> IntrinsicCall:
-    arg = expect_operand_wtype(arg_in, wtypes.uint64_wtype)
-    itob_call = IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.biguint_wtype,
-        op_code="itob",
-        stack_args=[arg],
-    )
-    return itob_call
 
 
 def _translate_biguint_math_operator(

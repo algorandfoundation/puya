@@ -963,6 +963,13 @@ def test_abi_bool_eval(harness: _TestHarness) -> None:
     )
 
 
+def test_arc4_uintn_comparisons(harness: _TestHarness) -> None:
+    harness.deploy(
+        TEST_CASES_DIR / "arc4_numeric_comparisons" / "uint_n.py",
+        AppCallRequest(increase_budget=1),
+    )
+
+
 @pytest.mark.parametrize(
     ("test_case", "expected_logic_error"),
     [
