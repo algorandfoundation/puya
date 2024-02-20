@@ -12,13 +12,13 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AddressConstant,
     AssignmentExpression,
-    BigUIntConstant,
     BoolConstant,
     BytesConstant,
     BytesEncoding,
     ConstantValue,
     ContractReference,
     Expression,
+    IntegerConstant,
     Literal,
     ReinterpretCast,
     TemporaryVariable,
@@ -216,10 +216,8 @@ def convert_literal(
     match target_wtype:
         case wtypes.bool_wtype:
             return BoolConstant(value=literal_value, source_location=loc)
-        case wtypes.uint64_wtype:
-            return UInt64Constant(value=literal_value, source_location=loc)
-        case wtypes.biguint_wtype:
-            return BigUIntConstant(value=literal_value, source_location=loc)
+        case wtypes.uint64_wtype | wtypes.biguint_wtype | wtypes.ARC4UIntN():
+            return IntegerConstant(value=literal_value, wtype=target_wtype, source_location=loc)
         case wtypes.bytes_wtype:
             try:
                 literal_value.decode("utf8")

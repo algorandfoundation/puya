@@ -75,6 +75,7 @@ class String(_ABIEncoded[puyapy.Bytes]):
         """Returns `True` if length is not zero"""
 
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
+_TBitSizeOther = typing.TypeVar("_TBitSizeOther", bound=int)
 
 class UIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.UInt64]):
     """An ARC4 UInt consisting of the number of bits specified.
@@ -82,6 +83,46 @@ class UIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.UInt64]):
     Max Size: 64 bits"""
 
     def __init__(self, value: int | puyapy.UInt64 | puyapy.BigUInt) -> None: ...
+
+    # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
+    # TODO: mypy suggests due to Liskov below should be other: object
+    #       need to consider ramifications here, ignoring it for now
+    def __eq__(self, other: UIntN[_TBitSizeOther] | BigUIntN[_TBitSizeOther] | puyapy.UInt64 | puyapy.BigUInt | int) -> bool:  # type: ignore[override]
+        ...
+    def __ne__(self, other: UIntN[_TBitSizeOther] | BigUIntN[_TBitSizeOther] | puyapy.UInt64 | puyapy.BigUInt | int) -> bool:  # type: ignore[override]
+        ...
+    def __le__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __lt__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __ge__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __gt__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
 
@@ -91,6 +132,46 @@ class BigUIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.BigUInt]):
     Max size: 512 bits"""
 
     def __init__(self, value: int | puyapy.UInt64 | puyapy.BigUInt) -> None: ...
+
+    # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
+    # TODO: mypy suggests due to Liskov below should be other: object
+    #       need to consider ramifications here, ignoring it for now
+    def __eq__(self, other: UIntN[_TBitSizeOther] | BigUIntN[_TBitSizeOther] | puyapy.UInt64 | puyapy.BigUInt | int) -> bool:  # type: ignore[override]
+        ...
+    def __ne__(self, other: UIntN[_TBitSizeOther] | BigUIntN[_TBitSizeOther] | puyapy.UInt64 | puyapy.BigUInt | int) -> bool:  # type: ignore[override]
+        ...
+    def __le__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __lt__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __ge__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __gt__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
 
