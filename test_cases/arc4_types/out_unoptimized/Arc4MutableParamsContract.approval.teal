@@ -1,0 +1,351 @@
+#pragma version 10
+
+test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program:
+    // arc4_types/mutable_params.py:29
+    // self.mutating_copies()
+    callsub mutating_copies
+    // arc4_types/mutable_params.py:31
+    // return True
+    int 1
+    return
+
+
+// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies() -> void:
+mutating_copies:
+    // arc4_types/mutable_params.py:33-34
+    // @subroutine
+    // def mutating_copies(self) -> None:
+    proto 0 0
+    // arc4_types/mutable_params.py:35
+    // my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
+    byte 0x
+    byte 0x01
+    concat
+    byte 0x02
+    concat
+    byte 0x03
+    concat
+    byte 0x04
+    concat
+    // arc4_types/mutable_params.py:37
+    // b_val=Bool(True),
+    byte 0x00
+    int 0
+    int 1
+    setbit
+    // arc4_types/mutable_params.py:36-41
+    // my_struct = TestStruct(
+    //     b_val=Bool(True),
+    //     u_val=UInt8(50),
+    //     s_val_1=String("Happy"),
+    //     s_val_2=String("Days"),
+    // )
+    int 6
+    swap
+    byte 0x
+    swap
+    concat
+    // arc4_types/mutable_params.py:38
+    // u_val=UInt8(50),
+    byte 0x32
+    // arc4_types/mutable_params.py:36-41
+    // my_struct = TestStruct(
+    //     b_val=Bool(True),
+    //     u_val=UInt8(50),
+    //     s_val_1=String("Happy"),
+    //     s_val_2=String("Days"),
+    // )
+    concat
+    dig 1
+    itob
+    extract 6 2
+    concat
+    swap
+    // arc4_types/mutable_params.py:39
+    // s_val_1=String("Happy"),
+    byte "\x00\x05Happy"
+    // arc4_types/mutable_params.py:36-41
+    // my_struct = TestStruct(
+    //     b_val=Bool(True),
+    //     u_val=UInt8(50),
+    //     s_val_1=String("Happy"),
+    //     s_val_2=String("Days"),
+    // )
+    len
+    +
+    itob
+    extract 6 2
+    concat
+    // arc4_types/mutable_params.py:39
+    // s_val_1=String("Happy"),
+    byte "\x00\x05Happy"
+    // arc4_types/mutable_params.py:36-41
+    // my_struct = TestStruct(
+    //     b_val=Bool(True),
+    //     u_val=UInt8(50),
+    //     s_val_1=String("Happy"),
+    //     s_val_2=String("Days"),
+    // )
+    concat
+    // arc4_types/mutable_params.py:40
+    // s_val_2=String("Days"),
+    byte "\x00\x04Days"
+    // arc4_types/mutable_params.py:36-41
+    // my_struct = TestStruct(
+    //     b_val=Bool(True),
+    //     u_val=UInt8(50),
+    //     s_val_1=String("Happy"),
+    //     s_val_2=String("Days"),
+    // )
+    concat
+    // arc4_types/mutable_params.py:43
+    // my_array_copy = my_array.copy()
+    dig 1
+    cover 2
+    // arc4_types/mutable_params.py:44
+    // my_struct_copy = my_struct.copy()
+    dup
+    cover 3
+    // arc4_types/mutable_params.py:46
+    // my_array[2] = UInt8(5)
+    byte 0x05
+    uncover 2
+    int 2
+    uncover 2
+    replace3
+    swap
+    // arc4_types/mutable_params.py:48
+    // assert my_array_copy[2] == UInt8(3), "my_array_copy should be unchanged"
+    int 2
+    int 1
+    *
+    dig 3
+    swap
+    int 1
+    extract3
+    byte 0x03
+    b==
+    assert // my_array_copy should be unchanged
+    // arc4_types/mutable_params.py:49
+    // assert my_array[2] == UInt8(5), "my_array should be mutated"
+    int 2
+    int 1
+    *
+    dig 2
+    swap
+    int 1
+    extract3
+    byte 0x05
+    b==
+    assert // my_array should be mutated
+    // arc4_types/mutable_params.py:51-52
+    // # Pass to subroutine without a copy
+    // self.other_routine(my_array, my_struct)
+    callsub other_routine
+    swap
+    // arc4_types/mutable_params.py:54
+    // assert my_array[1] == UInt8(5), "my_array has been mutated by the subroutine"
+    int 1
+    int 1
+    *
+    dig 1
+    swap
+    int 1
+    extract3
+    byte 0x05
+    b==
+    assert // my_array has been mutated by the subroutine
+    // arc4_types/mutable_params.py:56
+    // assert my_struct.s_val_1 == String(
+    dig 1
+    int 2
+    extract_uint16
+    dig 2
+    dig 1
+    extract_uint16
+    int 2
+    +
+    uncover 3
+    uncover 2
+    uncover 2
+    extract3
+    // arc4_types/mutable_params.py:56-58
+    // assert my_struct.s_val_1 == String(
+    //     "AARRGH!"
+    // ), "my_struct has been mutated by the subroutine"
+    byte "\x00\x07AARRGH!"
+    ==
+    assert // my_struct has been mutated by the subroutine
+    // arc4_types/mutable_params.py:60-61
+    // # Pass to subroutine with copy
+    // self.other_routine(my_array_copy.copy(), my_struct_copy.copy())
+    dig 1
+    dig 3
+    callsub other_routine
+    pop
+    pop
+    // arc4_types/mutable_params.py:63
+    // assert my_array_copy[1] == UInt8(
+    int 1
+    int 1
+    *
+    dig 2
+    swap
+    int 1
+    extract3
+    // arc4_types/mutable_params.py:64
+    // 2
+    byte 0x02
+    // arc4_types/mutable_params.py:63-64
+    // assert my_array_copy[1] == UInt8(
+    //     2
+    b==
+    // arc4_types/mutable_params.py:63-65
+    // assert my_array_copy[1] == UInt8(
+    //     2
+    // ), "my_array_copy should not be mutated by the subroutine"
+    assert // my_array_copy should not be mutated by the subroutine
+    // arc4_types/mutable_params.py:67
+    // assert my_struct_copy.s_val_1 == String(
+    dig 2
+    int 2
+    extract_uint16
+    dig 3
+    dig 1
+    extract_uint16
+    int 2
+    +
+    uncover 4
+    uncover 2
+    uncover 2
+    extract3
+    // arc4_types/mutable_params.py:67-69
+    // assert my_struct_copy.s_val_1 == String(
+    //     "Happy"
+    // ), "my_struct_copy should not be mutated by the subroutine"
+    byte "\x00\x05Happy"
+    ==
+    assert // my_struct_copy should not be mutated by the subroutine
+    // arc4_types/mutable_params.py:71
+    // my_array_copy_2 = my_array_copy.copy()
+    swap
+    // arc4_types/mutable_params.py:73
+    // my_array_copy_2 = self.other_routine_2(my_array_copy_2)
+    callsub other_routine_2
+    pop
+    // arc4_types/mutable_params.py:75
+    // assert my_array_copy_2[0] == UInt8(1), "my_array_copy_2 should have original value"
+    int 0
+    int 1
+    *
+    dig 1
+    swap
+    int 1
+    extract3
+    byte 0x01
+    b==
+    assert // my_array_copy_2 should have original value
+    // arc4_types/mutable_params.py:77
+    // self.other_routine_2(my_array_copy_2)
+    callsub other_routine_2
+    swap
+    pop
+    // arc4_types/mutable_params.py:78
+    // assert my_array_copy_2[0] == UInt8(10), "my_array_copy_2 should have mutated value"
+    int 0
+    int 1
+    *
+    int 1
+    extract3
+    byte 0x0a
+    b==
+    assert // my_array_copy_2 should have mutated value
+    // arc4_types/mutable_params.py:86-87
+    // # Nested array items should still require a copy
+    // nested = StructWithArray(test_array=my_array.copy())
+    byte 0x
+    swap
+    concat
+    // arc4_types/mutable_params.py:88
+    // self.other_routine_2(nested.test_array.copy())
+    int 0
+    int 4
+    extract3
+    callsub other_routine_2
+    pop
+    pop
+    retsub
+
+
+// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: bytes, struct: bytes) -> bytes, bytes:
+other_routine:
+    // arc4_types/mutable_params.py:90-91
+    // @subroutine
+    // def other_routine(self, array: TestArray, struct: TestStruct) -> None:
+    proto 2 2
+    // arc4_types/mutable_params.py:92
+    // array[1] = UInt8(5)
+    byte 0x05
+    frame_dig -2
+    int 1
+    uncover 2
+    replace3
+    frame_bury -2
+    // arc4_types/mutable_params.py:93
+    // struct.s_val_1 = String("AARRGH!")
+    byte "\x00\x07AARRGH!"
+    frame_dig -1
+    int 2
+    extract_uint16
+    frame_dig -1
+    int 0
+    dig 2
+    extract3
+    frame_dig -1
+    int 4
+    extract_uint16
+    frame_dig -1
+    len
+    frame_dig -1
+    uncover 2
+    uncover 2
+    substring3
+    swap
+    dig 3
+    concat
+    swap
+    concat
+    swap
+    uncover 2
+    len
+    +
+    itob
+    substring 6 8
+    replace2 4
+    frame_bury -1
+    frame_dig -2
+    frame_dig -1
+    retsub
+
+
+// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(array: bytes) -> bytes, bytes:
+other_routine_2:
+    // arc4_types/mutable_params.py:95-96
+    // @subroutine
+    // def other_routine_2(self, array: TestArray) -> TestArray:
+    proto 1 2
+    // arc4_types/mutable_params.py:97
+    // copy = array.copy()
+    frame_dig -1
+    // arc4_types/mutable_params.py:98
+    // array[0] = UInt8(10)
+    byte 0x0a
+    frame_dig -1
+    int 0
+    uncover 2
+    replace3
+    dup
+    frame_bury -1
+    // arc4_types/mutable_params.py:99
+    // return copy
+    retsub

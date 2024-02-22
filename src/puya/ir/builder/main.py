@@ -16,7 +16,12 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError, TodoError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, flow_control, state
-from puya.ir.builder._utils import assert_value, assign, mkblocks
+from puya.ir.builder._utils import (
+    assert_value,
+    assign,
+    mkblocks,
+    reassign,
+)
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
@@ -32,6 +37,7 @@ from puya.ir.models import (
     MethodConstant,
     Op,
     ProgramExit,
+    Register,
     Subroutine,
     SubroutineReturn,
     UInt64Constant,
@@ -80,7 +86,9 @@ class FunctionIRBuilder(
                 insert_on_create_call(func_ctx, to=on_create)
             function.body.accept(builder)
             if function.return_type == wtypes.void_wtype:
-                func_ctx.block_builder.maybe_add_implicit_subroutine_return()
+                func_ctx.block_builder.maybe_add_implicit_subroutine_return(
+                    subroutine.implicit_returns
+                )
             func_ctx.ssa.verify_complete()
             func_ctx.block_builder.validate_block_predecessors()
             result = list(func_ctx.block_builder.blocks)
@@ -97,11 +105,19 @@ class FunctionIRBuilder(
     def visit_copy(self, expr: puya.awst.nodes.Copy) -> TExpression:
         # For reference types, we need to clone the data
         # For value types, we can just visit the expression and the resulting read
-        # will effectively be a copy
+        # will effectively be a copy. We assign the copy to a new register in case it is
+        # mutated.
         match expr.value.wtype:
             case wtypes.ARC4Array() | wtypes.ARC4Struct():
                 # Arc4 encoded types are value types
-                return self.visit_and_materialise_single(expr.value)
+                original_value = self.visit_and_materialise_single(expr.value)
+                (copy,) = assign(
+                    temp_description="copy",
+                    source=original_value,
+                    source_location=expr.source_location,
+                    context=self.context,
+                )
+                return copy
         raise InternalError(
             f"Invalid source wtype for Copy {expr.value.wtype}", expr.source_location
         )
@@ -546,8 +562,35 @@ class FunctionIRBuilder(
             if name is not None:
                 name_idx = target_name_to_index[name]
                 resolved_args[name_idx] = val
-        return InvokeSubroutine(
+        invoke_expr = InvokeSubroutine(
             source_location=expr.source_location, args=resolved_args, target=target
+        )
+        if not target.implicit_returns:
+            return invoke_expr
+
+        return_values = self.materialise_value_provider(invoke_expr, "r_tmp")
+
+        for value, register in zip(
+            return_values[-len(target.implicit_returns) :], target.implicit_returns, strict=True
+        ):
+            arg_index = target_name_to_index[register.name]
+            arg_value = resolved_args[arg_index]
+            if isinstance(arg_value, Register):
+                reassign(
+                    self.context,
+                    source_location=expr.source_location,
+                    source=value,
+                    reg=arg_value,
+                )
+
+        explicit_return_values = list(return_values[0 : -len(target.implicit_returns)])
+        return (
+            ValueTuple(
+                values=explicit_return_values,
+                source_location=expr.source_location,
+            )
+            if explicit_return_values
+            else None
         )
 
     def visit_bytes_binary_operation(self, expr: awst_nodes.BytesBinaryOperation) -> TExpression:
@@ -699,6 +742,15 @@ class FunctionIRBuilder(
             result = list(self.visit_and_materialise(statement.value))
         else:
             result = []
+
+        for implicit_return in self.context.subroutine.implicit_returns:
+            result.append(
+                self.context.ssa.read_variable(
+                    implicit_return.name,
+                    implicit_return.atype,
+                    self.context.block_builder.active_block,
+                )
+            )
         return_types = [r.atype for r in result]
         if not (
             len(return_types) == len(self.context.subroutine.returns)

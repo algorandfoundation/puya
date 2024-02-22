@@ -663,6 +663,7 @@ class Subroutine(Context):
     method_name: str
     parameters: Sequence[Register]
     returns: Sequence[AVMType]
+    implicit_returns: Sequence[Register]
     body: list[BasicBlock] = attrs.field()
 
     @body.validator

@@ -319,6 +319,7 @@ class ARC4UFixedNxM(ARC4Type):
 @attrs.frozen(str=False, kw_only=True)
 class ARC4Array(ARC4Type):
     element_type: WType
+    immutable: bool = attrs.field(default=False, init=False)
 
 
 @typing.final
@@ -331,7 +332,6 @@ class ARC4DynamicArray(ARC4Array):
         name = f"arc4.dynamic_array<{element_type.name}>"
         return cls(
             name=name,
-            immutable=False,
             element_type=element_type,
             stub_name=f"{constants.CLS_ARC4_DYNAMIC_ARRAY}[{element_type}]",
         )
@@ -352,7 +352,6 @@ class ARC4StaticArray(ARC4Array):
         return cls(
             array_size=array_size,
             name=name,
-            immutable=False,
             element_type=element_type,
             stub_name=(
                 f"{constants.CLS_ARC4_STATIC_ARRAY}["
@@ -371,6 +370,7 @@ class ARC4Struct(ARC4Type):
     )
     names: Sequence[str] = attrs.field(init=False, eq=False)
     types: Sequence[WType] = attrs.field(init=False, eq=False)
+    immutable: bool = attrs.field(default=False, init=False)
 
     @names.default
     def _names_factory(self) -> Sequence[str]:
@@ -394,7 +394,7 @@ class ARC4Struct(ARC4Type):
             )
             + ">"
         )
-        return cls(name=name, stub_name=python_name, fields=fields, immutable=False)
+        return cls(name=name, stub_name=python_name, fields=fields)
 
 
 arc4_string_wtype: typing.Final = ARC4Type(

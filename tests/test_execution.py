@@ -957,6 +957,17 @@ def test_abi_mutations(harness: _TestHarness) -> None:
     )
 
 
+def test_abi_mutable_params(harness: _TestHarness) -> None:
+    harness.deploy(
+        TEST_CASES_DIR / "arc4_types" / "mutable_params.py",
+        AppCallRequest(
+            extra_pages=1,
+            trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "mutable_params.log",
+            increase_budget=1,
+        ),
+    )
+
+
 def test_abi_bool_eval(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "arc4_types" / "bool_eval.py",
