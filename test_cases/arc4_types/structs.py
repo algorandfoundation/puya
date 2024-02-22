@@ -34,7 +34,7 @@ class Arc4StructsTypeContract(Contract):
         check(flags.copy())
         log(flags.bytes)
 
-        nested_decode(VectorFlags(coord_1, flags))
+        nested_decode(VectorFlags(coord_1.copy(), flags.copy()))
 
         return True
 

@@ -26,6 +26,10 @@ class TestStruct(Struct):
     s_val_2: String
 
 
+class StructWithArray(Struct):
+    d_array: DynamicArray[String]
+
+
 class Arc4MutationContract(Contract):
     def approval_program(self) -> bool:
         self.dynamic_array_fixed_size()
@@ -38,37 +42,18 @@ class Arc4MutationContract(Contract):
         self.array_concat()
         return True
 
-    @subroutine
-    def mutating_copies(self) -> None:
-        my_array = StaticArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
-        my_struct = TestStruct(
-            b_val=Bool(True),
-            u_val=UInt8(50),
-            s_val_1=String("Happy"),
-            s_val_2=String("Days"),
-        )
-
-        my_array_copy = my_array.copy()
-
-        my_array[2] = UInt8(5)
-
-        assert my_array_copy[2] == UInt8(5)
-
-        self.other_routine(my_array.copy(), my_struct.copy())
-
-        assert my_array[1] == UInt8(2)
-        assert my_array_copy[1] == UInt8(2)
-        assert my_struct.s_val_1 == String("Happy")
-
-    @subroutine
-    def other_routine(
-        self, array: StaticArray[UInt8, typing.Literal[4]], struct: TestStruct
-    ) -> None:
-        array[1] = UInt8(5)
-        struct.s_val_1 = String("AARRGH!")
-
     def clear_state_program(self) -> bool:
         return True
+
+    @subroutine
+    def check_copy_required(self) -> None:
+        d_array = DynamicArray(String("Test"))
+
+        nested_in_array = DynamicArray(d_array.copy())
+
+        nested_in_struct = StructWithArray(d_array=nested_in_array[0].copy())
+
+        assert d_array == nested_in_struct.d_array
 
     @subroutine
     def array_concat(self) -> None:

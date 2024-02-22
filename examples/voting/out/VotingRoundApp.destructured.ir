@@ -97,10 +97,10 @@ contract examples.voting.voting.VotingRoundApp:
                 (app_global_put "quorum" quorum#0)
                 let new_state_value%5#0: bytes = ((extract 2 0) nft_image_url#0)
                 (app_global_put "nft_image_url" new_state_value%5#0)
-                examples.voting.voting.VotingRoundApp.store_option_counts(option_counts#0)
+                let r_tmp%7#0: bytes = examples.voting.voting.VotingRoundApp.store_option_counts(option_counts#0)
                 return 
         
-        subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> void:
+        subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> bytes:
             block@0: // L215
                 let tmp%0#0: uint64 = (extract_uint16 option_counts#0 0u)
                 (assert tmp%0#0) // option_counts should be non-empty
@@ -124,7 +124,7 @@ contract examples.voting.voting.VotingRoundApp:
                 (assert tmp%10#0) // Can't have more than 128 vote options
                 (app_global_put "option_counts" option_counts#0)
                 (app_global_put "total_options" total_options#0)
-                return 
+                return option_counts#0
         
         subroutine examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uint64) -> void:
             block@0: // L79

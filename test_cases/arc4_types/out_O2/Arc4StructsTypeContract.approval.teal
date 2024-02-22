@@ -5,6 +5,8 @@ test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     byte 0x000000083cfbf217000000230384b842
     byte 0x000000083cfbf217000000230384b842
     callsub add
+    pop
+    pop
     dup
     extract 0 8
     swap
@@ -28,17 +30,19 @@ main_for_body@3:
     bz main_for_header_1@2
     byte 0xa0
     callsub check
+    pop
     byte 0xa0
     log
     byte 0x000000083cfbf217000000230384b842a0
     callsub nested_decode
+    pop
     int 1
     return
 
 
-// test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes:
+// test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes, bytes, bytes:
 add:
-    proto 2 1
+    proto 2 3
     frame_dig -2
     extract 0 8
     btoi
@@ -56,12 +60,14 @@ add:
     +
     itob
     concat
+    frame_dig -2
+    frame_dig -1
     retsub
 
 
-// test_cases.arc4_types.structs.check(flags: bytes) -> void:
+// test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
 check:
-    proto 1 0
+    proto 1 1
     frame_dig -1
     int 0
     getbit
@@ -104,12 +110,13 @@ check:
     getbit
     !
     assert
+    frame_dig -1
     retsub
 
 
-// test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> void:
+// test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> bytes:
 nested_decode:
-    proto 1 0
+    proto 1 1
     frame_dig -1
     extract 0 16
     extract 0 8
@@ -128,4 +135,5 @@ nested_decode:
     int 0
     getbit
     assert
+    frame_dig -1
     retsub

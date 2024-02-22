@@ -24,6 +24,7 @@ TMP_VAR_INDICATOR = "%"
 class IRBuildContext(CompileContext):
     module_awsts: Mapping[str, awst_nodes.Module]
     subroutines: dict[awst_nodes.Function, Subroutine]
+    function_call_sites: dict[awst_nodes.Function, list[awst_nodes.Function]]
     embedded_funcs: Sequence[awst_nodes.Function] = attrs.field()
     contract: awst_nodes.ContractFragment | None = None
 

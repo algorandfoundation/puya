@@ -11,6 +11,8 @@ test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     // arc4_types/structs.py:29
     // coord_3 = add(coord_1.copy(), coord_2.copy())
     callsub add
+    pop
+    pop
     // arc4_types/structs.py:30
     // for val in (coord_3.x, coord_3.y):
     dup
@@ -44,6 +46,7 @@ main_for_body@3:
     // arc4_types/structs.py:34
     // check(flags.copy())
     callsub check
+    pop
     // arc4_types/structs.py:33
     // flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
     byte 0xa0
@@ -51,21 +54,22 @@ main_for_body@3:
     // log(flags.bytes)
     log
     // arc4_types/structs.py:37
-    // nested_decode(VectorFlags(coord_1, flags))
+    // nested_decode(VectorFlags(coord_1.copy(), flags.copy()))
     byte 0x000000083cfbf217000000230384b842a0
     callsub nested_decode
+    pop
     // arc4_types/structs.py:39
     // return True
     int 1
     return
 
 
-// test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes:
+// test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes, bytes, bytes:
 add:
     // arc4_types/structs.py:45-46
     // @subroutine
     // def add(v1: Vector, v2: Vector) -> Vector:
-    proto 2 1
+    proto 2 3
     // arc4_types/structs.py:48
     // x=Decimal.encode(v1.x.decode() + v2.x.decode()),
     frame_dig -2
@@ -92,15 +96,17 @@ add:
     //     y=Decimal.encode(v1.y.decode() + v2.y.decode()),
     // )
     concat
+    frame_dig -2
+    frame_dig -1
     retsub
 
 
-// test_cases.arc4_types.structs.check(flags: bytes) -> void:
+// test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
 check:
     // arc4_types/structs.py:53-54
     // @subroutine
     // def check(flags: Flags) -> None:
-    proto 1 0
+    proto 1 1
     // arc4_types/structs.py:55
     // assert flags.a.decode()
     frame_dig -1
@@ -151,15 +157,16 @@ check:
     getbit
     !
     assert
+    frame_dig -1
     retsub
 
 
-// test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> void:
+// test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> bytes:
 nested_decode:
     // arc4_types/structs.py:61-62
     // @subroutine
     // def nested_decode(vector_flags: VectorFlags) -> None:
-    proto 1 0
+    proto 1 1
     // arc4_types/structs.py:63
     // assert vector_flags.vector.x.decode() == 35382882839
     frame_dig -1
@@ -182,4 +189,5 @@ nested_decode:
     int 0
     getbit
     assert
+    frame_dig -1
     retsub

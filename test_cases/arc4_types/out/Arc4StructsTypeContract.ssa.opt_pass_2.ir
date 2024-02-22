@@ -4,33 +4,33 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
             block@0: // L26
                 let coord_1#0: bytes = 0x000000083cfbf217000000230384b842
                 let coord_2#0: bytes = 0x000000083cfbf217000000230384b842
-                let coord_3#0: bytes = test_cases.arc4_types.structs.add(coord_1#0, coord_2#0)
+                let (coord_3#0: bytes, r_tmp%7#0: bytes, r_tmp%8#0: bytes) = test_cases.arc4_types.structs.add(coord_1#0, coord_2#0)
                 let val#0: bytes = ((extract 0 8) coord_3#0)
                 let val#1: bytes = ((extract 8 8) coord_3#0)
-                let tuple_index%6#0: uint64 = 0u
+                let tuple_index%11#0: uint64 = 0u
                 goto block@3
             block@2: // for_header_1_L30
                 goto block@3
             block@3: // for_body_L30
                 let val#2: bytes = φ(val#0 <- block@0, val#1 <- block@2)
-                let tuple_index%6#1: uint64 = φ(tuple_index%6#0 <- block@0, tuple_index%6#3 <- block@2)
+                let tuple_index%11#1: uint64 = φ(tuple_index%11#0 <- block@0, tuple_index%11#3 <- block@2)
                 (log val#2)
-                let tuple_index%6#3: uint64 = (+ tuple_index%6#1 1u)
-                goto tuple_index%6#1 ? block@5 : block@2
+                let tuple_index%11#3: uint64 = (+ tuple_index%11#1 1u)
+                goto tuple_index%11#1 ? block@5 : block@2
             block@5: // after_for_L30
-                let is_true%13#0: uint64 = 0u
-                let encoded_tuple_buffer%12#2: any = (setbit 0x80 1u is_true%13#0)
-                let is_true%14#0: uint64 = 1u
-                let encoded_tuple_buffer%12#3: any = (setbit encoded_tuple_buffer%12#2 2u is_true%14#0)
-                let is_true%15#0: uint64 = 0u
-                let flags#0: any = (setbit encoded_tuple_buffer%12#3 3u is_true%15#0)
-                test_cases.arc4_types.structs.check(flags#0)
+                let is_true%18#0: uint64 = 0u
+                let encoded_tuple_buffer%17#2: any = (setbit 0x80 1u is_true%18#0)
+                let is_true%19#0: uint64 = 1u
+                let encoded_tuple_buffer%17#3: any = (setbit encoded_tuple_buffer%17#2 2u is_true%19#0)
+                let is_true%20#0: uint64 = 0u
+                let flags#0: any = (setbit encoded_tuple_buffer%17#3 3u is_true%20#0)
+                let r_tmp%22#0: bytes = test_cases.arc4_types.structs.check(flags#0)
                 (log flags#0)
-                let encoded_tuple_buffer%17#2: bytes = (concat coord_1#0 flags#0)
-                test_cases.arc4_types.structs.nested_decode(encoded_tuple_buffer%17#2)
+                let encoded_tuple_buffer%26#2: bytes = (concat coord_1#0 flags#0)
+                let r_tmp%27#0: bytes = test_cases.arc4_types.structs.nested_decode(encoded_tuple_buffer%26#2)
                 return 1u
         
-        subroutine test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes:
+        subroutine test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> <bytes, bytes, bytes>:
             block@0: // L45
                 let tmp%0#0: bytes = ((extract 0 8) v1#0)
                 let tmp%1#0: uint64 = (btoi tmp%0#0)
@@ -45,9 +45,9 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 let tmp%10#0: uint64 = (+ tmp%7#0 tmp%9#0)
                 let val_as_bytes%11#0: bytes = (itob tmp%10#0)
                 let encoded_tuple_buffer%13#2: bytes = (concat val_as_bytes%5#0 val_as_bytes%11#0)
-                return encoded_tuple_buffer%13#2
+                return encoded_tuple_buffer%13#2 v1#0 v2#0
         
-        subroutine test_cases.arc4_types.structs.check(flags: bytes) -> void:
+        subroutine test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
             block@0: // L53
                 let is_true%0#0: uint64 = (getbit flags#0 0u)
                 let tmp%1#0: any = (setbit 0x00 0u is_true%0#0)
@@ -67,9 +67,9 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 let tmp%12#0: uint64 = (getbit tmp%11#0 0u)
                 let tmp%13#0: uint64 = (! tmp%12#0)
                 (assert tmp%13#0)
-                return 
+                return flags#0
         
-        subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> void:
+        subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> bytes:
             block@0: // L61
                 let tmp%0#0: bytes = ((extract 0 16) vector_flags#0)
                 let tmp%1#0: bytes = ((extract 0 8) tmp%0#0)
@@ -81,7 +81,7 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
                 let tmp%6#0: any = (setbit 0x00 0u is_true%5#0)
                 let tmp%7#0: uint64 = (getbit tmp%6#0 0u)
                 (assert tmp%7#0)
-                return 
+                return vector_flags#0
     
     program clear-state:
         subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.clear_state_program() -> uint64:
