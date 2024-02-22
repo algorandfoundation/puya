@@ -37,6 +37,7 @@ from mypy.semanal_shared import (
     has_placeholder,
     require_bool_literal_argument,
 )
+from mypy.state import state
 from mypy.typeanal import check_for_explicit_any, has_any_from_unimported_type
 from mypy.types import (
     TPDICT_NAMES,
@@ -203,7 +204,8 @@ class TypedDictAnalyzer:
                 any_kind = TypeOfAny.from_error
             base_args = [AnyType(any_kind) for _ in tvars]
 
-        valid_items = self.map_items_to_base(valid_items, tvars, base_args)
+        with state.strict_optional_set(self.options.strict_optional):
+            valid_items = self.map_items_to_base(valid_items, tvars, base_args)
         for key in base_items:
             if key in keys:
                 self.fail(f'Overwriting TypedDict field "{key}" while merging', ctx)
@@ -321,6 +323,12 @@ class TypedDictAnalyzer:
         total: bool | None = True
         if "total" in defn.keywords:
             total = require_bool_literal_argument(self.api, defn.keywords["total"], "total", True)
+        if defn.keywords and defn.keywords.keys() != {"total"}:
+            for_function = ' for "__init_subclass__" of "TypedDict"'
+            for key in defn.keywords:
+                if key == "total":
+                    continue
+                self.msg.unexpected_keyword_argument_for_function(for_function, key, defn)
         required_keys = {
             field
             for (field, t) in zip(fields, types)
@@ -392,6 +400,17 @@ class TypedDictAnalyzer:
             types = [  # unwrap Required[T] to just T
                 t.item if isinstance(t, RequiredType) else t for t in types
             ]
+
+            # Perform various validations after unwrapping.
+            for t in types:
+                check_for_explicit_any(
+                    t, self.options, self.api.is_typeshed_stub_file, self.msg, context=call
+                )
+            if self.options.disallow_any_unimported:
+                for t in types:
+                    if has_any_from_unimported_type(t):
+                        self.msg.unimported_type_becomes_any("Type of a TypedDict key", t, call)
+
             existing_info = None
             if isinstance(node.analyzed, TypedDictExpr):
                 existing_info = node.analyzed.info
@@ -449,15 +468,6 @@ class TypedDictAnalyzer:
             # One of the types is not ready, defer.
             return None
         items, types, ok = res
-        for t in types:
-            check_for_explicit_any(
-                t, self.options, self.api.is_typeshed_stub_file, self.msg, context=call
-            )
-
-        if self.options.disallow_any_unimported:
-            for t in types:
-                if has_any_from_unimported_type(t):
-                    self.msg.unimported_type_becomes_any("Type of a TypedDict key", t, dictexpr)
         assert total is not None
         return args[0].value, items, types, total, tvar_defs, ok
 
