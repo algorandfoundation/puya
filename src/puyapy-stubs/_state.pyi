@@ -1,14 +1,20 @@
 import typing
 
-from puyapy import Account, UInt64
+from puyapy import Account, UInt64, Bytes, BytesBacked
 
-_T = typing.TypeVar("_T")
+_T = typing.TypeVar("_T", bound=UInt64 | Bytes | BytesBacked)
 
 class LocalState(typing.Generic[_T]):
     """Local state associated with the application and an account"""
 
-    def __init__(self, type_: type[_T], /) -> None:
-        """Must be initialized with the type that will be stored
+    def __init__(
+        self,
+        type_: type[_T],
+        /,
+        key: typing.LiteralString | bytes | None = None,
+        description: typing.LiteralString | None = None,
+    ) -> None:
+        """Declare the local state key and it's associated type
 
         ```python
         self.names = LocalState(puyapy.Bytes)
@@ -74,11 +80,23 @@ class GlobalState(typing.Generic[_T]):
     """
 
     @typing.overload
-    def __init__(self, type_: type[_T], /) -> None:
-        """Can be initialized with the type of the value to store, with the value unset"""
+    def __init__(
+        self,
+        type_: type[_T],
+        /,
+        key: typing.LiteralString | bytes | None = None,
+        description: typing.LiteralString | None = None,
+    ) -> None:
+        """Declare the global state key and its type without initializing its value"""
     @typing.overload
-    def __init__(self, initial_value: _T, /) -> None:
-        """Can be initialized with an initial value"""
+    def __init__(
+        self,
+        initial_value: _T,
+        /,
+        key: typing.LiteralString | bytes | None = None,
+        description: typing.LiteralString | None = None,
+    ) -> None:
+        """Declare the global state key and initialize its value"""
     @property
     def value(self) -> _T:
         """Returns the value or and error if the value is not set

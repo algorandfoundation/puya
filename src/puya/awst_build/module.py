@@ -1,5 +1,4 @@
 import typing as t
-from collections.abc import Iterable
 
 import mypy.nodes
 import mypy.types
@@ -18,7 +17,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
-from puya.awst_build.context import ASTConversionContext
+from puya.awst_build.context import ASTConversionContext, ASTConversionModuleContext
 from puya.awst_build.contract import ContractASTConverter, ContractClassOptions
 from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.subroutine import FunctionASTConverter
@@ -30,7 +29,6 @@ from puya.awst_build.utils import (
     get_unaliased_fullname,
 )
 from puya.errors import CodeError, InternalError
-from puya.parse import SourceLocation
 from puya.utils import StableSet
 
 logger = structlog.get_logger()
@@ -180,17 +178,23 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                         else:
                             self._error("Invalid type for name=", kw_expr)
                     case "scratch_slots":
-                        if not isinstance(kw_expr, mypy.nodes.TupleExpr):
-                            self._error(
-                                "scratch_slots should be a tuple of slot numbers or "
-                                "slot number ranges",
-                                kw_expr,
-                            )
+                        if isinstance(kw_expr, mypy.nodes.TupleExpr | mypy.nodes.ListExpr):
+                            slot_items = kw_expr.items
                         else:
-                            for item in kw_expr.items:
-                                scratch_slot_reservations |= _map_scratch_space_reservation(
-                                    item, self._location(item)
+                            slot_items = [kw_expr]
+                        for item_expr in slot_items:
+                            slots = _map_scratch_space_reservation(self.context, item_expr)
+                            if not slots:
+                                self._error("Slot range is empty", item_expr)
+                            elif (min(slots) < 0) or (max(slots) > MAX_SCRATCH_SLOT_NUMBER):
+                                self._error(
+                                    f"Invalid scratch slot reservation."
+                                    f" Reserved range must fall entirely between 0"
+                                    f" and {MAX_SCRATCH_SLOT_NUMBER}",
+                                    item_expr,
                                 )
+                            else:
+                                scratch_slot_reservations |= slots
                     case _:
                         self._error("Unrecognised class keyword", kw_expr)
         for base in cdef.info.bases:
@@ -597,47 +601,66 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
         return self._unsupported(expr)
 
 
+def _get_int_arg(
+    context: ASTConversionModuleContext, arg_expr: mypy.nodes.Expression, *, error_msg: str
+) -> int:
+    if isinstance(arg_expr, mypy.nodes.UnaryExpr):
+        if arg_expr.op == "-":
+            return -_get_int_arg(context, arg_expr.expr, error_msg=error_msg)
+    elif isinstance(arg_expr, mypy.nodes.IntExpr):
+        return arg_expr.value
+    elif (
+        isinstance(arg_expr, mypy.nodes.NameExpr)
+        and arg_expr.kind == mypy.nodes.GDEF
+        and isinstance(arg_expr.node, mypy.nodes.Var)
+    ):
+        const_value = context.constants.get(arg_expr.fullname)
+        if isinstance(const_value, int):
+            return const_value
+        if const_value is None:
+            raise CodeError(
+                f"not a known constant value: {arg_expr.name}"
+                f" (qualified source name: {arg_expr.fullname})",
+                context.node_location(arg_expr),
+            )
+        # other types: fall through to default error message
+    raise CodeError(error_msg, context.node_location(arg_expr))
+
+
 def _map_scratch_space_reservation(
-    expr: mypy.nodes.Expression, source_location: SourceLocation
-) -> Iterable[int]:
-    def check_slot_is_in_range(slot: int) -> None:
-        if not (0 <= slot <= MAX_SCRATCH_SLOT_NUMBER):
-            raise CodeError(
-                f"Invalid scratch slot {slot}. Reserved range must fall entirely between "
-                f"0 and {MAX_SCRATCH_SLOT_NUMBER}",
-                source_location,
-            )
-
-    def map_urange_args(args: list[mypy.nodes.Expression]) -> range:
-        match args:
-            case [mypy.nodes.IntExpr(value=stop)]:
-                check_slot_is_in_range(stop - 1)
-                return range(stop)
-            case [mypy.nodes.IntExpr(value=start), mypy.nodes.IntExpr(value=stop)]:
-                check_slot_is_in_range(start)
-                check_slot_is_in_range(stop - 1)
-                return range(start, stop)
-            case [
-                mypy.nodes.IntExpr(value=start),
-                mypy.nodes.IntExpr(value=stop),
-                mypy.nodes.IntExpr(value=step),
-            ]:
-                the_range = range(start, stop, step)
-                for slot in the_range:
-                    check_slot_is_in_range(slot)
-                return the_range
-            case _:
-                raise CodeError("Unexpected arguments for urange", source_location)
-
+    context: ASTConversionModuleContext, expr: mypy.nodes.Expression
+) -> list[int]:
+    expr_loc = context.node_location(expr)
     match expr:
-        case mypy.nodes.IntExpr(value):
-            check_slot_is_in_range(value)
-            return [value]
         case mypy.nodes.CallExpr(
-            callee=mypy.nodes.RefExpr() as expr, args=args
-        ) if get_unaliased_fullname(expr) == constants.URANGE:
-            return map_urange_args(args)
+            callee=mypy.nodes.RefExpr() as callee, args=args
+        ) if get_unaliased_fullname(callee) == constants.URANGE:
+            if not args:
+                raise CodeError("Expected at least one argument to urange", expr_loc)
+            if len(args) > 3:
+                raise CodeError("Expected at most three arguments to urange", expr_loc)
+            int_args = [
+                _get_int_arg(
+                    context,
+                    arg_expr,
+                    error_msg=(
+                        "Unexpected argument for urange:"
+                        " expected an in integer literal or module constant reference"
+                    ),
+                )
+                for arg_expr in args
+            ]
+            if len(int_args) == 3 and int_args[-1] == 0:
+                raise CodeError("urange arg 3 must not be zero", context.node_location(args[-1]))
+            return list(range(*int_args))
         case _:
-            raise CodeError(
-                "Unexpected value: Expected int literal or urange expression", source_location
-            )
+            return [
+                _get_int_arg(
+                    context,
+                    expr,
+                    error_msg=(
+                        "Unexpected value:"
+                        " Expected int literal, module constant reference, or urange expression"
+                    ),
+                )
+            ]
