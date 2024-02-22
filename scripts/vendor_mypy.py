@@ -72,7 +72,7 @@ def update_puya_typeshed(mypy_typeshed: Path, puya_typeshed: Path) -> None:
         stdlib / "_typeshed" / "__init__.pyi",
         stdlib / "_collections_abc.pyi",
         stdlib / "collections" / "abc.pyi",
-        stdlib / "sys.pyi",
+        stdlib / "sys" / "__init__.pyi",
         stdlib / "abc.pyi",
         # needed for puyapy
         # stdlib / "enum.pyi"

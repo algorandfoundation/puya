@@ -288,7 +288,9 @@ def _mypy_build(
 
     all_messages = list[str]()
 
-    def flush_errors(new_messages: list[str], is_serious: bool) -> None:  # noqa: FBT001
+    def flush_errors(
+        _filename: str | None, new_messages: list[str], is_serious: bool  # noqa: FBT001
+    ) -> None:
         if new_messages:
             all_messages.extend(msg for msg in new_messages if os.devnull not in msg)
             if is_serious:
