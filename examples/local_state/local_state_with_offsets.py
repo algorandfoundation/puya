@@ -11,7 +11,7 @@ from puyapy import (
 )
 
 
-class LocalStateContract(Contract):
+class LocalStateContract(Contract, name="LocalStateWithOffsets"):
     def __init__(self) -> None:
         self.local = LocalState(Bytes)
 

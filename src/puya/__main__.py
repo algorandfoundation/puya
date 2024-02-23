@@ -30,7 +30,7 @@ def main() -> None:
         "--output-arc32",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Output ARC32 application.json",
+        help="Output arc32.json",
     )
     parser.add_argument(
         "--out-dir", type=Path, help="path for outputting artefacts", default=False

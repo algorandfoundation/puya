@@ -1,0 +1,87 @@
+#pragma version 10
+
+examples.hello_world_arc4.contract.HelloWorldContract.approval_program:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@5
+    txna ApplicationArgs 0
+    method "hello(string)string"
+    swap
+    match main_hello_route@2
+    b main_switch_case_default@3
+
+main_hello_route@2:
+    // hello_world_arc4/contract.py:10
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    txna ApplicationArgs 1
+    // hello_world_arc4/contract.py:10
+    // @arc4.abimethod
+    callsub hello
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_switch_case_default@3:
+    b main_after_if_else@8
+
+main_bare_routing@5:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    txn OnCompletion
+    int 0
+    swap
+    match main_create@6
+    b main_reject_bare_on_completion@7
+
+main_create@6:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+main_reject_bare_on_completion@7:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    err // reject transaction
+
+main_after_if_else@8:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    err // reject transaction
+
+
+// examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
+hello:
+    // hello_world_arc4/contract.py:10-11
+    // @arc4.abimethod
+    // def hello(self, name: arc4.String) -> arc4.String:
+    proto 1 1
+    // hello_world_arc4/contract.py:12
+    // return "Hello, " + name
+    byte "\x00\x07Hello, "
+    extract 2 0
+    frame_dig -1
+    extract 2 0
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    retsub

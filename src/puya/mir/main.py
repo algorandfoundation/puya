@@ -1,16 +1,38 @@
 import itertools
-from collections.abc import Iterable
+from pathlib import Path
 
 from puya.context import CompileContext
 from puya.ir import models as ir
 from puya.mir import models
 from puya.mir.builder import MemoryIRBuilder
 from puya.mir.context import ProgramCodeGenContext
+from puya.mir.output import output_memory_ir
 from puya.mir.stack_allocation import global_stack_allocation
 from puya.utils import attrs_extend
 
 
-def lower_subroutine_to_mir(
+def program_ir_to_mir(
+    context: CompileContext, program_ir: ir.Program, mir_output_path: Path
+) -> models.Program:
+    ctx = attrs_extend(ProgramCodeGenContext, context, program=program_ir)
+
+    result = models.Program(
+        main=_lower_subroutine_to_mir(ctx, program_ir.main, is_main=True),
+        subroutines=[
+            _lower_subroutine_to_mir(ctx, ir_sub, is_main=False)
+            for ir_sub in program_ir.subroutines
+        ],
+    )
+    for mir_sub in result.all_subroutines:
+        sub_ctx = ctx.for_subroutine(mir_sub)
+        global_stack_allocation(sub_ctx)
+
+    if context.options.output_memory_ir:
+        output_memory_ir(context, program_ir, result, mir_output_path)
+    return result
+
+
+def _lower_subroutine_to_mir(
     context: ProgramCodeGenContext, subroutine: ir.Subroutine, *, is_main: bool
 ) -> models.MemorySubroutine:
     builder = MemoryIRBuilder(context=context, current_subroutine=subroutine, is_main=is_main)
@@ -46,20 +68,3 @@ def lower_subroutine_to_mir(
         preamble=preamble,
         body=body,
     )
-
-
-def lower_program_ir_to_memory_ir(ctx: ProgramCodeGenContext) -> Iterable[models.MemorySubroutine]:
-    program = ctx.program
-    yield lower_subroutine_to_mir(ctx, program.main, is_main=True)
-    for subroutine in program.subroutines:
-        yield lower_subroutine_to_mir(ctx, subroutine, is_main=False)
-
-
-def build_mir(context: CompileContext, program: ir.Program) -> list[models.MemorySubroutine]:
-    cg_context = attrs_extend(ProgramCodeGenContext, context, program=program)
-    subroutines = list(lower_program_ir_to_memory_ir(cg_context))
-    for sub in subroutines:
-        sub_ctx = cg_context.for_subroutine(sub)
-        global_stack_allocation(sub_ctx)
-
-    return subroutines

@@ -1,0 +1,212 @@
+#pragma version 10
+
+examples.calculator.contract.MyContract.approval_program:
+    byte ""
+    dup
+    txn NumAppArgs
+    dup
+    bnz main_else_body@2
+    int 0
+    bury 3
+    int 0
+    int 0
+    bury 3
+    int 0
+    itob
+    dup
+    log
+    log
+    b main_after_if_else@3
+
+main_else_body@2:
+    dup
+    int 3
+    ==
+    assert // Expected 3 args
+    txna ApplicationArgs 0
+    btoi
+    bury 2
+    txna ApplicationArgs 2
+    txna ApplicationArgs 1
+    dup
+    log
+    dig 1
+    log
+    btoi
+    bury 4
+    btoi
+
+main_after_if_else@3:
+    dig 2
+    dup
+    dig 5
+    dup
+    cover 2
+    dig 4
+    callsub do_calc
+    cover 3
+    callsub itoa
+    swap
+    callsub op
+    concat
+    swap
+    callsub itoa
+    concat
+    byte " = "
+    concat
+    swap
+    callsub itoa
+    concat
+    log
+    int 1
+    return
+
+
+// examples.calculator.contract.MyContract.do_calc(maybe_action: uint64, a: uint64, b: uint64) -> uint64:
+do_calc:
+    proto 3 1
+    frame_dig -3
+    int 1
+    ==
+    bz do_calc_else_body@2
+    frame_dig -2
+    frame_dig -1
+    callsub add
+    retsub
+
+do_calc_else_body@2:
+    frame_dig -3
+    int 2
+    ==
+    bz do_calc_else_body@4
+    frame_dig -2
+    frame_dig -1
+    callsub sub
+    retsub
+
+do_calc_else_body@4:
+    frame_dig -3
+    int 3
+    ==
+    bz do_calc_else_body@6
+    frame_dig -2
+    frame_dig -1
+    callsub mul
+    retsub
+
+do_calc_else_body@6:
+    frame_dig -3
+    int 4
+    ==
+    assert // unknown operation
+    frame_dig -2
+    frame_dig -1
+    callsub div
+    retsub
+
+
+// examples.calculator.contract.MyContract.add(a: uint64, b: uint64) -> uint64:
+add:
+    proto 2 1
+    frame_dig -2
+    frame_dig -1
+    +
+    retsub
+
+
+// examples.calculator.contract.MyContract.sub(a: uint64, b: uint64) -> uint64:
+sub:
+    proto 2 1
+    frame_dig -2
+    frame_dig -1
+    -
+    retsub
+
+
+// examples.calculator.contract.MyContract.mul(a: uint64, b: uint64) -> uint64:
+mul:
+    proto 2 1
+    frame_dig -2
+    frame_dig -1
+    *
+    retsub
+
+
+// examples.calculator.contract.MyContract.div(a: uint64, b: uint64) -> uint64:
+div:
+    proto 2 1
+    frame_dig -2
+    frame_dig -1
+    /
+    retsub
+
+
+// examples.calculator.contract.itoa(i: uint64) -> bytes:
+itoa:
+    proto 1 1
+    frame_dig -1
+    int 10
+    <
+    bz itoa_after_if_else@2
+    frame_dig -1
+    int 1
+    +
+    byte "0123456789"
+    frame_dig -1
+    uncover 2
+    substring3
+    retsub
+
+itoa_after_if_else@2:
+    frame_dig -1
+    int 10
+    /
+    callsub itoa
+    frame_dig -1
+    int 10
+    %
+    dup
+    int 1
+    +
+    byte "0123456789"
+    cover 2
+    substring3
+    concat
+    retsub
+
+
+// examples.calculator.contract.MyContract.op(action: uint64) -> bytes:
+op:
+    proto 1 1
+    frame_dig -1
+    int 1
+    ==
+    bz op_else_body@2
+    byte " + "
+    retsub
+
+op_else_body@2:
+    frame_dig -1
+    int 2
+    ==
+    bz op_else_body@4
+
+op_if_body@3:
+    byte " - "
+    retsub
+
+op_else_body@4:
+    frame_dig -1
+    int 3
+    ==
+    bz op_else_body@6
+    byte " * "
+    retsub
+
+op_else_body@6:
+    frame_dig -1
+    int 4
+    ==
+    bz op_if_body@3
+    byte " // "
+    retsub

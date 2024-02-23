@@ -198,19 +198,6 @@ class ParseResult:
     manager: mypy.build.BuildManager
     graph: mypy.build.Graph
 
-    def build_dep_graph(self) -> dict[str, Any]:
-        """Generate an inspect-able module dependency graph.
-
-        This is a helper function to use when debugging.
-        """
-        result = {
-            id: dict.fromkeys(sorted(state.dependencies_set)) for id, state in self.graph.items()
-        }
-        for deps in result.values():
-            for dep_id in deps:
-                deps[dep_id] = result[dep_id]
-        return result
-
 
 def get_parse_sources(
     paths: Sequence[Path],

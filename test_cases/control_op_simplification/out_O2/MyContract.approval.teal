@@ -1,0 +1,28 @@
+#pragma version 10
+
+test_cases.control_op_simplification.contract.MyContract.approval_program:
+    int 0
+    dup
+    txn NumAppArgs
+    switch main_switch_case_default@3 main_switch_case_0@1 main_switch_case_default@3 main_switch_case_0@1
+    b main_switch_case_next@4
+
+main_switch_case_0@1:
+    int 1
+    bury 1
+    b main_switch_case_next@4
+
+main_switch_case_default@3:
+    dig 1
+    bury 1
+
+main_switch_case_next@4:
+    dup
+    bz main_after_if_else@6
+    txn NumAppArgs
+    itob
+    log
+
+main_after_if_else@6:
+    int 1
+    return

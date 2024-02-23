@@ -30,32 +30,10 @@ class PuyaExample:
         return f"{self.root.stem}_{self.path.stem}"
 
 
-@attrs.define
-class CompilationResult:
-    rel_path: str
-
-
-def rename_file(file_name: str, suffix: str | None) -> str:
-    if suffix:
-        if file_name.endswith(".destructured.ir"):
-            final_ir_path = Path(file_name)
-            suffix_keep, _ = final_ir_path.suffixes
-            move_to = final_ir_path.with_suffix("").with_suffix(f"{suffix_keep}{suffix}.ir")
-            return move_to.name
-        elif file_name.endswith(".teal"):
-            teal_path = Path(file_name)
-            program, *other_suffixes = teal_path.suffixes
-            new_suffix = "".join((f"{program}{suffix}", *other_suffixes))
-            old_suffix = "".join(teal_path.suffixes)
-            new_stem = Path(file_name[: -len(old_suffix)])
-            return new_stem.with_suffix(new_suffix).name
-    return file_name
-
-
 def _should_output(file_name: str, puya_options: PuyaOptions) -> bool:
     for pattern, include_in_output in {
         "*.teal": puya_options.output_teal,
-        "application.json": puya_options.output_arc32,
+        "*.arc32.json": puya_options.output_arc32,
         "*.awst": puya_options.output_awst,
         "*.ssa.ir": puya_options.output_ssa_ir,
         "*.ssa.opt_pass_*.ir": puya_options.output_optimization_ir,
@@ -72,13 +50,21 @@ def compile_test_case(
     *,
     puya_options: PuyaOptions,
     write_logs: bool,
-    suffix: str = "",
+    suffix: str,
 ) -> None:
     path = test_case.path
-    dst_out_dir = (path if path.is_dir() else path.parent) / "out"
+    if path.is_dir():
+        dst_out_dir = path / ("out" + suffix)
+    else:
+        dst_out_dir = path.parent / f"{path.stem}_out{suffix}"
+
     puya_options.out_dir = dst_out_dir
 
-    compile_result = compile_src(test_case.path, puya_options.optimization_level, 1)
+    compile_result = compile_src(
+        test_case.path,
+        optimization_level=puya_options.optimization_level,
+        debug_level=puya_options.debug_level,
+    )
     context = compile_result.context
     # TODO: include this in compile_src
     if puya_options.output_awst:
@@ -88,16 +74,13 @@ def compile_test_case(
                 continue
             if module.source_file_path.startswith(sources):
                 output_awst(module, puya_options)
+
     dst_out_dir = puya_options.out_dir
-
     for file_name, file_content in compile_result.output_files.items():
-        if not _should_output(file_name, puya_options):
-            continue
-
-        file_name = rename_file(file_name, suffix)
-        file_out = dst_out_dir / file_name
-        dst_out_dir.mkdir(parents=True, exist_ok=True)
-        file_out.write_text(file_content, "utf8")
+        if _should_output(file_name, puya_options):
+            file_out = dst_out_dir / file_name
+            dst_out_dir.mkdir(parents=True, exist_ok=True)
+            file_out.write_text(file_content, "utf8")
 
     if write_logs:
         if path.is_dir():
@@ -110,6 +93,11 @@ def compile_test_case(
         log_path.write_text(f"debug: {log_options}\n{compile_result.logs}", encoding="utf8")
 
 
+SUFFIX_O0 = "_unoptimized"
+SUFFIX_O1 = ""
+SUFFIX_O2 = "_O2"
+
+
 def compile_no_optimization(test_case: PuyaExample) -> None:
     compile_test_case(
         test_case,
@@ -117,12 +105,12 @@ def compile_no_optimization(test_case: PuyaExample) -> None:
             paths=[test_case.path],
             optimization_level=0,
             output_teal=True,
-            output_awst=True,
+            output_awst=False,
             output_destructured_ir=True,
             output_arc32=False,
         ),
         write_logs=False,
-        suffix="_unoptimized",
+        suffix=SUFFIX_O0,
     )
 
 
@@ -135,13 +123,14 @@ def compile_with_level1_optimizations(test_case: PuyaExample) -> None:
             log_level=LogLevel.debug,
             output_teal=True,
             output_arc32=True,
-            output_awst=False,
+            output_awst=True,
             output_ssa_ir=True,
             output_optimization_ir=True,
             output_destructured_ir=True,
             output_memory_ir=True,
         ),
         write_logs=True,
+        suffix=SUFFIX_O1,
     )
 
 
@@ -151,14 +140,15 @@ def compile_with_level2_optimizations(test_case: PuyaExample) -> None:
         puya_options=PuyaOptions(
             paths=[test_case.path],
             optimization_level=2,
+            debug_level=0,
             output_teal=True,
-            output_arc32=True,
+            output_arc32=False,
             output_destructured_ir=True,
             log_level=LogLevel.debug,
             output_optimization_ir=False,
         ),
         write_logs=False,
-        suffix="_O2",
+        suffix=SUFFIX_O2,
     )
 
 
@@ -176,9 +166,10 @@ def get_test_cases() -> Iterable[PuyaExample]:
 
 def remove_output(path: Path) -> None:
     for file in APPROVAL_EXTENSIONS:
-        for f in path.rglob(f"**/out/{file}"):
-            if f.is_file():
-                f.unlink()
+        for out_suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2):
+            for f in path.rglob(f"**/*out{out_suffix}/{file}"):
+                if f.is_file():
+                    f.unlink()
 
 
 def check_for_diff(path: Path) -> str | None:
@@ -187,7 +178,8 @@ def check_for_diff(path: Path) -> str | None:
     if path.is_dir():
         paths = [path]
     else:
-        paths = [path, path.parent / "out", path.with_suffix(".puya.log")]
+        paths = list(path.parent.glob(f"{path.stem}_out*"))
+        paths.append(path.with_suffix(".puya.log"))
     stdout = ""
     for path in paths:
         result = subprocess.run(

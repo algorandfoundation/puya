@@ -1,0 +1,151 @@
+#pragma version 10
+
+test_cases.with_reentrancy.contract.WithReentrancy.approval_program:
+    int 5
+    callsub fibonacci
+    itob
+    log
+    int 2
+    callsub silly
+    pop
+    int 1
+    return
+
+
+// test_cases.with_reentrancy.contract.fibonacci(n: uint64) -> uint64:
+fibonacci:
+    proto 1 1
+    frame_dig -1
+    int 1
+    <=
+    bz fibonacci_after_if_else@2
+    frame_dig -1
+    retsub
+
+fibonacci_after_if_else@2:
+    frame_dig -1
+    int 1
+    -
+    callsub fibonacci
+    frame_dig -1
+    int 2
+    -
+    callsub fibonacci
+    +
+    retsub
+
+
+// test_cases.with_reentrancy.contract.silly(x: uint64) -> uint64:
+silly:
+    proto 1 1
+    frame_dig -1
+    int 1
+    +
+    dup
+    frame_bury -1
+    callsub silly2
+    frame_dig -1
+    callsub itoa
+    byte "silly = "
+    swap
+    concat
+    log
+    retsub
+
+
+// test_cases.with_reentrancy.contract.silly2(x: uint64) -> uint64:
+silly2:
+    proto 1 1
+    frame_dig -1
+    int 2
+    +
+    dup
+    frame_bury -1
+    callsub silly3
+    frame_dig -1
+    callsub itoa
+    byte "silly2 = "
+    swap
+    concat
+    log
+    retsub
+
+
+// test_cases.with_reentrancy.contract.silly3(x: uint64) -> uint64:
+silly3:
+    proto 1 1
+    byte ""
+    frame_dig -1
+    int 2
+    %
+    dup
+    frame_dig -1
+    int 2
+    +
+    swap
+    bnz silly3_else_body@2
+    frame_dig 2
+    int 2
+    *
+    dup
+    frame_bury 0
+    int 2
+    /
+    int 2
+    -
+    frame_bury 2
+    b silly3_after_if_else@3
+
+silly3_else_body@2:
+    frame_dig -1
+    callsub silly
+    frame_bury 0
+
+silly3_after_if_else@3:
+    frame_dig 1
+    bnz silly3_after_if_else@5
+    frame_dig 2
+    frame_bury 0
+
+silly3_after_if_else@5:
+    frame_dig -1
+    callsub itoa
+    byte "silly3 = "
+    swap
+    concat
+    log
+    retsub
+
+
+// test_cases.with_reentrancy.contract.itoa(i: uint64) -> bytes:
+itoa:
+    proto 1 1
+    frame_dig -1
+    int 10
+    <
+    bz itoa_after_if_else@2
+    frame_dig -1
+    int 1
+    +
+    byte "0123456789"
+    frame_dig -1
+    uncover 2
+    substring3
+    retsub
+
+itoa_after_if_else@2:
+    frame_dig -1
+    int 10
+    /
+    callsub itoa
+    frame_dig -1
+    int 10
+    %
+    dup
+    int 1
+    +
+    byte "0123456789"
+    cover 2
+    substring3
+    concat
+    retsub

@@ -1,0 +1,106 @@
+contract TupleSupport
+{
+  globals {
+    ['state']: puyapy.UInt64
+  }
+  
+  constructor()
+  {
+    this.globals['state']: puyapy.UInt64 = 0u
+  }
+  
+  approval_program(): puyapy.UInt64
+  {
+    total: puyapy.UInt64 = test_cases.tuple_support.tuple_support::add_three_values((101u, 102u, 103u))
+    log(itob(total))
+    (a, b): tuple[puyapy.UInt64, puyapy.UInt64] = (1u, 2u)
+    (did_overflow, this.globals['state']): tuple[puyapy.UInt64, puyapy.UInt64] = addw(a, b)
+    assert(!(reinterpret_cast<bool>(did_overflow)), comment="overflow!")
+    ab: tuple[puyapy.UInt64, puyapy.UInt64] = (a, b)
+    result: tuple[puyapy.UInt64, puyapy.UInt64] = addw(a, b)
+    assert(!(reinterpret_cast<bool>(result[0])), comment="overflow!")
+    d: puyapy.UInt64 = 3u
+    c: puyapy.UInt64 = 3u
+    (a2, b2): tuple[puyapy.UInt64, puyapy.UInt64] = ab
+    cd: tuple[puyapy.UInt64, puyapy.UInt64] = (c, d)
+    ab2: tuple[puyapy.UInt64, puyapy.UInt64] = ab
+    if (a == b) {
+      tup: tuple[puyapy.UInt64, puyapy.UInt64] = ab2
+    } else {
+      tup: tuple[puyapy.UInt64, puyapy.UInt64] = cd
+    }
+    assert(a2 == a)
+    assert(b2 == b)
+    assert(cd[0] == tup[0])
+    assert(cd[1] == tup[1])
+    log(test_cases.tuple_support.tuple_support::bytes_combine(('Hello, ', 'world!')))
+    max_uint64: puyapy.UInt64 = 18446744073709551615u
+    (hi, mid, lo): tuple[puyapy.UInt64, puyapy.UInt64, puyapy.UInt64] = test_cases.tuple_support.tuple_support::addw2(addw(max_uint64, max_uint64), addw(a, b))
+    log(itob(hi))
+    log(itob(mid))
+    log(itob(lo))
+    log(test_cases.tuple_support.tuple_support::bytes_multiply(('na', 5u)))
+    test_cases.tuple_support.tuple_support::test_tuple_swap(zero=0u)
+    test_cases.tuple_support.tuple_support::slicing((1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u))
+    return a + b
+  }
+  
+  clear_state_program(): puyapy.UInt64
+  {
+    return 0u
+  }
+}
+
+subroutine bytes_combine(arg: tuple[puyapy.Bytes, puyapy.Bytes]): puyapy.Bytes
+{
+  (a, b): tuple[puyapy.Bytes, puyapy.Bytes] = arg
+  result: puyapy.Bytes = a + b
+  return result
+}
+
+subroutine bytes_multiply(arg: tuple[puyapy.Bytes, puyapy.UInt64]): puyapy.Bytes
+{
+  (b, count): tuple[puyapy.Bytes, puyapy.UInt64] = arg
+  result: puyapy.Bytes = ''
+  for _i in range(0u, count, 1u) {
+    result += b
+  }
+  return result
+}
+
+subroutine add_three_values(values: tuple[puyapy.UInt64, puyapy.UInt64, puyapy.UInt64]): puyapy.UInt64
+{
+  total: puyapy.UInt64 = 0u
+  for value in values {
+    total += value
+  }
+  return total
+}
+
+subroutine addw2(a: tuple[puyapy.UInt64, puyapy.UInt64], b: tuple[puyapy.UInt64, puyapy.UInt64]): tuple[puyapy.UInt64, puyapy.UInt64, puyapy.UInt64]
+{
+  (a_hi, a_lo): tuple[puyapy.UInt64, puyapy.UInt64] = a
+  (b_hi, b_lo): tuple[puyapy.UInt64, puyapy.UInt64] = b
+  (lo_carry, c_lo): tuple[puyapy.UInt64, puyapy.UInt64] = addw(a_lo, b_lo)
+  (hi_carry1, c_mid): tuple[puyapy.UInt64, puyapy.UInt64] = addw(a_hi, b_hi)
+  (hi_carry2, c_mid): tuple[puyapy.UInt64, puyapy.UInt64] = addw(c_mid, lo_carry)
+  (did_overflow, c_hi): tuple[puyapy.UInt64, puyapy.UInt64] = addw(hi_carry1, hi_carry2)
+  assert(!(reinterpret_cast<bool>(did_overflow)), comment="is such a thing even possible? 👽")
+  return (c_hi, c_mid, c_lo)
+}
+
+subroutine test_tuple_swap(zero: puyapy.UInt64): None
+{
+  a: puyapy.UInt64 = zero + 1u
+  b: puyapy.UInt64 = zero + 2u
+  (a, b): tuple[puyapy.UInt64, puyapy.UInt64] = (b, a)
+  assert(a == 2u, comment="a should be two")
+  assert(b == 1u, comment="b should be one")
+}
+
+subroutine slicing(values: tuple[puyapy.UInt64, puyapy.UInt64, puyapy.UInt64, puyapy.UInt64, puyapy.UInt64, puyapy.UInt64, puyapy.UInt64, puyapy.UInt64]): None
+{
+  one_to_three: tuple[puyapy.UInt64, puyapy.UInt64, puyapy.UInt64] = values[0u:3u]
+  assert(test_cases.tuple_support.tuple_support::add_three_values(one_to_three) == values[0] + values[1] + values[2])
+  assert(one_to_three[1u:2u][0] == one_to_three[1])
+}

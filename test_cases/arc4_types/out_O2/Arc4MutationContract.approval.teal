@@ -1,0 +1,969 @@
+#pragma version 10
+
+test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
+    callsub dynamic_array_fixed_size
+    callsub dynamic_array_bool
+    callsub dynamic_array_string
+    callsub array_of_array_dynamic
+    callsub array_of_array_static
+    callsub index_assign
+    callsub struct_assign
+    callsub array_concat
+    int 1
+    return
+
+
+// test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size() -> void:
+dynamic_array_fixed_size:
+    proto 0 0
+    int 3
+    itob
+    extract 6 0
+    byte 0x010232
+    concat
+    dup
+    byte 0x0003010232
+    ==
+    assert
+    extract 2 0
+    dup
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    dup
+    byte 0x0006010232010232
+    ==
+    assert
+    extract 2 0
+    byte 0x045a
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    dup
+    byte 0x0008010232010232045a
+    ==
+    assert
+    int 1
+    callsub dynamic_array_pop_fixed_size
+    swap
+    byte 0x5a
+    ==
+    assert
+    byte 0x000701023201023204
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool() -> void:
+dynamic_array_bool:
+    proto 0 0
+    byte 0x000280
+    byte 0x8000
+    int 2
+    int 0
+    callsub dynamic_array_concat_bits
+    dup
+    byte 0x0004a0
+    ==
+    assert
+    dup
+    int 0
+    extract_uint16
+    swap
+    dup
+    extract 2 0
+    uncover 2
+    int 1
+    callsub dynamic_array_concat_bits
+    dup
+    byte 0x0008aa
+    ==
+    assert
+    byte 0x80
+    int 1
+    int 0
+    callsub dynamic_array_concat_bits
+    dup
+    byte 0x0009aa80
+    ==
+    assert
+    callsub dynamic_array_pop_bit
+    swap
+    byte 0x80
+    ==
+    assert
+    callsub dynamic_array_pop_bit
+    swap
+    byte 0x00
+    ==
+    assert
+    byte 0x0007aa
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string() -> void:
+dynamic_array_string:
+    proto 0 0
+    int 4
+    itob
+    extract 6 2
+    byte 0x0002
+    swap
+    concat
+    int 11
+    itob
+    extract 6 2
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05World"
+    concat
+    dup
+    byte "\x00\x02\x00\x04\x00\x0b\x00\x05Hello\x00\x05World"
+    ==
+    assert
+    byte "\x00\x03Foo\x00\x03Bar"
+    int 2
+    callsub dynamic_array_concat_variable_size
+    dup
+    byte "\x00\x04\x00\x08\x00\x0f\x00\x16\x00\x1b\x00\x05Hello\x00\x05World\x00\x03Foo\x00\x03Bar"
+    ==
+    assert
+    dup
+    int 0
+    extract_uint16
+    dup
+    int 2
+    *
+    int 2
+    +
+    dig 2
+    len
+    dig 3
+    cover 2
+    substring3
+    swap
+    callsub dynamic_array_concat_variable_size
+    int 16
+    itob
+    extract 6 2
+    byte 0x0008
+    swap
+    concat
+    int 23
+    itob
+    extract 6 2
+    concat
+    int 30
+    itob
+    extract 6 2
+    concat
+    int 35
+    itob
+    extract 6 2
+    concat
+    int 40
+    itob
+    extract 6 2
+    dig 1
+    swap
+    concat
+    int 47
+    itob
+    extract 6 2
+    concat
+    int 54
+    itob
+    extract 6 2
+    concat
+    int 59
+    itob
+    extract 6 2
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05World"
+    concat
+    byte "\x00\x03Foo"
+    concat
+    byte "\x00\x03Bar"
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05World"
+    concat
+    byte "\x00\x03Foo"
+    concat
+    byte "\x00\x03Bar"
+    concat
+    uncover 2
+    dig 1
+    ==
+    assert
+    byte "\x00\x05Hello"
+    int 3
+    callsub dynamic_array_replace_variable_size
+    byte "\x00\x05Hello"
+    int 5
+    callsub dynamic_array_replace_variable_size
+    int 42
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    int 49
+    itob
+    extract 6 2
+    concat
+    int 56
+    itob
+    extract 6 2
+    concat
+    int 61
+    itob
+    extract 6 2
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05World"
+    concat
+    byte "\x00\x03Foo"
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x03Foo"
+    concat
+    byte "\x00\x03Bar"
+    concat
+    dig 1
+    ==
+    assert
+    callsub dynamic_array_pop_variable_size
+    swap
+    byte "\x00\x03Bar"
+    ==
+    assert
+    callsub dynamic_array_pop_variable_size
+    swap
+    byte "\x00\x03Foo"
+    ==
+    assert
+    int 12
+    itob
+    extract 6 2
+    byte 0x0006
+    swap
+    concat
+    int 19
+    itob
+    extract 6 2
+    concat
+    int 26
+    itob
+    extract 6 2
+    concat
+    int 31
+    itob
+    extract 6 2
+    concat
+    int 38
+    itob
+    extract 6 2
+    concat
+    int 45
+    itob
+    extract 6 2
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05World"
+    concat
+    byte "\x00\x03Foo"
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05Hello"
+    concat
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dynamic() -> void:
+array_of_array_dynamic:
+    proto 0 0
+    byte 0x0000
+    byte 0x00010a
+    int 1
+    callsub dynamic_array_concat_variable_size
+    dup
+    byte 0x0001000200010a
+    ==
+    assert
+    byte 0x000110
+    int 1
+    callsub dynamic_array_concat_variable_size
+    dup
+    byte 0x00020004000700010a000110
+    ==
+    assert
+    dup
+    int 0
+    extract_uint16
+    int 0
+    >
+    assert // Index access is out of bounds
+    dup
+    extract 2 0
+    dup
+    int 0
+    extract_uint16
+    dup2
+    extract_uint16
+    int 2
+    +
+    extract3
+    extract 2 0
+    byte 0xff
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    int 0
+    callsub dynamic_array_replace_variable_size
+    dup
+    byte 0x00020004000800020aff000110
+    ==
+    assert
+    dup
+    int 0
+    extract_uint16
+    int 0
+    >
+    assert // Index access is out of bounds
+    dup
+    extract 2 0
+    dup
+    int 0
+    extract_uint16
+    dup2
+    extract_uint16
+    int 2
+    +
+    extract3
+    dup
+    int 0
+    extract_uint16
+    int 1
+    >
+    assert // Index access is out of bounds
+    byte 0x00
+    replace2 3
+    int 0
+    callsub dynamic_array_replace_variable_size
+    byte 0x00020004000800020a00000110
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_static() -> void:
+array_of_array_static:
+    proto 0 0
+    byte 0x0a094080
+    byte 0xfffe
+    replace2 0
+    dup
+    byte 0xfffe4080
+    ==
+    assert
+    dup
+    extract 2 2
+    byte 0x01
+    replace2 0
+    replace2 2
+    byte 0xfffe0180
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() -> void:
+index_assign:
+    proto 0 0
+    byte 0x00020102
+    int 0
+    extract_uint16
+    int 0
+    >
+    assert // Index access is out of bounds
+    byte 0x00020102
+    byte 0xff
+    replace2 2
+    byte 0x0002ff02
+    ==
+    assert
+    byte 0x0102
+    byte 0xff
+    replace2 1
+    byte 0x01ff
+    ==
+    assert
+    byte 0x000280
+    int 0
+    extract_uint16
+    int 0
+    >
+    assert // Index access is out of bounds
+    retsub
+
+
+// test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign() -> void:
+struct_assign:
+    proto 0 0
+    int 6
+    itob
+    extract 6 2
+    byte 0x8032
+    dig 1
+    concat
+    int 13
+    itob
+    extract 6 2
+    dup
+    cover 2
+    concat
+    byte "\x00\x05Happy"
+    concat
+    byte "\x00\x04Days"
+    concat
+    int 0
+    int 0
+    setbit
+    byte 0x0c
+    replace2 1
+    byte 0x000c
+    uncover 3
+    concat
+    uncover 2
+    concat
+    dup
+    byte "\x00\x05Happy"
+    concat
+    byte "\x00\x04Days"
+    concat
+    dig 2
+    ==
+    assert
+    dig 1
+    int 2
+    extract_uint16
+    dig 2
+    int 0
+    dig 2
+    extract3
+    swap
+    dig 3
+    int 4
+    extract_uint16
+    swap
+    dig 4
+    len
+    uncover 5
+    uncover 3
+    uncover 2
+    substring3
+    uncover 2
+    byte "\x00\x05Hmmmm"
+    concat
+    swap
+    concat
+    swap
+    int 7
+    +
+    itob
+    substring 6 8
+    replace2 4
+    dup
+    int 4
+    extract_uint16
+    int 0
+    swap
+    extract3
+    byte "\x00\x07Oh well"
+    concat
+    swap
+    byte "\x00\x05Hmmmm"
+    concat
+    byte "\x00\x07Oh well"
+    concat
+    ==
+    assert
+    retsub
+
+
+// test_cases.arc4_types.mutation.Arc4MutationContract.array_concat() -> void:
+array_concat:
+    proto 0 0
+    int 4
+    itob
+    dup
+    extract 6 0
+    byte 0x01020304
+    concat
+    dup
+    byte 0x000401020304
+    ==
+    assert
+    extract 2 0
+    byte 0x05
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    byte 0x00050102030405
+    ==
+    assert
+    extract 6 2
+    byte 0x0002
+    swap
+    concat
+    int 11
+    itob
+    extract 6 2
+    concat
+    byte "\x00\x05Hello"
+    concat
+    byte "\x00\x05World"
+    concat
+    int 2
+    itob
+    extract 6 2
+    byte 0x0001
+    swap
+    concat
+    dup
+    byte "\x00\x05World"
+    concat
+    dup
+    int 0
+    extract_uint16
+    dup
+    int 2
+    *
+    int 2
+    +
+    dig 2
+    len
+    uncover 3
+    cover 2
+    substring3
+    uncover 2
+    byte "\x00\x05Hello"
+    concat
+    swap
+    uncover 2
+    callsub dynamic_array_concat_variable_size
+    ==
+    assert
+    retsub
+
+
+// puyapy_lib_arc4.dynamic_array_pop_bit(source: bytes) -> bytes, bytes:
+dynamic_array_pop_bit:
+    proto 1 2
+    frame_dig -1
+    int 0
+    extract_uint16
+    int 1
+    -
+    dup
+    itob
+    extract 6 0
+    frame_dig -1
+    swap
+    replace2 0
+    dig 1
+    int 16
+    +
+    dup2
+    getbit
+    byte "\x00"
+    int 0
+    uncover 2
+    setbit
+    cover 3
+    int 0
+    setbit
+    swap
+    int 7
+    +
+    int 8
+    /
+    int 2
+    +
+    int 0
+    swap
+    substring3
+    retsub
+
+
+// puyapy_lib_arc4.dynamic_array_pop_fixed_size(source: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+dynamic_array_pop_fixed_size:
+    proto 2 2
+    frame_dig -2
+    int 0
+    extract_uint16
+    int 1
+    -
+    itob
+    extract 6 0
+    frame_dig -2
+    swap
+    replace2 0
+    dup
+    len
+    frame_dig -1
+    -
+    dup2
+    frame_dig -1
+    extract3
+    cover 2
+    int 0
+    swap
+    substring3
+    retsub
+
+
+// puyapy_lib_arc4.dynamic_array_pop_variable_size(source: bytes) -> bytes, bytes:
+dynamic_array_pop_variable_size:
+    proto 1 2
+    frame_dig -1
+    int 0
+    extract_uint16
+    int 1
+    -
+    dup
+    int 2
+    *
+    frame_dig -1
+    extract 2 0
+    dup
+    dig 2
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    dig 3
+    uncover 3
+    substring3
+    cover 3
+    dup
+    int 0
+    dig 4
+    substring3
+    cover 2
+    uncover 3
+    int 2
+    +
+    uncover 2
+    substring3
+    concat
+    dig 2
+    itob
+    extract 6 0
+    swap
+    uncover 3
+    int 0
+    callsub recalculate_array_offsets_static
+    concat
+    retsub
+
+
+// puyapy_lib_arc4.dynamic_array_concat_bits(source: bytes, new_items_bytes: bytes, new_items_count: uint64, is_packed: uint64) -> bytes:
+dynamic_array_concat_bits:
+    proto 4 1
+    byte ""
+    dupn 2
+    frame_dig -4
+    int 0
+    extract_uint16
+    dupn 2
+    frame_dig -2
+    +
+    dup
+    itob
+    extract 6 0
+    frame_dig -4
+    swap
+    replace2 0
+    dup
+    uncover 2
+    uncover 3
+    int 7
+    +
+    int 8
+    /
+    dup
+    cover 3
+    swap
+    int 7
+    +
+    int 8
+    /
+    dup
+    cover 3
+    <
+    bz dynamic_array_concat_bits_after_if_else@2
+    frame_dig 6
+    frame_dig 5
+    -
+    bzero
+    frame_dig 4
+    swap
+    concat
+    frame_bury 7
+
+dynamic_array_concat_bits_after_if_else@2:
+    frame_dig 7
+    frame_bury 4
+    frame_dig 3
+    int 16
+    +
+    frame_bury 2
+    frame_dig -1
+    bz dynamic_array_concat_bits_ternary_false@4
+    int 1
+    frame_bury 1
+    b dynamic_array_concat_bits_ternary_merge@5
+
+dynamic_array_concat_bits_ternary_false@4:
+    int 8
+    frame_bury 1
+
+dynamic_array_concat_bits_ternary_merge@5:
+    frame_dig 1
+    assert // Step cannot be zero
+    int 0
+    frame_bury 0
+
+dynamic_array_concat_bits_for_header@6:
+    frame_dig 0
+    frame_dig -2
+    <
+    bz dynamic_array_concat_bits_after_for@10
+    frame_dig -3
+    frame_dig 0
+    dup
+    cover 2
+    getbit
+    frame_dig 4
+    frame_dig 2
+    dup
+    cover 3
+    uncover 2
+    setbit
+    frame_bury 4
+    int 1
+    +
+    frame_bury 2
+    frame_dig 1
+    +
+    frame_bury 0
+    b dynamic_array_concat_bits_for_header@6
+
+dynamic_array_concat_bits_after_for@10:
+    frame_dig 4
+    frame_bury 0
+    retsub
+
+
+// puyapy_lib_arc4.dynamic_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64) -> bytes:
+dynamic_array_replace_variable_size:
+    proto 3 1
+    frame_dig -3
+    substring 0 2
+    dup
+    btoi
+    frame_dig -3
+    extract 2 0
+    frame_dig -2
+    frame_dig -1
+    uncover 3
+    callsub static_array_replace_variable_size
+    concat
+    retsub
+
+
+// puyapy_lib_arc4.static_array_replace_variable_size(source: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+static_array_replace_variable_size:
+    proto 4 1
+    frame_dig -2
+    frame_dig -1
+    <
+    assert // Index out of bounds
+    frame_dig -2
+    int 2
+    *
+    frame_dig -4
+    swap
+    extract_uint16
+    frame_dig -4
+    dig 1
+    extract_uint16
+    dig 1
+    +
+    int 2
+    +
+    swap
+    frame_dig -4
+    int 0
+    uncover 2
+    substring3
+    frame_dig -3
+    concat
+    frame_dig -4
+    len
+    frame_dig -4
+    uncover 3
+    uncover 2
+    substring3
+    concat
+    frame_dig -1
+    frame_dig -2
+    callsub recalculate_array_offsets_static
+    retsub
+
+
+// puyapy_lib_arc4.dynamic_array_concat_variable_size(source: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
+dynamic_array_concat_variable_size:
+    proto 3 1
+    frame_dig -3
+    int 0
+    extract_uint16
+    dup
+    frame_dig -1
+    +
+    swap
+    int 2
+    *
+    int 2
+    +
+    swap
+    dup
+    itob
+    extract 6 0
+    swap
+    frame_dig -3
+    int 2
+    dig 4
+    substring3
+    frame_dig -1
+    int 2
+    *
+    bzero
+    concat
+    frame_dig -3
+    len
+    frame_dig -3
+    uncover 5
+    uncover 2
+    substring3
+    concat
+    frame_dig -2
+    concat
+    swap
+    int 0
+    callsub recalculate_array_offsets_static
+    concat
+    retsub
+
+
+// puyapy_lib_arc4.recalculate_array_offsets_static(array_data: bytes, length: uint64, start_at_index: uint64) -> bytes:
+recalculate_array_offsets_static:
+    proto 3 1
+    byte ""
+    dup
+    frame_dig -1
+    int 2
+    *
+    frame_dig -1
+    bnz recalculate_array_offsets_static_else_body@2
+    frame_dig -2
+    int 2
+    *
+    frame_bury 1
+    b recalculate_array_offsets_static_after_if_else@3
+
+recalculate_array_offsets_static_else_body@2:
+    frame_dig -3
+    frame_dig 2
+    extract_uint16
+    frame_bury 1
+
+recalculate_array_offsets_static_after_if_else@3:
+    frame_dig -1
+    frame_bury 0
+
+recalculate_array_offsets_static_for_header@4:
+    frame_dig 0
+    frame_dig -2
+    <
+    bz recalculate_array_offsets_static_after_for@8
+    frame_dig 1
+    dup
+    itob
+    extract 6 0
+    frame_dig -3
+    frame_dig 2
+    dup
+    cover 4
+    uncover 2
+    replace3
+    dup
+    frame_bury -3
+    dig 1
+    extract_uint16
+    int 2
+    +
+    +
+    frame_bury 1
+    int 2
+    +
+    frame_bury 2
+    frame_dig 0
+    int 1
+    +
+    frame_bury 0
+    b recalculate_array_offsets_static_for_header@4
+
+recalculate_array_offsets_static_after_for@8:
+    frame_dig -3
+    frame_bury 0
+    retsub

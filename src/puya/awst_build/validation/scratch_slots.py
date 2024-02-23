@@ -9,16 +9,15 @@ from puya.utils import StableSet
 
 class ScratchSlotReservationValidator(AWSTTraverser):
     @classmethod
-    def validate(cls, context: CompileContext, module_asts: dict[str, awst_nodes.Module]) -> None:
-        for module in module_asts.values():
-            for module_statement in module.body:
-                validator = cls()
-                module_statement.accept(validator)
-                for slot, loc in validator.invalid_slot_usages:
-                    context.errors.error(
-                        f"Scratch slot {slot} has not been reserved.",
-                        location=loc,
-                    )
+    def validate(cls, context: CompileContext, module: awst_nodes.Module) -> None:
+        for module_statement in module.body:
+            validator = cls()
+            module_statement.accept(validator)
+            for slot, loc in validator.invalid_slot_usages:
+                context.errors.error(
+                    f"Scratch slot {slot} has not been reserved.",
+                    location=loc,
+                )
 
     def __init__(self) -> None:
         self._reserved_slots = StableSet[int]()

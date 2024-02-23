@@ -12,34 +12,40 @@ import mypy.options
 import structlog
 
 from puya.arc32 import create_arc32_json
-from puya.awst import nodes as awst_nodes
 from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
 from puya.errors import ErrorExitCode, Errors, InternalError, ParseError, log_exceptions
-from puya.ir.context import IRBuildContext
-from puya.ir.destructure.main import destructure_ssa
-from puya.ir.main import build_embedded_ir, build_ir
+from puya.ir.main import build_module_irs, optimize_and_destructure_ir
 from puya.ir.models import Contract as ContractIR
-from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
-from puya.ir.optimize.main import optimize_contract_ir
-from puya.ir.to_text_visitor import output_contract_ir_to_path
-from puya.mir.main import build_mir
-from puya.mir.output import output_memory_ir
+from puya.mir.main import program_ir_to_mir
 from puya.models import CompiledContract
 from puya.options import PuyaOptions
 from puya.parse import (
-    EMBEDDED_MODULES,
     TYPESHED_PATH,
     ParseSource,
     SourceLocation,
     parse_and_typecheck,
 )
-from puya.teal.main import build_teal
-from puya.teal.optimize.main import optimize_teal_program
-from puya.teal.output import emit_teal
-from puya.utils import attrs_extend, determine_out_dir, make_path_relative_to_cwd
+from puya.teal.main import mir_to_teal
+from puya.utils import determine_out_dir, make_path_relative_to_cwd
 
 logger = structlog.get_logger(__name__)
+
+
+def compile_to_teal(puya_options: PuyaOptions) -> None:
+    """Drive the actual core compilation step."""
+    logger.debug(puya_options)
+    try:
+        context = parse_with_mypy(puya_options)
+    except ParseError as ex:
+        _log_parse_errors(ex)
+        sys.exit(ErrorExitCode.code)
+
+    with log_exceptions(context.errors, exit_check=True):
+        awst = transform_ast(context)
+        module_irs = build_module_irs(context, awst)
+        compiled_contracts_by_source_path = module_irs_to_teal(context, module_irs)
+        write_artifacts(context, compiled_contracts_by_source_path)
 
 
 def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
@@ -73,187 +79,6 @@ def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
     )
 
     return context
-
-
-def awst_to_teal(
-    context: CompileContext, module_asts: dict[str, awst_nodes.Module]
-) -> dict[ParseSource, list[CompiledContract]] | None:
-    errors = context.errors
-    parse_result = context.parse_result
-
-    if errors.num_errors:
-        return None
-    embedded_funcs = [
-        func
-        for embedded_src in EMBEDDED_MODULES.values()
-        for func in module_asts[embedded_src.puya_module_name].body
-        if isinstance(func, awst_nodes.Function)
-    ]
-    build_context: IRBuildContext = attrs_extend(
-        IRBuildContext,
-        context,
-        subroutines={},
-        module_awsts=module_asts,
-        embedded_funcs=embedded_funcs,
-    )
-
-    build_embedded_ir(build_context)
-    module_irs = {
-        source.module_name: [
-            build_ir(build_context, node)
-            for node in module_asts[source.module_name].body
-            if isinstance(node, awst_nodes.ContractFragment) and not node.is_abstract
-        ]
-        for source in parse_result.sources
-    }
-    if errors.num_errors:
-        return None
-
-    result = dict[ParseSource, list[CompiledContract]]()
-    for src in parse_result.sources:
-        module_ir = module_irs.get(src.module_name)
-        if module_ir is None:
-            raise InternalError(f"Could not find IR for {src.path}")
-
-        if not module_ir:
-            if src.is_explicit:
-                logger.warning(
-                    f"No contracts found in explicitly named source file:"
-                    f" {make_path_relative_to_cwd(src.path)}"
-                )
-        else:
-            for contract_ir in module_ir:
-                out_dir = determine_out_dir(src.path.parent, context.options)
-                contract_ir_base_path = out_dir / "_".join(
-                    (src.path.stem, contract_ir.metadata.class_name)
-                )
-                compiled = _contract_ir_to_teal(context, contract_ir, contract_ir_base_path)
-                result.setdefault(src, []).append(compiled)
-
-    if errors.num_errors:
-        return None
-
-    return result
-
-
-def _contract_ir_to_teal(
-    context: CompileContext, contract_ir: ContractIR, contract_ir_base_path: Path
-) -> CompiledContract:
-    remove_unused_subroutines(context, contract_ir)
-    if context.options.output_ssa_ir:
-        output_contract_ir_to_path(contract_ir, contract_ir_base_path.with_suffix(".ssa.ir"))
-    logger.info(
-        f"Optimizing {contract_ir.metadata.full_name} "
-        f"at level {context.options.optimization_level}"
-    )
-    contract_ir = optimize_contract_ir(
-        context,
-        contract_ir,
-        contract_ir_base_path if context.options.output_optimization_ir else None,
-    )
-    contract_ir = destructure_ssa(context, contract_ir)
-    if context.options.output_destructured_ir:
-        output_contract_ir_to_path(
-            contract_ir, contract_ir_base_path.with_suffix(".destructured.ir")
-        )
-    approval_mir = build_mir(context, contract_ir.approval_program)
-    clear_state_mir = build_mir(context, contract_ir.clear_program)
-    if context.options.output_memory_ir:
-        output_memory_ir(
-            context,
-            contract_ir.approval_program,
-            approval_mir,
-            contract_ir_base_path.with_suffix(".approval.mir"),
-        )
-        output_memory_ir(
-            context,
-            contract_ir.clear_program,
-            clear_state_mir,
-            contract_ir_base_path.with_suffix(".clear_state.mir"),
-        )
-    approval_teal = build_teal(context, approval_mir)
-    clear_state_teal = build_teal(context, clear_state_mir)
-    if context.options.optimization_level > 0:
-        approval_teal = optimize_teal_program(context, approval_teal)
-        clear_state_teal = optimize_teal_program(context, clear_state_teal)
-    approval_output = emit_teal(context, approval_teal)
-    clear_state_output = emit_teal(context, clear_state_teal)
-    compiled = CompiledContract(
-        approval_program=approval_output,
-        clear_program=clear_state_output,
-        metadata=contract_ir.metadata,
-    )
-    return compiled
-
-
-def write_arc32_application_spec(
-    context: CompileContext,
-    compiled_contracts_by_source_path: dict[ParseSource, list[CompiledContract]],
-) -> None:
-    for src, compiled_contracts in compiled_contracts_by_source_path.items():
-        arc4_contracts = [c for c in compiled_contracts if c.metadata.is_arc4]
-        if not arc4_contracts:
-            continue
-        base_path = determine_out_dir(src.path.parent, context.options)
-        for arc4_contract in arc4_contracts:
-            stem = (
-                "application.json"
-                if len(arc4_contracts) == 1
-                else f"application.{arc4_contract.metadata.full_name}.json"
-            )
-            arc32_path = base_path / stem
-            logger.info(f"Writing {make_path_relative_to_cwd(arc32_path)}")
-            json_text = create_arc32_json(arc4_contract)
-            arc32_path.write_text(json_text)
-
-
-def write_compiled_contracts(
-    context: CompileContext,
-    compiled_contracts_by_source_path: dict[ParseSource, list[CompiledContract]],
-) -> None:
-    for src, compiled_contracts in compiled_contracts_by_source_path.items():
-        out_dir = determine_out_dir(src.path.parent, context.options)
-        for contract in compiled_contracts:
-            if len(compiled_contracts) == 1:
-                file_stem = src.path.stem
-            else:
-                file_stem = f"{src.path.stem}_{contract.metadata.full_name}"
-            write_contract_files(base_path=out_dir / file_stem, compiled_contract=contract)
-
-
-def log_options(puya_options: PuyaOptions) -> None:
-    logger.debug(puya_options)
-
-
-def compile_to_teal(puya_options: PuyaOptions) -> None:
-    """Drive the actual core compilation step."""
-    log_options(puya_options)
-    try:
-        context = parse_with_mypy(puya_options)
-    except ParseError as ex:
-        _log_parse_errors(ex)
-        sys.exit(ErrorExitCode.code)
-
-    with log_exceptions(context.errors, exit_on_failure=True):
-        awst = transform_ast(context)
-        compiled_contracts_by_source_path = awst_to_teal(context, awst)
-        write_teal_to_output(context, compiled_contracts_by_source_path)
-
-
-def write_teal_to_output(
-    context: CompileContext, contracts: dict[ParseSource, list[CompiledContract]] | None
-) -> None:
-    if contracts is None:
-        logger.error("Build failed")
-        sys.exit(ErrorExitCode.code)
-    elif not contracts:
-        logger.error("No contracts discovered in any source files")
-    else:
-        options = context.options
-        if options.output_teal:
-            write_compiled_contracts(context, contracts)
-        if options.output_arc32:
-            write_arc32_application_spec(context, contracts)
 
 
 def get_mypy_options() -> mypy.options.Options:
@@ -296,6 +121,87 @@ def get_mypy_options() -> mypy.options.Options:
     mypy_opts.pretty = True  # show source in output
 
     return mypy_opts
+
+
+def module_irs_to_teal(
+    context: CompileContext, module_irs: dict[str, list[ContractIR]]
+) -> dict[ParseSource, list[CompiledContract]]:
+    result = dict[ParseSource, list[CompiledContract]]()
+    # used to check for conflicts that would occur on output
+    contracts_by_output_base = dict[Path, ContractIR]()
+    for src in context.parse_result.sources:
+        module_ir = module_irs.get(src.module_name)
+        if module_ir is None:
+            raise InternalError(f"Could not find IR for {src.path}")
+
+        if not module_ir:
+            if src.is_explicit:
+                logger.warning(
+                    f"No contracts found in explicitly named source file:"
+                    f" {make_path_relative_to_cwd(src.path)}"
+                )
+        else:
+            for contract_ir in module_ir:
+                out_dir = determine_out_dir(src.path.parent, context.options)
+                name = contract_ir.metadata.name
+                contract_ir_base_path = out_dir / name
+                if existing := contracts_by_output_base.get(contract_ir_base_path):
+                    context.errors.error(
+                        f"Duplicate contract name {name}", location=contract_ir.source_location
+                    )
+                    context.errors.note(
+                        f"Contract name {name} first seen here", location=existing.source_location
+                    )
+                else:
+                    contracts_by_output_base[contract_ir_base_path] = contract_ir
+
+                contract_ir = optimize_and_destructure_ir(
+                    context, contract_ir, contract_ir_base_path
+                )
+                compiled = _contract_ir_to_teal(context, contract_ir, contract_ir_base_path)
+                result.setdefault(src, []).append(compiled)
+    return result
+
+
+def _contract_ir_to_teal(
+    context: CompileContext, contract_ir: ContractIR, contract_ir_base_path: Path
+) -> CompiledContract:
+    approval_mir = program_ir_to_mir(
+        context, contract_ir.approval_program, contract_ir_base_path.with_suffix(".approval.mir")
+    )
+    clear_state_mir = program_ir_to_mir(
+        context, contract_ir.clear_program, contract_ir_base_path.with_suffix(".clear.mir")
+    )
+    approval_output = mir_to_teal(context, approval_mir)
+    clear_state_output = mir_to_teal(context, clear_state_mir)
+    compiled = CompiledContract(
+        approval_program=approval_output,
+        clear_program=clear_state_output,
+        metadata=contract_ir.metadata,
+    )
+    return compiled
+
+
+def write_artifacts(
+    context: CompileContext,
+    compiled_contracts_by_source_path: dict[ParseSource, list[CompiledContract]],
+) -> None:
+    if not compiled_contracts_by_source_path:
+        logger.warning("No contracts discovered in any source files")
+        return
+    for src, compiled_contracts in compiled_contracts_by_source_path.items():
+        out_dir = determine_out_dir(src.path.parent, context.options)
+        for contract in compiled_contracts:
+            teal_file_stem = contract.metadata.name
+            arc32_file_stem = f"{teal_file_stem}.arc32.json"
+            if context.options.output_teal:
+                teal_path = out_dir / teal_file_stem
+                write_contract_files(base_path=teal_path, compiled_contract=contract)
+            if contract.metadata.is_arc4 and context.options.output_arc32:
+                arc32_path = out_dir / arc32_file_stem
+                logger.info(f"Writing {make_path_relative_to_cwd(arc32_path)}")
+                json_text = create_arc32_json(contract)
+                arc32_path.write_text(json_text)
 
 
 def write_contract_files(base_path: Path, compiled_contract: CompiledContract) -> None:

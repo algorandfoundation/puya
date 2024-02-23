@@ -544,7 +544,7 @@ def test_ssa(harness: _TestHarness) -> None:
 
 
 def test_tuple_support(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "tuple_support.py")
+    result = harness.deploy(TEST_CASES_DIR / "tuple_support")
     total, msg, hi, mid, lo, batman = result.decode_logs("iuiiiu")
     assert total == 306
     assert msg == "Hello, world!"
@@ -691,7 +691,7 @@ def test_unssa(harness: _TestHarness) -> None:
 
 
 def test_byte_constants(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "byte_constants.py")
+    result = harness.deploy(TEST_CASES_DIR / "constants" / "byte_constants.py")
     the_str, the_length = result.decode_logs("bi")
     expected = b"Base 16 encoded|Base 64 encoded|Base 32 encoded|UTF-8 Encoded"
     assert the_str == expected
@@ -736,7 +736,7 @@ def test_simplish(harness: _TestHarness) -> None:
 
 
 def test_address(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "address_constant.py")
+    result = harness.deploy(TEST_CASES_DIR / "constants" / "address_constant.py")
     sender_bytes = algosdk.encoding.decode_address(harness.sender)
     assert result.decode_logs("b") == [sender_bytes]
 
