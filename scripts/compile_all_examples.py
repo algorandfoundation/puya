@@ -161,8 +161,7 @@ def checked_compile(
         env=ENV_WITH_NO_COLOR,
         encoding="utf-8",
     )
-    # TODO: remove \.approval from regex, just in there to minimise diff
-    teal_files_written = re.findall(r"info: Writing (.+\.approval\.teal)", result.stdout)
+    teal_files_written = re.findall(r"info: Writing (.+\.teal)", result.stdout)
 
     if write_logs:
         if p.is_dir():

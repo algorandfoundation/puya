@@ -4,7 +4,7 @@ import sys
 import typing
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Self
+from typing import Self
 
 import attrs
 import docstring_parser
