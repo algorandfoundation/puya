@@ -601,13 +601,12 @@ def _map_scratch_space_reservation(
     expr: mypy.nodes.Expression, source_location: SourceLocation
 ) -> Iterable[int]:
     def check_slot_is_in_range(slot: int) -> None:
-        if 0 <= slot <= MAX_SCRATCH_SLOT_NUMBER:
-            return
-        raise CodeError(
-            f"Invalid scratch slot {slot}. Reserved range must fall entirely between "
-            f"0 and {MAX_SCRATCH_SLOT_NUMBER}",
-            source_location,
-        )
+        if not (0 <= slot <= MAX_SCRATCH_SLOT_NUMBER):
+            raise CodeError(
+                f"Invalid scratch slot {slot}. Reserved range must fall entirely between "
+                f"0 and {MAX_SCRATCH_SLOT_NUMBER}",
+                source_location,
+            )
 
     def map_urange_args(args: list[mypy.nodes.Expression]) -> range:
         match args:

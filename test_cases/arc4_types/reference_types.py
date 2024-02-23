@@ -1,7 +1,7 @@
 from puyapy import Contract, arc4, op
 
 
-class MyContract(Contract):
+class Arc4RefTypesContract(Contract):
     def approval_program(self) -> bool:
         # When creating an address from an account no need to check the length as we assume the
         # Account is valid

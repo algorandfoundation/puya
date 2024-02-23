@@ -143,7 +143,9 @@ class StableSet(MutableSet[T]):
 
 
 def determine_out_dir(contract_path: Path, options: PuyaOptions) -> Path:
-    if options.out_dir:
+    if not options.out_dir:
+        out_dir = contract_path
+    else:
         # find input path the contract is relative to
         for src_path in options.paths:
             src_path = src_path.resolve()
@@ -163,8 +165,6 @@ def determine_out_dir(contract_path: Path, options: PuyaOptions) -> Path:
                 out_dir = options.out_dir / contract_path
             else:
                 out_dir = contract_path / options.out_dir
-    else:
-        out_dir = contract_path
 
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir

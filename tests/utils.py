@@ -10,9 +10,10 @@ import structlog.testing
 import structlog.typing
 from puya.awst.nodes import Module
 from puya.awst_build.main import transform_ast
-from puya.compile import awst_to_teal, parse_with_mypy, write_teal_to_output
+from puya.compile import module_irs_to_teal, parse_with_mypy, write_artifacts
 from puya.context import CompileContext
 from puya.errors import CodeError, Errors
+from puya.ir.main import build_module_irs
 from puya.models import CompiledContract
 from puya.options import PuyaOptions
 from puya.parse import ParseResult, ParseSource, SourceLocation, get_parse_sources
@@ -20,7 +21,7 @@ from puya.utils import pushd
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 
-APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir", "*.mir", "application.json")
+APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir", "*.mir", "*.arc32.json")
 UNSTABLE_LOG_PREFIXES = {
     "debug": (
         "Building AWST for ",
@@ -158,6 +159,21 @@ def _get_log_errors(logs: Iterable[Log]) -> str:
     return "\n".join(str(log) for log in logs if log.log_level == "error")
 
 
+def awst_to_teal(
+    context: CompileContext, module_asts: dict[str, Module]
+) -> dict[ParseSource, list[CompiledContract]] | None:
+    errors = context.errors
+    if errors.num_errors:
+        return None
+    module_irs = build_module_irs(context, module_asts)
+    if errors.num_errors:
+        return None
+    compiled_contracts = module_irs_to_teal(context, module_irs)
+    if errors.num_errors:
+        return None
+    return compiled_contracts
+
+
 @functools.cache
 def compile_src(
     src_path: Path, optimization_level: int, debug_level: int
@@ -195,7 +211,7 @@ def compile_src(
             teal = awst_to_teal(context, awst)
             if teal is None:
                 raise CodeError(_get_log_errors(Log.parse(x, root_dir) for x in event_logs))
-            write_teal_to_output(context, teal)
+            write_artifacts(context, teal)
 
         output_files = {
             file.name: file.read_text("utf8")

@@ -1,0 +1,89 @@
+#pragma version 10
+
+test_cases.augmented_assignment.contract.Augmented.approval_program:
+    int 0
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    txn Sender
+    bury 1
+    txn OnCompletion
+    int OptIn
+    ==
+    bz main_after_if_else@4
+    dupn 2
+    byte "my_uint"
+    int 0
+    app_local_put
+    byte "my_bytes"
+    byte ""
+    app_local_put
+
+main_after_if_else@4:
+    txn ApplicationID
+    int 0
+    >
+    bz main_after_if_else@6
+    txn NumAppArgs
+    dup
+    itob
+    swap
+    dig 2
+    dup
+    cover 2
+    int 0
+    byte "my_uint"
+    app_local_get_ex
+    assert // check value exists
+    dig 1
+    +
+    dig 2
+    byte "my_uint"
+    uncover 2
+    app_local_put
+    dig 1
+    int 0
+    byte "my_bytes"
+    app_local_get_ex
+    assert // check value exists
+    dig 3
+    concat
+    uncover 2
+    byte "my_bytes"
+    uncover 2
+    app_local_put
+    int 0
+    byte "global_uint"
+    app_global_get_ex
+    assert // check value exists
+    +
+    byte "global_uint"
+    swap
+    app_global_put
+    int 0
+    byte "global_bytes"
+    app_global_get_ex
+    assert // check value exists
+    swap
+    concat
+    byte "global_bytes"
+    swap
+    app_global_put
+
+main_after_if_else@6:
+    int 1
+    return
+
+
+// test_cases.augmented_assignment.contract.Augmented.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "global_uint"
+    int 0
+    app_global_put
+    byte "global_bytes"
+    byte ""
+    app_global_put
+    retsub

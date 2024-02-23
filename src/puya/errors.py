@@ -20,7 +20,6 @@ _VALID_SEVERITY = ("error", "note", "warning")
 class ErrorExitCode(enum.IntEnum):
     code = 1
     internal = 2
-    unexpected = 3
 
 
 class PuyaError(Exception):
@@ -120,6 +119,10 @@ class Errors:
                     kwargs["related_lines"] = _get_pretty_source(file_source, location)
         logger.log(log_level, msg, **kwargs)
 
+    def exit_if_errors(self) -> None:
+        if self.num_errors:
+            sys.exit(ErrorExitCode.code)
+
     def error(self, msg: str, location: SourceLocation | None) -> None:
         self._report(logging.ERROR, msg, location)
         self.num_errors += 1
@@ -131,8 +134,18 @@ class Errors:
     def note(self, msg: str, location: SourceLocation | None) -> None:
         self._report(logging.INFO, msg, location)
 
+    def fatal(
+        self,
+        msg: str,
+        location: SourceLocation | None,
+        *,
+        exit_code: ErrorExitCode = ErrorExitCode.internal,
+    ) -> None:
+        self._report(logging.ERROR, msg, location)
+        _crash_report(location, exit_code)
 
-def crash_report(location: SourceLocation | None, exit_code: ErrorExitCode) -> t.Never:
+
+def _crash_report(location: SourceLocation | None, exit_code: ErrorExitCode) -> t.Never:
     # Adapted from report_internal_error in mypy
     err = sys.exc_info()[1]
     tb = traceback.extract_stack()[:-4]
@@ -153,20 +166,17 @@ def crash_report(location: SourceLocation | None, exit_code: ErrorExitCode) -> t
 
 @contextlib.contextmanager
 def log_exceptions(
-    errors: Errors,
-    fallback_location: SourceLocation | None = None,
-    *,
-    exit_on_failure: bool = False,
+    errors: Errors, fallback_location: SourceLocation | None = None, *, exit_check: bool = False
 ) -> Iterator[None]:
     try:
         yield
     except CodeError as ex:
         errors.error(str(ex), location=ex.location or fallback_location)
-        if exit_on_failure:
-            raise SystemExit(ErrorExitCode.code) from ex
     except InternalError as ex:
-        errors.error(f"FATAL {ex!s}", location=ex.location or fallback_location)
-        crash_report(ex.location or fallback_location, ErrorExitCode.internal)
+        errors.fatal(f"FATAL {ex!s}", location=ex.location or fallback_location)
     except Exception as ex:
-        errors.error(f"UNEXPECTED {ex!s}", location=fallback_location)
-        crash_report(fallback_location, ErrorExitCode.unexpected)
+        errors.fatal(f"UNEXPECTED {ex!s}", location=fallback_location)
+    if exit_check:
+        # note, we check here, in case of logged errors, not just in case of one
+        # we caught at this level in the above try/except block
+        errors.exit_if_errors()

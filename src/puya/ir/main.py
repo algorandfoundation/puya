@@ -1,6 +1,7 @@
 import itertools
 import typing
 from collections.abc import Iterable, Iterator, Sequence
+from pathlib import Path
 
 import attrs
 import structlog
@@ -12,6 +13,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.function_traverser import FunctionTraverser
+from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_router import (
     create_abi_router,
@@ -19,21 +21,83 @@ from puya.ir.arc4_router import (
 )
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.builder.utils import format_tuple_index
-from puya.ir.context import IRBuildContext
+from puya.ir.context import IRBuildContext, IRBuildContextWithFallback
+from puya.ir.destructure.main import destructure_ssa
 from puya.ir.models import (
     Contract,
     Program,
     Register,
     Subroutine,
 )
+from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
+from puya.ir.optimize.main import optimize_contract_ir
+from puya.ir.to_text_visitor import output_contract_ir_to_path
 from puya.ir.types_ import wtype_to_avm_type
 from puya.models import ARC4Method, ARC4MethodConfig, ContractMetaData, ContractState
-from puya.utils import StableSet
+from puya.parse import EMBEDDED_MODULES
+from puya.utils import StableSet, attrs_extend
 
 logger = structlog.get_logger()
 
 
-def build_embedded_ir(ctx: IRBuildContext) -> None:
+def build_module_irs(
+    context: CompileContext, module_asts: dict[str, awst_nodes.Module]
+) -> dict[str, list[Contract]]:
+    embedded_funcs = [
+        func
+        for embedded_src in EMBEDDED_MODULES.values()
+        for func in module_asts[embedded_src.puya_module_name].body
+        if isinstance(func, awst_nodes.Function)
+    ]
+    build_context: IRBuildContext = attrs_extend(
+        IRBuildContext,
+        context,
+        subroutines={},
+        module_awsts=module_asts,
+        embedded_funcs=embedded_funcs,
+    )
+    _build_embedded_ir(build_context)
+
+    result = {}
+    for source in context.parse_result.sources:
+        contracts = result[source.module_name] = list[Contract]()
+        concrete_contract_nodes = [
+            node
+            for node in module_asts[source.module_name].body
+            if isinstance(node, awst_nodes.ContractFragment) and not node.is_abstract
+        ]
+        for contract_node in concrete_contract_nodes:
+            ctx = build_context.for_contract(contract_node)
+            with ctx.log_exceptions():
+                contract_ir = _build_ir(ctx, contract_node)
+                contracts.append(contract_ir)
+    return result
+
+
+def optimize_and_destructure_ir(
+    context: CompileContext, contract_ir: Contract, contract_ir_base_path: Path
+) -> Contract:
+    remove_unused_subroutines(context, contract_ir)
+    if context.options.output_ssa_ir:
+        output_contract_ir_to_path(contract_ir, contract_ir_base_path.with_suffix(".ssa.ir"))
+    logger.info(
+        f"Optimizing {contract_ir.metadata.full_name} "
+        f"at level {context.options.optimization_level}"
+    )
+    contract_ir = optimize_contract_ir(
+        context,
+        contract_ir,
+        contract_ir_base_path if context.options.output_optimization_ir else None,
+    )
+    contract_ir = destructure_ssa(context, contract_ir)
+    if context.options.output_destructured_ir:
+        output_contract_ir_to_path(
+            contract_ir, contract_ir_base_path.with_suffix(".destructured.ir")
+        )
+    return contract_ir
+
+
+def _build_embedded_ir(ctx: IRBuildContext) -> None:
     for func in ctx.embedded_funcs:
         ctx.subroutines[func] = _make_subroutine(func)
 
@@ -42,16 +106,7 @@ def build_embedded_ir(ctx: IRBuildContext) -> None:
         FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
 
 
-def build_ir(
-    build_context: IRBuildContext,
-    contract: awst_nodes.ContractFragment,
-) -> Contract:
-    ctx = build_context.for_contract(contract)
-    with ctx.log_exceptions():
-        return _build_ir(ctx, contract)
-
-
-def _build_ir(ctx: IRBuildContext, contract: awst_nodes.ContractFragment) -> Contract:
+def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFragment) -> Contract:
     if contract.is_abstract:
         raise InternalError("attempted to compile abstract contract")
     folded = fold_state_and_special_methods(ctx, contract)

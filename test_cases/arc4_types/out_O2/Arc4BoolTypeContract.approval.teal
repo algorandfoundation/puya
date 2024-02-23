@@ -1,0 +1,39 @@
+#pragma version 10
+
+test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
+    byte 0x80
+    byte 0x00
+    callsub test_stuff
+    int 1
+    return
+
+
+// test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: bytes, false: bytes) -> void:
+test_stuff:
+    proto 2 0
+    frame_dig -2
+    int 0
+    getbit
+    dup
+    assert
+    frame_dig -1
+    int 0
+    getbit
+    dup
+    !
+    assert
+    byte 0x00
+    int 0
+    uncover 3
+    setbit
+    frame_dig -2
+    ==
+    assert
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    frame_dig -1
+    ==
+    assert
+    retsub

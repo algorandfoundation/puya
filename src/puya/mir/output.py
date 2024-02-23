@@ -62,9 +62,7 @@ def _emit_subroutine(
     writer.new_line()
 
 
-def emit_memory_ir(
-    context: ProgramCodeGenContext, subroutines: list[models.MemorySubroutine]
-) -> list[str]:
+def emit_memory_ir(context: ProgramCodeGenContext, program: models.Program) -> list[str]:
     mir_annotations = [
         annotaters.BeginCommentsAnnotater(),
         annotaters.OpDescriptionAnnotation(),
@@ -85,22 +83,19 @@ def emit_memory_ir(
     writer.append_line(f"#pragma version {context.options.target_avm_version}")
     writer.new_line()
 
-    for subroutine in subroutines:
+    for subroutine in program.all_subroutines:
         _emit_subroutine(emit_context, subroutine)
     return writer.write()
 
 
 def output_memory_ir(
-    context: CompileContext,
-    program: ir.Program,
-    subroutines: list[models.MemorySubroutine],
-    output_path: Path,
+    context: CompileContext, ir_program: ir.Program, mir_program: models.Program, output_path: Path
 ) -> None:
     cg_context = attrs_extend(
         ProgramCodeGenContext,
         context,
-        program=program,
+        program=ir_program,
         options=attrs.evolve(context.options, debug_level=2),
     )
-    mir_output = emit_memory_ir(cg_context, subroutines)
+    mir_output = emit_memory_ir(cg_context, mir_program)
     output_path.write_text("\n".join(mir_output), "utf8")

@@ -1,0 +1,131 @@
+#pragma version 10
+
+test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
+    byte ""
+    byte 0x000000083cfbf217000000230384b842
+    byte 0x000000083cfbf217000000230384b842
+    callsub add
+    dup
+    extract 0 8
+    swap
+    extract 8 8
+    swap
+    int 0
+    swap
+    b main_for_body@3
+
+main_for_header_1@2:
+    dig 2
+    bury 1
+    dig 1
+
+main_for_body@3:
+    log
+    dupn 2
+    int 1
+    +
+    bury 4
+    bz main_for_header_1@2
+    byte 0xa0
+    callsub check
+    byte 0xa0
+    log
+    byte 0x000000083cfbf217000000230384b842a0
+    callsub nested_decode
+    int 1
+    return
+
+
+// test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> bytes:
+add:
+    proto 2 1
+    frame_dig -2
+    extract 0 8
+    btoi
+    frame_dig -1
+    extract 0 8
+    btoi
+    +
+    itob
+    frame_dig -2
+    extract 8 8
+    btoi
+    frame_dig -1
+    extract 8 8
+    btoi
+    +
+    itob
+    concat
+    retsub
+
+
+// test_cases.arc4_types.structs.check(flags: bytes) -> void:
+check:
+    proto 1 0
+    frame_dig -1
+    int 0
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    assert
+    frame_dig -1
+    int 1
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    !
+    assert
+    frame_dig -1
+    int 2
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    assert
+    frame_dig -1
+    int 3
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    !
+    assert
+    retsub
+
+
+// test_cases.arc4_types.structs.nested_decode(vector_flags: bytes) -> void:
+nested_decode:
+    proto 1 0
+    frame_dig -1
+    extract 0 16
+    extract 0 8
+    btoi
+    int 35382882839
+    ==
+    assert
+    frame_dig -1
+    extract 16 1
+    int 2
+    getbit
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    int 0
+    getbit
+    assert
+    retsub

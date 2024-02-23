@@ -1,0 +1,700 @@
+#pragma version 10
+
+test_cases.inner_transactions.contract.MyContract.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    txn NumAppArgs
+    bz main_after_if_else@10
+    byte "test1"
+    byte "test2"
+    byte "test3"
+    byte "test4"
+    txna ApplicationArgs 0
+    match main_switch_case_0@4 main_switch_case_1@5 main_switch_case_2@6 main_switch_case_3@7
+    int 1
+    return
+
+main_switch_case_0@4:
+    callsub test1
+    b main_after_if_else@10
+
+main_switch_case_1@5:
+    callsub test2
+    b main_after_if_else@10
+
+main_switch_case_2@6:
+    callsub test3
+    b main_after_if_else@10
+
+main_switch_case_3@7:
+    callsub test4
+
+main_after_if_else@10:
+    int 1
+    return
+
+
+// test_cases.inner_transactions.contract.MyContract.test1() -> void:
+test1:
+    proto 0 0
+    byte "name"
+    byte "AST1"
+    app_global_put
+    int 0
+    byte "name"
+    app_global_get_ex
+    assert // check value exists
+    global CurrentApplicationAddress
+    global CurrentApplicationAddress
+    byte "name"
+    byte "AST2"
+    app_global_put
+    itxn_begin
+    byte "unit"
+    itxn_field ConfigAssetUnitName
+    int acfg
+    itxn_field TypeEnum
+    int 1000
+    itxn_field ConfigAssetTotal
+    dup
+    itxn_field ConfigAssetReserve
+    dig 1
+    itxn_field ConfigAssetManager
+    int 0
+    itxn_field Fee
+    int 3
+    itxn_field ConfigAssetDecimals
+    uncover 2
+    itxn_field ConfigAssetName
+    itxn_submit
+    itxn ConfigAssetName
+    cover 2
+    itxn CreatedAssetID
+    cover 3
+    int 0
+    byte "name"
+    app_global_get_ex
+    assert // check value exists
+    itxn_begin
+    byte "unit"
+    itxn_field ConfigAssetUnitName
+    int acfg
+    itxn_field TypeEnum
+    int 1000
+    itxn_field ConfigAssetTotal
+    dig 1
+    itxn_field ConfigAssetReserve
+    dig 2
+    itxn_field ConfigAssetManager
+    int 0
+    itxn_field Fee
+    int 3
+    itxn_field ConfigAssetDecimals
+    itxn_field ConfigAssetName
+    itxn_submit
+    itxn CreatedAssetID
+    itxn ConfigAssetName
+    uncover 4
+    byte "AST1"
+    ==
+    assert // asset1_txn is correct
+    byte "AST2"
+    ==
+    assert // asset2_txn is correct
+    uncover 3
+    asset_params_get AssetName
+    assert // asset exists
+    byte "AST1"
+    ==
+    assert // created asset 1 is correct
+    asset_params_get AssetName
+    assert // asset exists
+    byte "AST2"
+    ==
+    assert // created asset 2 is correct
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    itxn_next
+    byte "unit"
+    itxn_field ConfigAssetUnitName
+    int acfg
+    itxn_field TypeEnum
+    int 1000
+    itxn_field ConfigAssetTotal
+    dup
+    itxn_field ConfigAssetReserve
+    dig 1
+    itxn_field ConfigAssetManager
+    int 0
+    itxn_field Fee
+    int 3
+    itxn_field ConfigAssetDecimals
+    byte "AST3"
+    itxn_field ConfigAssetName
+    itxn_submit
+    itxn ConfigAssetName
+    gitxn 0 CreatedApplicationID
+    assert // created app
+    byte "AST3"
+    ==
+    assert // asset3_txn is correct
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    byte "3rd"
+    itxn_field Note
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    itxn_next
+    byte "unit"
+    itxn_field ConfigAssetUnitName
+    int acfg
+    itxn_field TypeEnum
+    int 1000
+    itxn_field ConfigAssetTotal
+    itxn_field ConfigAssetReserve
+    byte "3rd"
+    itxn_field Note
+    itxn_field ConfigAssetManager
+    int 0
+    itxn_field Fee
+    int 3
+    itxn_field ConfigAssetDecimals
+    byte "AST3"
+    itxn_field ConfigAssetName
+    itxn_submit
+    retsub
+
+
+// test_cases.inner_transactions.contract.MyContract.test2() -> void:
+test2:
+    proto 0 0
+    int 0
+    dupn 5
+    byte ""
+    dupn 2
+    txn NumAppArgs
+    bz test2_else_body@2
+    byte "1"
+    frame_bury 0
+    byte "2"
+    frame_bury 1
+    int 2
+    frame_bury 7
+    byte 0x098101
+    frame_bury 3
+    byte 0x098101
+    frame_bury 4
+    int 0
+    frame_bury 8
+    int appl
+    int 0
+    b test2_after_if_else@3
+
+test2_else_body@2:
+    byte "3"
+    frame_bury 0
+    byte "4"
+    frame_bury 1
+    byte "5"
+    frame_bury 2
+    int 3
+    frame_bury 7
+    byte 0x098101
+    frame_bury 3
+    byte 0x098101
+    frame_bury 4
+    int 0
+    frame_bury 8
+    byte "different param set"
+    frame_bury 5
+    int appl
+    int 1
+
+test2_after_if_else@3:
+    itxn_begin
+    swap
+    itxn_field TypeEnum
+    int 1
+    >=
+    bz test2_next_field@5
+    frame_dig 5
+    itxn_field Note
+
+test2_next_field@5:
+    frame_dig 8
+    itxn_field Fee
+    frame_dig 4
+    itxn_field ClearStateProgramPages
+    frame_dig 3
+    itxn_field ApprovalProgramPages
+    frame_dig 0
+    itxn_field ApplicationArgs
+    frame_dig 1
+    itxn_field ApplicationArgs
+    frame_dig 7
+    int 3
+    >=
+    bz test2_next_field@7
+    frame_dig 2
+    itxn_field ApplicationArgs
+
+test2_next_field@7:
+    itxn_submit
+    int 1
+    frame_bury 6
+    itxna ApplicationArgs 0
+    byte "1"
+    ==
+    assert // correct args used 1
+    itxna ApplicationArgs 1
+    byte "2"
+    ==
+    assert // correct args used 2
+    txn NumAppArgs
+    int 1
+    >
+    bz test2_after_if_else@11
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    byte "42"
+    itxn_field ApplicationArgs
+    itxn_submit
+    int 2
+    frame_bury 6
+    itxna ApplicationArgs 0
+    byte "42"
+    ==
+    assert // correct args used 2
+
+test2_after_if_else@11:
+    frame_dig 6
+    int 1
+    ==
+    assert // 'create_app_txn' can still be accessed
+    itxna ApplicationArgs 0
+    byte "1"
+    ==
+    assert // this will error on access if create_app_txn2 was submitted
+    retsub
+
+
+// test_cases.inner_transactions.contract.MyContract.test3() -> void:
+test3:
+    proto 0 0
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "1"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "2"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "3"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "4"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "5"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "6"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "7"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "8"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "9"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "10"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "11"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "12"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "13"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "14"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "15"
+    itxn_field ApplicationArgs
+    itxn_next
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x09361a00b08101
+    itxn_field ApprovalProgramPages
+    byte "16"
+    itxn_field ApplicationArgs
+    itxn_submit
+    gitxna 0 Logs 0
+    byte "1"
+    ==
+    assert
+    gitxna 1 Logs 0
+    byte "2"
+    ==
+    assert
+    gitxna 2 Logs 0
+    byte "3"
+    ==
+    assert
+    gitxna 3 Logs 0
+    byte "4"
+    ==
+    assert
+    gitxna 4 Logs 0
+    byte "5"
+    ==
+    assert
+    gitxna 5 Logs 0
+    byte "6"
+    ==
+    assert
+    gitxna 6 Logs 0
+    byte "7"
+    ==
+    assert
+    gitxna 7 Logs 0
+    byte "8"
+    ==
+    assert
+    gitxna 8 Logs 0
+    byte "9"
+    ==
+    assert
+    gitxna 9 Logs 0
+    byte "10"
+    ==
+    assert
+    gitxna 10 Logs 0
+    byte "11"
+    ==
+    assert
+    gitxna 11 Logs 0
+    byte "12"
+    ==
+    assert
+    gitxna 12 Logs 0
+    byte "13"
+    ==
+    assert
+    gitxna 13 Logs 0
+    byte "14"
+    ==
+    assert
+    gitxna 14 Logs 0
+    byte "15"
+    ==
+    assert
+    itxna Logs 0
+    byte "16"
+    ==
+    assert
+    retsub
+
+
+// test_cases.inner_transactions.contract.MyContract.test4() -> void:
+test4:
+    proto 0 0
+    int 0
+    byte ""
+    int 2044
+    bzero
+    byte 0x80fc0f
+    swap
+    concat
+    byte "H"
+    concat
+    dup
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int DeleteApplication
+    itxn_field OnCompletion
+    int 0
+    itxn_field Fee
+    int 3
+    itxn_field ExtraProgramPages
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    dup
+    itxn_field ApprovalProgramPages
+    dup
+    itxn_field ApprovalProgramPages
+    dup
+    itxn_field ApprovalProgramPages
+    byte "1"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn NumApprovalProgramPages
+    itxn ExtraProgramPages
+    itxn NumClearStateProgramPages
+    cover 3
+    int 3
+    ==
+    assert // extra_pages == 3
+    int 2
+    ==
+    assert // approval_pages == 2
+    itxna ApprovalProgramPages 0
+    swap
+    byte 0x098101
+    dig 1
+    concat
+    swap
+    len
+    dup
+    int 3
+    >
+    dup
+    bz test4_ternary_false@3
+    frame_dig 6
+    int 3
+    -
+    dup
+    frame_bury 1
+    b test4_ternary_merge@4
+
+test4_ternary_false@3:
+    int 0
+
+test4_ternary_merge@4:
+    frame_dig 2
+    int 0
+    uncover 2
+    substring3
+    frame_dig 5
+    swap
+    concat
+    frame_dig 4
+    ==
+    assert // expected approval page 0
+    itxna ApprovalProgramPages 1
+    frame_bury 0
+    frame_dig 7
+    bz test4_ternary_false@6
+    frame_dig 1
+    b test4_ternary_merge@7
+
+test4_ternary_false@6:
+    int 0
+
+test4_ternary_merge@7:
+    frame_dig 2
+    dup
+    uncover 2
+    frame_dig 6
+    substring3
+    swap
+    concat
+    frame_dig 0
+    ==
+    assert // expected approval page 1
+    frame_dig 3
+    int 1
+    ==
+    assert // clear_state_pages == 1
+    itxna ClearStateProgramPages 0
+    byte 0x098101
+    ==
+    assert // expected clear_state_pages
+    retsub
+
+
+// test_cases.inner_transactions.contract.MyContract.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "name"
+    byte ""
+    app_global_put
+    retsub

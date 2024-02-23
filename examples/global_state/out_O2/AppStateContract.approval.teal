@@ -1,0 +1,140 @@
+#pragma version 10
+
+examples.global_state.contract.AppStateContract.approval_program:
+    byte ""
+    dup
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    int 0
+    byte "global_int_simplified"
+    app_global_get_ex
+    assert // check value exists
+    int 33
+    ==
+    assert
+    int 0
+    byte "global_int_full"
+    app_global_get_ex
+    bury 1
+    assert
+    int 0
+    byte "global_int_full"
+    app_global_get_ex
+    assert // check value exists
+    int 55
+    ==
+    assert
+    int 0
+    byte "global_int_no_default"
+    app_global_get_ex
+    bury 1
+    !
+    assert
+    byte "global_int_no_default"
+    int 44
+    app_global_put
+    int 0
+    byte "global_int_no_default"
+    app_global_get_ex
+    assert
+    int 44
+    ==
+    assert
+    int 0
+    byte "global_bytes_simplified"
+    app_global_get_ex
+    assert // check value exists
+    byte "Hello"
+    ==
+    assert
+    int 0
+    byte "global_bytes_full"
+    app_global_get_ex
+    bury 1
+    assert
+    int 0
+    byte "global_bytes_full"
+    app_global_get_ex
+    assert // check value exists
+    byte "Hello"
+    ==
+    assert
+    int 0
+    byte "global_bytes_full"
+    app_global_get_ex
+    swap
+    bury 3
+    bz main_ternary_false@4
+    dig 1
+    b main_ternary_merge@5
+
+main_ternary_false@4:
+    byte "default"
+
+main_ternary_merge@5:
+    byte "Hello"
+    ==
+    assert
+    int 0
+    byte "global_bytes_no_default"
+    app_global_get_ex
+    bury 1
+    !
+    assert
+    byte "global_bytes_no_default"
+    byte "World"
+    app_global_put
+    int 0
+    byte "global_bytes_no_default"
+    app_global_get_ex
+    assert
+    byte "World"
+    ==
+    assert
+    byte "global_bytes_no_default"
+    app_global_del
+    int 0
+    byte "global_bytes_no_default"
+    app_global_get_ex
+    bury 1
+    !
+    assert
+    int 0
+    byte "global_bytes_no_default"
+    app_global_get_ex
+    swap
+    bury 2
+    bz main_ternary_false@7
+    dup
+    b main_ternary_merge@8
+
+main_ternary_false@7:
+    byte "default"
+
+main_ternary_merge@8:
+    byte "default"
+    ==
+    assert
+    int 1
+    return
+
+
+// examples.global_state.contract.AppStateContract.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "global_int_full"
+    int 55
+    app_global_put
+    byte "global_int_simplified"
+    int 33
+    app_global_put
+    byte "global_bytes_full"
+    byte "Hello"
+    app_global_put
+    byte "global_bytes_simplified"
+    byte "Hello"
+    app_global_put
+    retsub

@@ -2,8 +2,11 @@
 import argparse
 import os
 import re
+import shutil
 import subprocess
 import sys
+from collections import defaultdict
+from collections.abc import Mapping
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -38,34 +41,29 @@ def get_unique_name(path: Path) -> str:
     while rel_path.suffixes:
         rel_path = rel_path.with_suffix("")
 
-    match rel_path.parts:
-        case [*other, "out", "contract"]:
-            parts = other
-        case [*other, "out", contract]:
-            parts = [*other, contract]
-        case [*all]:
-            parts = all
-        case _:
-            raise Exception("Unexpected directory structure")
-    return "/".join(parts)
+    use_parts = []
+    for part in rel_path.parts:
+        if "MyContract" in part:
+            use_parts.append("".join(part.split("MyContract")))
+        elif "Contract" in part:
+            use_parts.append("".join(part.split("Contract")))
+        elif part.endswith((f"out{SUFFIX_O0}", f"out{SUFFIX_O1}", f"out{SUFFIX_O2}")):
+            pass
+        else:
+            use_parts.append(part)
+    return "/".join(filter(None, use_parts))
 
 
 @attrs.define(str=False)
 class ProgramSizes:
-    o1_sizes: dict[str, int] = attrs.field(factory=dict)
-    o0_sizes: dict[str, int] = attrs.field(factory=dict)
-    o2_sizes: dict[str, int] = attrs.field(factory=dict)
+    sizes: dict[str, dict[int, int]] = attrs.field(factory=dict)
 
-    def add(self, teal_programs: list[Path]) -> None:
-        for teal in teal_programs:
-            name = get_unique_name(teal)
-            match teal.suffixes:
-                case [".approval_unoptimized", ".teal"]:
-                    self.o0_sizes[name] = get_program_size(teal)
-                case [".approval", ".teal"]:
-                    self.o1_sizes[name] = get_program_size(teal)
-                case [".approval_O2", ".teal"]:
-                    self.o2_sizes[name] = get_program_size(teal)
+    def add(self, teal_programs: Mapping[int, list[Path]]) -> None:
+        for level, teal_files in teal_programs.items():
+            for teal in teal_files:
+                name = get_unique_name(teal)
+                sizes = self.sizes.setdefault(name, {})
+                sizes[level] = sizes.get(level, 0) + get_program_size(teal)
 
     @classmethod
     def read_file(cls, path: Path) -> "ProgramSizes":
@@ -73,17 +71,11 @@ class ProgramSizes:
         program_sizes = ProgramSizes()
         for line in lines[1:]:
             name, unoptimized, optimized, o2 = line.rsplit(maxsplit=3)
-            program_sizes.o0_sizes[name] = int(unoptimized)
-            program_sizes.o1_sizes[name] = int(optimized)
-            program_sizes.o2_sizes[name] = int(o2)
+            program_sizes.sizes[name] = {0: int(unoptimized), 1: int(optimized), 2: int(o2)}
         return program_sizes
 
     def update(self, other: "ProgramSizes") -> "ProgramSizes":
-        return ProgramSizes(
-            o2_sizes={**self.o2_sizes, **other.o2_sizes},
-            o1_sizes={**self.o1_sizes, **other.o1_sizes},
-            o0_sizes={**self.o0_sizes, **other.o0_sizes},
-        )
+        return ProgramSizes(sizes={**self.sizes, **other.sizes})
 
     def __str__(self) -> str:
         writer = prettytable.PrettyTable(
@@ -96,9 +88,10 @@ class ProgramSizes:
             right_padding_width=1,
             align="l",
         )
-        for name, optimized in self.o1_sizes.items():
-            unoptimized = self.o0_sizes[name]
-            o2 = self.o2_sizes[name]
+        for name, prog_sizes in self.sizes.items():
+            unoptimized = prog_sizes[0]
+            optimized = prog_sizes[1]
+            o2 = prog_sizes[2]
             writer.add_row([name, str(unoptimized), str(optimized), str(o2)])
         return writer.get_string()
 
@@ -108,7 +101,6 @@ class CompilationResult:
     rel_path: str
     ok: bool
     teal_files: list[Path]
-    final_ir_files: list[Path]
 
 
 def get_program_size(path: Path) -> int:
@@ -135,17 +127,27 @@ def _stabilise_logs(stdout: str) -> list[str]:
     ]
 
 
-def checked_compile(p: Path, flags: list[str], *, write_logs: bool = False) -> CompilationResult:
+def checked_compile(
+    p: Path, flags: list[str], *, out_suffix: str, write_logs: bool
+) -> CompilationResult:
+    assert p.is_dir()
+    out_dir = (p / f"out{out_suffix}").resolve()
+
     root, rel_path_ = get_root_and_relative_path(p)
     rel_path = str(rel_path_)
 
+    if out_dir.exists():
+        for prev_out_file in out_dir.iterdir():
+            if prev_out_file.is_dir():
+                shutil.rmtree(prev_out_file)
+            elif prev_out_file.suffix != ".log":
+                prev_out_file.unlink()
     cmd = [
         "poetry",
         "run",
         "puyapy",
         *flags,
-        "--out-dir=out",
-        "--debug-level=1",
+        f"--out-dir={out_dir}",
         "--log-level=debug",
         rel_path,
     ]
@@ -159,8 +161,9 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool = False) -> C
         env=ENV_WITH_NO_COLOR,
         encoding="utf-8",
     )
-    final_ir_written = re.findall(r"debug: Output IR to (.+\.destructured\.ir)", result.stdout)
-    teal_files_written = re.findall(r"info: Writing (.+\.teal)", result.stdout)
+    # TODO: remove \.approval from regex, just in there to minimise diff
+    teal_files_written = re.findall(r"info: Writing (.+\.approval\.teal)", result.stdout)
+
     if write_logs:
         if p.is_dir():
             log_path = p / "puya.log"
@@ -173,76 +176,47 @@ def checked_compile(p: Path, flags: list[str], *, write_logs: bool = False) -> C
         rel_path=rel_path,
         ok=result.returncode == 0,
         teal_files=[root / p for p in teal_files_written],
-        final_ir_files=[root / p for p in final_ir_written],
     )
 
 
-def compile_no_optimization(p: Path) -> CompilationResult:
-    result = checked_compile(
-        p,
-        flags=[
+SUFFIX_O0 = "_unoptimized"
+SUFFIX_O1 = ""
+SUFFIX_O2 = "_O2"
+
+
+def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
+    p, optimization_level = arg
+    if optimization_level == 0:
+        flags = [
             "-O0",
-            "--output-awst",
             "--output-destructured-ir",
-        ],
-        write_logs=False,
-    )
-    moved_teal = list[Path]()
-    for teal_path in result.teal_files:
-        program, *other_suffixes = teal_path.suffixes
-        new_suffix = "".join((f"{program}_unoptimized", *other_suffixes))
-        old_suffix = "".join(teal_path.suffixes)
-        new_stem = str(teal_path.name)[: -len(old_suffix)]
-        move_to = (teal_path.parent / new_stem).with_suffix(new_suffix)
-        teal_path.rename(move_to)
-        moved_teal.append(move_to)
-    moved_ir = list[Path]()
-    for final_ir_path in result.final_ir_files:
-        suffix_keep, _ = final_ir_path.suffixes
-        move_to = final_ir_path.with_suffix("").with_suffix(f"{suffix_keep}_unoptimized.ir")
-        final_ir_path.rename(move_to)
-        moved_ir.append(move_to)
-    return attrs.evolve(result, teal_files=moved_teal, final_ir_files=moved_ir)
-
-
-def compile_o2(p: Path) -> CompilationResult:
-    result = checked_compile(
-        p,
-        flags=[
+            "--no-output-arc32",
+        ]
+        out_suffix = SUFFIX_O0
+        write_logs = False
+    elif optimization_level == 2:
+        flags = [
             "-O2",
             "--output-destructured-ir",
-        ],
-    )
-    moved_teal = list[Path]()
-    for teal_path in result.teal_files:
-        program, *other_suffixes = teal_path.suffixes
-        new_suffix = "".join((f"{program}_O2", *other_suffixes))
-        old_suffix = "".join(teal_path.suffixes)
-        new_stem = str(teal_path.name)[: -len(old_suffix)]
-        move_to = (teal_path.parent / new_stem).with_suffix(new_suffix)
-        teal_path.rename(move_to)
-        moved_teal.append(move_to)
-    moved_ir = list[Path]()
-    for final_ir_path in result.final_ir_files:
-        suffix_keep, _ = final_ir_path.suffixes
-        move_to = final_ir_path.with_suffix("").with_suffix(f"{suffix_keep}_O2.ir")
-        final_ir_path.rename(move_to)
-        moved_ir.append(move_to)
-    return attrs.evolve(result, teal_files=moved_teal, final_ir_files=moved_ir)
-
-
-def compile_with_level1_optimizations(p: Path) -> CompilationResult:
-    return checked_compile(
-        p,
-        flags=[
+            "--no-output-arc32",
+            "-g0",
+        ]
+        out_suffix = SUFFIX_O2
+        write_logs = False
+    else:
+        assert optimization_level == 1
+        flags = [
             "-O1",
+            "--output-awst",
             "--output-ssa-ir",
             "--output-optimization-ir",
             "--output-destructured-ir",
             "--output-memory-ir",
-        ],
-        write_logs=True,
-    )
+        ]
+        out_suffix = SUFFIX_O1
+        write_logs = True
+    result = checked_compile(p, flags=flags, out_suffix=out_suffix, write_logs=write_logs)
+    return result, optimization_level
 
 
 @attrs.define(kw_only=True)
@@ -252,62 +226,34 @@ class CompileAllOptions:
 
 
 def main(options: CompileAllOptions) -> None:
-    to_compile = []
     limit_to = options.limit_to
     if limit_to:
         to_compile = [Path(x).resolve() for x in limit_to]
     else:
-        for root in CONTRACT_ROOT_DIRS:
-            for item in root.iterdir():
-                if item.is_dir():
-                    if any(item.rglob("*.py")):
-                        to_compile.append(item)
-                elif item.is_file() and item.suffix == ".py" and item.name != "__init__.py":
-                    to_compile.append(item)
-    if not limit_to:
-        print("Cleaning up prior runs")
-        for ext in (".teal", ".awst", ".ir"):
-            for root in CONTRACT_ROOT_DIRS:
-                for f in root.rglob(f"**/out/*{ext}"):
-                    if f.is_file():
-                        f.unlink()
+        to_compile = [
+            item
+            for root in CONTRACT_ROOT_DIRS
+            for item in root.iterdir()
+            if item.is_dir() and not item.name.startswith(".")
+        ]
 
-    program_sizes = ProgramSizes()
-    modified_teal = []
-    opt_success = set()
-    unopt_success = set()
+    modified_teal = defaultdict[int, list[Path]](list)
+    failures = list[str]()
     with ProcessPoolExecutor() as executor:
-        print(" ~~~ RUNNING -O0 ~~~ ")
-        for compilation_result in executor.map(compile_no_optimization, to_compile):
+        args = [(case, level) for case in to_compile for level in range(3)]
+        for compilation_result, level in executor.map(_compile_for_level, args):
             rel_path = compilation_result.rel_path
+            case_name = f"{rel_path} -O{level}"
             if compilation_result.ok:
-                modified_teal.extend(compilation_result.teal_files)
-                unopt_success.add(rel_path)
-                print(f"✅  {rel_path}")
+                modified_teal[level].extend(compilation_result.teal_files)
+                print(f"✅  {case_name}")
             else:
-                print(f"💥 {rel_path}", file=sys.stderr)
-        print(" ~~~ RUNNING -O2 ~~~ ")
-        for compilation_result in executor.map(compile_o2, to_compile):
-            rel_path = compilation_result.rel_path
-            if compilation_result.ok:
-                modified_teal.extend(compilation_result.teal_files)
-                unopt_success.add(rel_path)
-                print(f"✅  {rel_path}")
-            else:
-                print(f"💥 {rel_path}", file=sys.stderr)
-        print(" ~~~ RUNNING -O1 ~~~ ")
-        for compilation_result in executor.map(compile_with_level1_optimizations, to_compile):
-            rel_path = compilation_result.rel_path
-            if compilation_result.ok:
-                modified_teal.extend(compilation_result.teal_files)
-                opt_success.add(rel_path)
-                print(f"✅  {rel_path}")
-            else:
-                print(f"💥 {rel_path}", file=sys.stderr)
-    success_differs = opt_success.symmetric_difference(unopt_success)
-    if success_differs:
-        print("The following had different success outcomes depending on optimization flag: ")
-        for name in sorted(success_differs):
+                print(f"💥 {case_name}", file=sys.stderr)
+                failures.append(case_name)
+
+    if failures:
+        print("Compilation failures:")
+        for name in sorted(failures):
             print(" - " + name)
     if options.update_sizes:
         print("Updating sizes.txt")

@@ -1,0 +1,51 @@
+#pragma version 10
+
+examples.hello_world_arc4.contract.HelloWorldContract.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@5
+    method "hello(string)string"
+    txna ApplicationArgs 0
+    match main_hello_route@2
+    err // reject transaction
+
+main_hello_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub hello
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@5:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
+hello:
+    proto 1 1
+    frame_dig -1
+    extract 2 0
+    byte "Hello, "
+    swap
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    retsub

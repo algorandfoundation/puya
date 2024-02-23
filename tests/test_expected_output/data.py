@@ -12,11 +12,11 @@ import pytest
 import structlog.testing
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst_build.main import transform_ast
-from puya.compile import awst_to_teal, parse_with_mypy
+from puya.compile import parse_with_mypy
 from puya.errors import Errors, ParseError, PuyaError
 from puya.options import PuyaOptions
 
-from tests.utils import narrow_sources
+from tests.utils import awst_to_teal, narrow_sources
 
 if t.TYPE_CHECKING:
     import _pytest._code.code

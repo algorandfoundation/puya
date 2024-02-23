@@ -1,0 +1,141 @@
+#pragma version 10
+
+test_cases.ssa.contract.MyContract.approval_program:
+    byte ""
+    int 60
+    int 80
+
+main_while_top@1:
+    dig 1
+    int 5
+    <
+    bz main_after_while@3
+    dup
+    dig 2
+    dup
+    cover 2
+    +
+    bury 2
+    int 1
+    +
+    bury 2
+    b main_while_top@1
+
+main_after_while@3:
+    int 0
+    bury 3
+
+main_for_header@4:
+    dig 2
+    int 5
+    <
+    bz main_after_for@8
+    dup
+    dig 2
+    dup
+    cover 2
+    +
+    bury 2
+    dig 3
+    dup
+    cover 2
+    +
+    bury 3
+    int 1
+    +
+    bury 3
+    b main_for_header@4
+
+main_after_for@8:
+    dup2
+    <
+    bz main_else_body@16
+    dup
+    int 2
+    <
+    bz main_else_body@11
+    dig 1
+    int 5
+    +
+    b main_after_if_else@20
+
+main_else_body@11:
+    int 2
+    dig 2
+    *
+    int 14
+    *
+    bz main_else_body@13
+    int 2
+    b main_after_if_else@20
+
+main_else_body@13:
+    int 3
+    return
+
+main_else_body@16:
+    dup
+    dig 2
+    ==
+    bz main_else_body@18
+    dup2
+    *
+    b main_after_if_else@20
+
+main_else_body@18:
+    dup2
+    -
+
+main_after_if_else@20:
+    dup
+    callsub one_hundred
+    +
+    dup
+    itob
+    log
+    int 3
+    int 1
+    callsub phi_in_equiv_class
+    int 4
+    ==
+    assert
+    int 3
+    int 0
+    callsub phi_in_equiv_class
+    int 4
+    ==
+    assert
+    return
+
+
+// test_cases.ssa.contract.one_hundred(c: uint64) -> uint64:
+one_hundred:
+    proto 1 1
+    int 25
+    int 2
+    int 25
+    frame_dig -1
+    <
+    bz one_hundred_after_if_else@2
+    int 1
+    frame_bury 1
+    int 100
+    frame_bury 0
+
+one_hundred_after_if_else@2:
+    frame_dig 1
+    dup
+    *
+    frame_dig 0
+    *
+    frame_bury 0
+    retsub
+
+
+// test_cases.ssa.contract.phi_in_equiv_class(y: uint64, b: uint64) -> uint64:
+phi_in_equiv_class:
+    proto 2 1
+    frame_dig -2
+    int 1
+    +
+    retsub

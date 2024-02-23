@@ -1,0 +1,108 @@
+#pragma version 10
+
+test_cases.conditional_expressions.contract.MyContract.approval_program:
+    byte ""
+    dupn 5
+    int 0
+    callsub expensive_op
+    dup
+    bz main_ternary_false@8
+    dup
+    bury 4
+    b main_ternary_merge@9
+
+main_ternary_false@8:
+    int 1
+    callsub side_effecting_op
+    bury 4
+
+main_ternary_merge@9:
+    int 3
+    callsub expensive_op
+    dup
+    bury 8
+    bz main_ternary_false@11
+    dig 6
+    bury 3
+    b main_ternary_merge@12
+
+main_ternary_false@11:
+    int 42
+    callsub side_effecting_op
+    bury 3
+
+main_ternary_merge@12:
+    int 0
+    callsub side_effecting_op
+    dup
+    bury 7
+    bnz main_ternary_false@14
+    dig 5
+    bury 2
+    b main_ternary_merge@15
+
+main_ternary_false@14:
+    int 42
+    callsub expensive_op
+    bury 2
+
+main_ternary_merge@15:
+    int 2
+    callsub side_effecting_op
+    dup
+    bury 6
+    bnz main_ternary_false@17
+    dig 4
+    b main_ternary_merge@18
+
+main_ternary_false@17:
+    int 3
+    callsub expensive_op
+
+main_ternary_merge@18:
+    int 1
+    dig 5
+    dup
+    cover 2
+    +
+    swap
+    int 2
+    dig 6
+    *
+    uncover 3
+    *
+    swap
+    -
+    dig 3
+    -
+    +
+    dup
+    itob
+    log
+    return
+
+
+// test_cases.conditional_expressions.contract.MyContract.expensive_op(val: uint64) -> uint64:
+expensive_op:
+    proto 1 1
+    frame_dig -1
+    int 42
+    !=
+    assert // Can't be 42
+    byte "expensive_op"
+    log
+    frame_dig -1
+    retsub
+
+
+// test_cases.conditional_expressions.contract.MyContract.side_effecting_op(val: uint64) -> uint64:
+side_effecting_op:
+    proto 1 1
+    frame_dig -1
+    int 42
+    !=
+    assert // Can't be 42
+    byte "side_effecting_op"
+    log
+    frame_dig -1
+    retsub

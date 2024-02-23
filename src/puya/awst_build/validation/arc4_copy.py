@@ -8,11 +8,10 @@ from puya.context import CompileContext
 
 class ARC4CopyValidator(AWSTTraverser):
     @classmethod
-    def validate(cls, context: CompileContext, module_asts: dict[str, awst_nodes.Module]) -> None:
+    def validate(cls, context: CompileContext, module: awst_nodes.Module) -> None:
         validator = cls(context)
-        for module in module_asts.values():
-            for module_statement in module.body:
-                module_statement.accept(validator)
+        for module_statement in module.body:
+            module_statement.accept(validator)
 
     def __init__(self, context: CompileContext) -> None:
         self._context = context

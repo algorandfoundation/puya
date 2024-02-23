@@ -1,0 +1,257 @@
+#pragma version 10
+
+test_cases.everything.contract.Everything.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    method "create()void"
+    method "register(string)void"
+    method "say_hello()string"
+    method "calculate(uint64,uint64)uint64"
+    method "close_out()void"
+    txna ApplicationArgs 0
+    match main_create_route@3 main_register_route@4 main_say_hello_route@5 main_calculate_route@6 main_close_out_route@7
+    err // reject transaction
+
+main_create_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    !
+    assert // is creating
+    callsub create
+    int 1
+    return
+
+main_register_route@4:
+    int 1
+    txn OnCompletion
+    shl
+    int 3
+    &
+    assert // OnCompletion is one of NoOp, OptIn
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub register
+    int 1
+    return
+
+main_say_hello_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub say_hello
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_calculate_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    callsub calculate
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_close_out_route@7:
+    txn OnCompletion
+    int CloseOut
+    ==
+    assert // OnCompletion is CloseOut
+    txn ApplicationID
+    assert // is not creating
+    callsub close_out
+    int 1
+    return
+
+
+// test_cases.everything.contract.Everything.create() -> void:
+create:
+    proto 0 0
+    callsub _check_ban_list
+    callsub remember_creator
+    byte "counter"
+    int 0
+    app_global_put
+    retsub
+
+
+// test_cases.everything.contract.Everything._check_ban_list() -> void:
+_check_ban_list:
+    proto 0 0
+    txn Sender
+    callsub get_banned
+    !=
+    assert // You are banned, goodbye
+    retsub
+
+
+// test_cases.everything.contract.get_banned() -> bytes:
+get_banned:
+    proto 0 1
+    addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+    retsub
+
+
+// test_cases.everything.my_base.MyBase.remember_creator() -> void:
+remember_creator:
+    proto 0 0
+    byte "creator"
+    txn Sender
+    app_global_put
+    retsub
+
+
+// test_cases.everything.contract.Everything.register(name: bytes) -> void:
+register:
+    proto 1 0
+    callsub _check_ban_list
+    txn OnCompletion
+    int OptIn
+    ==
+    bz register_after_if_else@4
+    int 0
+    int 0
+    byte "name"
+    app_local_get_ex
+    bury 1
+    bnz register_after_if_else@4
+    int 0
+    byte "counter"
+    app_global_get_ex
+    assert // check value exists
+    callsub multiplicative_identity
+    +
+    byte "counter"
+    swap
+    app_global_put
+
+register_after_if_else@4:
+    int 0
+    byte "name"
+    frame_dig -1
+    app_local_put
+    retsub
+
+
+// test_cases.everything.my_base.multiplicative_identity() -> uint64:
+multiplicative_identity:
+    proto 0 1
+    int 1
+    retsub
+
+
+// test_cases.everything.contract.Everything.say_hello() -> bytes:
+say_hello:
+    proto 0 1
+    callsub _check_ban_list
+    int 0
+    int 0
+    byte "name"
+    app_local_get_ex
+    bnz say_hello_after_if_else@2
+    byte "\x00\x0fHowdy stranger!"
+    swap
+    retsub
+
+say_hello_after_if_else@2:
+    frame_dig 0
+    extract 2 0
+    byte "Hello, "
+    swap
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    extract 2 0
+    byte "!"
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    swap
+    retsub
+
+
+// test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
+calculate:
+    proto 2 1
+    frame_dig -2
+    frame_dig -1
+    callsub MyMiddleBase.calculate
+    btoi
+    frame_dig -1
+    btoi
+    *
+    itob
+    retsub
+
+
+// test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:
+MyMiddleBase.calculate:
+    proto 2 1
+    frame_dig -2
+    btoi
+    frame_dig -1
+    btoi
+    +
+    itob
+    retsub
+
+
+// test_cases.everything.contract.Everything.close_out() -> void:
+close_out:
+    proto 0 0
+    callsub _remove_sender
+    retsub
+
+
+// test_cases.everything.contract.Everything._remove_sender() -> void:
+_remove_sender:
+    proto 0 0
+    int 0
+    byte "counter"
+    app_global_get_ex
+    assert // check value exists
+    callsub positive_one
+    -
+    byte "counter"
+    swap
+    app_global_put
+    retsub
+
+
+// test_cases.everything.contract.positive_one() -> uint64:
+positive_one:
+    proto 0 1
+    int 1
+    retsub
+
+
+// test_cases.everything.contract.Everything.__init__() -> void:
+__init__:
+    proto 0 0
+    retsub

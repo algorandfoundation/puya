@@ -10,7 +10,7 @@ from puya.errors import InternalError
 from puya.ir.utils import format_bytes
 
 if t.TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
 
     from puya.avm_type import AVMType
     from puya.ir.types_ import AVMBytesEncoding
@@ -483,3 +483,14 @@ class MemorySubroutine:
 
     def get_block(self, block_name: str) -> MemoryBasicBlock:
         return self.block_map[block_name]
+
+
+@attrs.define
+class Program:
+    main: MemorySubroutine
+    subroutines: list[MemorySubroutine]
+
+    @property
+    def all_subroutines(self) -> Iterator[MemorySubroutine]:
+        yield self.main
+        yield from self.subroutines

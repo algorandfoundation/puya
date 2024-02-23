@@ -32,11 +32,10 @@ class InnerTransactionsValidator(AWSTTraverser):
         return self._current_itxn_var_stack[-1] if self._current_itxn_var_stack else None
 
     @classmethod
-    def validate(cls, context: CompileContext, module_asts: dict[str, awst_nodes.Module]) -> None:
-        for module in module_asts.values():
-            for module_statement in module.body:
-                validator = cls(context)
-                module_statement.accept(validator)
+    def validate(cls, context: CompileContext, module: awst_nodes.Module) -> None:
+        for module_statement in module.body:
+            validator = cls(context)
+            module_statement.accept(validator)
 
     def visit_contract_method(self, statement: awst_nodes.ContractMethod) -> None:
         self._check_method_types(statement.args, statement.return_type, statement.source_location)

@@ -1,0 +1,165 @@
+#pragma version 10
+
+examples.local_state.local_state_with_offsets.LocalStateContract.approval_program:
+    int 0
+    byte ""
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    txn ApplicationID
+    bnz main_after_if_else@4
+
+main_if_body@3:
+    int 1
+    return
+
+main_after_if_else@4:
+    txn OnCompletion
+    dup
+    !
+    swap
+    int OptIn
+    ==
+    ||
+    bnz main_after_if_else@6
+
+main_if_body@5:
+    int 0
+    return
+
+main_after_if_else@6:
+    txn NumAppArgs
+    int 1
+    <
+    bnz main_if_body@5
+    txna ApplicationArgs 0
+    btoi
+    bury 1
+    txna ApplicationArgs 1
+    bury 2
+    txn NumAppArgs
+    int 2
+    ==
+    bz main_else_body@19
+    dig 1
+    byte "get_guaranteed_data"
+    ==
+    bz main_else_body@11
+    dup
+    callsub get_guaranteed_data
+    log
+    b main_if_body@3
+
+main_else_body@11:
+    dig 1
+    byte "get_data_or_assert"
+    ==
+    bz main_else_body@13
+    dup
+    callsub get_data_or_assert
+    log
+    b main_if_body@3
+
+main_else_body@13:
+    dig 1
+    byte "delete_data"
+    ==
+    bz main_if_body@5
+    dup
+    callsub delete_data
+    byte "Deleted"
+    log
+    b main_if_body@3
+
+main_else_body@19:
+    txn NumAppArgs
+    int 3
+    ==
+    bz main_if_body@5
+    dig 1
+    byte "set_data"
+    ==
+    bz main_else_body@22
+    dup
+    txna ApplicationArgs 2
+    callsub set_data
+    b main_if_body@3
+
+main_else_body@22:
+    dig 1
+    byte "get_data_with_default"
+    ==
+    bz main_if_body@5
+    dup
+    txna ApplicationArgs 2
+    callsub get_data_with_default
+    log
+    b main_if_body@3
+
+
+// examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(for_account: uint64) -> bytes:
+get_guaranteed_data:
+    proto 1 1
+    frame_dig -1
+    int 0
+    byte "local"
+    app_local_get_ex
+    assert // check value exists
+    retsub
+
+
+// examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(for_account: uint64) -> bytes:
+get_data_or_assert:
+    proto 1 1
+    frame_dig -1
+    int 0
+    byte "local"
+    app_local_get_ex
+    assert // no data for account
+    retsub
+
+
+// examples.local_state.local_state_with_offsets.LocalStateContract.delete_data(for_account: uint64) -> void:
+delete_data:
+    proto 1 0
+    frame_dig -1
+    byte "local"
+    app_local_del
+    retsub
+
+
+// examples.local_state.local_state_with_offsets.LocalStateContract.set_data(for_account: uint64, value: bytes) -> void:
+set_data:
+    proto 2 0
+    frame_dig -2
+    byte "local"
+    frame_dig -1
+    app_local_put
+    retsub
+
+
+// examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(for_account: uint64, default: bytes) -> bytes:
+get_data_with_default:
+    proto 2 1
+    frame_dig -2
+    int 0
+    byte "local"
+    app_local_get_ex
+    bz get_data_with_default_ternary_false@2
+    frame_dig 0
+    b get_data_with_default_ternary_merge@3
+
+get_data_with_default_ternary_false@2:
+    frame_dig -1
+
+get_data_with_default_ternary_merge@3:
+    swap
+    retsub
+
+
+// examples.local_state.local_state_with_offsets.LocalStateContract.__init__() -> void:
+__init__:
+    proto 0 0
+    retsub
