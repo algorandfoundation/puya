@@ -47,21 +47,16 @@ def transform_ast(compile_context: CompileContext) -> dict[str, Module]:
             elif embedded_src := EMBEDDED_MODULES.get(module.name):
                 logger.debug(f"Building AWST for embedded puyapy lib at {module_rel_path}")
                 module._fullname = embedded_src.puya_module_name  # noqa: SLF001
-                result[embedded_src.puya_module_name] = ModuleASTConverter.convert(ctx, module)
+                result[embedded_src.puya_module_name] = ModuleASTConverter(ctx, module).convert()
             else:
-                user_modules[module_name] = module
-    for _, _ in user_modules.items():
-        # TODO: pre-parse step: extract state info, constants, etc
-        pass
-    for module_name, module in user_modules.items():
+                logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
+                user_modules[module_name] = ModuleASTConverter(ctx, module)
+    for module_name, converter in user_modules.items():
         logger.debug(f"Building AWST for module {module_name}")
-        errors_before_module = ctx.errors.num_errors
-        module_awst = ModuleASTConverter.convert(ctx, module)
-        validate_awst(ctx, module_awst)
-        had_errors = ctx.errors.num_errors > errors_before_module
-        if ctx.options.output_awst and not had_errors:
-            output_awst(module_awst, ctx.options)
+        module_awst = converter.convert()
         result[module_name] = module_awst
+        if ctx.options.output_awst and not converter.has_errors:
+            output_awst(module_awst, ctx.options)
     return result
 
 

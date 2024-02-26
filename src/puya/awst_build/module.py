@@ -1,4 +1,5 @@
 import typing as t
+from collections.abc import Callable
 
 import mypy.nodes
 import mypy.types
@@ -28,49 +29,71 @@ from puya.awst_build.utils import (
     get_decorators_by_fullname,
     get_unaliased_fullname,
 )
+from puya.awst_build.validation.main import validate_awst
 from puya.errors import CodeError, InternalError
 from puya.utils import StableSet
 
 logger = structlog.get_logger()
 
 
-class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
+DeferredModuleStatement: t.TypeAlias = Callable[[ASTConversionModuleContext], ModuleStatement]
+
+StatementResult: t.TypeAlias = list[ModuleStatement | DeferredModuleStatement]
+
+
+class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     """This does basic validation, and traversal of valid module scope elements, collecting
-    and folding constants.
-
-    Note that constants must appear before usage, unlike in regular Python.
-
-    TODO: maybe collect constants in a pre-processing step?
-    """
+    and folding constants."""
 
     def __init__(self, context: ASTConversionContext, module: mypy.nodes.MypyFile):
         super().__init__(context=context.for_module(module))
 
-        docstring = extract_docstring(module)
+        self._mypy_module = module
+        self._docstring = extract_docstring(module)
 
-        self._statements = list[ModuleStatement]()
-        for node in module.defs:
+        # pre-parse
+        errors_start = self.context.errors.num_errors
+        pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
+        for node in self._mypy_module.defs:
             with self.context.log_exceptions(fallback_location=node):
-                node.accept(self)
-        self.result = Module(
+                items = node.accept(self)
+                pre_parse_result.append((node, items))
+        self._pre_parse_result = pre_parse_result
+        self._error_count = self.context.errors.num_errors - errors_start
+
+    @property
+    def has_errors(self) -> bool:
+        return self._error_count > 0
+
+    def convert(self) -> Module:
+        statements = []
+        errors_start = self.context.errors.num_errors
+        for node, items in self._pre_parse_result:
+            with self.context.log_exceptions(fallback_location=node):
+                for stmt_or_deferred in items:
+                    if isinstance(stmt_or_deferred, ModuleStatement):
+                        statements.append(stmt_or_deferred)
+                    else:
+                        statements.append(stmt_or_deferred(self.context))
+        module = self._mypy_module
+        result = Module(
             name=module.name,
             source_file_path=module.path,
-            docstring=docstring,
-            body=self._statements,
+            docstring=self._docstring,
+            body=statements,
         )
-
-    @classmethod
-    def convert(cls, context: ASTConversionContext, module: mypy.nodes.MypyFile) -> Module:
-        return cls(context=context, module=module).result
+        validate_awst(self.context, result)
+        self._error_count += self.context.errors.num_errors - errors_start
+        return result
 
     # Supported Statements
 
-    def empty_statement(self, _stmt: mypy.nodes.Statement) -> None:
-        return None
+    def empty_statement(self, _stmt: mypy.nodes.Statement) -> StatementResult:
+        return []
 
     def visit_function(
         self, func_def: mypy.nodes.FuncDef, decorator: mypy.nodes.Decorator | None
-    ) -> None:
+    ) -> StatementResult:
         self._precondition(
             func_def.abstract_status == mypy.nodes.NOT_ABSTRACT,
             "module level functions should not be classified as abstract by mypy",
@@ -91,10 +114,9 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             self._error(f'Unsupported function decorator "{dec_fullname}"', dec)
 
         source_location = self._location(decorator or func_def)
-        sub = FunctionASTConverter.convert(self.context, func_def, source_location)
-        self._statements.append(sub)
+        return [lambda ctx: FunctionASTConverter.convert(ctx, func_def, source_location)]
 
-    def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> None:
+    def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
         self.check_fatal_decorators(cdef.decorators)
         match cdef.analyzed:
             case None:
@@ -133,13 +155,13 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                     "arc4.Struct classes must only inherit directly from arc4.Struct", cdef
                 )
             else:
-                self._process_arc4_struct(cdef)
+                return [self._process_arc4_struct(cdef)]
         elif cdef.info.has_base(constants.STRUCT_BASE):
             if [ti.fullname for ti in cdef.info.direct_base_classes()] != [constants.STRUCT_BASE]:
                 # TODO: allow inheritance of Structs?
                 self._error("Struct classes must only inherit directly from Struct", cdef)
             else:
-                self._process_struct(cdef)
+                return [self._process_struct(cdef)]
         elif cdef.info.has_base(constants.CONTRACT_BASE):
             # TODO: mypyc also checks for typing.TypingMeta and typing.GenericMeta equivalently
             #       in a similar check - I can't find many references to these, should we include
@@ -155,15 +177,14 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             # TODO: other checks above?
             else:
                 class_options = self._process_contract_class_options(cdef)
-                self._statements.append(
-                    ContractASTConverter.convert(self.context, cdef, class_options)
-                )
+                return [lambda ctx: ContractASTConverter.convert(ctx, cdef, class_options)]
         else:
             self._error(
                 f"not a subclass of {constants.CONTRACT_BASE_ALIAS}"
                 f" or a direct subclass of {constants.STRUCT_BASE_ALIAS}",
                 location=cdef,
             )
+        return []
 
     def _process_contract_class_options(self, cdef: mypy.nodes.ClassDef) -> ContractClassOptions:
         name_override: str | None = None
@@ -209,7 +230,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             scratch_slot_reservations=scratch_slot_reservations,
         )
 
-    def _process_arc4_struct(self, cdef: mypy.nodes.ClassDef) -> None:
+    def _process_arc4_struct(self, cdef: mypy.nodes.ClassDef) -> ModuleStatement:
         field_types = dict[str, wtypes.WType]()
         field_decls = list[StructureField]()
         docstring = extract_docstring(cdef)
@@ -245,18 +266,16 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
         tuple_wtype = wtypes.ARC4Struct.from_name_and_fields(
             python_name=cdef.fullname, fields=field_types
         )
-        self._statements.append(
-            StructureDefinition(
-                name=cdef.name,
-                source_location=self._location(cdef),
-                fields=field_decls,
-                wtype=tuple_wtype,
-                docstring=docstring,
-            )
-        )
         self.context.type_map[cdef.info.fullname] = tuple_wtype
+        return StructureDefinition(
+            name=cdef.name,
+            source_location=self._location(cdef),
+            fields=field_decls,
+            wtype=tuple_wtype,
+            docstring=docstring,
+        )
 
-    def _process_struct(self, cdef: mypy.nodes.ClassDef) -> None:
+    def _process_struct(self, cdef: mypy.nodes.ClassDef) -> ModuleStatement:
         field_types = dict[str, wtypes.WType]()
         field_decls = list[StructureField]()
         docstring = extract_docstring(cdef)
@@ -283,38 +302,38 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 case _:
                     self._error("Unsupported Struct declaration", stmt)
         struct_wtype = wtypes.WStructType.from_name_and_fields(cdef.fullname, field_types)
-        self._statements.append(
-            StructureDefinition(
-                name=cdef.name,
-                source_location=self._location(cdef),
-                fields=field_decls,
-                wtype=struct_wtype,
-                docstring=docstring,
-            )
-        )
         self.context.type_map[cdef.info.fullname] = struct_wtype
+        return StructureDefinition(
+            name=cdef.name,
+            source_location=self._location(cdef),
+            fields=field_decls,
+            wtype=struct_wtype,
+            docstring=docstring,
+        )
 
-    def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> None:
+    def visit_operator_assignment_stmt(
+        self, stmt: mypy.nodes.OperatorAssignmentStmt
+    ) -> StatementResult:
         match stmt.lvalue:
             case mypy.nodes.NameExpr(name="__all__"):
                 # TODO: this value is technically usable at runtime in Python,
                 #       any references to it in the method bodies should fail
-                pass  # skip it
+                return self.empty_statement(stmt)
             case _:
                 self._unsupported(stmt)
 
-    def visit_if_stmt(self, stmt: mypy.nodes.IfStmt) -> None:
+    def visit_if_stmt(self, stmt: mypy.nodes.IfStmt) -> StatementResult:
         for expr, block in zip(stmt.expr, stmt.body, strict=True):
             if self._evaluate_compile_time_constant_condition(expr):
-                block.accept(self)
-                break
+                return block.accept(self)
+        # if we didn't return, we end up here, which means the user code
+        # should evaluate to the else body (if present)
+        if stmt.else_body:
+            return stmt.else_body.accept(self)
         else:
-            # if we didn't "break", we end up here, which means the user code
-            # should evaluate to the else body (if present)
-            if stmt.else_body:
-                stmt.else_body.accept(self)
+            return []
 
-    def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> None:
+    def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> StatementResult:
         self._precondition(
             bool(stmt.lvalues), "assignment statements should have at least one lvalue", stmt
         )
@@ -324,12 +343,12 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             stmt,
         )
         if stmt.is_alias_def:  # ie is this a typing.TypeAlias
-            return  # skip it
+            return []  # skip it
         match stmt.lvalues:
             case [mypy.nodes.NameExpr(name="__all__")]:
                 # TODO: this value is technically usable at runtime in Python,
                 #       any references to it in the method bodies should fail
-                return  # skip it
+                return []  # skip it
             # mypy comments here indicate if this is a special form,
             # it will be a single lvalue of type NameExpr
             # https://github.com/python/mypy/blob/d2022a0007c0eb176ccaf37a9aa54c958be7fb10/mypy/semanal.py#L3508
@@ -344,7 +363,8 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                     ):
                         self._unsupported(stmt.rvalue, "unsupported type")
                     case _:
-                        return  # skip it
+                        return []  # skip it
+        const_delcs = StatementResult()
         rvalue = stmt.rvalue.accept(self)
         for lvalue in stmt.lvalues:
             match lvalue:
@@ -360,7 +380,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                             lvalue,
                         )
                     self.context.constants[fullname] = rvalue
-                    self._statements.append(
+                    const_delcs.append(
                         ConstantDeclaration(
                             name=name_expr.name,
                             value=rvalue,
@@ -372,10 +392,14 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                         lvalue,
                         "only straight-forward assignment targets supported at module level",
                     )
+        return const_delcs
 
-    def visit_block(self, block: mypy.nodes.Block) -> None:
+    def visit_block(self, block: mypy.nodes.Block) -> StatementResult:
+        result = StatementResult()
         for stmt in block.body:
-            stmt.accept(self)
+            items = stmt.accept(self)
+            result.extend(items)
+        return result
 
     # Expressions
 
@@ -537,36 +561,36 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
 
     # Unsupported Statements
 
-    def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> None:
-        self._unsupported(stmt)
+    def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> None:
-        self._unsupported(stmt)
+    def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_for_stmt(self, stmt: mypy.nodes.ForStmt) -> None:
-        self._unsupported(stmt)
+    def visit_for_stmt(self, stmt: mypy.nodes.ForStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_break_stmt(self, stmt: mypy.nodes.BreakStmt) -> None:
-        self._unsupported(stmt)
+    def visit_break_stmt(self, stmt: mypy.nodes.BreakStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_continue_stmt(self, stmt: mypy.nodes.ContinueStmt) -> None:
-        self._unsupported(stmt)
+    def visit_continue_stmt(self, stmt: mypy.nodes.ContinueStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> None:
-        self._unsupported(stmt)
+    def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_del_stmt(self, stmt: mypy.nodes.DelStmt) -> None:
-        self._unsupported(stmt)
+    def visit_del_stmt(self, stmt: mypy.nodes.DelStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> None:
-        self._unsupported(stmt)
+    def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
     # the remaining statements (below) are invalid at the module lexical scope,
     # mypy should have caught these errors already
-    def visit_return_stmt(self, stmt: mypy.nodes.ReturnStmt) -> None:
+    def visit_return_stmt(self, stmt: mypy.nodes.ReturnStmt) -> StatementResult:
         raise InternalError("encountered return statement at module level", self._location(stmt))
 
-    def visit_nonlocal_decl(self, stmt: mypy.nodes.NonlocalDecl) -> None:
+    def visit_nonlocal_decl(self, stmt: mypy.nodes.NonlocalDecl) -> StatementResult:
         raise InternalError(
             "encountered nonlocal declaration at module level", self._location(stmt)
         )

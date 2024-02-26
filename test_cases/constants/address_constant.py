@@ -1,7 +1,5 @@
 from puyapy import Account, Contract, log, op
 
-SOME_ADDRESS = "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"
-
 
 class AddressConstantContract(Contract):
     def approval_program(self) -> bool:
@@ -17,3 +15,6 @@ class AddressConstantContract(Contract):
 
     def clear_state_program(self) -> bool:
         return True
+
+
+SOME_ADDRESS = "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"

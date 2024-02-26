@@ -671,11 +671,8 @@ class FunctionASTConverter(
                 try:
                     constant_value = self.context.constants[expr.fullname]
                 except KeyError as ex:
-                    # TODO: allow arbitrary ordering
                     raise CodeError(
-                        "Unable to resolve global constant reference"
-                        " - note that constants must appear before any references to them",
-                        expr_loc,
+                        "Unable to resolve global constant reference", expr_loc
                     ) from ex
                 else:
                     return Literal(source_location=expr_loc, value=constant_value)

@@ -122,6 +122,7 @@ def _stabilise_logs(stdout: str) -> list[str]:
                 "warning: Skipping stub: ",
                 "debug: Skipping stdlib stub ",
                 "debug: Building AWST for ",
+                "debug: Discovered user module ",
             )
         )
     ]

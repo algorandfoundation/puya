@@ -28,6 +28,7 @@ UNSTABLE_LOG_PREFIXES = {
         "Skipping puyapy stub ",
         "Skipping typeshed stub ",
         "Skipping stdlib stub ",
+        "Discovered user module ",
     ),
     "warning": ("Skipping stub: ",),
 }
