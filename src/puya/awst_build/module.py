@@ -155,13 +155,13 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     "arc4.Struct classes must only inherit directly from arc4.Struct", cdef
                 )
             else:
-                return [self._process_arc4_struct(cdef)]
+                return _process_arc4_struct(self.context, cdef)
         elif cdef.info.has_base(constants.STRUCT_BASE):
             if [ti.fullname for ti in cdef.info.direct_base_classes()] != [constants.STRUCT_BASE]:
                 # TODO: allow inheritance of Structs?
                 self._error("Struct classes must only inherit directly from Struct", cdef)
             else:
-                return [self._process_struct(cdef)]
+                return _process_struct(self.context, cdef)
         elif cdef.info.has_base(constants.CONTRACT_BASE):
             # TODO: mypyc also checks for typing.TypingMeta and typing.GenericMeta equivalently
             #       in a similar check - I can't find many references to these, should we include
@@ -176,7 +176,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 )
             # TODO: other checks above?
             else:
-                class_options = self._process_contract_class_options(cdef)
+                class_options = _process_contract_class_options(self.context, self, cdef)
                 return [lambda ctx: ContractASTConverter.convert(ctx, cdef, class_options)]
         else:
             self._error(
@@ -185,131 +185,6 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 location=cdef,
             )
         return []
-
-    def _process_contract_class_options(self, cdef: mypy.nodes.ClassDef) -> ContractClassOptions:
-        name_override: str | None = None
-        scratch_slot_reservations = StableSet[int]()
-        for kw_name, kw_expr in cdef.keywords.items():
-            with self.context.log_exceptions(kw_expr):
-                match kw_name:
-                    case "name":
-                        name_value = kw_expr.accept(self)
-                        if isinstance(name_value, str):
-                            name_override = name_value
-                        else:
-                            self._error("Invalid type for name=", kw_expr)
-                    case "scratch_slots":
-                        if isinstance(kw_expr, mypy.nodes.TupleExpr | mypy.nodes.ListExpr):
-                            slot_items = kw_expr.items
-                        else:
-                            slot_items = [kw_expr]
-                        for item_expr in slot_items:
-                            slots = _map_scratch_space_reservation(self.context, item_expr)
-                            if not slots:
-                                self._error("Slot range is empty", item_expr)
-                            elif (min(slots) < 0) or (max(slots) > MAX_SCRATCH_SLOT_NUMBER):
-                                self._error(
-                                    f"Invalid scratch slot reservation."
-                                    f" Reserved range must fall entirely between 0"
-                                    f" and {MAX_SCRATCH_SLOT_NUMBER}",
-                                    item_expr,
-                                )
-                            else:
-                                scratch_slot_reservations |= slots
-                    case _:
-                        self._error("Unrecognised class keyword", kw_expr)
-        for base in cdef.info.bases:
-            base_cdef = base.type.defn
-            if not base_cdef.info.has_base(constants.CONTRACT_BASE):
-                continue
-            base_options = self._process_contract_class_options(base_cdef)
-            for reservation in base_options.scratch_slot_reservations:
-                scratch_slot_reservations.add(reservation)
-        return ContractClassOptions(
-            name_override=name_override,
-            scratch_slot_reservations=scratch_slot_reservations,
-        )
-
-    def _process_arc4_struct(self, cdef: mypy.nodes.ClassDef) -> ModuleStatement:
-        field_types = dict[str, wtypes.WType]()
-        field_decls = list[StructureField]()
-        docstring = extract_docstring(cdef)
-
-        for stmt in cdef.defs.body:
-            match stmt:
-                case mypy.nodes.AssignmentStmt(
-                    lvalues=[mypy.nodes.NameExpr(name=field_name)],
-                    rvalue=mypy.nodes.TempNode(),
-                    type=mypy.types.Type() as mypy_type,
-                ):
-                    wtype = self.context.type_to_wtype(mypy_type, source_location=stmt)
-                    if not wtypes.is_arc4_encoded_type(wtype):
-                        raise CodeError(
-                            f"Invalid field type for arc4.Struct: {wtype}", self._location(stmt)
-                        )
-                    field_types[field_name] = wtype
-                    field_decls.append(
-                        StructureField(
-                            source_location=self._location(stmt),
-                            name=field_name,
-                            wtype=wtype,
-                        )
-                    )
-                case mypy.nodes.SymbolNode(name=symbol_name) if (
-                    cdef.info.names[symbol_name].plugin_generated
-                ):
-                    pass
-                case _:
-                    self._error("Unsupported Struct declaration", stmt)
-        if not field_types:
-            raise CodeError("arc4.Struct requires at least one field", self._location(cdef))
-        tuple_wtype = wtypes.ARC4Struct.from_name_and_fields(
-            python_name=cdef.fullname, fields=field_types
-        )
-        self.context.type_map[cdef.info.fullname] = tuple_wtype
-        return StructureDefinition(
-            name=cdef.name,
-            source_location=self._location(cdef),
-            fields=field_decls,
-            wtype=tuple_wtype,
-            docstring=docstring,
-        )
-
-    def _process_struct(self, cdef: mypy.nodes.ClassDef) -> ModuleStatement:
-        field_types = dict[str, wtypes.WType]()
-        field_decls = list[StructureField]()
-        docstring = extract_docstring(cdef)
-        for stmt in cdef.defs.body:
-            match stmt:
-                case mypy.nodes.AssignmentStmt(
-                    lvalues=[mypy.nodes.NameExpr(name=field_name)],
-                    rvalue=mypy.nodes.TempNode(),
-                    type=mypy.types.Type() as mypy_type,
-                ):
-                    wtype = self.context.type_to_wtype(mypy_type, source_location=stmt)
-                    field_decls.append(
-                        StructureField(
-                            source_location=self._location(stmt),
-                            name=field_name,
-                            wtype=wtype,
-                        )
-                    )
-                    field_types[field_name] = wtype
-                case mypy.nodes.SymbolNode(name=symbol_name) if (
-                    cdef.info.names[symbol_name].plugin_generated
-                ):
-                    pass
-                case _:
-                    self._error("Unsupported Struct declaration", stmt)
-        struct_wtype = wtypes.WStructType.from_name_and_fields(cdef.fullname, field_types)
-        self.context.type_map[cdef.info.fullname] = struct_wtype
-        return StructureDefinition(
-            name=cdef.name,
-            source_location=self._location(cdef),
-            fields=field_decls,
-            wtype=struct_wtype,
-            docstring=docstring,
-        )
 
     def visit_operator_assignment_stmt(
         self, stmt: mypy.nodes.OperatorAssignmentStmt
@@ -623,6 +498,155 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
 
     def visit_lambda_expr(self, expr: mypy.nodes.LambdaExpr) -> ConstantValue:
         return self._unsupported(expr)
+
+
+def _process_contract_class_options(
+    context: ASTConversionModuleContext,
+    expr_visitor: mypy.visitor.ExpressionVisitor[ConstantValue],
+    cdef: mypy.nodes.ClassDef,
+) -> ContractClassOptions:
+    name_override: str | None = None
+    scratch_slot_reservations = StableSet[int]()
+    for kw_name, kw_expr in cdef.keywords.items():
+        with context.log_exceptions(kw_expr):
+            match kw_name:
+                case "name":
+                    name_value = kw_expr.accept(expr_visitor)
+                    if isinstance(name_value, str):
+                        name_override = name_value
+                    else:
+                        context.error("Invalid type for name=", kw_expr)
+                case "scratch_slots":
+                    if isinstance(kw_expr, mypy.nodes.TupleExpr | mypy.nodes.ListExpr):
+                        slot_items = kw_expr.items
+                    else:
+                        slot_items = [kw_expr]
+                    for item_expr in slot_items:
+                        slots = _map_scratch_space_reservation(context, item_expr)
+                        if not slots:
+                            context.error("Slot range is empty", item_expr)
+                        elif (min(slots) < 0) or (max(slots) > MAX_SCRATCH_SLOT_NUMBER):
+                            context.error(
+                                f"Invalid scratch slot reservation."
+                                f" Reserved range must fall entirely between 0"
+                                f" and {MAX_SCRATCH_SLOT_NUMBER}",
+                                item_expr,
+                            )
+                        else:
+                            scratch_slot_reservations |= slots
+                case _:
+                    context.error("Unrecognised class keyword", kw_expr)
+    for base in cdef.info.bases:
+        base_cdef = base.type.defn
+        if not base_cdef.info.has_base(constants.CONTRACT_BASE):
+            continue
+        base_options = _process_contract_class_options(context, expr_visitor, base_cdef)
+        for reservation in base_options.scratch_slot_reservations:
+            scratch_slot_reservations.add(reservation)
+    return ContractClassOptions(
+        name_override=name_override,
+        scratch_slot_reservations=scratch_slot_reservations,
+    )
+
+
+def _process_struct(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+) -> StatementResult:
+    field_types = dict[str, wtypes.WType]()
+    field_decls = list[StructureField]()
+    docstring = extract_docstring(cdef)
+    has_error = False
+    for stmt in cdef.defs.body:
+        match stmt:
+            case mypy.nodes.AssignmentStmt(
+                lvalues=[mypy.nodes.NameExpr(name=field_name)],
+                rvalue=mypy.nodes.TempNode(),
+                type=mypy.types.Type() as mypy_type,
+            ):
+                wtype = context.type_to_wtype(mypy_type, source_location=stmt)
+                field_types[field_name] = wtype
+                field_decls.append(
+                    StructureField(
+                        source_location=context.node_location(stmt),
+                        name=field_name,
+                        wtype=wtype,
+                    )
+                )
+            case mypy.nodes.SymbolNode(name=symbol_name) if (
+                cdef.info.names[symbol_name].plugin_generated
+            ):
+                pass
+            case _:
+                context.error("Unsupported Struct declaration", stmt)
+                has_error = True
+    if has_error:
+        return []
+    struct_wtype = wtypes.WStructType.from_name_and_fields(cdef.fullname, field_types)
+    context.type_map[cdef.info.fullname] = struct_wtype
+    return [
+        StructureDefinition(
+            name=cdef.name,
+            source_location=context.node_location(cdef),
+            fields=field_decls,
+            wtype=struct_wtype,
+            docstring=docstring,
+        )
+    ]
+
+
+def _process_arc4_struct(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+) -> StatementResult:
+    field_types = dict[str, wtypes.WType]()
+    field_decls = list[StructureField]()
+    docstring = extract_docstring(cdef)
+
+    has_error = False
+    for stmt in cdef.defs.body:
+        match stmt:
+            case mypy.nodes.AssignmentStmt(
+                lvalues=[mypy.nodes.NameExpr(name=field_name)],
+                rvalue=mypy.nodes.TempNode(),
+                type=mypy.types.Type() as mypy_type,
+            ):
+                wtype = context.type_to_wtype(mypy_type, source_location=stmt)
+                if not wtypes.is_arc4_encoded_type(wtype):
+                    context.error(f"Invalid field type for arc4.Struct: {wtype}", stmt)
+                    has_error = True
+                else:
+                    field_types[field_name] = wtype
+                    field_decls.append(
+                        StructureField(
+                            source_location=context.node_location(stmt),
+                            name=field_name,
+                            wtype=wtype,
+                        )
+                    )
+            case mypy.nodes.SymbolNode(name=symbol_name) if (
+                cdef.info.names[symbol_name].plugin_generated
+            ):
+                pass
+            case _:
+                context.error("Unsupported arc4.Struct declaration", stmt)
+                has_error = True
+    if has_error:
+        return []
+    if not field_types:
+        context.error("arc4.Struct requires at least one field", cdef)
+        return []
+    tuple_wtype = wtypes.ARC4Struct.from_name_and_fields(
+        python_name=cdef.fullname, fields=field_types
+    )
+    context.type_map[cdef.info.fullname] = tuple_wtype
+    return [
+        StructureDefinition(
+            name=cdef.name,
+            source_location=context.node_location(cdef),
+            fields=field_decls,
+            wtype=tuple_wtype,
+            docstring=docstring,
+        )
+    ]
 
 
 def _get_int_arg(
