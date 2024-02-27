@@ -606,8 +606,7 @@ class FunctionASTConverter(
                     wtype = self.context.type_map[fullname]
                 except KeyError:
                     raise CodeError(
-                        f"Unknown struct subclass {fullname}"
-                        " (declaration must currently precede usage)",
+                        f"Unknown struct subclass {fullname}",
                         expr_loc,
                     ) from None
                 if isinstance(wtype, wtypes.WStructType):
