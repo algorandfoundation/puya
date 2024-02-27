@@ -2,6 +2,7 @@ import typing
 
 import puyapy
 from puyapy import Bytes, UInt64, op, subroutine, urange
+
 from test_cases.scratch_slots.contract import MyContract
 
 RenamedURange: typing.TypeAlias = urange

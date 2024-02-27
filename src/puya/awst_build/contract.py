@@ -2,7 +2,6 @@ import typing
 from collections.abc import Iterator, Mapping
 from typing import Never
 
-import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
@@ -21,7 +20,11 @@ from puya.awst.nodes import (
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import AppStateDeclaration, AppStateDeclType
+from puya.awst_build.contract_data import (
+    AppStateDeclaration,
+    AppStateDeclType,
+    ContractClassOptions,
+)
 from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puya.awst_build.utils import (
     extract_bytes_literal_from_mypy,
@@ -33,15 +36,8 @@ from puya.awst_build.utils import (
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4DefaultArgument, ARC4MethodConfig, ARC32StructDef, OnCompletionAction
 from puya.parse import SourceLocation
-from puya.utils import StableSet
 
 ALLOWABLE_OCA = [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
-
-
-@attrs.define
-class ContractClassOptions:
-    name_override: str | None
-    scratch_slot_reservations: StableSet[int]
 
 
 class ContractASTConverter(BaseMyPyStatementVisitor[None]):
@@ -443,6 +439,7 @@ def _gather_app_state(
                     key=name.encode(),  # TODO: encode name -> key with source file encoding?
                     key_encoding=BytesEncoding.utf8,
                     kind=kind,
+                    description=None,  # TODO!
                 )
                 yield AppStateDeclaration(state_def, decl_type)
 

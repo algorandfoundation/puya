@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import Account, UInt64, Bytes, BytesBacked
+from puyapy import Account, Bytes, BytesBacked, UInt64
 
 _T = typing.TypeVar("_T", bound=UInt64 | Bytes | BytesBacked)
 
@@ -11,7 +11,8 @@ class LocalState(typing.Generic[_T]):
         self,
         type_: type[_T],
         /,
-        key: typing.LiteralString | bytes | None = None,
+        *,
+        key: bytes | typing.LiteralString | None = None,
         description: typing.LiteralString | None = None,
     ) -> None:
         """Declare the local state key and it's associated type
@@ -84,7 +85,8 @@ class GlobalState(typing.Generic[_T]):
         self,
         type_: type[_T],
         /,
-        key: typing.LiteralString | bytes | None = None,
+        *,
+        key: bytes | typing.LiteralString | None = None,
         description: typing.LiteralString | None = None,
     ) -> None:
         """Declare the global state key and its type without initializing its value"""

@@ -1490,6 +1490,7 @@ class AppStateDefinition(Node):
     key: bytes
     key_encoding: BytesEncoding
     storage_wtype: WType
+    description: str | None
 
 
 @attrs.frozen

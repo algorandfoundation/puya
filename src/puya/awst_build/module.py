@@ -19,7 +19,8 @@ from puya.awst.nodes import (
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionContext, ASTConversionModuleContext
-from puya.awst_build.contract import ContractASTConverter, ContractClassOptions
+from puya.awst_build.contract import ContractASTConverter
+from puya.awst_build.contract_data import ContractClassOptions
 from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.subroutine import FunctionASTConverter
 from puya.awst_build.utils import (
