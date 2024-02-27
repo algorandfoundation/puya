@@ -57,32 +57,9 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._clear_program: ContractMethod | None = None
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
-        this_app_state = list(_gather_app_state(context, class_def.info))
-        combined_app_state = {defn.member_name: defn for defn in this_app_state}
-        for base in iterate_user_bases(class_def.info):
-            base_app_state = {
-                defn.member_name: defn
-                # NOTE: we don't report errors for the decls themselves here,
-                #       they should already have been reported when analysing the base type
-                for defn in _gather_app_state(context, base, report_errors=False)
-            }
-            for redefined_member in combined_app_state.keys() & base_app_state.keys():
-                member_redef = combined_app_state[redefined_member]
-                member_orig = base_app_state[redefined_member]
-                self.context.note(
-                    f"Previous definition of {redefined_member} was here",
-                    member_orig.source_location,
-                )
-                self.context.error(
-                    f"Redefinition of {redefined_member}",
-                    member_redef.source_location,
-                )
-            # we do it this way around so that we keep combined_app_state with the most-derived
-            # definition in case of redefinitions
-            combined_app_state = base_app_state | combined_app_state
-        self._collected_app_state_definitions = dict[str, AppStateDefinition]()
-        self.app_state: dict[str, AppStateDeclaration] = combined_app_state
+        self.app_state = _gather_app_state_recursive(context, class_def)
 
+        self._collected_app_state_definitions = dict[str, AppStateDefinition]()
         # note: we iterate directly and catch+log code errors here,
         #       since each statement should be somewhat independent given
         #       the constraints we place (e.g. if one function fails to convert,
@@ -226,7 +203,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     self._error(
                         f"cannot be both a subroutine and {arc4_decorator_name}", subroutine_dec
                     )
-                *arg_wtypes, ret_wtype = get_func_types(
+                *arg_wtypes, ret_wtype = _get_func_types(
                     self.context, func_def, location=self._location(func_def)
                 ).values()
                 arc4_method_config = _get_arc4_method_config(
@@ -331,10 +308,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._error(f"{kind} statements are not supported in the class body", location=stmt)
 
     def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> None:
-        if isinstance(stmt.rvalue, mypy.nodes.TempNode):
-            # silently allow state declarations, these will be picked up by gather state
-            return
-        self._unsupported("assignment", stmt)
+        # just pass on state forward-declarations, these will be picked up by gather state
+        # everything else (ie any _actual_ assignments) is unsupported
+        if not isinstance(stmt.rvalue, mypy.nodes.TempNode):
+            self._unsupported("assignment", stmt)
 
     def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> None:
         self._unsupported("operator assignment", stmt)
@@ -441,16 +418,15 @@ def _gather_app_state(
                 )
 
 
-def get_func_types(
+def _get_func_types(
     context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
 ) -> dict[str, wtypes.WType]:
-    skip_first = (
-        1
-        if func_def.arguments
-        and (func_def.arguments[0].variable.is_self or func_def.arguments[0].variable.is_cls)
-        else 0
-    )
-    in_var_names = [arg.variable.name for arg in func_def.arguments[skip_first:]]
+    start_idx = 0
+    if func_def.arguments:
+        first_arg_var = func_def.arguments[0].variable
+        if first_arg_var.is_self or first_arg_var.is_cls:
+            start_idx = 1
+    in_var_names = [arg.variable.name for arg in func_def.arguments[start_idx:]]
     if "output" in in_var_names:
         # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
         raise CodeError(
@@ -460,7 +436,7 @@ def get_func_types(
     names = [*in_var_names, "output"]
     match func_def.type:
         case mypy.types.CallableType(arg_types=arg_types, ret_type=ret_type):
-            types = arg_types[skip_first:] + [ret_type]
+            types = arg_types[start_idx:] + [ret_type]
             wtypes_ = (context.type_to_wtype(t, source_location=location) for t in types)
             return dict(zip(names, wtypes_, strict=True))
     raise InternalError("Unexpected FuncDef type")
@@ -518,7 +494,7 @@ def _get_arc4_method_config(
             structs = immutabledict[str, ARC32StructDef](
                 {
                     n: _wtype_to_struct_def(t)
-                    for n, t in get_func_types(
+                    for n, t in _get_func_types(
                         context, func_def, context.node_location(func_def)
                     ).items()
                     if isinstance(t, wtypes.ARC4Struct)
@@ -672,3 +648,32 @@ def _gather_bases(
         contract_bases_mro.append(base_cref)
 
     return contract_bases_mro
+
+
+def _gather_app_state_recursive(
+    context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
+) -> dict[str, AppStateDeclaration]:
+    this_app_state = list(_gather_app_state(context, class_def.info))
+    combined_app_state = {defn.member_name: defn for defn in this_app_state}
+    for base in iterate_user_bases(class_def.info):
+        base_app_state = {
+            defn.member_name: defn
+            # NOTE: we don't report errors for the decls themselves here,
+            #       they should already have been reported when analysing the base type
+            for defn in _gather_app_state(context, base, report_errors=False)
+        }
+        for redefined_member in combined_app_state.keys() & base_app_state.keys():
+            member_redef = combined_app_state[redefined_member]
+            member_orig = base_app_state[redefined_member]
+            context.note(
+                f"Previous definition of {redefined_member} was here",
+                member_orig.source_location,
+            )
+            context.error(
+                f"Redefinition of {redefined_member}",
+                member_redef.source_location,
+            )
+        # we do it this way around so that we keep combined_app_state with the most-derived
+        # definition in case of redefinitions
+        combined_app_state = base_app_state | combined_app_state
+    return combined_app_state
