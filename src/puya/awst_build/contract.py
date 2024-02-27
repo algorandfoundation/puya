@@ -5,6 +5,7 @@ from typing import Never
 import mypy.nodes
 import mypy.types
 import mypy.visitor
+from immutabledict import immutabledict
 
 import puya.models
 from puya.arc4_util import wtype_to_arc4
@@ -12,7 +13,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
     AppStateKind,
-    BytesEncoding,
     ContractFragment,
     ContractMethod,
     ContractReference,
@@ -34,7 +34,7 @@ from puya.awst_build.utils import (
     qualified_class_name,
 )
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4DefaultArgument, ARC4MethodConfig, ARC32StructDef, OnCompletionAction
+from puya.models import ARC4MethodConfig, ARC32StructDef, OnCompletionAction
 from puya.parse import SourceLocation
 
 ALLOWABLE_OCA = [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
@@ -58,10 +58,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
         this_app_state = list(_gather_app_state(context, class_def.info))
-        combined_app_state = {defn.state_def.member_name: defn for defn in this_app_state}
+        combined_app_state = {defn.member_name: defn for defn in this_app_state}
         for base in iterate_user_bases(class_def.info):
             base_app_state = {
-                defn.state_def.member_name: defn
+                defn.member_name: defn
                 # NOTE: we don't report errors for the decls themselves here,
                 #       they should already have been reported when analysing the base type
                 for defn in _gather_app_state(context, base, report_errors=False)
@@ -71,15 +71,16 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 member_orig = base_app_state[redefined_member]
                 self.context.note(
                     f"Previous definition of {redefined_member} was here",
-                    member_orig.state_def.source_location,
+                    member_orig.source_location,
                 )
                 self.context.error(
                     f"Redefinition of {redefined_member}",
-                    member_redef.state_def.source_location,
+                    member_redef.source_location,
                 )
             # we do it this way around so that we keep combined_app_state with the most-derived
             # definition in case of redefinitions
             combined_app_state = base_app_state | combined_app_state
+        self._collected_app_state_definitions = dict[str, AppStateDefinition]()
         self.app_state: dict[str, AppStateDeclaration] = combined_app_state
 
         # note: we iterate directly and catch+log code errors here,
@@ -96,12 +97,11 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             name_override=class_options.name_override,
             is_abstract=self._is_abstract,
             bases=_gather_bases(context, class_def),
-            is_arc4=self._is_arc4,
             init=self._init_method,
             approval_program=self._approval_program,
             clear_program=self._clear_program,
             subroutines=self._subroutines,
-            app_state=[decl.state_def for decl in this_app_state],
+            app_state=self._collected_app_state_definitions,
             docstring=docstring,
             source_location=self._location(class_def),
             reserved_scratch_space=class_options.scratch_slot_reservations,
@@ -432,16 +432,13 @@ def _gather_app_state(
                         var_loc,
                     )
             else:
-                state_def = AppStateDefinition(
-                    source_location=var_loc,
+                yield AppStateDeclaration(
                     member_name=name,
-                    storage_wtype=storage_wtype,
-                    key=name.encode(),  # TODO: encode name -> key with source file encoding?
-                    key_encoding=BytesEncoding.utf8,
                     kind=kind,
-                    description=None,  # TODO!
+                    storage_wtype=storage_wtype,
+                    decl_type=decl_type,
+                    source_location=var_loc,
                 )
-                yield AppStateDeclaration(state_def, decl_type)
 
 
 def get_func_types(
@@ -506,7 +503,7 @@ def _get_arc4_method_config(
                 )
             create = abi_hints.get("create", False)
             readonly = abi_hints.get("readonly", False)
-            default_args = abi_hints.get("default_args", {})
+            default_args = immutabledict[str, str](abi_hints.get("default_args", {}))
             all_args = [
                 a.variable.name for a in (func_def.arguments or []) if not a.variable.is_self
             ]
@@ -518,13 +515,15 @@ def _get_arc4_method_config(
                 # TODO: validate source here as well?
                 #       Deferring it allows for more flexibility in contract composition
 
-            structs = [
-                (n, _wtype_to_struct_def(t))
-                for n, t in get_func_types(
-                    context, func_def, context.node_location(func_def)
-                ).items()
-                if isinstance(t, wtypes.ARC4Struct)
-            ]
+            structs = immutabledict[str, ARC32StructDef](
+                {
+                    n: _wtype_to_struct_def(t)
+                    for n, t in get_func_types(
+                        context, func_def, context.node_location(func_def)
+                    ).items()
+                    if isinstance(t, wtypes.ARC4Struct)
+                }
+            )
 
             return ARC4MethodConfig(
                 source_location=dec_loc,
@@ -536,9 +535,7 @@ def _get_arc4_method_config(
                 require_create=create is True,
                 readonly=readonly,
                 is_bare=fullname == constants.BAREMETHOD_DECORATOR,
-                default_args=[
-                    ARC4DefaultArgument(parameter=p, source=s) for p, s in default_args.items()
-                ],
+                default_args=default_args,
                 structs=structs,
             )
         case _:

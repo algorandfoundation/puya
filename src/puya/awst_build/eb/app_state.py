@@ -3,23 +3,21 @@ from typing import Sequence
 import mypy.nodes
 import mypy.types
 
-from puya.awst import wtypes
+from puya.awst import wtypes  # noqa: TCH001
 from puya.awst.nodes import (
-    AppStateDefinition,
     AppStateExpression,
     AppStateKind,
-    BytesConstant,
     ConditionalExpression,
     Expression,
-    ExpressionStatement,
-    IntrinsicCall,
     Literal,
     Not,
+    StateDelete,
+    StateGetEx,
     Statement,
     TupleItemExpression,
-    UInt64Constant,
 )
 from puya.awst_build import constants
+from puya.awst_build.contract_data import AppStateDeclaration
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -30,6 +28,12 @@ from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import create_temporary_assignment, expect_operand_wtype
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
+
+
+def _build_field(state_decl: AppStateDeclaration, location: SourceLocation) -> AppStateExpression:
+    return AppStateExpression(
+        field_name=state_decl.member_name, wtype=state_decl.storage_wtype, source_location=location
+    )
 
 
 class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
@@ -89,14 +93,14 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class AppStateExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, state_def: AppStateDefinition, location: SourceLocation) -> None:
-        self.state_def = state_def
+    def __init__(self, state_decl: AppStateDeclaration, location: SourceLocation) -> None:
+        self.state_decl = state_decl
         super().__init__(location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         exists_expr = TupleItemExpression(
             source_location=location,
-            base=_build_app_global_get_ex(self.state_def, location),
+            base=_build_app_global_get_ex(self.state_decl, location),
             index=1,
         )
         if negate:
@@ -109,25 +113,25 @@ class AppStateExpressionBuilder(IntermediateExpressionBuilder):
         match name:
             case "value":
                 return AppStateValueExpressionBuilder(
-                    state_def=self.state_def,
+                    state_decl=self.state_decl,
                     location=self.source_location,
                 )
             case "get":
                 return AppStateGetExpressionBuilder(
-                    state_def=self.state_def, location=self.source_location
+                    state_decl=self.state_decl, location=self.source_location
                 )
             case "maybe":
                 return AppStateMaybeExpressionBuilder(
-                    state_def=self.state_def, location=self.source_location
+                    state_decl=self.state_decl, location=self.source_location
                 )
             case _:
                 return super().member_access(name, location)
 
 
 class AppStateMethodBaseExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, state_def: AppStateDefinition, location: SourceLocation) -> None:
+    def __init__(self, state_decl: AppStateDeclaration, location: SourceLocation) -> None:
         super().__init__(location)
-        self.state_def = state_def
+        self.state_decl = state_decl
 
 
 class AppStateMaybeExpressionBuilder(AppStateMethodBaseExpressionBuilder):
@@ -141,7 +145,7 @@ class AppStateMaybeExpressionBuilder(AppStateMethodBaseExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case []:
-                return var_expression(_build_app_global_get_ex(self.state_def, location))
+                return var_expression(_build_app_global_get_ex(self.state_decl, location))
             case _:
                 raise CodeError("Unexpected/unhandled arguments", location)
 
@@ -158,13 +162,15 @@ class AppStateGetExpressionBuilder(AppStateMethodBaseExpressionBuilder):
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
         (default_arg,) = args
-        default_expr = expect_operand_wtype(default_arg, target_wtype=self.state_def.storage_wtype)
+        default_expr = expect_operand_wtype(
+            default_arg, target_wtype=self.state_decl.storage_wtype
+        )
         app_global_get_ex = create_temporary_assignment(
-            _build_app_global_get_ex(self.state_def, location), location
+            _build_app_global_get_ex(self.state_decl, location), location
         )
         conditional_expr = ConditionalExpression(
             location,
-            wtype=self.state_def.storage_wtype,
+            wtype=self.state_decl.storage_wtype,
             condition=TupleItemExpression(
                 app_global_get_ex.define, index=1, source_location=location
             ),
@@ -176,40 +182,18 @@ class AppStateGetExpressionBuilder(AppStateMethodBaseExpressionBuilder):
         return var_expression(conditional_expr)
 
 
-def _key_constant(state_def: AppStateDefinition, location: SourceLocation) -> BytesConstant:
-    return BytesConstant(
-        value=state_def.key, encoding=state_def.key_encoding, source_location=location
-    )
-
-
 def _build_app_global_get_ex(
-    state_def: AppStateDefinition, location: SourceLocation
-) -> IntrinsicCall:
-    return IntrinsicCall(
-        op_code="app_global_get_ex",
-        stack_args=[
-            UInt64Constant(value=0, source_location=location),
-            _key_constant(state_def, location),
-        ],
-        wtype=wtypes.WTuple.from_types((state_def.storage_wtype, wtypes.bool_wtype)),
-        source_location=location,
-    )
+    state_decl: AppStateDeclaration, location: SourceLocation
+) -> StateGetEx:
+    return StateGetEx(field=_build_field(state_decl, location), source_location=location)
 
 
 class AppStateValueExpressionBuilder(ValueProxyExpressionBuilder):
-    def __init__(self, state_def: AppStateDefinition, location: SourceLocation):
-        assert state_def.kind is AppStateKind.app_global
-        self.wtype = state_def.storage_wtype
-        expr = AppStateExpression.from_state_def(state_def, location)
-        self.state_def = state_def
-        super().__init__(expr)
+    def __init__(self, state_decl: AppStateDeclaration, location: SourceLocation):
+        assert state_decl.kind is AppStateKind.app_global
+        self.__field = _build_field(state_decl, location)
+        self.wtype = state_decl.storage_wtype
+        super().__init__(self.__field)
 
     def delete(self, location: SourceLocation) -> Statement:
-        return ExpressionStatement(
-            IntrinsicCall(
-                op_code="app_global_del",
-                stack_args=[_key_constant(self.state_def, self.source_location)],
-                wtype=wtypes.void_wtype,
-                source_location=location,
-            ),
-        )
+        return StateDelete(field=self.__field, source_location=location)

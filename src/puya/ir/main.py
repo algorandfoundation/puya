@@ -5,8 +5,8 @@ from pathlib import Path
 
 import attrs
 import structlog
+from immutabledict import immutabledict
 
-from puya.arc4_util import get_abi_signature
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -149,34 +149,16 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
         source_location=contract.source_location,
         approval_program=approval_ir,
         clear_program=clear_state_ir,
-        metadata=_create_contract_metadata(
-            contract,
-            folded.global_state,
-            folded.local_state,
-            folded.arc4_methods,
+        metadata=ContractMetaData(
+            description=contract.docstring,
+            name_override=contract.name_override,
+            module_name=contract.module_name,
+            class_name=contract.name,
+            arc4_methods=folded.arc4_methods or [],  # TODO: fixme
+            global_state=immutabledict(folded.global_state),
+            local_state=immutabledict(folded.local_state),
         ),
     )
-
-    return result
-
-
-def _create_contract_metadata(
-    contract: awst_nodes.ContractFragment,
-    global_state: list[ContractState],
-    local_state: list[ContractState],
-    arc4_methods: list[ARC4Method] | None,
-) -> ContractMetaData:
-    result = ContractMetaData(
-        description=contract.docstring,
-        name_override=contract.name_override,
-        module_name=contract.module_name,
-        class_name=contract.name,
-        is_arc4=contract.is_arc4,
-        methods=arc4_methods or [],  # TODO: fixme
-        global_state=global_state,
-        local_state=local_state,
-    )
-
     return result
 
 
@@ -260,8 +242,8 @@ class FoldedContract:
     init: awst_nodes.ContractMethod | None = None
     approval_program: awst_nodes.ContractMethod | None = None
     clear_program: awst_nodes.ContractMethod | None = None
-    global_state: list[ContractState] = attrs.field(factory=list)
-    local_state: list[ContractState] = attrs.field(factory=list)
+    global_state: dict[str, ContractState] = attrs.field(factory=dict)
+    local_state: dict[str, ContractState] = attrs.field(factory=dict)
     arc4_methods: list[ARC4Method] | None = None
 
 
@@ -276,7 +258,7 @@ def fold_state_and_special_methods(
 ) -> FoldedContract:
     bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
     result = FoldedContract()
-    arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig]]()
+    maybe_arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig] | None]()
     for c in [contract, *bases]:
         if result.init is None:
             result.init = c.init
@@ -284,25 +266,27 @@ def fold_state_and_special_methods(
             result.approval_program = c.approval_program
         if result.clear_program is None:
             result.clear_program = c.clear_program
-        for state in c.app_state:
+        for state in c.app_state.values():
             translated = ContractState(
                 name=state.member_name,
                 source_location=state.source_location,
                 key=state.key,
                 storage_type=wtype_to_storage_type(state.storage_wtype),
-                description=None,  # TODO, have some way to provide this
+                description=state.description,
             )
             if state.kind == awst_nodes.AppStateKind.app_global:
-                result.global_state.append(translated)
+                result.global_state[translated.name] = translated
             elif state.kind == awst_nodes.AppStateKind.account_local:
-                result.local_state.append(translated)
+                result.local_state[translated.name] = translated
             else:
                 raise InternalError(f"Unhandled state kind: {state.kind}", state.source_location)
         for cm in c.subroutines:
             if cm.abimethod_config:
-                arc4_sig = get_abi_signature(cm, cm.abimethod_config)
-                arc4_method_refs.setdefault(arc4_sig, (cm, cm.abimethod_config))
-    if contract.is_arc4:
+                maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.abimethod_config))
+            else:
+                maybe_arc4_method_refs.setdefault(cm.name, None)
+    arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
+    if arc4_method_refs:
         if result.approval_program:
             raise CodeError(
                 "approval_program should not be defined for ARC4 contracts",
@@ -310,9 +294,9 @@ def fold_state_and_special_methods(
             )
         result.approval_program, result.arc4_methods = create_abi_router(
             contract,
-            dict(arc4_method_refs.values()),
-            local_state=result.local_state,
-            global_state=result.global_state,
+            arc4_method_refs,
+            local_state=list(result.local_state.values()),  # TODO: pass mappings
+            global_state=list(result.global_state.values()),
         )
         if not result.clear_program:
             result.clear_program = create_default_clear_state(contract)

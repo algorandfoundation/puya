@@ -72,6 +72,10 @@ class StatementVisitor(t.Generic[T], ABC):
     def visit_assignment_statement(self, statement: puya.awst.nodes.AssignmentStatement) -> T:
         ...
 
+    @abstractmethod
+    def visit_state_delete(self, statement: puya.awst.nodes.StateDelete) -> T:
+        ...
+
 
 class ModuleStatementVisitor(t.Generic[T], ABC):
     @abstractmethod
@@ -291,3 +295,15 @@ class ExpressionVisitor(t.Generic[T], ABC):
     @abstractmethod
     def visit_reversed(self, expr: puya.awst.nodes.Reversed) -> T:
         ...
+
+    # @abstractmethod
+    # def visit_state_get(self, expr: puya.awst.nodes.StateGet) -> T:
+    #     ...
+
+    @abstractmethod
+    def visit_state_get_ex(self, expr: puya.awst.nodes.StateGetEx) -> T:
+        ...
+
+    # @abstractmethod
+    # def visit_state_exists(self, expr: puya.awst.nodes.StateExists) -> T:
+    #     ...

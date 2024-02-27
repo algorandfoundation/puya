@@ -27,6 +27,29 @@ class IRBuildContext(CompileContext):
     embedded_funcs: Sequence[awst_nodes.Function] = attrs.field()
     contract: awst_nodes.ContractFragment | None = None
 
+    def for_contract(self, contract: awst_nodes.ContractFragment) -> "IRBuildContextWithFallback":
+        return attrs_extend(
+            IRBuildContextWithFallback,
+            self,
+            default_fallback=contract.source_location,
+            contract=contract,
+            # copy subroutines so that contract specific subroutines do not pollute other contract
+            # passes
+            subroutines=self.subroutines.copy(),
+        )
+
+    def for_function(
+        self, function: awst_nodes.Function, subroutine: Subroutine, visitor: "FunctionIRBuilder"
+    ) -> "IRFunctionBuildContext":
+        return attrs_extend(
+            IRFunctionBuildContext,
+            self,
+            default_fallback=function.source_location,
+            visitor=visitor,
+            function=function,
+            subroutine=subroutine,
+        )
+
     def resolve_contract_reference(
         self, cref: awst_nodes.ContractReference
     ) -> awst_nodes.ContractFragment:
@@ -49,28 +72,7 @@ class IRBuildContext(CompileContext):
                     contract = self.resolve_contract_reference(cref)
                     func: awst_nodes.Node = contract.symtable[func_name]
                 case awst_nodes.InstanceSubroutineTarget(name=func_name):
-                    if self.contract is None:
-                        raise InternalError(
-                            f"Cannot resolve instance function {func_name} "
-                            f"as there is no current contract",
-                            source_location,
-                        )
-                    for contract in (
-                        self.contract,
-                        *[self.resolve_contract_reference(cref) for cref in self.contract.bases],
-                    ):
-                        try:
-                            func = contract.symtable[func_name]
-                        except KeyError:
-                            pass
-                        else:
-                            break
-                    else:
-                        raise InternalError(
-                            f"Unable to locate {func_name} in hierarchy "
-                            f"for class {self.contract.full_name}",
-                            source_location,
-                        )
+                    func = self._resolve_contract_attribute(func_name, source_location)
                 case awst_nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
                     # remap the internal _puyapy_ lib to puyapy so that functions
                     # defined in _puyapy_ can reference other functions defined in the same module
@@ -93,27 +95,31 @@ class IRBuildContext(CompileContext):
             )
         return func
 
-    def for_contract(self, contract: awst_nodes.ContractFragment) -> "IRBuildContextWithFallback":
-        return attrs_extend(
-            IRBuildContextWithFallback,
-            self,
-            default_fallback=contract.source_location,
-            contract=contract,
-            # copy subroutines so that contract specific subroutines do not pollute other contract
-            # passes
-            subroutines=self.subroutines.copy(),
-        )
+    def resolve_state(
+        self, field_name: str, source_location: SourceLocation
+    ) -> awst_nodes.AppStateDefinition:
+        node = self._resolve_contract_attribute(field_name, source_location)
+        if not isinstance(node, awst_nodes.AppStateDefinition):
+            raise CodeError(f"State reference {field_name} resolved to {node}", source_location)
+        return node
 
-    def for_function(
-        self, function: awst_nodes.Function, subroutine: Subroutine, visitor: "FunctionIRBuilder"
-    ) -> "IRFunctionBuildContext":
-        return attrs_extend(
-            IRFunctionBuildContext,
-            self,
-            default_fallback=function.source_location,
-            visitor=visitor,
-            function=function,
-            subroutine=subroutine,
+    def _resolve_contract_attribute(
+        self, name: str, source_location: SourceLocation
+    ) -> awst_nodes.ContractMethod | awst_nodes.AppStateDefinition:
+        if self.contract is None:
+            raise InternalError(
+                f"Cannot resolve contract member {name} as there is no current contract",
+                source_location,
+            )
+        for contract in (
+            self.contract,
+            *[self.resolve_contract_reference(cref) for cref in self.contract.bases],
+        ):
+            with contextlib.suppress(KeyError):
+                return contract.symtable[name]
+        raise CodeError(
+            f"Unresolvable attribute '{name}' of {self.contract.full_name}",
+            source_location,
         )
 
 

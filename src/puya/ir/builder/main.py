@@ -489,13 +489,14 @@ class FunctionIRBuilder(
             return ValueTuple(expr.source_location, registers)
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> TExpression:
+        state_def = self.context.resolve_state(expr.field_name, expr.source_location)
         # TODO: add specific (unsafe) optimisation flag to allow skipping this check
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
         # TODO: keep encoding? modify AWST to add source location for key?
         key = BytesConstant(
-            value=expr.key,
+            value=state_def.key,
             source_location=expr.source_location,
-            encoding=bytes_enc_to_avm_bytes_enc(expr.key_encoding),
+            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
         )
 
         # note: we manually construct temporary targets here since atype is any,
@@ -537,15 +538,16 @@ class FunctionIRBuilder(
     def visit_app_account_state_expression(
         self, expr: awst_nodes.AppAccountStateExpression
     ) -> TExpression:
+        state_def = self.context.resolve_state(expr.field_name, expr.source_location)
         account = self.visit_and_materialise_single(expr.account)
 
         # TODO: add specific (unsafe) optimisation flag to allow skipping this check
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
         # TODO: keep encoding? modify AWST to add source location for key?
         key = BytesConstant(
-            value=expr.key,
+            value=state_def.key,
             source_location=expr.source_location,
-            encoding=bytes_enc_to_avm_bytes_enc(expr.key_encoding),
+            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
         )
 
         # note: we manually construct temporary targets here since atype is any,
@@ -581,6 +583,53 @@ class FunctionIRBuilder(
             )
         )
         return value_tmp
+
+    def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> TExpression:
+        subject = expr.field
+        state_def = self.context.resolve_state(subject.field_name, subject.source_location)
+        current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
+        # TODO: keep encoding? modify AWST to add source location for key?
+        key = BytesConstant(
+            value=state_def.key,
+            source_location=subject.source_location,
+            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
+        )
+        args: list[Value] = [current_app_offset, key]
+        if isinstance(subject, awst_nodes.AppStateExpression):
+            op = AVMOp.app_global_get_ex
+        else:
+            op = AVMOp.app_local_get_ex
+            account = self.visit_and_materialise_single(subject.account)
+            args.insert(0, account)
+        return Intrinsic(
+            op=op,
+            args=args,
+            source_location=expr.source_location,
+        )
+
+    def visit_state_delete(self, statement: awst_nodes.StateDelete) -> TStatement:
+        subject = statement.field
+        state_def = self.context.resolve_state(subject.field_name, subject.source_location)
+        # TODO: keep encoding? modify AWST to add source location for key?
+        key = BytesConstant(
+            value=state_def.key,
+            source_location=subject.source_location,
+            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
+        )
+        args: list[Value] = [key]
+        if isinstance(subject, awst_nodes.AppStateExpression):
+            op = AVMOp.app_global_del
+        else:
+            op = AVMOp.app_local_del
+            account = self.visit_and_materialise_single(subject.account)
+            args.insert(0, account)
+        self.context.block_builder.add(
+            Intrinsic(
+                op=op,
+                args=args,
+                source_location=statement.source_location,
+            )
+        )
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         raise TodoError(expr.source_location, "TODO: visit_new_array")

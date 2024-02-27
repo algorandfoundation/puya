@@ -350,8 +350,10 @@ class FunctionASTConverter(
                         f" expected a {constants.CLS_GLOBAL_STATE_ALIAS}",
                         app_state_eb.source_location,
                     )
-                global_state_target = AppStateExpression.from_state_def(
-                    app_state_eb.state_def, app_state_eb.source_location
+                global_state_target = AppStateExpression(
+                    field_name=app_state_eb.state_decl.member_name,
+                    wtype=app_state_eb.state_decl.storage_wtype,
+                    source_location=app_state_eb.source_location,
                 )
                 return [
                     AssignmentStatement(

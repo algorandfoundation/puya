@@ -689,9 +689,9 @@ def _validate_default_args(
     for method in arc4_methods:
         assert method.abimethod_config
         args_by_name = {a.name: a for a in method.args}
-        for default_arg in method.abimethod_config.default_args:
+        for parameter_name, source_name in method.abimethod_config.default_args.items():
             # any invalid parameter matches should have been caught earlier
-            parameter = args_by_name[default_arg.parameter]
+            parameter = args_by_name[parameter_name]
             param_arc4_type = wtype_to_arc4(parameter.wtype)
             # special handling for reference types
             match param_arc4_type:
@@ -701,10 +701,10 @@ def _validate_default_args(
                     param_arc4_type = "address"
 
             try:
-                source = known_sources[default_arg.source]
+                source = known_sources[source_name]
             except KeyError as ex:
                 raise CodeError(
-                    f"'{default_arg.source}' is not a known state or method attribute",
+                    f"'{source_name}' is not a known state or method attribute",
                     method.source_location,
                 ) from ex
 
@@ -716,32 +716,32 @@ def _validate_default_args(
                 ):
                     if OnCompletionAction.NoOp not in abimethod_config.allowed_completion_types:
                         raise CodeError(
-                            f"'{default_arg.source}' does not allow no_op on completion calls",
+                            f"'{source_name}' does not allow no_op on completion calls",
                             method.source_location,
                         )
                     if abimethod_config.require_create:
                         raise CodeError(
-                            f"'{default_arg.source}' can only be used for create calls",
+                            f"'{source_name}' can only be used for create calls",
                             method.source_location,
                         )
                     if not abimethod_config.readonly:
                         raise CodeError(
-                            f"'{default_arg.source}' is not readonly",
+                            f"'{source_name}' is not readonly",
                             method.source_location,
                         )
                     if args:
                         raise CodeError(
-                            f"'{default_arg.source}' does not take zero arguments",
+                            f"'{source_name}' does not take zero arguments",
                             method.source_location,
                         )
                     if return_type is wtypes.void_wtype:
                         raise CodeError(
-                            f"'{default_arg.source}' does not provide a value",
+                            f"'{source_name}' does not provide a value",
                             method.source_location,
                         )
                     if wtype_to_arc4(return_type) != param_arc4_type:
                         raise CodeError(
-                            f"'{default_arg.source}' does not provide '{param_arc4_type}' type",
+                            f"'{source_name}' does not provide '{param_arc4_type}' type",
                             method.source_location,
                         )
                 case ContractState(storage_type=storage_type):
@@ -761,7 +761,7 @@ def _validate_default_args(
                         pass
                     else:
                         raise CodeError(
-                            f"'{default_arg.source}' cannot provide '{param_arc4_type}' type",
+                            f"'{source_name}' cannot provide '{param_arc4_type}' type",
                             method.source_location,
                         )
                 case _:

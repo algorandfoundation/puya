@@ -76,10 +76,10 @@ class ToCodeVisitor(
         return f"tmp${self._tmp_index(expr)}"
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
-        return f"this.globals[{bytes_str(expr.key)}]"
+        return f"this.globals[{expr.field_name}]"
 
     def visit_app_account_state_expression(self, expr: nodes.AppAccountStateExpression) -> str:
-        return f"this.locals[{bytes_str(expr.key)}].account[{expr.account.accept(self)}]"
+        return f"this.locals[{expr.field_name}].account[{expr.account.accept(self)}]"
 
     def visit_new_array(self, expr: nodes.NewArray) -> str:
         args = ", ".join(a.accept(self) for a in expr.elements)
@@ -174,7 +174,7 @@ class ToCodeVisitor(
         body = list[str]()
         if c.app_state:
             state_by_kind = dict[AppStateKind, list[nodes.AppStateDefinition]]()
-            for state in c.app_state:
+            for state in c.app_state.values():
                 state_by_kind.setdefault(state.kind, []).append(state)
             global_state = state_by_kind.pop(AppStateKind.app_global, [])
             if global_state:
@@ -523,6 +523,12 @@ class ToCodeVisitor(
             *_indent(f"{f.name}: {f.wtype}" for f in statement.fields),
             "}",
         ]
+
+    def visit_state_get_ex(self, expr: nodes.StateGetEx) -> str:
+        return f"STATE_GET_EX({expr.field.accept(self)})"
+
+    def visit_state_delete(self, statement: nodes.StateDelete) -> list[str]:
+        return [f"STATE_DELETE({statement.field.accept(self)})"]
 
 
 def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:

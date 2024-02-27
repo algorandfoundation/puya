@@ -892,28 +892,15 @@ class SliceExpression(Expression):
 
 @attrs.frozen
 class AppStateExpression(Expression):
-    key: bytes
-    key_encoding: BytesEncoding
+    field_name: str
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_state_expression(self)
 
-    @classmethod
-    def from_state_def(
-        cls, state_def: "AppStateDefinition", location: SourceLocation
-    ) -> "AppStateExpression":
-        return cls(
-            source_location=location,
-            wtype=state_def.storage_wtype,
-            key=state_def.key,
-            key_encoding=state_def.key_encoding,
-        )
-
 
 @attrs.frozen
 class AppAccountStateExpression(Expression):
-    key: bytes
-    key_encoding: BytesEncoding
+    field_name: str
     account: Expression = attrs.field(
         validator=[expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)]
     )
@@ -1438,6 +1425,60 @@ class ForInLoop(Statement):
         return visitor.visit_for_in_loop(self)
 
 
+StateExpression: t.TypeAlias = AppStateExpression | AppAccountStateExpression
+
+
+# @attrs.frozen
+# class StateGet(Expression):
+#     field: StateExpression
+#     default: Expression | None = attrs.field()
+#     wtype: WType = attrs.field(init=False)
+#
+#     @default.validator
+#     def _check_default(self, _attribute: object, default: Expression | None) -> None:
+#         if default is not None and self.field.wtype != default.wtype:
+#             raise CodeError(
+#                 "Default state value should match storage type", default.source_location
+#             )
+#
+#     @wtype.default
+#     def _wtype_factory(self) -> WType:
+#         return self.field.wtype
+#
+#     def accept(self, visitor: ExpressionVisitor[T]) -> T:
+#         return visitor.visit_state_get(self)
+
+
+@attrs.frozen
+class StateGetEx(Expression):
+    field: StateExpression
+    wtype: wtypes.WTuple = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype_factory(self) -> wtypes.WTuple:
+        return wtypes.WTuple.from_types((self.field.wtype, wtypes.bool_wtype))
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_state_get_ex(self)
+
+
+# @attrs.frozen
+# class StateExists(Expression):
+#     field: StateExpression
+#     wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
+#
+#     def accept(self, visitor: ExpressionVisitor[T]) -> T:
+#         return visitor.visit_state_exists(self)
+
+
+@attrs.frozen
+class StateDelete(Statement):
+    field: StateExpression
+
+    def accept(self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_state_delete(self)
+
+
 @attrs.frozen
 class NewStruct(Expression):
     args: tuple[CallArg, ...] = attrs.field()
@@ -1530,32 +1571,32 @@ class ContractFragment(ModuleStatement):
     module_name: str
     name_override: str | None
     is_abstract: bool
-    is_arc4: bool
     bases: Sequence[ContractReference] = attrs.field(converter=tuple[ContractReference, ...])
     init: ContractMethod | None = attrs.field()
     approval_program: ContractMethod | None = attrs.field()
     clear_program: ContractMethod | None = attrs.field()
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
-    app_state: Sequence[AppStateDefinition] = attrs.field(converter=tuple[AppStateDefinition, ...])
-    reserved_scratch_space: StableSet[int] = attrs.field()
+    app_state: Mapping[str, AppStateDefinition]
+    reserved_scratch_space: StableSet[int]
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
     symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)
 
     @symtable.default
     def _symtable_factory(self) -> Mapping[str, ContractMethod | AppStateDefinition]:
-        all_subs = [
-            self.init,
-            self.approval_program,
-            self.clear_program,
-            *self.subroutines,
-        ]
-        subs_by_name = {sub.name: sub for sub in all_subs if sub is not None}
-        state_by_name = {state.member_name: state for state in self.app_state}
-        return {
-            **subs_by_name,
-            **state_by_name,
-        }
+        result: dict[str, ContractMethod | AppStateDefinition] = {**self.app_state}
+        all_subs = itertools.chain(
+            filter(None, (self.init, self.approval_program, self.clear_program)),
+            self.subroutines,
+        )
+        for sub in all_subs:
+            if sub.name in result:
+                raise CodeError(
+                    f"Duplicate symbol {sub.name} in contract {self.full_name}",
+                    sub.source_location,
+                )
+            result[sub.name] = sub
+        return result
 
     @init.validator
     def check_init(self, _attribute: object, init: ContractMethod | None) -> None:
