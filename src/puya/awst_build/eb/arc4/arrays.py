@@ -460,6 +460,7 @@ class AppendExpressionBuilder(IntermediateExpressionBuilder):
                 base=self.expr,
                 other=args_tuple,
                 source_location=location,
+                wtype=wtypes.void_wtype,
             )
         )
 
@@ -523,6 +524,7 @@ class ExtendExpressionBuilder(IntermediateExpressionBuilder):
                 base=self.expr,
                 other=other,
                 source_location=location,
+                wtype=wtypes.void_wtype,
             )
         )
 
