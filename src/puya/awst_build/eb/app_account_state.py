@@ -7,6 +7,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AppAccountStateExpression,
     AppStateKind,
+    BytesEncoding,
     ConditionalExpression,
     Expression,
     IntegerConstant,
@@ -17,15 +18,22 @@ from puya.awst.nodes import (
     TupleItemExpression,
     UInt64Constant,
 )
+from puya.awst_build import constants
 from puya.awst_build.contract_data import AppStateDeclaration
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
+    StateProxyDefinitionBuilder,
+    StateProxyMemberBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import create_temporary_assignment, expect_operand_wtype
+from puya.awst_build.utils import (
+    create_temporary_assignment,
+    expect_operand_wtype,
+    get_arg_mapping,
+)
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -42,7 +50,7 @@ def _build_field(
     )
 
 
-class AppAccountStateExpressionBuilder(IntermediateExpressionBuilder):
+class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
     def __init__(self, state_decl: AppStateDeclaration, location: SourceLocation):
         assert state_decl.kind is AppStateKind.account_local
         super().__init__(location)
@@ -215,18 +223,72 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
         location: SourceLocation,
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
-        call_expr_loc = location
-        match args:
-            case [TypeClassExpressionBuilder() as typ_class_eb]:
-                storage_wtype = typ_class_eb.produces()
-            case _:
-                raise CodeError("expected a single argument with storage type", call_expr_loc)
+        type_arg_name = "type_"
+        arg_mapping = get_arg_mapping(
+            positional_arg_names=[type_arg_name],
+            args=zip(arg_names, args, strict=True),
+            location=location,
+        )
+        try:
+            type_arg = arg_mapping.pop(type_arg_name)
+        except KeyError as ex:
+            raise CodeError("Required positional argument missing", location) from ex
 
-        if self._storage is not None and self._storage != storage_wtype:
+        key_arg = arg_mapping.pop("key", None)
+        descr_arg = arg_mapping.pop("description", None)
+        if arg_mapping:
             raise CodeError(
-                "App account state explicit type annotation does not match first argument"
-                " - suggest to remove the explicit type annotation,"
-                " it shouldn't be required",
-                call_expr_loc,
+                f"Unrecognised keyword argument(s): {", ".join(arg_mapping)}", location
             )
-        return self
+
+        match type_arg:
+            case TypeClassExpressionBuilder() as typ_class_eb:
+                storage_wtype = typ_class_eb.produces()
+                if self._storage is not None and self._storage != storage_wtype:
+                    raise CodeError(
+                        "App account state explicit type annotation does not match first argument"
+                        " - suggest to remove the explicit type annotation,"
+                        " it shouldn't be required",
+                        location,
+                    )
+            case _:
+                raise CodeError("First argument must be a type reference", location)
+
+        match key_arg:
+            case None:
+                key = None
+                key_encoding = None
+            case Literal(value=bytes(bytes_value)):
+                key = bytes_value
+                key_encoding = BytesEncoding.base16  # TODO: maybe we need an "unknown" encoding?
+            case Literal(value=str(str_value)):
+                key = str_value.encode("utf8")
+                key_encoding = BytesEncoding.utf8
+            case _:
+                raise CodeError("key should be a string or bytes literal", key_arg.source_location)
+
+        match descr_arg:
+            case None:
+                description = None
+            case Literal(value=str(str_value)):
+                description = str_value
+            case _:
+                raise CodeError(
+                    "description should be a string literal", descr_arg.source_location
+                )
+
+        return AppAccountStateProxyDefinitionBuilder(
+            location=location,
+            storage=storage_wtype,
+            key=key,
+            key_encoding=key_encoding,
+            description=description,
+        )
+
+
+class AppAccountStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
+    kind = AppStateKind.account_local
+    python_name = constants.CLS_LOCAL_STATE_ALIAS
+
+    def initial_value(self) -> Expression | None:
+        return None

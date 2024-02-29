@@ -12,6 +12,7 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
+    AppStateKind,
     AssertStatement,
     AssignmentExpression,
     AssignmentStatement,
@@ -48,13 +49,13 @@ from puya.awst_build import constants, intrinsic_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStateDeclaration
-from puya.awst_build.eb.app_account_state import AppAccountStateClassExpressionBuilder
-from puya.awst_build.eb.app_state import AppStateClassExpressionBuilder, AppStateExpressionBuilder
 from puya.awst_build.eb.arc4 import ARC4StructClassExpressionBuilder
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     ExpressionBuilder,
+    StateProxyDefinitionBuilder,
+    StateProxyMemberBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
@@ -324,42 +325,47 @@ class FunctionASTConverter(
                 return []
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
         # special no-op case
-        if isinstance(rvalue, AppAccountStateClassExpressionBuilder):
+        if isinstance(rvalue, StateProxyDefinitionBuilder):
+            if self.contract_method_info is None:
+                raise CodeError(
+                    f"{rvalue.python_name} should only be used inside a contract class", stmt_loc
+                )
             if len(stmt.lvalues) != 1:
                 raise CodeError(
-                    f"{constants.CLS_LOCAL_STATE_ALIAS}"
-                    f" can only be assigned to a single member variable",
+                    f"{rvalue.python_name} can only be assigned to a single member variable",
                     stmt_loc,
                 )
-            return []
-        elif isinstance(rvalue, AppStateClassExpressionBuilder):
-            if len(stmt.lvalues) != 1:
-                raise CodeError(
-                    f"{constants.CLS_GLOBAL_STATE_ALIAS}"
-                    f" can only be assigned to a single member variable",
-                    stmt_loc,
-                )
-            if rvalue.initial_value is None:
-                return []
+            # note: we don't use resolve_lvalue here, because
+            # these types shouldn't be a valid lvalue target in any other instance
+            # except initial assignment
+            (lvalue,) = stmt.lvalues
+            lvalue_builder = require_expression_builder(lvalue.accept(self))
+            if not (
+                isinstance(lvalue_builder, StateProxyMemberBuilder)
+                and rvalue.kind == lvalue_builder.state_decl.kind
+                and rvalue.storage == lvalue_builder.state_decl.storage_wtype
+            ):
+                raise CodeError("Incompatible types on assignment", stmt_loc)
+            defn = rvalue.build_definition(
+                lvalue_builder.state_decl.member_name, lvalue_builder.source_location
+            )
+            self.context.state_defs[self.contract_method_info.cref].append(defn)
+            if defn.kind != AppStateKind.account_local:
+                raise InternalError("Don't know how to initialise local account storage", stmt_loc)
             else:
-                (lvalue,) = stmt.lvalues
-                app_state_eb = lvalue.accept(self)
-                if not isinstance(app_state_eb, AppStateExpressionBuilder):
-                    raise CodeError(
-                        f"Incompatible type on assignment,"
-                        f" expected a {constants.CLS_GLOBAL_STATE_ALIAS}",
-                        app_state_eb.source_location,
-                    )
+                initial_value = rvalue.initial_value()
+                if initial_value is None:
+                    return []
                 global_state_target = AppStateExpression(
-                    field_name=app_state_eb.state_decl.member_name,
-                    wtype=app_state_eb.state_decl.storage_wtype,
-                    source_location=app_state_eb.source_location,
+                    field_name=defn.member_name,
+                    wtype=defn.storage_wtype,
+                    source_location=defn.source_location,
                 )
                 return [
                     AssignmentStatement(
-                        source_location=stmt_loc,
                         target=global_state_target,
-                        value=rvalue.initial_value,
+                        value=initial_value,
+                        source_location=stmt_loc,
                     )
                 ]
         else:

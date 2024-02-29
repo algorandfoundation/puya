@@ -1,5 +1,6 @@
 import contextlib
-from collections.abc import Iterator, Mapping, Sequence
+from collections import defaultdict
+from collections.abc import Iterator, Sequence
 
 import attrs
 import mypy.nodes
@@ -7,7 +8,9 @@ import mypy.types
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    AppStateDefinition,
     ConstantValue,
+    ContractReference,
     Literal as AWSTLiteral,
 )
 from puya.awst_build import constants
@@ -22,6 +25,9 @@ from puya.utils import attrs_extend
 class ASTConversionContext(CompileContext):
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     type_map: dict[str, wtypes.WStructType | wtypes.ARC4Struct] = attrs.field(factory=dict)
+    state_defs: defaultdict[ContractReference, list[AppStateDefinition]] = attrs.field(
+        factory=lambda: defaultdict(list)
+    )
 
     def for_module(self, current_module: mypy.nodes.MypyFile) -> "ASTConversionModuleContext":
         return attrs_extend(ASTConversionModuleContext, self, current_module=current_module)
