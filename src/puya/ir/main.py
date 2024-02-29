@@ -285,6 +285,8 @@ def fold_state_and_special_methods(
                 maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.abimethod_config))
             else:
                 maybe_arc4_method_refs.setdefault(cm.name, None)
+    if not (c.init and c.init.body.body):
+        result.init = None
     arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
     if arc4_method_refs:
         if result.approval_program:
