@@ -145,7 +145,7 @@ contract examples.amm.contract.ConstantProductAMM:
             block@0: // L264
                 let tmp%0#0: bytes = (txn Sender)
                 let (app_global_get_ex_value%1#0: bytes, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "governor")
-                (assert app_global_get_ex_did_exist%2#0) // check value exists
+                (assert app_global_get_ex_did_exist%2#0) // check governor exists
                 let tmp%3#0: uint64 = (== tmp%0#0 app_global_get_ex_value%1#0)
                 (assert tmp%3#0) // Only the account set in global_state.governor may call this method
                 return 
@@ -153,7 +153,7 @@ contract examples.amm.contract.ConstantProductAMM:
         subroutine examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_asset: uint64, b_asset: uint64) -> bytes:
             block@0: // L49
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "pool_token")
-                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                (assert app_global_get_ex_did_exist%1#0) // check pool_token exists
                 let tmp%2#0: uint64 = (! app_global_get_ex_value%0#0)
                 (assert tmp%2#0) // application has already been bootstrapped
                 examples.amm.contract.ConstantProductAMM._check_is_governor()
@@ -174,13 +174,13 @@ contract examples.amm.contract.ConstantProductAMM:
                 let new_state_value%11#0: uint64 = examples.amm.contract.ConstantProductAMM._create_pool_token()
                 (app_global_put "pool_token" new_state_value%11#0)
                 let (app_global_get_ex_value%12#0: uint64, app_global_get_ex_did_exist%13#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%13#0) // check value exists
+                (assert app_global_get_ex_did_exist%13#0) // check asset_a exists
                 examples.amm.contract.ConstantProductAMM._do_opt_in(app_global_get_ex_value%12#0)
                 let (app_global_get_ex_value%14#0: uint64, app_global_get_ex_did_exist%15#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%15#0) // check value exists
+                (assert app_global_get_ex_did_exist%15#0) // check asset_b exists
                 examples.amm.contract.ConstantProductAMM._do_opt_in(app_global_get_ex_value%14#0)
                 let (app_global_get_ex_value%16#0: uint64, app_global_get_ex_did_exist%17#0: uint64) = (app_global_get_ex 0u "pool_token")
-                (assert app_global_get_ex_did_exist%17#0) // check value exists
+                (assert app_global_get_ex_did_exist%17#0) // check pool_token exists
                 let val_as_bytes%18#0: bytes = (itob app_global_get_ex_value%16#0)
                 return val_as_bytes%18#0
         
@@ -197,13 +197,13 @@ contract examples.amm.contract.ConstantProductAMM:
                 let inner_txn_params%1%%AssetAmount_length#0: uint64 = 0u
                 let inner_txn_params%1%%AssetCloseTo_length#0: uint64 = 0u
                 let (app_global_get_ex_value%4#0: uint64, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%5#0) // check value exists
+                (assert app_global_get_ex_did_exist%5#0) // check asset_a exists
                 let (maybe_value%2#0: bytes, maybe_value_did_exist%3#0: uint64) = ((asset_params_get AssetUnitName) app_global_get_ex_value%4#0)
                 (assert maybe_value_did_exist%3#0) // asset exists
                 let tmp%6#0: bytes = (concat "DPT-" maybe_value%2#0)
                 let tmp%7#0: bytes = (concat tmp%6#0 "-")
                 let (app_global_get_ex_value%10#0: uint64, app_global_get_ex_did_exist%11#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%11#0) // check value exists
+                (assert app_global_get_ex_did_exist%11#0) // check asset_b exists
                 let (maybe_value%8#0: bytes, maybe_value_did_exist%9#0: uint64) = ((asset_params_get AssetUnitName) app_global_get_ex_value%10#0)
                 (assert maybe_value_did_exist%9#0) // asset exists
                 let inner_txn_params%1%%param_ConfigAssetName_idx_0#0: bytes = (concat tmp%7#0 maybe_value%8#0)
@@ -472,15 +472,15 @@ contract examples.amm.contract.ConstantProductAMM:
             block@0: // L83
                 examples.amm.contract.ConstantProductAMM._check_bootstrapped()
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "pool_token")
-                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                (assert app_global_get_ex_did_exist%1#0) // check pool_token exists
                 let tmp%2#0: uint64 = (== pool_asset#0 app_global_get_ex_value%0#0)
                 (assert tmp%2#0) // asset pool incorrect
                 let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%4#0) // check value exists
+                (assert app_global_get_ex_did_exist%4#0) // check asset_a exists
                 let tmp%5#0: uint64 = (== a_asset#0 app_global_get_ex_value%3#0)
                 (assert tmp%5#0) // asset a incorrect
                 let (app_global_get_ex_value%6#0: uint64, app_global_get_ex_did_exist%7#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%7#0) // check value exists
+                (assert app_global_get_ex_did_exist%7#0) // check asset_b exists
                 let tmp%8#0: uint64 = (== b_asset#0 app_global_get_ex_value%6#0)
                 (assert tmp%8#0) // asset b incorrect
                 let tmp%9#0: bytes = ((gtxns Sender) a_xfer#0)
@@ -497,7 +497,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 (assert tmp%17#0) // receiver not app address
                 let tmp%18#0: uint64 = ((gtxns XferAsset) a_xfer#0)
                 let (app_global_get_ex_value%19#0: uint64, app_global_get_ex_did_exist%20#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%20#0) // check value exists
+                (assert app_global_get_ex_did_exist%20#0) // check asset_a exists
                 let tmp%21#0: uint64 = (== tmp%18#0 app_global_get_ex_value%19#0)
                 (assert tmp%21#0) // asset a incorrect
                 let tmp%22#0: uint64 = ((gtxns AssetAmount) a_xfer#0)
@@ -509,7 +509,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 (assert tmp%26#0) // receiver not app address
                 let tmp%27#0: uint64 = ((gtxns XferAsset) b_xfer#0)
                 let (app_global_get_ex_value%28#0: uint64, app_global_get_ex_did_exist%29#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%29#0) // check value exists
+                (assert app_global_get_ex_did_exist%29#0) // check asset_b exists
                 let tmp%30#0: uint64 = (== tmp%27#0 app_global_get_ex_value%28#0)
                 (assert tmp%30#0) // asset b incorrect
                 let tmp%31#0: uint64 = ((gtxns AssetAmount) b_xfer#0)
@@ -525,7 +525,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 (assert tmp%38#0) // send amount too low
                 let tmp%39#0: bytes = (txn Sender)
                 let (app_global_get_ex_value%40#0: uint64, app_global_get_ex_did_exist%41#0: uint64) = (app_global_get_ex 0u "pool_token")
-                (assert app_global_get_ex_did_exist%41#0) // check value exists
+                (assert app_global_get_ex_did_exist%41#0) // check pool_token exists
                 examples.amm.contract.do_asset_transfer(tmp%39#0, app_global_get_ex_value%40#0, to_mint#0)
                 examples.amm.contract.ConstantProductAMM._update_ratio()
                 return 
@@ -533,7 +533,7 @@ contract examples.amm.contract.ConstantProductAMM:
         subroutine examples.amm.contract.ConstantProductAMM._check_bootstrapped() -> void:
             block@0: // L253
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "pool_token")
-                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                (assert app_global_get_ex_did_exist%1#0) // check pool_token exists
                 (assert app_global_get_ex_value%0#0) // bootstrap method needs to be called first
                 return 
         
@@ -541,7 +541,7 @@ contract examples.amm.contract.ConstantProductAMM:
             block@0: // L294
                 let tmp%2#0: bytes = (global CurrentApplicationAddress)
                 let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "pool_token")
-                (assert app_global_get_ex_did_exist%4#0) // check value exists
+                (assert app_global_get_ex_did_exist%4#0) // check pool_token exists
                 let (maybe_value%0#0: uint64, maybe_value_did_exist%1#0: uint64) = ((asset_holding_get AssetBalance) tmp%2#0 app_global_get_ex_value%3#0)
                 (assert maybe_value_did_exist%1#0) // account opted into asset
                 return maybe_value%0#0
@@ -550,7 +550,7 @@ contract examples.amm.contract.ConstantProductAMM:
             block@0: // L298
                 let tmp%2#0: bytes = (global CurrentApplicationAddress)
                 let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%4#0) // check value exists
+                (assert app_global_get_ex_did_exist%4#0) // check asset_a exists
                 let (maybe_value%0#0: uint64, maybe_value_did_exist%1#0: uint64) = ((asset_holding_get AssetBalance) tmp%2#0 app_global_get_ex_value%3#0)
                 (assert maybe_value_did_exist%1#0) // account opted into asset
                 return maybe_value%0#0
@@ -559,7 +559,7 @@ contract examples.amm.contract.ConstantProductAMM:
             block@0: // L302
                 let tmp%2#0: bytes = (global CurrentApplicationAddress)
                 let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%4#0) // check value exists
+                (assert app_global_get_ex_did_exist%4#0) // check asset_b exists
                 let (maybe_value%0#0: uint64, maybe_value_did_exist%1#0: uint64) = ((asset_holding_get AssetBalance) tmp%2#0 app_global_get_ex_value%3#0)
                 (assert maybe_value_did_exist%1#0) // account opted into asset
                 return maybe_value%0#0
@@ -618,15 +618,15 @@ contract examples.amm.contract.ConstantProductAMM:
             block@0: // L149
                 examples.amm.contract.ConstantProductAMM._check_bootstrapped()
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "pool_token")
-                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                (assert app_global_get_ex_did_exist%1#0) // check pool_token exists
                 let tmp%2#0: uint64 = (== pool_asset#0 app_global_get_ex_value%0#0)
                 (assert tmp%2#0) // asset pool incorrect
                 let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%4#0) // check value exists
+                (assert app_global_get_ex_did_exist%4#0) // check asset_a exists
                 let tmp%5#0: uint64 = (== a_asset#0 app_global_get_ex_value%3#0)
                 (assert tmp%5#0) // asset a incorrect
                 let (app_global_get_ex_value%6#0: uint64, app_global_get_ex_did_exist%7#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%7#0) // check value exists
+                (assert app_global_get_ex_did_exist%7#0) // check asset_b exists
                 let tmp%8#0: uint64 = (== b_asset#0 app_global_get_ex_value%6#0)
                 (assert tmp%8#0) // asset b incorrect
                 let tmp%9#0: bytes = ((gtxns AssetReceiver) pool_xfer#0)
@@ -638,7 +638,7 @@ contract examples.amm.contract.ConstantProductAMM:
                 (assert tmp%13#0) // amount minimum not met
                 let tmp%14#0: uint64 = ((gtxns XferAsset) pool_xfer#0)
                 let (app_global_get_ex_value%15#0: uint64, app_global_get_ex_did_exist%16#0: uint64) = (app_global_get_ex 0u "pool_token")
-                (assert app_global_get_ex_did_exist%16#0) // check value exists
+                (assert app_global_get_ex_did_exist%16#0) // check pool_token exists
                 let tmp%17#0: uint64 = (== tmp%14#0 app_global_get_ex_value%15#0)
                 (assert tmp%17#0) // asset pool incorrect
                 let tmp%18#0: bytes = ((gtxns Sender) pool_xfer#0)
@@ -654,11 +654,11 @@ contract examples.amm.contract.ConstantProductAMM:
                 let b_amt#0: uint64 = examples.amm.contract.tokens_to_burn(pool_balance#0, tmp%23#0, tmp%24#0)
                 let tmp%25#0: bytes = (txn Sender)
                 let (app_global_get_ex_value%26#0: uint64, app_global_get_ex_did_exist%27#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%27#0) // check value exists
+                (assert app_global_get_ex_did_exist%27#0) // check asset_a exists
                 examples.amm.contract.do_asset_transfer(tmp%25#0, app_global_get_ex_value%26#0, a_amt#0)
                 let tmp%28#0: bytes = (txn Sender)
                 let (app_global_get_ex_value%29#0: uint64, app_global_get_ex_did_exist%30#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%30#0) // check value exists
+                (assert app_global_get_ex_did_exist%30#0) // check asset_b exists
                 examples.amm.contract.do_asset_transfer(tmp%28#0, app_global_get_ex_value%29#0, b_amt#0)
                 examples.amm.contract.ConstantProductAMM._update_ratio()
                 return 
@@ -675,11 +675,11 @@ contract examples.amm.contract.ConstantProductAMM:
             block@0: // L206
                 examples.amm.contract.ConstantProductAMM._check_bootstrapped()
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                (assert app_global_get_ex_did_exist%1#0) // check asset_a exists
                 let tmp%2#0: uint64 = (== a_asset#0 app_global_get_ex_value%0#0)
                 (assert tmp%2#0) // asset a incorrect
                 let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%4#0) // check value exists
+                (assert app_global_get_ex_did_exist%4#0) // check asset_b exists
                 let tmp%5#0: uint64 = (== b_asset#0 app_global_get_ex_value%3#0)
                 (assert tmp%5#0) // asset b incorrect
                 let tmp%6#0: uint64 = ((gtxns AssetAmount) swap_xfer#0)
@@ -690,23 +690,23 @@ contract examples.amm.contract.ConstantProductAMM:
                 let tmp%10#0: uint64 = (== tmp%8#0 tmp%9#0)
                 (assert tmp%10#0) // sender invalid
                 let (app_global_get_ex_value%11#0: uint64, app_global_get_ex_did_exist%12#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%12#0) // check value exists
+                (assert app_global_get_ex_did_exist%12#0) // check asset_a exists
                 let (app_global_get_ex_value%13#0: uint64, app_global_get_ex_did_exist%14#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%14#0) // check value exists
+                (assert app_global_get_ex_did_exist%14#0) // check asset_b exists
                 let awst_tmp%15#0: uint64 = ((gtxns XferAsset) swap_xfer#0)
                 switch awst_tmp%15#0 {app_global_get_ex_value%11#0 => block@1, app_global_get_ex_value%13#0 => block@2, * => block@3}
             block@1: // switch_case_0_L235
                 let in_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
                 let out_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
                 let (app_global_get_ex_value%16#0: uint64, app_global_get_ex_did_exist%17#0: uint64) = (app_global_get_ex 0u "asset_a")
-                (assert app_global_get_ex_did_exist%17#0) // check value exists
+                (assert app_global_get_ex_did_exist%17#0) // check asset_a exists
                 let out_asset#0: uint64 = app_global_get_ex_value%16#0
                 goto block@4
             block@2: // switch_case_1_L239
                 let in_supply#1: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
                 let out_supply#1: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
                 let (app_global_get_ex_value%18#0: uint64, app_global_get_ex_did_exist%19#0: uint64) = (app_global_get_ex 0u "asset_b")
-                (assert app_global_get_ex_did_exist%19#0) // check value exists
+                (assert app_global_get_ex_did_exist%19#0) // check asset_b exists
                 let out_asset#1: uint64 = app_global_get_ex_value%18#0
                 goto block@4
             block@3: // switch_case_default_L233

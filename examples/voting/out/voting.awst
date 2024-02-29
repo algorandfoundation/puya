@@ -65,7 +65,7 @@ contract VotingRoundApp
   abimethod close(): None
   {
     puyapy::ensure_budget(required_budget=20000u, fee_source=0u)
-    assert(!(STATE_GET_EX(this.close_time)[1]), comment="Already closed")
+    assert(!(STATE_EXISTS(this.close_time)), comment="Already closed")
     this.close_time: puyapy.UInt64 = global<LatestTimestamp>()
     note: puyapy.Bytes = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + this.vote_id + '.","properties":{"metadata":"ipfs://' + this.metadata_ipfs_cid + '","id":"' + this.vote_id + '","quorum":' + examples.voting.voting::itoa(this.quorum) + ',"voterCount":' + examples.voting.voting::itoa(this.voter_count) + ',"tallies":['
     current_index: puyapy.UInt64 = 0u
@@ -122,7 +122,7 @@ contract VotingRoundApp
   
   subroutine voting_open(): bool
   {
-    return this.is_bootstrapped and !(STATE_GET_EX(this.close_time)[1]) and this.start_time <= tmp$1: puyapy.UInt64 := global<LatestTimestamp>() and tmp$1 <= this.end_time
+    return this.is_bootstrapped and !(STATE_EXISTS(this.close_time)) and this.start_time <= tmp$1: puyapy.UInt64 := global<LatestTimestamp>() and tmp$1 <= this.end_time
   }
   
   subroutine already_voted(): bool

@@ -1,4 +1,3 @@
-
 from puya.avm_type import AVMType
 from puya.awst import nodes as awst_nodes
 from puya.ir.avm_ops import AVMOp
@@ -99,7 +98,7 @@ def visit_app_account_state_expression(
         Intrinsic(
             op=AVMOp.assert_,
             args=[did_exist_tmp],
-            comment=f"check {expr.field_name} exists",
+            comment=f"check {expr.field_name} exists for account",
             source_location=expr.source_location,
         )
     )

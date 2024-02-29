@@ -194,7 +194,7 @@ get_guaranteed_data:
     int 0
     byte "local"
     app_local_get_ex
-    assert // check value exists
+    assert // check local exists for account
     retsub
 
 
@@ -259,19 +259,11 @@ get_data_with_default:
     int 0
     byte "local"
     app_local_get_ex
-    bz get_data_with_default_ternary_false@2
-    frame_dig 0
-    b get_data_with_default_ternary_merge@3
-
-get_data_with_default_ternary_false@2:
-    // local_state/local_state_with_offsets.py:59
-    // return self.local.get(for_account, default)
-    frame_dig -1
-
-get_data_with_default_ternary_merge@3:
-    // local_state/local_state_with_offsets.py:59
-    // return self.local.get(for_account, default)
     swap
+    frame_dig -1
+    swap
+    uncover 2
+    select
     retsub
 
 

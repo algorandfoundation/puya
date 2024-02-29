@@ -123,7 +123,7 @@ opt_into_asset:
     int 0
     byte "asa"
     app_global_get_ex
-    assert // check value exists
+    assert // check asa exists
     !
     assert // ASA already opted in
     byte "asa"
@@ -152,7 +152,7 @@ start_auction:
     int 0
     byte "auction_end"
     app_global_get_ex
-    assert // check value exists
+    assert // check auction_end exists
     !
     assert // auction already started
     frame_dig -1
@@ -193,7 +193,7 @@ bid:
     int 0
     byte "auction_end"
     app_global_get_ex
-    assert // check value exists
+    assert // check auction_end exists
     <
     assert // auction has ended
     frame_dig -1
@@ -207,7 +207,7 @@ bid:
     int 0
     byte "previous_bid"
     app_global_get_ex
-    assert // check value exists
+    assert // check previous_bid exists
     dig 1
     <
     assert // Bid must be higher than previous bid
@@ -234,18 +234,18 @@ claim_bids:
     swap
     dup
     uncover 2
-    assert // check value exists
+    assert // check claimable_amount exists for account
     txn Sender
     int 0
     byte "previous_bidder"
     app_global_get_ex
-    assert // check value exists
+    assert // check previous_bidder exists
     ==
     bz claim_bids_after_if_else@2
     int 0
     byte "previous_bid"
     app_global_get_ex
-    assert // check value exists
+    assert // check previous_bid exists
     frame_dig 0
     swap
     -
@@ -280,22 +280,22 @@ claim_asset:
     int 0
     byte "auction_end"
     app_global_get_ex
-    assert // check value exists
+    assert // check auction_end exists
     >
     assert // auction has not ended
     itxn_begin
     int 0
     byte "asa_amount"
     app_global_get_ex
-    assert // check value exists
+    assert // check asa_amount exists
     int 0
     byte "previous_bidder"
     app_global_get_ex
-    assert // check value exists
+    assert // check previous_bidder exists
     int 0
     byte "previous_bidder"
     app_global_get_ex
-    assert // check value exists
+    assert // check previous_bidder exists
     frame_dig -1
     itxn_field XferAsset
     int axfer

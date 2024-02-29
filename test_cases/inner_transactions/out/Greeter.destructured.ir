@@ -45,7 +45,7 @@ contract test_cases.inner_transactions.c2c.Greeter:
         subroutine test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
             block@0: // L10
                 let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "hello_app")
-                (assert app_global_get_ex_did_exist%1#0) // check value exists
+                (assert app_global_get_ex_did_exist%1#0) // check hello_app exists
                 let tmp%2#0: uint64 = (! app_global_get_ex_value%0#0)
                 (assert tmp%2#0) // already bootstrapped
                 itxn_begin
@@ -57,14 +57,14 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 let submit_result_0%3%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
                 (app_global_put "hello_app" submit_result_0%3%%CreatedApplicationID#0)
                 let (app_global_get_ex_value%5#0: uint64, app_global_get_ex_did_exist%6#0: uint64) = (app_global_get_ex 0u "hello_app")
-                (assert app_global_get_ex_did_exist%6#0) // check value exists
+                (assert app_global_get_ex_did_exist%6#0) // check hello_app exists
                 return app_global_get_ex_value%5#0
         
         subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
             block@0: // L24
                 itxn_begin
                 let (app_global_get_ex_value%1#0: uint64, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "hello_app")
-                (assert app_global_get_ex_did_exist%2#0) // check value exists
+                (assert app_global_get_ex_did_exist%2#0) // check hello_app exists
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field ApplicationID) app_global_get_ex_value%1#0)
                 ((itxn_field ApplicationArgs) method "hello(string)string")

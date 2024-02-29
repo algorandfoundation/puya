@@ -87,7 +87,7 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(for_account: uint64) -> bytes:
             block@0: // L53
                 let (app_local_get_ex_value%0#0: bytes, app_local_get_ex_did_exist%1#0: uint64) = (app_local_get_ex for_account#0 0u "local")
-                (assert app_local_get_ex_did_exist%1#0) // check value exists
+                (assert app_local_get_ex_did_exist%1#0) // check local exists for account
                 return app_local_get_ex_value%0#0
         
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(for_account: uint64) -> bytes:
@@ -108,16 +108,9 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
         
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(for_account: uint64, default: bytes) -> bytes:
             block@0: // L57
-                let (awst_tmp%0.0#0: any, awst_tmp%0.1#0: uint64) = (app_local_get_ex for_account#0 0u "local")
-                goto awst_tmp%0.1#0 ? block@1 : block@2
-            block@1: // ternary_true_L59
-                let ternary_result%1#2: bytes = awst_tmp%0.0#0
-                goto block@3
-            block@2: // ternary_false_L59
-                let ternary_result%1#2: bytes = default#0
-                goto block@3
-            block@3: // ternary_merge_L59
-                return ternary_result%1#2
+                let (local_get_ex%0#0: any, local_get_ex%1#0: uint64) = (app_local_get_ex for_account#0 0u "local")
+                let tmp%2#0: any = (select default#0 local_get_ex%0#0 local_get_ex%1#0)
+                return tmp%2#0
         
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.__init__() -> void:
             block@0: // L15

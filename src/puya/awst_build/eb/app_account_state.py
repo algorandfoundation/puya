@@ -8,14 +8,14 @@ from puya.awst.nodes import (
     AppAccountStateExpression,
     AppStateKind,
     BytesEncoding,
-    ConditionalExpression,
     Expression,
     IntegerConstant,
     Literal,
     StateDelete,
+    StateExists,
+    StateGet,
     StateGetEx,
     Statement,
-    TupleItemExpression,
     UInt64Constant,
 )
 from puya.awst_build import constants
@@ -29,11 +29,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import (
-    create_temporary_assignment,
-    expect_operand_wtype,
-    get_arg_mapping,
-)
+from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -65,11 +61,9 @@ class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        app_local_get_ex = StateGetEx(
-            field=_build_field(self.state_decl, item, location),
-            source_location=location,
+        exists_expr = StateExists(
+            field=_build_field(self.state_decl, item, location), source_location=location
         )
-        exists_expr = TupleItemExpression(app_local_get_ex, index=1, source_location=location)
         return var_expression(exists_expr)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
@@ -103,21 +97,13 @@ class AppAccountStateGetMethodBuilder(IntermediateExpressionBuilder):
         default_expr = expect_operand_wtype(
             default_arg, target_wtype=self.state_decl.storage_wtype
         )
-        app_local_get_ex = create_temporary_assignment(
-            _build_app_local_get_ex(self.state_decl, item, location), location
+        expr = StateGet(
+            field=_build_field(self.state_decl, item, location),
+            default=default_expr,
+            source_location=location,
         )
-        conditional_expr = ConditionalExpression(
-            location,
-            wtype=self.state_decl.storage_wtype,
-            condition=TupleItemExpression(
-                app_local_get_ex.define, index=1, source_location=location
-            ),
-            true_expr=TupleItemExpression(
-                app_local_get_ex.read, index=0, source_location=location
-            ),
-            false_expr=default_expr,
-        )
-        return var_expression(conditional_expr)
+
+        return var_expression(expr)
 
 
 class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):
@@ -135,17 +121,11 @@ class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [item]:
-                app_local_get_ex = _build_app_local_get_ex(self.state_decl, item, location)
+                field = _build_field(self.state_decl, item, location)
+                app_local_get_ex = StateGetEx(field=field, source_location=location)
                 return var_expression(app_local_get_ex)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-
-
-def _build_app_local_get_ex(
-    state_decl: AppStateDeclaration, item: ExpressionBuilder | Literal, location: SourceLocation
-) -> StateGetEx:
-    field = _build_field(state_decl, item, location)
-    return StateGetEx(field=field, source_location=location)
 
 
 def _validated_index_expr(index: ExpressionBuilder | Literal) -> Expression:
