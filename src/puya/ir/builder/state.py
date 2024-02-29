@@ -164,6 +164,8 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
         source_location=subject.source_location,
         encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
     )
+    default = context.visitor.visit_and_materialise_single(expr.default)
+
     args: list[Value] = [current_app_offset, key]
     if isinstance(subject, awst_nodes.AppStateExpression):
         op = AVMOp.app_global_get_ex
@@ -171,7 +173,6 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
         op = AVMOp.app_local_get_ex
         account = context.visitor.visit_and_materialise_single(subject.account)
         args.insert(0, account)
-    default = context.visitor.visit_and_materialise_single(expr.default)
     maybe_value, exists = context.visitor.materialise_value_provider(
         Intrinsic(
             op=op,
