@@ -377,8 +377,8 @@ class FunctionASTConverter(
             return [
                 AssignmentStatement(
                     source_location=stmt_loc,
-                    target=self.resolve_lvalue(lvalue),
                     value=rvalue.build_assignment_source(),
+                    target=self.resolve_lvalue(lvalue),
                 )
                 for lvalue in reversed(stmt.lvalues)
             ]
