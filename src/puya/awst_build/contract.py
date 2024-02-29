@@ -61,7 +61,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._subroutines = list[ContractMethod]()
         self.app_state = _gather_app_state_recursive(context, class_def)
 
-        self._collected_app_state_definitions = dict[str, AppStateDefinition]()
         # note: we iterate directly and catch+log code errors here,
         #       since each statement should be somewhat independent given
         #       the constraints we place (e.g. if one function fails to convert,
@@ -69,6 +68,11 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         for stmt in class_def.defs.body:
             with context.log_exceptions(fallback_location=stmt):
                 stmt.accept(self)
+
+        collected_app_state_definitions = {
+            app_state_defn.member_name: app_state_defn
+            for app_state_defn in context.state_defs[self.cref]
+        }
 
         self.result_ = ContractFragment(
             module_name=self.cref.module_name,
@@ -80,7 +84,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             approval_program=self._approval_program,
             clear_program=self._clear_program,
             subroutines=self._subroutines,
-            app_state=self._collected_app_state_definitions,
+            app_state=collected_app_state_definitions,
             docstring=docstring,
             source_location=self._location(class_def),
             reserved_scratch_space=class_options.scratch_slot_reservations,
