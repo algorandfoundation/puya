@@ -18,7 +18,7 @@ from puya.awst_build.eb.arc4.base import (
     ARC4EncodedExpressionBuilder,
     get_integer_literal_value,
 )
-from puya.awst_build.eb.base import ValueExpressionBuilder
+from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError, InternalError
 
@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build.eb.base import ExpressionBuilder
     from puya.parse import SourceLocation
 
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
@@ -103,9 +102,9 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder):
                         wtype=self.wtype,
                     )
                 )
-            case [ValueExpressionBuilder() as eb]:
+            case [ExpressionBuilder(value_type=wtypes.WType() as value_type) as eb]:
                 value = eb.rvalue()
-                if value.wtype not in (
+                if value_type not in (
                     wtypes.bool_wtype,
                     wtypes.uint64_wtype,
                     wtypes.biguint_wtype,

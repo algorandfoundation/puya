@@ -52,8 +52,8 @@ def get_field_exprs(
             else TxnFields.clear_state_program_pages
         )
         match arg:
-            case ValueExpressionBuilder(
-                wtype=wtypes.WTuple(types=tuple_item_types) as wtype
+            case ExpressionBuilder(
+                value_type=wtypes.WTuple(types=tuple_item_types) as wtype
             ) if all(field.valid_type(t) for t in tuple_item_types):
                 expr = expect_operand_wtype(arg, wtype)
                 return field, expr
@@ -61,8 +61,8 @@ def get_field_exprs(
                 field_expr = expect_operand_wtype(arg, field.wtype)
     elif field.is_array:
         match arg:
-            case ValueExpressionBuilder(
-                wtype=wtypes.WTuple(types=tuple_item_types) as wtype
+            case ExpressionBuilder(
+                value_type=wtypes.WTuple(types=tuple_item_types) as wtype
             ) if all(field.valid_type(t) for t in tuple_item_types):
                 expr = expect_operand_wtype(arg, wtype)
                 return field, expr
