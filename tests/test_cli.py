@@ -41,6 +41,12 @@ def test_run_no_args() -> None:
     assert result.returncode == 2
 
 
+def test_run_version() -> None:
+    result = run_puyapy(["--version"], check=False)
+    assert result.returncode == 0
+    assert result.stdout.startswith("puyapy")
+
+
 def test_run_not_python() -> None:
     result = run_puyapy(["pyproject.toml"], check=False)
     assert result.returncode == 1
