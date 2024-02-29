@@ -37,7 +37,9 @@ from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig, ARC32StructDef, OnCompletionAction
 from puya.parse import SourceLocation
 
-ALLOWABLE_OCA = [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
+ALLOWABLE_OCA = frozenset(
+    [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
+)
 
 
 class ContractASTConverter(BaseMyPyStatementVisitor[None]):

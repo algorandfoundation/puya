@@ -53,7 +53,6 @@ class IRBuildContext(CompileContext):
     def resolve_contract_reference(
         self, cref: awst_nodes.ContractReference
     ) -> awst_nodes.ContractFragment:
-        # TODO: this probably shouldn't be required, AWST should stitch things together
         try:
             module = self.module_awsts[cref.module_name]
             contract = module.symtable[cref.class_name]

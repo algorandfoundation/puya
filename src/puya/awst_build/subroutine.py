@@ -362,18 +362,14 @@ class FunctionASTConverter(
                         value=rvalue.initial_value,
                     )
                 ]
-        elif len(stmt.lvalues) == 1:
-            value = rvalue.build_assignment_source()
-            (lvalue,) = stmt.lvalues
-            target = self.resolve_lvalue(lvalue)
-            return [AssignmentStatement(source_location=stmt_loc, target=target, value=value)]
         else:
-            single_eval_wrapper = temporary_assignment_if_required(rvalue)
+            if len(stmt.lvalues) > 1:
+                rvalue = temporary_assignment_if_required(rvalue)
             return [
                 AssignmentStatement(
                     source_location=stmt_loc,
                     target=self.resolve_lvalue(lvalue),
-                    value=single_eval_wrapper.build_assignment_source(),
+                    value=rvalue.build_assignment_source(),
                 )
                 for lvalue in reversed(stmt.lvalues)
             ]

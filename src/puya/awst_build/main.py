@@ -17,12 +17,8 @@ logger = structlog.get_logger()
 
 
 def transform_ast(compile_context: CompileContext) -> dict[str, Module]:
-    # module mapping is mutable here, but on the context it is an immutable Mapping
-    # (from a type-checkers perspective, anyway)
     result = dict[str, Module]()
-    ctx: ASTConversionContext = attrs_extend(
-        ASTConversionContext, compile_context, module_asts=result
-    )
+    ctx: ASTConversionContext = attrs_extend(ASTConversionContext, compile_context)
     user_modules = {}
     for scc_module_names in mypy.build.sorted_components(ctx.parse_result.graph):
         for module_name in scc_module_names:

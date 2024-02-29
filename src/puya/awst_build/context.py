@@ -9,7 +9,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ConstantValue,
     Literal as AWSTLiteral,
-    Module,
 )
 from puya.awst_build import constants
 from puya.awst_build.eb.base import TypeClassExpressionBuilder
@@ -21,7 +20,6 @@ from puya.utils import attrs_extend
 
 @attrs.frozen(kw_only=True)
 class ASTConversionContext(CompileContext):
-    module_asts: Mapping[str, Module]
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     type_map: dict[str, wtypes.WStructType | wtypes.ARC4Struct] = attrs.field(factory=dict)
 

@@ -154,7 +154,7 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
             name_override=contract.name_override,
             module_name=contract.module_name,
             class_name=contract.name,
-            arc4_methods=folded.arc4_methods or [],  # TODO: fixme
+            arc4_methods=folded.arc4_methods,
             global_state=immutabledict(folded.global_state),
             local_state=immutabledict(folded.local_state),
         ),
@@ -244,7 +244,7 @@ class FoldedContract:
     clear_program: awst_nodes.ContractMethod | None = None
     global_state: dict[str, ContractState] = attrs.field(factory=dict)
     local_state: dict[str, ContractState] = attrs.field(factory=dict)
-    arc4_methods: list[ARC4Method] | None = None
+    arc4_methods: list[ARC4Method] = attrs.field(factory=list)
 
 
 def wtype_to_storage_type(wtype: wtypes.WType) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
