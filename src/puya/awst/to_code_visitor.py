@@ -4,11 +4,7 @@ from collections.abc import Iterable
 
 from puya.awst import nodes, wtypes
 from puya.awst.nodes import AppStateKind
-from puya.awst.visitors import (
-    ExpressionVisitor,
-    ModuleStatementVisitor,
-    StatementVisitor,
-)
+from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.errors import InternalError
 
 
@@ -529,6 +525,12 @@ class ToCodeVisitor(
 
     def visit_state_delete(self, statement: nodes.StateDelete) -> list[str]:
         return [f"STATE_DELETE({statement.field.accept(self)})"]
+
+    def visit_state_get(self, expr: nodes.StateGet) -> str:
+        return f"STATE_GET({expr.field.accept(self)}, default={expr.default.accept(self)})"
+
+    def visit_state_exists(self, expr: nodes.StateExists) -> str:
+        return f"STATE_EXISTS({expr.field.accept(self)})"
 
 
 def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:

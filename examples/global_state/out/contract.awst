@@ -20,18 +20,18 @@ contract AppStateContract
   approval_program(): bool
   {
     assert(this.global_int_simplified == 33u)
-    assert(STATE_GET_EX(this.global_int_full)[1])
+    assert(STATE_EXISTS(this.global_int_full))
     assert(this.global_int_full == 55u)
-    assert(!(STATE_GET_EX(this.global_int_no_default)[1]))
+    assert(!(STATE_EXISTS(this.global_int_no_default)))
     this.global_int_no_default: puyapy.UInt64 = 44u
     (i_value, i_exists): tuple[puyapy.UInt64, bool] = STATE_GET_EX(this.global_int_no_default)
     assert(i_exists)
     assert(i_value == 44u)
     assert(this.global_bytes_simplified == 'Hello')
-    assert(STATE_GET_EX(this.global_bytes_full)[1])
+    assert(STATE_EXISTS(this.global_bytes_full))
     assert(this.global_bytes_full == 'Hello')
-    assert((tmp$0: tuple[puyapy.Bytes, bool] := STATE_GET_EX(this.global_bytes_full)[1]) ? (tmp$0[0]) : ('default') == 'Hello')
-    assert(!(STATE_GET_EX(this.global_bytes_no_default)[1]))
+    assert(STATE_GET(this.global_bytes_full, default='default') == 'Hello')
+    assert(!(STATE_EXISTS(this.global_bytes_no_default)))
     this.global_bytes_no_default: puyapy.Bytes = 'World'
     (b_value, b_exists): tuple[puyapy.Bytes, bool] = STATE_GET_EX(this.global_bytes_no_default)
     assert(b_exists)
@@ -39,7 +39,7 @@ contract AppStateContract
     STATE_DELETE(this.global_bytes_no_default)
     (b_value, b_exists): tuple[puyapy.Bytes, bool] = STATE_GET_EX(this.global_bytes_no_default)
     assert(!(b_exists))
-    assert((tmp$1: tuple[puyapy.Bytes, bool] := STATE_GET_EX(this.global_bytes_no_default)[1]) ? (tmp$1[0]) : ('default') == 'default')
+    assert(STATE_GET(this.global_bytes_no_default, default='default') == 'default')
     return true
   }
   

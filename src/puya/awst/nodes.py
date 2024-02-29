@@ -1432,25 +1432,30 @@ class ForInLoop(Statement):
 StateExpression: t.TypeAlias = AppStateExpression | AppAccountStateExpression
 
 
-# @attrs.frozen
-# class StateGet(Expression):
-#     field: StateExpression
-#     default: Expression | None = attrs.field()
-#     wtype: WType = attrs.field(init=False)
-#
-#     @default.validator
-#     def _check_default(self, _attribute: object, default: Expression | None) -> None:
-#         if default is not None and self.field.wtype != default.wtype:
-#             raise CodeError(
-#                 "Default state value should match storage type", default.source_location
-#             )
-#
-#     @wtype.default
-#     def _wtype_factory(self) -> WType:
-#         return self.field.wtype
-#
-#     def accept(self, visitor: ExpressionVisitor[T]) -> T:
-#         return visitor.visit_state_get(self)
+@attrs.frozen
+class StateGet(Expression):
+    """
+    Get value or default if unset - note that for get without a default,
+    can just use the underlying StateExpression
+    """
+
+    field: StateExpression
+    default: Expression = attrs.field()
+    wtype: WType = attrs.field(init=False)
+
+    @default.validator
+    def _check_default(self, _attribute: object, default: Expression) -> None:
+        if self.field.wtype != default.wtype:
+            raise CodeError(
+                "Default state value should match storage type", default.source_location
+            )
+
+    @wtype.default
+    def _wtype_factory(self) -> WType:
+        return self.field.wtype
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_state_get(self)
 
 
 @attrs.frozen
@@ -1466,13 +1471,13 @@ class StateGetEx(Expression):
         return visitor.visit_state_get_ex(self)
 
 
-# @attrs.frozen
-# class StateExists(Expression):
-#     field: StateExpression
-#     wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
-#
-#     def accept(self, visitor: ExpressionVisitor[T]) -> T:
-#         return visitor.visit_state_exists(self)
+@attrs.frozen
+class StateExists(Expression):
+    field: StateExpression
+    wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_state_exists(self)
 
 
 @attrs.frozen

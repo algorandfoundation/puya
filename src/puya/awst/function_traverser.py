@@ -258,3 +258,10 @@ class FunctionTraverser(
 
     def visit_state_delete(self, statement: awst_nodes.StateDelete) -> None:
         statement.field.accept(self)
+
+    def visit_state_get(self, expr: awst_nodes.StateGet) -> None:
+        expr.field.accept(self)
+        expr.default.accept(self)
+
+    def visit_state_exists(self, expr: awst_nodes.StateExists) -> None:
+        expr.field.accept(self)

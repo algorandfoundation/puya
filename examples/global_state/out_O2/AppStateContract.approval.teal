@@ -1,8 +1,6 @@
 #pragma version 10
 
 examples.global_state.contract.AppStateContract.approval_program:
-    byte ""
-    dup
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -66,15 +64,10 @@ main_entrypoint@2:
     byte "global_bytes_full"
     app_global_get_ex
     swap
-    bury 3
-    bz main_ternary_false@4
-    dig 1
-    b main_ternary_merge@5
-
-main_ternary_false@4:
     byte "default"
-
-main_ternary_merge@5:
+    swap
+    uncover 2
+    select
     byte "Hello"
     ==
     assert
@@ -106,15 +99,10 @@ main_ternary_merge@5:
     byte "global_bytes_no_default"
     app_global_get_ex
     swap
-    bury 2
-    bz main_ternary_false@7
-    dup
-    b main_ternary_merge@8
-
-main_ternary_false@7:
     byte "default"
-
-main_ternary_merge@8:
+    swap
+    uncover 2
+    select
     byte "default"
     ==
     assert

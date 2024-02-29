@@ -296,14 +296,14 @@ class ExpressionVisitor(t.Generic[T], ABC):
     def visit_reversed(self, expr: puya.awst.nodes.Reversed) -> T:
         ...
 
-    # @abstractmethod
-    # def visit_state_get(self, expr: puya.awst.nodes.StateGet) -> T:
-    #     ...
+    @abstractmethod
+    def visit_state_get(self, expr: puya.awst.nodes.StateGet) -> T:
+        ...
 
     @abstractmethod
     def visit_state_get_ex(self, expr: puya.awst.nodes.StateGetEx) -> T:
         ...
 
-    # @abstractmethod
-    # def visit_state_exists(self, expr: puya.awst.nodes.StateExists) -> T:
-    #     ...
+    @abstractmethod
+    def visit_state_exists(self, expr: puya.awst.nodes.StateExists) -> T:
+        ...
