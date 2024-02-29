@@ -6,6 +6,7 @@ from puya.teal.optimize._data import (
     LOAD_OP_CODES_INCL_OFFSET,
     ORDERING_OPS,
     STORE_OPS_INCL_OFFSET,
+    LOAD_OP_CODES,
 )
 from puya.utils import invert_ordered_binary_op
 
@@ -204,10 +205,14 @@ def _frame_digs_overlap_with_ops(stack_height: int, *ops: models.TealOp) -> bool
 def _optimize_quadruplet(
     a: models.TealOp, b: models.TealOp, c: models.TealOp, d: models.TealOp
 ) -> tuple[list[models.TealOp], bool]:
-    # `swap; dig|uncover n >= 2; swap; uncover 2` -> `dig|uncover n; cover 2`
+    # `swap; <re-orderable load op>; swap; uncover 2` -> `dig|uncover n; cover 2`
     if (
         is_stack_swap(a)
-        and (b.op_code in ("dig", "uncover") and int(b.immediates[0]) >= 2)
+        and (
+            b.op_code in LOAD_OP_CODES
+            or (b.op_code in ("dig", "uncover") and int(b.immediates[0]) >= 2)
+            or (b.op_code == "frame_dig" and int(b.immediates[0]) < 0)
+        )
         and is_stack_swap(c)
         and (d.op_code == "uncover" and d.immediates[0] == 2)
     ):
