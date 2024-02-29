@@ -1,6 +1,6 @@
 import typing
 from collections.abc import Iterator, Mapping
-from typing import Never
+from typing import Never, List
 
 import mypy.nodes
 import mypy.types
@@ -11,11 +11,12 @@ import puya.models
 from puya.arc4_util import wtype_to_arc4
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    AppStateDefinition,
     AppStateKind,
     ContractFragment,
     ContractMethod,
     ContractReference,
+    AppStateDefinition,
+    BytesEncoding,
 )
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
@@ -59,7 +60,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._clear_program: ContractMethod | None = None
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
-        self.app_state = _gather_app_state_recursive(context, class_def)
+        this_app_state = list(_gather_app_state(context, class_def.info))
+        self.app_state = _gather_app_state_recursive(context, class_def, this_app_state)
 
         # note: we iterate directly and catch+log code errors here,
         #       since each statement should be somewhat independent given
@@ -73,6 +75,17 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             app_state_defn.member_name: app_state_defn
             for app_state_defn in context.state_defs[self.cref]
         }
+        for decl in this_app_state:
+            if decl.decl_type is AppStateDeclType.global_direct:
+                collected_app_state_definitions[decl.member_name] = AppStateDefinition(
+                    member_name=decl.member_name,
+                    storage_wtype=decl.storage_wtype,
+                    key=decl.member_name.encode("utf8"),
+                    key_encoding=BytesEncoding.utf8,
+                    description=None,
+                    source_location=decl.source_location,
+                    kind=decl.kind,
+                )
 
         self.result_ = ContractFragment(
             module_name=self.cref.module_name,
@@ -657,9 +670,10 @@ def _gather_bases(
 
 
 def _gather_app_state_recursive(
-    context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
+    context: ASTConversionModuleContext,
+    class_def: mypy.nodes.ClassDef,
+    this_app_state: list[AppStateDeclaration],
 ) -> dict[str, AppStateDeclaration]:
-    this_app_state = list(_gather_app_state(context, class_def.info))
     combined_app_state = {defn.member_name: defn for defn in this_app_state}
     for base in iterate_user_bases(class_def.info):
         base_app_state = {

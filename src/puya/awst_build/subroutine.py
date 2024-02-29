@@ -350,12 +350,15 @@ class FunctionASTConverter(
                 lvalue_builder.state_decl.member_name, lvalue_builder.source_location
             )
             self.context.state_defs[self.contract_method_info.cref].append(defn)
-            if defn.kind != AppStateKind.account_local:
-                raise InternalError("Don't know how to initialise local account storage", stmt_loc)
+            if rvalue.initial_value is None:
+                return []
+            elif defn.kind != AppStateKind.app_global:
+                raise InternalError(
+                    f"Don't know how to do initialise-on-declaration"
+                    f" for storage of kind {defn.kind}",
+                    stmt_loc,
+                )
             else:
-                initial_value = rvalue.initial_value()
-                if initial_value is None:
-                    return []
                 global_state_target = AppStateExpression(
                     field_name=defn.member_name,
                     wtype=defn.storage_wtype,
@@ -364,7 +367,7 @@ class FunctionASTConverter(
                 return [
                     AssignmentStatement(
                         target=global_state_target,
-                        value=initial_value,
+                        value=rvalue.initial_value,
                         source_location=stmt_loc,
                     )
                 ]

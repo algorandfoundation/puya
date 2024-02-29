@@ -244,15 +244,15 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
         match type_arg:
             case TypeClassExpressionBuilder() as typ_class_eb:
                 storage_wtype = typ_class_eb.produces()
-                if self._storage is not None and self._storage != storage_wtype:
-                    raise CodeError(
-                        "App account state explicit type annotation does not match first argument"
-                        " - suggest to remove the explicit type annotation,"
-                        " it shouldn't be required",
-                        location,
-                    )
             case _:
                 raise CodeError("First argument must be a type reference", location)
+        if self._storage is not None and self._storage != storage_wtype:
+            raise CodeError(
+                "App account state explicit type annotation does not match first argument"
+                " - suggest to remove the explicit type annotation,"
+                " it shouldn't be required",
+                location,
+            )
 
         match key_arg:
             case None:
@@ -289,6 +289,3 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
 class AppAccountStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
     kind = AppStateKind.account_local
     python_name = constants.CLS_LOCAL_STATE_ALIAS
-
-    def initial_value(self) -> Expression | None:
-        return None

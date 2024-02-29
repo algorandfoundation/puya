@@ -249,6 +249,7 @@ class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
         key: bytes | None,
         key_encoding: BytesEncoding | None,
         description: str | None,
+        initial_value: Expression | None = None,
     ):
         super().__init__(location)
         if (key is None) != (key_encoding is None):
@@ -259,10 +260,7 @@ class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
         self.key = key
         self.key_encoding = key_encoding
         self.description = description
-
-    @abc.abstractmethod
-    def initial_value(self) -> Expression | None:
-        ...
+        self.initial_value = initial_value
 
     def build_definition(self, member_name: str, location: SourceLocation) -> AppStateDefinition:
         return AppStateDefinition(
