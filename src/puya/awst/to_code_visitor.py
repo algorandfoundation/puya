@@ -76,10 +76,10 @@ class ToCodeVisitor(
         return f"tmp${self._tmp_index(expr)}"
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
-        return f"this.globals[{expr.field_name}]"
+        return f"this.{expr.field_name}"
 
     def visit_app_account_state_expression(self, expr: nodes.AppAccountStateExpression) -> str:
-        return f"this.locals[{expr.field_name}].account[{expr.account.accept(self)}]"
+        return f"this.{expr.field_name}[{expr.account.accept(self)}]"
 
     def visit_new_array(self, expr: nodes.NewArray) -> str:
         args = ", ".join(a.accept(self) for a in expr.elements)
