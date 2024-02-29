@@ -1,6 +1,6 @@
 import typing
 from collections.abc import Iterator, Mapping
-from typing import Never, List
+from typing import Never
 
 import mypy.nodes
 import mypy.types
@@ -11,12 +11,12 @@ import puya.models
 from puya.arc4_util import wtype_to_arc4
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    AppStateDefinition,
     AppStateKind,
+    BytesEncoding,
     ContractFragment,
     ContractMethod,
     ContractReference,
-    AppStateDefinition,
-    BytesEncoding,
 )
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor

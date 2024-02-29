@@ -339,14 +339,14 @@ class ToCodeVisitor(
 
     def visit_bytes_constant(self, expr: nodes.BytesConstant) -> str:
         match expr.encoding:
-            case nodes.BytesEncoding.base16:
-                return f'hex<"{expr.value.hex().upper()}">'
+            case nodes.BytesEncoding.utf8:
+                return bytes_str(expr.value)
             case nodes.BytesEncoding.base32:
                 return f'b32<"{base64.b32encode(expr.value).decode("ascii")}">'
             case nodes.BytesEncoding.base64:
                 return f'b64<"{base64.b64encode(expr.value).decode("ascii")}">'
-            case _:
-                return bytes_str(expr.value)
+            case nodes.BytesEncoding.base16 | nodes.BytesEncoding.unknown:
+                return f'hex<"{expr.value.hex().upper()}">'
 
     def visit_method_constant(self, expr: nodes.MethodConstant) -> str:
         return f'Method("{expr.value}")'

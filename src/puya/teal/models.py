@@ -219,6 +219,7 @@ class PushBytes(TealOp):
         if self.encoding in (
             AVMBytesEncoding.utf8,
             AVMBytesEncoding.base16,
+            AVMBytesEncoding.unknown,
         ):
             return (bytes_str,)
         hint = self.encoding.name

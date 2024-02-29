@@ -351,7 +351,9 @@ class BoolConstant(Expression):
         return visitor.visit_bool_constant(self)
 
 
+@enum.unique
 class BytesEncoding(enum.StrEnum):
+    unknown = enum.auto()
     base16 = enum.auto()
     base32 = enum.auto()
     base64 = enum.auto()

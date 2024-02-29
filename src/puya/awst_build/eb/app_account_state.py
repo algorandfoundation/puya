@@ -260,7 +260,7 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
                 key_encoding = None
             case Literal(value=bytes(bytes_value)):
                 key = bytes_value
-                key_encoding = BytesEncoding.base16  # TODO: maybe we need an "unknown" encoding?
+                key_encoding = BytesEncoding.unknown
             case Literal(value=str(str_value)):
                 key = str_value.encode("utf8")
                 key_encoding = BytesEncoding.utf8

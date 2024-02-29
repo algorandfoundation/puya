@@ -46,5 +46,5 @@ def format_bytes(b: bytes, encoding: AVMBytesEncoding) -> str:
             return base64.b32encode(b).decode("ascii")
         case AVMBytesEncoding.base64:
             return base64.b64encode(b).decode("ascii")
-        case _:
+        case AVMBytesEncoding.base16 | AVMBytesEncoding.unknown:
             return f"0x{b.hex()}"
