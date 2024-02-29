@@ -681,7 +681,9 @@ class TxnFields:
     @classmethod
     @functools.cache
     def all_fields(cls) -> Sequence[TxnField]:
-        values = vars(cls).values()
+        # values = vars(cls).values()
+        names = dir(cls)
+        values = [getattr(cls, name) for name in names]
         return tuple(v for v in values if isinstance(v, TxnField))
 
     @classmethod

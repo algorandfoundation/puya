@@ -15,9 +15,9 @@ struct VotingPreconditions {
 contract VotingRoundApp
 {
   globals {
+    ['close_time']: puyapy.UInt64
     ['is_bootstrapped']: bool
     ['voter_count']: puyapy.UInt64
-    ['close_time']: puyapy.UInt64
     ['vote_id']: puyapy.Bytes
     ['snapshot_public_key']: puyapy.Bytes
     ['metadata_ipfs_cid']: puyapy.Bytes
@@ -32,30 +32,30 @@ contract VotingRoundApp
   
   constructor()
   {
-    this.globals['is_bootstrapped']: bool = false
-    this.globals['voter_count']: puyapy.UInt64 = 0u
+    this.is_bootstrapped: bool = false
+    this.voter_count: puyapy.UInt64 = 0u
   }
   
   abimethod create(vote_id: puyapy.arc4.String, snapshot_public_key: puyapy.Bytes, metadata_ipfs_cid: puyapy.arc4.String, start_time: puyapy.UInt64, end_time: puyapy.UInt64, option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]], quorum: puyapy.UInt64, nft_image_url: puyapy.arc4.String): None
   {
     assert(start_time < end_time, comment="End time should be after start time")
     assert(end_time >= global<LatestTimestamp>(), comment="End time should be in the future")
-    this.globals['vote_id']: puyapy.Bytes = arc4_decode(vote_id, puyapy.Bytes)
-    this.globals['snapshot_public_key']: puyapy.Bytes = snapshot_public_key
-    this.globals['metadata_ipfs_cid']: puyapy.Bytes = arc4_decode(metadata_ipfs_cid, puyapy.Bytes)
-    this.globals['start_time']: puyapy.UInt64 = start_time
-    this.globals['end_time']: puyapy.UInt64 = end_time
-    this.globals['quorum']: puyapy.UInt64 = quorum
-    this.globals['nft_image_url']: puyapy.Bytes = arc4_decode(nft_image_url, puyapy.Bytes)
+    this.vote_id: puyapy.Bytes = arc4_decode(vote_id, puyapy.Bytes)
+    this.snapshot_public_key: puyapy.Bytes = snapshot_public_key
+    this.metadata_ipfs_cid: puyapy.Bytes = arc4_decode(metadata_ipfs_cid, puyapy.Bytes)
+    this.start_time: puyapy.UInt64 = start_time
+    this.end_time: puyapy.UInt64 = end_time
+    this.quorum: puyapy.UInt64 = quorum
+    this.nft_image_url: puyapy.Bytes = arc4_decode(nft_image_url, puyapy.Bytes)
     this::store_option_counts(option_counts.copy())
   }
   
   abimethod bootstrap(fund_min_bal_req: puyapy.gtxn.PaymentTransaction): None
   {
-    assert(!(this.globals['is_bootstrapped']), comment="Must not be already bootstrapped")
-    this.globals['is_bootstrapped']: bool = true
+    assert(!(this.is_bootstrapped), comment="Must not be already bootstrapped")
+    this.is_bootstrapped: bool = true
     assert(gtxns<Receiver>(fund_min_bal_req) == global<CurrentApplicationAddress>(), comment="Payment must be to app address")
-    tally_box_size: puyapy.UInt64 = this.globals['total_options'] * 8u
+    tally_box_size: puyapy.UInt64 = this.total_options * 8u
     min_balance_req: puyapy.UInt64 = 203900u + tally_box_size * 400u
     log(itob(min_balance_req))
     assert(gtxns<Amount>(fund_min_bal_req) == min_balance_req, comment="Payment must be for the exact min balance requirement")
@@ -65,11 +65,11 @@ contract VotingRoundApp
   abimethod close(): None
   {
     puyapy::ensure_budget(required_budget=20000u, fee_source=0u)
-    assert(!(app_global_get_ex(0u, 'close_time')[1]), comment="Already closed")
-    this.globals['close_time']: puyapy.UInt64 = global<LatestTimestamp>()
-    note: puyapy.Bytes = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + this.globals['vote_id'] + '.","properties":{"metadata":"ipfs://' + this.globals['metadata_ipfs_cid'] + '","id":"' + this.globals['vote_id'] + '","quorum":' + examples.voting.voting::itoa(this.globals['quorum']) + ',"voterCount":' + examples.voting.voting::itoa(this.globals['voter_count']) + ',"tallies":['
+    assert(!(STATE_GET_EX(this.close_time)[1]), comment="Already closed")
+    this.close_time: puyapy.UInt64 = global<LatestTimestamp>()
+    note: puyapy.Bytes = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + this.vote_id + '.","properties":{"metadata":"ipfs://' + this.metadata_ipfs_cid + '","id":"' + this.vote_id + '","quorum":' + examples.voting.voting::itoa(this.quorum) + ',"voterCount":' + examples.voting.voting::itoa(this.voter_count) + ',"tallies":['
     current_index: puyapy.UInt64 = 0u
-    for (question_index, question_options_arc) in enumerate(this.globals['option_counts']) {
+    for (question_index, question_options_arc) in enumerate(this.option_counts) {
       if (question_index > 0u) {
         note += ','
       }
@@ -88,7 +88,7 @@ contract VotingRoundApp
       }
     }
     note += ']}}'
-    this.globals['nft_asset_id']: puyapy.UInt64 = reinterpret_cast<puyapy.UInt64>(submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + this.globals['vote_id'], ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=this.globals['nft_image_url'], Note=note)).CreatedAssetID)
+    this.nft_asset_id: puyapy.UInt64 = reinterpret_cast<puyapy.UInt64>(submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + this.vote_id, ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=this.nft_image_url, Note=note)).CreatedAssetID)
   }
   
   abimethod get_preconditions(signature: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): examples.voting.voting.VotingPreconditions
@@ -102,7 +102,7 @@ contract VotingRoundApp
     assert(this::allowed_to_vote(signature), comment="Not allowed to vote")
     assert(this::voting_open(), comment="Voting not open")
     assert(!(this::already_voted()), comment="Already voted")
-    questions_count: puyapy.UInt64 = extract_uint16(this.globals['option_counts'], 0u)
+    questions_count: puyapy.UInt64 = extract_uint16(this.option_counts, 0u)
     assert(extract_uint16(answer_ids, 0u) == questions_count, comment="Number of answers incorrect")
     min_bal_req: puyapy.UInt64 = 2500u + 34u + 1u * extract_uint16(answer_ids, 0u) * 400u
     assert(gtxns<Receiver>(fund_min_bal_req) == global<CurrentApplicationAddress>(), comment="Payment must be to app address")
@@ -111,18 +111,18 @@ contract VotingRoundApp
     cumulative_offset: puyapy.UInt64 = 0u
     for question_index in range(0u, questions_count, 1u) {
       answer_option_index: puyapy.UInt64 = arc4_decode(answer_ids[question_index], puyapy.UInt64)
-      options_count: puyapy.UInt64 = arc4_decode(this.globals['option_counts'][question_index], puyapy.UInt64)
+      options_count: puyapy.UInt64 = arc4_decode(this.option_counts[question_index], puyapy.UInt64)
       assert(answer_option_index < options_count, comment="Answer option index invalid")
       examples.voting.voting::increment_vote_in_box(cumulative_offset + answer_option_index)
       cumulative_offset += options_count
       box_put(reinterpret_cast<puyapy.Bytes>(txn<Sender>()), reinterpret_cast<puyapy.Bytes>(answer_ids))
-      this.globals['voter_count'] += 1u
+      this.voter_count += 1u
     }
   }
   
   subroutine voting_open(): bool
   {
-    return this.globals['is_bootstrapped'] and !(app_global_get_ex(0u, 'close_time')[1]) and this.globals['start_time'] <= tmp$1: puyapy.UInt64 := global<LatestTimestamp>() and tmp$1 <= this.globals['end_time']
+    return this.is_bootstrapped and !(STATE_GET_EX(this.close_time)[1]) and this.start_time <= tmp$1: puyapy.UInt64 := global<LatestTimestamp>() and tmp$1 <= this.end_time
   }
   
   subroutine already_voted(): bool
@@ -140,14 +140,14 @@ contract VotingRoundApp
       total_options += arc4_decode(item, puyapy.UInt64)
     }
     assert(total_options <= 128u, comment="Can't have more than 128 vote options")
-    this.globals['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = option_counts.copy()
-    this.globals['total_options']: puyapy.UInt64 = total_options
+    this.option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = option_counts.copy()
+    this.total_options: puyapy.UInt64 = total_options
   }
   
   subroutine allowed_to_vote(signature: puyapy.Bytes): bool
   {
     puyapy::ensure_budget(required_budget=2000u, fee_source=2u)
-    return ed25519verify_bare(reinterpret_cast<puyapy.Bytes>(txn<Sender>()), signature, this.globals['snapshot_public_key'])
+    return ed25519verify_bare(reinterpret_cast<puyapy.Bytes>(txn<Sender>()), signature, this.snapshot_public_key)
   }
 }
 
