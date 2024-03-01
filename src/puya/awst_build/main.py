@@ -30,10 +30,9 @@ def transform_ast(compile_context: CompileContext) -> dict[str, Module]:
                 logger.debug(f"Skipping typeshed stub {module_rel_path}")
             else:
                 logger.warning(f"Skipping stub: {module_rel_path}")
-        elif embedded_src := EMBEDDED_MODULES.get(module_name):
+        elif module_name in EMBEDDED_MODULES:
             logger.debug(f"Building AWST for embedded puyapy lib at {module_rel_path}")
-            module._fullname = embedded_src.puya_module_name  # noqa: SLF001
-            result[embedded_src.puya_module_name] = ModuleASTConverter(ctx, module).convert()
+            result[module_name] = ModuleASTConverter(ctx, module).convert()
         else:
             logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
             user_modules[module_name] = ModuleASTConverter(ctx, module)

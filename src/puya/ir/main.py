@@ -45,8 +45,8 @@ def build_module_irs(
 ) -> dict[str, list[Contract]]:
     embedded_funcs = [
         func
-        for embedded_src in EMBEDDED_MODULES.values()
-        for func in module_asts[embedded_src.puya_module_name].body
+        for embedded_module_name in EMBEDDED_MODULES
+        for func in module_asts[embedded_module_name].body
         if isinstance(func, awst_nodes.Function)
     ]
     build_context: IRBuildContext = attrs_extend(

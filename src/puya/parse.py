@@ -42,7 +42,7 @@ class EmbeddedSource:
         )
 
 
-EMBEDDED_MODULES = {
+_MYPY_EMBEDDED_MODULES = {
     es.mypy_module_name: es
     for es in (
         EmbeddedSource.from_path("_puyapy_.py", module_override="puyapy"),
@@ -50,6 +50,8 @@ EMBEDDED_MODULES = {
         EmbeddedSource.from_path("puyapy_lib_bytes.py"),
     )
 }
+
+EMBEDDED_MODULES = tuple(es.puya_module_name for es in _MYPY_EMBEDDED_MODULES.values())
 
 
 @attrs.frozen
@@ -254,7 +256,7 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
                 module=module.mypy_module_name,
                 text=module.path.read_text("utf8"),
             )
-            for module in EMBEDDED_MODULES.values()
+            for module in _MYPY_EMBEDDED_MODULES.values()
         ]
     )
     result = _mypy_build(mypy_build_sources, mypy_options, mypy_fscache)
@@ -276,33 +278,54 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
                 raise InternalError(
                     f"mypy parsed wrong module, expected '{module_name}': {module.fullname}"
                 )
-            if module.path and Path(module.path).is_dir():
+            if not module.path:
+                raise InternalError(f"No path for module: {module_name}")
+
+            if embedded_src := _MYPY_EMBEDDED_MODULES.get(module_name):
+                module._fullname = embedded_src.puya_module_name  # noqa: SLF001
+                module_path = embedded_src.path
+            else:
+                module_path = Path(module.path)
+
+            if module_path.is_dir():
                 # this module is a module directory with no __init__.py, ie it contains
                 # nothing and is only in the graph as a reference
-                continue
-            ordered_modules.append(module)
-            # from mypy/util.py:decode_python_encoding
-            # check for BOM UTF-8 encoding
-            if module.path and not module.is_stub and module_name not in EMBEDDED_MODULES:
-                source = mypy_fscache.read(module.path)
-                if source.startswith(b"\xef\xbb\xbf"):
-                    encoding = "utf8"
-                else:
-                    # look at first two lines and check if PEP-263 coding is present
-                    encoding, _ = mypy.util.find_python_encoding(source)
-                if encoding != "utf8":
-                    logger.warning(
-                        f"UH OH SPAGHETTI-O's,"
-                        f" darn tootin' non-utf8(?!) encoded file encountered:"
-                        f" {make_path_relative_to_cwd(module.path)} encoded as {encoding}",
-                        location=SourceLocation(file=module.path, line=1),
-                    )
+                pass
+            else:
+                _check_encoding(mypy_fscache, module_path)
+                ordered_modules.append(module)
 
     return ParseResult(
         sources=sources,
         manager=result.manager,
         ordered_modules=ordered_modules,
     )
+
+
+def _check_encoding(mypy_fscache: mypy.fscache.FileSystemCache, module_path: Path) -> None:
+    module_rel_path = make_path_relative_to_cwd(module_path)
+    module_loc = SourceLocation(file=str(module_path), line=1)
+    try:
+        source = mypy_fscache.read(str(module_path))
+    except OSError:
+        logger.warning(
+            f"Couldn't read source for {module_rel_path}",
+            location=module_loc,
+        )
+        return
+    # below is based on mypy/util.py:decode_python_encoding
+    # check for BOM UTF-8 encoding
+    if source.startswith(b"\xef\xbb\xbf"):
+        return
+    # otherwise look at first two lines and check if PEP-263 coding is present
+    encoding, _ = mypy.util.find_python_encoding(source)
+    if encoding != "utf8":
+        logger.warning(
+            f"UH OH SPAGHETTI-O's,"
+            f" darn tootin' non-utf8(?!) encoded file encountered:"
+            f" {module_rel_path} encoded as {encoding}",
+            location=module_loc,
+        )
 
 
 def _mypy_build(
