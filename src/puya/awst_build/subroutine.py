@@ -1,6 +1,6 @@
 import contextlib
 import typing
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from functools import partialmethod
 
 import attrs
@@ -102,7 +102,7 @@ logger = structlog.get_logger(__name__)
 class ContractMethodInfo:
     type_info: mypy.nodes.TypeInfo
     cref: ContractReference
-    app_state: dict[str, AppStateDeclaration]
+    app_state: Mapping[str, AppStateDeclaration]
     arc4_method_config: ARC4MethodConfig | None
 
 
@@ -324,63 +324,70 @@ class FunctionASTConverter(
                 )
                 return []
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
-        # special no-op case
         if isinstance(rvalue, StateProxyDefinitionBuilder):
-            if self.contract_method_info is None:
-                raise CodeError(
-                    f"{rvalue.python_name} should only be used inside a contract class", stmt_loc
-                )
-            if len(stmt.lvalues) != 1:
-                raise CodeError(
-                    f"{rvalue.python_name} can only be assigned to a single member variable",
-                    stmt_loc,
-                )
-            # note: we don't use resolve_lvalue here, because
-            # these types shouldn't be a valid lvalue target in any other instance
-            # except initial assignment
-            (lvalue,) = stmt.lvalues
-            lvalue_builder = require_expression_builder(lvalue.accept(self))
-            if not (
-                isinstance(lvalue_builder, StateProxyMemberBuilder)
-                and rvalue.kind == lvalue_builder.state_decl.kind
-                and rvalue.storage == lvalue_builder.state_decl.storage_wtype
-            ):
-                raise CodeError("Incompatible types on assignment", stmt_loc)
-            defn = rvalue.build_definition(
-                lvalue_builder.state_decl.member_name, lvalue_builder.source_location
-            )
-            self.context.state_defs[self.contract_method_info.cref].append(defn)
-            if rvalue.initial_value is None:
-                return []
-            elif defn.kind != AppStateKind.app_global:
-                raise InternalError(
-                    f"Don't know how to do initialise-on-declaration"
-                    f" for storage of kind {defn.kind}",
-                    stmt_loc,
-                )
-            else:
-                global_state_target = AppStateExpression(
-                    field_name=defn.member_name,
-                    wtype=defn.storage_wtype,
-                    source_location=defn.source_location,
-                )
-                return [
-                    AssignmentStatement(
-                        target=global_state_target,
-                        value=rvalue.initial_value,
-                        source_location=stmt_loc,
-                    )
-                ]
+            return self._handle_state_proxy_assignment(rvalue, stmt.lvalues, stmt_loc)
         else:
             if len(stmt.lvalues) > 1:
                 rvalue = temporary_assignment_if_required(rvalue)
             return [
                 AssignmentStatement(
-                    source_location=stmt_loc,
                     value=rvalue.build_assignment_source(),
                     target=self.resolve_lvalue(lvalue),
+                    source_location=stmt_loc,
                 )
                 for lvalue in reversed(stmt.lvalues)
+            ]
+
+    def _handle_state_proxy_assignment(
+        self,
+        rvalue: StateProxyDefinitionBuilder,
+        lvalues: list[mypy.nodes.Expression],
+        stmt_loc: SourceLocation,
+    ) -> Sequence[Statement]:
+        if self.contract_method_info is None:
+            raise CodeError(
+                f"{rvalue.python_name} should only be used inside a contract class", stmt_loc
+            )
+        if len(lvalues) != 1:
+            raise CodeError(
+                f"{rvalue.python_name} can only be assigned to a single member variable",
+                stmt_loc,
+            )
+        # note: we don't use resolve_lvalue here, because
+        # these types shouldn't be a valid lvalue target in any other instance
+        # except initial assignment
+        (lvalue,) = lvalues
+        lvalue_builder = require_expression_builder(lvalue.accept(self))
+        if not (
+            isinstance(lvalue_builder, StateProxyMemberBuilder)
+            and rvalue.kind == lvalue_builder.state_decl.kind
+            and rvalue.storage == lvalue_builder.state_decl.storage_wtype
+        ):
+            raise CodeError("Incompatible types on assignment", stmt_loc)
+        defn = rvalue.build_definition(
+            lvalue_builder.state_decl.member_name, lvalue_builder.source_location
+        )
+        self.context.state_defs[self.contract_method_info.cref].append(defn)
+        if rvalue.initial_value is None:
+            return []
+        elif defn.kind != AppStateKind.app_global:
+            raise InternalError(
+                f"Don't know how to do initialise-on-declaration"
+                f" for storage of kind {defn.kind}",
+                stmt_loc,
+            )
+        else:
+            global_state_target = AppStateExpression(
+                field_name=defn.member_name,
+                wtype=defn.storage_wtype,
+                source_location=defn.source_location,
+            )
+            return [
+                AssignmentStatement(
+                    target=global_state_target,
+                    value=rvalue.initial_value,
+                    source_location=stmt_loc,
+                )
             ]
 
     def resolve_lvalue(self, lvalue: mypy.nodes.Expression) -> Lvalue:
