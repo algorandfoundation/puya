@@ -8,6 +8,7 @@ import algosdk
 import pytest
 from algosdk import constants, transaction
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
+from algosdk.transaction import OnComplete
 from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
 from puya.arc32 import create_arc32_json
@@ -646,3 +647,14 @@ def test_inner_transactions_c2c(algod_client: AlgodClient, account: algokit_util
         transaction_parameters={"foreign_apps": [inner_app_id]},
     )
     assert decode_logs(result.tx_info["logs"], "b") == [b"HelloWorld returned: Hello, There"]
+
+
+def test_state_proxies(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    example = TEST_CASES_DIR / "state_proxies" / "contract.py"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    app_client.create(transaction_parameters={"on_complete": OnComplete.OptInOC})
+    assert app_client.get_global_state() == {"g1": 1, "g2": 0}
+    assert app_client.get_local_state(account.address) == {"l1": 2, "l2": 3}

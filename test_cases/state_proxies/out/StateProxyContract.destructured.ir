@@ -1,0 +1,40 @@
+contract test_cases.state_proxies.contract.StateProxyContract:
+    program approval:
+        subroutine test_cases.state_proxies.contract.StateProxyContract.approval_program() -> uint64:
+            block@0: // L4
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L5
+                test_cases.state_proxies.contract.StateProxyContract.__init__()
+                goto block@2
+            block@2: // entrypoint_L5
+                let tmp%1#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%1#0 {method "create()void" => block@3, * => fail // reject transaction}
+            block@3: // create_route_L11
+                let tmp%2#0: uint64 = (txn OnCompletion)
+                let tmp%3#0: uint64 = (== tmp%2#0 OptIn)
+                (assert tmp%3#0) // OnCompletion is OptIn
+                let tmp%4#0: uint64 = (txn ApplicationID)
+                let tmp%5#0: uint64 = (! tmp%4#0)
+                (assert tmp%5#0) // is creating
+                test_cases.state_proxies.contract.StateProxyContract.create()
+                return 1u
+        
+        subroutine test_cases.state_proxies.contract.StateProxyContract.create() -> void:
+            block@0: // L11
+                (app_global_put "g1" 1u)
+                let tmp%0#0: bytes = (txn Sender)
+                (app_local_put tmp%0#0 "l1" 2u)
+                let tmp%1#0: bytes = (txn Sender)
+                (app_local_put tmp%1#0 0x6c32 3u)
+                return 
+        
+        subroutine test_cases.state_proxies.contract.StateProxyContract.__init__() -> void:
+            block@0: // L5
+                (app_global_put 0x6732 0u)
+                return 
+    
+    program clear-state:
+        subroutine test_cases.state_proxies.contract.StateProxyContract.clear_state_program() -> uint64:
+            block@0: // L4
+                return 1u
