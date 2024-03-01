@@ -155,13 +155,13 @@ contract examples.auction.contract.Auction:
                 (app_global_put "previous_bid" tmp%7#0)
                 (app_global_put "previous_bidder" tmp%4#0)
                 let tmp%14#0: bytes = (txn Sender)
-                (app_local_put tmp%14#0 "claimable_amount" tmp%7#0)
+                (app_local_put tmp%14#0 "claim" tmp%7#0)
                 return 
         
         subroutine examples.auction.contract.Auction.claim_bids() -> void:
             block@0: // L83
                 let tmp%0#0: bytes = (txn Sender)
-                let (original_amount#0: uint64, app_local_get_ex_did_exist%2#0: uint64) = (app_local_get_ex tmp%0#0 0u "claimable_amount")
+                let (original_amount#0: uint64, app_local_get_ex_did_exist%2#0: uint64) = (app_local_get_ex tmp%0#0 0u "claim")
                 (assert app_local_get_ex_did_exist%2#0) // check claimable_amount exists for account
                 let tmp%4#0: bytes = (txn Sender)
                 let (app_global_get_ex_value%5#0: bytes, app_global_get_ex_did_exist%6#0: uint64) = (app_global_get_ex 0u "previous_bidder")
@@ -184,7 +184,7 @@ contract examples.auction.contract.Auction:
                 itxn_submit
                 let new_state_value%12#0: uint64 = (- original_amount#0 amount#2)
                 let tmp%13#0: bytes = (txn Sender)
-                (app_local_put tmp%13#0 "claimable_amount" new_state_value%12#0)
+                (app_local_put tmp%13#0 "claim" new_state_value%12#0)
                 return 
         
         subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
