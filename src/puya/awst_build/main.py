@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import mypy.build
 import structlog
 
 from puya.awst.nodes import Module
@@ -8,7 +7,6 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst_build.context import ASTConversionContext
 from puya.awst_build.module import ModuleASTConverter
 from puya.context import CompileContext
-from puya.errors import InternalError
 from puya.options import PuyaOptions
 from puya.parse import EMBEDDED_MODULES, TYPESHED_PATH
 from puya.utils import attrs_extend, determine_out_dir, make_path_relative_to_cwd
@@ -20,32 +18,25 @@ def transform_ast(compile_context: CompileContext) -> dict[str, Module]:
     result = dict[str, Module]()
     ctx: ASTConversionContext = attrs_extend(ASTConversionContext, compile_context)
     user_modules = {}
-    for scc_module_names in mypy.build.sorted_components(ctx.parse_result.graph):
-        for module_name in scc_module_names:
-            module = ctx.parse_result.manager.modules.get(module_name)
-            if module is None:
-                raise InternalError(f"mypy failed to parse: {module_name}")
-            module_rel_path = make_path_relative_to_cwd(module.path)
-            if module_name != module.fullname:
-                raise InternalError(
-                    f"mypy parsed wrong module, expected '{module_name}': {module.fullname}"
-                )
-            if module.is_stub:
-                if module_name in ("abc", "typing", "collections.abc"):
-                    logger.debug(f"Skipping stdlib stub {module_rel_path}")
-                elif module_name.startswith("puyapy"):
-                    logger.debug(f"Skipping puyapy stub {module_rel_path}")
-                elif Path(module.path).is_relative_to(TYPESHED_PATH):
-                    logger.debug(f"Skipping typeshed stub {module_rel_path}")
-                else:
-                    logger.warning(f"Skipping stub: {module_rel_path}")
-            elif embedded_src := EMBEDDED_MODULES.get(module.name):
-                logger.debug(f"Building AWST for embedded puyapy lib at {module_rel_path}")
-                module._fullname = embedded_src.puya_module_name  # noqa: SLF001
-                result[embedded_src.puya_module_name] = ModuleASTConverter(ctx, module).convert()
+    for module in ctx.parse_result.ordered_modules:
+        module_name = module.fullname
+        module_rel_path = make_path_relative_to_cwd(module.path)
+        if module.is_stub:
+            if module_name in ("abc", "typing", "collections.abc"):
+                logger.debug(f"Skipping stdlib stub {module_rel_path}")
+            elif module_name.startswith("puyapy"):
+                logger.debug(f"Skipping puyapy stub {module_rel_path}")
+            elif Path(module.path).is_relative_to(TYPESHED_PATH):
+                logger.debug(f"Skipping typeshed stub {module_rel_path}")
             else:
-                logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
-                user_modules[module_name] = ModuleASTConverter(ctx, module)
+                logger.warning(f"Skipping stub: {module_rel_path}")
+        elif embedded_src := EMBEDDED_MODULES.get(module_name):
+            logger.debug(f"Building AWST for embedded puyapy lib at {module_rel_path}")
+            module._fullname = embedded_src.puya_module_name  # noqa: SLF001
+            result[embedded_src.puya_module_name] = ModuleASTConverter(ctx, module).convert()
+        else:
+            logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
+            user_modules[module_name] = ModuleASTConverter(ctx, module)
     for module_name, converter in user_modules.items():
         logger.debug(f"Building AWST for module {module_name}")
         module_awst = converter.convert()

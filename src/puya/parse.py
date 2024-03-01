@@ -15,6 +15,7 @@ import mypy.fscache
 import mypy.modulefinder
 import mypy.nodes
 import mypy.options
+import mypy.util
 import structlog
 
 from puya.logging_config import mypy_severity_to_loglevel
@@ -194,9 +195,12 @@ class SourceLocation:
 
 @attrs.frozen
 class ParseResult:
-    sources: list[ParseSource]
+    sources: Sequence[ParseSource]
     manager: mypy.build.BuildManager
-    graph: mypy.build.Graph
+    ordered_modules: Sequence[mypy.nodes.MypyFile]
+    """All discovered modules, topologically sorted by dependencies.
+    The sort order is from leaves (nodes without dependencies) to
+    roots (nodes on which no other nodes depend)."""
 
 
 def get_parse_sources(
@@ -227,6 +231,8 @@ def get_parse_sources(
 
 
 def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Options) -> ParseResult:
+    from puya.errors import InternalError
+
     mypy_fscache = mypy.fscache.FileSystemCache()
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
@@ -255,11 +261,47 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
     missing_module_names = {s.module_name for s in sources} - result.manager.modules.keys()
     if missing_module_names:
         # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
-        raise Exception(f"mypy parse failed, missing modules: {', '.join(missing_module_names)}")
+        raise InternalError(
+            f"mypy parse failed, missing modules: {', '.join(missing_module_names)}"
+        )
+
+    # order modules by dependency, and also sanity check the contents
+    ordered_modules = []
+    for scc_module_names in mypy.build.sorted_components(result.graph):
+        for module_name in scc_module_names:
+            module = result.manager.modules.get(module_name)
+            if module is None:
+                raise InternalError(f"mypy failed to parse: {module_name}")
+            if module_name != module.fullname:
+                raise InternalError(
+                    f"mypy parsed wrong module, expected '{module_name}': {module.fullname}"
+                )
+            if module.path and Path(module.path).is_dir():
+                # this module is a module directory with no __init__.py, ie it contains
+                # nothing and is only in the graph as a reference
+                continue
+            ordered_modules.append(module)
+            # from mypy/util.py:decode_python_encoding
+            # check for BOM UTF-8 encoding
+            if module.path and not module.is_stub and module_name not in EMBEDDED_MODULES:
+                source = mypy_fscache.read(module.path)
+                if source.startswith(b"\xef\xbb\xbf"):
+                    encoding = "utf8"
+                else:
+                    # look at first two lines and check if PEP-263 coding is present
+                    encoding, _ = mypy.util.find_python_encoding(source)
+                if encoding != "utf8":
+                    logger.warning(
+                        f"UH OH SPAGHETTI-O's,"
+                        f" darn tootin' non-utf8(?!) encoded file encountered:"
+                        f" {make_path_relative_to_cwd(module.path)} encoded as {encoding}",
+                        location=SourceLocation(file=module.path, line=1),
+                    )
+
     return ParseResult(
         sources=sources,
         manager=result.manager,
-        graph=result.graph,
+        ordered_modules=ordered_modules,
     )
 
 

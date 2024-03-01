@@ -80,7 +80,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 collected_app_state_definitions[decl.member_name] = AppStateDefinition(
                     member_name=decl.member_name,
                     storage_wtype=decl.storage_wtype,
-                    key=decl.member_name.encode("utf8"),  # TODO: use source file encoding
+                    key=decl.member_name.encode("utf8"),
                     key_encoding=BytesEncoding.utf8,
                     description=None,
                     source_location=decl.source_location,
