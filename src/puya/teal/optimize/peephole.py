@@ -3,10 +3,10 @@ import attrs
 from puya.teal import models
 from puya.teal.optimize._data import (
     COMMUTATIVE_OPS,
+    LOAD_OP_CODES,
     LOAD_OP_CODES_INCL_OFFSET,
     ORDERING_OPS,
     STORE_OPS_INCL_OFFSET,
-    LOAD_OP_CODES,
 )
 from puya.utils import invert_ordered_binary_op
 

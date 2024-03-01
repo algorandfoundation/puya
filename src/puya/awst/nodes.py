@@ -683,9 +683,7 @@ class TxnFields:
     @classmethod
     @functools.cache
     def all_fields(cls) -> Sequence[TxnField]:
-        # values = vars(cls).values()
-        names = dir(cls)
-        values = [getattr(cls, name) for name in names]
+        values = [getattr(cls, name) for name in dir(cls)]
         return tuple(v for v in values if isinstance(v, TxnField))
 
     @classmethod
@@ -700,9 +698,7 @@ class TxnFields:
 @attrs.define
 class CreateInnerTransaction(Expression):
     wtype: wtypes.WInnerTransactionFields
-    fields: Mapping[TxnField, Expression] = attrs.field(
-        converter=immutabledict[TxnField, Expression]
-    )
+    fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_create_inner_transaction(self)
@@ -711,9 +707,7 @@ class CreateInnerTransaction(Expression):
 @attrs.define
 class UpdateInnerTransaction(Expression):
     itxn: Expression = attrs.field(validator=expression_has_wtype(wtypes.WInnerTransactionFields))
-    fields: Mapping[TxnField, Expression] = attrs.field(
-        converter=immutabledict[TxnField, Expression]
-    )
+    fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
     wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
