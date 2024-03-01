@@ -242,7 +242,7 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
                 key = bytes_value
                 key_encoding = BytesEncoding.unknown
             case Literal(value=str(str_value)):
-                key = str_value.encode("utf8")
+                key = str_value.encode("utf8")  # TODO: use source file encoding
                 key_encoding = BytesEncoding.utf8
             case _:
                 raise CodeError("key should be a string or bytes literal", key_arg.source_location)

@@ -40,11 +40,6 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(location)
         self._storage: wtypes.WType | None = None
-        self._initial_value: Expression | None = None
-
-    @property
-    def initial_value(self) -> Expression | None:
-        return self._initial_value
 
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
@@ -115,7 +110,7 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
                 key = bytes_value
                 key_encoding = BytesEncoding.unknown
             case Literal(value=str(str_value)):
-                key = str_value.encode("utf8")
+                key = str_value.encode("utf8")  # TODO: use source file encoding
                 key_encoding = BytesEncoding.utf8
             case _:
                 raise CodeError("key should be a string or bytes literal", key_arg.source_location)
