@@ -1,4 +1,5 @@
 import itertools
+from collections.abc import Mapping
 from typing import Iterable, Sequence
 
 from puya.arc4_util import get_abi_signature, wtype_to_arc4
@@ -775,8 +776,8 @@ def create_abi_router(
     contract: awst_nodes.ContractFragment,
     arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4MethodConfig],
     *,
-    global_state: list[ContractState],
-    local_state: list[ContractState],
+    global_state: Mapping[str, ContractState],
+    local_state: Mapping[str, ContractState],
 ) -> tuple[awst_nodes.ContractMethod, list[ARC4Method]]:
     abi_methods = {}
     bare_methods = {}
@@ -805,7 +806,8 @@ def create_abi_router(
         router = list(route_abi_methods(router_location, abi_methods).body)
 
     known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
-        s.name: s for s in itertools.chain(global_state, local_state)
+        **global_state,
+        **local_state,
     }
     for method in arc4_methods_with_configs:
         known_sources[method.name] = method

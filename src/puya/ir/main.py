@@ -297,8 +297,8 @@ def fold_state_and_special_methods(
         result.approval_program, result.arc4_methods = create_abi_router(
             contract,
             arc4_method_refs,
-            local_state=list(result.local_state.values()),  # TODO: pass mappings
-            global_state=list(result.global_state.values()),
+            local_state=result.local_state,
+            global_state=result.global_state,
         )
         if not result.clear_program:
             result.clear_program = create_default_clear_state(contract)
