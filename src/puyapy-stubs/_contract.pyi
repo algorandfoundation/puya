@@ -1,5 +1,4 @@
 import abc
-import dataclasses
 import typing
 
 from puyapy import UInt64, urange
@@ -10,9 +9,8 @@ class Contract(abc.ABC):
     def __init_subclass__(
         cls,
         *,
-        name: typing.LiteralString | None = None,
-        scratch_slots: urange | tuple[int | urange, ...] | list[int | urange] = (),
-        reserve_state: ReserveState = ReserveState(),
+        name: typing.LiteralString = ...,
+        scratch_slots: urange | tuple[int | urange, ...] | list[int | urange] = ...,
         **kwargs: object,
     ):
         """
@@ -39,13 +37,7 @@ class Contract(abc.ABC):
         to have overlapping ranges or values either, so if a base class contract reserves slots
         0-5 inclusive and the derived contract reserves 5-10 inclusive, then within the derived
         contract all slots 0-10 will be marked as reserved.
-
-        :param reserve_state: when using global or local state through one of the provided PuyaPy
-        abstractions (i.e. assigning to `self.`, either as a raw value for global state or with
-        puyapy.GlobalState or puyapy.LocalState), these are tallied up and automatically counted
-        to put the correct
         """
-        # TODO: finish the above docstring
     @abc.abstractmethod
     def approval_program(self) -> UInt64 | bool:
         """Represents the program called for all transactions
@@ -53,12 +45,3 @@ class Contract(abc.ABC):
     @abc.abstractmethod
     def clear_state_program(self) -> UInt64 | bool:
         """Represents the program called when `OnCompletion` == `ClearState`"""
-
-@dataclasses.dataclass(frozen=True)
-class ReserveState:
-    """Optionally reserve"""
-
-    global_uint64: int | None = None
-    global_bytes: int | None = None
-    local_uint64: int | None = None
-    local_bytes: int | None = None
