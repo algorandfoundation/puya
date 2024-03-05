@@ -128,18 +128,18 @@ contract examples.voting.voting.VotingRoundApp:
         
         subroutine examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uint64) -> void:
             block@0: // L79
-                let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "is_bootstrapped")
-                (assert app_global_get_ex_did_exist%1#0) // check is_bootstrapped exists
-                let tmp%2#0: uint64 = (! app_global_get_ex_value%0#0)
+                let (is_bootstrapped_value%0#0: uint64, is_bootstrapped_exists%1#0: uint64) = (app_global_get_ex 0u "is_bootstrapped")
+                (assert is_bootstrapped_exists%1#0) // check is_bootstrapped exists
+                let tmp%2#0: uint64 = (! is_bootstrapped_value%0#0)
                 (assert tmp%2#0) // Must not be already bootstrapped
                 (app_global_put "is_bootstrapped" 1u)
                 let tmp%3#0: bytes = ((gtxns Receiver) fund_min_bal_req#0)
                 let tmp%4#0: bytes = (global CurrentApplicationAddress)
                 let tmp%5#0: uint64 = (== tmp%3#0 tmp%4#0)
                 (assert tmp%5#0) // Payment must be to app address
-                let (app_global_get_ex_value%6#0: uint64, app_global_get_ex_did_exist%7#0: uint64) = (app_global_get_ex 0u "total_options")
-                (assert app_global_get_ex_did_exist%7#0) // check total_options exists
-                let tally_box_size#0: uint64 = (* app_global_get_ex_value%6#0 8u)
+                let (total_options_value%6#0: uint64, total_options_exists%7#0: uint64) = (app_global_get_ex 0u "total_options")
+                (assert total_options_exists%7#0) // check total_options exists
+                let tally_box_size#0: uint64 = (* total_options_value%6#0 8u)
                 let tmp%8#0: uint64 = (* tally_box_size#0 400u)
                 let min_balance_req#0: uint64 = (+ 203900u tmp%8#0)
                 let tmp%9#0: bytes = (itob min_balance_req#0)
@@ -159,33 +159,33 @@ contract examples.voting.voting.VotingRoundApp:
                 (assert tmp%2#0) // Already closed
                 let new_state_value%3#0: uint64 = (global LatestTimestamp)
                 (app_global_put "close_time" new_state_value%3#0)
-                let (app_global_get_ex_value%4#0: bytes, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "vote_id")
-                (assert app_global_get_ex_did_exist%5#0) // check vote_id exists
-                let tmp%6#0: bytes = (concat "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID " app_global_get_ex_value%4#0)
+                let (vote_id_value%4#0: bytes, vote_id_exists%5#0: uint64) = (app_global_get_ex 0u "vote_id")
+                (assert vote_id_exists%5#0) // check vote_id exists
+                let tmp%6#0: bytes = (concat "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID " vote_id_value%4#0)
                 let tmp%7#0: bytes = (concat tmp%6#0 ".\",\"properties\":{\"metadata\":\"ipfs://")
-                let (app_global_get_ex_value%8#0: bytes, app_global_get_ex_did_exist%9#0: uint64) = (app_global_get_ex 0u "metadata_ipfs_cid")
-                (assert app_global_get_ex_did_exist%9#0) // check metadata_ipfs_cid exists
-                let tmp%10#0: bytes = (concat tmp%7#0 app_global_get_ex_value%8#0)
+                let (metadata_ipfs_cid_value%8#0: bytes, metadata_ipfs_cid_exists%9#0: uint64) = (app_global_get_ex 0u "metadata_ipfs_cid")
+                (assert metadata_ipfs_cid_exists%9#0) // check metadata_ipfs_cid exists
+                let tmp%10#0: bytes = (concat tmp%7#0 metadata_ipfs_cid_value%8#0)
                 let tmp%11#0: bytes = (concat tmp%10#0 "\",\"id\":\"")
-                let (app_global_get_ex_value%12#0: bytes, app_global_get_ex_did_exist%13#0: uint64) = (app_global_get_ex 0u "vote_id")
-                (assert app_global_get_ex_did_exist%13#0) // check vote_id exists
-                let tmp%14#0: bytes = (concat tmp%11#0 app_global_get_ex_value%12#0)
+                let (vote_id_value%12#0: bytes, vote_id_exists%13#0: uint64) = (app_global_get_ex 0u "vote_id")
+                (assert vote_id_exists%13#0) // check vote_id exists
+                let tmp%14#0: bytes = (concat tmp%11#0 vote_id_value%12#0)
                 let tmp%15#0: bytes = (concat tmp%14#0 "\",\"quorum\":")
-                let (app_global_get_ex_value%16#0: uint64, app_global_get_ex_did_exist%17#0: uint64) = (app_global_get_ex 0u "quorum")
-                (assert app_global_get_ex_did_exist%17#0) // check quorum exists
-                let tmp%18#0: bytes = examples.voting.voting.itoa(app_global_get_ex_value%16#0)
+                let (quorum_value%16#0: uint64, quorum_exists%17#0: uint64) = (app_global_get_ex 0u "quorum")
+                (assert quorum_exists%17#0) // check quorum exists
+                let tmp%18#0: bytes = examples.voting.voting.itoa(quorum_value%16#0)
                 let tmp%19#0: bytes = (concat tmp%15#0 tmp%18#0)
                 let tmp%20#0: bytes = (concat tmp%19#0 ",\"voterCount\":")
-                let (app_global_get_ex_value%21#0: uint64, app_global_get_ex_did_exist%22#0: uint64) = (app_global_get_ex 0u "voter_count")
-                (assert app_global_get_ex_did_exist%22#0) // check voter_count exists
-                let tmp%23#0: bytes = examples.voting.voting.itoa(app_global_get_ex_value%21#0)
+                let (voter_count_value%21#0: uint64, voter_count_exists%22#0: uint64) = (app_global_get_ex 0u "voter_count")
+                (assert voter_count_exists%22#0) // check voter_count exists
+                let tmp%23#0: bytes = examples.voting.voting.itoa(voter_count_value%21#0)
                 let tmp%24#0: bytes = (concat tmp%20#0 tmp%23#0)
                 let note#0: bytes = (concat tmp%24#0 ",\"tallies\":[")
                 let current_index#0: uint64 = 0u
-                let (app_global_get_ex_value%25#0: bytes, app_global_get_ex_did_exist%26#0: uint64) = (app_global_get_ex 0u "option_counts")
-                (assert app_global_get_ex_did_exist%26#0) // check option_counts exists
-                let array_length%27#0: uint64 = (extract_uint16 app_global_get_ex_value%25#0 0u)
-                let array_value%28#0: bytes = ((extract 2 0) app_global_get_ex_value%25#0)
+                let (option_counts_value%25#0: bytes, option_counts_exists%26#0: uint64) = (app_global_get_ex 0u "option_counts")
+                (assert option_counts_exists%26#0) // check option_counts exists
+                let array_length%27#0: uint64 = (extract_uint16 option_counts_value%25#0 0u)
+                let array_value%28#0: bytes = ((extract 2 0) option_counts_value%25#0)
                 let item_index_internal%29#0: uint64 = 0u
                 let question_index#0: uint64 = item_index_internal%29#0
                 goto block@1
@@ -247,12 +247,12 @@ contract examples.voting.voting.VotingRoundApp:
             block@15: // after_for_L129
                 let note#0: bytes = (concat note#0 "]}}")
                 itxn_begin
-                let (app_global_get_ex_value%41#0: bytes, app_global_get_ex_did_exist%42#0: uint64) = (app_global_get_ex 0u "vote_id")
-                (assert app_global_get_ex_did_exist%42#0) // check vote_id exists
-                let inner_txn_params%40%%param_ConfigAssetName_idx_0#0: bytes = (concat "[VOTE RESULT] " app_global_get_ex_value%41#0)
-                let (app_global_get_ex_value%43#0: bytes, app_global_get_ex_did_exist%44#0: uint64) = (app_global_get_ex 0u "nft_image_url")
-                (assert app_global_get_ex_did_exist%44#0) // check nft_image_url exists
-                ((itxn_field ConfigAssetURL) app_global_get_ex_value%43#0)
+                let (vote_id_value%41#0: bytes, vote_id_exists%42#0: uint64) = (app_global_get_ex 0u "vote_id")
+                (assert vote_id_exists%42#0) // check vote_id exists
+                let inner_txn_params%40%%param_ConfigAssetName_idx_0#0: bytes = (concat "[VOTE RESULT] " vote_id_value%41#0)
+                let (nft_image_url_value%43#0: bytes, nft_image_url_exists%44#0: uint64) = (app_global_get_ex 0u "nft_image_url")
+                (assert nft_image_url_exists%44#0) // check nft_image_url exists
+                ((itxn_field ConfigAssetURL) nft_image_url_value%43#0)
                 ((itxn_field ConfigAssetUnitName) "VOTERSLT")
                 ((itxn_field TypeEnum) acfg)
                 ((itxn_field ConfigAssetTotal) 1u)
@@ -346,22 +346,22 @@ contract examples.voting.voting.VotingRoundApp:
         
         subroutine examples.voting.voting.VotingRoundApp.voting_open() -> uint64:
             block@0: // L202
-                let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "is_bootstrapped")
-                (assert app_global_get_ex_did_exist%1#0) // check is_bootstrapped exists
-                goto app_global_get_ex_value%0#0 ? block@1 : block@5
+                let (is_bootstrapped_value%0#0: uint64, is_bootstrapped_exists%1#0: uint64) = (app_global_get_ex 0u "is_bootstrapped")
+                (assert is_bootstrapped_exists%1#0) // check is_bootstrapped exists
+                goto is_bootstrapped_value%0#0 ? block@1 : block@5
             block@1: // and_contd_L205
                 let (close_time_exists%2#0: any, close_time_exists%3#0: uint64) = (app_global_get_ex 0u "close_time")
                 goto close_time_exists%3#0 ? block@5 : block@2
             block@2: // and_contd_L205
-                let (app_global_get_ex_value%4#0: uint64, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "start_time")
-                (assert app_global_get_ex_did_exist%5#0) // check start_time exists
+                let (start_time_value%4#0: uint64, start_time_exists%5#0: uint64) = (app_global_get_ex 0u "start_time")
+                (assert start_time_exists%5#0) // check start_time exists
                 let awst_tmp%6#0: uint64 = (global LatestTimestamp)
-                let tmp%7#0: uint64 = (<= app_global_get_ex_value%4#0 awst_tmp%6#0)
+                let tmp%7#0: uint64 = (<= start_time_value%4#0 awst_tmp%6#0)
                 goto tmp%7#0 ? block@3 : block@5
             block@3: // and_contd_L207
-                let (app_global_get_ex_value%8#0: uint64, app_global_get_ex_did_exist%9#0: uint64) = (app_global_get_ex 0u "end_time")
-                (assert app_global_get_ex_did_exist%9#0) // check end_time exists
-                let tmp%10#0: uint64 = (<= awst_tmp%6#0 app_global_get_ex_value%8#0)
+                let (end_time_value%8#0: uint64, end_time_exists%9#0: uint64) = (app_global_get_ex 0u "end_time")
+                (assert end_time_exists%9#0) // check end_time exists
+                let tmp%10#0: uint64 = (<= awst_tmp%6#0 end_time_value%8#0)
                 goto tmp%10#0 ? block@4 : block@5
             block@4: // bool_true_L205
                 let and_result%11#0: uint64 = 1u
@@ -376,9 +376,9 @@ contract examples.voting.voting.VotingRoundApp:
             block@0: // L228
                 puyapy.ensure_budget(2000u, 2u)
                 let tmp%0#0: bytes = (txn Sender)
-                let (app_global_get_ex_value%1#0: bytes, app_global_get_ex_did_exist%2#0: uint64) = (app_global_get_ex 0u "snapshot_public_key")
-                (assert app_global_get_ex_did_exist%2#0) // check snapshot_public_key exists
-                let tmp%3#0: uint64 = (ed25519verify_bare tmp%0#0 signature#0 app_global_get_ex_value%1#0)
+                let (snapshot_public_key_value%1#0: bytes, snapshot_public_key_exists%2#0: uint64) = (app_global_get_ex 0u "snapshot_public_key")
+                (assert snapshot_public_key_exists%2#0) // check snapshot_public_key exists
+                let tmp%3#0: uint64 = (ed25519verify_bare tmp%0#0 signature#0 snapshot_public_key_value%1#0)
                 return tmp%3#0
         
         subroutine examples.voting.voting.VotingRoundApp.already_voted() -> uint64:
@@ -397,9 +397,9 @@ contract examples.voting.voting.VotingRoundApp:
                 let tmp%2#0: uint64 = examples.voting.voting.VotingRoundApp.already_voted()
                 let tmp%3#0: uint64 = (! tmp%2#0)
                 (assert tmp%3#0) // Already voted
-                let (app_global_get_ex_value%4#0: bytes, app_global_get_ex_did_exist%5#0: uint64) = (app_global_get_ex 0u "option_counts")
-                (assert app_global_get_ex_did_exist%5#0) // check option_counts exists
-                let questions_count#0: uint64 = (extract_uint16 app_global_get_ex_value%4#0 0u)
+                let (option_counts_value%4#0: bytes, option_counts_exists%5#0: uint64) = (app_global_get_ex 0u "option_counts")
+                (assert option_counts_exists%5#0) // check option_counts exists
+                let questions_count#0: uint64 = (extract_uint16 option_counts_value%4#0 0u)
                 let tmp%6#0: uint64 = (extract_uint16 answer_ids#0 0u)
                 let tmp%7#0: uint64 = (== tmp%6#0 questions_count#0)
                 (assert tmp%7#0) // Number of answers incorrect
@@ -428,12 +428,12 @@ contract examples.voting.voting.VotingRoundApp:
                 let array_data_sans_header%22#0: bytes = ((extract 2 0) answer_ids#0)
                 let tmp%24#0: bytes = (extract3 array_data_sans_header%22#0 question_index#0 1u)
                 let answer_option_index#0: uint64 = (btoi tmp%24#0)
-                let (app_global_get_ex_value%25#0: bytes, app_global_get_ex_did_exist%26#0: uint64) = (app_global_get_ex 0u "option_counts")
-                (assert app_global_get_ex_did_exist%26#0) // check option_counts exists
-                let array_length%27#0: uint64 = (extract_uint16 app_global_get_ex_value%25#0 0u)
+                let (option_counts_value%25#0: bytes, option_counts_exists%26#0: uint64) = (app_global_get_ex 0u "option_counts")
+                (assert option_counts_exists%26#0) // check option_counts exists
+                let array_length%27#0: uint64 = (extract_uint16 option_counts_value%25#0 0u)
                 let index_is_in_bounds%28#0: uint64 = (< question_index#0 array_length%27#0)
                 (assert index_is_in_bounds%28#0) // Index access is out of bounds
-                let array_data_sans_header%29#0: bytes = ((extract 2 0) app_global_get_ex_value%25#0)
+                let array_data_sans_header%29#0: bytes = ((extract 2 0) option_counts_value%25#0)
                 let tmp%31#0: bytes = (extract3 array_data_sans_header%29#0 question_index#0 1u)
                 let options_count#0: uint64 = (btoi tmp%31#0)
                 let tmp%32#0: uint64 = (< answer_option_index#0 options_count#0)
@@ -443,9 +443,9 @@ contract examples.voting.voting.VotingRoundApp:
                 let cumulative_offset#0: uint64 = (+ cumulative_offset#0 options_count#0)
                 let tmp%34#0: bytes = (txn Sender)
                 (box_put tmp%34#0 answer_ids#0)
-                let (app_global_get_ex_value%35#0: uint64, app_global_get_ex_did_exist%36#0: uint64) = (app_global_get_ex 0u "voter_count")
-                (assert app_global_get_ex_did_exist%36#0) // check voter_count exists
-                let new_state_value%37#0: uint64 = (+ app_global_get_ex_value%35#0 1u)
+                let (voter_count_value%35#0: uint64, voter_count_exists%36#0: uint64) = (app_global_get_ex 0u "voter_count")
+                (assert voter_count_exists%36#0) // check voter_count exists
+                let new_state_value%37#0: uint64 = (+ voter_count_value%35#0 1u)
                 (app_global_put "voter_count" new_state_value%37#0)
                 let range_item%18#0: uint64 = (+ question_index#0 1u)
                 let question_index#0: uint64 = range_item%18#0

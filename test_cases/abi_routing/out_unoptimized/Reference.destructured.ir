@@ -276,9 +276,9 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%1#0: bytes = (global CreatorAddress)
                 let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
                 (assert tmp%2#0) // Only creator can opt in to ASA
-                let (app_global_get_ex_value%3#0: uint64, app_global_get_ex_did_exist%4#0: uint64) = (app_global_get_ex 0u "asa")
-                (assert app_global_get_ex_did_exist%4#0) // check asa exists
-                let tmp%5#0: uint64 = (! app_global_get_ex_value%3#0)
+                let (asa_value%3#0: uint64, asa_exists%4#0: uint64) = (app_global_get_ex 0u "asa")
+                (assert asa_exists%4#0) // check asa exists
+                let tmp%5#0: uint64 = (! asa_value%3#0)
                 (assert tmp%5#0) // ASA already opted in
                 (app_global_put "asa" asset#0)
                 itxn_begin
@@ -292,9 +292,9 @@ contract test_cases.abi_routing.contract.Reference:
         
         subroutine test_cases.abi_routing.contract.Reference.with_transactions(asset: uint64, an_int: bytes, pay: uint64, another_int: bytes) -> void:
             block@0: // L95
-                let (app_global_get_ex_value%0#0: uint64, app_global_get_ex_did_exist%1#0: uint64) = (app_global_get_ex 0u "asa")
-                (assert app_global_get_ex_did_exist%1#0) // check asa exists
-                let tmp%2#0: uint64 = (== app_global_get_ex_value%0#0 asset#0)
+                let (asa_value%0#0: uint64, asa_exists%1#0: uint64) = (app_global_get_ex 0u "asa")
+                (assert asa_exists%1#0) // check asa exists
+                let tmp%2#0: uint64 = (== asa_value%0#0 asset#0)
                 (assert tmp%2#0) // is correct asset
                 let tmp%3#0: uint64 = (btoi an_int#0)
                 let tmp%4#0: uint64 = (== tmp%3#0 1u)
