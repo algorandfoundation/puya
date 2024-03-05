@@ -18,6 +18,7 @@ from puya.ir.models import (
     ValueProvider,
 )
 from puya.ir.types_ import AVMBytesEncoding
+from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 
@@ -113,10 +114,6 @@ def mktemp(
         location=source_location,
     )
     return register
-
-
-def format_tuple_index(var_name: str, index: int | str) -> str:
-    return f"{var_name}.{index}"
 
 
 def assign_intrinsic_op(

@@ -10,8 +10,8 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
+from puya.ir.builder._utils import assign, assign_intrinsic_op
 from puya.ir.builder.blocks import BlocksBuilder
-from puya.ir.builder.utils import assign, assign_intrinsic_op
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,

@@ -9,9 +9,7 @@ from puya.awst import (
 from puya.errors import CodeError, TodoError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
-from puya.ir.builder.utils import (
-    assign,
-)
+from puya.ir.builder._utils import assign
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BytesConstant,

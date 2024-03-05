@@ -16,16 +16,10 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError, TodoError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, flow_control, state
+from puya.ir.builder._utils import assign, assign_targets, mkblocks, mktemp
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
-from puya.ir.builder.utils import (
-    assign,
-    assign_targets,
-    format_tuple_index,
-    mkblocks,
-    mktemp,
-)
 from puya.ir.context import IRBuildContext, IRFunctionBuildContext
 from puya.ir.models import (
     AddressConstant,
@@ -50,6 +44,7 @@ from puya.ir.types_ import (
     bytes_enc_to_avm_bytes_enc,
     wtype_to_avm_type,
 )
+from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ValueProvider | None

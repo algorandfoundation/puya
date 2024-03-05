@@ -1,7 +1,7 @@
 from puya.avm_type import AVMType
 from puya.awst import nodes as awst_nodes
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder.utils import assign_targets, mktemp
+from puya.ir.builder._utils import assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import BytesConstant, Intrinsic, UInt64Constant, Value, ValueProvider
 from puya.ir.types_ import bytes_enc_to_avm_bytes_enc, wtype_to_avm_type

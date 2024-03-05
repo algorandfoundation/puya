@@ -20,7 +20,6 @@ from puya.ir.arc4_router import (
     create_default_clear_state,
 )
 from puya.ir.builder.main import FunctionIRBuilder
-from puya.ir.builder.utils import format_tuple_index
 from puya.ir.context import IRBuildContext, IRBuildContextWithFallback
 from puya.ir.destructure.main import destructure_ssa
 from puya.ir.models import (
@@ -33,6 +32,7 @@ from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_contract_ir_to_path
 from puya.ir.types_ import wtype_to_avm_type
+from puya.ir.utils import format_tuple_index
 from puya.models import ARC4Method, ARC4MethodConfig, ContractMetaData, ContractState
 from puya.parse import EMBEDDED_MODULES
 from puya.utils import StableSet, attrs_extend

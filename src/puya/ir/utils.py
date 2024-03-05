@@ -48,3 +48,7 @@ def format_bytes(b: bytes, encoding: AVMBytesEncoding) -> str:
             return base64.b64encode(b).decode("ascii")
         case AVMBytesEncoding.base16 | AVMBytesEncoding.unknown:
             return f"0x{b.hex()}"
+
+
+def format_tuple_index(var_name: str, index: int | str) -> str:
+    return f"{var_name}.{index}"
