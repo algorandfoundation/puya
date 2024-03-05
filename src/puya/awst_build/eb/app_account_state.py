@@ -16,7 +16,6 @@ from puya.awst.nodes import (
     StateGet,
     StateGetEx,
     Statement,
-    UInt64Constant,
 )
 from puya.awst_build import constants
 from puya.awst_build.contract_data import AppStateDeclaration
@@ -29,21 +28,9 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
+from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype, get_arg_mapping
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-
-
-def _build_field(
-    state_decl: AppStateDeclaration, index: ExpressionBuilder | Literal, location: SourceLocation
-) -> AppAccountStateExpression:
-    index_expr = _validated_index_expr(index)
-    return AppAccountStateExpression(
-        field_name=state_decl.member_name,
-        account=index_expr,
-        wtype=state_decl.storage_wtype,
-        source_location=location,
-    )
 
 
 class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
@@ -126,42 +113,6 @@ class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):
                 return var_expression(app_local_get_ex)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-
-
-def _validated_index_expr(index: ExpressionBuilder | Literal) -> Expression:
-    # TODO: FIXME
-    tmp: Expression | Literal
-    if isinstance(index, Literal):
-        tmp = index
-    else:
-        tmp = index.rvalue()
-    match tmp:
-        case Literal(value=int(account_offset)):
-            valid_account_offset(account_offset, index.source_location)
-            index_expr: Expression = UInt64Constant(
-                value=account_offset, source_location=index.source_location
-            )
-        case Literal():
-            raise CodeError("Invalid literal, expected an int", index.source_location)
-        case IntegerConstant(value=account_offset) as index_expr:
-            valid_account_offset(account_offset, index.source_location)
-        case Expression(wtype=(wtypes.uint64_wtype | wtypes.account_wtype)) as index_expr:
-            pass
-        case _:
-            raise CodeError(
-                "Invalid index argument - must be either an Address or a UInt64",
-                index.source_location,
-            )
-    return index_expr
-
-
-def valid_account_offset(value: int, loc: SourceLocation) -> None:
-    # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability
-    # Note that the sender address is implicitly included in the array,
-    # but doesn't count towards the limit of 4, so the <= 4 below is correct
-    # and intended
-    if not (0 <= value <= 4):
-        raise CodeError("Account index should be between 0 and 4 inclusive", loc)
 
 
 class AppAccountStateForAccountExpressionBuilder(ValueProxyExpressionBuilder):
@@ -269,3 +220,32 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
 class AppAccountStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
     kind = AppStateKind.account_local
     python_name = constants.CLS_LOCAL_STATE_ALIAS
+
+
+def _build_field(
+    state_decl: AppStateDeclaration, index: ExpressionBuilder | Literal, location: SourceLocation
+) -> AppAccountStateExpression:
+    index_expr = convert_literal_to_expr(index, wtypes.uint64_wtype)
+    match index_expr:
+        case IntegerConstant(value=account_offset):
+            # https://developer.algorand.org/docs/get-details/dapps/smart-contracts/apps/#resource-availability
+            # Note that the sender address is implicitly included in the array,
+            # but doesn't count towards the limit of 4, so the <= 4 below is correct
+            # and intended
+            if not (0 <= account_offset <= 4):
+                raise CodeError(
+                    "Account index should be between 0 and 4 inclusive", index.source_location
+                )
+        case Expression(wtype=(wtypes.uint64_wtype | wtypes.account_wtype)):
+            pass
+        case _:
+            raise CodeError(
+                "Invalid index argument - must be either an Address or a UInt64",
+                index.source_location,
+            )
+    return AppAccountStateExpression(
+        field_name=state_decl.member_name,
+        account=index_expr,
+        wtype=state_decl.storage_wtype,
+        source_location=location,
+    )
