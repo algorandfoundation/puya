@@ -307,3 +307,7 @@ class ExpressionVisitor(t.Generic[T], ABC):
     @abstractmethod
     def visit_state_exists(self, expr: puya.awst.nodes.StateExists) -> T:
         ...
+
+    @abstractmethod
+    def visit_template_var(self, expr: puya.awst.nodes.TemplateVar) -> T:
+        ...

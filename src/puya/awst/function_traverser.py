@@ -212,6 +212,9 @@ class FunctionTraverser(
     def visit_assert_statement(self, statement: awst_nodes.AssertStatement) -> None:
         statement.condition.accept(self)
 
+    def visit_template_var(self, statement: awst_nodes.TemplateVar) -> None:
+        pass
+
     def visit_uint64_augmented_assignment(
         self, statement: awst_nodes.UInt64AugmentedAssignment
     ) -> None:

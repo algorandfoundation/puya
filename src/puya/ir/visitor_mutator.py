@@ -25,6 +25,7 @@ from puya.ir.models import (
     Register,
     SubroutineReturn,
     Switch,
+    TemplateVar,
     UInt64Constant,
     ValueTuple,
 )
@@ -74,6 +75,9 @@ class IRMutator(IRVisitor[t.Any]):
 
     def visit_register(self, reg: Register) -> Register:
         return reg
+
+    def visit_template_var(self, deploy_var: TemplateVar) -> TemplateVar:
+        return deploy_var
 
     def visit_uint64_constant(self, const: UInt64Constant) -> UInt64Constant:
         return const

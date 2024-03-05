@@ -274,12 +274,6 @@ class FoldedContract:
     arc4_methods: list[ARC4Method] = attrs.field(factory=list)
 
 
-def wtype_to_storage_type(wtype: wtypes.WType) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
-    atype = wtype_to_avm_type(wtype)
-    assert atype is not AVMType.any
-    return atype
-
-
 def fold_state_and_special_methods(
     ctx: IRBuildContext, contract: awst_nodes.ContractFragment
 ) -> FoldedContract:
@@ -298,7 +292,7 @@ def fold_state_and_special_methods(
                 name=state.member_name,
                 source_location=state.source_location,
                 key=state.key,
-                storage_type=wtype_to_storage_type(state.storage_wtype),
+                storage_type=wtype_to_avm_type(state.storage_wtype),
                 description=state.description,
             )
             if state.kind == awst_nodes.AppStateKind.app_global:

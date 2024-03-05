@@ -105,10 +105,18 @@ class CompilationResult:
 
 def get_program_size(path: Path) -> int:
     try:
-        program = algokit_utils.Program(path.read_text("utf-8"), ALGOD_CLIENT)
+        program = algokit_utils.Program(replace_templates(path.read_text("utf-8")), ALGOD_CLIENT)
         return len(program.raw_binary)
     except Exception as e:
         raise Exception(f"Error compiling teal application: {path}") from e
+
+
+def replace_templates(
+    teal: str, *, uint_replacement: int = 0, bytes_replacement: bytes = b""
+) -> str:
+    teal = re.sub(r"int TMPL_\w+", f"int {uint_replacement}", teal)
+    teal = re.sub(r"byte TMPL_\w+", f"byte 0x{bytes_replacement.hex()}", teal)
+    return teal
 
 
 def _stabilise_logs(stdout: str) -> list[str]:

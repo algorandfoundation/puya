@@ -39,6 +39,7 @@ from puya.ir.models import (
     ProgramExit,
     Subroutine,
     SubroutineReturn,
+    TemplateVar,
     UInt64Constant,
     Value,
     ValueProvider,
@@ -716,6 +717,11 @@ class FunctionIRBuilder(
                 result=result,
             )
         )
+
+    def visit_template_var(self, expr: puya.awst.nodes.TemplateVar) -> TExpression:
+        atype = wtype_to_avm_type(expr.wtype)
+        typing.assert_type(atype, typing.Literal[AVMType.uint64, AVMType.bytes])
+        return TemplateVar(name=expr.name, atype=atype, source_location=expr.source_location)
 
     def visit_continue_statement(self, statement: awst_nodes.ContinueStatement) -> TStatement:
         self.context.block_builder.loop_continue(statement.source_location)

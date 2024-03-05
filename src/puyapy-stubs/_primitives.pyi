@@ -163,13 +163,13 @@ class Bytes(Reversible[Bytes]):
         """Bytes can be initialized with a Python bytes literal, or bytes variable
         declared at the module level"""
     @staticmethod
-    def from_base32(value: typing.LiteralString, /) -> Bytes:
+    def from_base32(value: str, /) -> Bytes:
         """Creates Bytes from a base32 encoded string e.g. `Bytes.from_base32("74======")`"""
     @staticmethod
-    def from_base64(value: typing.LiteralString, /) -> Bytes:
+    def from_base64(value: str, /) -> Bytes:
         """Creates Bytes from a base64 encoded string e.g. `Bytes.from_base64("RkY=")`"""
     @staticmethod
-    def from_hex(value: typing.LiteralString, /) -> Bytes:
+    def from_hex(value: str, /) -> Bytes:
         """Creates Bytes from a hex/octal encoded string e.g. `Bytes.from_hex("FF")`"""
     def __add__(self, other: Bytes | bytes) -> Bytes:
         """Concatenate Bytes with another Bytes or bytes literal

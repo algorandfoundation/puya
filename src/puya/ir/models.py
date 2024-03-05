@@ -224,6 +224,15 @@ class BigUIntConstant(Constant):
 
 
 @attrs.frozen
+class TemplateVar(Value):
+    name: str
+    atype: AVMType
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_template_var(self)
+
+
+@attrs.frozen
 class BytesConstant(Constant):
     """Constant for types that are logically bytes"""
 
