@@ -319,9 +319,18 @@ def _choose_encoding(a: AVMBytesEncoding, b: AVMBytesEncoding) -> AVMBytesEncodi
     if a == b:
         # preserve encoding if both equal
         return a
-    else:
-        # go with most compact if they differ
+    # exclude utf8 from known choices, we don't preserve that encoding choice unless
+    # they're both utf8 strings, which is covered by the first check
+    known_binary_choices = {a, b} - {AVMBytesEncoding.utf8, AVMBytesEncoding.unknown}
+    if not known_binary_choices:
+        return AVMBytesEncoding.unknown
+
+    # pick the most compact encoding of the known binary encodings
+    if AVMBytesEncoding.base64 in known_binary_choices:
         return AVMBytesEncoding.base64
+    if AVMBytesEncoding.base32 in known_binary_choices:
+        return AVMBytesEncoding.base32
+    return AVMBytesEncoding.base16
 
 
 def _get_byte_constant(
