@@ -1,5 +1,5 @@
-from collections.abc import Iterator
-from typing import Sequence
+import typing
+from collections.abc import Iterator, Sequence
 
 from puya.avm_type import AVMType
 from puya.awst import nodes as awst_nodes
@@ -22,12 +22,34 @@ from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 
+@typing.overload
+def assign(
+    context: IRFunctionBuildContext,
+    source: ValueProvider,
+    *,
+    names: Sequence[tuple[str, SourceLocation | None]],
+    source_location: SourceLocation | None,
+) -> Sequence[Register]:
+    ...
+
+
+@typing.overload
+def assign(
+    context: IRFunctionBuildContext,
+    source: ValueProvider,
+    *,
+    temp_description: str | Sequence[str],
+    source_location: SourceLocation | None,
+) -> Sequence[Register]:
+    ...
+
+
 def assign(
     context: IRFunctionBuildContext,
     source: ValueProvider,
     *,
     names: Sequence[tuple[str, SourceLocation | None]] | None = None,
-    temp_description: str | None = None,
+    temp_description: str | Sequence[str] | None = None,
     source_location: SourceLocation | None,
 ) -> Sequence[Register]:
     atypes = source.types
@@ -38,9 +60,11 @@ def assign(
 
     if temp_description is not None:
         assert names is None, "One and only one of names and temp_description should be supplied"
+        if isinstance(temp_description, str):
+            temp_description = [temp_description] * len(atypes)
         targets = [
-            mktemp(context, atype, source_location, description=temp_description)
-            for atype in atypes
+            mktemp(context, atype, source_location, description=descr)
+            for atype, descr in zip(atypes, temp_description, strict=True)
         ]
     else:
         assert (

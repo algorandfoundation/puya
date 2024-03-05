@@ -720,9 +720,9 @@ class CheckedMaybe(Expression):
     the 2nd bool element is true"""
 
     expr: Expression
-    comment: str | None
+    comment: str
 
-    def __init__(self, expr: Expression, comment: str | None = None) -> None:
+    def __init__(self, expr: Expression, comment: str) -> None:
         match expr.wtype:
             case wtypes.WTuple(types=(wtype, wtypes.bool_wtype)):
                 pass
@@ -744,7 +744,7 @@ class CheckedMaybe(Expression):
         expr: Expression,
         check: Expression,
         source_location: SourceLocation,
-        comment: str | None = None,
+        comment: str,
     ) -> CheckedMaybe:
         if check.wtype != wtypes.bool_wtype:
             raise InternalError(

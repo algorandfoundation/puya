@@ -16,7 +16,7 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError, TodoError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, flow_control, state
-from puya.ir.builder._utils import assign, assign_targets, mkblocks, mktemp
+from puya.ir.builder._utils import assert_value, assign, mkblocks
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
@@ -250,36 +250,20 @@ class FunctionIRBuilder(
         )
 
     def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> TExpression:
-        value_atype = wtype_to_avm_type(expr.wtype)
-        value_tmp = mktemp(
+        value_with_check = self.visit_expr(expr.expr)
+        value, check = assign(
             self.context,
-            atype=value_atype,
+            value_with_check,
+            temp_description=("value", "check"),
             source_location=expr.source_location,
-            description="maybe_value",
         )
-        did_exist_tmp = mktemp(
+        assert_value(
             self.context,
-            atype=AVMType.uint64,
+            check,
+            comment=expr.comment,
             source_location=expr.source_location,
-            description="maybe_value_did_exist",
         )
-        maybe_value = self.visit_expr(expr.expr)
-        assign_targets(
-            self.context,
-            source=maybe_value,
-            targets=[value_tmp, did_exist_tmp],
-            assignment_location=expr.source_location,
-        )
-        self.context.block_builder.add(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[did_exist_tmp],
-                comment=expr.comment or "check value exists",
-                source_location=expr.source_location,
-            )
-        )
-
-        return value_tmp
+        return value
 
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
         if isinstance(expr.wtype, wtypes.WTuple):
