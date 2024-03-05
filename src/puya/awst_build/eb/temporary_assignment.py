@@ -12,7 +12,7 @@ from puya.errors import InternalError
 from puya.parse import SourceLocation
 
 
-# TODO: this should probably extend ValueProxyExpressionBuilder
+# REFACTOR: this could extend ValueProxyExpressionBuilder, with a few tweaks to said class
 class TemporaryAssignmentExpressionBuilder(ExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(expr.source_location)

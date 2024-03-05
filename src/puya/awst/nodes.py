@@ -410,7 +410,7 @@ class Copy(Expression):
 
 @attrs.frozen
 class ARC4ArrayEncode(Expression):
-    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray = attrs.field()
+    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray
     values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -719,7 +719,7 @@ class CheckedMaybe(Expression):
     """Allows evaluating a maybe type i.e. tuple[_T, bool] as _T, but with the assertion that
     the 2nd bool element is true"""
 
-    expr: Expression = attrs.field()
+    expr: Expression
     comment: str | None
 
     def __init__(self, expr: Expression, comment: str | None = None) -> None:
@@ -737,6 +737,21 @@ class CheckedMaybe(Expression):
             comment=comment,
             wtype=wtype,
         )
+
+    @classmethod
+    def from_tuple_items(
+        cls,
+        expr: Expression,
+        check: Expression,
+        source_location: SourceLocation,
+        comment: str | None = None,
+    ) -> CheckedMaybe:
+        if check.wtype != wtypes.bool_wtype:
+            raise InternalError(
+                "Check condition for CheckedMaybe should be a boolean", source_location
+            )
+        tuple_expr = TupleExpression.from_items((expr, check), source_location)
+        return CheckedMaybe(expr=tuple_expr, comment=comment)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_checked_maybe(self)
@@ -1484,7 +1499,7 @@ class StateDelete(Statement):
 
 @attrs.frozen
 class NewStruct(Expression):
-    args: tuple[CallArg, ...] = attrs.field()
+    args: tuple[CallArg, ...]
     wtype: wtypes.WStructType
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
