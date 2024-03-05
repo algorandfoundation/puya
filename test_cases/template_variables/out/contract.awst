@@ -1,0 +1,23 @@
+contract TemplateVariablesContract
+{
+  abimethod get_bytes(): puyapy.Bytes
+  {
+    return TemplateVar[puyapy.Bytes](TMPL_SOME_BYTES)
+  }
+  
+  abimethod get_big_uint(): puyapy.arc4.BigUIntN[typing.Literal[512]]
+  {
+    x: puyapy.BigUInt = TemplateVar[puyapy.BigUInt](TMPL_SOME_BIG_UINT)
+    return arc4_encode(x, puyapy.arc4.BigUIntN[typing.Literal[512]])
+  }
+  
+  abimethod on_update(): None
+  {
+    assert(TemplateVar[bool](TMPL_UPDATABLE))
+  }
+  
+  abimethod on_delete(): None
+  {
+    assert(reinterpret_cast<bool>(TemplateVar[puyapy.UInt64](TMPL_DELETABLE)))
+  }
+}

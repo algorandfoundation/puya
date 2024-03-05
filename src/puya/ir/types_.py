@@ -1,4 +1,5 @@
 import enum
+import typing
 
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -30,7 +31,7 @@ def bytes_enc_to_avm_bytes_enc(bytes_encoding: BytesEncoding) -> AVMBytesEncodin
 def wtype_to_avm_type(
     expr_or_wtype: wtypes.WType | awst_nodes.Expression,
     source_location: SourceLocation | None = None,
-) -> AVMType:
+) -> typing.Literal[AVMType.bytes, AVMType.uint64]:
     if isinstance(expr_or_wtype, awst_nodes.Expression):
         return wtype_to_avm_type(
             expr_or_wtype.wtype, source_location=source_location or expr_or_wtype.source_location

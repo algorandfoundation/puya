@@ -17,6 +17,7 @@ from puya.awst_build.eb import (
     log,
     named_int_constants,
     struct,
+    template_variables,
     transaction,
     tuple as tuple_,
     uint64,
@@ -65,6 +66,9 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.CLS_BIGUINT: biguint.BigUIntClassExpressionBuilder,
     constants.CLS_BYTES: bytes_.BytesClassExpressionBuilder,
     constants.CLS_UINT64: uint64.UInt64ClassExpressionBuilder,
+    constants.CLS_TEMPLATE_VAR_METHOD: (
+        template_variables.GenericTemplateVariableExpressionBuilder
+    ),
     constants.SUBMIT_TXNS: transaction.SubmitInnerTransactionExpressionBuilder,
     constants.CLS_TRANSACTION_BASE: functools.partial(
         transaction.GroupTransactionClassExpressionBuilder,

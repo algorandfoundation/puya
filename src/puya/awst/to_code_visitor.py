@@ -534,6 +534,9 @@ class ToCodeVisitor(
     def visit_state_exists(self, expr: nodes.StateExists) -> str:
         return f"STATE_EXISTS({expr.field.accept(self)})"
 
+    def visit_template_var(self, expr: nodes.TemplateVar) -> str:
+        return f"TemplateVar[{expr.wtype}]({expr.name})"
+
 
 def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:
     yield from (f"{indent_size}{line}" for line in lines)

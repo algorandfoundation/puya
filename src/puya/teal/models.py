@@ -227,6 +227,18 @@ class PushBytes(TealOp):
 
 
 @attrs.frozen
+class PushTemplateVar(TealOp):
+    name: str
+    op_code: str
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(default=1, init=False)
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return (self.name,)
+
+
+@attrs.frozen
 class PushAddress(TealOp):
     a: str
     op_code: str = attrs.field(default="addr", init=False)

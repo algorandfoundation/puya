@@ -371,6 +371,15 @@ class BytesConstant(Expression):
 
 
 @attrs.frozen
+class TemplateVar(Expression):
+    wtype: WType
+    name: str
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_template_var(self)
+
+
+@attrs.frozen
 class MethodConstant(Expression):
     wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
     value: str

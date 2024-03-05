@@ -89,6 +89,16 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         self.l_stack.append(format_bytes(push.value, push.encoding))
         return [teal.PushBytes(push.value, push.encoding, source_location=push.source_location)]
 
+    def visit_push_deploy_var(self, deploy_var: models.PushTemplateVar) -> list[teal.TealOp]:
+        self.l_stack.append(deploy_var.name)
+        return [
+            teal.PushTemplateVar(
+                name=deploy_var.name,
+                op_code=deploy_var.op_code,
+                source_location=deploy_var.source_location,
+            )
+        ]
+
     def visit_push_address(self, addr: models.PushAddress) -> list[teal.TealOp]:
         self.l_stack.append(addr.value)
         return [teal.PushAddress(addr.value, source_location=addr.source_location)]

@@ -78,6 +78,9 @@ class ToTextVisitor(IRVisitor[str]):
         results = " ".join(r.accept(self) for r in op.result)
         return f"return {results}"
 
+    def visit_template_var(self, deploy_var: models.TemplateVar) -> str:
+        return f"TemplateVar[{deploy_var.atype}]({deploy_var.name})"
+
     def visit_program_exit(self, op: models.ProgramExit) -> str:
         return f"exit {op.result.accept(self)}"
 

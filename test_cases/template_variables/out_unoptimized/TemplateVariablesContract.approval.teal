@@ -1,0 +1,170 @@
+#pragma version 10
+
+test_cases.template_variables.contract.TemplateVariablesContract.approval_program:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    txna ApplicationArgs 0
+    method "get_bytes()byte[]"
+    method "get_big_uint()uint512"
+    uncover 2
+    match main_get_bytes_route@2 main_get_big_uint_route@3
+    b main_switch_case_default@4
+
+main_get_bytes_route@2:
+    // template_variables/contract.py:6
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub get_bytes
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_get_big_uint_route@3:
+    // template_variables/contract.py:10
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub get_big_uint
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_switch_case_default@4:
+    b main_after_if_else@11
+
+main_bare_routing@6:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txn OnCompletion
+    int 0
+    int 4
+    int 5
+    uncover 3
+    match main_create@7 main_on_update@8 main_on_delete@9
+    b main_reject_bare_on_completion@10
+
+main_create@7:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+main_on_update@8:
+    // template_variables/contract.py:15
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    txn ApplicationID
+    assert // is not creating
+    // template_variables/contract.py:15-16
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    // def on_update(self) -> None:
+    callsub on_update
+    int 1
+    return
+
+main_on_delete@9:
+    // template_variables/contract.py:19
+    // @arc4.baremethod(allow_actions=["DeleteApplication"])
+    txn ApplicationID
+    assert // is not creating
+    // template_variables/contract.py:19-20
+    // @arc4.baremethod(allow_actions=["DeleteApplication"])
+    // def on_delete(self) -> None:
+    callsub on_delete
+    int 1
+    return
+
+main_reject_bare_on_completion@10:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    err // reject transaction
+
+main_after_if_else@11:
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
+    err // reject transaction
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.get_bytes() -> bytes:
+get_bytes:
+    // template_variables/contract.py:6-7
+    // @arc4.abimethod()
+    // def get_bytes(self) -> Bytes:
+    proto 0 1
+    // template_variables/contract.py:8
+    // return TemplateVar[Bytes]("SOME_BYTES")
+    byte TMPL_SOME_BYTES
+    retsub
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> bytes:
+get_big_uint:
+    // template_variables/contract.py:10-11
+    // @arc4.abimethod()
+    // def get_big_uint(self) -> UInt512:
+    proto 0 1
+    // template_variables/contract.py:12
+    // x = TemplateVar[BigUInt]("SOME_BIG_UINT")
+    byte TMPL_SOME_BIG_UINT
+    // template_variables/contract.py:13
+    // return UInt512(x)
+    dup
+    len
+    int 64
+    <=
+    assert // overflow
+    int 64
+    bzero
+    b|
+    retsub
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.on_update() -> void:
+on_update:
+    // template_variables/contract.py:15-16
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    // def on_update(self) -> None:
+    proto 0 0
+    // template_variables/contract.py:17
+    // assert TemplateVar[bool]("UPDATABLE")
+    int TMPL_UPDATABLE
+    assert
+    retsub
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.on_delete() -> void:
+on_delete:
+    // template_variables/contract.py:19-20
+    // @arc4.baremethod(allow_actions=["DeleteApplication"])
+    // def on_delete(self) -> None:
+    proto 0 0
+    // template_variables/contract.py:21
+    // assert TemplateVar[UInt64]("DELETABLE")
+    int TMPL_DELETABLE
+    assert
+    retsub

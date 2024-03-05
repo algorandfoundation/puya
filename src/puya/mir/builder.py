@@ -77,6 +77,15 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
             )
 
+    def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:
+        self._add_op(
+            models.PushTemplateVar(
+                name=deploy_var.name,
+                atype=deploy_var.atype,
+                source_location=deploy_var.source_location,
+            )
+        )
+
     def visit_value_tuple(self, tup: ir.ValueTuple) -> None:
         raise InternalError(
             "Encountered ValueTuple during codegen - should have been eliminated in prior stages",
