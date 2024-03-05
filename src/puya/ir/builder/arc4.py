@@ -14,7 +14,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder.utils import (
+from puya.ir.builder._utils import (
     assert_value,
     assign,
     assign_intrinsic_op,

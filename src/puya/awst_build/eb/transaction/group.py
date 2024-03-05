@@ -12,7 +12,6 @@ from puya.awst.nodes import (
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
-    TupleExpression,
     TxnField,
     UInt64Constant,
 )
@@ -103,29 +102,25 @@ def check_transaction_type(
     return ReinterpretCast(
         source_location=location,
         wtype=expected_transaction_type,
-        expr=CheckedMaybe(
-            TupleExpression.from_items(
-                (
-                    transaction_index_tmp.define,
-                    NumericComparisonExpression(
-                        lhs=IntrinsicCall(
-                            op_code="gtxns",
-                            immediates=["TypeEnum"],
-                            stack_args=[transaction_index_tmp.read],
-                            wtype=wtypes.uint64_wtype,
-                            source_location=location,
-                        ),
-                        operator=NumericComparison.eq,
-                        rhs=UInt64Constant(
-                            value=expected_transaction_type.transaction_type.value,
-                            teal_alias=expected_transaction_type.transaction_type.name,
-                            source_location=location,
-                        ),
-                        source_location=location,
-                    ),
+        expr=CheckedMaybe.from_tuple_items(
+            transaction_index_tmp.define,
+            NumericComparisonExpression(
+                lhs=IntrinsicCall(
+                    op_code="gtxns",
+                    immediates=["TypeEnum"],
+                    stack_args=[transaction_index_tmp.read],
+                    wtype=wtypes.uint64_wtype,
+                    source_location=location,
                 ),
-                location,
+                operator=NumericComparison.eq,
+                rhs=UInt64Constant(
+                    value=expected_transaction_type.transaction_type.value,
+                    teal_alias=expected_transaction_type.transaction_type.name,
+                    source_location=location,
+                ),
+                source_location=location,
             ),
+            location,
             comment=f"transaction type is {expected_transaction_type.transaction_type.name}",
         ),
     )

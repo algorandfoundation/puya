@@ -5,10 +5,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.builder.utils import (
-    assign,
-    mkblocks,
-)
+from puya.ir.builder._utils import assign, mkblocks
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,

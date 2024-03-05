@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 import enum
+import typing
 from typing import Literal, Sequence
 
 import attrs
+from immutabledict import immutabledict
 
-from puya.avm_type import AVMType
-from puya.parse import SourceLocation
+if typing.TYPE_CHECKING:
+    from puya.avm_type import AVMType
+    from puya.parse import SourceLocation
 
 
 class OnCompletionAction(enum.IntEnum):
@@ -14,12 +19,6 @@ class OnCompletionAction(enum.IntEnum):
     ClearState = 3
     UpdateApplication = 4
     DeleteApplication = 5
-
-
-@attrs.frozen(kw_only=True)
-class ARC4DefaultArgument:
-    parameter: str
-    source: str
 
 
 @attrs.frozen(kw_only=True)
@@ -35,13 +34,9 @@ class ARC4MethodConfig:
         converter=tuple[OnCompletionAction],
         validator=attrs.validators.min_len(1),
     )
-    default_args: Sequence[ARC4DefaultArgument] = attrs.field(
-        factory=list, converter=tuple[ARC4DefaultArgument, ...]
-    )
-    structs: Sequence[tuple[str, "ARC32StructDef"]] = attrs.field(
-        factory=list, converter=tuple[tuple[str, "ARC32StructDef"], ...]
-    )
-    # TODO: the rest
+    default_args: immutabledict[str, str] = immutabledict()
+    """Mapping is from parameter -> source"""
+    structs: immutabledict[str, ARC32StructDef] = immutabledict()
 
 
 @attrs.define
@@ -89,10 +84,13 @@ class ContractMetaData:
     name_override: str | None
     module_name: str
     class_name: str
-    global_state: Sequence[ContractState]
-    local_state: Sequence[ContractState]
-    is_arc4: bool
-    methods: Sequence[ARC4Method]
+    global_state: immutabledict[str, ContractState]
+    local_state: immutabledict[str, ContractState]
+    arc4_methods: Sequence[ARC4Method]
+
+    @property
+    def is_arc4(self) -> bool:
+        return bool(self.arc4_methods)
 
     @property
     def name(self) -> str:

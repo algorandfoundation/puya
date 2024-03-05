@@ -224,7 +224,7 @@ def convert_literal(
             try:
                 literal_value.decode("utf8")
             except ValueError:
-                encoding = BytesEncoding.base16
+                encoding = BytesEncoding.unknown
             else:
                 encoding = BytesEncoding.utf8
             return BytesConstant(value=literal_value, source_location=loc, encoding=encoding)

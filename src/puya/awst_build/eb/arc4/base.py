@@ -19,7 +19,6 @@ from puya.awst.nodes import (
     IntrinsicCall,
     Literal,
     ReinterpretCast,
-    TupleExpression,
 )
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
@@ -144,12 +143,10 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
                         source_location=location,
                         stack_args=[value_bytes],
                     )
-                    checked_arc4_value = CheckedMaybe(
-                        expr=TupleExpression(
-                            items=(arc4_value, arc4_prefix_is_valid),
-                            wtype=wtypes.WTuple.from_types((arc4_value.wtype, wtypes.bool_wtype)),
-                            source_location=location,
-                        ),
+                    checked_arc4_value = CheckedMaybe.from_tuple_items(
+                        expr=arc4_value,
+                        check=arc4_prefix_is_valid,
+                        source_location=location,
                         comment="ARC4 prefix is valid",
                     )
                     return var_expression(

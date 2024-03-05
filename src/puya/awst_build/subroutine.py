@@ -1,6 +1,6 @@
 import contextlib
 import typing
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from functools import partialmethod
 
 import attrs
@@ -12,6 +12,7 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
+    AppStateKind,
     AssertStatement,
     AssignmentExpression,
     AssignmentStatement,
@@ -48,13 +49,13 @@ from puya.awst_build import constants, intrinsic_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStateDeclaration
-from puya.awst_build.eb.app_account_state import AppAccountStateClassExpressionBuilder
-from puya.awst_build.eb.app_state import AppStateClassExpressionBuilder, AppStateExpressionBuilder
 from puya.awst_build.eb.arc4 import ARC4StructClassExpressionBuilder
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     ExpressionBuilder,
+    StateProxyDefinitionBuilder,
+    StateProxyMemberBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
@@ -101,7 +102,7 @@ logger = structlog.get_logger(__name__)
 class ContractMethodInfo:
     type_info: mypy.nodes.TypeInfo
     cref: ContractReference
-    app_state: dict[str, AppStateDeclaration]
+    app_state: Mapping[str, AppStateDeclaration]
     arc4_method_config: ARC4MethodConfig | None
 
 
@@ -323,57 +324,70 @@ class FunctionASTConverter(
                 )
                 return []
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
-        # special no-op case
-        if isinstance(rvalue, AppAccountStateClassExpressionBuilder):
-            if len(stmt.lvalues) != 1:
-                raise CodeError(
-                    f"{constants.CLS_LOCAL_STATE_ALIAS}"
-                    f" can only be assigned to a single member variable",
-                    stmt_loc,
-                )
-            return []
-        elif isinstance(rvalue, AppStateClassExpressionBuilder):
-            if len(stmt.lvalues) != 1:
-                raise CodeError(
-                    f"{constants.CLS_GLOBAL_STATE_ALIAS}"
-                    f" can only be assigned to a single member variable",
-                    stmt_loc,
-                )
-            if rvalue.initial_value is None:
-                return []
-            else:
-                (lvalue,) = stmt.lvalues
-                app_state_eb = lvalue.accept(self)
-                if not isinstance(app_state_eb, AppStateExpressionBuilder):
-                    raise CodeError(
-                        f"Incompatible type on assignment,"
-                        f" expected a {constants.CLS_GLOBAL_STATE_ALIAS}",
-                        app_state_eb.source_location,
-                    )
-                global_state_target = AppStateExpression.from_state_def(
-                    app_state_eb.state_def, app_state_eb.source_location
-                )
-                return [
-                    AssignmentStatement(
-                        source_location=stmt_loc,
-                        target=global_state_target,
-                        value=rvalue.initial_value,
-                    )
-                ]
-        elif len(stmt.lvalues) == 1:
-            value = rvalue.build_assignment_source()
-            (lvalue,) = stmt.lvalues
-            target = self.resolve_lvalue(lvalue)
-            return [AssignmentStatement(source_location=stmt_loc, target=target, value=value)]
+        if isinstance(rvalue, StateProxyDefinitionBuilder):
+            return self._handle_state_proxy_assignment(rvalue, stmt.lvalues, stmt_loc)
         else:
-            single_eval_wrapper = temporary_assignment_if_required(rvalue)
+            if len(stmt.lvalues) > 1:
+                rvalue = temporary_assignment_if_required(rvalue)
             return [
                 AssignmentStatement(
-                    source_location=stmt_loc,
+                    value=rvalue.build_assignment_source(),
                     target=self.resolve_lvalue(lvalue),
-                    value=single_eval_wrapper.build_assignment_source(),
+                    source_location=stmt_loc,
                 )
                 for lvalue in reversed(stmt.lvalues)
+            ]
+
+    def _handle_state_proxy_assignment(
+        self,
+        rvalue: StateProxyDefinitionBuilder,
+        lvalues: list[mypy.nodes.Expression],
+        stmt_loc: SourceLocation,
+    ) -> Sequence[Statement]:
+        if self.contract_method_info is None:
+            raise CodeError(
+                f"{rvalue.python_name} should only be used inside a contract class", stmt_loc
+            )
+        if len(lvalues) != 1:
+            raise CodeError(
+                f"{rvalue.python_name} can only be assigned to a single member variable",
+                stmt_loc,
+            )
+        # note: we don't use resolve_lvalue here, because
+        # these types shouldn't be a valid lvalue target in any other instance
+        # except initial assignment
+        (lvalue,) = lvalues
+        lvalue_builder = require_expression_builder(lvalue.accept(self))
+        if not (
+            isinstance(lvalue_builder, StateProxyMemberBuilder)
+            and rvalue.kind == lvalue_builder.state_decl.kind
+            and rvalue.storage == lvalue_builder.state_decl.storage_wtype
+        ):
+            raise CodeError("Incompatible types on assignment", stmt_loc)
+        defn = rvalue.build_definition(
+            lvalue_builder.state_decl.member_name, lvalue_builder.source_location
+        )
+        self.context.state_defs[self.contract_method_info.cref].append(defn)
+        if rvalue.initial_value is None:
+            return []
+        elif defn.kind != AppStateKind.app_global:
+            raise InternalError(
+                f"Don't know how to do initialise-on-declaration"
+                f" for storage of kind {defn.kind}",
+                stmt_loc,
+            )
+        else:
+            global_state_target = AppStateExpression(
+                field_name=defn.member_name,
+                wtype=defn.storage_wtype,
+                source_location=defn.source_location,
+            )
+            return [
+                AssignmentStatement(
+                    target=global_state_target,
+                    value=rvalue.initial_value,
+                    source_location=stmt_loc,
+                )
             ]
 
     def resolve_lvalue(self, lvalue: mypy.nodes.Expression) -> Lvalue:
@@ -604,8 +618,7 @@ class FunctionASTConverter(
                     wtype = self.context.type_map[fullname]
                 except KeyError:
                     raise CodeError(
-                        f"Unknown struct subclass {fullname}"
-                        " (declaration must currently precede usage)",
+                        f"Unknown struct subclass {fullname}",
                         expr_loc,
                     ) from None
                 if isinstance(wtype, wtypes.WStructType):
@@ -671,11 +684,8 @@ class FunctionASTConverter(
                 try:
                     constant_value = self.context.constants[expr.fullname]
                 except KeyError as ex:
-                    # TODO: allow arbitrary ordering
                     raise CodeError(
-                        "Unable to resolve global constant reference"
-                        " - note that constants must appear before any references to them",
-                        expr_loc,
+                        "Unable to resolve global constant reference", expr_loc
                     ) from ex
                 else:
                     return Literal(source_location=expr_loc, value=constant_value)

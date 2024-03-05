@@ -39,25 +39,25 @@ contract Everything extends (test_cases.everything.my_base::MyMiddleBase, test_c
   {
     this::_check_ban_list()
     this::remember_creator()
-    this.globals['counter']: puyapy.UInt64 = 0u
+    this.counter: puyapy.UInt64 = 0u
   }
   
   abimethod register(name: puyapy.arc4.String): None
   {
     this::_check_ban_list()
     if (txn<OnCompletion>() == OptIn) {
-      (sender_name, sender_name_existed): tuple[puyapy.arc4.String, bool] = app_local_get_ex(0u, 0u, 'name')
+      (sender_name, sender_name_existed): tuple[puyapy.arc4.String, bool] = STATE_GET_EX(this.name[0u])
       if (!(sender_name_existed)) {
-        this.globals['counter'] += test_cases.everything.my_base::multiplicative_identity()
+        this.counter += test_cases.everything.my_base::multiplicative_identity()
       }
     }
-    this.locals['name'].account[0u]: puyapy.arc4.String = name
+    this.name[0u]: puyapy.arc4.String = name
   }
   
   abimethod say_hello(): puyapy.arc4.String
   {
     this::_check_ban_list()
-    (name, exists): tuple[puyapy.arc4.String, bool] = app_local_get_ex(0u, 0u, 'name')
+    (name, exists): tuple[puyapy.arc4.String, bool] = STATE_GET_EX(this.name[0u])
     if (!(exists)) {
       return arc4_encode('Howdy stranger!', puyapy.arc4.String)
     }
@@ -82,7 +82,7 @@ contract Everything extends (test_cases.everything.my_base::MyMiddleBase, test_c
   
   subroutine _remove_sender(): None
   {
-    this.globals['counter'] -= test_cases.everything.contract::positive_one()
+    this.counter -= test_cases.everything.contract::positive_one()
   }
 }
 

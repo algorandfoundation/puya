@@ -1,5 +1,6 @@
 import contextlib
-from collections.abc import Iterator, Mapping, Sequence
+from collections import defaultdict
+from collections.abc import Iterator, Sequence
 
 import attrs
 import mypy.nodes
@@ -7,9 +8,10 @@ import mypy.types
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    AppStateDefinition,
     ConstantValue,
+    ContractReference,
     Literal as AWSTLiteral,
-    Module,
 )
 from puya.awst_build import constants
 from puya.awst_build.eb.base import TypeClassExpressionBuilder
@@ -21,8 +23,8 @@ from puya.utils import attrs_extend
 
 @attrs.frozen(kw_only=True)
 class ASTConversionContext(CompileContext):
-    module_asts: Mapping[str, Module]
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
+    type_map: dict[str, wtypes.WStructType | wtypes.ARC4Struct] = attrs.field(factory=dict)
 
     def for_module(self, current_module: mypy.nodes.MypyFile) -> "ASTConversionModuleContext":
         return attrs_extend(ASTConversionModuleContext, self, current_module=current_module)
@@ -31,7 +33,9 @@ class ASTConversionContext(CompileContext):
 @attrs.frozen(kw_only=True)
 class ASTConversionModuleContext(ASTConversionContext):
     current_module: mypy.nodes.MypyFile
-    type_map: dict[str, wtypes.WStructType | wtypes.ARC4Struct] = attrs.field(factory=dict)
+    state_defs: defaultdict[ContractReference, list[AppStateDefinition]] = attrs.field(
+        factory=lambda: defaultdict(list)
+    )
 
     @property
     def module_name(self) -> str:

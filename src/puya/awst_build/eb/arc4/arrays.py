@@ -268,10 +268,10 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
                         expr=address_bytes_temp.read, source_location=location
                     ),
                 )
-                address_bytes = CheckedMaybe(
-                    expr=TupleExpression.from_items(
-                        (address_bytes_temp.define, is_correct_length), location=location
-                    ),
+                address_bytes = CheckedMaybe.from_tuple_items(
+                    expr=address_bytes_temp.define,
+                    check=is_correct_length,
+                    source_location=location,
                     comment="Address length is 32 bytes",
                 )
             case _:
@@ -460,6 +460,7 @@ class AppendExpressionBuilder(IntermediateExpressionBuilder):
                 base=self.expr,
                 other=args_tuple,
                 source_location=location,
+                wtype=wtypes.void_wtype,
             )
         )
 
@@ -523,6 +524,7 @@ class ExtendExpressionBuilder(IntermediateExpressionBuilder):
                 base=self.expr,
                 other=other,
                 source_location=location,
+                wtype=wtypes.void_wtype,
             )
         )
 

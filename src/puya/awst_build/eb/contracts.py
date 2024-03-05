@@ -1,3 +1,5 @@
+from collections.abc import Mapping
+
 from puya.awst.nodes import (
     AppStateExpression,
     InstanceSubroutineTarget,
@@ -19,7 +21,7 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(
         self,
         context: ASTConversionModuleContext,
-        app_state: dict[str, AppStateDeclaration],
+        app_state: Mapping[str, AppStateDeclaration],
         location: SourceLocation,
     ):
         super().__init__(location)
@@ -35,13 +37,16 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
                 target=InstanceSubroutineTarget(name=name),
                 location=location,
             )
-        state_def = state_decl.state_def
         match state_decl.decl_type:
             case AppStateDeclType.local_proxy:
-                return AppAccountStateExpressionBuilder(state_def, location)
+                return AppAccountStateExpressionBuilder(state_decl, location)
             case AppStateDeclType.global_proxy:
-                return AppStateExpressionBuilder(state_def, location)
+                return AppStateExpressionBuilder(state_decl, location)
             case AppStateDeclType.global_direct:
                 return var_expression(
-                    AppStateExpression.from_state_def(location=location, state_def=state_def)
+                    AppStateExpression(
+                        field_name=state_decl.member_name,
+                        wtype=state_decl.storage_wtype,
+                        source_location=location,
+                    )
                 )

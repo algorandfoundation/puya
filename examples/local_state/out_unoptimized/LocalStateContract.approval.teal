@@ -2,23 +2,18 @@
 
 examples.local_state.local_state_contract.LocalStateContract.approval_program:
     int 0
-    txn ApplicationID
-    bnz main_entrypoint@2
-    callsub __init__
-
-main_entrypoint@2:
     // local_state/local_state_contract.py:18
     // if Txn.application_id == 0:
     txn ApplicationID
     int 0
     ==
-    bz main_after_if_else@4
+    bz main_after_if_else@2
     // local_state/local_state_contract.py:19
     // return True
     int 1
     return
 
-main_after_if_else@4:
+main_after_if_else@2:
     // local_state/local_state_contract.py:20
     // if Txn.on_completion not in (OnCompleteAction.NoOp, OnCompleteAction.OptIn):
     txn OnCompletion
@@ -29,25 +24,25 @@ main_after_if_else@4:
     int OptIn
     ==
     ||
-    bnz main_after_if_else@6
+    bnz main_after_if_else@4
     // local_state/local_state_contract.py:21
     // return False
     int 0
     return
 
-main_after_if_else@6:
+main_after_if_else@4:
     // local_state/local_state_contract.py:22
     // if Txn.num_app_args == 0:
     txn NumAppArgs
     int 0
     ==
-    bz main_after_if_else@8
+    bz main_after_if_else@6
     // local_state/local_state_contract.py:23
     // return False
     int 0
     return
 
-main_after_if_else@8:
+main_after_if_else@6:
     // local_state/local_state_contract.py:25
     // method = Txn.application_args(0)
     txna ApplicationArgs 0
@@ -57,41 +52,41 @@ main_after_if_else@8:
     txn NumAppArgs
     int 1
     ==
-    bz main_else_body@19
+    bz main_else_body@17
     // local_state/local_state_contract.py:27
     // if method == b"get_guaranteed_data":
     dup
     byte "get_guaranteed_data"
     ==
-    bz main_else_body@11
+    bz main_else_body@9
     // local_state/local_state_contract.py:28
     // log(self.get_guaranteed_data(Txn.sender))
     txn Sender
     callsub get_guaranteed_data
     log
-    b main_after_if_else@18
+    b main_after_if_else@16
 
-main_else_body@11:
+main_else_body@9:
     // local_state/local_state_contract.py:29
     // elif method == b"get_data_or_assert":
     dup
     byte "get_data_or_assert"
     ==
-    bz main_else_body@13
+    bz main_else_body@11
     // local_state/local_state_contract.py:30
     // log(self.get_data_or_assert(Txn.sender))
     txn Sender
     callsub get_data_or_assert
     log
-    b main_after_if_else@17
+    b main_after_if_else@15
 
-main_else_body@13:
+main_else_body@11:
     // local_state/local_state_contract.py:31
     // elif method == b"delete_data":
     dup
     byte "delete_data"
     ==
-    bz main_else_body@15
+    bz main_else_body@13
     // local_state/local_state_contract.py:32
     // self.delete_data(Txn.sender)
     txn Sender
@@ -100,74 +95,74 @@ main_else_body@13:
     // log(b"Deleted")
     byte "Deleted"
     log
-    b main_after_if_else@16
+    b main_after_if_else@14
 
-main_else_body@15:
+main_else_body@13:
     // local_state/local_state_contract.py:35
     // return False
     int 0
     return
 
+main_after_if_else@14:
+
+main_after_if_else@15:
+
 main_after_if_else@16:
-
-main_after_if_else@17:
-
-main_after_if_else@18:
     // local_state/local_state_contract.py:36
     // return True
     int 1
     return
 
-main_else_body@19:
+main_else_body@17:
     // local_state/local_state_contract.py:37
     // elif Txn.num_app_args == 2:
     txn NumAppArgs
     int 2
     ==
-    bz main_else_body@27
+    bz main_else_body@25
     // local_state/local_state_contract.py:38
     // if method == b"set_data":
     dup
     byte "set_data"
     ==
-    bz main_else_body@22
+    bz main_else_body@20
     // local_state/local_state_contract.py:39
     // self.set_data(Txn.sender, Txn.application_args(1))
     txn Sender
     txna ApplicationArgs 1
     callsub set_data
-    b main_after_if_else@26
+    b main_after_if_else@24
 
-main_else_body@22:
+main_else_body@20:
     // local_state/local_state_contract.py:40
     // elif method == b"get_data_with_default":
     dup
     byte "get_data_with_default"
     ==
-    bz main_else_body@24
+    bz main_else_body@22
     // local_state/local_state_contract.py:41
     // log(self.get_data_with_default(Txn.sender, Txn.application_args(1)))
     txn Sender
     txna ApplicationArgs 1
     callsub get_data_with_default
     log
-    b main_after_if_else@25
+    b main_after_if_else@23
 
-main_else_body@24:
+main_else_body@22:
     // local_state/local_state_contract.py:43
     // return False
     int 0
     return
 
-main_after_if_else@25:
+main_after_if_else@23:
 
-main_after_if_else@26:
+main_after_if_else@24:
     // local_state/local_state_contract.py:44
     // return True
     int 1
     return
 
-main_else_body@27:
+main_else_body@25:
     // local_state/local_state_contract.py:46
     // return False
     int 0
@@ -186,7 +181,7 @@ get_guaranteed_data:
     int 0
     byte "local"
     app_local_get_ex
-    assert // check value exists
+    assert // check local exists for account
     retsub
 
 
@@ -251,25 +246,9 @@ get_data_with_default:
     int 0
     byte "local"
     app_local_get_ex
-    bz get_data_with_default_ternary_false@2
-    frame_dig 0
-    b get_data_with_default_ternary_merge@3
-
-get_data_with_default_ternary_false@2:
-    // local_state/local_state_contract.py:57
-    // return self.local.get(for_account, default)
-    frame_dig -1
-
-get_data_with_default_ternary_merge@3:
-    // local_state/local_state_contract.py:57
-    // return self.local.get(for_account, default)
     swap
-    retsub
-
-
-// examples.local_state.local_state_contract.LocalStateContract.__init__() -> void:
-__init__:
-    // local_state/local_state_contract.py:14
-    // def __init__(self) -> None:
-    proto 0 0
+    frame_dig -1
+    swap
+    uncover 2
+    select
     retsub

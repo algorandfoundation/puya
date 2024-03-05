@@ -14,14 +14,8 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
+from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op, mkblocks, reassign
 from puya.ir.builder.assignment import handle_assignment
-from puya.ir.builder.utils import (
-    assert_value,
-    assign,
-    assign_intrinsic_op,
-    mkblocks,
-    reassign,
-)
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,

@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 
 import attrs
 
@@ -10,7 +10,7 @@ from puya.parse import ParseResult, SourceLocation
 @attrs.frozen
 class SourceMeta:
     location: str | None
-    code: list[str] | None
+    code: Sequence[str] | None
 
 
 _EmptyMeta = SourceMeta(None, None)
@@ -21,7 +21,7 @@ class CompileContext:
     options: PuyaOptions
     parse_result: ParseResult
     errors: Errors
-    read_source: Callable[[str], list[str] | None]
+    read_source: Callable[[str], Sequence[str] | None]
 
     def try_get_source(self, location: SourceLocation | None) -> SourceMeta:
         if location is None:
@@ -33,7 +33,9 @@ class CompileContext:
             start_line = end_line = location.line
             if location.end_line:
                 end_line = location.end_line
-            src_content = source_lines[start_line - 1 : end_line]  # location.lines is one-indexed
+            src_content = list(
+                source_lines[start_line - 1 : end_line]  # location.lines is one-indexed
+            )
 
             start_column = location.column
             end_column = location.end_column

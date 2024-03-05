@@ -4,11 +4,7 @@ from collections.abc import Iterable
 
 from puya.awst import nodes, wtypes
 from puya.awst.nodes import AppStateKind
-from puya.awst.visitors import (
-    ExpressionVisitor,
-    ModuleStatementVisitor,
-    StatementVisitor,
-)
+from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.errors import InternalError
 
 
@@ -76,10 +72,10 @@ class ToCodeVisitor(
         return f"tmp${self._tmp_index(expr)}"
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
-        return f"this.globals[{bytes_str(expr.key)}]"
+        return f"this.{expr.field_name}"
 
     def visit_app_account_state_expression(self, expr: nodes.AppAccountStateExpression) -> str:
-        return f"this.locals[{bytes_str(expr.key)}].account[{expr.account.accept(self)}]"
+        return f"this.{expr.field_name}[{expr.account.accept(self)}]"
 
     def visit_new_array(self, expr: nodes.NewArray) -> str:
         args = ", ".join(a.accept(self) for a in expr.elements)
@@ -174,7 +170,7 @@ class ToCodeVisitor(
         body = list[str]()
         if c.app_state:
             state_by_kind = dict[AppStateKind, list[nodes.AppStateDefinition]]()
-            for state in c.app_state:
+            for state in c.app_state.values():
                 state_by_kind.setdefault(state.kind, []).append(state)
             global_state = state_by_kind.pop(AppStateKind.app_global, [])
             if global_state:
@@ -339,14 +335,14 @@ class ToCodeVisitor(
 
     def visit_bytes_constant(self, expr: nodes.BytesConstant) -> str:
         match expr.encoding:
-            case nodes.BytesEncoding.base16:
-                return f'hex<"{expr.value.hex().upper()}">'
+            case nodes.BytesEncoding.utf8:
+                return bytes_str(expr.value)
             case nodes.BytesEncoding.base32:
                 return f'b32<"{base64.b32encode(expr.value).decode("ascii")}">'
             case nodes.BytesEncoding.base64:
                 return f'b64<"{base64.b64encode(expr.value).decode("ascii")}">'
-            case _:
-                return bytes_str(expr.value)
+            case nodes.BytesEncoding.base16 | nodes.BytesEncoding.unknown:
+                return f'hex<"{expr.value.hex().upper()}">'
 
     def visit_method_constant(self, expr: nodes.MethodConstant) -> str:
         return f'Method("{expr.value}")'
@@ -523,6 +519,18 @@ class ToCodeVisitor(
             *_indent(f"{f.name}: {f.wtype}" for f in statement.fields),
             "}",
         ]
+
+    def visit_state_get_ex(self, expr: nodes.StateGetEx) -> str:
+        return f"STATE_GET_EX({expr.field.accept(self)})"
+
+    def visit_state_delete(self, statement: nodes.StateDelete) -> list[str]:
+        return [f"STATE_DELETE({statement.field.accept(self)})"]
+
+    def visit_state_get(self, expr: nodes.StateGet) -> str:
+        return f"STATE_GET({expr.field.accept(self)}, default={expr.default.accept(self)})"
+
+    def visit_state_exists(self, expr: nodes.StateExists) -> str:
+        return f"STATE_EXISTS({expr.field.accept(self)})"
 
 
 def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:

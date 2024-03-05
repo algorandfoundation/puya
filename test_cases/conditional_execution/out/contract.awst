@@ -7,26 +7,26 @@ contract ConditionalExecutionContract
   
   constructor()
   {
-    this.globals['did_execute_a']: bool = false
-    this.globals['did_execute_b']: bool = false
+    this.did_execute_a: bool = false
+    this.did_execute_b: bool = false
   }
   
   approval_program(): bool
   {
     this::func_a(true) or this::func_b(true)
-    this::assert_and_reset(this.globals['did_execute_a'] and !(this.globals['did_execute_b']))
+    this::assert_and_reset(this.did_execute_a and !(this.did_execute_b))
     this::func_a(false) or this::func_b(true)
-    this::assert_and_reset(this.globals['did_execute_a'] and this.globals['did_execute_b'])
+    this::assert_and_reset(this.did_execute_a and this.did_execute_b)
     this::func_a(false) and this::func_b(true)
-    this::assert_and_reset(this.globals['did_execute_a'] and !(this.globals['did_execute_b']))
+    this::assert_and_reset(this.did_execute_a and !(this.did_execute_b))
     this::func_a(true) and this::func_b(true)
-    this::assert_and_reset(this.globals['did_execute_a'] and this.globals['did_execute_b'])
+    this::assert_and_reset(this.did_execute_a and this.did_execute_b)
     (this::func_a(true), this::func_b(true))[0]
-    this::assert_and_reset(this.globals['did_execute_a'] and this.globals['did_execute_b'])
+    this::assert_and_reset(this.did_execute_a and this.did_execute_b)
     (this::func_c(true)) ? (this::func_a(true)) : (this::func_b(true))
-    this::assert_and_reset(this.globals['did_execute_a'] and !(this.globals['did_execute_b']))
+    this::assert_and_reset(this.did_execute_a and !(this.did_execute_b))
     (this::func_c(false)) ? (this::func_a(true)) : (this::func_b(true))
-    this::assert_and_reset(!(this.globals['did_execute_a']) and this.globals['did_execute_b'])
+    this::assert_and_reset(!(this.did_execute_a) and this.did_execute_b)
     return true
   }
   
@@ -38,19 +38,19 @@ contract ConditionalExecutionContract
   subroutine assert_and_reset(condition: bool): None
   {
     assert(condition)
-    this.globals['did_execute_b']: bool = false
-    this.globals['did_execute_a']: bool = false
+    this.did_execute_b: bool = false
+    this.did_execute_a: bool = false
   }
   
   subroutine func_a(ret_val: bool): bool
   {
-    this.globals['did_execute_a']: bool = true
+    this.did_execute_a: bool = true
     return ret_val
   }
   
   subroutine func_b(ret_val: bool): bool
   {
-    this.globals['did_execute_b']: bool = true
+    this.did_execute_b: bool = true
     return ret_val
   }
   

@@ -5,7 +5,7 @@ import os
 import random
 import re
 import typing
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Collection, Iterable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from textwrap import dedent
@@ -26,6 +26,7 @@ from algosdk.atomic_transaction_composer import AtomicTransactionComposer, Trans
 from algosdk.transaction import ApplicationCallTxn, ApplicationCreateTxn, OnComplete, StateSchema
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
+from immutabledict import immutabledict
 from nacl.signing import SigningKey
 from puya.avm_type import AVMType
 from puya.models import CompiledContract, ContractMetaData, ContractState
@@ -90,7 +91,7 @@ class Compilation:
 
 
 def assemble_src(contract: CompiledContract, client: AlgodClient) -> Compilation:
-    def state_to_schema(state: Sequence[ContractState]) -> StateSchema:
+    def state_to_schema(state: Collection[ContractState]) -> StateSchema:
         return StateSchema(
             num_uints=sum(1 for x in state if x.storage_type is AVMType.uint64),
             num_byte_slices=sum(1 for x in state if x.storage_type is AVMType.bytes),
@@ -102,8 +103,8 @@ def assemble_src(contract: CompiledContract, client: AlgodClient) -> Compilation
         contract=contract,
         approval=approval_program,
         clear=clear_program,
-        local_schema=state_to_schema(contract.metadata.local_state),
-        global_schema=state_to_schema(contract.metadata.global_state),
+        local_schema=state_to_schema(contract.metadata.local_state.values()),
+        global_schema=state_to_schema(contract.metadata.global_state.values()),
     )
     return compilation
 
@@ -510,10 +511,9 @@ def no_op_app_id(algod_client: AlgodClient, account: Account, worker_id: str) ->
             class_name="",
             description=None,
             name_override=None,
-            global_state=[],
-            local_state=[],
-            is_arc4=False,
-            methods=[],
+            global_state=immutabledict(),
+            local_state=immutabledict(),
+            arc4_methods=[],
         ),
     )
     compilation = assemble_src(contract=contract, client=algod_client)

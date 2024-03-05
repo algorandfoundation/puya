@@ -1,24 +1,31 @@
-import decimal
+from __future__ import annotations
+
 import enum
+import functools
+import itertools
 import typing as t
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
 
 import attrs
 from immutabledict import immutabledict
 
 from puya.awst import wtypes
-from puya.awst.visitors import (
-    ExpressionVisitor,
-    ModuleStatementVisitor,
-    StatementVisitor,
-)
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig
-from puya.parse import SourceLocation
-from puya.utils import StableSet
+
+if t.TYPE_CHECKING:
+    import decimal
+
+    from puya.awst.visitors import (
+        ExpressionVisitor,
+        ModuleStatementVisitor,
+        StatementVisitor,
+    )
+    from puya.models import ARC4MethodConfig
+    from puya.parse import SourceLocation
+    from puya.utils import StableSet
 
 T = t.TypeVar("T")
 
@@ -344,7 +351,9 @@ class BoolConstant(Expression):
         return visitor.visit_bool_constant(self)
 
 
+@enum.unique
 class BytesEncoding(enum.StrEnum):
+    unknown = enum.auto()
     base16 = enum.auto()
     base32 = enum.auto()
     base64 = enum.auto()
@@ -401,7 +410,7 @@ class Copy(Expression):
 
 @attrs.frozen
 class ARC4ArrayEncode(Expression):
-    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray = attrs.field()
+    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray
     values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -439,7 +448,6 @@ class ArrayExtend(Expression):
 
     base: Expression
     other: Expression
-    wtype: wtypes.WType = attrs.field(default=wtypes.void_wtype)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_extend(self)
@@ -484,12 +492,12 @@ class IntrinsicCall(Expression):
         )
 
 
-WTypes: t.TypeAlias = Sequence[wtypes.WType | type[wtypes.WType]]
+WTypes: t.TypeAlias = Sequence[WType | type[WType]]
 
 
-@attrs.define(eq=False)
+@attrs.define(eq=False, kw_only=True)
 class TxnField:
-    wtype: wtypes.WType
+    wtype: WType
     additional_input_wtypes: WTypes = ()
     """Other wtypes that are valid as inputs e.g. UInt64 for an Application field"""
     python_name: str = ""
@@ -506,7 +514,7 @@ class TxnField:
     def is_array(self) -> bool:
         return self.num_values > 1
 
-    def valid_type(self, wtype: wtypes.WType) -> bool:
+    def valid_type(self, wtype: WType) -> bool:
         all_types = (self.wtype, *self.additional_input_wtypes)
         wtype_types = tuple(x for x in all_types if isinstance(x, type))
         return wtype in all_types or isinstance(wtype, wtype_types)
@@ -515,158 +523,182 @@ class TxnField:
     def type_desc(self) -> str:
         return " | ".join(map(str, (self.wtype, *self.additional_input_wtypes)))
 
+    @classmethod
+    def uint64(cls, *, immediate: str = "", is_inner_param: bool = True) -> TxnField:
+        return cls(
+            wtype=wtypes.uint64_wtype,
+            immediate=immediate,
+            is_inner_param=is_inner_param,
+        )
 
-@attrs.define(eq=False)
-class UInt64TxnField(TxnField):
-    wtype: wtypes.WType = wtypes.uint64_wtype
+    @classmethod
+    def bytes_(
+        cls,
+        *,
+        immediate: str = "",
+        is_inner_param: bool = True,
+        num_values: int = 1,
+        additional_input_wtypes: WTypes = (),
+    ) -> TxnField:
+        return cls(
+            wtype=wtypes.bytes_wtype,
+            immediate=immediate,
+            is_inner_param=is_inner_param,
+            num_values=num_values,
+            additional_input_wtypes=additional_input_wtypes,
+        )
 
+    @classmethod
+    def bool_(cls, *, immediate: str) -> TxnField:
+        return cls(
+            wtype=wtypes.bool_wtype,
+            immediate=immediate,
+        )
 
-@attrs.define(eq=False)
-class BytesTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.bytes_wtype
+    @classmethod
+    def account(cls, *, immediate: str = "", num_values: int = 1) -> TxnField:
+        return cls(
+            wtype=wtypes.account_wtype,
+            immediate=immediate,
+            num_values=num_values,
+            additional_input_wtypes=(wtypes.bytes_wtype,),
+        )
 
+    @classmethod
+    def asset(
+        cls, *, immediate: str = "", is_inner_param: bool = True, num_values: int = 1
+    ) -> TxnField:
+        return cls(
+            wtype=wtypes.asset_wtype,
+            immediate=immediate,
+            is_inner_param=is_inner_param,
+            num_values=num_values,
+            additional_input_wtypes=(wtypes.uint64_wtype,),
+        )
 
-@attrs.define(eq=False)
-class BytesBackedTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.bytes_wtype
-    additional_input_wtypes: WTypes = (
-        wtypes.biguint_wtype,
-        wtypes.account_wtype,
-        wtypes.ARC4Type,
-    )
-
-
-@attrs.define(eq=False)
-class BoolTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.bool_wtype
-
-
-@attrs.define(eq=False)
-class AccountTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.account_wtype
-    additional_input_wtypes: WTypes = (wtypes.bytes_wtype,)
-
-
-@attrs.define(eq=False)
-class AssetTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.asset_wtype
-    additional_input_wtypes: WTypes = (wtypes.uint64_wtype,)
-
-
-@attrs.define(eq=False)
-class ApplicationTxnField(TxnField):
-    wtype: wtypes.WType = wtypes.application_wtype
-    additional_input_wtypes: WTypes = (wtypes.uint64_wtype,)
+    @classmethod
+    def application(
+        cls, *, immediate: str = "", is_inner_param: bool = True, num_values: int = 1
+    ) -> TxnField:
+        return cls(
+            wtype=wtypes.application_wtype,
+            immediate=immediate,
+            is_inner_param=is_inner_param,
+            num_values=num_values,
+            additional_input_wtypes=(wtypes.uint64_wtype,),
+        )
 
 
 class TxnFields:
-    sender = AccountTxnField()
-    fee = UInt64TxnField()
-    first_valid = UInt64TxnField(is_inner_param=False)
-    first_valid_time = UInt64TxnField(is_inner_param=False)
-    last_valid = UInt64TxnField(is_inner_param=False)
-    note = BytesTxnField()
-    lease = BytesTxnField(is_inner_param=False)
-    receiver = AccountTxnField()
-    amount = UInt64TxnField()
-    close_remainder_to = AccountTxnField()
-    vote_key = AccountTxnField(immediate="VotePK")
-    selection_key = AccountTxnField(immediate="SelectionPK")
-    vote_first = UInt64TxnField()
-    vote_last = UInt64TxnField()
-    vote_key_dilution = UInt64TxnField()
-    type_bytes = BytesTxnField(immediate="Type")
-    type = UInt64TxnField(immediate="TypeEnum")
-    xfer_asset = AssetTxnField()
-    asset_amount = UInt64TxnField()
-    asset_sender = AccountTxnField()
-    asset_receiver = AccountTxnField()
-    asset_close_to = AccountTxnField()
-    group_index = UInt64TxnField(is_inner_param=False)
-    txn_id = BytesTxnField(immediate="TxID", is_inner_param=False)
+    sender = TxnField.account()
+    fee = TxnField.uint64()
+    first_valid = TxnField.uint64(is_inner_param=False)
+    first_valid_time = TxnField.uint64(is_inner_param=False)
+    last_valid = TxnField.uint64(is_inner_param=False)
+    note = TxnField.bytes_()
+    lease = TxnField.bytes_(is_inner_param=False)
+    receiver = TxnField.account()
+    amount = TxnField.uint64()
+    close_remainder_to = TxnField.account()
+    vote_key = TxnField.account(immediate="VotePK")
+    selection_key = TxnField.account(immediate="SelectionPK")
+    vote_first = TxnField.uint64()
+    vote_last = TxnField.uint64()
+    vote_key_dilution = TxnField.uint64()
+    type_bytes = TxnField.bytes_(immediate="Type")
+    type = TxnField.uint64(immediate="TypeEnum")
+    xfer_asset = TxnField.asset()
+    asset_amount = TxnField.uint64()
+    asset_sender = TxnField.account()
+    asset_receiver = TxnField.account()
+    asset_close_to = TxnField.account()
+    group_index = TxnField.uint64(is_inner_param=False)
+    txn_id = TxnField.bytes_(immediate="TxID", is_inner_param=False)
     # v2
-    app_id = ApplicationTxnField(immediate="ApplicationID")
-    on_completion = UInt64TxnField()
-    num_app_args = UInt64TxnField(is_inner_param=False)
-    num_accounts = UInt64TxnField(is_inner_param=False)
-    approval_program = BytesTxnField()
-    clear_state_program = BytesTxnField()
-    rekey_to = AccountTxnField()
-    config_asset = AssetTxnField()
-    total = UInt64TxnField(immediate="ConfigAssetTotal")
-    decimals = UInt64TxnField(immediate="ConfigAssetDecimals")
-    default_frozen = BoolTxnField(immediate="ConfigAssetDefaultFrozen")
-    unit_name = BytesTxnField(immediate="ConfigAssetUnitName")
-    asset_name = BytesTxnField(immediate="ConfigAssetName")
-    url = BytesTxnField(immediate="ConfigAssetURL")
-    metadata_hash = BytesTxnField(immediate="ConfigAssetMetadataHash")
-    manager = AccountTxnField(immediate="ConfigAssetManager")
-    reserve = AccountTxnField(immediate="ConfigAssetReserve")
-    freeze = AccountTxnField(immediate="ConfigAssetFreeze")
-    clawback = AccountTxnField(immediate="ConfigAssetClawback")
-    freeze_asset = AssetTxnField()
-    freeze_account = AccountTxnField(immediate="FreezeAssetAccount")
-    frozen = AssetTxnField(immediate="FreezeAssetFrozen")
+    app_id = TxnField.application(immediate="ApplicationID")
+    on_completion = TxnField.uint64()
+    num_app_args = TxnField.uint64(is_inner_param=False)
+    num_accounts = TxnField.uint64(is_inner_param=False)
+    approval_program = TxnField.bytes_()
+    clear_state_program = TxnField.bytes_()
+    rekey_to = TxnField.account()
+    config_asset = TxnField.asset()
+    total = TxnField.uint64(immediate="ConfigAssetTotal")
+    decimals = TxnField.uint64(immediate="ConfigAssetDecimals")
+    default_frozen = TxnField.bool_(immediate="ConfigAssetDefaultFrozen")
+    unit_name = TxnField.bytes_(immediate="ConfigAssetUnitName")
+    asset_name = TxnField.bytes_(immediate="ConfigAssetName")
+    url = TxnField.bytes_(immediate="ConfigAssetURL")
+    metadata_hash = TxnField.bytes_(immediate="ConfigAssetMetadataHash")
+    manager = TxnField.account(immediate="ConfigAssetManager")
+    reserve = TxnField.account(immediate="ConfigAssetReserve")
+    freeze = TxnField.account(immediate="ConfigAssetFreeze")
+    clawback = TxnField.account(immediate="ConfigAssetClawback")
+    freeze_asset = TxnField.asset()
+    freeze_account = TxnField.account(immediate="FreezeAssetAccount")
+    frozen = TxnField.asset(immediate="FreezeAssetFrozen")
     # v3
-    num_assets = UInt64TxnField(is_inner_param=False)
-    num_apps = UInt64TxnField(immediate="NumApplications", is_inner_param=False)
-    global_num_uint = UInt64TxnField()
-    global_num_byte_slice = UInt64TxnField()
-    local_num_uint = UInt64TxnField()
-    local_num_byte_slice = UInt64TxnField()
+    num_assets = TxnField.uint64(is_inner_param=False)
+    num_apps = TxnField.uint64(immediate="NumApplications", is_inner_param=False)
+    global_num_uint = TxnField.uint64()
+    global_num_byte_slice = TxnField.uint64()
+    local_num_uint = TxnField.uint64()
+    local_num_byte_slice = TxnField.uint64()
     # v4
-    extra_program_pages = UInt64TxnField()
+    extra_program_pages = TxnField.uint64()
     # v5
-    non_participation = BoolTxnField(immediate="Nonparticipation")
-    num_logs = UInt64TxnField(is_inner_param=False)
-    created_asset = AssetTxnField(immediate="CreatedAssetID", is_inner_param=False)
-    created_app = ApplicationTxnField(immediate="CreatedApplicationID", is_inner_param=False)
+    non_participation = TxnField.bool_(immediate="Nonparticipation")
+    num_logs = TxnField.uint64(is_inner_param=False)
+    created_asset = TxnField.asset(immediate="CreatedAssetID", is_inner_param=False)
+    created_app = TxnField.application(immediate="CreatedApplicationID", is_inner_param=False)
     # v6
-    last_log = BytesTxnField(is_inner_param=False)
-    state_proof_key = BytesTxnField(immediate="StateProofPK")
+    last_log = TxnField.bytes_(is_inner_param=False)
+    state_proof_key = TxnField.bytes_(immediate="StateProofPK")
     # v7
-    num_approval_program_pages = UInt64TxnField(is_inner_param=False)
-    num_clear_state_program_pages = UInt64TxnField(is_inner_param=False)
+    num_approval_program_pages = TxnField.uint64(is_inner_param=False)
+    num_clear_state_program_pages = TxnField.uint64(is_inner_param=False)
 
     # array fields
     # TODO: allow configuring as these are consensus values
     # v2
-    app_args = BytesBackedTxnField(immediate="ApplicationArgs", num_values=16)
-    accounts = AccountTxnField(num_values=4)
+    app_args = TxnField.bytes_(
+        immediate="ApplicationArgs",
+        num_values=16,
+        additional_input_wtypes=(
+            wtypes.biguint_wtype,
+            wtypes.account_wtype,
+            wtypes.ARC4Type,
+        ),
+    )
+    accounts = TxnField.account(num_values=4)
     # v3
-    assets = AssetTxnField(num_values=8)
-    apps = ApplicationTxnField(immediate="Applications", num_values=8)
+    assets = TxnField.asset(num_values=8)
+    apps = TxnField.application(immediate="Applications", num_values=8)
     # v5
-    logs = BytesTxnField(num_values=32, is_inner_param=False)
+    logs = TxnField.bytes_(num_values=32, is_inner_param=False)
     # v7
-    approval_program_pages = BytesTxnField(num_values=4)
-    clear_state_program_pages = BytesTxnField(num_values=4)
-
-    _all_fields: Iterable[TxnField] | None = None
+    approval_program_pages = TxnField.bytes_(num_values=4)
+    clear_state_program_pages = TxnField.bytes_(num_values=4)
 
     @classmethod
-    def all_fields(cls) -> Iterable[TxnField]:
-        if cls._all_fields is None:
-            names = dir(cls)
-            values = [getattr(cls, name) for name in names]
-            cls._all_fields = tuple(v for v in values if isinstance(v, TxnField))
-        return cls._all_fields
+    @functools.cache
+    def all_fields(cls) -> Sequence[TxnField]:
+        values = [getattr(cls, name) for name in dir(cls)]
+        return tuple(v for v in values if isinstance(v, TxnField))
 
     @classmethod
-    def inner_transaction_param_fields(cls) -> "Sequence[TxnField]":
+    def inner_transaction_param_fields(cls) -> Sequence[TxnField]:
         return tuple(f for f in cls.all_fields() if f.is_inner_param)
 
     @classmethod
-    def inner_transaction_non_array_fields(cls) -> "Sequence[TxnField]":
+    def inner_transaction_non_array_fields(cls) -> Sequence[TxnField]:
         return tuple(f for f in cls.all_fields() if not f.is_array)
 
 
 @attrs.define
 class CreateInnerTransaction(Expression):
     wtype: wtypes.WInnerTransactionFields
-    fields: Mapping[TxnField, Expression] = attrs.field(
-        converter=immutabledict[TxnField, Expression]
-    )
+    fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_create_inner_transaction(self)
@@ -675,10 +707,8 @@ class CreateInnerTransaction(Expression):
 @attrs.define
 class UpdateInnerTransaction(Expression):
     itxn: Expression = attrs.field(validator=expression_has_wtype(wtypes.WInnerTransactionFields))
-    fields: Mapping[TxnField, Expression] = attrs.field(
-        converter=immutabledict[TxnField, Expression]
-    )
-    wtype: wtypes.WType = wtypes.void_wtype
+    fields: Mapping[TxnField, Expression] = attrs.field(converter=immutabledict)
+    wtype: WType = attrs.field(default=wtypes.void_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_update_inner_transaction(self)
@@ -689,10 +719,10 @@ class CheckedMaybe(Expression):
     """Allows evaluating a maybe type i.e. tuple[_T, bool] as _T, but with the assertion that
     the 2nd bool element is true"""
 
-    expr: Expression = attrs.field()
-    comment: str | None
+    expr: Expression
+    comment: str
 
-    def __init__(self, expr: Expression, comment: str | None = None) -> None:
+    def __init__(self, expr: Expression, comment: str) -> None:
         match expr.wtype:
             case wtypes.WTuple(types=(wtype, wtypes.bool_wtype)):
                 pass
@@ -707,6 +737,21 @@ class CheckedMaybe(Expression):
             comment=comment,
             wtype=wtype,
         )
+
+    @classmethod
+    def from_tuple_items(
+        cls,
+        expr: Expression,
+        check: Expression,
+        source_location: SourceLocation,
+        comment: str,
+    ) -> CheckedMaybe:
+        if check.wtype != wtypes.bool_wtype:
+            raise InternalError(
+                "Check condition for CheckedMaybe should be a boolean", source_location
+            )
+        tuple_expr = TupleExpression.from_items((expr, check), source_location)
+        return CheckedMaybe(expr=tuple_expr, comment=comment)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_checked_maybe(self)
@@ -726,9 +771,7 @@ class TupleExpression(Expression):
     wtype: wtypes.WTuple
 
     @classmethod
-    def from_items(
-        cls, items: Sequence[Expression], location: SourceLocation
-    ) -> "TupleExpression":
+    def from_items(cls, items: Sequence[Expression], location: SourceLocation) -> TupleExpression:
         return cls(
             items=items,
             wtype=wtypes.WTuple.from_types(i.wtype for i in items),
@@ -803,7 +846,7 @@ class InnerTransactionField(Expression):
 
 @attrs.define
 class SubmitInnerTransaction(Expression):
-    wtype: wtypes.WType = attrs.field()
+    wtype: WType = attrs.field()
     itxns: tuple[Expression, ...] = attrs.field(
         validator=attrs.validators.deep_iterable(
             member_validator=expression_has_wtype(wtypes.WInnerTransactionFields)
@@ -811,7 +854,7 @@ class SubmitInnerTransaction(Expression):
     )
 
     @wtype.validator
-    def _validate_wtype(self, _attribute: object, value: wtypes.WType) -> None:
+    def _validate_wtype(self, _attribute: object, value: WType) -> None:
         match value:
             case wtypes.WTuple(types=types):
                 if any(not isinstance(t, wtypes.WInnerTransaction) for t in types) or len(
@@ -862,28 +905,15 @@ class SliceExpression(Expression):
 
 @attrs.frozen
 class AppStateExpression(Expression):
-    key: bytes
-    key_encoding: BytesEncoding
+    field_name: str
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_state_expression(self)
 
-    @classmethod
-    def from_state_def(
-        cls, state_def: "AppStateDefinition", location: SourceLocation
-    ) -> "AppStateExpression":
-        return cls(
-            source_location=location,
-            wtype=state_def.storage_wtype,
-            key=state_def.key,
-            key_encoding=state_def.key_encoding,
-        )
-
 
 @attrs.frozen
 class AppAccountStateExpression(Expression):
-    key: bytes
-    key_encoding: BytesEncoding
+    field_name: str
     account: Expression = attrs.field(
         validator=[expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)]
     )
@@ -1408,9 +1438,68 @@ class ForInLoop(Statement):
         return visitor.visit_for_in_loop(self)
 
 
+StateExpression: t.TypeAlias = AppStateExpression | AppAccountStateExpression
+
+
+@attrs.frozen
+class StateGet(Expression):
+    """
+    Get value or default if unset - note that for get without a default,
+    can just use the underlying StateExpression
+    """
+
+    field: StateExpression
+    default: Expression = attrs.field()
+    wtype: WType = attrs.field(init=False)
+
+    @default.validator
+    def _check_default(self, _attribute: object, default: Expression) -> None:
+        if self.field.wtype != default.wtype:
+            raise CodeError(
+                "Default state value should match storage type", default.source_location
+            )
+
+    @wtype.default
+    def _wtype_factory(self) -> WType:
+        return self.field.wtype
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_state_get(self)
+
+
+@attrs.frozen
+class StateGetEx(Expression):
+    field: StateExpression
+    wtype: wtypes.WTuple = attrs.field(init=False)
+
+    @wtype.default
+    def _wtype_factory(self) -> wtypes.WTuple:
+        return wtypes.WTuple.from_types((self.field.wtype, wtypes.bool_wtype))
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_state_get_ex(self)
+
+
+@attrs.frozen
+class StateExists(Expression):
+    field: StateExpression
+    wtype: WType = attrs.field(default=wtypes.bool_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_state_exists(self)
+
+
+@attrs.frozen
+class StateDelete(Statement):
+    field: StateExpression
+
+    def accept(self, visitor: StatementVisitor[T]) -> T:
+        return visitor.visit_state_delete(self)
+
+
 @attrs.frozen
 class NewStruct(Expression):
-    args: tuple[CallArg, ...] = attrs.field()
+    args: tuple[CallArg, ...]
     wtype: wtypes.WStructType
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -1490,6 +1579,7 @@ class AppStateDefinition(Node):
     key: bytes
     key_encoding: BytesEncoding
     storage_wtype: WType
+    description: str | None
 
 
 @attrs.frozen
@@ -1499,32 +1589,32 @@ class ContractFragment(ModuleStatement):
     module_name: str
     name_override: str | None
     is_abstract: bool
-    is_arc4: bool
     bases: Sequence[ContractReference] = attrs.field(converter=tuple[ContractReference, ...])
     init: ContractMethod | None = attrs.field()
     approval_program: ContractMethod | None = attrs.field()
     clear_program: ContractMethod | None = attrs.field()
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
-    app_state: Sequence[AppStateDefinition] = attrs.field(converter=tuple[AppStateDefinition, ...])
-    reserved_scratch_space: StableSet[int] = attrs.field()
+    app_state: Mapping[str, AppStateDefinition]
+    reserved_scratch_space: StableSet[int]
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
     symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)
 
     @symtable.default
     def _symtable_factory(self) -> Mapping[str, ContractMethod | AppStateDefinition]:
-        all_subs = [
-            self.init,
-            self.approval_program,
-            self.clear_program,
-            *self.subroutines,
-        ]
-        subs_by_name = {sub.name: sub for sub in all_subs if sub is not None}
-        state_by_name = {state.member_name: state for state in self.app_state}
-        return {
-            **subs_by_name,
-            **state_by_name,
-        }
+        result: dict[str, ContractMethod | AppStateDefinition] = {**self.app_state}
+        all_subs = itertools.chain(
+            filter(None, (self.init, self.approval_program, self.clear_program)),
+            self.subroutines,
+        )
+        for sub in all_subs:
+            if sub.name in result:
+                raise CodeError(
+                    f"Duplicate symbol {sub.name} in contract {self.full_name}",
+                    sub.source_location,
+                )
+            result[sub.name] = sub
+        return result
 
     @init.validator
     def check_init(self, _attribute: object, init: ContractMethod | None) -> None:

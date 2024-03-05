@@ -1,7 +1,7 @@
 import base64
 import json
 import typing
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 
 from puya.avm_type import AVMType
 from puya.errors import InternalError
@@ -31,7 +31,7 @@ def _encode_source(teal_text: str) -> str:
     return base64.b64encode(teal_text.encode()).decode("utf-8")
 
 
-def _encode_state_schema(state: Sequence[ContractState]) -> JSONDict:
+def _encode_state_schema(state: Collection[ContractState]) -> JSONDict:
     return {
         "num_byte_slices": sum(1 for s in state if s.storage_type is AVMType.bytes),
         "num_uints": sum(1 for s in state if s.storage_type is AVMType.uint64),
@@ -46,7 +46,7 @@ def _encode_schema_declaration(state: ContractState) -> JSONDict:
     }
 
 
-def _encode_schema(state: Sequence[ContractState]) -> JSONDict:
+def _encode_schema(state: Collection[ContractState]) -> JSONDict:
     return {
         "declared": {
             s.name: _encode_schema_declaration(s) for s in sorted(state, key=lambda s: s.name)
@@ -77,20 +77,18 @@ def _get_signature(method: ARC4Method) -> str:
 
 
 def _encode_default_arg(contract: CompiledContract, source: str, loc: SourceLocation) -> JSONDict:
-    for state in contract.metadata.global_state:
-        if state.name == source:
-            return {
-                "source": "global-state",
-                # TODO: handle non utf-8 bytes
-                "data": state.key.decode("utf-8"),
-            }
-    for state in contract.metadata.local_state:
-        if state.name == source:
-            return {
-                "source": "local-state",
-                "data": state.key.decode("utf-8"),
-            }
-    for method in contract.metadata.methods:
+    if state := contract.metadata.global_state.get(source):
+        return {
+            "source": "global-state",
+            # TODO: handle non utf-8 bytes
+            "data": state.key.decode("utf-8"),
+        }
+    if state := contract.metadata.local_state.get(source):
+        return {
+            "source": "local-state",
+            "data": state.key.decode("utf-8"),
+        }
+    for method in contract.metadata.arc4_methods:
         if method.name == source:
             return {
                 "source": "abi-method",
@@ -104,14 +102,14 @@ def _encode_arc32_method_hint(contract: CompiledContract, method: ARC4Method) ->
     return {
         # deprecated by ARC-22
         "read_only": True if method.config.readonly else None,
-        "default_arguments": {
-            default_arg.parameter: _encode_default_arg(
-                contract, default_arg.source, method.config.source_location
-            )
-            for default_arg in method.config.default_args
-        }
-        if method.config.default_args
-        else None,
+        "default_arguments": (
+            {
+                parameter: _encode_default_arg(contract, source, method.config.source_location)
+                for parameter, source in method.config.default_args.items()
+            }
+            if method.config.default_args
+            else None
+        ),
         "call_config": _encode_call_config(method.config),
         "structs": _encode_arc32_method_structs(method),
     }
@@ -124,7 +122,7 @@ def _encode_arc32_method_structs(method: ARC4Method) -> JSONDict | None:
                 "name": struct_def.name,
                 "elements": struct_def.elements,
             }
-            for struct_purpose, struct_def in method.config.structs
+            for struct_purpose, struct_def in method.config.structs.items()
         }
     return None
 
@@ -174,8 +172,8 @@ def _filter_none(value: JSONDict) -> JSONValue:
 
 def create_arc32_json(contract: CompiledContract) -> str:
     metadata = contract.metadata
-    bare_methods = [m for m in metadata.methods if m.config.is_bare]
-    arc4_methods = [m for m in metadata.methods if not m.config.is_bare]
+    bare_methods = [m for m in metadata.arc4_methods if m.config.is_bare]
+    arc4_methods = [m for m in metadata.arc4_methods if not m.config.is_bare]
     app_spec = {
         "hints": _encode_arc32_hints(contract, arc4_methods),
         "source": {
@@ -183,12 +181,12 @@ def create_arc32_json(contract: CompiledContract) -> str:
             "clear": _encode_source("\n".join(contract.clear_program)),
         },
         "state": {
-            "global": _encode_state_schema(metadata.global_state),
-            "local": _encode_state_schema(metadata.local_state),
+            "global": _encode_state_schema(metadata.global_state.values()),
+            "local": _encode_state_schema(metadata.local_state.values()),
         },
         "schema": {
-            "global": _encode_schema(metadata.global_state),
-            "local": _encode_schema(metadata.local_state),
+            "global": _encode_schema(metadata.global_state.values()),
+            "local": _encode_schema(metadata.local_state.values()),
         },
         "contract": _encode_arc4_contract(metadata.name, metadata.description, arc4_methods),
         "bare_call_config": _encode_bare_method_configs(bare_methods),

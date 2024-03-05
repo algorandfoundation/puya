@@ -10,11 +10,11 @@ contract Reference
   
   constructor()
   {
-    this.globals['asa']: puyapy.Asset = reinterpret_cast<puyapy.Asset>(123u)
-    this.globals['an_int']: puyapy.UInt64 = 2u
-    this.globals['some_bytes']: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]] = arc4_array_encode([7arc4u8, 8arc4u8, 9arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]])
-    this.globals['creator']: puyapy.Account = txn<Sender>()
-    this.globals['app']: puyapy.Application = reinterpret_cast<puyapy.Application>(123u)
+    this.asa: puyapy.Asset = reinterpret_cast<puyapy.Asset>(123u)
+    this.an_int: puyapy.UInt64 = 2u
+    this.some_bytes: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]] = arc4_array_encode([7arc4u8, 8arc4u8, 9arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]])
+    this.creator: puyapy.Account = txn<Sender>()
+    this.app: puyapy.Application = reinterpret_cast<puyapy.Application>(123u)
     assert(reinterpret_cast<bool>(len(Method("get(uint64,byte[])byte[]"))), comment="has method selector")
   }
   
@@ -44,8 +44,8 @@ contract Reference
   abimethod opt_into_asset(asset: puyapy.Asset): None
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
-    assert(!(reinterpret_cast<bool>(this.globals['asa'])), comment="ASA already opted in")
-    this.globals['asa']: puyapy.Asset = asset
+    assert(!(reinterpret_cast<bool>(this.asa)), comment="ASA already opted in")
+    this.asa: puyapy.Asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)
     itxn_field<Fee>(0u)
@@ -56,7 +56,7 @@ contract Reference
   
   abimethod with_transactions(asset: puyapy.Asset, an_int: puyapy.arc4.UIntN[typing.Literal[64]], pay: puyapy.gtxn.PaymentTransaction, another_int: puyapy.arc4.UIntN[typing.Literal[64]]): None
   {
-    assert(this.globals['asa'] == asset, comment="is correct asset")
+    assert(this.asa == asset, comment="is correct asset")
     assert(arc4_decode(an_int, puyapy.UInt64) == 1u, comment="is correct int")
     assert(gtxns<Receiver>(pay) == global<CurrentApplicationAddress>(), comment="is payment to app")
     assert(arc4_decode(another_int, puyapy.UInt64) == 2u, comment="is correct int")

@@ -5,6 +5,9 @@ import enum
 from typing import TYPE_CHECKING, Never, TypeAlias, cast
 
 from puya.awst.nodes import (
+    AppStateDefinition,
+    AppStateKind,
+    BytesEncoding,
     Expression,
     FieldExpression,
     IndexExpression,
@@ -24,6 +27,7 @@ if TYPE_CHECKING:
     import mypy.types
 
     from puya.awst import wtypes
+    from puya.awst_build.contract_data import AppStateDeclaration
     from puya.parse import SourceLocation
 
 __all__ = [
@@ -31,6 +35,8 @@ __all__ = [
     "BuilderComparisonOp",
     "BuilderBinaryOp",
     "ExpressionBuilder",
+    "StateProxyDefinitionBuilder",
+    "StateProxyMemberBuilder",
     "IntermediateExpressionBuilder",
     "TypeClassExpressionBuilder",
     "GenericClassExpressionBuilder",
@@ -226,6 +232,80 @@ class IntermediateExpressionBuilder(ExpressionBuilder):
 
     def _not_a_value(self, location: SourceLocation) -> Never:
         raise CodeError(f"{type(self).__name__} is not a value", location)
+
+
+class StateProxyMemberBuilder(IntermediateExpressionBuilder):
+    state_decl: AppStateDeclaration
+
+
+class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
+    kind: AppStateKind
+    python_name: str
+
+    def __init__(
+        self,
+        location: SourceLocation,
+        storage: wtypes.WType,
+        key: bytes | None,
+        key_encoding: BytesEncoding | None,
+        description: str | None,
+        initial_value: Expression | None = None,
+    ):
+        super().__init__(location)
+        if (key is None) != (key_encoding is None):
+            raise InternalError(
+                "either key and key_encoding should be specified or neither", location
+            )
+        self.storage = storage
+        self.key = key
+        self.key_encoding = key_encoding
+        self.description = description
+        self.initial_value = initial_value
+
+    def build_definition(self, member_name: str, location: SourceLocation) -> AppStateDefinition:
+        return AppStateDefinition(
+            description=self.description,
+            key=(self.key if self.key is not None else member_name.encode("utf8")),
+            key_encoding=self.key_encoding or BytesEncoding.utf8,
+            source_location=location,
+            member_name=member_name,
+            storage_wtype=self.storage,
+            kind=self.kind,
+        )
+
+    def rvalue(self) -> Expression:
+        return self._assign_first(self.source_location)
+
+    def lvalue(self) -> Lvalue:
+        raise CodeError(
+            f"{self.python_name} is not valid as an assignment target", self.source_location
+        )
+
+    def delete(self, location: SourceLocation) -> Statement:
+        raise self._assign_first(location)
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return self._assign_first(location)
+
+    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
+        return self._assign_first(location)
+
+    def unary_minus(self, location: SourceLocation) -> ExpressionBuilder:
+        return self._assign_first(location)
+
+    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
+        return self._assign_first(location)
+
+    def contains(
+        self, item: ExpressionBuilder | Literal, location: SourceLocation
+    ) -> ExpressionBuilder:
+        return self._assign_first(location)
+
+    def _assign_first(self, location: SourceLocation) -> Never:
+        raise CodeError(
+            f"{self.python_name} should be assigned to an instance variable before being used",
+            location,
+        )
 
 
 class TypeClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):

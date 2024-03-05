@@ -13,6 +13,7 @@ from puya.parse import SourceLocation
 
 @enum.unique
 class AVMBytesEncoding(enum.StrEnum):
+    unknown = enum.auto()
     base16 = enum.auto()
     base32 = enum.auto()
     base64 = enum.auto()

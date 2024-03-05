@@ -1,7 +1,10 @@
 from puyapy import Bytes, Contract, UInt64, op, urange
 
+TWO = 2
+TWENTY = 20
 
-class MyContract(Contract, scratch_slots=(1, 2, urange(3, 20))):
+
+class MyContract(Contract, scratch_slots=(1, TWO, urange(3, TWENTY))):
     def approval_program(self) -> bool:
         op.Scratch.store(1, UInt64(5))
 

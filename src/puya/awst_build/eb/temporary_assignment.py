@@ -1,3 +1,4 @@
+from puya.awst import wtypes
 from puya.awst.nodes import (
     Expression,
     Literal,
@@ -11,13 +12,19 @@ from puya.errors import InternalError
 from puya.parse import SourceLocation
 
 
+# REFACTOR: this could extend ValueProxyExpressionBuilder, with a few tweaks to said class
 class TemporaryAssignmentExpressionBuilder(ExpressionBuilder):
     def __init__(self, expr: Expression):
         super().__init__(expr.source_location)
+        self.wtype = expr.wtype
         assign_expr = create_temporary_assignment(expr)
         self.target = assign_expr.read
         self.assignment = assign_expr.define
         self.is_first_access = True
+
+    @property
+    def value_type(self) -> wtypes.WType:
+        return self.wtype
 
     def lvalue(self) -> Lvalue:
         raise InternalError(

@@ -15,17 +15,11 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError, InternalError, TodoError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, flow_control
+from puya.ir.builder import arc4, flow_control, state
+from puya.ir.builder._utils import assert_value, assign, mkblocks
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
-from puya.ir.builder.utils import (
-    assign,
-    assign_targets,
-    format_tuple_index,
-    mkblocks,
-    mktemp,
-)
 from puya.ir.context import IRBuildContext, IRFunctionBuildContext
 from puya.ir.models import (
     AddressConstant,
@@ -50,6 +44,7 @@ from puya.ir.types_ import (
     bytes_enc_to_avm_bytes_enc,
     wtype_to_avm_type,
 )
+from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ValueProvider | None
@@ -255,36 +250,20 @@ class FunctionIRBuilder(
         )
 
     def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> TExpression:
-        value_atype = wtype_to_avm_type(expr.wtype)
-        value_tmp = mktemp(
+        value_with_check = self.visit_expr(expr.expr)
+        value, check = assign(
             self.context,
-            atype=value_atype,
+            value_with_check,
+            temp_description=("value", "check"),
             source_location=expr.source_location,
-            description="maybe_value",
         )
-        did_exist_tmp = mktemp(
+        assert_value(
             self.context,
-            atype=AVMType.uint64,
+            check,
+            comment=expr.comment,
             source_location=expr.source_location,
-            description="maybe_value_did_exist",
         )
-        maybe_value = self.visit_expr(expr.expr)
-        assign_targets(
-            self.context,
-            source=maybe_value,
-            targets=[value_tmp, did_exist_tmp],
-            assignment_location=expr.source_location,
-        )
-        self.context.block_builder.add(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[did_exist_tmp],
-                comment=expr.comment or "check value exists",
-                source_location=expr.source_location,
-            )
-        )
-
-        return value_tmp
+        return value
 
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
         if isinstance(expr.wtype, wtypes.WTuple):
@@ -489,98 +468,24 @@ class FunctionIRBuilder(
             return ValueTuple(expr.source_location, registers)
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> TExpression:
-        # TODO: add specific (unsafe) optimisation flag to allow skipping this check
-        current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-        # TODO: keep encoding? modify AWST to add source location for key?
-        key = BytesConstant(
-            value=expr.key,
-            source_location=expr.source_location,
-            encoding=bytes_enc_to_avm_bytes_enc(expr.key_encoding),
-        )
-
-        # note: we manually construct temporary targets here since atype is any,
-        #       but we "know" the type from the expression
-        value_atype = wtype_to_avm_type(expr.wtype)
-        value_tmp = mktemp(
-            self.context,
-            atype=value_atype,
-            source_location=expr.source_location,
-            description="app_global_get_ex_value",
-        )
-        did_exist_tmp = mktemp(
-            self.context,
-            atype=AVMType.uint64,
-            source_location=expr.source_location,
-            description="app_global_get_ex_did_exist",
-        )
-        assign_targets(
-            self.context,
-            source=Intrinsic(
-                op=AVMOp.app_global_get_ex,
-                args=[current_app_offset, key],
-                source_location=expr.source_location,
-            ),
-            targets=[value_tmp, did_exist_tmp],
-            assignment_location=expr.source_location,
-        )
-        self.context.block_builder.add(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[did_exist_tmp],
-                comment="check value exists",  # TODO: add field name here
-                source_location=expr.source_location,
-            )
-        )
-
-        return value_tmp
+        return state.visit_app_state_expression(self.context, expr)
 
     def visit_app_account_state_expression(
         self, expr: awst_nodes.AppAccountStateExpression
     ) -> TExpression:
-        account = self.visit_and_materialise_single(expr.account)
+        return state.visit_app_account_state_expression(self.context, expr)
 
-        # TODO: add specific (unsafe) optimisation flag to allow skipping this check
-        current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-        # TODO: keep encoding? modify AWST to add source location for key?
-        key = BytesConstant(
-            value=expr.key,
-            source_location=expr.source_location,
-            encoding=bytes_enc_to_avm_bytes_enc(expr.key_encoding),
-        )
+    def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> TExpression:
+        return state.visit_state_get_ex(self.context, expr)
 
-        # note: we manually construct temporary targets here since atype is any,
-        #       but we "know" the type from the expression
-        value_tmp = mktemp(
-            self.context,
-            atype=wtype_to_avm_type(expr.wtype),
-            source_location=expr.source_location,
-            description="app_local_get_ex_value",
-        )
-        did_exist_tmp = mktemp(
-            self.context,
-            atype=AVMType.uint64,
-            source_location=expr.source_location,
-            description="app_local_get_ex_did_exist",
-        )
-        assign_targets(
-            self.context,
-            source=Intrinsic(
-                op=AVMOp.app_local_get_ex,
-                args=[account, current_app_offset, key],
-                source_location=expr.source_location,
-            ),
-            targets=[value_tmp, did_exist_tmp],
-            assignment_location=expr.source_location,
-        )
-        self.context.block_builder.add(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[did_exist_tmp],
-                comment="check value exists",  # TODO: add field name here
-                source_location=expr.source_location,
-            )
-        )
-        return value_tmp
+    def visit_state_delete(self, statement: awst_nodes.StateDelete) -> TStatement:
+        return state.visit_state_delete(self.context, statement)
+
+    def visit_state_get(self, expr: awst_nodes.StateGet) -> TExpression:
+        return state.visit_state_get(self.context, expr)
+
+    def visit_state_exists(self, expr: awst_nodes.StateExists) -> TExpression:
+        return state.visit_state_exists(self.context, expr)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         raise TodoError(expr.source_location, "TODO: visit_new_array")
