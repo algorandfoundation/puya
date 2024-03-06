@@ -43,6 +43,7 @@ from puya.ir.types_ import (
     AVMBytesEncoding,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_avm_type,
+    wtype_to_avm_types,
 )
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -306,6 +307,7 @@ class FunctionIRBuilder(
                     source_location=call.source_location,
                     args=args,
                     immediates=list(call.immediates),
+                    types=wtype_to_avm_types(call.wtype),
                 )
 
     def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:

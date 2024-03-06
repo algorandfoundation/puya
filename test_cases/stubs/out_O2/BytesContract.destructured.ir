@@ -3,45 +3,73 @@ contract test_cases.stubs.bytes.BytesContract:
         subroutine test_cases.stubs.bytes.BytesContract.approval_program() -> uint64:
             block@0: // L5
                 test_cases.stubs.bytes.check_slicing_with_uint64("abc")
+                test_cases.stubs.bytes.check_end_before_start_slicing("abc")
                 return 1u
         
         subroutine test_cases.stubs.bytes.check_slicing_with_uint64(abc: bytes) -> void:
-            block@0: // L76
+            block@0: // L77
                 let tmp%1#0: uint64 = (len abc#0)
                 let tmp%4#0: uint64 = (< 1u tmp%1#0)
-                let tmp%5#0: any = (select tmp%1#0 1u tmp%4#0)
+                let tmp%5#0: uint64 = (select tmp%1#0 1u tmp%4#0)
                 let tmp%7#0: bytes = (substring3 abc#0 tmp%5#0 tmp%1#0)
                 let tmp%8#0: uint64 = (== tmp%7#0 "bc")
                 (assert tmp%8#0)
-                let tmp%20#0: bytes = (substring3 abc#0 tmp%5#0 tmp%5#0)
-                let tmp%21#0: uint64 = (== tmp%20#0 "")
-                (assert tmp%21#0)
-                let tmp%28#0: bytes = (substring3 abc#0 0u tmp%5#0)
-                let tmp%29#0: uint64 = (== tmp%28#0 "a")
-                (assert tmp%29#0)
-                let awst_tmp%30#0: bytes = test_cases.stubs.bytes.one_to_seven()
-                let tmp%31#0: uint64 = (len awst_tmp%30#0)
-                let tmp%34#0: uint64 = (< 1u tmp%31#0)
-                let tmp%35#0: any = (select tmp%31#0 1u tmp%34#0)
-                let tmp%41#0: uint64 = (- tmp%31#0 tmp%35#0)
-                let tmp%42#0: bytes = (substring3 awst_tmp%30#0 tmp%35#0 tmp%41#0)
-                let tmp%43#0: uint64 = (== tmp%42#0 "23456")
+                let tmp%34#0: bytes = (substring3 abc#0 tmp%5#0 tmp%5#0)
+                let tmp%35#0: uint64 = (== tmp%34#0 "")
+                (assert tmp%35#0)
+                let tmp%42#0: bytes = (substring3 abc#0 0u tmp%5#0)
+                let tmp%43#0: uint64 = (== tmp%42#0 "a")
                 (assert tmp%43#0)
-                let tmp%48#0: uint64 = (< 0u tmp%1#0)
-                let tmp%49#0: any = (select tmp%1#0 0u tmp%48#0)
-                let tmp%53#0: uint64 = (< 10u tmp%1#0)
-                let tmp%54#0: any = (select tmp%1#0 10u tmp%53#0)
-                let tmp%55#0: bytes = (substring3 abc#0 tmp%49#0 tmp%54#0)
-                let tmp%56#0: uint64 = (== tmp%55#0 "abc")
-                (assert tmp%56#0)
+                let awst_tmp%44#0: bytes = test_cases.stubs.bytes.one_to_seven()
+                let tmp%45#0: uint64 = (len awst_tmp%44#0)
+                let tmp%48#0: uint64 = (< 1u tmp%45#0)
+                let tmp%49#0: uint64 = (select tmp%45#0 1u tmp%48#0)
+                let tmp%55#0: uint64 = (- tmp%45#0 tmp%49#0)
+                let tmp%70#0: uint64 = (> tmp%49#0 tmp%55#0)
+                let tmp%71#0: uint64 = (select tmp%55#0 tmp%49#0 tmp%70#0)
+                let tmp%72#0: bytes = (substring3 awst_tmp%44#0 tmp%49#0 tmp%71#0)
+                let tmp%73#0: uint64 = (== tmp%72#0 "23456")
+                (assert tmp%73#0)
+                let tmp%78#0: uint64 = (< 0u tmp%1#0)
+                let tmp%79#0: uint64 = (select tmp%1#0 0u tmp%78#0)
+                let tmp%83#0: uint64 = (< 10u tmp%1#0)
+                let tmp%84#0: uint64 = (select tmp%1#0 10u tmp%83#0)
+                let tmp%97#0: uint64 = (> tmp%79#0 tmp%84#0)
+                let tmp%98#0: uint64 = (select tmp%84#0 tmp%79#0 tmp%97#0)
+                let tmp%99#0: bytes = (substring3 abc#0 tmp%79#0 tmp%98#0)
+                let tmp%100#0: uint64 = (== tmp%99#0 "abc")
+                (assert tmp%100#0)
                 return 
         
         subroutine test_cases.stubs.bytes.one_to_seven() -> bytes:
-            block@0: // L87
+            block@0: // L97
                 (log "one_to_seven called")
                 return "1234567"
+        
+        subroutine test_cases.stubs.bytes.check_end_before_start_slicing(abc: bytes) -> void:
+            block@0: // L88
+                let tmp%1#0: uint64 = (len abc#0)
+                let tmp%3#0: uint64 = (< 10u tmp%1#0)
+                let tmp%4#0: uint64 = (select tmp%1#0 10u tmp%3#0)
+                let tmp%7#0: uint64 = (< 1u tmp%1#0)
+                let tmp%8#0: uint64 = (select tmp%1#0 1u tmp%7#0)
+                let tmp%21#0: uint64 = (> tmp%4#0 tmp%8#0)
+                let tmp%22#0: uint64 = (select tmp%8#0 tmp%4#0 tmp%21#0)
+                let tmp%23#0: bytes = (substring3 abc#0 tmp%4#0 tmp%22#0)
+                let tmp%24#0: uint64 = (== tmp%23#0 "")
+                (assert tmp%24#0)
+                let tmp%31#0: uint64 = (- tmp%1#0 tmp%4#0)
+                let tmp%35#0: uint64 = (< 12u tmp%1#0)
+                let tmp%36#0: uint64 = (select tmp%1#0 12u tmp%35#0)
+                let tmp%37#0: uint64 = (- tmp%1#0 tmp%36#0)
+                let tmp%56#0: uint64 = (> tmp%31#0 tmp%37#0)
+                let tmp%57#0: uint64 = (select tmp%37#0 tmp%31#0 tmp%56#0)
+                let tmp%58#0: bytes = (substring3 abc#0 tmp%31#0 tmp%57#0)
+                let tmp%59#0: uint64 = (== tmp%58#0 "")
+                (assert tmp%59#0)
+                return 
     
     program clear-state:
         subroutine test_cases.stubs.bytes.BytesContract.clear_state_program() -> uint64:
-            block@0: // L72
+            block@0: // L73
                 return 1u
