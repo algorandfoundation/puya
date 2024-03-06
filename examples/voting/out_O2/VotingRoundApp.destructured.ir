@@ -322,27 +322,20 @@ contract examples.voting.voting.VotingRoundApp:
             block@0: // L157
                 let tmp%0#0: uint64 = examples.voting.voting.VotingRoundApp.voting_open()
                 let val_as_bytes%1#0: bytes = (itob tmp%0#0)
-                let awst_tmp%2#0: uint64 = (len signature#0)
-                let tmp%3#0: uint64 = (< 2u awst_tmp%2#0)
-                goto tmp%3#0 ? block@1 : block@2
-            block@1: // ternary_true_L161
-                let ternary_result%4#0: uint64 = 2u
-                goto block@3
-            block@2: // ternary_false_L161
-                let ternary_result%4#0: uint64 = awst_tmp%2#0
-                goto block@3
-            block@3: // ternary_merge_L161
-                let tmp%6#0: bytes = (substring3 signature#0 ternary_result%4#0 awst_tmp%2#0)
-                let tmp%7#0: uint64 = examples.voting.voting.VotingRoundApp.allowed_to_vote(tmp%6#0)
-                let val_as_bytes%8#0: bytes = (itob tmp%7#0)
-                let tmp%9#0: uint64 = examples.voting.voting.VotingRoundApp.already_voted()
+                let tmp%3#0: uint64 = (len signature#0)
+                let tmp%5#0: uint64 = (< 2u tmp%3#0)
+                let tmp%6#0: any = (select tmp%3#0 2u tmp%5#0)
+                let tmp%8#0: bytes = (substring3 signature#0 tmp%6#0 tmp%3#0)
+                let tmp%9#0: uint64 = examples.voting.voting.VotingRoundApp.allowed_to_vote(tmp%8#0)
                 let val_as_bytes%10#0: bytes = (itob tmp%9#0)
-                let tmp%11#0: uint64 = (global LatestTimestamp)
+                let tmp%11#0: uint64 = examples.voting.voting.VotingRoundApp.already_voted()
                 let val_as_bytes%12#0: bytes = (itob tmp%11#0)
-                let encoded_tuple_buffer%14#2: bytes = (concat val_as_bytes%1#0 val_as_bytes%8#0)
-                let encoded_tuple_buffer%14#2: bytes = (concat encoded_tuple_buffer%14#2 val_as_bytes%10#0)
-                let encoded_tuple_buffer%14#2: bytes = (concat encoded_tuple_buffer%14#2 val_as_bytes%12#0)
-                return encoded_tuple_buffer%14#2
+                let tmp%13#0: uint64 = (global LatestTimestamp)
+                let val_as_bytes%14#0: bytes = (itob tmp%13#0)
+                let encoded_tuple_buffer%16#2: bytes = (concat val_as_bytes%1#0 val_as_bytes%10#0)
+                let encoded_tuple_buffer%16#2: bytes = (concat encoded_tuple_buffer%16#2 val_as_bytes%12#0)
+                let encoded_tuple_buffer%16#2: bytes = (concat encoded_tuple_buffer%16#2 val_as_bytes%14#0)
+                return encoded_tuple_buffer%16#2
         
         subroutine examples.voting.voting.VotingRoundApp.voting_open() -> uint64:
             block@0: // L202

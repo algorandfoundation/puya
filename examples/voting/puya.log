@@ -461,15 +461,6 @@ debug: Sealing block@0: // L238
 debug: Terminated block@0: // L238
 debug: Sealing block@0: // L157
 debug: Terminated block@0: // L157
-debug: Sealing block@None: // ternary_true_L161
-debug: Sealing block@None: // ternary_false_L161
-debug: Terminated block@1: // ternary_true_L161
-debug: Terminated block@2: // ternary_false_L161
-debug: Sealing block@3: // ternary_merge_L161
-debug: Created Phi assignment: let ternary_result%4#2: uint64 = undefined while trying to resolve 'ternary_result%4' in block@3: // ternary_merge_L161
-debug: Added ternary_result%4#0 to Phi node: let ternary_result%4#2: uint64 = φ(ternary_result%4#0 <- block@1) in block@1: // ternary_true_L161
-debug: Added ternary_result%4#1 to Phi node: let ternary_result%4#2: uint64 = φ(ternary_result%4#0 <- block@1, ternary_result%4#1 <- block@2) in block@2: // ternary_false_L161
-debug: Terminated block@3: // ternary_merge_L161
 debug: Sealing block@0: // L202
 debug: Terminated block@0: // L202
 debug: Sealing block@None: // and_contd_L205
@@ -827,24 +818,24 @@ debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.get_precondit
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: awst_tmp%2#0, ternary_result%4#1
-debug: Replacing {ternary_result%4#1} with awst_tmp%2#0 made 1 modifications
+debug: Found equivalence set: signature#0, awst_tmp%2#0
+debug: Replacing {awst_tmp%2#0} with signature#0 made 4 modifications
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x val_as_bytes%1#0) to val_as_bytes%1#0
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable current_tail_offset%13#0
-debug: Removing unused variable encoded_tuple_buffer%14#0
+debug: Removing unused variable current_tail_offset%15#0
+debug: Removing unused variable encoded_tuple_buffer%16#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@2: // ternary_false_L161 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let base_length%5#0: uint64 = (len signature#0) with copy of existing registers [Register(atype=uint64, name='awst_tmp%2', version=0, source_location=voting/voting.py:161:64-83)]
-debug: Found equivalence set: awst_tmp%2#0, base_length%5#0
-debug: Replacing {base_length%5#0} with awst_tmp%2#0 made 1 modifications
-debug: Found equivalence set: val_as_bytes%1#0, encoded_tuple_buffer%14#1
-debug: Replacing {encoded_tuple_buffer%14#1} with val_as_bytes%1#0 made 1 modifications
+debug: Replacing redundant declaration let tmp%4#0: uint64 = (len signature#0) with copy of existing registers [Register(atype=uint64, name='tmp%3', version=0, source_location=voting/voting.py:161:64-83)]
+debug: Replacing redundant declaration let base_length%7#0: uint64 = (len signature#0) with copy of existing registers [Register(atype=uint64, name='tmp%3', version=0, source_location=voting/voting.py:161:64-83)]
+debug: Found equivalence set: tmp%3#0, tmp%4#0, base_length%7#0
+debug: Replacing {tmp%4#0, base_length%7#0} with tmp%3#0 made 2 modifications
+debug: Found equivalence set: val_as_bytes%1#0, encoded_tuple_buffer%16#1
+debug: Replacing {encoded_tuple_buffer%16#1} with val_as_bytes%1#0 made 1 modifications
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.voting_open
 debug: Splitting parallel copies prior to optimization
 debug: Optimizer: Constant Replacer
@@ -1038,7 +1029,6 @@ debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@2: // ternary_false_L161 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.voting_open
@@ -1201,7 +1191,6 @@ debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@2: // ternary_false_L161 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.voting_open
@@ -1318,9 +1307,8 @@ debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in examples.voting.voting.get_vote_from_box using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in examples.voting.voting.VotingRoundApp.get_preconditions using strategy RootOperandGrouping
-debug: Coalescing ternary_result%4#0 with [ternary_result%4#4, ternary_result%4#2]
-debug: Coalescing encoded_tuple_buffer%14#2 with [encoded_tuple_buffer%14#3, encoded_tuple_buffer%14#4]
-debug: Coalescing resulted in 9 replacement/s
+debug: Coalescing encoded_tuple_buffer%16#2 with [encoded_tuple_buffer%16#3, encoded_tuple_buffer%16#4]
+debug: Coalescing resulted in 4 replacement/s
 debug: Coalescing local variables in examples.voting.voting.VotingRoundApp.voting_open using strategy RootOperandGrouping
 debug: Coalescing and_result%11#0 with [and_result%11#5, and_result%11#1, and_result%11#2]
 debug: Coalescing resulted in 7 replacement/s
@@ -1786,36 +1774,38 @@ debug: Inserted get_vote_from_box_block@0.ops[4]: 'store box_data#0 to l-stack (
 debug: Replaced get_vote_from_box_block@0.ops[8]: 'load box_data#0' with 'load box_data#0 from l-stack (no copy)'
 debug: Inserted get_preconditions_block@0.ops[1]: 'store tmp%0#0 to l-stack (copy)'
 debug: Replaced get_preconditions_block@0.ops[3]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[22]: 'store tmp%8#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[24]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[26]: 'store tmp%9#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[28]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[32]: 'store tmp%11#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[34]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[38]: 'store tmp%13#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[40]: 'load tmp%13#0' with 'load tmp%13#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[46]: 'store encoded_tuple_buffer%16#2 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[48]: 'load encoded_tuple_buffer%16#2' with 'load encoded_tuple_buffer%16#2 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[51]: 'store encoded_tuple_buffer%16#2 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[53]: 'load encoded_tuple_buffer%16#2' with 'load encoded_tuple_buffer%16#2 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[56]: 'store encoded_tuple_buffer%16#2 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[58]: 'load encoded_tuple_buffer%16#2' with 'load encoded_tuple_buffer%16#2 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[8]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[11]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[18]: 'store tmp%6#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[21]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
 debug: Inserted get_preconditions_block@0.ops[12]: 'store tmp%3#0 to l-stack (copy)'
-debug: Replaced get_preconditions_block@0.ops[14]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_block@0.ops[8]: 'store awst_tmp%2#0 to l-stack (copy)'
-debug: Replaced get_preconditions_block@0.ops[11]: 'load awst_tmp%2#0' with 'load awst_tmp%2#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[4]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[6]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[8]: 'store tmp%7#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[10]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[14]: 'store tmp%9#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[16]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[20]: 'store tmp%11#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[22]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[28]: 'store encoded_tuple_buffer%14#2 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[30]: 'load encoded_tuple_buffer%14#2' with 'load encoded_tuple_buffer%14#2 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[33]: 'store encoded_tuple_buffer%14#2 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[35]: 'load encoded_tuple_buffer%14#2' with 'load encoded_tuple_buffer%14#2 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[38]: 'store encoded_tuple_buffer%14#2 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[40]: 'load encoded_tuple_buffer%14#2' with 'load encoded_tuple_buffer%14#2 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[24]: 'store val_as_bytes%12#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[37]: 'load val_as_bytes%12#0' with 'load val_as_bytes%12#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[18]: 'store val_as_bytes%10#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[33]: 'load val_as_bytes%10#0' with 'load val_as_bytes%10#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[12]: 'store val_as_bytes%8#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[29]: 'load val_as_bytes%8#0' with 'load val_as_bytes%8#0 from l-stack (no copy)'
-debug: Found 2 edge set/s for examples.voting.voting.VotingRoundApp.get_preconditions
-debug: Allocated 1 variable/s to x-stack: ternary_result%4#0
-debug: shared x-stack for get_preconditions_ternary_true@1 -> get_preconditions_ternary_merge@3: ternary_result%4#0
-debug: shared x-stack for get_preconditions_ternary_false@2 -> get_preconditions_ternary_merge@3: ternary_result%4#0
-debug: examples.voting.voting.VotingRoundApp.get_preconditions f-stack entry: []
-debug: examples.voting.voting.VotingRoundApp.get_preconditions f-stack on first store: ['val_as_bytes%1#0', 'awst_tmp%2#0']
+debug: Replaced get_preconditions_block@0.ops[15]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[14]: 'store tmp%5#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[18]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[17]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[25]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[47]: 'store val_as_bytes%14#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[60]: 'load val_as_bytes%14#0' with 'load val_as_bytes%14#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[41]: 'store val_as_bytes%12#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[56]: 'load val_as_bytes%12#0' with 'load val_as_bytes%12#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[35]: 'store val_as_bytes%10#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[52]: 'load val_as_bytes%10#0' with 'load val_as_bytes%10#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[5]: 'store val_as_bytes%1#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[52]: 'load val_as_bytes%1#0' with 'load val_as_bytes%1#0 from l-stack (no copy)'
 debug: Inserted voting_open_block@0.ops[3]: 'store is_bootstrapped_exists%1#0 to l-stack (copy)'
 debug: Replaced voting_open_block@0.ops[6]: 'load is_bootstrapped_exists%1#0' with 'load is_bootstrapped_exists%1#0 from l-stack (no copy)'
 debug: Inserted voting_open_block@0.ops[5]: 'store is_bootstrapped_value%0#0 to l-stack (copy)'

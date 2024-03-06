@@ -989,28 +989,23 @@ get_preconditions:
     // voting/voting.py:161
     // is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature.bytes[2:])),
     frame_dig -1
-    len
     dup
+    len
     swap
+    dup
+    len
     int 2
     swap
     <
-    bz get_preconditions_ternary_false@2
-    int 2
-    b get_preconditions_ternary_merge@3
-
-get_preconditions_ternary_false@2:
-    // voting/voting.py:161
-    // is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature.bytes[2:])),
-    frame_dig 1
-
-get_preconditions_ternary_merge@3:
-    // voting/voting.py:161
-    // is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature.bytes[2:])),
-    frame_dig -1
-    len
-    frame_dig -1
     uncover 2
+    int 2
+    uncover 2
+    select
+    dig 1
+    len
+    swap
+    uncover 2
+    swap
     uncover 2
     substring3
     callsub allowed_to_vote
@@ -1031,7 +1026,7 @@ get_preconditions_ternary_merge@3:
     //     current_time=arc4.UInt64(Global.latest_timestamp),
     // )
     byte 0x
-    frame_dig 0
+    uncover 4
     concat
     uncover 3
     concat
@@ -1039,7 +1034,6 @@ get_preconditions_ternary_merge@3:
     concat
     swap
     concat
-    frame_bury 0
     retsub
 
 

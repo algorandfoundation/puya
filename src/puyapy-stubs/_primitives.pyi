@@ -147,6 +147,8 @@ class UInt64:
     # ~
     def __invert__(self) -> UInt64:
         """A UInt64 can be bitwise inverted e.g. `~UInt64(4)`"""
+    def __index__(self) -> int:
+        """A UInt64 can be used in indexing/slice expressions"""
 
 class Bytes(Reversible[Bytes]):
     """A byte sequence, with a maximum length of 4096 bytes, one of the primary data types on the AVM"""

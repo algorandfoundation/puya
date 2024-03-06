@@ -1223,10 +1223,6 @@ test4:
     // @subroutine
     // def test4(self) -> None:
     proto 0 0
-    int 0
-    dupn 2
-    byte ""
-    dupn 3
     // inner_transactions/contract.py:233
     // lots_of_bytes = op.bzero(2044)
     int 2044
@@ -1312,13 +1308,11 @@ test4:
     itxn_field ApplicationArgs
     itxn_submit
     int 1
-    dup
-    frame_bury 3
     itxn ExtraProgramPages
     itxn NumApprovalProgramPages
     swap
     itxn NumClearStateProgramPages
-    frame_bury 4
+    cover 3
     // inner_transactions/contract.py:252
     // assert app_1.extra_program_pages == 3, "extra_pages == 3"
     int 3
@@ -1331,47 +1325,45 @@ test4:
     assert // approval_pages == 2
     // inner_transactions/contract.py:255
     // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
+    dup
     int 1
     ==
     assert // 'app_1' can still be accessed
     int 0
     itxnas ApprovalProgramPages
-    frame_bury 1
-    frame_dig 7
-    frame_dig 8
+    frame_dig 0
+    uncover 4
     dup
     cover 2
     concat
-    frame_bury 2
-    len
+    swap
     dup
-    frame_bury 6
+    dup
+    len
+    swap
+    dup
+    len
+    swap
+    dup
+    len
     int 3
     swap
     <
-    bz test4_ternary_false@3
-    frame_dig 6
+    uncover 2
     int 3
+    uncover 2
+    select
+    uncover 2
+    swap
     -
-    b test4_ternary_merge@4
-
-test4_ternary_false@3:
-    // inner_transactions/contract.py:255
-    // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
+    swap
     int 0
-
-test4_ternary_merge@4:
-    // inner_transactions/contract.py:255
-    // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
-    frame_dig 8
-    dup
-    int 0
-    uncover 3
+    uncover 2
     substring3
-    frame_dig 2
+    uncover 2
     swap
     concat
-    frame_dig 1
+    uncover 2
     swap
     ==
     // inner_transactions/contract.py:254-256
@@ -1381,45 +1373,40 @@ test4_ternary_merge@4:
     assert // expected approval page 0
     // inner_transactions/contract.py:258
     // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
-    frame_dig 3
+    dig 1
     int 1
     ==
     assert // 'app_1' can still be accessed
     int 1
     itxnas ApprovalProgramPages
-    frame_bury 0
-    len
+    dig 1
     dup
-    frame_bury 5
+    len
+    swap
+    dup
+    len
+    swap
+    dup
+    len
     int 3
     swap
     <
-    bz test4_ternary_false@6
-    frame_dig 5
+    uncover 2
     int 3
+    uncover 2
+    select
+    uncover 2
+    swap
     -
-    b test4_ternary_merge@7
-
-test4_ternary_false@6:
-    // inner_transactions/contract.py:258
-    // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
-    int 0
-
-test4_ternary_merge@7:
-    // inner_transactions/contract.py:258
-    // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
-    frame_dig 8
-    dup
+    dig 1
     len
     swap
-    dup
-    uncover 3
-    uncover 3
+    uncover 2
+    swap
+    uncover 2
     substring3
-    swap
+    uncover 2
     concat
-    frame_dig 0
-    swap
     ==
     // inner_transactions/contract.py:257-259
     // assert (
@@ -1428,13 +1415,12 @@ test4_ternary_merge@7:
     assert // expected approval page 1
     // inner_transactions/contract.py:260
     // assert app_1.num_clear_state_program_pages == 1, "clear_state_pages == 1"
-    frame_dig 4
+    swap
     int 1
     ==
     assert // clear_state_pages == 1
     // inner_transactions/contract.py:261
     // assert app_1.clear_state_program_pages(0) == ALWAYS_APPROVE, "expected clear_state_pages"
-    frame_dig 3
     int 1
     ==
     assert // 'app_1' can still be accessed

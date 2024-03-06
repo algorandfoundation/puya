@@ -1,5 +1,92 @@
 #pragma version 10
 
 test_cases.stubs.bytes.BytesContract.approval_program:
+    byte "abc"
+    callsub check_slicing_with_uint64
     int 1
     return
+
+
+// test_cases.stubs.bytes.check_slicing_with_uint64(abc: bytes) -> void:
+check_slicing_with_uint64:
+    proto 1 0
+    frame_dig -1
+    len
+    int 1
+    dig 1
+    <
+    swap
+    dup
+    int 1
+    uncover 3
+    select
+    frame_dig -1
+    dig 1
+    dig 3
+    substring3
+    byte "bc"
+    ==
+    assert
+    frame_dig -1
+    dig 1
+    dig 2
+    substring3
+    byte ""
+    ==
+    assert
+    frame_dig -1
+    int 0
+    uncover 2
+    substring3
+    byte "a"
+    ==
+    assert
+    callsub one_to_seven
+    dup
+    len
+    int 1
+    dig 1
+    <
+    swap
+    dup
+    int 1
+    uncover 3
+    select
+    dup
+    cover 2
+    -
+    substring3
+    byte "23456"
+    ==
+    assert
+    int 0
+    dig 1
+    <
+    swap
+    dup
+    int 0
+    uncover 3
+    select
+    swap
+    int 10
+    dig 1
+    <
+    int 10
+    swap
+    select
+    frame_dig -1
+    cover 2
+    substring3
+    byte "abc"
+    ==
+    assert
+    retsub
+
+
+// test_cases.stubs.bytes.one_to_seven() -> bytes:
+one_to_seven:
+    proto 0 1
+    byte "one_to_seven called"
+    log
+    byte "1234567"
+    retsub
