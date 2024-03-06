@@ -142,7 +142,6 @@ class IRFunctionBuildContext(IRBuildContextWithFallback):
     visitor: "FunctionIRBuilder"
     block_builder: BlocksBuilder = attrs.field()
     _tmp_counter: Iterator[int] = attrs.field(factory=itertools.count)
-    _awst_temp_var_names: dict[awst_nodes.TemporaryVariable, str] = attrs.field(factory=dict)
 
     @property
     def ssa(self) -> BraunSSA:
@@ -156,15 +155,3 @@ class IRFunctionBuildContext(IRBuildContextWithFallback):
 
     def next_tmp_name(self, description: str) -> str:
         return f"{description}{TMP_VAR_INDICATOR}{next(self._tmp_counter)}"
-
-    def get_awst_tmp_name(self, tmp_var: awst_nodes.TemporaryVariable) -> str:
-        """
-        Returns a unique and consistent name for a given AWST TemporaryVariable node.
-        """
-        try:
-            return self._awst_temp_var_names[tmp_var]
-        except KeyError:
-            pass
-        name = self.next_tmp_name("awst_tmp")
-        self._awst_temp_var_names[tmp_var] = name
-        return name

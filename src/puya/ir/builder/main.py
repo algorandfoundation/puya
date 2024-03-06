@@ -62,7 +62,7 @@ class FunctionIRBuilder(
     ):
         self.context = context.for_function(function, subroutine, self)
         self._itxn = InnerTransactionBuilder(self.context)
-        self._awst_temp_var_names = dict[awst_nodes.TemporaryVariable, str]()
+        self._single_eval_registers = dict[awst_nodes.SingleEvaluation, TExpression]()
 
     @classmethod
     def build_body(
@@ -449,23 +449,30 @@ class FunctionIRBuilder(
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
         return flow_control.handle_conditional_expression(self.context, expr)
 
-    def visit_temporary_variable(self, expr: awst_nodes.TemporaryVariable) -> TExpression:
-        tmp_name = self.context.get_awst_tmp_name(expr)
-        if not isinstance(expr.wtype, wtypes.WTuple):
-            atype = wtype_to_avm_type(expr)
-            return self.context.ssa.read_variable(
-                tmp_name, atype, self.context.block_builder.active_block
-            )
+    def visit_single_evaluation(self, expr: awst_nodes.SingleEvaluation) -> TExpression:
+        try:
+            return self._single_eval_registers[expr]
+        except KeyError:
+            pass
+        source = expr.source.accept(self)
+        result: TExpression
+        if source is None:
+            result = None
         else:
-            registers: list[Value] = [
-                self.context.ssa.read_variable(
-                    format_tuple_index(tmp_name, idx),
-                    wtype_to_avm_type(t),
-                    self.context.block_builder.active_block,
+            registers = assign(
+                self.context,
+                source=source,
+                temp_description="awst_tmp",
+                source_location=expr.source_location,
+            )
+            if len(registers) == 1:
+                (result,) = registers
+            else:
+                result = ValueTuple(
+                    values=list[Value](registers), source_location=expr.source_location
                 )
-                for idx, t in enumerate(expr.wtype.types)
-            ]
-            return ValueTuple(expr.source_location, registers)
+        self._single_eval_registers[expr] = result
+        return result
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> TExpression:
         return state.visit_app_state_expression(self.context, expr)

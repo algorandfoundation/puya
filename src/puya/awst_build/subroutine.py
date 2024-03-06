@@ -36,6 +36,7 @@ from puya.awst.nodes import (
     Lvalue,
     Not,
     ReturnStatement,
+    SingleEvaluation,
     Statement,
     Subroutine,
     SubroutineArgument,
@@ -69,7 +70,6 @@ from puya.awst_build.eb.intrinsics import (
 )
 from puya.awst_build.eb.struct import StructSubclassExpressionBuilder
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
-from puya.awst_build.eb.temporary_assignment import TemporaryAssignmentExpressionBuilder
 from puya.awst_build.eb.tuple import TupleTypeExpressionBuilder
 from puya.awst_build.eb.type_registry import get_type_builder
 from puya.awst_build.eb.unsigned_builtins import (
@@ -1239,14 +1239,14 @@ def temporary_assignment_if_required(operand: Literal) -> Literal:
 
 
 @typing.overload
-def temporary_assignment_if_required(operand: Expression) -> TemporaryAssignmentExpressionBuilder:
+def temporary_assignment_if_required(operand: Expression) -> ExpressionBuilder:
     ...
 
 
 @typing.overload
 def temporary_assignment_if_required(
     operand: ExpressionBuilder,
-) -> TemporaryAssignmentExpressionBuilder:
+) -> ExpressionBuilder:
     ...
 
 
@@ -1263,7 +1263,7 @@ def temporary_assignment_if_required(
     # TODO: optimise the below checks so we don't create unnecessary temporaries,
     #       ie when Expression has no side effects
     if not isinstance(expr, VarExpression | CompileTimeConstantExpression):
-        return TemporaryAssignmentExpressionBuilder(expr)
+        return var_expression(SingleEvaluation(expr))
     if isinstance(operand, Expression):
         return var_expression(operand)
     else:

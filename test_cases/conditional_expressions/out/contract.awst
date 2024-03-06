@@ -6,10 +6,10 @@ contract MyContract
     b: puyapy.UInt64 = 2u
     c: puyapy.UInt64 = (reinterpret_cast<bool>(a)) ? (a) : (b)
     d: puyapy.UInt64 = (!(reinterpret_cast<bool>(b))) ? (b) : (a)
-    e: puyapy.UInt64 = (reinterpret_cast<bool>(tmp$0: puyapy.UInt64 := this::expensive_op(0u))) ? (tmp$0) : (this::side_effecting_op(1u))
-    f: puyapy.UInt64 = (reinterpret_cast<bool>(tmp$1: puyapy.UInt64 := this::expensive_op(3u))) ? (tmp$1) : (this::side_effecting_op(42u))
-    g: puyapy.UInt64 = (!(reinterpret_cast<bool>(tmp$2: puyapy.UInt64 := this::side_effecting_op(0u)))) ? (tmp$2) : (this::expensive_op(42u))
-    h: puyapy.UInt64 = (!(reinterpret_cast<bool>(tmp$3: puyapy.UInt64 := this::side_effecting_op(2u)))) ? (tmp$3) : (this::expensive_op(3u))
+    e: puyapy.UInt64 = (reinterpret_cast<bool>(SINGLE_EVAL(id=0, source=this::expensive_op(0u)))) ? (SINGLE_EVAL(id=0, source=this::expensive_op(0u))) : (this::side_effecting_op(1u))
+    f: puyapy.UInt64 = (reinterpret_cast<bool>(SINGLE_EVAL(id=1, source=this::expensive_op(3u)))) ? (SINGLE_EVAL(id=1, source=this::expensive_op(3u))) : (this::side_effecting_op(42u))
+    g: puyapy.UInt64 = (!(reinterpret_cast<bool>(SINGLE_EVAL(id=2, source=this::side_effecting_op(0u))))) ? (SINGLE_EVAL(id=2, source=this::side_effecting_op(0u))) : (this::expensive_op(42u))
+    h: puyapy.UInt64 = (!(reinterpret_cast<bool>(SINGLE_EVAL(id=3, source=this::side_effecting_op(2u))))) ? (SINGLE_EVAL(id=3, source=this::side_effecting_op(2u))) : (this::expensive_op(3u))
     i: puyapy.UInt64 = (b < c) ? (a) : (d + e)
     result: puyapy.UInt64 = a * b * c * d * f * h - e - g + i
     log(itob(result))

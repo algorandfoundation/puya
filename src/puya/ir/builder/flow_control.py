@@ -82,7 +82,6 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
         (statement.default_case and statement.default_case.description) or "switch_case_default",
         "switch_case_next",
     )
-
     switch_value = context.visitor.visit_and_materialise_single(statement.value)
     goto_default = Goto(
         target=default_block,

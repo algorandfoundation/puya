@@ -2,7 +2,6 @@ import typing
 from collections.abc import Iterable, Sequence
 from typing import Iterator
 
-import attrs
 import mypy.build
 import mypy.nodes
 import structlog
@@ -11,7 +10,6 @@ from mypy.types import get_proper_type, is_named_instance
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AddressConstant,
-    AssignmentExpression,
     BoolConstant,
     BytesConstant,
     BytesEncoding,
@@ -21,7 +19,6 @@ from puya.awst.nodes import (
     IntegerConstant,
     Literal,
     ReinterpretCast,
-    TemporaryVariable,
     UInt64Constant,
 )
 from puya.awst_build import constants
@@ -298,24 +295,6 @@ def extract_bytes_literal_from_mypy(expr: mypy.nodes.BytesExpr) -> bytes:
         bytes_literal = 'b"' + bytes_str + '"'
     bytes_const: bytes = ast.literal_eval(bytes_literal)
     return bytes_const
-
-
-@attrs.define(kw_only=True)
-class TemporaryAssignmentExpr:
-    define: AssignmentExpression
-    read: TemporaryVariable
-
-
-def create_temporary_assignment(
-    value: Expression, location: SourceLocation | None = None
-) -> TemporaryAssignmentExpr:
-    read_expr = TemporaryVariable(value)
-    define_expr = AssignmentExpression(
-        target=read_expr,
-        value=value,
-        source_location=location or value.source_location,
-    )
-    return TemporaryAssignmentExpr(define=define_expr, read=read_expr)
 
 
 T = typing.TypeVar("T")

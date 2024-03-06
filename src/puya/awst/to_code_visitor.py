@@ -40,10 +40,10 @@ class ToCodeVisitor(
         return f"reversed({sequence})"
 
     def __init__(self) -> None:
-        self._seen_tmp = dict[nodes.TemporaryVariable, int]()
+        self._seen_single_evals = dict[nodes.SingleEvaluation, int]()
 
-    def _tmp_index(self, tmp: nodes.TemporaryVariable) -> int:
-        return self._seen_tmp.setdefault(tmp, len(self._seen_tmp))
+    def _single_eval_index(self, tmp: nodes.SingleEvaluation) -> int:
+        return self._seen_single_evals.setdefault(tmp, len(self._seen_single_evals))
 
     def visit_module(self, module: nodes.Module) -> str:
         result = list[str]()
@@ -68,8 +68,10 @@ class ToCodeVisitor(
     def visit_reinterpret_cast(self, expr: nodes.ReinterpretCast) -> str:
         return f"reinterpret_cast<{expr.wtype}>({expr.expr.accept(self)})"
 
-    def visit_temporary_variable(self, expr: nodes.TemporaryVariable) -> str:
-        return f"tmp${self._tmp_index(expr)}"
+    def visit_single_evaluation(self, expr: nodes.SingleEvaluation) -> str:
+        return (
+            f"SINGLE_EVAL(id={self._single_eval_index(expr)}, source={expr.source.accept(self)})"
+        )
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
         return f"this.{expr.field_name}"

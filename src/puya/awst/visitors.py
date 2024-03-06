@@ -217,7 +217,7 @@ class ExpressionVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
-    def visit_temporary_variable(self, expr: puya.awst.nodes.TemporaryVariable) -> T:
+    def visit_single_evaluation(self, expr: puya.awst.nodes.SingleEvaluation) -> T:
         ...
 
     @abstractmethod

@@ -7,9 +7,13 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import NumericComparison, NumericComparisonExpression, UInt64Constant
+from puya.awst.nodes import (
+    NumericComparison,
+    NumericComparisonExpression,
+    SingleEvaluation,
+    UInt64Constant,
+)
 from puya.awst_build.eb.transaction import check_transaction_type
-from puya.awst_build.utils import create_temporary_assignment
 from puya.errors import CodeError, InternalError
 from puya.models import (
     ARC4Method,
@@ -78,7 +82,7 @@ def arc4_encode(
 ) -> awst_nodes.Expression:
     match base.wtype:
         case wtypes.bytes_wtype:
-            base_temp = create_temporary_assignment(base, location)
+            base_temp = SingleEvaluation(base)
 
             length = awst_nodes.IntrinsicCall(
                 source_location=location,
@@ -89,9 +93,7 @@ def arc4_encode(
                     awst_nodes.IntrinsicCall(
                         source_location=location,
                         op_code="itob",
-                        stack_args=[
-                            awst_nodes.IntrinsicCall.bytes_len(base_temp.define, location)
-                        ],
+                        stack_args=[awst_nodes.IntrinsicCall.bytes_len(base_temp, location)],
                         wtype=wtypes.bytes_wtype,
                     )
                 ],
@@ -104,12 +106,12 @@ def arc4_encode(
                 expr=awst_nodes.IntrinsicCall(
                     source_location=location,
                     op_code="concat",
-                    stack_args=[length, base_temp.read],
+                    stack_args=[length, base_temp],
                     wtype=wtypes.bytes_wtype,
                 ),
             )
         case wtypes.WTuple(types=types):
-            base_temp = create_temporary_assignment(base, location)
+            base_temp = SingleEvaluation(base)
 
             return awst_nodes.ARC4Encode(
                 source_location=location,
@@ -117,7 +119,7 @@ def arc4_encode(
                     items=[
                         arc4_encode(
                             awst_nodes.TupleItemExpression(
-                                base=base_temp.define if i == 0 else base_temp.read,
+                                base=base_temp,
                                 index=i,
                                 source_location=location,
                             ),
@@ -169,15 +171,12 @@ def arc4_decode(
             )
             if not decode_nested_items:
                 return decode_expression
-            decoded = create_temporary_assignment(
-                decode_expression,
-                location=location,
-            )
+            decoded = SingleEvaluation(decode_expression)
             return awst_nodes.TupleExpression.from_items(
                 items=[
                     arc4_decode(
                         awst_nodes.TupleItemExpression(
-                            base=decoded.define if i == 0 else decoded.read,
+                            base=decoded,
                             index=i,
                             source_location=location,
                         ),

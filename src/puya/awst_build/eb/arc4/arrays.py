@@ -23,6 +23,7 @@ from puya.awst.nodes import (
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
+    SingleEvaluation,
     Statement,
     TupleExpression,
     UInt64BinaryOperation,
@@ -51,7 +52,6 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
-    create_temporary_assignment,
     expect_operand_wtype,
     require_expression_builder,
 )
@@ -262,17 +262,16 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
                     )
                 address_bytes = BytesConstant(value=bytes_literal, source_location=bytes_location)
             case (ExpressionBuilder() as eb,) if eb.rvalue().wtype == wtypes.bytes_wtype:
-                address_bytes_temp = create_temporary_assignment(eb.rvalue(), location=location)
+                value = eb.rvalue()
+                address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
                     source_location=location,
                     lhs=UInt64Constant(value=32, source_location=location),
-                    rhs=IntrinsicCall.bytes_len(
-                        expr=address_bytes_temp.read, source_location=location
-                    ),
+                    rhs=IntrinsicCall.bytes_len(expr=address_bytes_temp, source_location=location),
                 )
                 address_bytes = CheckedMaybe.from_tuple_items(
-                    expr=address_bytes_temp.define,
+                    expr=address_bytes_temp,
                     check=is_correct_length,
                     source_location=location,
                     comment="Address length is 32 bytes",
