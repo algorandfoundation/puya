@@ -100,88 +100,82 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 goto block@29
             block@29: // for_header_L36
                 let continue_looping%88#0: uint64 = (< item_index_internal%86#0 5u)
-                goto continue_looping%88#0 ? block@30 : block@35
+                goto continue_looping%88#0 ? block@30 : block@32
             block@30: // for_body_L36
                 let index#0: uint64 = (- reverse_index_internal%87#1 1u)
                 let bytes_item#0: bytes = (extract3 "HELLO" index#0 1u)
-                let tmp%89#0: bytes = (itob index#0)
-                let awst_tmp%91#0: uint64 = (len tmp%89#0)
-                let tmp%92#0: uint64 = (< 1u awst_tmp%91#0)
-                goto tmp%92#0 ? block@31 : block@32
-            block@31: // ternary_true_L37
-                let ternary_result%93#0: uint64 = (- awst_tmp%91#0 1u)
-                goto block@33
-            block@32: // ternary_false_L37
-                let ternary_result%93#0: uint64 = 0u
-                goto block@33
-            block@33: // ternary_merge_L37
-                let tmp%95#0: bytes = (substring3 tmp%89#0 ternary_result%93#0 awst_tmp%91#0)
-                let tmp%96#0: bytes = (concat tmp%95#0 bytes_item#0)
-                let bytes_reversed_with_index#0: bytes = (concat bytes_reversed_with_index#0 tmp%96#0)
+                let awst_tmp%89#0: bytes = (itob index#0)
+                let tmp%90#0: uint64 = (len awst_tmp%89#0)
+                let tmp%93#0: uint64 = (< 1u tmp%90#0)
+                let tmp%94#0: any = (select tmp%90#0 1u tmp%93#0)
+                let tmp%95#0: uint64 = (- tmp%90#0 tmp%94#0)
+                let tmp%97#0: bytes = (substring3 awst_tmp%89#0 tmp%95#0 tmp%90#0)
+                let tmp%98#0: bytes = (concat tmp%97#0 bytes_item#0)
+                let bytes_reversed_with_index#0: bytes = (concat bytes_reversed_with_index#0 tmp%98#0)
                 let item_index_internal%86#0: uint64 = (+ item_index_internal%86#0 1u)
                 let reverse_index_internal%87#1: uint64 = index#0
                 goto block@29
-            block@35: // after_for_L36
-                let tmp%97#0: uint64 = (== bytes_reversed_with_index#0 "\x04O\x03L\x02L\x01E\x00H")
-                (assert tmp%97#0)
-                let tuple_index%98#0: uint64 = 0u
+            block@32: // after_for_L36
+                let tmp%99#0: uint64 = (== bytes_reversed_with_index#0 "\x04O\x03L\x02L\x01E\x00H")
+                (assert tmp%99#0)
+                let tuple_index%100#0: uint64 = 0u
                 let tuple_item#0: uint64 = 3u
-                let index#0: uint64 = tuple_index%98#0
-                goto block@40
-            block@37: // for_header_2_L40
+                let index#0: uint64 = tuple_index%100#0
+                goto block@37
+            block@34: // for_header_2_L40
                 let tuple_item#0: uint64 = 2u
-                let index#0: uint64 = tuple_index%98#0
-                goto block@40
-            block@38: // for_header_1_L40
+                let index#0: uint64 = tuple_index%100#0
+                goto block@37
+            block@35: // for_header_1_L40
                 let tuple_item#0: uint64 = 1u
-                let index#0: uint64 = tuple_index%98#0
-                goto block@40
-            block@39: // for_header_0_L40
+                let index#0: uint64 = tuple_index%100#0
+                goto block@37
+            block@36: // for_header_0_L40
                 let tuple_item#0: uint64 = 0u
-                let index#0: uint64 = tuple_index%98#0
-                goto block@40
-            block@40: // for_body_L40
-                let tmp%99#0: uint64 = (+ index#0 tuple_item#0)
-                let tmp%100#0: uint64 = (== tmp%99#0 3u)
-                (assert tmp%100#0)
-                let tuple_index%98#0: uint64 = (+ index#0 1u)
-                goto_nth [block@37, block@38, block@39][index#0] else goto block@42
-            block@42: // after_for_L40
+                let index#0: uint64 = tuple_index%100#0
+                goto block@37
+            block@37: // for_body_L40
+                let tmp%101#0: uint64 = (+ index#0 tuple_item#0)
+                let tmp%102#0: uint64 = (== tmp%101#0 3u)
+                (assert tmp%102#0)
+                let tuple_index%100#0: uint64 = (+ index#0 1u)
+                goto_nth [block@34, block@35, block@36][index#0] else goto block@39
+            block@39: // after_for_L40
                 let prev_item#0: uint64 = 0u
                 let prev_index#0: uint64 = 99u
-                let tuple_index%101#0: uint64 = 0u
+                let tuple_index%103#0: uint64 = 0u
                 let tuple_item#0: uint64 = 5u
-                goto block@47
-            block@44: // for_header_1_L56
+                goto block@44
+            block@41: // for_header_1_L56
                 let tuple_item#0: uint64 = 6u
                 let prev_index#0: uint64 = index#0
                 let prev_item#0: uint64 = tuple_item#9
-                let tuple_index%101#0: uint64 = tuple_index%101#5
-                goto block@47
-            block@45: // for_header_2_L56
+                let tuple_index%103#0: uint64 = tuple_index%103#5
+                goto block@44
+            block@42: // for_header_2_L56
                 let tuple_item#0: uint64 = 7u
                 let prev_index#0: uint64 = index#0
                 let prev_item#0: uint64 = tuple_item#9
-                let tuple_index%101#0: uint64 = tuple_index%101#5
-                goto block@47
-            block@46: // for_header_3_L56
+                let tuple_index%103#0: uint64 = tuple_index%103#5
+                goto block@44
+            block@43: // for_header_3_L56
                 let tuple_item#0: uint64 = 8u
                 let prev_index#0: uint64 = index#0
                 let prev_item#0: uint64 = tuple_item#9
-                let tuple_index%101#0: uint64 = tuple_index%101#5
-                goto block@47
-            block@47: // for_body_L56
+                let tuple_index%103#0: uint64 = tuple_index%103#5
+                goto block@44
+            block@44: // for_body_L56
                 let tuple_item#9: uint64 = tuple_item#0
-                let index#0: uint64 = (- 3u tuple_index%101#0)
-                let tmp%103#0: uint64 = (< prev_item#0 tuple_item#9)
-                (assert tmp%103#0)
-                let tmp%104#0: uint64 = (> prev_index#0 index#0)
-                (assert tmp%104#0)
-                let tmp%105#0: uint64 = (+ index#0 tuple_item#9)
-                let tmp%106#0: uint64 = (== tmp%105#0 8u)
+                let index#0: uint64 = (- 3u tuple_index%103#0)
+                let tmp%105#0: uint64 = (< prev_item#0 tuple_item#9)
+                (assert tmp%105#0)
+                let tmp%106#0: uint64 = (> prev_index#0 index#0)
                 (assert tmp%106#0)
-                let tuple_index%101#5: uint64 = (+ tuple_index%101#0 1u)
-                goto_nth [block@44, block@45, block@46][tuple_index%101#0] else return 1u
+                let tmp%107#0: uint64 = (+ index#0 tuple_item#9)
+                let tmp%108#0: uint64 = (== tmp%107#0 8u)
+                (assert tmp%108#0)
+                let tuple_index%103#5: uint64 = (+ tuple_index%103#0 1u)
+                goto_nth [block@41, block@42, block@43][tuple_index%103#0] else return 1u
     
     program clear-state:
         subroutine test_cases.reversed_iteration.contract.MyContract.clear_state_program() -> uint64:

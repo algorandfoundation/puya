@@ -17,7 +17,6 @@ from puya.awst.nodes import (
     BytesUnaryOperation,
     BytesUnaryOperator,
     CallArg,
-    ConditionalExpression,
     EqualityComparison,
     Expression,
     FreeSubroutineTarget,
@@ -175,109 +174,17 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         if stride is not None:
             raise CodeError("Stride is not supported", location=stride.source_location)
 
-        base = self.expr
-        fixed_length = len(base.value) if isinstance(base, BytesConstant) else None
-        len_expr = (
-            UInt64Constant(value=fixed_length, source_location=location)
-            if fixed_length
-            else IntrinsicCall.bytes_len(self.expr, source_location=location)
+        # since we evaluate self both as base and to get its length,
+        # we need to create a temporary assignment in case it has side effects
+        base = create_temporary_assignment(self.expr)
+        slice_expr = SliceExpression(
+            base=base.define,
+            begin_index=_eval_slice_component(base.read, begin_index, location),
+            end_index=_eval_slice_component(base.read, end_index, location),
+            wtype=self.wtype,
+            source_location=location,
         )
-
-        def eval_slice_component(
-            val: ExpressionBuilder | Literal | None,
-        ) -> Expression | None:
-            match val:
-                case Literal(value=int(int_lit)):
-                    if int_lit >= 0:
-                        if fixed_length:
-                            return UInt64Constant(
-                                value=min(int_lit, fixed_length),
-                                source_location=val.source_location,
-                            )
-                        else:
-                            temp_len = create_temporary_assignment(len_expr, location)
-                            return ConditionalExpression(
-                                condition=NumericComparisonExpression(
-                                    lhs=UInt64Constant(
-                                        value=int_lit,
-                                        source_location=val.source_location,
-                                    ),
-                                    rhs=temp_len.define,
-                                    operator=NumericComparison.lt,
-                                    source_location=location,
-                                ),
-                                true_expr=UInt64Constant(
-                                    value=int_lit,
-                                    source_location=val.source_location,
-                                ),
-                                false_expr=temp_len.read,
-                                wtype=wtypes.uint64_wtype,
-                                source_location=location,
-                            )
-                    else:
-                        if fixed_length:
-                            return UInt64Constant(
-                                value=max(fixed_length - abs(int_lit), 0),
-                                source_location=val.source_location,
-                            )
-                        temp_len = create_temporary_assignment(len_expr, location)
-
-                        return ConditionalExpression(
-                            condition=NumericComparisonExpression(
-                                lhs=UInt64Constant(
-                                    value=abs(int_lit),
-                                    source_location=val.source_location,
-                                ),
-                                rhs=temp_len.define,
-                                operator=NumericComparison.lt,
-                                source_location=val.source_location,
-                            ),
-                            true_expr=UInt64BinaryOperation(
-                                op=UInt64BinaryOperator.sub,
-                                left=temp_len.read,
-                                right=UInt64Constant(
-                                    value=abs(int_lit),
-                                    source_location=val.source_location,
-                                ),
-                                source_location=val.source_location,
-                            ),
-                            false_expr=UInt64Constant(
-                                value=0, source_location=val.source_location
-                            ),
-                            wtype=wtypes.uint64_wtype,
-                            source_location=location,
-                        )
-                case ExpressionBuilder() as eb:
-                    temp_len = create_temporary_assignment(len_expr, location)
-                    temp_index = create_temporary_assignment(
-                        expect_operand_wtype(eb, wtypes.uint64_wtype)
-                    )
-                    return ConditionalExpression(
-                        condition=NumericComparisonExpression(
-                            lhs=temp_index.define,
-                            rhs=temp_len.define,
-                            operator=NumericComparison.lt,
-                            source_location=location,
-                        ),
-                        true_expr=temp_index.read,
-                        false_expr=temp_len.read,
-                        wtype=wtypes.uint64_wtype,
-                        source_location=location,
-                    )
-                case None:
-                    return None
-                case _:
-                    raise CodeError("Unexpected val type")
-
-        return var_expression(
-            SliceExpression(
-                source_location=location,
-                base=self.expr,
-                begin_index=eval_slice_component(begin_index),
-                end_index=eval_slice_component(end_index),
-                wtype=self.wtype,
-            )
-        )
+        return var_expression(slice_expr)
 
     def iterate(self) -> Iteration:
         return self.rvalue()
@@ -362,3 +269,63 @@ def _translate_binary_bytes_operator(
         return BytesBinaryOperator(operator.value)
     except ValueError as ex:
         raise CodeError(f"Unsupported bytes operator {operator.value}", loc) from ex
+
+
+def _eval_slice_component(
+    base: Expression, val: ExpressionBuilder | Literal | None, location: SourceLocation
+) -> Expression | None:
+    if val is None:
+        return None
+
+    len_expr = IntrinsicCall.bytes_len(base, source_location=location)
+
+    if isinstance(val, ExpressionBuilder):
+        # no negatives to deal with here, easy
+        index_expr = expect_operand_wtype(val, wtypes.uint64_wtype)
+        temp_index = create_temporary_assignment(index_expr)
+        return IntrinsicCall(
+            op_code="select",
+            stack_args=[
+                len_expr,
+                temp_index.define,
+                NumericComparisonExpression(
+                    lhs=temp_index.read,
+                    operator=NumericComparison.lt,
+                    rhs=len_expr,
+                    source_location=location,
+                ),
+            ],
+            wtype=wtypes.uint64_wtype,
+            source_location=location,
+        )
+
+    int_lit = val.value
+    if not isinstance(int_lit, int):
+        raise CodeError(f"Invalid literal for slicing: {int_lit!r}", val.source_location)
+    # take the min of abs(int_lit) and len(self.expr)
+    abs_lit_expr = UInt64Constant(value=abs(int_lit), source_location=val.source_location)
+    trunc_value_expr = IntrinsicCall(
+        op_code="select",
+        stack_args=[
+            len_expr,
+            abs_lit_expr,
+            NumericComparisonExpression(
+                lhs=abs_lit_expr,
+                operator=NumericComparison.lt,
+                rhs=len_expr,
+                source_location=location,
+            ),
+        ],
+        wtype=wtypes.uint64_wtype,
+        source_location=location,
+    )
+    return (
+        trunc_value_expr
+        if int_lit >= 0
+        else UInt64BinaryOperation(
+            left=len_expr,
+            op=UInt64BinaryOperator.sub,
+            right=trunc_value_expr,
+            source_location=location,
+        )
+    )

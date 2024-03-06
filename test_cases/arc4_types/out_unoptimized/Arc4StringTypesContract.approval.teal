@@ -4,8 +4,6 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     // arc4_types/string.py:9
     // some_bytes = Bytes(b"Hello World!")
     byte "Hello World!"
-    dup
-    swap
     // arc4_types/string.py:11
     // some_bytes_as_string = String.encode(some_bytes)
     dup
@@ -14,8 +12,6 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     extract 6 2
     dig 1
     concat
-    dup
-    cover 2
     // arc4_types/string.py:13
     // some_bytes_as_bytes_again = some_bytes_as_string.decode()
     dup
@@ -23,8 +19,8 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     cover 2
     // arc4_types/string.py:16
     // some_bytes != some_bytes_as_string.bytes
-    dup
-    cover 2
+    dig 1
+    dig 1
     !=
     // arc4_types/string.py:15-17
     // assert (
@@ -33,34 +29,26 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     assert // Original bytes should not match encoded bytes
     // arc4_types/string.py:20
     // some_bytes == some_bytes_as_string.bytes[2:]
-    len
     dup
+    len
     swap
+    dup
+    len
     int 2
     swap
     <
-    bz main_ternary_false@2
+    uncover 2
     int 2
-    b main_ternary_merge@3
-
-main_ternary_false@2:
-    // arc4_types/string.py:20
-    // some_bytes == some_bytes_as_string.bytes[2:]
-    dup
-
-main_ternary_merge@3:
-    // arc4_types/string.py:20
-    // some_bytes == some_bytes_as_string.bytes[2:]
-    dig 3
-    dup
+    uncover 2
+    select
+    dig 1
     len
     swap
     uncover 2
+    swap
     uncover 2
     substring3
-    dig 4
-    dup
-    cover 2
+    dig 1
     swap
     ==
     // arc4_types/string.py:19-21
@@ -70,7 +58,7 @@ main_ternary_merge@3:
     assert // Original bytes should match encoded if we strip the length header
     // arc4_types/string.py:23
     // assert some_bytes == some_bytes_as_bytes_again
-    dig 2
+    swap
     ==
     assert
     // arc4_types/string.py:25

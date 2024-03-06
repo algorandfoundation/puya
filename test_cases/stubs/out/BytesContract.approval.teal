@@ -1,7 +1,142 @@
 #pragma version 10
 
 test_cases.stubs.bytes.BytesContract.approval_program:
+    // stubs/bytes.py:23
+    // abc = Bytes(b"abc")
+    byte "abc"
     // stubs/bytes.py:68
+    // check_slicing_with_uint64(abc)
+    callsub check_slicing_with_uint64
+    // stubs/bytes.py:70
     // return UInt64(1)
     int 1
     return
+
+
+// test_cases.stubs.bytes.check_slicing_with_uint64(abc: bytes) -> void:
+check_slicing_with_uint64:
+    // stubs/bytes.py:76-77
+    // @subroutine
+    // def check_slicing_with_uint64(abc: Bytes) -> None:
+    proto 1 0
+    // stubs/bytes.py:80
+    // assert abc[one:] == b"bc"
+    frame_dig -1
+    len
+    // stubs/bytes.py:78
+    // one = UInt64(1)
+    int 1
+    // stubs/bytes.py:80
+    // assert abc[one:] == b"bc"
+    dig 1
+    <
+    swap
+    dup
+    // stubs/bytes.py:78
+    // one = UInt64(1)
+    int 1
+    // stubs/bytes.py:80
+    // assert abc[one:] == b"bc"
+    uncover 3
+    select
+    frame_dig -1
+    dig 1
+    dig 3
+    substring3
+    byte "bc"
+    ==
+    assert
+    // stubs/bytes.py:81
+    // assert abc[one:one] == b""
+    frame_dig -1
+    dig 1
+    dig 2
+    substring3
+    byte ""
+    ==
+    assert
+    // stubs/bytes.py:82
+    // assert abc[:one] == b"a"
+    frame_dig -1
+    int 0
+    uncover 2
+    substring3
+    byte "a"
+    ==
+    assert
+    // stubs/bytes.py:83
+    // assert one_to_seven()[one:-1] == b"23456"
+    callsub one_to_seven
+    dup
+    len
+    // stubs/bytes.py:78
+    // one = UInt64(1)
+    int 1
+    // stubs/bytes.py:83
+    // assert one_to_seven()[one:-1] == b"23456"
+    dig 1
+    <
+    swap
+    dup
+    // stubs/bytes.py:78
+    // one = UInt64(1)
+    int 1
+    // stubs/bytes.py:83
+    // assert one_to_seven()[one:-1] == b"23456"
+    uncover 3
+    select
+    dup
+    cover 2
+    -
+    substring3
+    byte "23456"
+    ==
+    assert
+    // stubs/bytes.py:84
+    // assert abc[UInt64(0) : ten] == b"abc"
+    int 0
+    dig 1
+    <
+    swap
+    dup
+    int 0
+    uncover 3
+    select
+    swap
+    // stubs/bytes.py:79
+    // ten = UInt64(10)
+    int 10
+    // stubs/bytes.py:84
+    // assert abc[UInt64(0) : ten] == b"abc"
+    dig 1
+    <
+    // stubs/bytes.py:79
+    // ten = UInt64(10)
+    int 10
+    // stubs/bytes.py:84
+    // assert abc[UInt64(0) : ten] == b"abc"
+    swap
+    select
+    frame_dig -1
+    cover 2
+    substring3
+    byte "abc"
+    ==
+    assert
+    retsub
+
+
+// test_cases.stubs.bytes.one_to_seven() -> bytes:
+one_to_seven:
+    // stubs/bytes.py:87-88
+    // @subroutine
+    // def one_to_seven() -> Bytes:
+    proto 0 1
+    // stubs/bytes.py:89
+    // log("one_to_seven called")
+    byte "one_to_seven called"
+    log
+    // stubs/bytes.py:90
+    // return Bytes(b"1234567")
+    byte "1234567"
+    retsub
