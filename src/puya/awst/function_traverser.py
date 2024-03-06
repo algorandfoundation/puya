@@ -1,5 +1,6 @@
 import puya.awst.visitors
 from puya.awst import nodes as awst_nodes
+from puya.awst.visitors import T
 
 
 class FunctionTraverser(
@@ -128,8 +129,8 @@ class FunctionTraverser(
         expr.true_expr.accept(self)
         expr.false_expr.accept(self)
 
-    def visit_temporary_variable(self, expr: awst_nodes.TemporaryVariable) -> None:
-        pass
+    def visit_single_evaluation(self, expr: awst_nodes.SingleEvaluation) -> None:
+        expr.source.accept(self)
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> None:
         pass

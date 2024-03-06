@@ -922,9 +922,11 @@ class AppAccountStateExpression(Expression):
         return visitor.visit_app_account_state_expression(self)
 
 
-@attrs.frozen(init=False)
-class TemporaryVariable(Expression):
-    _source: Expression  # this is stored here only to ensure equality etc function correctly
+@attrs.frozen(init=False, eq=False, hash=False)  # use identity equality
+class SingleEvaluation(Expression):
+    """caveat emptor"""
+
+    source: Expression
 
     def __init__(self, source: Expression):
         self.__attrs_init__(
@@ -933,8 +935,14 @@ class TemporaryVariable(Expression):
             wtype=source.wtype,
         )
 
+    def __eq__(self, other: object) -> bool:
+        return id(self) == id(other)
+
+    def __hash__(self) -> int:
+        return id(self)
+
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_temporary_variable(self)
+        return visitor.visit_single_evaluation(self)
 
 
 @attrs.frozen
@@ -959,7 +967,6 @@ Lvalue = (
     | TupleExpression
     | AppStateExpression
     | AppAccountStateExpression
-    | TemporaryVariable
     | ReinterpretCast
 )
 

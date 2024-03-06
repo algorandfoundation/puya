@@ -51,14 +51,6 @@ def handle_assignment(
                 names=[(var_name, var_loc)],
                 source_location=assignment_location,
             )
-        case awst_nodes.TemporaryVariable(source_location=var_loc) as tmp:
-            tmp_name = context.get_awst_tmp_name(tmp)
-            return assign(
-                context,
-                source=value,
-                names=[(tmp_name, var_loc)],
-                source_location=assignment_location,
-            )
         case awst_nodes.TupleExpression(items=items):
             source = context.visitor.materialise_value_provider(
                 value, description="tuple_assignment"

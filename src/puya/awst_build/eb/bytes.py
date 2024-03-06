@@ -25,6 +25,7 @@ from puya.awst.nodes import (
     Literal,
     NumericComparison,
     NumericComparisonExpression,
+    SingleEvaluation,
     SliceExpression,
     Statement,
     SubroutineCallExpression,
@@ -46,7 +47,6 @@ from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
     convert_literal,
     convert_literal_to_expr,
-    create_temporary_assignment,
     expect_operand_wtype,
 )
 from puya.errors import CodeError, InternalError
@@ -176,11 +176,11 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
 
         # since we evaluate self both as base and to get its length,
         # we need to create a temporary assignment in case it has side effects
-        base = create_temporary_assignment(self.expr)
+        base = SingleEvaluation(self.expr)
         slice_expr = SliceExpression(
-            base=base.define,
-            begin_index=_eval_slice_component(base.read, begin_index, location),
-            end_index=_eval_slice_component(base.read, end_index, location),
+            base=base,
+            begin_index=_eval_slice_component(base, begin_index, location),
+            end_index=_eval_slice_component(base, end_index, location),
             wtype=self.wtype,
             source_location=location,
         )
@@ -282,14 +282,14 @@ def _eval_slice_component(
     if isinstance(val, ExpressionBuilder):
         # no negatives to deal with here, easy
         index_expr = expect_operand_wtype(val, wtypes.uint64_wtype)
-        temp_index = create_temporary_assignment(index_expr)
+        temp_index = SingleEvaluation(index_expr)
         return IntrinsicCall(
             op_code="select",
             stack_args=[
                 len_expr,
-                temp_index.define,
+                temp_index,
                 NumericComparisonExpression(
-                    lhs=temp_index.read,
+                    lhs=temp_index,
                     operator=NumericComparison.lt,
                     rhs=len_expr,
                     source_location=location,
