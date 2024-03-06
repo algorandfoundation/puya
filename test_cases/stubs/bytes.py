@@ -66,6 +66,7 @@ class BytesContract(Contract):
         assert y == b
 
         check_slicing_with_uint64(abc)
+        check_end_before_start_slicing(abc)
 
         return UInt64(1)
 
@@ -82,6 +83,15 @@ def check_slicing_with_uint64(abc: Bytes) -> None:
     assert abc[:one] == b"a"
     assert one_to_seven()[one:-1] == b"23456"
     assert abc[UInt64(0) : ten] == b"abc"
+
+
+@subroutine
+def check_end_before_start_slicing(abc: Bytes) -> None:
+    assert abc[10:1] == b""
+    assert abc[-10:-12] == b""
+    one = UInt64(1)
+    ten = UInt64(10)
+    assert abc[ten:one] == b""
 
 
 @subroutine

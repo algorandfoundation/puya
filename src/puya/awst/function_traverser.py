@@ -1,6 +1,5 @@
 import puya.awst.visitors
 from puya.awst import nodes as awst_nodes
-from puya.awst.visitors import T
 
 
 class FunctionTraverser(

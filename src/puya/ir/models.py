@@ -19,8 +19,8 @@ T = t.TypeVar("T")
 
 def _check_stack_types(
     error_format: str,
-    target_types: list[AVMType],
-    source_types: list[AVMType],
+    target_types: Sequence[AVMType],
+    source_types: Sequence[AVMType],
     source_location: SourceLocation | None,
 ) -> None:
     if len(target_types) != len(source_types) or not all(
@@ -276,6 +276,25 @@ class Intrinsic(Op, ValueProvider):
     immediates: list[str | int] = attrs.field(factory=list)
     args: list[Value] = attrs.field(factory=list)
     comment: str | None = None  # used e.g. for asserts
+    _types: Sequence[AVMType] = attrs.field(converter=tuple[AVMType, ...])
+
+    @_types.default
+    def _default_types(self) -> tuple[AVMType, ...]:
+        return tuple(map(stack_type_to_avm_type, self.op_signature.returns))
+
+    @_types.validator
+    def _validate_types(self, _attribute: object, types: Sequence[AVMType]) -> None:
+        expected_types = self._default_types()
+        received_types = tuple(types)
+        desc = f"({self.op} {' '.join(map(str, self.immediates))}): "
+        _check_stack_types(
+            "Incompatible return types on Intrinsic"
+            + desc
+            + " received = {source_types}, expected = {target_types}",
+            expected_types,
+            received_types,
+            self.source_location,
+        )
 
     def _frozen_data(self) -> object:
         return self.op, tuple(self.immediates), tuple(self.args), self.comment
@@ -285,7 +304,7 @@ class Intrinsic(Op, ValueProvider):
 
     @property
     def types(self) -> Sequence[AVMType]:
-        return tuple(map(stack_type_to_avm_type, self.op_signature.returns))
+        return self._types
 
     @property
     def op_signature(self) -> OpSignature:

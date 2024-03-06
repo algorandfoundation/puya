@@ -58,6 +58,22 @@ def wtype_to_avm_type(
             )
 
 
+def wtype_to_avm_types(
+    expr_or_wtype: wtypes.WType | awst_nodes.Expression,
+    source_location: SourceLocation | None = None,
+) -> list[AVMType]:
+    if isinstance(expr_or_wtype, awst_nodes.Expression):
+        wtype = expr_or_wtype.wtype
+    else:
+        wtype = expr_or_wtype
+    if wtype == wtypes.void_wtype:
+        return []
+    elif isinstance(wtype, wtypes.WTuple):
+        return [wtype_to_avm_type(t, source_location) for t in wtype.types]
+    else:
+        return [wtype_to_avm_type(wtype, source_location)]
+
+
 def stack_type_to_avm_type(stack_type: StackType) -> AVMType:
     match stack_type:
         case StackType.uint64 | StackType.bool:

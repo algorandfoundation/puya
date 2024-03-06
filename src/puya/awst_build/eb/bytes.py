@@ -177,10 +177,36 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         # since we evaluate self both as base and to get its length,
         # we need to create a temporary assignment in case it has side effects
         base = SingleEvaluation(self.expr)
-        slice_expr = SliceExpression(
+        begin_index_expr = _eval_slice_component(base, begin_index, location)
+        end_index_expr = _eval_slice_component(base, end_index, location)
+        if begin_index_expr is not None and end_index_expr is not None:
+            # special handling for if begin > end, will devolve into begin == end,
+            # which already returns the correct result of an empty bytes
+            # TODO: maybe we could improve the generated code if the above conversions weren't
+            #       isolated - ie, if we move this sort of checks to before the length
+            #       truncating checks
+            end_index_expr = IntrinsicCall(
+                op_code="select",
+                stack_args=[
+                    # false: end = end
+                    end_index_expr,
+                    # true: end = begin
+                    begin_index_expr,
+                    # condition: begin > end
+                    NumericComparisonExpression(
+                        lhs=begin_index_expr,
+                        operator=NumericComparison.gt,
+                        rhs=end_index_expr,
+                        source_location=location,
+                    ),
+                ],
+                wtype=wtypes.uint64_wtype,
+                source_location=end_index_expr.source_location,
+            )
+        slice_expr: Expression = SliceExpression(
             base=base,
-            begin_index=_eval_slice_component(base, begin_index, location),
-            end_index=_eval_slice_component(base, end_index, location),
+            begin_index=begin_index_expr,
+            end_index=end_index_expr,
             wtype=self.wtype,
             source_location=location,
         )

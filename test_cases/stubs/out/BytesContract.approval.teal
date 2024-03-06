@@ -7,7 +7,13 @@ test_cases.stubs.bytes.BytesContract.approval_program:
     // stubs/bytes.py:68
     // check_slicing_with_uint64(abc)
     callsub check_slicing_with_uint64
-    // stubs/bytes.py:70
+    // stubs/bytes.py:23
+    // abc = Bytes(b"abc")
+    byte "abc"
+    // stubs/bytes.py:69
+    // check_end_before_start_slicing(abc)
+    callsub check_end_before_start_slicing
+    // stubs/bytes.py:71
     // return UInt64(1)
     int 1
     return
@@ -15,27 +21,27 @@ test_cases.stubs.bytes.BytesContract.approval_program:
 
 // test_cases.stubs.bytes.check_slicing_with_uint64(abc: bytes) -> void:
 check_slicing_with_uint64:
-    // stubs/bytes.py:76-77
+    // stubs/bytes.py:77-78
     // @subroutine
     // def check_slicing_with_uint64(abc: Bytes) -> None:
     proto 1 0
-    // stubs/bytes.py:80
+    // stubs/bytes.py:81
     // assert abc[one:] == b"bc"
     frame_dig -1
     len
-    // stubs/bytes.py:78
+    // stubs/bytes.py:79
     // one = UInt64(1)
     int 1
-    // stubs/bytes.py:80
+    // stubs/bytes.py:81
     // assert abc[one:] == b"bc"
     dig 1
     <
     swap
     dup
-    // stubs/bytes.py:78
+    // stubs/bytes.py:79
     // one = UInt64(1)
     int 1
-    // stubs/bytes.py:80
+    // stubs/bytes.py:81
     // assert abc[one:] == b"bc"
     uncover 3
     select
@@ -46,7 +52,7 @@ check_slicing_with_uint64:
     byte "bc"
     ==
     assert
-    // stubs/bytes.py:81
+    // stubs/bytes.py:82
     // assert abc[one:one] == b""
     frame_dig -1
     dig 1
@@ -55,7 +61,7 @@ check_slicing_with_uint64:
     byte ""
     ==
     assert
-    // stubs/bytes.py:82
+    // stubs/bytes.py:83
     // assert abc[:one] == b"a"
     frame_dig -1
     int 0
@@ -64,35 +70,40 @@ check_slicing_with_uint64:
     byte "a"
     ==
     assert
-    // stubs/bytes.py:83
+    // stubs/bytes.py:84
     // assert one_to_seven()[one:-1] == b"23456"
     callsub one_to_seven
     dup
     len
-    // stubs/bytes.py:78
+    // stubs/bytes.py:79
     // one = UInt64(1)
     int 1
-    // stubs/bytes.py:83
+    // stubs/bytes.py:84
     // assert one_to_seven()[one:-1] == b"23456"
     dig 1
     <
     swap
     dup
-    // stubs/bytes.py:78
+    // stubs/bytes.py:79
     // one = UInt64(1)
     int 1
-    // stubs/bytes.py:83
+    // stubs/bytes.py:84
     // assert one_to_seven()[one:-1] == b"23456"
     uncover 3
     select
     dup
     cover 2
     -
+    dup2
+    >
+    dig 2
+    swap
+    select
     substring3
     byte "23456"
     ==
     assert
-    // stubs/bytes.py:84
+    // stubs/bytes.py:85
     // assert abc[UInt64(0) : ten] == b"abc"
     int 0
     dig 1
@@ -103,18 +114,23 @@ check_slicing_with_uint64:
     uncover 3
     select
     swap
-    // stubs/bytes.py:79
+    // stubs/bytes.py:80
     // ten = UInt64(10)
     int 10
-    // stubs/bytes.py:84
+    // stubs/bytes.py:85
     // assert abc[UInt64(0) : ten] == b"abc"
     dig 1
     <
-    // stubs/bytes.py:79
+    // stubs/bytes.py:80
     // ten = UInt64(10)
     int 10
-    // stubs/bytes.py:84
+    // stubs/bytes.py:85
     // assert abc[UInt64(0) : ten] == b"abc"
+    swap
+    select
+    dup2
+    >
+    dig 2
     swap
     select
     frame_dig -1
@@ -128,15 +144,84 @@ check_slicing_with_uint64:
 
 // test_cases.stubs.bytes.one_to_seven() -> bytes:
 one_to_seven:
-    // stubs/bytes.py:87-88
+    // stubs/bytes.py:97-98
     // @subroutine
     // def one_to_seven() -> Bytes:
     proto 0 1
-    // stubs/bytes.py:89
+    // stubs/bytes.py:99
     // log("one_to_seven called")
     byte "one_to_seven called"
     log
-    // stubs/bytes.py:90
+    // stubs/bytes.py:100
     // return Bytes(b"1234567")
     byte "1234567"
+    retsub
+
+
+// test_cases.stubs.bytes.check_end_before_start_slicing(abc: bytes) -> void:
+check_end_before_start_slicing:
+    // stubs/bytes.py:88-89
+    // @subroutine
+    // def check_end_before_start_slicing(abc: Bytes) -> None:
+    proto 1 0
+    // stubs/bytes.py:90
+    // assert abc[10:1] == b""
+    frame_dig -1
+    len
+    int 10
+    dig 1
+    <
+    swap
+    dup
+    int 10
+    uncover 3
+    select
+    swap
+    int 1
+    dig 1
+    <
+    swap
+    dup
+    int 1
+    uncover 3
+    select
+    dig 2
+    dig 1
+    >
+    dig 3
+    swap
+    select
+    frame_dig -1
+    dig 3
+    uncover 2
+    substring3
+    byte ""
+    ==
+    assert
+    // stubs/bytes.py:91
+    // assert abc[-10:-12] == b""
+    dup
+    uncover 2
+    -
+    swap
+    int 12
+    dig 1
+    <
+    swap
+    dup
+    int 12
+    uncover 3
+    select
+    -
+    dup2
+    >
+    dig 2
+    swap
+    select
+    frame_dig -1
+    cover 2
+    substring3
+    byte ""
+    ==
+    assert
     retsub

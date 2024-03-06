@@ -55,16 +55,23 @@ def call(
     )
 
 
-def load_abi_arg(
+def app_arg(
     index: int,
     wtype: wtypes.WType,
     location: SourceLocation,
-) -> awst_nodes.IntrinsicCall:
-    return awst_nodes.IntrinsicCall(
+) -> awst_nodes.Expression:
+    value = awst_nodes.IntrinsicCall(
         source_location=location,
-        wtype=wtype,
+        wtype=wtypes.bytes_wtype,
         op_code="txna",
         immediates=["ApplicationArgs", index],
+    )
+    if wtype == wtypes.bytes_wtype:
+        return value
+    return awst_nodes.ReinterpretCast(
+        source_location=location,
+        expr=value,
+        wtype=wtype,
     )
 
 
@@ -572,11 +579,11 @@ def map_abi_args(
         args_overflow_wtype = wtypes.ARC4Tuple.from_types(
             [map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]]
         )
-        last_arg = load_abi_arg(15, args_overflow_wtype, location)
+        last_arg = app_arg(15, args_overflow_wtype, location)
 
     def get_arg(index: int, arg_wtype: wtypes.WType) -> awst_nodes.Expression:
         if index < 15:
-            return load_abi_arg(index, arg_wtype, location)
+            return app_arg(index, arg_wtype, location)
         else:
             if last_arg is None:
                 raise InternalError("last_arg should not be None if there are more than 15 args")
@@ -585,20 +592,20 @@ def map_abi_args(
     for arg in args:
         match arg.wtype:
             case wtypes.asset_wtype:
-                bytes_arg = get_arg(abi_arg_index, arg.wtype)
+                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
                 asset_index = btoi(bytes_arg, location)
                 asset_id = asset_id_at(asset_index, location)
                 yield asset_id
                 abi_arg_index += 1
 
             case wtypes.account_wtype:
-                bytes_arg = get_arg(abi_arg_index, arg.wtype)
+                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
                 account_index = btoi(bytes_arg, location)
                 account = account_at(account_index, location)
                 yield account
                 abi_arg_index += 1
             case wtypes.application_wtype:
-                bytes_arg = get_arg(abi_arg_index, arg.wtype)
+                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
                 application_index = btoi(bytes_arg, location)
                 application = application_at(application_index, location)
                 yield application

@@ -3,6 +3,8 @@
 test_cases.stubs.bytes.BytesContract.approval_program:
     byte "abc"
     callsub check_slicing_with_uint64
+    byte "abc"
+    callsub check_end_before_start_slicing
     int 1
     return
 
@@ -55,6 +57,11 @@ check_slicing_with_uint64:
     dup
     cover 2
     -
+    dup2
+    >
+    dig 2
+    swap
+    select
     substring3
     byte "23456"
     ==
@@ -74,6 +81,11 @@ check_slicing_with_uint64:
     int 10
     swap
     select
+    dup2
+    >
+    dig 2
+    swap
+    select
     frame_dig -1
     cover 2
     substring3
@@ -89,4 +101,66 @@ one_to_seven:
     byte "one_to_seven called"
     log
     byte "1234567"
+    retsub
+
+
+// test_cases.stubs.bytes.check_end_before_start_slicing(abc: bytes) -> void:
+check_end_before_start_slicing:
+    proto 1 0
+    frame_dig -1
+    len
+    int 10
+    dig 1
+    <
+    swap
+    dup
+    int 10
+    uncover 3
+    select
+    swap
+    int 1
+    dig 1
+    <
+    swap
+    dup
+    int 1
+    uncover 3
+    select
+    dig 2
+    dig 1
+    >
+    dig 3
+    swap
+    select
+    frame_dig -1
+    dig 3
+    uncover 2
+    substring3
+    byte ""
+    ==
+    assert
+    dup
+    uncover 2
+    -
+    swap
+    int 12
+    dig 1
+    <
+    swap
+    dup
+    int 12
+    uncover 3
+    select
+    -
+    dup2
+    >
+    dig 2
+    swap
+    select
+    frame_dig -1
+    cover 2
+    substring3
+    byte ""
+    ==
+    assert
     retsub
