@@ -24,6 +24,7 @@ class PuyaOptions:
     paths: Sequence[Path] = attrs.field(default=(), repr=lambda p: str(list(map(str, p))))
     output_teal: bool = True
     output_arc32: bool = True
+    output_client: bool = False
     output_awst: bool = False
     output_ssa_ir: bool = False
     output_optimization_ir: bool = False

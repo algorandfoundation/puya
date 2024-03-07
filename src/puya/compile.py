@@ -14,7 +14,7 @@ import mypy.options
 import mypy.util
 import structlog
 
-from puya.arc32 import create_arc32_json
+from puya.arc32 import create_arc32_json, write_arc32_client
 from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
 from puya.errors import ErrorExitCode, Errors, InternalError, ParseError, log_exceptions
@@ -203,11 +203,16 @@ def write_artifacts(
             if context.options.output_teal:
                 teal_path = out_dir / teal_file_stem
                 write_contract_files(base_path=teal_path, compiled_contract=contract)
-            if contract.metadata.is_arc4 and context.options.output_arc32:
-                arc32_path = out_dir / arc32_file_stem
-                logger.info(f"Writing {make_path_relative_to_cwd(arc32_path)}")
-                json_text = create_arc32_json(contract)
-                arc32_path.write_text(json_text)
+            if contract.metadata.is_arc4:
+                if context.options.output_arc32:
+                    arc32_path = out_dir / arc32_file_stem
+                    logger.info(f"Writing {make_path_relative_to_cwd(arc32_path)}")
+                    json_text = create_arc32_json(contract)
+                    arc32_path.write_text(json_text)
+                if context.options.output_client:
+                    write_arc32_client(
+                        contract.metadata.name, contract.metadata.arc4_methods, out_dir
+                    )
 
 
 def write_contract_files(base_path: Path, compiled_contract: CompiledContract) -> None:

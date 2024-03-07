@@ -30,7 +30,6 @@ UNSTABLE_LOG_PREFIXES = {
         "Skipping stdlib stub ",
         "Discovered user module ",
     ),
-    "warning": ("Skipping stub: ",),
 }
 
 
@@ -144,7 +143,10 @@ def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
     for log in logs:
         # ignore logs that come from files outside of src_path as these are
         # logs emitted during the cached AWST parsing step
-        if log.relative_path and relative_src_root not in log.relative_path.parents:
+        if log.relative_path and relative_src_root not in (
+            log.relative_path,
+            *log.relative_path.parents,
+        ):
             continue
 
         # ignore logs that are not output in a consistent order
@@ -204,6 +206,7 @@ def compile_src(
                 output_ssa_ir=optimization_level < 2,
                 output_optimization_ir=optimization_level < 2,
                 output_memory_ir=True,
+                output_client=True,
                 out_dir=tmp_dir,
             ),
         )

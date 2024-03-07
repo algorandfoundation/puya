@@ -1,18 +1,27 @@
 import base64
+import itertools
 import json
 import typing
-from collections.abc import Collection, Mapping, Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
+from pathlib import Path
 
+import structlog
+
+from puya.arc4_util import arc4_to_wtype
 from puya.avm_type import AVMType
+from puya.awst_build import constants
 from puya.errors import InternalError
 from puya.models import (
     ARC4Method,
+    ARC4MethodArg,
     ARC4MethodConfig,
+    ARC32StructDef,
     CompiledContract,
     ContractState,
     OnCompletionAction,
 )
 from puya.parse import SourceLocation
+from puya.utils import make_path_relative_to_cwd
 
 OCA_ARC32_MAPPING = {
     OnCompletionAction.NoOp: "no_op",
@@ -25,6 +34,10 @@ OCA_ARC32_MAPPING = {
 
 JSONValue: typing.TypeAlias = "str | int | float | bool | None | Sequence[JSONValue] | JSONDict"
 JSONDict: typing.TypeAlias = Mapping[str, "JSONValue"]
+_AUTO_GENERATED_COMMENT = "# This file is auto-generated, do not modify"
+_INDENT = " " * 4
+
+logger = structlog.get_logger(__file__)
 
 
 def _encode_source(teal_text: str) -> str:
@@ -76,7 +89,9 @@ def _get_signature(method: ARC4Method) -> str:
     return f"{method.config.name}({','.join(m.type_ for m in method.args)}){method.returns.type_}"
 
 
-def _encode_default_arg(contract: CompiledContract, source: str, loc: SourceLocation) -> JSONDict:
+def _encode_default_arg(
+    contract: CompiledContract, source: str, loc: SourceLocation | None
+) -> JSONDict:
     if state := contract.metadata.global_state.get(source):
         return {
             "source": "global-state",
@@ -192,3 +207,99 @@ def create_arc32_json(contract: CompiledContract) -> str:
         "bare_call_config": _encode_bare_method_configs(bare_methods),
     }
     return json.dumps(_filter_none(app_spec), indent=4)
+
+
+def write_arc32_client(name: str, methods: Sequence[ARC4Method], out_dir: Path) -> None:
+    stub_path = out_dir / f"client_{name}.py"
+    if _can_overwrite_auto_generated_file(stub_path):
+        logger.info(f"Writing {make_path_relative_to_cwd(stub_path)}")
+        stub_text = _create_arc32_stub(name, methods)
+        stub_path.write_text(stub_text)
+    else:
+        logger.error(
+            f"Not outputting {make_path_relative_to_cwd(stub_path)} "
+            "since content does not appear to be auto-generated"
+        )
+
+
+def _can_overwrite_auto_generated_file(path: Path) -> bool:
+    return not path.exists() or path.read_text().startswith(_AUTO_GENERATED_COMMENT)
+
+
+def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
+    return "\n".join(
+        [
+            _AUTO_GENERATED_COMMENT,
+            "# flake8: noqa",  # this works for flake8 and ruff
+            "# fmt: off",  # disable formatting"
+            "import typing",
+            "",
+            "import puyapy",
+            "",
+            *itertools.chain(
+                *(_abi_struct_to_class(s) for m in methods for s in m.config.structs.values())
+            ),
+            "",
+            f"class {name}(puyapy.arc4.ARC4Client):",
+            *itertools.chain(
+                *(_abi_method_to_signature(m) for m in methods if not m.config.is_bare)
+            ),
+        ]
+    )
+
+
+def _abi_struct_to_class(s: ARC32StructDef) -> Iterable[str]:
+    yield f"class {s.name}(puyapy.arc4.Struct):"
+    for name, elem_type in s.elements:
+        yield _INDENT + f"{name}: {_arc4_type_to_puyapy_cls(elem_type)}"
+
+
+def _abi_method_to_signature(m: ARC4Method) -> Iterable[str]:
+    yield _INDENT + _arc4_method_to_decorator(m)
+    yield _INDENT + f"def {m.name}("
+    yield _INDENT * 2 + "self,"
+    structs = dict(m.config.structs)
+    for arg in m.args:
+        stub_arg = _abi_arg(arg, structs.get(arg.name))
+        yield _INDENT * 2 + f"{stub_arg},"
+    try:
+        output_struct = structs["output"]
+    except KeyError:
+        return_type = _arc4_type_to_puyapy_cls(m.returns.type_)
+    else:
+        return_type = output_struct.name
+    yield _INDENT + f") -> {return_type}:"
+    # TODO doc
+    yield _INDENT * 2 + "raise NotImplementedError"
+    yield ""
+
+
+def _abi_arg(arg: ARC4MethodArg, struct: ARC32StructDef | None) -> str:
+    python_type = struct.name if struct else _arc4_type_to_puyapy_cls(arg.type_)
+    return f"{arg.name}: {python_type}"
+
+
+def _arc4_type_to_puyapy_cls(typ: str) -> str:
+    return arc4_to_wtype(typ).stub_name
+
+
+def _arc4_method_to_decorator(method: ARC4Method) -> str:
+    config = method.config
+    abimethod_args = dict[str, object]()
+    if config.name and config.name != method.name:
+        abimethod_args["name"] = config.name
+    if config.readonly:
+        abimethod_args["readonly"] = True
+    if config.default_args:
+        abimethod_args["default_args"] = dict(config.default_args)
+    if config.allowed_completion_types != (OnCompletionAction.NoOp,):
+        abimethod_args["allow_actions"] = [oca.name for oca in config.allowed_completion_types]
+    if config.allow_create:
+        abimethod_args["create"] = "allow"
+    elif config.require_create:
+        abimethod_args["create"] = True
+    kwargs = ", ".join(f"{name}={value!r}" for name, value in abimethod_args.items())
+    decorator = f"@{constants.ABIMETHOD_DECORATOR_ALIAS}"
+    if kwargs:
+        decorator += f"({kwargs})"
+    return decorator

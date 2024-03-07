@@ -220,6 +220,7 @@ def _compile_for_level(arg: tuple[Path, int]) -> tuple[CompilationResult, int]:
             "--output-optimization-ir",
             "--output-destructured-ir",
             "--output-memory-ir",
+            "--output-client",
         ]
         out_suffix = SUFFIX_O1
         write_logs = True
