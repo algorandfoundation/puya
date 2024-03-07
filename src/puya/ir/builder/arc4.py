@@ -61,7 +61,7 @@ def decode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Decode) ->
                 args=[value, UInt64Constant(value=0, source_location=None)],
                 source_location=expr.source_location,
             )
-        case wtypes.arc4_string_wtype:
+        case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes:
             return Intrinsic(
                 op=AVMOp.extract,
                 immediates=[2, 0],
@@ -118,7 +118,7 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
             return _itob_fixed(context, value, num_bytes, expr.source_location)
         case wtypes.ARC4Tuple(types=item_types) | wtypes.ARC4Struct(types=item_types):
             return _visit_arc4_tuple_encode(context, expr, item_types)
-        case wtypes.arc4_string_wtype:
+        case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes:
             if isinstance(expr.value, awst_nodes.BytesConstant):
                 ir_const = context.visitor.visit_expr(expr.value)
                 if not isinstance(ir_const, BytesConstant):

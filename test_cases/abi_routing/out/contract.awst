@@ -3,7 +3,7 @@ contract Reference
   globals {
     ['asa']: puyapy.Asset
     ['an_int']: puyapy.UInt64
-    ['some_bytes']: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]]
+    ['some_bytes']: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[3]]
     ['creator']: puyapy.Account
     ['app']: puyapy.Application
   }
@@ -12,28 +12,28 @@ contract Reference
   {
     this.asa: puyapy.Asset = reinterpret_cast<puyapy.Asset>(123u)
     this.an_int: puyapy.UInt64 = 2u
-    this.some_bytes: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]] = arc4_array_encode([7arc4u8, 8arc4u8, 9arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]])
+    this.some_bytes: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[3]] = arc4_array_encode([7arc4u8, 8arc4u8, 9arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[3]])
     this.creator: puyapy.Account = txn<Sender>()
     this.app: puyapy.Application = reinterpret_cast<puyapy.Application>(123u)
     assert(reinterpret_cast<bool>(len(Method("get(uint64,byte[])byte[]"))), comment="has method selector")
   }
   
-  abimethod noop_with_uint64(a: puyapy.arc4.UIntN[typing.Literal[64]]): puyapy.arc4.UIntN[typing.Literal[8]]
+  abimethod noop_with_uint64(a: puyapy.arc4.UInt64): puyapy.arc4.UInt8
   {
     result: puyapy.UInt64 = 1u + arc4_decode(a, puyapy.UInt64)
-    return arc4_encode(result, puyapy.arc4.UIntN[typing.Literal[8]])
+    return arc4_encode(result, puyapy.arc4.UInt8)
   }
   
-  abimethod[name_override=all_the_things] full_abi_config(a: puyapy.arc4.UIntN[typing.Literal[64]]): puyapy.arc4.UIntN[typing.Literal[8]]
+  abimethod[name_override=all_the_things] full_abi_config(a: puyapy.arc4.UInt64): puyapy.arc4.UInt8
   {
     result: puyapy.UInt64 = 1u + arc4_decode(a, puyapy.UInt64)
-    return arc4_encode(result, puyapy.arc4.UIntN[typing.Literal[8]])
+    return arc4_encode(result, puyapy.arc4.UInt8)
   }
   
-  abimethod mixed_oca(a: puyapy.arc4.UIntN[typing.Literal[64]]): puyapy.arc4.UIntN[typing.Literal[8]]
+  abimethod mixed_oca(a: puyapy.arc4.UInt64): puyapy.arc4.UInt8
   {
     result: puyapy.UInt64 = 1u + arc4_decode(a, puyapy.UInt64)
-    return arc4_encode(result, puyapy.arc4.UIntN[typing.Literal[8]])
+    return arc4_encode(result, puyapy.arc4.UInt8)
   }
   
   abimethod bare_abi_config(): None
@@ -54,7 +54,7 @@ contract Reference
     itxn_submit()
   }
   
-  abimethod with_transactions(asset: puyapy.Asset, an_int: puyapy.arc4.UIntN[typing.Literal[64]], pay: puyapy.gtxn.PaymentTransaction, another_int: puyapy.arc4.UIntN[typing.Literal[64]]): None
+  abimethod with_transactions(asset: puyapy.Asset, an_int: puyapy.arc4.UInt64, pay: puyapy.gtxn.PaymentTransaction, another_int: puyapy.arc4.UInt64): None
   {
     assert(this.asa == asset, comment="is correct asset")
     assert(arc4_decode(an_int, puyapy.UInt64) == 1u, comment="is correct int")
@@ -67,27 +67,27 @@ contract Reference
     assert(asset_a == asset_b, comment="asset a == b")
   }
   
-  abimethod get_address(): puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[32]]
+  abimethod get_address(): puyapy.arc4.Address
   {
-    return reinterpret_cast<puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[32]]>(reinterpret_cast<puyapy.Bytes>(global<ZeroAddress>()))
+    return reinterpret_cast<puyapy.arc4.Address>(reinterpret_cast<puyapy.Bytes>(global<ZeroAddress>()))
   }
   
-  abimethod get_asset(): puyapy.arc4.UIntN[typing.Literal[64]]
-  {
-    return 456arc4u64
-  }
-  
-  abimethod[name_override=get_application] get_app(): puyapy.arc4.UIntN[typing.Literal[64]]
+  abimethod get_asset(): puyapy.arc4.UInt64
   {
     return 456arc4u64
   }
   
-  abimethod[name_override=get_an_int] get_a_int(): puyapy.arc4.UIntN[typing.Literal[64]]
+  abimethod[name_override=get_application] get_app(): puyapy.arc4.UInt64
+  {
+    return 456arc4u64
+  }
+  
+  abimethod[name_override=get_an_int] get_a_int(): puyapy.arc4.UInt64
   {
     return 3arc4u64
   }
   
-  abimethod method_with_default_args(asset_from_storage: puyapy.Asset, asset_from_function: puyapy.Asset, account_from_storage: puyapy.Account, account_from_function: puyapy.Account, application_from_storage: puyapy.Application, application_from_function: puyapy.Application, bytes_from_storage: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[3]], int_from_storage: puyapy.arc4.UIntN[typing.Literal[64]], int_from_function: puyapy.arc4.UIntN[typing.Literal[64]]): None
+  abimethod method_with_default_args(asset_from_storage: puyapy.Asset, asset_from_function: puyapy.Asset, account_from_storage: puyapy.Account, account_from_function: puyapy.Account, application_from_storage: puyapy.Application, application_from_function: puyapy.Application, bytes_from_storage: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[3]], int_from_storage: puyapy.arc4.UInt64, int_from_function: puyapy.arc4.UInt64): None
   {
     assert(asset_from_storage == reinterpret_cast<puyapy.Asset>(123u), comment="wrong asset from storage")
     assert(asset_from_function == reinterpret_cast<puyapy.Asset>(456u), comment="wrong asset from function")
@@ -102,7 +102,7 @@ contract Reference
     assert(arc4_decode(int_from_function, puyapy.UInt64) == 3u, comment="wrong int from function")
   }
   
-  abimethod method_with_more_than_15_args(a: puyapy.arc4.UIntN[typing.Literal[64]], b: puyapy.arc4.UIntN[typing.Literal[64]], c: puyapy.arc4.UIntN[typing.Literal[64]], d: puyapy.UInt64, asset: puyapy.Asset, e: puyapy.arc4.UIntN[typing.Literal[64]], f: puyapy.arc4.UIntN[typing.Literal[64]], pay: puyapy.gtxn.PaymentTransaction, g: puyapy.arc4.UIntN[typing.Literal[64]], h: puyapy.arc4.UIntN[typing.Literal[64]], i: puyapy.arc4.UIntN[typing.Literal[64]], j: puyapy.arc4.UIntN[typing.Literal[64]], k: puyapy.arc4.UIntN[typing.Literal[64]], l: puyapy.arc4.UIntN[typing.Literal[64]], m: puyapy.arc4.UIntN[typing.Literal[64]], n: puyapy.arc4.UIntN[typing.Literal[64]], o: puyapy.arc4.UIntN[typing.Literal[64]], p: puyapy.UInt64, q: puyapy.arc4.UIntN[typing.Literal[64]], r: puyapy.arc4.UIntN[typing.Literal[64]], s: puyapy.Bytes, t: puyapy.Bytes, asset2: puyapy.Asset, pay2: puyapy.gtxn.PaymentTransaction, u: puyapy.arc4.UIntN[typing.Literal[64]], v: puyapy.arc4.UIntN[typing.Literal[64]]): puyapy.arc4.UIntN[typing.Literal[64]]
+  abimethod method_with_more_than_15_args(a: puyapy.arc4.UInt64, b: puyapy.arc4.UInt64, c: puyapy.arc4.UInt64, d: puyapy.UInt64, asset: puyapy.Asset, e: puyapy.arc4.UInt64, f: puyapy.arc4.UInt64, pay: puyapy.gtxn.PaymentTransaction, g: puyapy.arc4.UInt64, h: puyapy.arc4.UInt64, i: puyapy.arc4.UInt64, j: puyapy.arc4.UInt64, k: puyapy.arc4.UInt64, l: puyapy.arc4.UInt64, m: puyapy.arc4.UInt64, n: puyapy.arc4.UInt64, o: puyapy.arc4.UInt64, p: puyapy.UInt64, q: puyapy.arc4.UInt64, r: puyapy.arc4.UInt64, s: puyapy.Bytes, t: puyapy.Bytes, asset2: puyapy.Asset, pay2: puyapy.gtxn.PaymentTransaction, u: puyapy.arc4.UInt64, v: puyapy.arc4.UInt64): puyapy.arc4.UInt64
   {
     assert(txn<NumAppArgs>() == 16u)
     assert(gtxns<Amount>(pay) == 100000u)
@@ -110,6 +110,6 @@ contract Reference
     assert(reinterpret_cast<bool>(reinterpret_cast<puyapy.UInt64>(asset)))
     assert(reinterpret_cast<bool>(reinterpret_cast<puyapy.UInt64>(asset2)))
     log(s + t)
-    return arc4_encode(arc4_decode(a, puyapy.UInt64) + arc4_decode(b, puyapy.UInt64) + arc4_decode(c, puyapy.UInt64) + d + arc4_decode(e, puyapy.UInt64) + arc4_decode(f, puyapy.UInt64) + arc4_decode(g, puyapy.UInt64) + arc4_decode(h, puyapy.UInt64) + arc4_decode(i, puyapy.UInt64) + arc4_decode(j, puyapy.UInt64) + arc4_decode(k, puyapy.UInt64) + arc4_decode(l, puyapy.UInt64) + arc4_decode(m, puyapy.UInt64) + arc4_decode(n, puyapy.UInt64) + arc4_decode(o, puyapy.UInt64) + p + arc4_decode(q, puyapy.UInt64) + arc4_decode(r, puyapy.UInt64) + arc4_decode(u, puyapy.UInt64) + arc4_decode(v, puyapy.UInt64), puyapy.arc4.UIntN[typing.Literal[64]])
+    return arc4_encode(arc4_decode(a, puyapy.UInt64) + arc4_decode(b, puyapy.UInt64) + arc4_decode(c, puyapy.UInt64) + d + arc4_decode(e, puyapy.UInt64) + arc4_decode(f, puyapy.UInt64) + arc4_decode(g, puyapy.UInt64) + arc4_decode(h, puyapy.UInt64) + arc4_decode(i, puyapy.UInt64) + arc4_decode(j, puyapy.UInt64) + arc4_decode(k, puyapy.UInt64) + arc4_decode(l, puyapy.UInt64) + arc4_decode(m, puyapy.UInt64) + arc4_decode(n, puyapy.UInt64) + arc4_decode(o, puyapy.UInt64) + p + arc4_decode(q, puyapy.UInt64) + arc4_decode(r, puyapy.UInt64) + arc4_decode(u, puyapy.UInt64) + arc4_decode(v, puyapy.UInt64), puyapy.arc4.UInt64)
   }
 }

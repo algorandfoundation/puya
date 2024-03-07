@@ -132,7 +132,7 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder):
 class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(location)
-        self.wtype = wtypes.ARC4UIntN.from_scale(8, alias="byte")
+        self.wtype = wtypes.arc4_byte_type
 
 
 class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder):

@@ -107,9 +107,7 @@ def arc4_encode(
             )
             return awst_nodes.ReinterpretCast(
                 source_location=location,
-                wtype=wtypes.ARC4DynamicArray.from_element_type(
-                    wtypes.ARC4UIntN.from_scale(8, alias="byte")
-                ),
+                wtype=wtypes.arc4_dynamic_bytes,
                 expr=awst_nodes.IntrinsicCall(
                     source_location=location,
                     op_code="concat",
@@ -572,7 +570,7 @@ def map_abi_args(
             if wtypes.has_arc4_equivalent_type(wtype):
                 return wtypes.avm_to_arc4_equivalent_type(wtype)
             elif wtypes.is_reference_type(wtype):
-                return wtypes.ARC4UIntN.from_scale(8)
+                return wtypes.arc4_byte_type
             else:
                 return wtype
 

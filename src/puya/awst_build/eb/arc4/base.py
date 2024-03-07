@@ -184,18 +184,12 @@ class ARC4DecodeBuilder(IntermediateExpressionBuilder):
     def __init__(self, expr: Expression, location: SourceLocation):
         super().__init__(location=location)
         match expr.wtype:
-            case wtypes.arc4_string_wtype:
+            case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes | wtypes.arc4_bool_wtype:
                 pass
-            case wtypes.ARC4UIntN():
-                pass
-            case wtypes.ARC4UFixedNxM():
-                pass
-            case wtypes.arc4_bool_wtype:
-                pass
-            case wtypes.ARC4Tuple():
+            case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM() | wtypes.ARC4Tuple():
                 pass
             case _:
-                raise InternalError("Unsupported wtype")
+                raise InternalError("Unsupported wtype for ARC4Decode", location)
         self.expr = expr
 
     def call(

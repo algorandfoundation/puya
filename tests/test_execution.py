@@ -920,6 +920,10 @@ def test_abi_array(harness: _TestHarness) -> None:
     )
 
 
+def test_dynamic_bytes(harness: _TestHarness) -> None:
+    harness.deploy(TEST_CASES_DIR / "arc4_types" / "dynamic_bytes.py")
+
+
 def test_abi_bool(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "arc4_types" / "bool.py",

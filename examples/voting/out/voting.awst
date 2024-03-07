@@ -6,10 +6,10 @@ ASSET_MIN_BALANCE = 100000
 TALLY_BOX_KEY = b'V'
 
 struct VotingPreconditions {
-  is_voting_open: puyapy.arc4.UIntN[typing.Literal[64]]
-  is_allowed_to_vote: puyapy.arc4.UIntN[typing.Literal[64]]
-  has_already_voted: puyapy.arc4.UIntN[typing.Literal[64]]
-  current_time: puyapy.arc4.UIntN[typing.Literal[64]]
+  is_voting_open: puyapy.arc4.UInt64
+  is_allowed_to_vote: puyapy.arc4.UInt64
+  has_already_voted: puyapy.arc4.UInt64
+  current_time: puyapy.arc4.UInt64
 }
 
 contract VotingRoundApp
@@ -26,7 +26,7 @@ contract VotingRoundApp
     ['quorum']: puyapy.UInt64
     ['nft_image_url']: puyapy.Bytes
     ['nft_asset_id']: puyapy.UInt64
-    ['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]
+    ['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8]
     ['total_options']: puyapy.UInt64
   }
   
@@ -36,7 +36,7 @@ contract VotingRoundApp
     this.voter_count: puyapy.UInt64 = 0u
   }
   
-  abimethod create(vote_id: puyapy.arc4.String, snapshot_public_key: puyapy.Bytes, metadata_ipfs_cid: puyapy.arc4.String, start_time: puyapy.UInt64, end_time: puyapy.UInt64, option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]], quorum: puyapy.UInt64, nft_image_url: puyapy.arc4.String): None
+  abimethod create(vote_id: puyapy.arc4.String, snapshot_public_key: puyapy.Bytes, metadata_ipfs_cid: puyapy.arc4.String, start_time: puyapy.UInt64, end_time: puyapy.UInt64, option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8], quorum: puyapy.UInt64, nft_image_url: puyapy.arc4.String): None
   {
     assert(start_time < end_time, comment="End time should be after start time")
     assert(end_time >= global<LatestTimestamp>(), comment="End time should be in the future")
@@ -91,12 +91,12 @@ contract VotingRoundApp
     this.nft_asset_id: puyapy.UInt64 = reinterpret_cast<puyapy.UInt64>(submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + this.vote_id, ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=this.nft_image_url, Note=note)).CreatedAssetID)
   }
   
-  abimethod get_preconditions(signature: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): examples.voting.voting.VotingPreconditions
+  abimethod get_preconditions(signature: puyapy.arc4.DynamicBytes): examples.voting.voting.VotingPreconditions
   {
-    return arc4_encode((arc4_encode(this::voting_open(), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::allowed_to_vote(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(signature))[select(len(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(signature))), 2u, 2u < len(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(signature)))):]), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(this::already_voted(), puyapy.arc4.UIntN[typing.Literal[64]]), arc4_encode(global<LatestTimestamp>(), puyapy.arc4.UIntN[typing.Literal[64]])), examples.voting.voting.VotingPreconditions)
+    return arc4_encode((arc4_encode(this::voting_open(), puyapy.arc4.UInt64), arc4_encode(this::allowed_to_vote(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(signature))[select(len(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(signature))), 2u, 2u < len(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(signature)))):]), puyapy.arc4.UInt64), arc4_encode(this::already_voted(), puyapy.arc4.UInt64), arc4_encode(global<LatestTimestamp>(), puyapy.arc4.UInt64)), examples.voting.voting.VotingPreconditions)
   }
   
-  abimethod vote(fund_min_bal_req: puyapy.gtxn.PaymentTransaction, signature: puyapy.Bytes, answer_ids: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): None
+  abimethod vote(fund_min_bal_req: puyapy.gtxn.PaymentTransaction, signature: puyapy.Bytes, answer_ids: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8]): None
   {
     puyapy::ensure_budget(required_budget=7700u, fee_source=0u)
     assert(this::allowed_to_vote(signature), comment="Not allowed to vote")
@@ -131,7 +131,7 @@ contract VotingRoundApp
     return exists
   }
   
-  subroutine store_option_counts(option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]): None
+  subroutine store_option_counts(option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8]): None
   {
     assert(reinterpret_cast<bool>(extract_uint16(option_counts, 0u)), comment="option_counts should be non-empty")
     assert(extract_uint16(option_counts, 0u) <= 112u, comment="Can't have more than 112 questions")
@@ -140,7 +140,7 @@ contract VotingRoundApp
       total_options += arc4_decode(item, puyapy.UInt64)
     }
     assert(total_options <= 128u, comment="Can't have more than 128 vote options")
-    this.option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = option_counts.copy()
+    this.option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8] = option_counts.copy()
     this.total_options: puyapy.UInt64 = total_options
   }
   

@@ -26,6 +26,7 @@ from puya.awst_build.eb.arc4.base import (
 )
 from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.utils import convert_literal
 from puya.errors import CodeError
 
 if TYPE_CHECKING:
@@ -51,18 +52,8 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
-            case [Literal(value=str(str_val), source_location=loc)]:
-                return var_expression(
-                    ARC4Encode(
-                        value=BytesConstant(
-                            value=str_val.encode("utf8"),
-                            source_location=loc,
-                            encoding=BytesEncoding.utf8,
-                        ),
-                        source_location=location,
-                        wtype=self.produces(),
-                    )
-                )
+            case [Literal(value=str()) as literal]:
+                return var_expression(convert_literal(literal, wtypes.arc4_string_wtype, location))
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
 

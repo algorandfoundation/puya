@@ -379,8 +379,13 @@ class Address(StaticArray[Byte, typing.Literal[32]]):
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero address"""
 
-DynamicBytes: typing.TypeAlias = DynamicArray[Byte]
-"""A variable sized array of bytes"""
+class DynamicBytes(_ABIEncoded[puyapy.Bytes], DynamicArray[Byte]):
+    """A variable sized array of bytes"""
+
+    @typing.overload
+    def __init__(self, bytes: puyapy.Bytes | bytes): ...
+    @typing.overload
+    def __init__(self, *bytes: Byte | UInt8): ...
 
 class ARC4Contract(puyapy.Contract):
     """A contract that conforms to the ARC4 ABI specification, functions decorated with

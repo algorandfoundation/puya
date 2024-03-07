@@ -10,6 +10,7 @@ from mypy.types import get_proper_type, is_named_instance
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AddressConstant,
+    ARC4Encode,
     BoolConstant,
     BytesConstant,
     BytesEncoding,
@@ -180,33 +181,36 @@ def expect_operand_wtype(
 
 
 @typing.overload
-def convert_literal(literal_or_expr: Literal, target_wtype: wtypes.WType) -> Expression:
-    ...
-
-
-@typing.overload
-def convert_literal(literal_or_expr: Expression, target_wtype: wtypes.WType) -> Expression:
+def convert_literal(
+    literal_or_expr: Literal | Expression,
+    target_wtype: wtypes.WType,
+    loc: SourceLocation | None = None,
+) -> Expression:
     ...
 
 
 @typing.overload
 def convert_literal(
-    literal_or_expr: ExpressionBuilder, target_wtype: wtypes.WType
+    literal_or_expr: ExpressionBuilder,
+    target_wtype: wtypes.WType,
+    loc: SourceLocation | None = None,
 ) -> ExpressionBuilder:
     ...
 
 
 def convert_literal(
-    literal_or_expr: Literal | Expression | ExpressionBuilder, target_wtype: wtypes.WType
+    literal_or_expr: Literal | Expression | ExpressionBuilder,
+    target_wtype: wtypes.WType,
+    loc: SourceLocation | None = None,
 ) -> Expression | ExpressionBuilder:
     if not isinstance(literal_or_expr, Literal):
         return literal_or_expr
 
     literal_value: typing.Any = literal_or_expr.value
-    loc = literal_or_expr.source_location
+    loc = loc or literal_or_expr.source_location
     if not target_wtype.is_valid_literal(literal_value):
         raise CodeError(
-            f"Cannot implicitly convert literal value {literal_value}"
+            f"Cannot implicitly convert literal value {literal_value!r}"
             f" to target type {target_wtype}",
             loc,
         )
@@ -225,6 +229,50 @@ def convert_literal(
             return BytesConstant(value=literal_value, source_location=loc, encoding=encoding)
         case wtypes.account_wtype:
             return AddressConstant(value=literal_value, source_location=loc)
+        case wtypes.arc4_dynamic_bytes:
+            return ARC4Encode(
+                value=BytesConstant(
+                    value=literal_value,
+                    source_location=loc,
+                    encoding=BytesEncoding.utf8,
+                ),
+                source_location=loc,
+                wtype=target_wtype,
+            )
+        case wtypes.arc4_string_wtype:
+            if isinstance(literal_value, str):
+                try:
+                    literal_bytes = literal_value.encode("utf8")
+                except ValueError:
+                    pass
+                else:
+                    return ARC4Encode(
+                        value=BytesConstant(
+                            value=literal_bytes,
+                            source_location=loc,
+                            encoding=BytesEncoding.utf8,
+                        ),
+                        source_location=loc,
+                        wtype=target_wtype,
+                    )
+        case wtypes.arc4_bool_wtype:
+            return ARC4Encode(
+                value=BoolConstant(
+                    value=literal_value,
+                    source_location=loc,
+                ),
+                source_location=loc,
+                wtype=target_wtype,
+            )
+        case wtypes.ARC4UIntN():
+            return ARC4Encode(
+                value=UInt64Constant(
+                    value=literal_value,
+                    source_location=loc,
+                ),
+                source_location=loc,
+                wtype=target_wtype,
+            )
         case wtypes.asset_wtype | wtypes.application_wtype:
             return ReinterpretCast(
                 expr=UInt64Constant(value=literal_value, source_location=loc),
@@ -237,10 +285,7 @@ def convert_literal(
                 wtype=target_wtype,
                 source_location=loc,
             )
-        case _:
-            raise CodeError(
-                f"Can't construct {target_wtype} from Python literal {literal_value}", loc
-            )
+    raise CodeError(f"Can't construct {target_wtype} from Python literal {literal_value}", loc)
 
 
 def convert_literal_to_expr(

@@ -1,6 +1,7 @@
 import functools
 from collections.abc import Callable
 
+import puya.awst_build.eb.arc4.dynamic_bytes
 from puya.awst import wtypes
 from puya.awst.nodes import Expression
 from puya.awst_build import constants
@@ -59,6 +60,7 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.CLS_ARC4_TUPLE: arc4.ARC4TupleGenericClassExpressionBuilder,
     constants.CLS_ARC4_UFIXEDNXM: arc4.UFixedNxMClassExpressionBuilder,
     constants.CLS_ARC4_UINTN: arc4.UIntNClassExpressionBuilder,
+    constants.CLS_ARC4_DYNAMIC_BYTES: puya.awst_build.eb.arc4.DynamicBytesClassExpressionBuilder,
     constants.CLS_ACCOUNT: account.AccountClassExpressionBuilder,
     constants.CLS_ARRAY: array.ArrayGenericClassExpressionBuilder,
     constants.CLS_ASSET: asset.AssetClassExpressionBuilder,
@@ -122,6 +124,7 @@ WTYPE_TO_BUILDER: dict[
     wtypes.WTuple: tuple_.TupleExpressionBuilder,
     wtypes.arc4_bool_wtype: arc4.ARC4BoolExpressionBuilder,
     wtypes.arc4_string_wtype: arc4.StringExpressionBuilder,
+    wtypes.arc4_dynamic_bytes: puya.awst_build.eb.arc4.DynamicBytesExpressionBuilder,
     wtypes.account_wtype: account.AccountExpressionBuilder,
     wtypes.application_wtype: application.ApplicationExpressionBuilder,
     wtypes.asset_wtype: asset.AssetExpressionBuilder,

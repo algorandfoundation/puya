@@ -104,7 +104,7 @@ def dynamic_array_constructor(
             element_wtype = non_literal_args[0].wtype
             wtype = wtypes.ARC4DynamicArray.from_element_type(element_wtype)
         else:
-            raise CodeError("Empy arrays require a type annotation to be instantiated", location)
+            raise CodeError("Empty arrays require a type annotation to be instantiated", location)
 
     for a in non_literal_args:
         expect_operand_wtype(a, wtype.element_type)
@@ -238,11 +238,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
 class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(location=location)
-        element_wtype = wtypes.ARC4UIntN.from_scale(8, alias="byte")
-        array_size = 32
-        self.wtype = wtypes.ARC4StaticArray.from_element_type_and_size(
-            element_wtype, array_size=array_size, alias="address"
-        )
+        self.wtype = wtypes.arc4_address_type
 
     def call(
         self,
