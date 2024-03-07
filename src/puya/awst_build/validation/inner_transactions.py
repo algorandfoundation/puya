@@ -64,6 +64,7 @@ class InnerTransactionsValidator(AWSTTraverser):
                 match itxn_params:
                     case awst_nodes.VarExpression(name=var_name):
                         self._current_loop_itxn_vars.append(var_name)
+        super().visit_submit_inner_transaction(call)
 
     def visit_update_inner_transaction(self, call: awst_nodes.UpdateInnerTransaction) -> None:
         super().visit_update_inner_transaction(call)
@@ -131,7 +132,7 @@ class InnerTransactionsValidator(AWSTTraverser):
                 )
             case awst_nodes.Expression(wtype=wtype) if wtypes.is_inner_transaction_type(wtype):
                 self.context.errors.error(
-                    f"{stmt.value.wtype} cannot be aliased",
+                    f"{stmt.value.wtype} cannot be reassigned",
                     stmt.value.source_location,
                 )
 
