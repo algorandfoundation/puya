@@ -383,9 +383,9 @@ class DynamicBytes(_ABIEncoded[puyapy.Bytes], DynamicArray[Byte]):
     """A variable sized array of bytes"""
 
     @typing.overload
-    def __init__(self, bytes: puyapy.Bytes | bytes): ...
+    def __init__(self, __bytes: puyapy.Bytes | bytes): ...
     @typing.overload
-    def __init__(self, *bytes: Byte | UInt8): ...
+    def __init__(self, *__bytes: Byte | UInt8): ...
 
 class ARC4Contract(puyapy.Contract):
     """A contract that conforms to the ARC4 ABI specification, functions decorated with
@@ -440,7 +440,6 @@ class Struct(metaclass=_StructMeta):
 class ARC4Client(typing.Protocol): ...
 
 _TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
-_TABIArgs = typing.TypeVarTuple("_TABIArgs")
 _TABIArg = (
     puyapy.BytesBacked
     | puyapy.UInt64
@@ -453,7 +452,6 @@ _TABIArg = (
     | bytes
     | str
 )
-_TContract_co = typing.TypeVar("_TContract_co", bound=ARC4Contract | ARC4Client, covariant=True)
 
 class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
     def __call__(

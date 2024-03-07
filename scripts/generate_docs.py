@@ -105,7 +105,7 @@ class SymbolCollector(NodeVisitor[None]):
     symbols: dict[str, str] = attrs.field(factory=dict)
 
     def get_src(
-        self, node: mypy.nodes.Node, *, path: str | None = None, entire_lines: bool = True
+        self, node: mypy.nodes.Context, *, path: str | None = None, entire_lines: bool = True
     ) -> str:
         columns: tuple[int, int] | None = None
         if node.end_column and not entire_lines:
@@ -194,7 +194,12 @@ class SymbolCollector(NodeVisitor[None]):
             raise Exception(f"Multi assignments are not supported: {o}") from ex
         if not isinstance(lvalue, mypy.nodes.NameExpr):
             raise Exception(f"Multi assignments are not supported: {lvalue}")
-        self.symbols[lvalue.name] = self.get_src(o.rvalue)
+        # find actual rvalue src location by taking the entire statement and subtracting the lvalue
+        loc = mypy.nodes.Context()
+        loc.set_line(o)
+        if lvalue.end_column:
+            loc.column = lvalue.end_column
+        self.symbols[lvalue.name] = self.get_src(loc)
 
     def _is_protocol(self, fullname: str) -> bool:
         try:
