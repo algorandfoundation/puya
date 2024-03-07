@@ -1,0 +1,74 @@
+
+## case: test_cant_instantiate_inner_transaction
+
+from puyapy import Contract, itxn
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        txn = itxn.InnerTransactionResult()  ## E: puyapy.itxn.InnerTransactionResult cannot be instantiated directly, create a puyapy.itxn.InnerTransaction and submit instead
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+
+## case: test_inner_txn_cant_be_aliased
+
+from puyapy import Contract, TransactionType, itxn, subroutine
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        params = itxn.InnerTransaction(type=TransactionType.Payment)
+        txn = params.submit()
+        self.cant_pass_inner_txn(txn) ## E: puyapy.itxn.InnerTransactionResult cannot be passed to a subroutine
+        txn2 = self.cant_return_inner_txn() ## E: puyapy.itxn.InnerTransactionResult cannot be reassigned
+        if (txn3 := params.submit()).created_app: ## E: puyapy.itxn.InnerTransactionResult cannot be used in assignment expressions
+            pass
+        txn4 = txn ## E: puyapy.itxn.InnerTransactionResult cannot be reassigned
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+    @subroutine
+    def cant_pass_inner_txn(self, txn: itxn.InnerTransactionResult) -> None: ## E: puyapy.itxn.InnerTransactionResult cannot be used as a subroutine argument type: txn
+        assert txn.type
+
+    @subroutine ## E: puyapy.itxn.InnerTransactionResult cannot be used as a subroutine return type
+    def cant_return_inner_txn(self) -> itxn.InnerTransactionResult:
+        return itxn.InnerTransaction(type=TransactionType.Payment).submit()
+
+    @subroutine
+    def must_unpack_tuple(self) -> None:
+        t1, t2 = itxn.submit_txns(itxn.InnerTransaction(type=TransactionType.Payment), itxn.InnerTransaction(type=TransactionType.Payment)) # this is ok
+        txn_tuple = itxn.submit_txns(itxn.InnerTransaction(type=TransactionType.Payment), itxn.InnerTransaction(type=TransactionType.Payment)) # this is not ## E: Inner Transactions cannot be part of an unpacked tuple: tuple[puyapy.itxn.InnerTransactionResult, puyapy.itxn.InnerTransactionResult]
+
+
+## case: test_inner_txn_param_cant_be_aliased
+
+from puyapy import Contract, TransactionType, itxn, subroutine
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        params = itxn.InnerTransaction(type=TransactionType.Payment)
+        self.cant_pass_inner_txn_params(params) ## E: puyapy.itxn.InnerTransaction cannot be passed to a subroutine
+        params2 = self.cant_return_inner_txn_params() ## E: puyapy.itxn.InnerTransaction cannot be aliased
+        if (params3 := itxn.InnerTransaction(type=TransactionType.Payment)).submit().created_app: ## E: puyapy.itxn.InnerTransaction cannot be used in assignment expressions
+            pass
+        params4 = params ## E: puyapy.itxn.InnerTransaction must be copied using .copy() when assigning to a new local: params
+        txn = (params5 := itxn.InnerTransaction(type=TransactionType.Payment)).submit() ## E: puyapy.itxn.InnerTransaction cannot be used in assignment expressions
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+    @subroutine
+    def cant_pass_inner_txn_params(self, txn: itxn.InnerTransaction) -> None: ## E: puyapy.itxn.InnerTransaction cannot be used as a subroutine argument type: txn
+        pass
+
+    @subroutine ## E: puyapy.itxn.InnerTransaction cannot be used as a subroutine return type
+    def cant_return_inner_txn_params(self) -> itxn.InnerTransaction:
+        return itxn.InnerTransaction(type=TransactionType.Payment)
