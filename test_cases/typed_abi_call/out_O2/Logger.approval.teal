@@ -1,0 +1,175 @@
+#pragma version 10
+
+test_cases.typed_abi_call.logger.Logger.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@10
+    method "echo(string)string"
+    method "log_uint64(uint64)void"
+    method "log_uint512(uint512)void"
+    method "log_string(string)void"
+    method "log_bool(bool)void"
+    method "log_bytes(byte[])void"
+    txna ApplicationArgs 0
+    match main_echo_route@2 main_log_uint64_route@3 main_log_uint512_route@4 main_log_string_route@5 main_log_bool_route@6 main_log_bytes_route@7
+    err // reject transaction
+
+main_echo_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub echo
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_log_uint64_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub log_uint64
+    int 1
+    return
+
+main_log_uint512_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub log_uint512
+    int 1
+    return
+
+main_log_string_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub log_string
+    int 1
+    return
+
+main_log_bool_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub log_bool
+    int 1
+    return
+
+main_log_bytes_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    callsub log_bytes
+    int 1
+    return
+
+main_bare_routing@10:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.typed_abi_call.logger.Logger.echo(value: bytes) -> bytes:
+echo:
+    proto 1 1
+    frame_dig -1
+    extract 2 0
+    byte "echo: "
+    swap
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.log_uint64(value: bytes) -> void:
+log_uint64:
+    proto 1 0
+    frame_dig -1
+    log
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.log_uint512(value: bytes) -> void:
+log_uint512:
+    proto 1 0
+    frame_dig -1
+    log
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.log_string(value: bytes) -> void:
+log_string:
+    proto 1 0
+    frame_dig -1
+    extract 2 0
+    log
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.log_bool(value: bytes) -> void:
+log_bool:
+    proto 1 0
+    frame_dig -1
+    int 0
+    getbit
+    bz log_bool_ternary_false@2
+    byte "True"
+    b log_bool_ternary_merge@3
+
+log_bool_ternary_false@2:
+    byte "False"
+
+log_bool_ternary_merge@3:
+    log
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.log_bytes(value: bytes) -> void:
+log_bytes:
+    proto 1 0
+    frame_dig -1
+    len
+    int 2
+    dig 1
+    <
+    swap
+    dup
+    int 2
+    uncover 3
+    select
+    frame_dig -1
+    swap
+    uncover 2
+    substring3
+    log
+    retsub

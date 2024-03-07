@@ -4,6 +4,7 @@ from typing import Iterator
 
 import mypy.build
 import mypy.nodes
+import mypy.types
 import structlog
 from mypy.types import get_proper_type, is_named_instance
 
@@ -27,7 +28,7 @@ from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import UnsupportedASTError
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 logger = structlog.get_logger()
@@ -361,3 +362,27 @@ def get_arg_mapping(
                 raise CodeError("Too many positional arguments", location) from ex
         arg_mapping[arg_name] = arg
     return arg_mapping
+
+
+def get_func_types(
+    context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
+) -> dict[str, wtypes.WType]:
+    start_idx = 0
+    if func_def.arguments:
+        first_arg_var = func_def.arguments[0].variable
+        if first_arg_var.is_self or first_arg_var.is_cls:
+            start_idx = 1
+    in_var_names = [arg.variable.name for arg in func_def.arguments[start_idx:]]
+    if "output" in in_var_names:
+        # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
+        raise CodeError(
+            "For compatibility with ARC-32, ARC-4 methods cannot have an argument named output",
+            location,
+        )
+    names = [*in_var_names, "output"]
+    match func_def.type:
+        case mypy.types.CallableType(arg_types=arg_types, ret_type=ret_type):
+            types = arg_types[start_idx:] + [ret_type]
+            wtypes_ = (context.type_to_wtype(t, source_location=location) for t in types)
+            return dict(zip(names, wtypes_, strict=True))
+    raise InternalError("Unexpected FuncDef type")

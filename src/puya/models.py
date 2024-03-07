@@ -23,7 +23,7 @@ class OnCompletionAction(enum.IntEnum):
 
 @attrs.frozen(kw_only=True)
 class ARC4MethodConfig:
-    source_location: SourceLocation
+    source_location: SourceLocation | None
     name: str
     is_bare: bool = False
     allow_create: bool = False
@@ -39,24 +39,24 @@ class ARC4MethodConfig:
     structs: immutabledict[str, ARC32StructDef] = immutabledict()
 
 
-@attrs.define
+@attrs.frozen
 class ARC4MethodArg:
     name: str
     type_: str
-    desc: str | None
+    desc: str | None = attrs.field(hash=False)
 
 
-@attrs.define
+@attrs.frozen
 class ARC4Returns:
     type_: str
-    desc: str | None
+    desc: str | None = attrs.field(hash=False)
 
 
-@attrs.define
+@attrs.frozen
 class ARC4Method:
     name: str
-    desc: str | None
-    args: list[ARC4MethodArg]
+    desc: str | None = attrs.field(hash=False)
+    args: Sequence[ARC4MethodArg] = attrs.field(converter=tuple[ARC4MethodArg, ...])
     returns: ARC4Returns
     config: ARC4MethodConfig
 

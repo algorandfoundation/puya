@@ -1,4 +1,5 @@
 # ruff: noqa: F403
+from puya.awst_build.eb.arc4.abi_call import *
 from puya.awst_build.eb.arc4.arrays import *
 from puya.awst_build.eb.arc4.bool import *
 from puya.awst_build.eb.arc4.dynamic_bytes import *

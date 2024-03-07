@@ -60,6 +60,7 @@ CLS_ARC4_STATIC_ARRAY = "puyapy.arc4.StaticArray"
 CLS_ARC4_DYNAMIC_BYTES = "puyapy.arc4.DynamicBytes"
 CLS_ARC4_TUPLE = "puyapy.arc4.Tuple"
 CLS_ARC4_STRUCT = "puyapy.arc4.Struct"
+CLS_ARC4_ABI_CALL = "puyapy.arc4.abi_call"
 CLS_TEMPLATE_VAR_METHOD = f"{PUYAPY_PREFIX}_template_variables.TemplateVar"
 
 CONTRACT_STUB_TYPES = [

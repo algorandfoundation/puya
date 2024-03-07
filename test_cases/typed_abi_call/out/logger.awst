@@ -1,0 +1,32 @@
+contract Logger
+{
+  abimethod echo(value: puyapy.arc4.String): puyapy.arc4.String
+  {
+    return arc4_encode('echo: ', puyapy.arc4.String) + value
+  }
+  
+  abimethod log_uint64(value: puyapy.arc4.UInt64): None
+  {
+    log(value)
+  }
+  
+  abimethod log_uint512(value: puyapy.arc4.UInt512): None
+  {
+    log(value)
+  }
+  
+  abimethod log_string(value: puyapy.arc4.String): None
+  {
+    log(arc4_decode(value, puyapy.Bytes))
+  }
+  
+  abimethod log_bool(value: puyapy.arc4.Bool): None
+  {
+    log((arc4_decode(value, bool)) ? ('True') : ('False'))
+  }
+  
+  abimethod log_bytes(value: puyapy.arc4.DynamicBytes): None
+  {
+    log(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(value))[select(len(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(value))), 2u, 2u < len(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(value)))):])
+  }
+}

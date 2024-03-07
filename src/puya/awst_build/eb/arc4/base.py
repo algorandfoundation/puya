@@ -19,6 +19,8 @@ from puya.awst.nodes import (
     IntrinsicCall,
     Literal,
     ReinterpretCast,
+    SingleEvaluation,
+    TupleExpression,
 )
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
@@ -104,6 +106,49 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
         super().__init__(location=location)
         self.wtype = wtype
 
+    @classmethod
+    def abi_expr_from_log(
+        cls, wtype: wtypes.WType, value: Expression, location: SourceLocation
+    ) -> Expression:
+        tmp_value = SingleEvaluation(value)
+        arc4_value = IntrinsicCall(
+            wtype=wtypes.bytes_wtype,
+            op_code="extract",
+            immediates=[4, 0],
+            source_location=location,
+            stack_args=[tmp_value],
+        )
+        arc4_prefix = IntrinsicCall(
+            wtype=wtypes.bytes_wtype,
+            op_code="extract",
+            immediates=[0, 4],
+            source_location=location,
+            stack_args=[tmp_value],
+        )
+        arc4_prefix_is_valid = BytesComparisonExpression(
+            lhs=arc4_prefix,
+            rhs=BytesConstant(
+                value=b"\x15\x1f\x7c\x75",
+                source_location=location,
+                encoding=BytesEncoding.base16,
+            ),
+            operator=EqualityComparison.eq,
+            source_location=location,
+        )
+        checked_arc4_value = CheckedMaybe(
+            expr=TupleExpression(
+                items=(arc4_value, arc4_prefix_is_valid),
+                wtype=wtypes.WTuple.from_types((arc4_value.wtype, wtypes.bool_wtype)),
+                source_location=location,
+            ),
+            comment="ARC4 prefix is valid",
+        )
+        return ReinterpretCast(
+            source_location=location,
+            expr=checked_arc4_value,
+            wtype=wtype,
+        )
+
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -114,49 +159,9 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [ExpressionBuilder() as eb]:
-                value = eb.rvalue()
-                if value.wtype == wtypes.bytes_wtype:
-                    value_bytes = ReinterpretCast(
-                        expr=value, wtype=wtypes.bytes_wtype, source_location=value.source_location
-                    )
-                    arc4_prefix = IntrinsicCall(
-                        wtype=wtypes.bytes_wtype,
-                        op_code="extract",
-                        immediates=[0, 4],
-                        source_location=location,
-                        stack_args=[value_bytes],
-                    )
-                    arc4_prefix_is_valid = BytesComparisonExpression(
-                        lhs=arc4_prefix,
-                        rhs=BytesConstant(
-                            value=b"\x15\x1f\x7c\x75",
-                            source_location=location,
-                            encoding=BytesEncoding.base16,
-                        ),
-                        operator=EqualityComparison.eq,
-                        source_location=location,
-                    )
-                    arc4_value = IntrinsicCall(
-                        wtype=wtypes.bytes_wtype,
-                        op_code="extract",
-                        immediates=[4, 0],
-                        source_location=location,
-                        stack_args=[value_bytes],
-                    )
-                    checked_arc4_value = CheckedMaybe.from_tuple_items(
-                        expr=arc4_value,
-                        check=arc4_prefix_is_valid,
-                        source_location=location,
-                        comment="ARC4 prefix is valid",
-                    )
-                    return var_expression(
-                        ReinterpretCast(
-                            source_location=location,
-                            expr=checked_arc4_value,
-                            wtype=self.wtype,
-                        )
-                    )
-        raise CodeError("Invalid/unhandled arguments", location)
+                return var_expression(self.abi_expr_from_log(self.wtype, eb.rvalue(), location))
+            case _:
+                raise CodeError("Invalid/unhandled arguments", location)
 
 
 class CopyBuilder(IntermediateExpressionBuilder):

@@ -1,0 +1,322 @@
+#pragma version 10
+
+test_cases.typed_abi_call.typed_c2c.Greeter.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@7
+    method "test_method_selector_kinds(application)void"
+    method "test_arg_conversion(application)void"
+    method "test_void(application)void"
+    txna ApplicationArgs 0
+    match main_test_method_selector_kinds_route@2 main_test_arg_conversion_route@3 main_test_void_route@4
+    err // reject transaction
+
+main_test_method_selector_kinds_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_method_selector_kinds
+    int 1
+    return
+
+main_test_arg_conversion_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_arg_conversion
+    int 1
+    return
+
+main_test_void_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_void
+    int 1
+    return
+
+main_bare_routing@7:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds(app: uint64) -> void:
+test_method_selector_kinds:
+    proto 1 0
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x05test1"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte "\x00\x0becho: test1"
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x05test2"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte "\x00\x0becho: test2"
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x05test3"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte "\x00\x0becho: test3"
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x05test4"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte "\x00\x0becho: test4"
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x05test5"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte "\x00\x0becho: test5"
+    ==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(app: uint64) -> void:
+test_arg_conversion:
+    proto 1 0
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "log_string(string)void"
+    itxn_field ApplicationArgs
+    byte "\x00\nconverted1"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    byte "converted1"
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "log_uint64(uint64)void"
+    itxn_field ApplicationArgs
+    byte 0x0000000000000002
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    int 2
+    itob
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "log_uint512(uint512)void"
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "log_bool(bool)void"
+    itxn_field ApplicationArgs
+    byte 0x80
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    byte "True"
+    ==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_void(app: uint64) -> void:
+test_void:
+    proto 1 0
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "log_string(string)void"
+    itxn_field ApplicationArgs
+    byte "\x00\x06World1"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    byte "World1"
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "log_string(string)void"
+    itxn_field ApplicationArgs
+    byte "\x00\x06World2"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    byte "World2"
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "log_string(string)void"
+    itxn_field ApplicationArgs
+    byte "\x00\x06World3"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    byte "World3"
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "log_string(string)void"
+    itxn_field ApplicationArgs
+    byte "\x00\x06World4"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    byte "World4"
+    ==
+    assert
+    retsub

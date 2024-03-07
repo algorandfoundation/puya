@@ -72,3 +72,44 @@ class MyContract(Contract):
     @subroutine ## E: puyapy.itxn.InnerTransaction cannot be used as a subroutine return type
     def cant_return_inner_txn_params(self) -> itxn.InnerTransaction:
         return itxn.InnerTransaction(type=TransactionType.Payment)
+
+
+## case: test_abi_call_errors
+
+from puyapy import arc4, subroutine
+
+class Client(arc4.ARC4Client):
+
+    @arc4.abimethod
+    def foo(self, uint: arc4.UInt64) -> None:
+        raise NotImplementedError
+
+
+@subroutine
+def wrong_arg_type1() -> None:
+    arc4.abi_call(Client.foo, b"") ## E: Cannot implicitly convert literal value b'' to target type puyapy.arc4.UInt64
+
+@subroutine
+def wrong_arg_type2() -> None:
+    arc4.abi_call(Client.foo, "") ## E: Cannot implicitly convert literal value '' to target type puyapy.arc4.UInt64
+
+@subroutine
+def wrong_arg_type3() -> None:
+    arc4.abi_call("foo(uint64)void", b"") ## E: Cannot implicitly convert literal value b'' to target type puyapy.arc4.UInt64
+
+@subroutine
+def wrong_arg_type4() -> None:
+    arc4.abi_call("foo(uint8)void", 256) ## E: Cannot implicitly convert literal value 256 to target type puyapy.arc4.UInt8
+
+@subroutine
+def wrong_arg_type5() -> None:
+    arc4.abi_call("foo", 2 ** 64 + 1) ## E: Cannot implicitly convert literal value 18446744073709551617 to target type puyapy.UInt64
+
+@subroutine
+def method_selector_mismatch() -> None:
+    arc4.abi_call[arc4.UInt64]("foo(uint8)void", 1) ## E: Method selector from args 'foo(uint8)uint64' does not match provided method selector: 'foo(uint8)void'
+
+@subroutine
+def allowed_coercions() -> None:
+    arc4.abi_call("foo", 256) # value inferred from args
+    arc4.abi_call(Client.foo, 1)

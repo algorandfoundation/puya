@@ -60,6 +60,7 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.CLS_ARC4_TUPLE: arc4.ARC4TupleGenericClassExpressionBuilder,
     constants.CLS_ARC4_UFIXEDNXM: arc4.UFixedNxMClassExpressionBuilder,
     constants.CLS_ARC4_UINTN: arc4.UIntNClassExpressionBuilder,
+    constants.CLS_ARC4_ABI_CALL: arc4.ABICallGenericClassExpressionBuilder,
     constants.CLS_ARC4_DYNAMIC_BYTES: puya.awst_build.eb.arc4.DynamicBytesClassExpressionBuilder,
     constants.CLS_ACCOUNT: account.AccountClassExpressionBuilder,
     constants.CLS_ARRAY: array.ArrayGenericClassExpressionBuilder,

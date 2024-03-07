@@ -1,14 +1,9 @@
-import typing
 from collections.abc import Iterator, Mapping
-from typing import Never
 
 import mypy.nodes
 import mypy.types
 import mypy.visitor
-from immutabledict import immutabledict
 
-import puya.models
-from puya.arc4_util import wtype_to_arc4
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
@@ -19,6 +14,7 @@ from puya.awst.nodes import (
     ContractReference,
 )
 from puya.awst_build import constants
+from puya.awst_build.arc4_utils import get_arc4_method_config
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import (
@@ -28,14 +24,14 @@ from puya.awst_build.contract_data import (
 )
 from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puya.awst_build.utils import (
-    extract_bytes_literal_from_mypy,
     extract_docstring,
     get_decorators_by_fullname,
+    get_func_types,
     iterate_user_bases,
     qualified_class_name,
 )
 from puya.errors import CodeError, InternalError
-from puya.models import ARC4MethodConfig, ARC32StructDef, OnCompletionAction
+from puya.models import ARC4MethodConfig, OnCompletionAction
 from puya.parse import SourceLocation
 
 ALLOWABLE_OCA = frozenset(
@@ -222,12 +218,10 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     self._error(
                         f"cannot be both a subroutine and {arc4_decorator_name}", subroutine_dec
                     )
-                *arg_wtypes, ret_wtype = _get_func_types(
+                *arg_wtypes, ret_wtype = get_func_types(
                     self.context, func_def, location=self._location(func_def)
                 ).values()
-                arc4_method_config = _get_arc4_method_config(
-                    self.context, arc4_decorator, func_def
-                )
+                arc4_method_config = get_arc4_method_config(self.context, arc4_decorator, func_def)
                 if arc4_method_config.is_bare:
                     if arg_wtypes or (ret_wtype is not wtypes.void_wtype):
                         self._error(
@@ -435,198 +429,6 @@ def _gather_app_state(
                     decl_type=decl_type,
                     source_location=var_loc,
                 )
-
-
-def _get_func_types(
-    context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
-) -> dict[str, wtypes.WType]:
-    start_idx = 0
-    if func_def.arguments:
-        first_arg_var = func_def.arguments[0].variable
-        if first_arg_var.is_self or first_arg_var.is_cls:
-            start_idx = 1
-    in_var_names = [arg.variable.name for arg in func_def.arguments[start_idx:]]
-    if "output" in in_var_names:
-        # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
-        raise CodeError(
-            "For compatibility with ARC-32, ARC-4 methods cannot have an argument named output",
-            location,
-        )
-    names = [*in_var_names, "output"]
-    match func_def.type:
-        case mypy.types.CallableType(arg_types=arg_types, ret_type=ret_type):
-            types = arg_types[start_idx:] + [ret_type]
-            wtypes_ = (context.type_to_wtype(t, source_location=location) for t in types)
-            return dict(zip(names, wtypes_, strict=True))
-    raise InternalError("Unexpected FuncDef type")
-
-
-def _get_arc4_method_config(
-    context: ASTConversionModuleContext,
-    decorator: mypy.nodes.Expression,
-    func_def: mypy.nodes.FuncDef,
-) -> ARC4MethodConfig:
-    dec_loc = context.node_location(decorator)
-    match decorator:
-        case mypy.nodes.RefExpr(fullname=fullname):
-            return ARC4MethodConfig(
-                name=func_def.name,
-                source_location=dec_loc,
-                is_bare=fullname == constants.BAREMETHOD_DECORATOR,
-            )
-        case mypy.nodes.CallExpr(
-            args=args,
-            arg_names=arg_names,
-            callee=mypy.nodes.RefExpr(fullname=fullname),
-        ):
-            visitor = _DecoratorArgEvaluator()
-            abi_hints = typing.cast(
-                _AbiHints,
-                {n: a.accept(visitor) for n, a in zip(filter(None, arg_names), args, strict=True)},
-            )
-            name = abi_hints.get("name", func_def.name)
-            allow_actions = abi_hints.get("allow_actions", ["NoOp"])
-            if len(set(allow_actions)) != len(allow_actions):
-                context.error("Cannot have duplicate allow_actions", dec_loc)
-            if not allow_actions:
-                context.error("Must have at least one allow_actions", dec_loc)
-            invalid_actions = [a for a in allow_actions if a not in ALLOWABLE_OCA]
-            if invalid_actions:
-                context.error(
-                    f"Invalid allowed actions: {invalid_actions}",
-                    dec_loc,
-                )
-            create = abi_hints.get("create", False)
-            readonly = abi_hints.get("readonly", False)
-            default_args = immutabledict[str, str](abi_hints.get("default_args", {}))
-            all_args = [
-                a.variable.name for a in (func_def.arguments or []) if not a.variable.is_self
-            ]
-            for parameter in default_args:
-                if parameter not in all_args:
-                    context.error(
-                        f"'{parameter}' is not a parameter of {func_def.fullname}", dec_loc
-                    )
-                # TODO: validate source here as well?
-                #       Deferring it allows for more flexibility in contract composition
-
-            structs = immutabledict[str, ARC32StructDef](
-                {
-                    n: _wtype_to_struct_def(t)
-                    for n, t in _get_func_types(
-                        context, func_def, context.node_location(func_def)
-                    ).items()
-                    if isinstance(t, wtypes.ARC4Struct)
-                }
-            )
-
-            return ARC4MethodConfig(
-                source_location=dec_loc,
-                name=name,
-                allowed_completion_types=[
-                    puya.models.OnCompletionAction[a] for a in allow_actions
-                ],
-                allow_create=create == "allow",
-                require_create=create is True,
-                readonly=readonly,
-                is_bare=fullname == constants.BAREMETHOD_DECORATOR,
-                default_args=default_args,
-                structs=structs,
-            )
-        case _:
-            raise InternalError("Unexpected ARC4 decorator", dec_loc)
-
-
-class _AbiHints(typing.TypedDict, total=False):
-    name: str
-    allow_actions: list[str]
-    create: bool | typing.Literal["allow"]
-    readonly: bool
-    default_args: dict[str, str]
-
-
-class _DecoratorArgEvaluator(mypy.visitor.NodeVisitor[typing.Any]):
-    def __getattribute__(self, name: str) -> object:
-        attr = super().__getattribute__(name)
-        if name.startswith("visit_") and not attr.__module__.startswith("puya."):
-            return self._not_supported
-        return attr
-
-    def _not_supported(self, o: mypy.nodes.Context) -> Never:
-        raise CodeError(f"Cannot evaluate expression {o}")
-
-    def visit_int_expr(self, o: mypy.nodes.IntExpr) -> int:
-        return o.value
-
-    def visit_str_expr(self, o: mypy.nodes.StrExpr) -> str:
-        return o.value
-
-    def visit_bytes_expr(self, o: mypy.nodes.BytesExpr) -> bytes:
-        return extract_bytes_literal_from_mypy(o)
-
-    def visit_float_expr(self, o: mypy.nodes.FloatExpr) -> float:
-        return o.value
-
-    def visit_complex_expr(self, o: mypy.nodes.ComplexExpr) -> object:
-        return o.value
-
-    def visit_ellipsis(self, _: mypy.nodes.EllipsisExpr) -> object:
-        return Ellipsis
-
-    def visit_name_expr(self, o: mypy.nodes.NameExpr) -> object:
-        if o.name == "True":
-            return True
-        elif o.name == "False":
-            return False
-        elif o.name == "None":
-            return None
-        else:
-            return o.name
-
-    def visit_member_expr(self, o: mypy.nodes.MemberExpr) -> object:
-        return o.name
-
-    def visit_cast_expr(self, o: mypy.nodes.CastExpr) -> object:
-        return o.expr.accept(self)
-
-    def visit_assert_type_expr(self, o: mypy.nodes.AssertTypeExpr) -> object:
-        return o.expr.accept(self)
-
-    def visit_unary_expr(self, o: mypy.nodes.UnaryExpr) -> object:
-        operand: object = o.expr.accept(self)
-        if o.op == "-":
-            if isinstance(operand, (int, float, complex)):
-                return -operand
-        elif o.op == "+":
-            if isinstance(operand, (int, float, complex)):
-                return +operand
-        elif o.op == "~":
-            if isinstance(operand, int):
-                return ~operand
-        elif o.op == "not" and isinstance(operand, (bool, int, float, str, bytes)):
-            return not operand
-        self._not_supported(o)
-
-    def visit_assignment_expr(self, o: mypy.nodes.AssignmentExpr) -> object:
-        return o.value.accept(self)
-
-    def visit_list_expr(self, o: mypy.nodes.ListExpr) -> list[object]:
-        return [item.accept(self) for item in o.items]
-
-    def visit_dict_expr(self, o: mypy.nodes.DictExpr) -> dict[object, object]:
-        return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
-
-    def visit_tuple_expr(self, o: mypy.nodes.TupleExpr) -> tuple[object, ...]:
-        return tuple(item.accept(self) for item in o.items)
-
-    def visit_set_expr(self, o: mypy.nodes.SetExpr) -> set[object]:
-        return {item.accept(self) for item in o.items}
-
-
-def _wtype_to_struct_def(wtype: wtypes.ARC4Struct) -> ARC32StructDef:
-    return ARC32StructDef(
-        name=wtype.name, elements=[(n, wtype_to_arc4(t)) for n, t in wtype.fields.items()]
-    )
 
 
 def _gather_bases(

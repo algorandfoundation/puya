@@ -288,7 +288,7 @@ def route_bare_methods(
         bare_block = create_block(
             bare_location,
             bare_method.name,
-            *assert_create_state(config),
+            *assert_create_state(config, config.source_location or bare_location),
             awst_nodes.ExpressionStatement(expr=call(bare_location, bare_method)),
             approve(bare_location),
         )
@@ -316,7 +316,8 @@ def route_bare_methods(
                 *assert_create_state(
                     ARC4MethodConfig(
                         name="", source_location=location, is_bare=True, require_create=True
-                    )
+                    ),
+                    location,
                 ),
                 approve(location),
             )
@@ -365,10 +366,11 @@ def log_arc4_result(
     )
 
 
-def assert_create_state(config: ARC4MethodConfig) -> Sequence[awst_nodes.AssertStatement]:
+def assert_create_state(
+    config: ARC4MethodConfig, location: SourceLocation
+) -> Sequence[awst_nodes.AssertStatement]:
     if config.allow_create:  # if create is allowed, we don't need to check anything
         return ()
-    location = config.source_location
     existing_app = has_app_id(location)
     return (
         awst_nodes.AssertStatement(
@@ -642,7 +644,7 @@ def route_abi_methods(
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
     for method, config in methods.items():
-        abi_loc = config.source_location
+        abi_loc = config.source_location or location
         method_result = call(abi_loc, method, *map_abi_args(method.args, location))
         match method.return_type:
             case wtypes.void_wtype:
@@ -660,7 +662,7 @@ def route_abi_methods(
             abi_loc,
             f"{config.name}_route",
             *check_allowed_oca(config.allowed_completion_types, abi_loc),
-            *assert_create_state(config),
+            *assert_create_state(config, config.source_location or abi_loc),
             call_and_maybe_log,
             approve(abi_loc),
         )
