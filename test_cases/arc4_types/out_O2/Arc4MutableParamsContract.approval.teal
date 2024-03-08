@@ -19,7 +19,12 @@ mutating_copies:
     assert // my_array should be mutated
     byte 0x80320006000d00054861707079000444617973
     callsub other_routine
+    cover 3
+    cover 2
     swap
+    assert
+    !
+    assert
     dup
     extract 1 1
     byte 0x05
@@ -42,8 +47,7 @@ mutating_copies:
     byte 0x01020304
     byte 0x80320006000d00054861707079000444617973
     callsub other_routine
-    pop
-    pop
+    popn 4
     byte 0x01020304
     callsub other_routine_2
     pop
@@ -60,14 +64,13 @@ mutating_copies:
     assert // my_array_copy_2 should have mutated value
     extract 0 4
     callsub other_routine_2
-    pop
-    pop
+    popn 2
     retsub
 
 
-// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: bytes, struct: bytes) -> bytes, bytes:
+// test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: bytes, struct: bytes) -> uint64, uint64, bytes, bytes:
 other_routine:
-    proto 2 2
+    proto 2 4
     frame_dig -2
     byte 0x05
     replace2 1
@@ -99,6 +102,8 @@ other_routine:
     substring 6 8
     replace2 4
     frame_bury -1
+    int 1
+    int 0
     frame_dig -2
     frame_dig -1
     retsub

@@ -1,6 +1,7 @@
 import contextlib
 import itertools
 import typing
+from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
 
@@ -16,29 +17,29 @@ from puya.awst import (
 from puya.awst.function_traverser import FunctionTraverser
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_router import (
-    create_abi_router,
-    create_default_clear_state,
-)
+from puya.ir.arc4_router import create_abi_router, create_default_clear_state
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext, IRBuildContextWithFallback
 from puya.ir.destructure.main import destructure_ssa
 from puya.ir.models import (
     Contract,
+    Parameter,
     Program,
-    Register,
     Subroutine,
 )
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_contract_ir_to_path
-from puya.ir.types_ import wtype_to_avm_type
+from puya.ir.types_ import wtype_to_avm_type, wtype_to_avm_types
 from puya.ir.utils import format_tuple_index
 from puya.models import ARC4Method, ARC4MethodConfig, ContractMetaData, ContractState
 from puya.parse import EMBEDDED_MODULES
 from puya.utils import StableSet, attrs_extend
 
 logger = structlog.get_logger()
+
+
+CalleesLookup: typing.TypeAlias = defaultdict[awst_nodes.Function, set[awst_nodes.Function]]
 
 
 def build_module_irs(
@@ -53,7 +54,6 @@ def build_module_irs(
     build_context: IRBuildContext = attrs_extend(
         IRBuildContext,
         context,
-        function_call_sites={},
         subroutines={},
         module_awsts=module_asts,
         embedded_funcs=embedded_funcs,
@@ -101,7 +101,7 @@ def optimize_and_destructure_ir(
 
 def _build_embedded_ir(ctx: IRBuildContext) -> None:
     for func in ctx.embedded_funcs:
-        ctx.subroutines[func] = _make_subroutine(func, ctx)
+        ctx.subroutines[func] = _make_subroutine(func, allow_implicits=False)
 
     for func in ctx.embedded_funcs:
         sub = ctx.subroutines[func]
@@ -118,18 +118,26 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
             contract.source_location,
         )
     # visit call graph starting at entry point(s) to collect all references for each
-    approval_subs_srefs = SubroutineCollector.collect(ctx, start=folded.approval_program)
-    clear_subs_srefs = SubroutineCollector.collect(ctx, start=folded.clear_program)
+    callees = CalleesLookup(set)
+    approval_subs_srefs = SubroutineCollector.collect(
+        ctx, start=folded.approval_program, callees=callees
+    )
+    clear_subs_srefs = SubroutineCollector.collect(
+        ctx, start=folded.clear_program, callees=callees
+    )
     if folded.init:
-        approval_subs_srefs.append(folded.init)
-        init_sub_srefs = SubroutineCollector.collect(ctx, start=folded.init)
-        approval_subs_srefs.extend(init_sub_srefs)
+        approval_subs_srefs.add(folded.init)
+        init_sub_srefs = SubroutineCollector.collect(ctx, start=folded.init, callees=callees)
+        approval_subs_srefs |= init_sub_srefs
     # construct unique Subroutine objects for each function
     # that was referenced through either entry point
     for func in itertools.chain(approval_subs_srefs, clear_subs_srefs):
         if func not in ctx.subroutines:
+            allow_implicits = _should_include_implicit_returns(
+                func, callees=callees[func], approval_program=folded.approval_program
+            )
             # make the emtpy subroutine, because functions reference other functions
-            ctx.subroutines[func] = _make_subroutine(func, ctx)
+            ctx.subroutines[func] = _make_subroutine(func, allow_implicits=allow_implicits)
     # now construct the subroutine IR
     for func, sub in ctx.subroutines.items():
         if not sub.body:  # in case something is pre-built (ie from embedded lib)
@@ -164,56 +172,36 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
     return result
 
 
-def _get_mutable_params(
-    args: Sequence[awst_nodes.SubroutineArgument],
-) -> Iterator[tuple[Register, wtypes.WType]]:
+def _build_parameter_list(
+    args: Sequence[awst_nodes.SubroutineArgument], *, allow_implicits: bool
+) -> Iterator[Parameter]:
     for arg in args:
         if isinstance(arg.wtype, wtypes.WTuple):
             for tup_idx, tup_type in enumerate(arg.wtype.types):
-                if tup_type.immutable:
-                    continue
-                yield Register(
+                yield Parameter(
                     source_location=arg.source_location,
                     version=0,
                     name=format_tuple_index(arg.name, tup_idx),
                     atype=wtype_to_avm_type(tup_type),
-                ), tup_type
+                    implicit_return=allow_implicits and not tup_type.immutable,
+                )
         else:
-            if arg.wtype.immutable:
-                continue
             yield (
-                Register(
+                Parameter(
                     source_location=arg.source_location,
                     version=0,
                     name=arg.name,
                     atype=wtype_to_avm_type(arg.wtype),
-                ),
-                arg.wtype,
-            )
-
-
-def _expand_tuple_params(args: Sequence[awst_nodes.SubroutineArgument]) -> Iterator[Register]:
-    for arg in args:
-        if isinstance(arg.wtype, wtypes.WTuple):
-            for tup_idx, tup_type in enumerate(arg.wtype.types):
-                yield Register(
-                    source_location=arg.source_location,
-                    version=0,
-                    name=format_tuple_index(arg.name, tup_idx),
-                    atype=wtype_to_avm_type(tup_type),
-                )
-        else:
-            yield (
-                Register(
-                    source_location=arg.source_location,
-                    version=0,
-                    name=arg.name,
-                    atype=wtype_to_avm_type(arg.wtype),
+                    implicit_return=allow_implicits and not arg.wtype.immutable,
                 )
             )
 
 
-def _should_include_implicit_returns(func: awst_nodes.Function, ctx: IRBuildContext) -> bool:
+def _should_include_implicit_returns(
+    func: awst_nodes.Function,
+    callees: set[awst_nodes.Function],
+    approval_program: awst_nodes.Function,
+) -> bool:
     """
     Determine if a function should implicitly return mutable reference parameters.
 
@@ -221,41 +209,20 @@ def _should_include_implicit_returns(func: awst_nodes.Function, ctx: IRBuildCont
     implicitly return anything as we know our router is not interested in anything but the explicit
     return value.
 
-    Anything else would require further analysis, so err on the side of caution and include include
+    Anything else would require further analysis, so err on the side of caution and include
     the implicit returns.
     """
-    if not isinstance(func, awst_nodes.ContractMethod) or not func.abimethod_config:
-        return True
-    # REFACTOR OPPORTUNITY: Use a more robust method to identify the approval_program than by name
-    return any(
-        f
-        for f in ctx.function_call_sites.get(func, [])
-        if isinstance(f, awst_nodes.ContractMethod) and f.name != "approval_program"
-    )
+    if isinstance(func, awst_nodes.ContractMethod) and func.abimethod_config:
+        return bool(callees - {approval_program})
+    return True
 
 
-def _make_subroutine(func: awst_nodes.Function, ctx: IRBuildContext) -> Subroutine:
+def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subroutine:
     """Pre-construct subroutine with an empty body"""
-    parameters = list(_expand_tuple_params(func.args))
 
-    if isinstance(func.return_type, wtypes.WTuple):
-        returns = [wtype_to_avm_type(t) for t in func.return_type.types]
-    elif func.return_type is wtypes.void_wtype:
-        returns = []
-    else:
-        returns = [wtype_to_avm_type(func.return_type)]
+    parameters = list(_build_parameter_list(func.args, allow_implicits=allow_implicits))
 
-    if _should_include_implicit_returns(func, ctx):
-        # We implicitly return any mutable parameter so the calling code can gain access
-        # to the mutated value. This is required because on the AVM we pass 'by value' but wish to
-        # maintain the 'by ref' semantics of the source language
-        mutable_params_and_wtypes = list(_get_mutable_params(func.args))
-        implicit_returns, implicit_returns_wtypes = (
-            zip(*mutable_params_and_wtypes) if mutable_params_and_wtypes else ([], [])
-        )
-        returns.extend(wtype_to_avm_type(t) for t in implicit_returns_wtypes)
-    else:
-        implicit_returns = []
+    returns = wtype_to_avm_types(func.return_type)
 
     return Subroutine(
         source_location=func.source_location,
@@ -264,7 +231,6 @@ def _make_subroutine(func: awst_nodes.Function, ctx: IRBuildContext) -> Subrouti
         method_name=func.name,
         parameters=parameters,
         returns=returns,
-        implicit_returns=implicit_returns,
         body=[],
     )
 
@@ -285,7 +251,6 @@ def _make_program(
         class_name=main.class_name,
         method_name=main.name,
         parameters=[],
-        implicit_returns=[],
         returns=[AVMType.uint64],
         body=[],
     )
@@ -368,44 +333,35 @@ def fold_state_and_special_methods(
 
 
 class SubroutineCollector(FunctionTraverser):
-    def __init__(self, context: IRBuildContext) -> None:
+    def __init__(self, context: IRBuildContext, callees: CalleesLookup) -> None:
         self.context = context
-        # use dictionary with empty values to have quick set semantics,
-        # but maintain ordering
-        self.result = dict[awst_nodes.Function, None]()
+        self.result = StableSet[awst_nodes.Function]()
+        self.callees = callees
         self._func_stack = list[awst_nodes.Function]()
 
+    @classmethod
+    def collect(
+        cls, context: IRBuildContext, start: awst_nodes.Function, callees: CalleesLookup
+    ) -> StableSet[awst_nodes.Function]:
+        collector = cls(context, callees)
+        with collector._enter_func(start):  # noqa: SLF001
+            start.body.accept(collector)
+        return collector.result
+
+    def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
+        super().visit_subroutine_call_expression(expr)
+        func = self.context.resolve_function_reference(expr.target, expr.source_location)
+        callee = self._func_stack[-1]
+        self.callees[func].add(callee)
+        if func not in self.result:
+            self.result.add(func)
+            with self._enter_func(func):
+                func.body.accept(self)
+
     @contextlib.contextmanager
-    def enter_func(self, func: awst_nodes.Function) -> Iterator[None]:
+    def _enter_func(self, func: awst_nodes.Function) -> Iterator[None]:
         self._func_stack.append(func)
         try:
             yield
         finally:
             self._func_stack.pop()
-
-    def record_func_call(self, func: awst_nodes.Function) -> None:
-        call_site = self._func_stack[-1]
-        if func in self.context.function_call_sites:
-            if call_site not in self.context.function_call_sites[func]:
-                self.context.function_call_sites[func].append(call_site)
-        else:
-            self.context.function_call_sites[func] = [call_site]
-
-    @classmethod
-    def collect(
-        cls, context: IRBuildContext, start: awst_nodes.Function
-    ) -> list[awst_nodes.Function]:
-        collector = cls(context)
-        with collector.enter_func(start):
-            start.body.accept(collector)
-
-        return list(collector.result.keys())
-
-    def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
-        super().visit_subroutine_call_expression(expr)
-        func = self.context.resolve_function_reference(expr.target, expr.source_location)
-        self.record_func_call(func)
-        if func not in self.result:
-            self.result[func] = None
-            with self.enter_func(func):
-                func.body.accept(self)

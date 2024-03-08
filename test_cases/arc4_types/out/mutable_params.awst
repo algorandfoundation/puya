@@ -31,7 +31,9 @@ contract Arc4MutableParamsContract
     my_array[2u]: puyapy.arc4.UIntN[typing.Literal[8]] = 5arc4u8
     assert(reinterpret_cast<puyapy.BigUInt>(my_array_copy[2u]) == reinterpret_cast<puyapy.BigUInt>(3arc4u8), comment="my_array_copy should be unchanged")
     assert(reinterpret_cast<puyapy.BigUInt>(my_array[2u]) == reinterpret_cast<puyapy.BigUInt>(5arc4u8), comment="my_array should be mutated")
-    this::other_routine(my_array, my_struct)
+    (t, f): tuple[bool, bool] = this::other_routine(my_array, my_struct)
+    assert(t)
+    assert(!(f))
     assert(reinterpret_cast<puyapy.BigUInt>(my_array[1u]) == reinterpret_cast<puyapy.BigUInt>(5arc4u8), comment="my_array has been mutated by the subroutine")
     assert(reinterpret_cast<puyapy.Bytes>(my_struct[2u]) == reinterpret_cast<puyapy.Bytes>(arc4_encode('AARRGH!', puyapy.arc4.String)), comment="my_struct has been mutated by the subroutine")
     this::other_routine(my_array_copy.copy(), my_struct_copy.copy())
@@ -46,10 +48,11 @@ contract Arc4MutableParamsContract
     this::other_routine_2(nested[0u].copy())
   }
   
-  subroutine other_routine(array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]], struct: test_cases.arc4_types.mutable_params.TestStruct): None
+  subroutine other_routine(array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]], struct: test_cases.arc4_types.mutable_params.TestStruct): tuple[bool, bool]
   {
     array[1u]: puyapy.arc4.UIntN[typing.Literal[8]] = 5arc4u8
     struct[2u]: puyapy.arc4.String = arc4_encode('AARRGH!', puyapy.arc4.String)
+    return (true, false)
   }
   
   subroutine other_routine_2(array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]]): puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]]

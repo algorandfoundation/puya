@@ -654,6 +654,11 @@ class Fail(ControlOp):
         return self.comment
 
 
+@attrs.frozen
+class Parameter(Register):
+    implicit_return: bool
+
+
 @attrs.define(eq=False)
 class Subroutine(Context):
     # source_location might be None if it was synthesized e.g. ARC4 approval method
@@ -661,10 +666,13 @@ class Subroutine(Context):
     module_name: str
     class_name: str | None  # None if a function (vs a method)
     method_name: str
-    parameters: Sequence[Register]
-    returns: Sequence[AVMType]
-    implicit_returns: Sequence[Register]
+    parameters: Sequence[Parameter]
+    _returns: Sequence[AVMType]
     body: list[BasicBlock] = attrs.field()
+
+    @property
+    def returns(self) -> Sequence[AVMType]:
+        return [*self._returns, *(p.atype for p in self.parameters if p.implicit_return)]
 
     @body.validator
     def _check_blocks(self, _attribute: object, body: list[BasicBlock]) -> None:

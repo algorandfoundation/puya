@@ -87,6 +87,13 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
             (n2,) = b.immediates or (1,)
             assert isinstance(n2, int)
             return [models.DupN(n=n1 + n2, source_location=a.source_location)], True
+        # combine consecutive pop/popn's
+        case models.TealOp(op_code="pop" | "popn"), models.TealOp(op_code="pop" | "popn"):
+            (n1,) = a.immediates or (1,)
+            assert isinstance(n1, int)
+            (n2,) = b.immediates or (1,)
+            assert isinstance(n2, int)
+            return [models.PopN(n=n1 + n2, source_location=a.source_location)], True
         # `dig 1; dig 1` -> `dup2`
         case models.TealOpN(op_code="dig", n=1), models.TealOpN(op_code="dig", n=1):
             return [models.Dup2(source_location=a.source_location or b.source_location)], True

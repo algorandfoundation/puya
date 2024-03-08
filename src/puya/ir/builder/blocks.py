@@ -11,6 +11,7 @@ from puya.ir.models import (
     ControlOp,
     Goto,
     Op,
+    Parameter,
     Register,
     SubroutineReturn,
 )
@@ -129,13 +130,14 @@ class BlocksBuilder:
         self.goto(block)
         self.activate_block(block)
 
-    def maybe_add_implicit_subroutine_return(self, implicit_returns: Sequence[Register]) -> None:
+    def maybe_add_implicit_subroutine_return(self, params: Sequence[Parameter]) -> None:
         if not self._blocks[-1].terminated:
             self.terminate(
                 SubroutineReturn(
                     result=[
-                        self.ssa.read_variable(r.name, r.atype, self._blocks[-1])
-                        for r in implicit_returns
+                        self.ssa.read_variable(p.name, p.atype, self._blocks[-1])
+                        for p in params
+                        if p.implicit_return
                     ],
                     source_location=None,
                 )
