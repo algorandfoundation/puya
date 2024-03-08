@@ -54,7 +54,7 @@ if TYPE_CHECKING:
 
 
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
-APP_TRANSACTION_FIELDS = (
+_APP_TRANSACTION_FIELDS = (
     TxnFields.app_id,
     TxnFields.on_completion,
     TxnFields.approval_program,
@@ -341,45 +341,23 @@ def _create_abi_call_expr(
             source_location=location,
         )
     }
-    if abi_arg_exprs:
-        if len(abi_arg_exprs) > 15:
-            packed_arg_slice = slice(15, None)
-            args_to_pack = abi_arg_exprs[packed_arg_slice]
-            args_tuple = TupleExpression.from_items(
-                args_to_pack, reduce(operator.add, (a.source_location for a in args_to_pack))
+    if len(abi_arg_exprs) > 15:
+        packed_arg_slice = slice(15, None)
+        args_to_pack = abi_arg_exprs[packed_arg_slice]
+        args_tuple = TupleExpression.from_items(args_to_pack, _combine_locs(args_to_pack))
+        abi_arg_exprs[packed_arg_slice] = [
+            ARC4Encode(
+                value=args_tuple,
+                wtype=wtypes.ARC4Tuple.from_types(args_tuple.wtype.types),
+                source_location=args_tuple.source_location,
             )
-            abi_arg_exprs[packed_arg_slice] = [
-                ARC4Encode(
-                    value=args_tuple,
-                    wtype=wtypes.ARC4Tuple.from_types(args_tuple.wtype.types),
-                    source_location=args_tuple.source_location,
-                )
-            ]
+        ]
 
-        fields[TxnFields.app_args] = TupleExpression(
-            items=abi_arg_exprs,
-            wtype=wtypes.WTuple.from_types([wtypes.bytes_wtype] * len(abi_arg_exprs)),
-            source_location=location,  # TODO
-        )
-    if account_exprs:
-        fields[TxnFields.accounts] = TupleExpression(
-            items=account_exprs,
-            wtype=wtypes.WTuple.from_types([wtypes.account_wtype] * len(account_exprs)),
-            source_location=location,  # TODO
-        )
-    if application_exprs:
-        fields[TxnFields.apps] = TupleExpression(
-            items=application_exprs,
-            wtype=wtypes.WTuple.from_types([wtypes.application_wtype] * len(application_exprs)),
-            source_location=location,  # TODO
-        )
-    if asset_exprs:
-        fields[TxnFields.assets] = TupleExpression(
-            items=asset_exprs,
-            wtype=wtypes.WTuple.from_types([wtypes.asset_wtype] * len(asset_exprs)),
-            source_location=location,  # TODO
-        )
-    for field in APP_TRANSACTION_FIELDS:
+    _add_array_exprs(fields, TxnFields.app_args, abi_arg_exprs)
+    _add_array_exprs(fields, TxnFields.accounts, account_exprs)
+    _add_array_exprs(fields, TxnFields.apps, application_exprs)
+    _add_array_exprs(fields, TxnFields.assets, asset_exprs)
+    for field in _APP_TRANSACTION_FIELDS:
         try:
             value = transaction_kwargs.pop(field.python_name)
         except KeyError:
@@ -404,27 +382,41 @@ def _create_abi_call_expr(
 
     if abi_return_type == wtypes.void_wtype:
         return itxn
-    else:
-        itxn_tmp = SingleEvaluation(itxn)
-        last_log = InnerTransactionField(
-            source_location=location,
-            itxn=itxn_tmp,
-            field=TxnFields.last_log,
-            wtype=TxnFields.last_log.wtype,
+    itxn_tmp = SingleEvaluation(itxn)
+    last_log = InnerTransactionField(
+        source_location=location,
+        itxn=itxn_tmp,
+        field=TxnFields.last_log,
+        wtype=TxnFields.last_log.wtype,
+    )
+    return TupleExpression(
+        items=(
+            ARC4FromLogBuilder.abi_expr_from_log(abi_return_type, last_log, location),
+            itxn_tmp,
+        ),
+        wtype=wtypes.WTuple.from_types(
+            (
+                abi_return_type,
+                wtypes.WInnerTransaction.from_type(constants.TransactionType.appl),
+            )
+        ),
+        source_location=location,
+    )
+
+
+def _add_array_exprs(
+    fields: dict[TxnField, Expression], field: TxnField, exprs: list[Expression]
+) -> None:
+    if exprs:
+        fields[field] = TupleExpression(
+            items=exprs,
+            wtype=wtypes.WTuple.from_types([field.wtype] * len(exprs)),
+            source_location=_combine_locs(exprs),
         )
-        return TupleExpression(
-            items=(
-                ARC4FromLogBuilder.abi_expr_from_log(abi_return_type, last_log, location),
-                itxn_tmp,
-            ),
-            wtype=wtypes.WTuple.from_types(
-                (
-                    abi_return_type,
-                    wtypes.WInnerTransaction.from_type(constants.TransactionType.appl),
-                )
-            ),
-            source_location=location,
-        )
+
+
+def _combine_locs(exprs: Sequence[Expression]) -> SourceLocation:
+    return reduce(operator.add, (a.source_location for a in exprs))
 
 
 def _extract_abi_call_args(
