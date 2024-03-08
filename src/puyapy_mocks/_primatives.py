@@ -9,7 +9,7 @@ class UInt64:
     def __init__(self, value: int, /) -> None:
         self.__match_value__ = value
 
-    def __eq__(self, other: UInt64 | int) -> bool:
+    def __eq__(self, other: UInt64 | int) -> bool:  # type: ignore[override]
         if isinstance(other, UInt64):
             return self.__match_value__ == other.__match_value__
         elif isinstance(other, int):
@@ -17,7 +17,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __ne__(self, other: UInt64 | int) -> bool:
+    def __ne__(self, other: UInt64 | int) -> bool:  # type: ignore[override]
         if isinstance(other, UInt64):
             return self.__match_value__ != other.__match_value__
         elif isinstance(other, int):
@@ -74,7 +74,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __iadd__(self, other: UInt64 | int) -> UInt64:
+    def __iadd__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ += other.__match_value__
         elif isinstance(other, int):
@@ -97,7 +97,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __isub__(self, other: UInt64 | int) -> UInt64:
+    def __isub__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ -= other.__match_value__
         elif isinstance(other, int):
@@ -120,7 +120,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __imul__(self, other: UInt64 | int) -> UInt64:
+    def __imul__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ *= other.__match_value__
         elif isinstance(other, int):
@@ -143,7 +143,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __ifloordiv__(self, other: UInt64 | int) -> UInt64:
+    def __ifloordiv__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ //= other.__match_value__
         elif isinstance(other, int):
@@ -166,7 +166,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __imod__(self, other: UInt64 | int) -> UInt64:
+    def __imod__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ %= other.__match_value__
         elif isinstance(other, int):
@@ -189,7 +189,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __ipow__(self, power: UInt64 | int) -> UInt64:
+    def __ipow__(self, power: UInt64 | int) -> UInt64:  # noqa: PYI034, PYI034
         if isinstance(power, UInt64):
             self.__match_value__ **= power.__match_value__
         elif isinstance(power, int):
@@ -212,7 +212,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __ilshift__(self, other: UInt64 | int) -> UInt64:
+    def __ilshift__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ <<= other.__match_value__
         elif isinstance(other, int):
@@ -235,7 +235,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __irshift__(self, other: UInt64 | int) -> UInt64:
+    def __irshift__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ >>= other.__match_value__
         elif isinstance(other, int):
@@ -258,7 +258,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __iand__(self, other: UInt64 | int) -> UInt64:
+    def __iand__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ &= other.__match_value__
         elif isinstance(other, int):
@@ -281,7 +281,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __ixor__(self, other: UInt64 | int) -> UInt64:
+    def __ixor__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ ^= other.__match_value__
         elif isinstance(other, int):
@@ -304,7 +304,7 @@ class UInt64:
         else:
             return NotImplemented
 
-    def __ior__(self, other: UInt64 | int) -> UInt64:
+    def __ior__(self, other: UInt64 | int) -> UInt64:  # noqa: PYI034
         if isinstance(other, UInt64):
             self.__match_value__ |= other.__match_value__
         elif isinstance(other, int):
@@ -360,7 +360,7 @@ class Bytes:
             other = Bytes(other)
         return Bytes(self.__match_value__ + bytes(other))
 
-    def __eq__(self, other: Bytes | bytes) -> bool:
+    def __eq__(self, other: Bytes | bytes) -> bool:  # type: ignore[override]
         return self.__match_value__ == bytes(other)
 
     def __int__(self) -> int:
