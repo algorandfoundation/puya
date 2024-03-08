@@ -243,7 +243,7 @@ def main(options: CompileAllOptions) -> None:
             item
             for root in CONTRACT_ROOT_DIRS
             for item in root.iterdir()
-            if item.is_dir() and not item.name.startswith(".")
+            if item.is_dir() and any(item.glob("*.py"))
         ]
 
     modified_teal = defaultdict[int, list[Path]](list)
