@@ -82,6 +82,10 @@ class UIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.UInt64]):
 
     Max Size: 64 bits"""
 
+    # TODO: match support
+    # __match_value__: int
+    # __match_args__ = ("__match_value__",)
+
     def __init__(self, value: int | puyapy.UInt64 | puyapy.BigUInt) -> None: ...
 
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
@@ -123,8 +127,79 @@ class UIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.UInt64]):
         | puyapy.BigUInt
         | int,
     ) -> bool: ...
+    # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
+    # ~~~ https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types ~~~
+    # +
+    # TODO: these ops should support operating on different sizes and return the larger size,
+    #       or whatever makes sense. Impossible to do purely through type annotations in a
+    #       single class though
+    def __add__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on overflow"""
+    def __radd__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on overflow"""
+    def __iadd__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on overflow"""
+    # -
+    def __sub__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on underflow"""
+    def __rsub__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on underflow"""
+    def __isub__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on underflow"""
+    # *
+    def __mul__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on overflow"""
+    def __rmul__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on overflow"""
+    def __imul__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on overflow"""
+    # //
+    def __floordiv__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on divide by zero"""
+    def __rfloordiv__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on divide by zero"""
+    def __ifloordiv__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on divide by zero"""
+    # %
+    def __mod__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on mod by zero"""
+    def __rmod__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on mod by zero"""
+    def __imod__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on mod by zero"""
+    # TODO: __divmod__? only supported as single op via divmodw though 🤔
+    # **, pow
+    def __pow__(self, power: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on overflow"""
+    def __rpow__(self, power: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on overflow"""
+    def __ipow__(self, power: typing.Self | puyapy.UInt64 | int) -> typing.Self:
+        """This will error on overflow"""
+    # TODO: the below may operator differently to just a .decode() -> op -> .encode()
+    # # <<
+    # def __lshift__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __rlshift__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __ilshift__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # # >>
+    # def __rshift__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __rrshift__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __irshift__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # # &
+    # def __and__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __rand__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __iand__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # # ^
+    # def __xor__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __rxor__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __ixor__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # # |
+    # def __or__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __ror__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # def __ior__(self, other: typing.Self | puyapy.UInt64 | int) -> typing.Self: ...
+    # # ~
+    # def __invert__(self) -> typing.Self: ...
 
 class BigUIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.BigUInt]):
     """An ARC4 UInt consisting of the number of bits specified.
@@ -172,6 +247,7 @@ class BigUIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.BigUInt]):
         | puyapy.BigUInt
         | int,
     ) -> bool: ...
+    # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
 

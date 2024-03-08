@@ -10,7 +10,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     BigUIntAugmentedAssignment,
     BigUIntBinaryOperation,
-    BigUIntBinaryOperator,
     BigUIntConstant,
     Literal,
     NumericComparison,
@@ -18,7 +17,7 @@ from puya.awst.nodes import (
     ReinterpretCast,
     Statement,
 )
-from puya.awst_build.eb._utils import uint64_to_biguint
+from puya.awst_build.eb._utils import translate_biguint_math_operator, uint64_to_biguint
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -124,7 +123,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         if other_expr.wtype == self.wtype:
             pass
         elif other_expr.wtype == wtypes.uint64_wtype:
-            other_expr = uint64_to_biguint(other, location)
+            other_expr = uint64_to_biguint(other_expr, location)
         elif other_expr.wtype == wtypes.bool_wtype:
             raise TodoError(location, "TODO: support upcast from bool to biguint")
         else:
@@ -133,7 +132,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         rhs = other_expr
         if reverse:
             (lhs, rhs) = (rhs, lhs)
-        biguint_op = _translate_biguint_math_operator(op, location)
+        biguint_op = translate_biguint_math_operator(op, location)
         bin_op_expr = BigUIntBinaryOperation(
             source_location=location, left=lhs, op=biguint_op, right=rhs
         )
@@ -154,29 +153,10 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
                 f"Invalid operand type {value.wtype} for {op.value}= with {self.wtype}", location
             )
         target = self.lvalue()
-        biguint_op = _translate_biguint_math_operator(op, location)
+        biguint_op = translate_biguint_math_operator(op, location)
         return BigUIntAugmentedAssignment(
             source_location=location,
             target=target,
             value=value,
             op=biguint_op,
         )
-
-
-def _translate_biguint_math_operator(
-    operator: BuilderBinaryOp, loc: SourceLocation
-) -> BigUIntBinaryOperator:
-    if operator is BuilderBinaryOp.div:
-        logger.error(
-            (
-                "To maintain semantic compatibility with Python, "
-                "only the truncating division operator (//) is supported "
-            ),
-            location=loc,
-        )
-        # continue traversing code to generate any further errors
-        operator = BuilderBinaryOp.floor_div
-    try:
-        return BigUIntBinaryOperator(operator.value)
-    except ValueError as ex:
-        raise CodeError(f"Unsupported BigUInt math operator {operator.value}", loc) from ex
