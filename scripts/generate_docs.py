@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src" / "puya" / "_vendor"
 import attrs
 import mypy.build
 import mypy.nodes
-from mypy.visitor import NodeVisitor, T
+from mypy.visitor import NodeVisitor
 from puya.compile import get_mypy_options
 from puya.parse import ParseResult, parse_and_typecheck
 

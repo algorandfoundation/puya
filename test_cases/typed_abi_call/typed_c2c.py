@@ -1,6 +1,4 @@
-import typing
-
-from puyapy import Application, ARC4Contract, arc4, op, Bytes
+from puyapy import Application, ARC4Contract, Bytes, arc4, op
 
 from test_cases.typed_abi_call.logger import Logger, LoggerClient
 
