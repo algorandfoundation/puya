@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import operator
+from functools import reduce
 from typing import TYPE_CHECKING
 
 import attrs
@@ -22,7 +24,7 @@ from puya.awst.nodes import (
     TupleExpression,
     TxnField,
     TxnFields,
-    UInt64Constant,
+    UInt64Constant, ARC4Encode,
 )
 from puya.awst_build import constants
 from puya.awst_build.arc4_utils import get_arc4_method_config
@@ -339,6 +341,16 @@ def _create_abi_call_expr(
         )
     }
     if abi_arg_exprs:
+        if len(abi_arg_exprs) > 15:
+            packed_arg_slice = slice(15, None)
+            args_to_pack = abi_arg_exprs[packed_arg_slice]
+            args_tuple = TupleExpression.from_items(args_to_pack, reduce(operator.add, (a.source_location for a in args_to_pack)))
+            abi_arg_exprs[packed_arg_slice] = [ARC4Encode(
+                value=args_tuple,
+                wtype=wtypes.ARC4Tuple.from_types(args_tuple.wtype.types),
+                source_location=args_tuple.source_location,
+            )]
+
         fields[TxnFields.app_args] = TupleExpression(
             items=abi_arg_exprs,
             wtype=wtypes.WTuple.from_types([wtypes.bytes_wtype] * len(abi_arg_exprs)),

@@ -165,8 +165,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003)
                 itxn_submit
                 let itxn%%LastLog#2: bytes = (itxn LastLog)
-                let tmp%8#0: bytes = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003
-                let tmp%9#0: uint64 = (== itxn%%LastLog#2 tmp%8#0)
+                let tmp%9#0: uint64 = (== itxn%%LastLog#2 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003)
                 (assert tmp%9#0)
                 itxn_begin
                 ((itxn_field TypeEnum) appl)
@@ -179,12 +178,11 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%11#0: uint64 = (== itxn%%LastLog#3 "4")
                 (assert tmp%11#0)
                 itxn_begin
-                let tmp%13#0: any = 0x80
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 ((itxn_field ApplicationID) app#0)
                 ((itxn_field ApplicationArgs) method "log_bool(bool)void")
-                ((itxn_field ApplicationArgs) tmp%13#0)
+                ((itxn_field ApplicationArgs) 0x80)
                 itxn_submit
                 let itxn%%LastLog#4: bytes = (itxn LastLog)
                 let tmp%14#0: uint64 = (== itxn%%LastLog#4 "True")
@@ -194,13 +192,9 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(app: uint64) -> void:
             block@0: // L41
                 itxn_begin
-                let encoded_tuple_buffer%2#1: bytes = 0xde
-                let encoded_tuple_buffer%2#2: bytes = (concat encoded_tuple_buffer%2#1 0xad)
-                let encoded_tuple_buffer%2#3: bytes = (concat encoded_tuple_buffer%2#2 0xbe)
+                let encoded_tuple_buffer%2#3: bytes = 0xdeadbe
                 let encoded_tuple_buffer%2#4: bytes = (concat encoded_tuple_buffer%2#3 0xef)
-                let encoded_tuple_buffer%4#1: bytes = 0x0f
-                let encoded_tuple_buffer%4#2: bytes = (concat encoded_tuple_buffer%4#1 0x10)
-                let encoded_tuple_buffer%4#3: bytes = (concat encoded_tuple_buffer%4#2 0x11)
+                let encoded_tuple_buffer%4#3: bytes = 0x0f1011
                 let encoded_tuple_buffer%4#4: bytes = (concat encoded_tuple_buffer%4#3 0x12)
                 let encoded_tuple_buffer%4#5: bytes = (concat encoded_tuple_buffer%4#4 encoded_tuple_buffer%2#4)
                 let encoded_tuple_buffer%4#6: bytes = (concat encoded_tuple_buffer%4#5 0x14)

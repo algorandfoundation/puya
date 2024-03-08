@@ -789,6 +789,12 @@ def test_typed_abi_call(algod_client: AlgodClient, account: algokit_utils.Accoun
     )
 
     app_client.call(
+        "test_15plus_args",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
         "test_void",
         transaction_parameters=txn_params,
         app=logger.app_id,

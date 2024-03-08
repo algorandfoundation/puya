@@ -4,15 +4,16 @@ test_cases.typed_abi_call.logger.Logger.approval_program:
     // typed_abi_call/logger.py:4
     // class Logger(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@10
+    bz main_bare_routing@11
     method "echo(string)string"
     method "log_uint64(uint64)void"
     method "log_uint512(uint512)void"
     method "log_string(string)void"
     method "log_bool(bool)void"
     method "log_bytes(byte[])void"
+    method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
     txna ApplicationArgs 0
-    match main_echo_route@2 main_log_uint64_route@3 main_log_uint512_route@4 main_log_string_route@5 main_log_bool_route@6 main_log_bytes_route@7
+    match main_echo_route@2 main_log_uint64_route@3 main_log_uint512_route@4 main_log_string_route@5 main_log_bool_route@6 main_log_bytes_route@7 main_return_args_after_14th_route@8
     err // reject transaction
 
 main_echo_route@2:
@@ -121,7 +122,53 @@ main_log_bytes_route@7:
     int 1
     return
 
-main_bare_routing@10:
+main_return_args_after_14th_route@8:
+    // typed_abi_call/logger.py:29
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // typed_abi_call/logger.py:4
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    txna ApplicationArgs 3
+    txna ApplicationArgs 4
+    txna ApplicationArgs 5
+    txna ApplicationArgs 6
+    txna ApplicationArgs 7
+    txna ApplicationArgs 8
+    txna ApplicationArgs 9
+    txna ApplicationArgs 10
+    txna ApplicationArgs 11
+    txna ApplicationArgs 12
+    txna ApplicationArgs 13
+    txna ApplicationArgs 14
+    txna ApplicationArgs 15
+    extract 0 1
+    txna ApplicationArgs 15
+    extract 1 1
+    txna ApplicationArgs 15
+    extract 2 1
+    txna ApplicationArgs 15
+    extract 3 1
+    txna ApplicationArgs 15
+    extract 4 4
+    txna ApplicationArgs 15
+    extract 8 1
+    // typed_abi_call/logger.py:29
+    // @arc4.abimethod
+    callsub return_args_after_14th
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@11:
     // typed_abi_call/logger.py:4
     // class Logger(ARC4Contract):
     txn OnCompletion
@@ -246,4 +293,62 @@ log_bytes:
     uncover 2
     substring3
     log
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.return_args_after_14th(_a1: bytes, _a2: bytes, _a3: bytes, _a4: bytes, _a5: bytes, _a6: bytes, _a7: bytes, _a8: bytes, _a9: bytes, _a10: bytes, _a11: bytes, _a12: bytes, _a13: bytes, _a14: bytes, a15: bytes, a16: bytes, a17: bytes, a18: bytes, a19: bytes, a20: bytes) -> bytes:
+return_args_after_14th:
+    // typed_abi_call/logger.py:29-52
+    // @arc4.abimethod
+    // def return_args_after_14th(
+    //     self,
+    //     _a1: arc4.UInt64,
+    //     _a2: arc4.UInt64,
+    //     _a3: arc4.UInt64,
+    //     _a4: arc4.UInt64,
+    //     _a5: arc4.UInt64,
+    //     _a6: arc4.UInt64,
+    //     _a7: arc4.UInt64,
+    //     _a8: arc4.UInt64,
+    //     _a9: arc4.UInt64,
+    //     _a10: arc4.UInt64,
+    //     _a11: arc4.UInt64,
+    //     _a12: arc4.UInt64,
+    //     _a13: arc4.UInt64,
+    //     _a14: arc4.UInt64,
+    //     a15: arc4.UInt8,
+    //     a16: arc4.UInt8,
+    //     a17: arc4.UInt8,
+    //     a18: arc4.UInt8,
+    //     a19: arc4.Tuple[arc4.UInt8, arc4.UInt8, arc4.UInt8, arc4.UInt8],
+    //     a20: arc4.UInt8,
+    // ) -> arc4.DynamicBytes:
+    proto 20 1
+    // typed_abi_call/logger.py:53
+    // last_arg = arc4.Tuple((a15, a16, a17, a18, a19, a20))
+    frame_dig -6
+    frame_dig -5
+    concat
+    frame_dig -4
+    concat
+    frame_dig -3
+    concat
+    frame_dig -2
+    concat
+    frame_dig -1
+    concat
+    // typed_abi_call/logger.py:54
+    // assert Txn.application_args(15) == last_arg.bytes
+    txna ApplicationArgs 15
+    dig 1
+    ==
+    assert
+    // typed_abi_call/logger.py:55
+    // return arc4.DynamicBytes(last_arg.bytes)
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
     retsub

@@ -22,6 +22,13 @@ class Greeter(puyapy.arc4.ARC4Client):
         raise NotImplementedError
 
     @puyapy.arc4.abimethod
+    def test_15plus_args(
+        self,
+        app: puyapy.Application,
+    ) -> None:
+        raise NotImplementedError
+
+    @puyapy.arc4.abimethod
     def test_void(
         self,
         app: puyapy.Application,

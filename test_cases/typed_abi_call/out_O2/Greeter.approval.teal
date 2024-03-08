@@ -2,12 +2,13 @@
 
 test_cases.typed_abi_call.typed_c2c.Greeter.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@7
+    bz main_bare_routing@8
     method "test_method_selector_kinds(application)void"
     method "test_arg_conversion(application)void"
+    method "test_15plus_args(application)void"
     method "test_void(application)void"
     txna ApplicationArgs 0
-    match main_test_method_selector_kinds_route@2 main_test_arg_conversion_route@3 main_test_void_route@4
+    match main_test_method_selector_kinds_route@2 main_test_arg_conversion_route@3 main_test_15plus_args_route@4 main_test_void_route@5
     err // reject transaction
 
 main_test_method_selector_kinds_route@2:
@@ -36,7 +37,20 @@ main_test_arg_conversion_route@3:
     int 1
     return
 
-main_test_void_route@4:
+main_test_15plus_args_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_15plus_args
+    int 1
+    return
+
+main_test_void_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -49,7 +63,7 @@ main_test_void_route@4:
     int 1
     return
 
-main_bare_routing@7:
+main_bare_routing@8:
     txn OnCompletion
     !
     assert // reject transaction
@@ -240,6 +254,22 @@ test_arg_conversion:
     itxn_field Fee
     frame_dig -1
     itxn_field ApplicationID
+    method "log_bytes(byte[])void"
+    itxn_field ApplicationArgs
+    byte "\x00\x014"
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    byte "4"
+    ==
+    assert
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
     method "log_bool(bool)void"
     itxn_field ApplicationArgs
     byte 0x80
@@ -247,6 +277,64 @@ test_arg_conversion:
     itxn_submit
     itxn LastLog
     byte "True"
+    ==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(app: uint64) -> void:
+test_15plus_args:
+    proto 1 0
+    itxn_begin
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    frame_dig -1
+    itxn_field ApplicationID
+    method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    byte 0x0000000000000002
+    itxn_field ApplicationArgs
+    byte 0x0000000000000003
+    itxn_field ApplicationArgs
+    byte 0x0000000000000004
+    itxn_field ApplicationArgs
+    byte 0x0000000000000005
+    itxn_field ApplicationArgs
+    byte 0x0000000000000006
+    itxn_field ApplicationArgs
+    byte 0x0000000000000007
+    itxn_field ApplicationArgs
+    byte 0x0000000000000008
+    itxn_field ApplicationArgs
+    byte 0x0000000000000009
+    itxn_field ApplicationArgs
+    byte 0x000000000000000a
+    itxn_field ApplicationArgs
+    byte 0x000000000000000b
+    itxn_field ApplicationArgs
+    byte 0x000000000000000c
+    itxn_field ApplicationArgs
+    byte 0x000000000000000d
+    itxn_field ApplicationArgs
+    byte 0x000000000000000e
+    itxn_field ApplicationArgs
+    byte 0x0f101112deadbeef14
+    itxn_field ApplicationArgs
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    byte 0x0f101112deadbeef14
     ==
     assert
     retsub
