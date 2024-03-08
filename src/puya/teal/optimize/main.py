@@ -18,10 +18,14 @@ def optimize_block(block: models.TealBlock, *, level: int) -> None:
         modified = simplify_repeated_rotation_ops(block) or modified
         modified = peephole(block) or modified
 
-    # don't do this one in a loop, only after everything else
+    # we don't do dup/dupn collapse in the above loop, but after it.
+    # it's easier to deal with expanded dup/dupn instructions above when looking at
+    # stack shuffling etc, but once it's done we save ops / program size by collapsing them
     constant_dupn_insertion(block)
 
     if level >= 2:
+        # this is a brute-force search which can be slow at times,
+        # so it's only done once and only at higher optimisation levels
         block.ops = repeated_rotation_ops_search(block.ops)
 
 

@@ -1,5 +1,4 @@
-import functools
-import operator
+import attrs
 
 from puya.teal import models
 from puya.teal.optimize._data import LOAD_OP_CODES
@@ -10,10 +9,13 @@ def perform_constant_stack_shuffling(block: models.TealBlock) -> bool:
     loads = list[models.TealOp]()
     modified = False
     for op in block.ops:
-        if op.op_code in LOAD_OP_CODES:  # noqa: SIM114
+        if _is_constant_load(op):
             loads.append(op)
-        elif isinstance(op, models.FrameDig) and op.n < 0:
-            loads.append(op)
+        elif loads and op.op_code.startswith("dup"):
+            (n,) = op.immediates or (1,)
+            assert isinstance(n, int)
+            loads.extend([attrs.evolve(loads[-1], source_location=op.source_location)] * n)
+            modified = True
         elif loads:
             match op:
                 case models.Uncover(n=n) if n < len(loads):
@@ -48,9 +50,7 @@ def constant_dupn_insertion(block: models.TealBlock) -> bool:
                 modified = _collapse_loads(loads) or modified
                 result.extend(loads)
                 loads = []
-            if op.op_code in LOAD_OP_CODES or (
-                op.op_code == "frame_dig" and int(op.immediates[0]) < 0
-            ):
+            if _is_constant_load(op):
                 loads.append(op)
             else:
                 result.append(op)
@@ -63,10 +63,21 @@ def constant_dupn_insertion(block: models.TealBlock) -> bool:
 
 def _collapse_loads(loads: list[models.TealOp]) -> bool:
     n = len(loads) - 1
-    if n >= 2:
-        dupn_source_location = functools.reduce(
-            operator.add, (op.source_location for op in loads[1:])
-        )
-        loads[1:] = [models.DupN(n=n, source_location=dupn_source_location)]
-        return True
-    return False
+    if n < 1:
+        return False
+
+    if n == 1:
+        dup_op: models.TealOp = models.Dup(source_location=loads[1].source_location)
+    else:
+        dupn_source_location = None
+        for op in loads[1:]:
+            if op.source_location is not None:
+                # TODO: it'd be better to only merge these if they're adjacent
+                dupn_source_location = op.source_location + dupn_source_location
+        dup_op = models.DupN(n=n, source_location=dupn_source_location)
+    loads[1:] = [dup_op]
+    return True
+
+
+def _is_constant_load(op: models.TealOp) -> bool:
+    return op.op_code in LOAD_OP_CODES or (isinstance(op, models.FrameDig) and op.n < 0)
