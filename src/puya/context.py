@@ -44,11 +44,14 @@ class CompileContext:
 
             start_column = location.column
             end_column = location.end_column
-            if start_line == end_line and start_column is not None and end_column is not None:
-                src_content[0] = src_content[0][start_column:end_column]
+            if src_content:
+                if start_line == end_line and start_column is not None and end_column is not None:
+                    src_content[0] = src_content[0][start_column:end_column]
+                else:
+                    if start_column is not None:
+                        src_content[0] = src_content[0][start_column:]
+                    if end_column is not None:
+                        src_content[-1] = src_content[-1][:end_column]
             else:
-                if start_column is not None:
-                    src_content[0] = src_content[0][start_column:]
-                if end_column is not None:
-                    src_content[-1] = src_content[-1][:end_column]
+                self.errors.warning(f"Could not locate source: {location}", None)
         return SourceMeta(location=str(location), code=src_content)
