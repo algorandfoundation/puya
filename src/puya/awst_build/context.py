@@ -45,12 +45,24 @@ class ASTConversionModuleContext(ASTConversionContext):
     def module_path(self) -> str:
         return self.current_module.path
 
-    def node_location(self, node: mypy.nodes.Context) -> SourceLocation:
-        loc = SourceLocation.from_mypy(file=self.module_path, node=node)
+    def node_location(
+        self,
+        node: mypy.nodes.Context,
+        module_src: mypy.nodes.TypeInfo | None = None,
+    ) -> SourceLocation:
+        if module_src:
+            module_name = module_src.module_name
+            try:
+                module_path = self.module_paths[module_name]
+            except KeyError as ex:
+                raise CodeError(f"Could not find module '{module_name}'") from ex
+        else:
+            module_path = self.module_path
+        loc = SourceLocation.from_mypy(file=module_path, node=node)
         lines = self.try_get_source(loc).code
         if loc.line > 1:
             prior_code = self.try_get_source(
-                SourceLocation(file=self.module_path, line=1, end_line=loc.line - 1)
+                SourceLocation(file=module_path, line=1, end_line=loc.line - 1)
             ).code
             unchop = 0
             for line in reversed(prior_code or ()):

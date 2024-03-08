@@ -1,4 +1,5 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
+from functools import cached_property
 
 import attrs
 
@@ -16,12 +17,16 @@ class SourceMeta:
 _EmptyMeta = SourceMeta(None, None)
 
 
-@attrs.define
+@attrs.define(slots=False)
 class CompileContext:
     options: PuyaOptions
     parse_result: ParseResult
     errors: Errors
     read_source: Callable[[str], Sequence[str] | None]
+
+    @cached_property
+    def module_paths(self) -> Mapping[str, str]:
+        return {m.fullname: m.path for m in self.parse_result.ordered_modules}
 
     def try_get_source(self, location: SourceLocation | None) -> SourceMeta:
         if location is None:
