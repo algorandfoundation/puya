@@ -49,7 +49,9 @@ class Arc4MutableParamsContract(Contract):
         assert my_array[2] == UInt8(5), "my_array should be mutated"
 
         # Pass to subroutine without a copy
-        self.other_routine(my_array, my_struct)
+        t, f = self.other_routine(my_array, my_struct)
+        assert t
+        assert not f
 
         assert my_array[1] == UInt8(5), "my_array has been mutated by the subroutine"
 
@@ -88,9 +90,10 @@ class Arc4MutableParamsContract(Contract):
         self.other_routine_2(nested.test_array.copy())
 
     @subroutine
-    def other_routine(self, array: TestArray, struct: TestStruct) -> None:
+    def other_routine(self, array: TestArray, struct: TestStruct) -> tuple[bool, bool]:
         array[1] = UInt8(5)
         struct.s_val_1 = String("AARRGH!")
+        return True, False
 
     @subroutine
     def other_routine_2(self, array: TestArray) -> TestArray:

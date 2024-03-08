@@ -20,9 +20,9 @@ from puya.ir.builder._utils import (
     assert_value,
     assign,
     mkblocks,
-    reassign,
 )
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
+from puya.ir.builder.callsub import visit_subroutine_call_expression
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
 from puya.ir.context import IRBuildContext, IRFunctionBuildContext
@@ -37,7 +37,6 @@ from puya.ir.models import (
     MethodConstant,
     Op,
     ProgramExit,
-    Register,
     Subroutine,
     SubroutineReturn,
     UInt64Constant,
@@ -86,9 +85,7 @@ class FunctionIRBuilder(
                 insert_on_create_call(func_ctx, to=on_create)
             function.body.accept(builder)
             if function.return_type == wtypes.void_wtype:
-                func_ctx.block_builder.maybe_add_implicit_subroutine_return(
-                    subroutine.implicit_returns
-                )
+                func_ctx.block_builder.maybe_add_implicit_subroutine_return(subroutine.parameters)
             func_ctx.ssa.verify_complete()
             func_ctx.block_builder.validate_block_predecessors()
             result = list(func_ctx.block_builder.blocks)
@@ -108,7 +105,7 @@ class FunctionIRBuilder(
         # will effectively be a copy. We assign the copy to a new register in case it is
         # mutated.
         match expr.value.wtype:
-            case wtypes.ARC4Array() | wtypes.ARC4Struct():
+            case wtypes.ARC4Type(immutable=False):
                 # Arc4 encoded types are value types
                 original_value = self.visit_and_materialise_single(expr.value)
                 (copy,) = assign(
@@ -540,58 +537,7 @@ class FunctionIRBuilder(
     def visit_subroutine_call_expression(
         self, expr: awst_nodes.SubroutineCallExpression
     ) -> TExpression:
-        sref = self.context.resolve_function_reference(expr.target, expr.source_location)
-        target = self.context.subroutines[sref]
-        # TODO: what if args are multi-valued?
-        args_expanded = list[tuple[str | None, Value]]()
-        for expr_arg in expr.args:
-            if not isinstance(expr_arg.value.wtype, wtypes.WTuple):
-                arg = self.visit_and_materialise_single(expr_arg.value)
-                args_expanded.append((expr_arg.name, arg))
-            else:
-                tup_args = self.visit_and_materialise(expr_arg.value)
-                for tup_idx, tup_arg in enumerate(tup_args):
-                    if expr_arg.name is None:
-                        tup_name: str | None = None
-                    else:
-                        tup_name = format_tuple_index(expr_arg.name, tup_idx)
-                    args_expanded.append((tup_name, tup_arg))
-        target_name_to_index = {par.name: idx for idx, par in enumerate(target.parameters)}
-        resolved_args = [val for name, val in args_expanded]
-        for name, val in args_expanded:
-            if name is not None:
-                name_idx = target_name_to_index[name]
-                resolved_args[name_idx] = val
-        invoke_expr = InvokeSubroutine(
-            source_location=expr.source_location, args=resolved_args, target=target
-        )
-        if not target.implicit_returns:
-            return invoke_expr
-
-        return_values = self.materialise_value_provider(invoke_expr, "r_tmp")
-
-        for value, register in zip(
-            return_values[-len(target.implicit_returns) :], target.implicit_returns, strict=True
-        ):
-            arg_index = target_name_to_index[register.name]
-            arg_value = resolved_args[arg_index]
-            if isinstance(arg_value, Register):
-                reassign(
-                    self.context,
-                    source_location=expr.source_location,
-                    source=value,
-                    reg=arg_value,
-                )
-
-        explicit_return_values = list(return_values[0 : -len(target.implicit_returns)])
-        return (
-            ValueTuple(
-                values=explicit_return_values,
-                source_location=expr.source_location,
-            )
-            if explicit_return_values
-            else None
-        )
+        return visit_subroutine_call_expression(self.context, expr)
 
     def visit_bytes_binary_operation(self, expr: awst_nodes.BytesBinaryOperation) -> TExpression:
         left = self.visit_and_materialise_single(expr.left)
@@ -743,14 +689,15 @@ class FunctionIRBuilder(
         else:
             result = []
 
-        for implicit_return in self.context.subroutine.implicit_returns:
-            result.append(
-                self.context.ssa.read_variable(
-                    implicit_return.name,
-                    implicit_return.atype,
-                    self.context.block_builder.active_block,
+        for param in self.context.subroutine.parameters:
+            if param.implicit_return:
+                result.append(
+                    self.context.ssa.read_variable(
+                        param.name,
+                        param.atype,
+                        self.context.block_builder.active_block,
+                    )
                 )
-            )
         return_types = [r.atype for r in result]
         if not (
             len(return_types) == len(self.context.subroutine.returns)

@@ -22,7 +22,7 @@ class ARC4CopyValidator(AWSTTraverser):
 
     def _check_for_arc4_copy(self, expr: awst_nodes.Expression) -> None:
         match expr.wtype:
-            case wtypes.ARC4Array(immutable=False) | wtypes.ARC4Struct(immutable=False):
+            case wtypes.ARC4Type(immutable=False):
                 match expr:
                     case (
                         awst_nodes.ARC4ArrayEncode()
