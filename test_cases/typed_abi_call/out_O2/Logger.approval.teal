@@ -2,16 +2,17 @@
 
 test_cases.typed_abi_call.logger.Logger.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@11
+    bz main_bare_routing@12
     method "echo(string)string"
     method "log_uint64(uint64)void"
     method "log_uint512(uint512)void"
     method "log_string(string)void"
     method "log_bool(bool)void"
     method "log_bytes(byte[])void"
+    method "log_asset_account_app(asset,account,application)void"
     method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
     txna ApplicationArgs 0
-    match main_echo_route@2 main_log_uint64_route@3 main_log_uint512_route@4 main_log_string_route@5 main_log_bool_route@6 main_log_bytes_route@7 main_return_args_after_14th_route@8
+    match main_echo_route@2 main_log_uint64_route@3 main_log_uint512_route@4 main_log_string_route@5 main_log_bool_route@6 main_log_bytes_route@7 main_log_asset_account_app_route@8 main_return_args_after_14th_route@9
     err // reject transaction
 
 main_echo_route@2:
@@ -84,7 +85,26 @@ main_log_bytes_route@7:
     int 1
     return
 
-main_return_args_after_14th_route@8:
+main_log_asset_account_app_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 3
+    btoi
+    txnas Applications
+    callsub log_asset_account_app
+    int 1
+    return
+
+main_return_args_after_14th_route@9:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -124,7 +144,7 @@ main_return_args_after_14th_route@8:
     int 1
     return
 
-main_bare_routing@11:
+main_bare_routing@12:
     txn OnCompletion
     !
     assert // reject transaction
@@ -212,6 +232,22 @@ log_bytes:
     swap
     uncover 2
     substring3
+    log
+    retsub
+
+
+// test_cases.typed_abi_call.logger.Logger.log_asset_account_app(asset: uint64, account: bytes, app: uint64) -> void:
+log_asset_account_app:
+    proto 3 0
+    frame_dig -3
+    asset_params_get AssetName
+    assert // asset exists
+    frame_dig -2
+    concat
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    concat
     log
     retsub
 

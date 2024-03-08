@@ -1,4 +1,4 @@
-from puyapy import ARC4Contract, Bytes, Txn, arc4, log
+from puyapy import Account, Application, ARC4Contract, Asset, Bytes, Txn, arc4, log
 
 
 class Logger(ARC4Contract):
@@ -25,6 +25,10 @@ class Logger(ARC4Contract):
     @arc4.abimethod
     def log_bytes(self, value: arc4.DynamicBytes) -> None:
         log(value.bytes[2:])  # decode to remove header
+
+    @arc4.abimethod
+    def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:
+        log(asset.name, account.bytes, app.address)
 
     @arc4.abimethod
     def return_args_after_14th(

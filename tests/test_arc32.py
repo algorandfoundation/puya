@@ -754,7 +754,9 @@ def test_merkle(algod_client: AlgodClient, account: algokit_utils.Account) -> No
     ).return_value
 
 
-def test_typed_abi_call(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+def test_typed_abi_call(
+    algod_client: AlgodClient, account: algokit_utils.Account, asset_a: int
+) -> None:
     logger = algokit_utils.ApplicationClient(
         algod_client,
         algokit_utils.ApplicationSpecification.from_json(
@@ -798,4 +800,11 @@ def test_typed_abi_call(algod_client: AlgodClient, account: algokit_utils.Accoun
         "test_void",
         transaction_parameters=txn_params,
         app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_ref_types",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+        asset=asset_a,
     )

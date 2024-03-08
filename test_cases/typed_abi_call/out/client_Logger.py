@@ -50,6 +50,15 @@ class Logger(puyapy.arc4.ARC4Client):
         raise NotImplementedError
 
     @puyapy.arc4.abimethod
+    def log_asset_account_app(
+        self,
+        asset: puyapy.Asset,
+        account: puyapy.Account,
+        app: puyapy.Application,
+    ) -> None:
+        raise NotImplementedError
+
+    @puyapy.arc4.abimethod
     def return_args_after_14th(
         self,
         _a1: puyapy.arc4.UInt64,

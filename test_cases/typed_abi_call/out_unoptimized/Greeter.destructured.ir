@@ -3,10 +3,10 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.approval_program() -> uint64:
             block@0: // L6
                 let tmp%0#0: uint64 = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@8
+                goto tmp%0#0 ? block@1 : block@9
             block@1: // abi_routing_L6
                 let tmp%1#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%1#0 {method "test_method_selector_kinds(application)void" => block@2, method "test_arg_conversion(application)void" => block@3, method "test_15plus_args(application)void" => block@4, method "test_void(application)void" => block@5, * => block@6}
+                switch tmp%1#0 {method "test_method_selector_kinds(application)void" => block@2, method "test_arg_conversion(application)void" => block@3, method "test_15plus_args(application)void" => block@4, method "test_void(application)void" => block@5, method "test_ref_types(application,asset)void" => block@6, * => block@7}
             block@2: // test_method_selector_kinds_route_L7
                 let tmp%2#0: uint64 = (txn OnCompletion)
                 let tmp%3#0: uint64 = (== tmp%2#0 NoOp)
@@ -18,7 +18,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%7#0: uint64 = ((txnas Applications) tmp%6#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds(tmp%7#0)
                 return 1u
-            block@3: // test_arg_conversion_route_L22
+            block@3: // test_arg_conversion_route_L20
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let tmp%9#0: uint64 = (== tmp%8#0 NoOp)
                 (assert tmp%9#0) // OnCompletion is NoOp
@@ -29,7 +29,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%13#0: uint64 = ((txnas Applications) tmp%12#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(tmp%13#0)
                 return 1u
-            block@4: // test_15plus_args_route_L39
+            block@4: // test_15plus_args_route_L37
                 let tmp%14#0: uint64 = (txn OnCompletion)
                 let tmp%15#0: uint64 = (== tmp%14#0 NoOp)
                 (assert tmp%15#0) // OnCompletion is NoOp
@@ -40,7 +40,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%19#0: uint64 = ((txnas Applications) tmp%18#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(tmp%19#0)
                 return 1u
-            block@5: // test_void_route_L68
+            block@5: // test_void_route_L66
                 let tmp%20#0: uint64 = (txn OnCompletion)
                 let tmp%21#0: uint64 = (== tmp%20#0 NoOp)
                 (assert tmp%21#0) // OnCompletion is NoOp
@@ -51,21 +51,35 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 let tmp%25#0: uint64 = ((txnas Applications) tmp%24#0)
                 test_cases.typed_abi_call.typed_c2c.Greeter.test_void(tmp%25#0)
                 return 1u
-            block@6: // switch_case_default_L6
-                goto block@7
-            block@7: // switch_case_next_L6
-                goto block@11
-            block@8: // bare_routing_L6
+            block@6: // test_ref_types_route_L80
                 let tmp%26#0: uint64 = (txn OnCompletion)
-                switch tmp%26#0 {0u => block@9, * => block@10}
-            block@9: // create_L6
-                let tmp%27#0: uint64 = (txn ApplicationID)
-                let tmp%28#0: uint64 = (! tmp%27#0)
-                (assert tmp%28#0) // is creating
+                let tmp%27#0: uint64 = (== tmp%26#0 NoOp)
+                (assert tmp%27#0) // OnCompletion is NoOp
+                let tmp%28#0: uint64 = (txn ApplicationID)
+                (assert tmp%28#0) // is not creating
+                let tmp%29#0: bytes = (txna ApplicationArgs 1)
+                let tmp%30#0: uint64 = (btoi tmp%29#0)
+                let tmp%31#0: uint64 = ((txnas Applications) tmp%30#0)
+                let tmp%32#0: bytes = (txna ApplicationArgs 2)
+                let tmp%33#0: uint64 = (btoi tmp%32#0)
+                let tmp%34#0: uint64 = ((txnas Assets) tmp%33#0)
+                test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types(tmp%31#0, tmp%34#0)
                 return 1u
-            block@10: // reject_bare_on_completion_L6
+            block@7: // switch_case_default_L6
+                goto block@8
+            block@8: // switch_case_next_L6
+                goto block@12
+            block@9: // bare_routing_L6
+                let tmp%35#0: uint64 = (txn OnCompletion)
+                switch tmp%35#0 {0u => block@10, * => block@11}
+            block@10: // create_L6
+                let tmp%36#0: uint64 = (txn ApplicationID)
+                let tmp%37#0: uint64 = (! tmp%36#0)
+                (assert tmp%37#0) // is creating
+                return 1u
+            block@11: // reject_bare_on_completion_L6
                 fail // reject transaction
-            block@11: // after_if_else_L6
+            block@12: // after_if_else_L6
                 fail // reject transaction
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kinds(app: uint64) -> void:
@@ -198,7 +212,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 return 
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(app: uint64) -> void:
-            block@0: // L22
+            block@0: // L20
                 itxn_begin
                 let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "log_string(string)void"
                 let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = "\x00\nconverted1"
@@ -211,10 +225,10 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
                 goto block@1
-            block@1: // next_txn_L24
+            block@1: // next_txn_L22
                 itxn_submit
-                let itxn%%LastLog#0: bytes = (itxn LastLog)
-                let tmp%1#0: uint64 = (== itxn%%LastLog#0 "converted1")
+                let txn%%LastLog#0: bytes = (itxn LastLog)
+                let tmp%1#0: uint64 = (== txn%%LastLog#0 "converted1")
                 (assert tmp%1#0)
                 itxn_begin
                 let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "log_uint64(uint64)void"
@@ -228,11 +242,11 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%2%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%2%%param_ApplicationArgs_idx_1#0)
                 goto block@2
-            block@2: // next_txn_L27
+            block@2: // next_txn_L25
                 itxn_submit
-                let itxn%%LastLog#0: bytes = (itxn LastLog)
+                let txn%%LastLog#0: bytes = (itxn LastLog)
                 let tmp%3#0: bytes = (itob 2u)
-                let tmp%4#0: uint64 = (== itxn%%LastLog#0 tmp%3#0)
+                let tmp%4#0: uint64 = (== txn%%LastLog#0 tmp%3#0)
                 (assert tmp%4#0)
                 itxn_begin
                 let inner_txn_params%5%%param_ApplicationArgs_idx_0#0: bytes = method "log_uint512(uint512)void"
@@ -246,13 +260,13 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%5%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%5%%param_ApplicationArgs_idx_1#0)
                 goto block@3
-            block@3: // next_txn_L30
+            block@3: // next_txn_L28
                 itxn_submit
-                let itxn%%LastLog#0: bytes = (itxn LastLog)
+                let txn%%LastLog#0: bytes = (itxn LastLog)
                 let tmp%6#0: bytes = (bzero 56u)
                 let tmp%7#0: bytes = (itob 3u)
                 let tmp%8#0: bytes = (concat tmp%6#0 tmp%7#0)
-                let tmp%9#0: uint64 = (== itxn%%LastLog#0 tmp%8#0)
+                let tmp%9#0: uint64 = (== txn%%LastLog#0 tmp%8#0)
                 (assert tmp%9#0)
                 itxn_begin
                 let inner_txn_params%10%%param_ApplicationArgs_idx_0#0: bytes = method "log_bytes(byte[])void"
@@ -266,10 +280,10 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%10%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%10%%param_ApplicationArgs_idx_1#0)
                 goto block@4
-            block@4: // next_txn_L33
+            block@4: // next_txn_L31
                 itxn_submit
-                let itxn%%LastLog#0: bytes = (itxn LastLog)
-                let tmp%11#0: uint64 = (== itxn%%LastLog#0 "4")
+                let txn%%LastLog#0: bytes = (itxn LastLog)
+                let tmp%11#0: uint64 = (== txn%%LastLog#0 "4")
                 (assert tmp%11#0)
                 itxn_begin
                 let tmp%13#0: any = (setbit 0x00 0u 1u)
@@ -284,15 +298,15 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%12%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%12%%param_ApplicationArgs_idx_1#0)
                 goto block@5
-            block@5: // next_txn_L36
+            block@5: // next_txn_L34
                 itxn_submit
-                let itxn%%LastLog#0: bytes = (itxn LastLog)
-                let tmp%14#0: uint64 = (== itxn%%LastLog#0 "True")
+                let txn%%LastLog#0: bytes = (itxn LastLog)
+                let tmp%14#0: uint64 = (== txn%%LastLog#0 "True")
                 (assert tmp%14#0)
                 return 
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(app: uint64) -> void:
-            block@0: // L39
+            block@0: // L37
                 itxn_begin
                 let encoded_tuple_buffer%2#0: bytes = 0x
                 let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%2#0 0xde)
@@ -345,7 +359,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_14#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_15#0)
                 goto block@1
-            block@1: // next_txn_L41
+            block@1: // next_txn_L39
                 itxn_submit
                 let tmp_itxn_0%%LastLog#0: bytes = (itxn LastLog)
                 let awst_tmp%5#0: bytes = tmp_itxn_0%%LastLog#0
@@ -362,7 +376,7 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 return 
         
         subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_void(app: uint64) -> void:
-            block@0: // L68
+            block@0: // L66
                 itxn_begin
                 let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "log_string(string)void"
                 let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = "\x00\x06World1"
@@ -375,10 +389,10 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
                 goto block@1
-            block@1: // next_txn_L70
+            block@1: // next_txn_L68
                 itxn_submit
-                let itxn%%LastLog#0: bytes = (itxn LastLog)
-                let tmp%1#0: uint64 = (== itxn%%LastLog#0 "World1")
+                let txn%%LastLog#0: bytes = (itxn LastLog)
+                let tmp%1#0: uint64 = (== txn%%LastLog#0 "World1")
                 (assert tmp%1#0)
                 itxn_begin
                 let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes = method "log_string(string)void"
@@ -392,10 +406,10 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%2%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%2%%param_ApplicationArgs_idx_1#0)
                 goto block@2
-            block@2: // next_txn_L73
+            block@2: // next_txn_L71
                 itxn_submit
-                let itxn%%LastLog#0: bytes = (itxn LastLog)
-                let tmp%3#0: uint64 = (== itxn%%LastLog#0 "World2")
+                let txn%%LastLog#0: bytes = (itxn LastLog)
+                let tmp%3#0: uint64 = (== txn%%LastLog#0 "World2")
                 (assert tmp%3#0)
                 itxn_begin
                 let inner_txn_params%4%%param_ApplicationArgs_idx_0#0: bytes = method "log_string(string)void"
@@ -409,10 +423,10 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%4%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%4%%param_ApplicationArgs_idx_1#0)
                 goto block@3
-            block@3: // next_txn_L76
+            block@3: // next_txn_L74
                 itxn_submit
-                let itxn%%LastLog#0: bytes = (itxn LastLog)
-                let tmp%5#0: uint64 = (== itxn%%LastLog#0 "World3")
+                let txn%%LastLog#0: bytes = (itxn LastLog)
+                let tmp%5#0: uint64 = (== txn%%LastLog#0 "World3")
                 (assert tmp%5#0)
                 itxn_begin
                 let inner_txn_params%6%%param_ApplicationArgs_idx_0#0: bytes = method "log_string(string)void"
@@ -426,11 +440,50 @@ contract test_cases.typed_abi_call.typed_c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%6%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) inner_txn_params%6%%param_ApplicationArgs_idx_1#0)
                 goto block@4
-            block@4: // next_txn_L79
+            block@4: // next_txn_L77
                 itxn_submit
-                let itxn%%LastLog#0: bytes = (itxn LastLog)
-                let tmp%7#0: uint64 = (== itxn%%LastLog#0 "World4")
+                let txn%%LastLog#0: bytes = (itxn LastLog)
+                let tmp%7#0: uint64 = (== txn%%LastLog#0 "World4")
                 (assert tmp%7#0)
+                return 
+        
+        subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types(app: uint64, asset: uint64) -> void:
+            block@0: // L80
+                itxn_begin
+                let tmp%1#0: bytes = (global CurrentApplicationAddress)
+                let inner_txn_params%0%%param_Accounts_idx_0#0: bytes = tmp%1#0
+                let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = method "log_asset_account_app(asset,account,application)void"
+                let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = 0x00
+                let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: bytes = 0x01
+                let inner_txn_params%0%%param_ApplicationArgs_idx_3#0: bytes = 0x01
+                let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
+                let inner_txn_params%0%%param_Applications_idx_0#0: uint64 = app#0
+                let inner_txn_params%0%%param_Assets_idx_0#0: uint64 = asset#0
+                let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
+                let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
+                ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
+                ((itxn_field Assets) inner_txn_params%0%%param_Assets_idx_0#0)
+                ((itxn_field Applications) inner_txn_params%0%%param_Applications_idx_0#0)
+                ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_2#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_3#0)
+                ((itxn_field Accounts) inner_txn_params%0%%param_Accounts_idx_0#0)
+                goto block@1
+            block@1: // next_txn_L82
+                itxn_submit
+                let txn%%LastLog#0: bytes = (itxn LastLog)
+                let (value%2#0: bytes, check%3#0: uint64) = ((asset_params_get AssetName) asset#0)
+                (assert check%3#0) // asset exists
+                let tmp%4#0: bytes = (global CurrentApplicationAddress)
+                let tmp%5#0: bytes = (concat value%2#0 tmp%4#0)
+                let (value%6#0: bytes, check%7#0: uint64) = ((app_params_get AppAddress) app#0)
+                (assert check%7#0) // application exists
+                let tmp%8#0: bytes = (concat tmp%5#0 value%6#0)
+                let tmp%9#0: uint64 = (== txn%%LastLog#0 tmp%8#0)
+                (assert tmp%9#0)
                 return 
     
     program clear-state:

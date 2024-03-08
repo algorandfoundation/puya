@@ -34,3 +34,11 @@ class Greeter(puyapy.arc4.ARC4Client):
         app: puyapy.Application,
     ) -> None:
         raise NotImplementedError
+
+    @puyapy.arc4.abimethod
+    def test_ref_types(
+        self,
+        app: puyapy.Application,
+        asset: puyapy.Asset,
+    ) -> None:
+        raise NotImplementedError

@@ -4,7 +4,7 @@ test_cases.typed_abi_call.logger.Logger.approval_program:
     // typed_abi_call/logger.py:4
     // class Logger(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@11
+    bz main_bare_routing@12
     txna ApplicationArgs 0
     method "echo(string)string"
     method "log_uint64(uint64)void"
@@ -12,10 +12,11 @@ test_cases.typed_abi_call.logger.Logger.approval_program:
     method "log_string(string)void"
     method "log_bool(bool)void"
     method "log_bytes(byte[])void"
+    method "log_asset_account_app(asset,account,application)void"
     method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
-    uncover 7
-    match main_echo_route@2 main_log_uint64_route@3 main_log_uint512_route@4 main_log_string_route@5 main_log_bool_route@6 main_log_bytes_route@7 main_return_args_after_14th_route@8
-    b main_switch_case_default@9
+    uncover 8
+    match main_echo_route@2 main_log_uint64_route@3 main_log_uint512_route@4 main_log_string_route@5 main_log_bool_route@6 main_log_bytes_route@7 main_log_asset_account_app_route@8 main_return_args_after_14th_route@9
+    b main_switch_case_default@10
 
 main_echo_route@2:
     // typed_abi_call/logger.py:5
@@ -129,8 +130,37 @@ main_log_bytes_route@7:
     int 1
     return
 
-main_return_args_after_14th_route@8:
+main_log_asset_account_app_route@8:
     // typed_abi_call/logger.py:29
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // typed_abi_call/logger.py:4
+    // class Logger(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 3
+    btoi
+    txnas Applications
+    // typed_abi_call/logger.py:29
+    // @arc4.abimethod
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub log_asset_account_app
+    int 1
+    return
+
+main_return_args_after_14th_route@9:
+    // typed_abi_call/logger.py:33
     // @arc4.abimethod
     txn OnCompletion
     int NoOp
@@ -178,7 +208,7 @@ main_return_args_after_14th_route@8:
     int 8
     int 1
     extract3
-    // typed_abi_call/logger.py:29
+    // typed_abi_call/logger.py:33
     // @arc4.abimethod
     uncover 19
     uncover 19
@@ -208,19 +238,19 @@ main_return_args_after_14th_route@8:
     int 1
     return
 
-main_switch_case_default@9:
-    b main_after_if_else@14
+main_switch_case_default@10:
+    b main_after_if_else@15
 
-main_bare_routing@11:
+main_bare_routing@12:
     // typed_abi_call/logger.py:4
     // class Logger(ARC4Contract):
     txn OnCompletion
     int 0
     swap
-    match main_create@12
-    b main_reject_bare_on_completion@13
+    match main_create@13
+    b main_reject_bare_on_completion@14
 
-main_create@12:
+main_create@13:
     // typed_abi_call/logger.py:4
     // class Logger(ARC4Contract):
     txn ApplicationID
@@ -229,12 +259,12 @@ main_create@12:
     int 1
     return
 
-main_reject_bare_on_completion@13:
+main_reject_bare_on_completion@14:
     // typed_abi_call/logger.py:4
     // class Logger(ARC4Contract):
     err // reject transaction
 
-main_after_if_else@14:
+main_after_if_else@15:
     // typed_abi_call/logger.py:4
     // class Logger(ARC4Contract):
     err // reject transaction
@@ -361,9 +391,34 @@ log_bytes:
     retsub
 
 
+// test_cases.typed_abi_call.logger.Logger.log_asset_account_app(asset: uint64, account: bytes, app: uint64) -> void:
+log_asset_account_app:
+    // typed_abi_call/logger.py:29-30
+    // @arc4.abimethod
+    // def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:
+    proto 3 0
+    // typed_abi_call/logger.py:31
+    // log(asset.name, account.bytes, app.address)
+    frame_dig -3
+    asset_params_get AssetName
+    assert // asset exists
+    byte ""
+    concat
+    frame_dig -2
+    concat
+    byte ""
+    concat
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    concat
+    log
+    retsub
+
+
 // test_cases.typed_abi_call.logger.Logger.return_args_after_14th(_a1: bytes, _a2: bytes, _a3: bytes, _a4: bytes, _a5: bytes, _a6: bytes, _a7: bytes, _a8: bytes, _a9: bytes, _a10: bytes, _a11: bytes, _a12: bytes, _a13: bytes, _a14: bytes, a15: bytes, a16: bytes, a17: bytes, a18: bytes, a19: bytes, a20: bytes) -> bytes:
 return_args_after_14th:
-    // typed_abi_call/logger.py:29-52
+    // typed_abi_call/logger.py:33-56
     // @arc4.abimethod
     // def return_args_after_14th(
     //     self,
@@ -389,7 +444,7 @@ return_args_after_14th:
     //     a20: arc4.UInt8,
     // ) -> arc4.DynamicBytes:
     proto 20 1
-    // typed_abi_call/logger.py:53
+    // typed_abi_call/logger.py:57
     // last_arg = arc4.Tuple((a15, a16, a17, a18, a19, a20))
     byte 0x
     frame_dig -6
@@ -404,13 +459,13 @@ return_args_after_14th:
     concat
     frame_dig -1
     concat
-    // typed_abi_call/logger.py:54
+    // typed_abi_call/logger.py:58
     // assert Txn.application_args(15) == last_arg.bytes
     txna ApplicationArgs 15
     dig 1
     ==
     assert
-    // typed_abi_call/logger.py:55
+    // typed_abi_call/logger.py:59
     // return arc4.DynamicBytes(last_arg.bytes)
     dup
     len
