@@ -1,6 +1,6 @@
 struct TestStruct {
   b_val: puyapy.arc4.Bool
-  u_val: puyapy.arc4.UIntN[typing.Literal[8]]
+  u_val: puyapy.arc4.UInt8
   s_val_1: puyapy.arc4.String
   s_val_2: puyapy.arc4.String
 }
@@ -39,11 +39,11 @@ contract Arc4MutationContract
   
   subroutine array_concat(): None
   {
-    uint8_array: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])
-    array_concat_tuple: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = uint8_array + (3arc4u8, 4arc4u8)
-    assert(reinterpret_cast<puyapy.Bytes>(array_concat_tuple) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    uint8_array: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])
+    array_concat_tuple: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8] = uint8_array + (3arc4u8, 4arc4u8)
+    assert(reinterpret_cast<puyapy.Bytes>(array_concat_tuple) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])))
     array_concat_tuple.extend((5arc4u8))
-    assert(reinterpret_cast<puyapy.Bytes>(array_concat_tuple) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8, 5arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    assert(reinterpret_cast<puyapy.Bytes>(array_concat_tuple) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8, 5arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])))
     hello_world: puyapy.arc4.DynamicArray[puyapy.arc4.String] = arc4_array_encode([arc4_encode('Hello', puyapy.arc4.String), arc4_encode('World', puyapy.arc4.String)], puyapy.arc4.DynamicArray[puyapy.arc4.String])
     hello_world_concat: puyapy.arc4.DynamicArray[puyapy.arc4.String] = arc4_array_encode([arc4_encode('Hello', puyapy.arc4.String)], puyapy.arc4.DynamicArray[puyapy.arc4.String]) + arc4_array_encode([arc4_encode('World', puyapy.arc4.String)], puyapy.arc4.DynamicArray[puyapy.arc4.String])
     assert(reinterpret_cast<puyapy.Bytes>(hello_world) == reinterpret_cast<puyapy.Bytes>(hello_world_concat))
@@ -51,35 +51,35 @@ contract Arc4MutationContract
   
   subroutine array_of_array_dynamic(): None
   {
-    array_of_array: puyapy.arc4.DynamicArray[puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]] = arc4_array_encode([], puyapy.arc4.DynamicArray[puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]]])
+    array_of_array: puyapy.arc4.DynamicArray[puyapy.arc4.DynamicArray[puyapy.arc4.UInt8]] = arc4_array_encode([], puyapy.arc4.DynamicArray[puyapy.arc4.DynamicArray[puyapy.arc4.UInt8]])
     assert(reinterpret_cast<puyapy.Bytes>(array_of_array) == hex<"0000">)
-    array_of_array.extend((arc4_array_encode([10arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    array_of_array.extend((arc4_array_encode([10arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])))
     assert(reinterpret_cast<puyapy.Bytes>(array_of_array) == hex<"0001000200010A">)
-    array_of_array.extend((arc4_array_encode([16arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    array_of_array.extend((arc4_array_encode([16arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])))
     assert(reinterpret_cast<puyapy.Bytes>(array_of_array) == hex<"00020004000700010A000110">)
     array_of_array[0u].extend((255arc4u8))
     assert(reinterpret_cast<puyapy.Bytes>(array_of_array) == hex<"00020004000800020AFF000110">)
-    array_of_array[0u][1u]: puyapy.arc4.UIntN[typing.Literal[8]] = 0arc4u8
+    array_of_array[0u][1u]: puyapy.arc4.UInt8 = 0arc4u8
     assert(reinterpret_cast<puyapy.Bytes>(array_of_array) == hex<"00020004000800020A00000110">)
   }
   
   subroutine array_of_array_static(): None
   {
-    array_of_array: puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[2]], typing.Literal[2]] = arc4_array_encode([arc4_array_encode([10arc4u8, 9arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[2]]), arc4_array_encode([64arc4u8, 128arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[2]])], puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[2]], typing.Literal[2]])
+    array_of_array: puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[2]], typing.Literal[2]] = arc4_array_encode([arc4_array_encode([10arc4u8, 9arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[2]]), arc4_array_encode([64arc4u8, 128arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[2]])], puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[2]], typing.Literal[2]])
     assert(reinterpret_cast<puyapy.Bytes>(array_of_array) == hex<"0A094080">)
-    array_of_array[0u]: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[2]] = arc4_array_encode([255arc4u8, 254arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[2]])
+    array_of_array[0u]: puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[2]] = arc4_array_encode([255arc4u8, 254arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[2]])
     assert(reinterpret_cast<puyapy.Bytes>(array_of_array) == hex<"FFFE4080">)
-    array_of_array[1u][0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 1arc4u8
+    array_of_array[1u][0u]: puyapy.arc4.UInt8 = 1arc4u8
     assert(reinterpret_cast<puyapy.Bytes>(array_of_array) == hex<"FFFE0180">)
   }
   
   subroutine index_assign(): None
   {
-    dynamic_uint8_array: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])
-    dynamic_uint8_array[0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 255arc4u8
+    dynamic_uint8_array: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])
+    dynamic_uint8_array[0u]: puyapy.arc4.UInt8 = 255arc4u8
     assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == hex<"0002FF02">)
-    static_uint8_array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[2]] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[2]])
-    static_uint8_array[1u]: puyapy.arc4.UIntN[typing.Literal[8]] = 255arc4u8
+    static_uint8_array: puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[2]] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[2]])
+    static_uint8_array[1u]: puyapy.arc4.UInt8 = 255arc4u8
     assert(reinterpret_cast<puyapy.Bytes>(static_uint8_array) == hex<"01FF">)
     dynamic_bool_array: puyapy.arc4.DynamicArray[puyapy.arc4.Bool] = arc4_array_encode([arc4_encode(true, puyapy.arc4.Bool), arc4_encode(false, puyapy.arc4.Bool)], puyapy.arc4.DynamicArray[puyapy.arc4.Bool])
     dynamic_bool_array[0u]: puyapy.arc4.Bool = arc4_encode(false, puyapy.arc4.Bool)
@@ -93,7 +93,7 @@ contract Arc4MutationContract
   {
     test_struct: test_cases.arc4_types.mutation.TestStruct = arc4_encode((arc4_encode(true, puyapy.arc4.Bool), 50arc4u8, arc4_encode('Happy', puyapy.arc4.String), arc4_encode('Days', puyapy.arc4.String)), test_cases.arc4_types.mutation.TestStruct)
     test_struct[0u]: puyapy.arc4.Bool = arc4_encode(false, puyapy.arc4.Bool)
-    test_struct[1u]: puyapy.arc4.UIntN[typing.Literal[8]] = 12arc4u8
+    test_struct[1u]: puyapy.arc4.UInt8 = 12arc4u8
     assert(reinterpret_cast<puyapy.Bytes>(test_struct) == reinterpret_cast<puyapy.Bytes>(arc4_encode((arc4_encode(false, puyapy.arc4.Bool), 12arc4u8, arc4_encode('Happy', puyapy.arc4.String), arc4_encode('Days', puyapy.arc4.String)), test_cases.arc4_types.mutation.TestStruct)))
     test_struct[2u]: puyapy.arc4.String = arc4_encode('Hmmmm', puyapy.arc4.String)
     test_struct[3u]: puyapy.arc4.String = arc4_encode('Oh well', puyapy.arc4.String)
@@ -102,16 +102,16 @@ contract Arc4MutationContract
   
   subroutine dynamic_array_fixed_size(): None
   {
-    dynamic_uint8_array: puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])
+    dynamic_uint8_array: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])
     dynamic_uint8_array.extend((50arc4u8))
-    assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])))
     dynamic_uint8_array.extend(dynamic_uint8_array)
-    assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])))
     dynamic_uint8_array.extend((4arc4u8, 90arc4u8))
-    assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8, 90arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
-    popped: puyapy.arc4.UIntN[typing.Literal[8]] = dynamic_uint8_array.pop()
+    assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8, 90arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])))
+    popped: puyapy.arc4.UInt8 = dynamic_uint8_array.pop()
     assert(reinterpret_cast<puyapy.BigUInt>(popped) == reinterpret_cast<puyapy.BigUInt>(90arc4u8))
-    assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
+    assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])))
   }
   
   subroutine dynamic_array_bool(): None

@@ -422,7 +422,6 @@ arc4_byte_type: typing.Final = ARC4UIntN(
 )
 arc4_dynamic_bytes: typing.Final = ARC4DynamicArray(
     name="arc4.dynamic_bytes",
-    immutable=False,
     element_type=arc4_byte_type,
     is_valid_literal=is_valid_bytes_literal,
     stub_name=constants.CLS_ARC4_DYNAMIC_BYTES,
