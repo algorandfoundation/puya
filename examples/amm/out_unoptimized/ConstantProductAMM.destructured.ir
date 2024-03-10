@@ -232,6 +232,7 @@ contract examples.amm.contract.ConstantProductAMM:
         
         subroutine examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
             block@0: // L359
+                let (balance_before.0#0: uint64, balance_before.1#0: uint64) = ((asset_holding_get AssetBalance) receiver#0 asset#0)
                 itxn_begin
                 let inner_txn_params%1%%param_AssetAmount_idx_0#0: uint64 = amount#0
                 let inner_txn_params%1%%param_AssetReceiver_idx_0#0: bytes = receiver#0
@@ -244,8 +245,12 @@ contract examples.amm.contract.ConstantProductAMM:
                 ((itxn_field AssetReceiver) inner_txn_params%1%%param_AssetReceiver_idx_0#0)
                 ((itxn_field AssetAmount) inner_txn_params%1%%param_AssetAmount_idx_0#0)
                 goto block@1
-            block@1: // next_txn_L361
+            block@1: // next_txn_L363
                 itxn_submit
+                let (balance_after.0#0: uint64, balance_after.1#0: uint64) = ((asset_holding_get AssetBalance) receiver#0 asset#0)
+                let tmp%2#0: uint64 = (+ balance_before.0#0 amount#0)
+                let tmp%3#0: uint64 = (== tmp%2#0 balance_after.0#0)
+                (assert tmp%3#0) // Balance not updated correctly
                 return 
         
         subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:

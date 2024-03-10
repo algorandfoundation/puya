@@ -184,5 +184,8 @@ subroutine tokens_to_swap(in_amount: puyapy.UInt64, in_supply: puyapy.UInt64, ou
 
 subroutine do_asset_transfer(receiver: puyapy.Account, asset: puyapy.Asset, amount: puyapy.UInt64): None
 {
+  balance_before: tuple[puyapy.UInt64, bool] = asset_holding_get<AssetBalance>(receiver, reinterpret_cast<puyapy.UInt64>(asset))
   submit_txn(create_inner_transaction(TypeEnum=axfer, XferAsset=asset, AssetAmount=amount, AssetReceiver=receiver, Fee=0u))
+  balance_after: tuple[puyapy.UInt64, bool] = asset_holding_get<AssetBalance>(receiver, reinterpret_cast<puyapy.UInt64>(asset))
+  assert(balance_before[0] + amount == balance_after[0], comment="Balance not updated correctly")
 }

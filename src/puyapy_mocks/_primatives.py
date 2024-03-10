@@ -371,3 +371,16 @@ class Bytes:
 
     def __str__(self) -> str:
         return self.__match_value__.decode()
+
+
+def convert_to_bytes(arg: UInt64 | int | Bytes | bytes | str) -> bytes:
+    if isinstance(arg, (UInt64, int)):
+        return int.to_bytes(int(arg), 8)
+    elif isinstance(arg, Bytes):
+        return bytes(arg)
+    elif isinstance(arg, bytes):
+        return arg
+    elif isinstance(arg, str):
+        return arg.encode()
+
+    return NotImplemented

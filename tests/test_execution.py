@@ -1334,3 +1334,20 @@ def test_hello_world_arc4_succeeds() -> None:
     result = contract.hello(String("world"))
 
     assert result == "Hello, world"
+
+
+def test_stateful_arc4_succeeds() -> None:
+    from typing import cast
+
+    from puyapy import Account, Asset, UInt64
+    from puyapy_mocks import execution_ctx
+
+    from examples.amm.contract import do_asset_transfer
+
+    with execution_ctx() as ctx:
+        asset_id = 1234
+        asset = Asset(asset_id)
+        receiver = cast(Account, ctx.test_account(asset_id, 100))
+        ctx.contract_account(asset_id, 1000)
+
+        do_asset_transfer(receiver=receiver, asset=asset, amount=UInt64(10))

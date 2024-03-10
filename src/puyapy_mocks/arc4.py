@@ -57,11 +57,23 @@ _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
 
 
-def abimethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]:
-    def wrapped(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-        return fn(*args, **kwargs)
+def abimethod(
+    fn: Callable[_P, _R] | None = None,
+    /,
+    **kwargs: object,
+) -> Callable[_P, _R] | Callable[[Callable[_P, _R]], Callable[_P, _R],]:
+    print(kwargs)
 
-    return wrapped
+    def decorator(func: Callable[_P, _R]) -> Callable[_P, _R]:
+        def wrapped(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+            return func(*args, **kwargs)
+
+        return wrapped
+
+    if callable(fn):
+        return decorator(fn)
+
+    return decorator
 
 
 class ARC4Contract:

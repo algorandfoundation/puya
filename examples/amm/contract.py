@@ -358,9 +358,14 @@ def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) 
 
 @subroutine
 def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
+    balance_before = op.AssetHoldingGet.asset_balance(receiver, asset.asset_id)
+
     itxn.AssetTransfer(
         xfer_asset=asset,
         asset_amount=amount,
         asset_receiver=receiver,
         fee=0,
     ).submit()
+
+    balance_after = op.AssetHoldingGet.asset_balance(receiver, asset.asset_id)
+    assert balance_before[0] + amount == balance_after[0], "Balance not updated correctly"

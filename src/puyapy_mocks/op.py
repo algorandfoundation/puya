@@ -1,7 +1,10 @@
-from puyapy_mocks._ctx import active_ctx
+from puyapy_mocks._ctx_state import active_ctx
 from puyapy_mocks._primatives import (
     Bytes,
     UInt64,
+)
+from puyapy_mocks._reference import (
+    Account,
 )
 
 
@@ -15,6 +18,10 @@ def itob(a: int | UInt64, /) -> Bytes:
     if isinstance(a, UInt64):
         a = int(a)
     return Bytes(int.to_bytes(a, 8))
+
+
+class Global:
+    pass
 
 
 # TODO: NC - Come back to this and see if we can simplify
@@ -42,8 +49,19 @@ class StaticProperty(type):
 class Txn(metaclass=StaticProperty):
     @classmethod
     def application_args(cls, index: int) -> bytes:
-        return active_ctx().get_arg(index)
+        return active_ctx().args[index]
 
     @classproperty
     def num_app_args(self) -> int:
-        return len(active_ctx()._args)  # noqa: SLF001
+        return len(active_ctx().args)
+
+
+class AssetHoldingGet:
+    @staticmethod
+    def asset_balance(a: Account | UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, bool]:
+        if isinstance(a, Account):
+            address = a.address
+        elif isinstance(a, (int, UInt64)):
+            address = str(a)
+
+        return UInt64(active_ctx().get_balance(address, int(b))), False

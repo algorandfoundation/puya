@@ -479,7 +479,13 @@ do_asset_transfer:
     // @subroutine
     // def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
     proto 3 0
-    // amm/contract.py:361-366
+    // amm/contract.py:361
+    // balance_before = op.AssetHoldingGet.asset_balance(receiver, asset.asset_id)
+    frame_dig -3
+    frame_dig -2
+    asset_holding_get AssetBalance
+    pop
+    // amm/contract.py:363-368
     // itxn.AssetTransfer(
     //     xfer_asset=asset,
     //     asset_amount=amount,
@@ -489,11 +495,11 @@ do_asset_transfer:
     itxn_begin
     frame_dig -2
     itxn_field XferAsset
-    // amm/contract.py:361
+    // amm/contract.py:363
     // itxn.AssetTransfer(
     int axfer
     itxn_field TypeEnum
-    // amm/contract.py:365
+    // amm/contract.py:367
     // fee=0,
     int 0
     itxn_field Fee
@@ -501,7 +507,7 @@ do_asset_transfer:
     itxn_field AssetReceiver
     frame_dig -1
     itxn_field AssetAmount
-    // amm/contract.py:361-366
+    // amm/contract.py:363-368
     // itxn.AssetTransfer(
     //     xfer_asset=asset,
     //     asset_amount=amount,
@@ -509,6 +515,19 @@ do_asset_transfer:
     //     fee=0,
     // ).submit()
     itxn_submit
+    // amm/contract.py:370
+    // balance_after = op.AssetHoldingGet.asset_balance(receiver, asset.asset_id)
+    frame_dig -3
+    frame_dig -2
+    asset_holding_get AssetBalance
+    pop
+    // amm/contract.py:371
+    // assert balance_before[0] + amount == balance_after[0], "Balance not updated correctly"
+    swap
+    frame_dig -1
+    +
+    ==
+    assert // Balance not updated correctly
     retsub
 
 
