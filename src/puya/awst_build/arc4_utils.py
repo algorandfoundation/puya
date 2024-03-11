@@ -2,6 +2,7 @@ import typing
 from typing import Never
 
 import mypy.nodes
+import mypy.types
 import mypy.visitor
 from immutabledict import immutabledict
 
@@ -13,7 +14,7 @@ from puya.awst import (
 )
 from puya.awst_build import constants
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_func_types
+from puya.awst_build.utils import extract_bytes_literal_from_mypy
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig, ARC32StructDef, OnCompletionAction
 from puya.parse import SourceLocation
@@ -303,3 +304,39 @@ def arc4_decode(
                 wtype=target_wtype,
                 value=bytes_arg,
             )
+
+
+def get_func_types(
+    context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
+) -> dict[str, wtypes.WType]:
+    if not (func_def.arguments and func_def.arguments[0].variable.is_self):
+        raise InternalError(
+            "arc4_utils.get_func_types called with non class method,"
+            " which means it can't be an ABI method",
+            location,
+        )
+    start_idx = 1
+    args = func_def.arguments[start_idx:]
+    in_var_names = [arg.variable.name for arg in args]
+    if "output" in in_var_names:
+        # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
+        raise CodeError(
+            "For compatibility with ARC-32, ARC-4 methods cannot have an argument named output",
+            location,
+        )
+    match func_def.type:
+        case mypy.types.CallableType(arg_types=arg_types, ret_type=ret_type):
+            arg_types = arg_types[start_idx:]
+        case _:
+            raise InternalError("Unexpected FuncDef type")
+    return_type = context.type_to_wtype(ret_type, source_location=location)
+    result = {
+        "output": return_type,
+        **{
+            name: context.type_to_wtype(
+                t, source_location=context.node_location(a, module_src=func_def.info)
+            )
+            for name, t, a in zip(in_var_names, arg_types, args, strict=True)
+        },
+    }
+    return result

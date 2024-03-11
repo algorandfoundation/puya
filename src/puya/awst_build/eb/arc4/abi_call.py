@@ -28,7 +28,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import constants
-from puya.awst_build.arc4_utils import arc4_encode, get_arc4_method_config
+from puya.awst_build.arc4_utils import arc4_encode, get_arc4_method_config, get_func_types
 from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import (
@@ -144,45 +144,17 @@ class ARC4ClientClassExpressionBuilder(IntermediateExpressionBuilder):
         self.type_info = type_info
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        try:
-            member = self.type_info.names[name]
-        except KeyError as ex:
-            raise CodeError(
-                f"'{name}' is not a member of {self.type_info.fullname}", location
-            ) from ex
-        match member.node:
-            case mypy.nodes.Decorator() as dec:
-                decorators = get_decorators_by_fullname(self.context, dec)
-                abimethod_dec = decorators.pop(constants.ABIMETHOD_DECORATOR, None)
-                if abimethod_dec:
-                    func_def = dec.func
-                    arc4_method_config = get_arc4_method_config(
-                        self.context, abimethod_dec, func_def
-                    )
-                    type_info = func_def.type
-                    if isinstance(type_info, mypy.types.CallableType):
-                        # convert the return type
-                        return_type = self.context.type_to_wtype(
-                            type_info.ret_type, source_location=location
-                        )
-                        # check & convert the arguments
-                        mypy_args = func_def.arguments
-                        mypy_arg_types = type_info.arg_types
-                        if func_def.info is not mypy.nodes.FUNC_NO_INFO:
-                            mypy_args = mypy_args[1:]
-                            mypy_arg_types = mypy_arg_types[1:]
-                        arg_types = list[wtypes.WType]()
-                        for arg, arg_type in zip(mypy_args, mypy_arg_types, strict=True):
-                            arg_types.append(
-                                self.context.type_to_wtype(
-                                    arg_type,
-                                    source_location=self.context.node_location(arg, func_def.info),
-                                )
-                            )
-
-                        return ARC4MethodConfigExpressionBuilder(
-                            arc4_method_config, arg_types, return_type, location
-                        )
+        dec = self.type_info.get_method(name)
+        if isinstance(dec, mypy.nodes.Decorator):
+            decorators = get_decorators_by_fullname(self.context, dec)
+            abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
+            if abimethod_dec is not None:
+                func_def = dec.func
+                arc4_method_config = get_arc4_method_config(self.context, abimethod_dec, func_def)
+                *arg_types, return_type = get_func_types(self.context, func_def, location).values()
+                return ARC4MethodConfigExpressionBuilder(
+                    arc4_method_config, arg_types, return_type, location
+                )
         raise CodeError(f"'{self.type_info.fullname}.{name}' is not a valid ARC4 method", location)
 
 

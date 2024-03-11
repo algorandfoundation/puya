@@ -14,7 +14,7 @@ from puya.awst.nodes import (
     ContractReference,
 )
 from puya.awst_build import constants
-from puya.awst_build.arc4_utils import get_arc4_method_config
+from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import (
@@ -26,7 +26,6 @@ from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puya.awst_build.utils import (
     extract_docstring,
     get_decorators_by_fullname,
-    get_func_types,
     iterate_user_bases,
     qualified_class_name,
 )
