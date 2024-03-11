@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 import difflib
 import enum
 import tempfile
@@ -13,7 +12,7 @@ import structlog.testing
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst_build.main import transform_ast
 from puya.compile import parse_with_mypy
-from puya.errors import Errors, ParseError, PuyaError
+from puya.errors import Errors, ParseError, PuyaError, log_exceptions
 from puya.options import PuyaOptions
 
 from tests.utils import awst_to_teal, narrow_sources
@@ -409,8 +408,8 @@ def try_lower_case_to_teal(
         errors=Errors(context.errors.read_source),
         parse_result=narrow_sources(context.parse_result, src_path),
     )
-    # ignore any errors that occur during lowering
-    with contextlib.suppress(BaseException):
+    # log any errors that occur during lowering
+    with log_exceptions(case_context.errors):
         awst_to_teal(case_context, awst)
 
 
