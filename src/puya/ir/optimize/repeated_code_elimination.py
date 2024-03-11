@@ -54,12 +54,15 @@ def repeated_expression_elimination(
             if dominators:
                 visitor = RCEVisitor(
                     block,
+                    # if there is a single dominator then reduce will return the original
+                    # collection of that dominator, so copy to ensure original collections are
+                    # not modified
                     const_intrinsics=functools.reduce(
                         operator.or_, (block_const_intrinsics[b] for b in dominators)
-                    ),
+                    ).copy(),
                     asserted=functools.reduce(
                         operator.or_, (block_asserted[b] for b in dominators)
-                    ),
+                    ).copy(),
                 )
                 for op in block.ops.copy():
                     modified = bool(op.accept(visitor)) or modified

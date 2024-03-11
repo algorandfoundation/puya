@@ -1,0 +1,120 @@
+#pragma version 10
+
+test_cases.regression_118.contract.Contract.approval_program:
+    // regression_118/contract.py:5
+    // class Contract(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@5
+    txna ApplicationArgs 0
+    method "verify(uint256[])(bool,string)"
+    swap
+    match main_verify_route@2
+    b main_switch_case_default@3
+
+main_verify_route@2:
+    // regression_118/contract.py:6
+    // @abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // regression_118/contract.py:5
+    // class Contract(ARC4Contract):
+    txna ApplicationArgs 1
+    // regression_118/contract.py:6
+    // @abimethod
+    callsub verify
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_switch_case_default@3:
+    b main_after_if_else@8
+
+main_bare_routing@5:
+    // regression_118/contract.py:5
+    // class Contract(ARC4Contract):
+    txn OnCompletion
+    int 0
+    swap
+    match main_create@6
+    b main_reject_bare_on_completion@7
+
+main_create@6:
+    // regression_118/contract.py:5
+    // class Contract(ARC4Contract):
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+main_reject_bare_on_completion@7:
+    // regression_118/contract.py:5
+    // class Contract(ARC4Contract):
+    err // reject transaction
+
+main_after_if_else@8:
+    // regression_118/contract.py:5
+    // class Contract(ARC4Contract):
+    err // reject transaction
+
+
+// test_cases.regression_118.contract.Contract.verify(values: bytes) -> bytes:
+verify:
+    // regression_118/contract.py:6-7
+    // @abimethod
+    // def verify(self, values: DynamicArray[UInt256]) -> Tuple[Bool, String]:
+    proto 1 1
+    // regression_118/contract.py:9
+    // bool(Txn.num_app_args)
+    txn NumAppArgs
+    // regression_118/contract.py:8-10
+    // val1 = Bool(
+    //     bool(Txn.num_app_args)
+    // )  # use a non constant value so the repeated expression is not simplified
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    // regression_118/contract.py:11
+    // if values.length != 2:
+    frame_dig -1
+    int 0
+    extract_uint16
+    int 2
+    !=
+    bz verify_after_if_else@2
+    // regression_118/contract.py:12
+    // return Tuple((val1, String("")))
+    int 3
+    byte 0x
+    uncover 2
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    byte "\x00\x00"
+    concat
+    retsub
+
+verify_after_if_else@2:
+    // regression_118/contract.py:13
+    // return Tuple((val1, String("")))
+    int 3
+    byte 0x
+    uncover 2
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    byte "\x00\x00"
+    concat
+    retsub
