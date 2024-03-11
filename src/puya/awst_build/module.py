@@ -597,6 +597,8 @@ def _process_contract_class_options(
                             location=context.node_location(kw_expr),
                         )
                         state_totals = StateTotals(**arg_map)
+                case "metaclass":
+                    context.error("metaclass option is unsupported", kw_expr)
                 case _:
                     context.error("Unrecognised class keyword", kw_expr)
     for base in cdef.info.bases:
