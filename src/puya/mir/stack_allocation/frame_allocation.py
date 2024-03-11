@@ -4,7 +4,7 @@ import attrs
 import structlog
 
 from puya.avm_type import AVMType
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
 
@@ -48,12 +48,19 @@ def get_allocate_op(
     uint64_vars = []
     variable_type_mapping = get_local_id_types(subroutine)
     for variable in all_variables:
-        match variable_type_mapping[variable]:
+        match variable_type_mapping.get(variable):
             # treat any as uint when pre-allocating
             case AVMType.uint64 | AVMType.any:
                 uint64_vars.append(variable)
             case AVMType.bytes:
                 byte_vars.append(variable)
+            case None:
+                raise CodeError(
+                    f"Undefined register: {variable}."
+                    " This can be caused by attempting to reference variables that are only"
+                    " defined in other execution paths.",
+                    subroutine.preamble.source_location,
+                )
             case _ as unknown:
                 raise InternalError(f"Unhandled AVM type in f-stack allocation: {unknown}")
     return mir.Allocate(bytes_vars=byte_vars, uint64_vars=uint64_vars)
