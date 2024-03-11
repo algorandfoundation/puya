@@ -47,3 +47,18 @@ class ContractWithInvalidAddressLiteral(Contract):
     def approval_program(self) -> bool:
         some_address = arc4.Address(b"") ## E: Address literals must be exactly 32 bytes
         return True
+
+## case: test_undefined_variable
+
+from puyapy import Contract, Txn
+
+
+class ContractWithUndefinedVariable(Contract):
+    def approval_program(self) -> bool: ## E: Undefined register: undefined#1. This can be caused by attempting to reference variables that are only defined in other execution paths.
+        if Txn.num_app_args:
+            undefined = True
+            return undefined
+        return undefined
+
+    def clear_state_program(self) -> bool:
+        return True
