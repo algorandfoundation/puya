@@ -32,16 +32,10 @@ class DynamicBytesClassExpressionBuilder(ARC4ClassExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [Literal(value=bytes()) as literal]:
-                return var_expression(
-                    convert_arc4_literal(literal, wtypes.arc4_dynamic_bytes, location)
-                )
+                return var_expression(convert_arc4_literal(literal, self.produces(), location))
             case [ExpressionBuilder(value_type=wtypes.bytes_wtype) as eb]:
                 return var_expression(
-                    ARC4Encode(
-                        value=eb.rvalue(),
-                        source_location=location,
-                        wtype=wtypes.arc4_dynamic_bytes,
-                    )
+                    ARC4Encode(value=eb.rvalue(), source_location=location, wtype=self.produces())
                 )
 
         return dynamic_array_constructor(
