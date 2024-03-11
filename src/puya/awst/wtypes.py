@@ -21,13 +21,16 @@ def _all_literals_invalid(_value: object) -> bool:
     return False
 
 
+LiteralValidator: typing.TypeAlias = Callable[[object], bool]
+
+
 @attrs.frozen(str=False, kw_only=True)
 class WType:
     name: str
     stub_name: str
     lvalue: bool = True
     immutable: bool = True
-    is_valid_literal: Callable[[object], bool] = attrs.field(
+    is_valid_literal: LiteralValidator = attrs.field(
         default=_all_literals_invalid,
         eq=False,  # TODO: is this the right thing to do?
     )
@@ -44,16 +47,17 @@ def _is_unsigned_int(value: object) -> typing.TypeGuard[int]:
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
-def is_valid_uint_literal(value: object, *, max_bits: int) -> typing.TypeGuard[int]:
-    return _is_unsigned_int(value) and value.bit_length() <= max_bits
+def _uint_literal_validator(*, max_bits: int) -> Callable[[object], typing.TypeGuard[int]]:
+    def validator(value: object) -> typing.TypeGuard[int]:
+        return _is_unsigned_int(value) and value.bit_length() <= max_bits
+
+    return validator
 
 
-def is_valid_uint64_literal(value: object) -> typing.TypeGuard[int]:
-    return is_valid_uint_literal(value, max_bits=64)
+is_valid_uint64_literal = _uint_literal_validator(max_bits=64)
 
 
-def is_valid_biguint_literal(value: object) -> typing.TypeGuard[int]:
-    return is_valid_uint_literal(value, max_bits=MAX_BIGUINT_BITS)
+is_valid_biguint_literal = _uint_literal_validator(max_bits=MAX_BIGUINT_BITS)
 
 
 def is_valid_bytes_literal(value: object) -> typing.TypeGuard[bytes]:
@@ -241,23 +245,24 @@ class ARC4Type(WType):
 class ARC4UIntN(ARC4Type):
     n: int
 
+    is_valid_literal: LiteralValidator = attrs.field(init=False)
+
+    @is_valid_literal.default
+    def _literal_validator(self) -> LiteralValidator:
+        return _uint_literal_validator(max_bits=self.n)
+
     @classmethod
     def from_scale(cls, n: int) -> typing.Self:
         assert n % 8 == 0, "bit size must be multiple of 8"
         assert 8 <= n <= 512, "bit size must be between 8 and 512 inclusive"
         name = f"arc4.uint{n}"
-        if n in (8, 16, 32, 64, 128, 256, 512):
+        if n.bit_count() == 1:  # quick way to check for power of 2
             stub_name = f"{constants.ARC4_PREFIX}UInt{n}"
         else:
             base_cls = constants.CLS_ARC4_UINTN if n <= 64 else constants.CLS_ARC4_BIG_UINTN
             stub_name = f"{base_cls}[typing.Literal[{n}]]"
 
-        return cls(
-            n=n,
-            name=name,
-            stub_name=stub_name,
-            is_valid_literal=lambda x: is_valid_uint_literal(x, max_bits=n),
-        )
+        return cls(n=n, name=name, stub_name=stub_name)
 
 
 @typing.final
@@ -417,7 +422,6 @@ arc4_byte_type: typing.Final = ARC4UIntN(
     n=8,
     name="arc4.byte",
     stub_name=constants.CLS_ARC4_BYTE,
-    is_valid_literal=lambda x: is_valid_uint_literal(x, max_bits=8),
     alias="byte",
 )
 arc4_dynamic_bytes: typing.Final = ARC4DynamicArray(
