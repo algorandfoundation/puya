@@ -1,9 +1,11 @@
+import abc
+
 from puyapy import Bytes, Contract, log, subroutine
 
 WAVE = "👋".encode()
 
 
-class BaseContract(Contract):
+class BaseContract(Contract, abc.ABC):
     def __init__(self) -> None:
         self.state1 = self.state2 = join_log_and_return(
             right=Bytes(WAVE),

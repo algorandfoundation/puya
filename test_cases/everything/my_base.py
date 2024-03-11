@@ -9,7 +9,7 @@ class MyBase(Contract, ABC):
         self.creator = op.Txn.sender
 
 
-class MyMiddleBase(MyBase):
+class MyMiddleBase(MyBase, ABC):
     @subroutine
     def calculate(self, a: arc4.UInt64, b: arc4.UInt64) -> arc4.UInt64:
         return arc4.UInt64(a.native + b.native)

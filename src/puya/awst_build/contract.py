@@ -51,7 +51,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self.class_def = class_def
         self.cref = qualified_class_name(class_def.info)
         self._is_arc4 = class_def.info.has_base(constants.ARC4_CONTRACT_BASE)
-        self._is_abstract = class_def.info.is_abstract  # TODO: is this sufficient?
+        self._is_abstract = _check_class_abstractness(context, class_def)
         self._approval_program: ContractMethod | None = None
         self._clear_program: ContractMethod | None = None
         self._init_method: ContractMethod | None = None
@@ -505,3 +505,16 @@ def _gather_app_state_recursive(
         # definition in case of redefinitions
         combined_app_state = base_app_state | combined_app_state
     return combined_app_state
+
+
+def _check_class_abstractness(
+    context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
+) -> bool:
+    is_abstract = class_def.info.is_abstract
+    # note: we don't support the metaclass= option, so we only need to check for
+    # inheritance of abc.ABC and not  metaclass=abc.ABCMeta
+    if is_abstract and not any(
+        base.fullname == "abc.ABC" for base in class_def.info.direct_base_classes()
+    ):
+        context.warning(f"Class {class_def.fullname} is implicitly abstract", class_def)
+    return is_abstract
