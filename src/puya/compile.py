@@ -44,11 +44,15 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
         _log_parse_errors(ex)
         sys.exit(ErrorExitCode.code)
 
-    with log_exceptions(context.errors, exit_check=True):
+    with log_exceptions(context.errors):
         awst = transform_ast(context)
+        context.errors.exit_if_errors()
         module_irs = build_module_irs(context, awst)
+        context.errors.exit_if_errors()
         compiled_contracts_by_source_path = module_irs_to_teal(context, module_irs)
+        context.errors.exit_if_errors()
         write_artifacts(context, compiled_contracts_by_source_path)
+    context.errors.exit_if_errors()
 
 
 def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:

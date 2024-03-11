@@ -166,7 +166,7 @@ def _crash_report(location: SourceLocation | None, exit_code: ErrorExitCode) -> 
 
 @contextlib.contextmanager
 def log_exceptions(
-    errors: Errors, fallback_location: SourceLocation | None = None, *, exit_check: bool = False
+    errors: Errors, fallback_location: SourceLocation | None = None
 ) -> Iterator[None]:
     try:
         yield
@@ -176,7 +176,3 @@ def log_exceptions(
         errors.fatal(f"FATAL {ex!s}", location=ex.location or fallback_location)
     except Exception as ex:
         errors.fatal(f"UNEXPECTED {ex!s}", location=fallback_location)
-    if exit_check:
-        # note, we check here, in case of logged errors, not just in case of one
-        # we caught at this level in the above try/except block
-        errors.exit_if_errors()
