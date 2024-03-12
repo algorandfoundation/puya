@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import contextlib
 import enum
 import json
@@ -131,6 +132,8 @@ class StackType(enum.StrEnum):
     any = enum.auto()
     bigint = enum.auto()
     box_name = "boxName"
+    asset = enum.auto()
+    application = enum.auto()
 
 
 @attrs.define
@@ -237,9 +240,56 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
         "balance",
         "min_balance",
     ):
-        op = ops[op_name]
-        assert op["Args"][0] == "any"
-        op["Args"][0] = "address_or_index"
+        _patch_arg_type(ops, op_name, 0, "any", "address_or_index")
+
+    # patch ops that use a stack type of uint64
+    # for arguments that should be an Application
+    for op_name, arg_index in {
+        "app_opted_in": 1,
+        "app_global_get_ex": 0,
+        "app_local_get_ex": 1,
+        "app_params_get": 0,
+    }.items():
+        _patch_arg_type(ops, op_name, arg_index, "uint64", "application")
+
+    # patch ops that use a stack type of uint64
+    # for return types that should be an Application
+    for op_name in [
+        "gaid",
+        "gaids",
+    ]:
+        _patch_return_type(ops, op_name, 0, "uint64", "application")
+
+    # patch ops that use a stack type of uint64
+    # for arguments that should be an Asset
+    for op_name, arg_index in {
+        "asset_holding_get": 1,
+        "asset_params_get": 0,
+    }.items():
+        _patch_arg_type(ops, op_name, arg_index, "uint64", "asset")
+
+    # patch txn enum fields with asset and application types
+    txn = ops["txn"]
+    itxn_field = ops["itxn_field"]
+    for op in (txn, itxn_field):
+        for immediate in [
+            "XferAsset",
+            "ConfigAsset",
+            "FreezeAsset",
+        ]:
+            _patch_arg_enum_type(op, immediate, "uint64", "asset")
+
+        _patch_arg_enum_type(op, "ApplicationID", "uint64", "application")
+    _patch_arg_enum_type(txn, "CreatedApplicationID", "uint64", "application")
+    _patch_arg_enum_type(txn, "CreatedAssetID", "uint64", "asset")
+
+    # patch txna enums
+    txna = ops["txna"]
+    _patch_arg_enum_type(txna, "Assets", "uint64", "asset")
+    _patch_arg_enum_type(txna, "Applications", "uint64", "application")
+
+    # patch global enums
+    _patch_arg_enum_type(ops["global"], "CurrentApplicationID", "uint64", "application")
 
     # patch ops that should be bigint but use []byte
     for op_name in ("bsqrt",):
@@ -262,6 +312,39 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
     # however currently this information is stripped when generating langspec.json
     ops["err"]["Halts"] = True
     ops["return"]["Halts"] = True
+
+
+def _patch_arg_enum_type(
+    op: dict[str, typing.Any], immediate: str, current_type: str, new_type: str
+) -> None:
+    arg_enum = op["ArgEnum"]
+    assert immediate in arg_enum, f"Expected {immediate} arg enum for {op['Name']}"
+    immediate_index = arg_enum.index(immediate)
+    arg_enum_types = op["ArgEnumTypes"]
+    assert (
+        arg_enum_types[immediate_index] == current_type
+    ), f"Expected {immediate} to be {current_type}"
+    arg_enum_types[immediate_index] = new_type
+
+
+def _patch_arg_type(
+    ops: dict[str, typing.Any], op_name: str, arg_index: int, current_type: str, new_type: str
+) -> None:
+    op_args = ops[op_name]["Args"]
+    assert (
+        op_args[arg_index] == current_type
+    ), f"Expected {op_name} arg {arg_index} to be {current_type}"
+    op_args[arg_index] = new_type
+
+
+def _patch_return_type(
+    ops: dict[str, typing.Any], op_name: str, return_index: int, current_type: str, new_type: str
+) -> None:
+    returns = ops[op_name]["Returns"]
+    assert (
+        returns[return_index] == current_type
+    ), f"Expected {op_name} return {return_index} to be {current_type}"
+    returns[return_index] = new_type
 
 
 def create_indexed_enum(op: Operation) -> list[ArgEnum]:
@@ -319,10 +402,10 @@ def transform_stack_args(op: Operation) -> list[StackValue]:
 
 
 def transform_immediates(
-    spec: LanguageSpec,
+    arg_enums: dict[str, list[ArgEnum]],
+    algorand_ops: dict[str, Operation],
     op: Operation,
 ) -> list[Immediate]:
-    arg_enums = spec.arg_enums
     op_name = op["Name"]
     result = list[Immediate]()
     for immediate in op.get("ImmediateNote", []):
@@ -330,8 +413,12 @@ def transform_immediates(
         if arg_enum_reference is not None:
             arg_enum = op.get("ArgEnum")
             if arg_enum_reference not in arg_enums:
+                try:
+                    enum_op = algorand_ops[arg_enum_reference]
+                except KeyError:
+                    enum_op = op
                 assert arg_enum, f"Expected enum for {op_name}"
-                arg_enums[arg_enum_reference] = create_indexed_enum(op)
+                arg_enums[arg_enum_reference] = create_indexed_enum(enum_op)
 
             if arg_enum is not None:
                 assert len(arg_enum) == len(
@@ -416,9 +503,9 @@ def transform_cost(op: Operation) -> Cost:
 
 def transform_spec(lang_spec: AlgorandLanguageSpec) -> LanguageSpec:
     result = LanguageSpec()
-    for algorand_op in sorted(lang_spec["Ops"], key=lambda x: x["Name"]):
-        op_name = algorand_op["Name"]
-
+    arg_enums = result.arg_enums
+    algorand_ops = {o["Name"]: o for o in sorted(lang_spec["Ops"], key=lambda x: x["Name"])}
+    for op_name, algorand_op in algorand_ops.items():
         op = Op(
             name=op_name,
             size=algorand_op["Size"],
@@ -426,7 +513,7 @@ def transform_spec(lang_spec: AlgorandLanguageSpec) -> LanguageSpec:
             cost=transform_cost(algorand_op),
             min_avm_version=algorand_op["IntroducedVersion"],
             groups=algorand_op["Groups"],
-            immediate_args=transform_immediates(result, algorand_op),
+            immediate_args=transform_immediates(arg_enums, algorand_ops, algorand_op),
             stack_inputs=transform_stack_args(algorand_op),
             stack_outputs=transform_returns(algorand_op),
             halts=algorand_op.get("Halts", False),

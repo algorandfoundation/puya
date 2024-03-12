@@ -7,7 +7,7 @@ import re
 import subprocess
 import textwrap
 import typing
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import attrs
@@ -28,19 +28,26 @@ from scripts.transform_lang_spec import (
 logger = structlog.get_logger(__name__)
 INDENT = " " * 4
 VCS_ROOT = Path(__file__).parent.parent
-CLS_ACCOUNT = "Account"
-CLS_BYTES = "Bytes"
-CLS_UINT64 = "UInt64"
-CLS_BIGINT = "BigUInt"
+
+
+def _get_imported_name(typ: wtypes.WType | str) -> str:
+    return typ.stub_name.rsplit(".")[-1] if isinstance(typ, wtypes.WType) else typ
+
+
+WTYPE_REFERENCES = [
+    wtypes.account_wtype,
+    wtypes.application_wtype,
+    wtypes.asset_wtype,
+    wtypes.biguint_wtype,
+    wtypes.bytes_wtype,
+    wtypes.uint64_wtype,
+]
 CLS_MAPPING: dict[str, wtypes.WType | type] = {
     "int": int,
     "bytes": bytes,
     "str": str,
     "bool": wtypes.bool_wtype,
-    CLS_ACCOUNT: wtypes.account_wtype,
-    CLS_BYTES: wtypes.bytes_wtype,
-    CLS_UINT64: wtypes.uint64_wtype,
-    CLS_BIGINT: wtypes.biguint_wtype,
+    **{_get_imported_name(wtype): wtype for wtype in WTYPE_REFERENCES},
 }
 BYTES_LITERAL = "bytes"
 UINT64_LITERAL = "int"
@@ -392,27 +399,28 @@ def main() -> None:
 
 
 def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
-    bytes_ = [CLS_BYTES, BYTES_LITERAL] if covariant else [CLS_BYTES]
-    uint64 = [CLS_UINT64, UINT64_LITERAL] if covariant else [CLS_UINT64]
-    bigint = [CLS_BIGINT] if covariant else [CLS_BIGINT]
-    boolean = ["bool"]
-    account = [CLS_ACCOUNT]
-    sub_types = {
+    uint64: Sequence[str | wtypes.WType] = [wtypes.uint64_wtype, UINT64_LITERAL]
+    bytes_: Sequence[str | wtypes.WType] = [wtypes.bytes_wtype, BYTES_LITERAL]
+    account: Sequence[str | wtypes.WType] = [wtypes.account_wtype]
+    stack_type_mapping: dict[StackType, Sequence[str | wtypes.WType]] = {
+        StackType.address_or_index: [*account, *uint64],
+        StackType.application: [wtypes.application_wtype, *uint64],
+        StackType.asset: [wtypes.asset_wtype, *uint64],
         StackType.bytes: bytes_,
-        StackType.bytes_32: bytes_ + account if covariant else bytes_,
+        StackType.bytes_32: [*bytes_, *account],
         StackType.bytes_64: bytes_,
         StackType.bytes_80: bytes_,
+        StackType.bool: [wtypes.bool_wtype, *uint64],
         StackType.uint64: uint64,
-        StackType.bool: boolean + uint64 if covariant else boolean,
-        StackType.any: bytes_ + uint64,
+        StackType.any: [*bytes_, *uint64],
         StackType.box_name: bytes_,
         StackType.address: account,
-        StackType.address_or_index: account + uint64,
-        StackType.bigint: bigint,
+        StackType.bigint: [wtypes.biguint_wtype],
     }
 
     try:
-        return sub_types[type_name]
+        last_index = None if covariant else 1
+        return list(map(_get_imported_name, stack_type_mapping[type_name][:last_index]))
     except KeyError as ex:
         raise NotImplementedError(
             f"Could not map stack type {type_name} to an puyapy type"
@@ -551,9 +559,15 @@ def build_stub_class(klass: ClassDef) -> Iterable[str]:
             )
         yield ""
     if klass.has_any_methods:
-        yield f"class {klass.name}{CLS_BYTES}(_{klass.name}[{CLS_BYTES}, {BYTES_LITERAL}]):"
+        yield (
+            f"class {klass.name}Bytes(_{klass.name}[{_get_imported_name(wtypes.bytes_wtype)},"
+            f" {BYTES_LITERAL}]):"
+        )
         yield INDENT + docstring
-        yield f"class {klass.name}{CLS_UINT64}(_{klass.name}[{CLS_UINT64}, {UINT64_LITERAL}]):"
+        yield (
+            f"class {klass.name}UInt64(_{klass.name}[{_get_imported_name(wtypes.uint64_wtype)},"
+            f" {UINT64_LITERAL}]):"
+        )
         yield INDENT + docstring
 
 
@@ -827,13 +841,13 @@ def build_operation_methods(
         logger.info(f"Found any output for {op.name}")
         yield build_operation_method(
             op,
-            op_function_name + f"_{CLS_BYTES}".lower(),
+            op_function_name + "_bytes",
             aliases,
             replace_any_with=StackType.bytes,
         )
         yield build_operation_method(
             op,
-            op_function_name + f"_{CLS_UINT64}".lower(),
+            op_function_name + "_uint64",
             aliases,
             replace_any_with=StackType.uint64,
         )
@@ -920,6 +934,10 @@ def build_wtype(wtype: wtypes.WType) -> str:
             return "wtypes.uint64_wtype"
         case wtypes.account_wtype:
             return "wtypes.account_wtype"
+        case wtypes.application_wtype:
+            return "wtypes.application_wtype"
+        case wtypes.asset_wtype:
+            return "wtypes.asset_wtype"
         case wtypes.bytes_wtype:
             return "wtypes.bytes_wtype"
         case wtypes.biguint_wtype:
@@ -1004,10 +1022,11 @@ def output_stub(
     function_ops: list[FunctionDef],
     class_ops: list[ClassDef],
 ) -> None:
+    references = ", ".join(map(_get_imported_name, WTYPE_REFERENCES))
     stub: list[str] = [
         "import typing",
         "",
-        f"from puyapy import {CLS_ACCOUNT}, {CLS_BIGINT}, {CLS_BYTES}, {CLS_UINT64}",
+        f"from puyapy import {references}",
     ]
 
     for arg_enum in enums:

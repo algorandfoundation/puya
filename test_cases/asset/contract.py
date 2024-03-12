@@ -20,10 +20,10 @@ class Reference(Contract):
     def approval_program(self) -> bool:
         if Txn.num_app_args == 1:
             if Txn.application_args(0) == b"opt_in":
-                asset = Asset(Txn.assets(0))
+                asset = Txn.assets(0)
                 self.opt_into_asset(asset)
             elif Txn.application_args(0) == b"is_opted_in":
-                asset = Asset(Txn.assets(0))
+                asset = Txn.assets(0)
                 self.is_opted_asset(asset)
             else:
                 assert False, "Expected opt_in or is_opted_in"

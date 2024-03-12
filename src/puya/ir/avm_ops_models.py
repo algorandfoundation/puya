@@ -13,6 +13,8 @@ class StackType(enum.StrEnum):
     any = enum.auto()
     bigint = enum.auto()
     box_name = "boxName"
+    asset = enum.auto()
+    application = enum.auto()
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}.{self.name}"
