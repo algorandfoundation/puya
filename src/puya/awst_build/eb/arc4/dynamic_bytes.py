@@ -10,6 +10,7 @@ from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4DecodeB
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     import mypy.nodes
@@ -48,23 +49,22 @@ class DynamicBytesClassExpressionBuilder(ARC4ClassExpressionBuilder):
         )
 
 
-def _coerce_to_byte(arg: ExpressionBuilder | Literal) -> ExpressionBuilder | Literal:
-    if isinstance(arg, Literal):
-        return arg
-    value_type = arg.value_type
-    if (
-        isinstance(value_type, wtypes.ARC4UIntN)
-        and value_type.n == 8
-        and value_type != wtypes.arc4_byte_type
-    ):
-        return var_expression(
-            ReinterpretCast(
-                expr=arg.rvalue(),
-                wtype=wtypes.arc4_byte_type,
-                source_location=arg.source_location,
-            )
-        )
-    return arg
+def _coerce_to_byte(arg: ExpressionBuilder | Literal) -> ExpressionBuilder:
+    match arg:
+        case Literal(value=int()) as literal:
+            return var_expression(convert_literal(literal, wtypes.arc4_byte_type))
+        case ExpressionBuilder(value_type=wtypes.ARC4UIntN(n=8) as wtype) as eb:
+            if wtype != wtypes.arc4_byte_type:
+                return var_expression(
+                    ReinterpretCast(
+                        expr=arg.rvalue(),
+                        wtype=wtypes.arc4_byte_type,
+                        source_location=arg.source_location,
+                    )
+                )
+            return eb
+        case _:
+            raise CodeError("Expected a Byte, UInt64 or int type", arg.source_location)
 
 
 class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):

@@ -9,14 +9,14 @@ from puyapy.arc4 import (
 class Arc4DynamicBytesContract(Contract):
     def approval_program(self) -> bool:
         total = UInt64(0)
-        dynamic_bytes = DynamicBytes(Byte(2), UInt8(3))
-        assert dynamic_bytes.decode() == b"\x02\x03"
-        assert dynamic_bytes.bytes == b"\x00\x02\x02\x03"
+        dynamic_bytes = DynamicBytes(Byte(2), UInt8(3), 1)
+        assert dynamic_bytes.decode() == b"\x02\x03\x01"
+        assert dynamic_bytes.bytes == b"\x00\x03\x02\x03\x01"
 
         for uint8_item in dynamic_bytes:
             total += uint8_item.decode()
 
-        assert total == 5, "Total should be of dynamic_bytes items"
+        assert total == 6, "Total should be of dynamic_bytes items"
 
         dynamic_bytes2 = DynamicBytes(b"\x03\x04")
         assert dynamic_bytes2.decode() == b"\x03\x04"
@@ -32,7 +32,7 @@ class Arc4DynamicBytesContract(Contract):
         for uint8_item in dynamic_bytes2:
             total += uint8_item.decode()
 
-        assert total == 19, "Total should now include sum of dynamic_bytes3 items"
+        assert total == 20, "Total should now include sum of dynamic_bytes3 items"
         return True
 
     def clear_state_program(self) -> bool:

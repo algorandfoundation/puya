@@ -3,13 +3,13 @@ contract Arc4DynamicBytesContract
   approval_program(): bool
   {
     total: puyapy.UInt64 = 0u
-    dynamic_bytes: puyapy.arc4.DynamicBytes = arc4_array_encode([2arc4u8, reinterpret_cast<puyapy.arc4.Byte>(3arc4u8)], puyapy.arc4.DynamicBytes)
-    assert(arc4_decode(dynamic_bytes, puyapy.Bytes) == '\x02\x03')
-    assert(reinterpret_cast<puyapy.Bytes>(dynamic_bytes) == '\x00\x02\x02\x03')
+    dynamic_bytes: puyapy.arc4.DynamicBytes = arc4_array_encode([2arc4u8, reinterpret_cast<puyapy.arc4.Byte>(3arc4u8), 1arc4u8], puyapy.arc4.DynamicBytes)
+    assert(arc4_decode(dynamic_bytes, puyapy.Bytes) == '\x02\x03\x01')
+    assert(reinterpret_cast<puyapy.Bytes>(dynamic_bytes) == '\x00\x03\x02\x03\x01')
     for uint8_item in dynamic_bytes {
       total += arc4_decode(uint8_item, puyapy.UInt64)
     }
-    assert(total == 5u, comment="Total should be of dynamic_bytes items")
+    assert(total == 6u, comment="Total should be of dynamic_bytes items")
     dynamic_bytes2: puyapy.arc4.DynamicBytes = arc4_encode('\x03\x04', puyapy.arc4.DynamicBytes)
     assert(arc4_decode(dynamic_bytes2, puyapy.Bytes) == '\x03\x04')
     assert(reinterpret_cast<puyapy.Bytes>(dynamic_bytes2) == '\x00\x02\x03\x04')
@@ -22,7 +22,7 @@ contract Arc4DynamicBytesContract
     for uint8_item in dynamic_bytes2 {
       total += arc4_decode(uint8_item, puyapy.UInt64)
     }
-    assert(total == 19u, comment="Total should now include sum of dynamic_bytes3 items")
+    assert(total == 20u, comment="Total should now include sum of dynamic_bytes3 items")
     return true
   }
   
