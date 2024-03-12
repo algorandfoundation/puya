@@ -300,17 +300,15 @@ class ARC4UFixedNxM(ARC4Type):
 
             if not isinstance(value, decimal.Decimal):
                 return False
-            if value < 0 or not value.is_finite():
+            sign, digits, exponent = value.as_tuple()
+            if sign != 0:  # is negative
                 return False
-            decimal_str = str(value)
-            try:
-                whole, part = decimal_str.split(".")
-            except ValueError:
+            if not isinstance(exponent, int):  # is infinite
                 return False
             # note: input is expected to be quantized correctly already
-            if len(part) != m:
+            if -exponent != m:  # wrong precision
                 return False
-            adjusted_int = int(decimal_str.replace(".", ""))
+            adjusted_int = int("".join(map(str, digits)))
             return adjusted_int.bit_length() <= n
 
         return cls(

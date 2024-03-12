@@ -210,7 +210,8 @@ class FunctionIRBuilder(
         match expr.wtype:
             case wtypes.ARC4UFixedNxM(n=bit_size):
                 num_bytes = bit_size // 8
-                adjusted_int = int(str(expr.value).replace(".", ""))
+                _, digits, _ = expr.value.as_tuple()
+                adjusted_int = int("".join(map(str, digits)))
                 return BytesConstant(
                     source_location=expr.source_location,
                     encoding=AVMBytesEncoding.base16,

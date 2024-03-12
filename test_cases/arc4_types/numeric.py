@@ -50,6 +50,36 @@ class Arc4NumericTypesContract(Contract):
         assert decimals_from_truncated_str.bytes.length == (64 // 8)
         assert decimals_from_truncated_str.decode() == 145_0000000000
 
+        one_decimal = Decimal("1.0")
+
+        assert one_decimal.bytes.length == (64 // 8)
+        assert one_decimal.decode() == 1_0000000000
+
+        zero_decimal = Decimal("0.0")
+
+        assert zero_decimal.bytes.length == (64 // 8)
+        assert zero_decimal.decode() == 0
+
+        small_decimal = Decimal("0.00000001")
+
+        assert small_decimal.bytes.length == (64 // 8)
+        assert small_decimal.decode() == 100
+
+        smaller_decimal = Decimal("1E-9")
+
+        assert smaller_decimal.bytes.length == (64 // 8)
+        assert smaller_decimal.decode() == 10
+
+        smallest_decimal = Decimal("0.0000000001")
+
+        assert smallest_decimal.bytes.length == (64 // 8)
+        assert smallest_decimal.decode() == 1
+
+        sixty_four_decimal = Decimal("1844674407.3709551615")
+
+        assert sixty_four_decimal.bytes.length == (64 // 8)
+        assert sixty_four_decimal.decode() == 1844674407_3709551615
+
         really_big_int = BigUIntN[t.Literal[512]](sixty_four_byte_num)
 
         assert really_big_int.bytes.length == 64
