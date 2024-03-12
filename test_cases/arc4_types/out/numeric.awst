@@ -16,6 +16,10 @@ contract Arc4NumericTypesContract
     assert(arc4_decode(reinterpret_cast<puyapy.arc4.UInt64>(SINGLE_EVAL(id=4, source=test_bytes)[:select(len(SINGLE_EVAL(id=4, source=test_bytes)), 8u, 8u < len(SINGLE_EVAL(id=4, source=test_bytes)))]), puyapy.UInt64) == 9223372036854775807u)
     decimals: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 145.6853943940arc4u64x10
     assert(len(reinterpret_cast<puyapy.Bytes>(decimals)) == 8u)
+    assert(arc4_decode(decimals, puyapy.UInt64) == 1456853943940u)
+    decimals_from_truncated_str: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 145.0000000000arc4u64x10
+    assert(len(reinterpret_cast<puyapy.Bytes>(decimals_from_truncated_str)) == 8u)
+    assert(arc4_decode(decimals_from_truncated_str, puyapy.UInt64) == 1450000000000u)
     really_big_int: puyapy.arc4.UInt512 = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095arc4n512
     assert(len(reinterpret_cast<puyapy.Bytes>(really_big_int)) == 64u)
     assert(reinterpret_cast<puyapy.BigUInt>(really_big_int) == reinterpret_cast<puyapy.BigUInt>(arc4_encode(arc4_decode(really_big_int, puyapy.BigUInt), puyapy.arc4.UInt512)))

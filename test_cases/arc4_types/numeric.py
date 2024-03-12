@@ -43,6 +43,12 @@ class Arc4NumericTypesContract(Contract):
         decimals = Decimal("145.6853943940")
 
         assert decimals.bytes.length == (64 // 8)
+        assert decimals.decode() == 145_6853943940
+
+        decimals_from_truncated_str = Decimal("145.0")
+
+        assert decimals_from_truncated_str.bytes.length == (64 // 8)
+        assert decimals_from_truncated_str.decode() == 145_0000000000
 
         really_big_int = BigUIntN[t.Literal[512]](sixty_four_byte_num)
 

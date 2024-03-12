@@ -28,15 +28,6 @@ def convert_arc4_literal(
 ) -> awst_nodes.Expression:
     literal_value: typing.Any = literal.value
     loc = loc or literal.source_location
-    # TODO: remove decimal hack
-    if not isinstance(target_wtype, wtypes.ARC4UFixedNxM) and not target_wtype.is_valid_literal(
-        literal_value
-    ):
-        raise CodeError(
-            f"Cannot implicitly convert literal value {literal_value!r}"
-            f" to target type {target_wtype}",
-            loc,
-        )
     match target_wtype:
         case wtypes.ARC4UIntN():
             return awst_nodes.IntegerConstant(
