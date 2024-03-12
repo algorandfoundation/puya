@@ -2,6 +2,12 @@ from puyapy_mocks import Account, Asset, Bytes, UInt64
 from puyapy_mocks._ctx_state import active_ctx
 
 
+class AssetTransferInnerTransaction:
+    @property
+    def txn_id(self) -> Bytes:
+        return Bytes(b"")
+
+
 class AssetTransfer:
     def __init__(
         self,
@@ -9,11 +15,11 @@ class AssetTransfer:
         xfer_asset: Asset | UInt64 | int,
         asset_receiver: Account | str,
         asset_amount: UInt64 | int,
-        asset_close_to: Account | str | None = None,
+        asset_close_to: Account | str | None = None,  # noqa: ARG002
         sender: Account | str | None = None,
-        fee: UInt64 | int | None = None,
-        note: Bytes | bytes | None = None,
-        rekey_to: Account | str | None = None,
+        fee: UInt64 | int | None = None,  # noqa: ARG002
+        note: Bytes | bytes | None = None,  # noqa: ARG002
+        rekey_to: Account | str | None = None,  # noqa: ARG002
     ) -> None:
         self.receiver = asset_receiver
 
@@ -26,7 +32,7 @@ class AssetTransfer:
         self.asset = xfer_asset
         self.asset_amount = asset_amount
 
-    def submit(self):
+    def submit(self) -> AssetTransferInnerTransaction:
         if isinstance(self.receiver, Account):
             receiver_address = self.receiver.address
         else:
@@ -46,3 +52,5 @@ class AssetTransfer:
 
         active_ctx().adjust_balance(receiver_address, asset_id, int(self.asset_amount))
         active_ctx().adjust_balance(sender_address, asset_id, -int(self.asset_amount))
+
+        return AssetTransferInnerTransaction()
