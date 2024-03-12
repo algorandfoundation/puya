@@ -289,6 +289,10 @@ _do_opt_in:
 // examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
 do_asset_transfer:
     proto 3 0
+    frame_dig -3
+    frame_dig -2
+    asset_holding_get AssetBalance
+    pop
     itxn_begin
     frame_dig -2
     itxn_field XferAsset
@@ -301,6 +305,15 @@ do_asset_transfer:
     frame_dig -1
     itxn_field AssetAmount
     itxn_submit
+    frame_dig -3
+    frame_dig -2
+    asset_holding_get AssetBalance
+    pop
+    swap
+    frame_dig -1
+    +
+    ==
+    assert // Balance not updated correctly
     retsub
 
 

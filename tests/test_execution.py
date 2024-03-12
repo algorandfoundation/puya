@@ -30,6 +30,7 @@ from immutabledict import immutabledict
 from nacl.signing import SigningKey
 from puya.avm_type import AVMType
 from puya.models import CompiledContract, ContractMetaData, ContractState
+from pytest_mock import MockerFixture
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import compile_src
@@ -1252,3 +1253,127 @@ def test_inner_transactions_loop(harness: _TestHarness) -> None:
     )
 
     assert result.decode_logs("bibibibi") == [b"", 0, b"A", 1, b"AB", 2, b"ABC", 3]
+
+
+# Test some pure functions
+
+
+def test_do_calc_subroutine() -> None:
+    from puyapy import UInt64
+
+    from examples.calculator.contract import MyContract
+
+    contract = MyContract()
+    result = contract.do_calc(UInt64(1), UInt64(2), UInt64(3))
+    assert result == 5
+
+
+def test_itoa_subroutine() -> None:
+    from puyapy import UInt64
+
+    from examples.calculator.contract import itoa
+
+    result = itoa(UInt64(99))
+    assert result == b"99"
+
+
+# Test approval program passing different args
+
+
+def test_calculator_approval_succeeds() -> None:
+    from puyapy_mocks import execution_ctx, op
+
+    from examples.calculator.contract import MyContract
+
+    contract = MyContract()
+
+    with execution_ctx() as ctx:
+        ctx.set_args(1, op.itob(99), bytes(op.itob(3)))
+
+        result = contract.approval_program()
+
+        assert result == 1
+        logs = ctx.logs()
+        assert int.from_bytes(logs[0]) == 99
+        assert int.from_bytes(logs[1]) == 3
+        assert logs[2] == b"99 + 3 = 102"
+
+
+def test_calculator_approval_incorrect_args_fails() -> None:
+    from puyapy_mocks import UInt64, execution_ctx
+
+    from examples.calculator.contract import MyContract
+
+    contract = MyContract()
+
+    with execution_ctx() as ctx:
+        ctx.set_args(UInt64(1))
+
+        with pytest.raises(AssertionError) as ex:
+            contract.approval_program()
+
+        assert "Expected 3 args" in str(ex.value)
+        assert ctx.logs() == []
+
+
+def test_hello_world_approval_succeeds() -> None:
+    from puyapy_mocks import execution_ctx
+
+    from examples.hello_world.contract import HelloWorldContract
+
+    contract = HelloWorldContract()
+
+    with execution_ctx() as ctx:
+        arg = "world"
+        ctx.set_args(arg)
+        result = contract.approval_program()
+
+        assert result is True
+        assert ctx.logs() == [f"Hello, {arg}".encode()]
+
+
+def test_hello_world_approval_with_patching_succeeds(mocker: MockerFixture) -> None:
+    from puyapy_mocks import execution_ctx
+
+    from examples.hello_world.contract import HelloWorldContract
+
+    contract = HelloWorldContract()
+
+    with execution_ctx() as ctx:
+        mocker.patch("puyapy.op.Txn.application_args").return_value = b"Jane"
+
+        result = contract.approval_program()
+
+        assert result is True
+        assert ctx.logs() == [b"Hello, Jane"]
+
+
+# Test arc4 method call
+
+
+def test_hello_world_arc4_succeeds() -> None:
+    from puyapy.arc4 import String
+
+    from examples.hello_world_arc4.contract import HelloWorldContract
+
+    contract = HelloWorldContract()
+    result = contract.hello(String("world"))
+
+    assert result == "Hello, world"
+
+
+def test_stateful_succeeds() -> None:
+    from typing import cast
+
+    from puyapy import Account, Asset, UInt64
+    from puyapy_mocks import execution_ctx
+
+    from examples.amm.contract import do_asset_transfer
+
+    with execution_ctx() as ctx:
+        asset_id = 1234
+        asset = Asset(asset_id)
+        receiver = cast(Account, ctx.test_account(asset_id, 100))
+        ctx.contract_account(asset_id, 1000)
+
+        do_asset_transfer(receiver=receiver, asset=asset, amount=UInt64(10))

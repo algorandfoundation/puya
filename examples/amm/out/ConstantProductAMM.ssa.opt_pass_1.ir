@@ -207,6 +207,7 @@ contract examples.amm.contract.ConstantProductAMM:
         
         subroutine examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
             block@0: // L359
+                let (balance_before.0#0: uint64, balance_before.1#0: uint64) = ((asset_holding_get AssetBalance) receiver#0 asset#0)
                 itxn_begin
                 ((itxn_field XferAsset) asset#0)
                 ((itxn_field TypeEnum) axfer)
@@ -214,6 +215,10 @@ contract examples.amm.contract.ConstantProductAMM:
                 ((itxn_field AssetReceiver) receiver#0)
                 ((itxn_field AssetAmount) amount#0)
                 itxn_submit
+                let (balance_after.0#0: uint64, balance_after.1#0: uint64) = ((asset_holding_get AssetBalance) receiver#0 asset#0)
+                let tmp%2#0: uint64 = (+ balance_before.0#0 amount#0)
+                let tmp%3#0: uint64 = (== tmp%2#0 balance_after.0#0)
+                (assert tmp%3#0) // Balance not updated correctly
                 return 
         
         subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:
