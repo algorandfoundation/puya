@@ -5,11 +5,11 @@ from typing import Sequence
 
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Encode, Literal, ReinterpretCast
+from puya.awst_build.eb.arc4._utils import convert_arc4_literal
 from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder, dynamic_array_constructor
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4DecodeBuilder
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import convert_literal
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -33,7 +33,7 @@ class DynamicBytesClassExpressionBuilder(ARC4ClassExpressionBuilder):
         match args:
             case [Literal(value=bytes()) as literal]:
                 return var_expression(
-                    convert_literal(literal, wtypes.arc4_dynamic_bytes, location)
+                    convert_arc4_literal(literal, wtypes.arc4_dynamic_bytes, location)
                 )
             case [ExpressionBuilder(value_type=wtypes.bytes_wtype) as eb]:
                 return var_expression(
@@ -52,7 +52,7 @@ class DynamicBytesClassExpressionBuilder(ARC4ClassExpressionBuilder):
 def _coerce_to_byte(arg: ExpressionBuilder | Literal) -> ExpressionBuilder:
     match arg:
         case Literal(value=int()) as literal:
-            return var_expression(convert_literal(literal, wtypes.arc4_byte_type))
+            return var_expression(convert_arc4_literal(literal, wtypes.arc4_byte_type))
         case ExpressionBuilder(value_type=wtypes.ARC4UIntN(n=8) as wtype) as eb:
             if wtype != wtypes.arc4_byte_type:
                 return var_expression(

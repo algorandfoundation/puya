@@ -11,7 +11,6 @@ from mypy.types import get_proper_type, is_named_instance
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AddressConstant,
-    ARC4Encode,
     BoolConstant,
     BytesConstant,
     BytesEncoding,
@@ -218,7 +217,7 @@ def convert_literal(
     match target_wtype:
         case wtypes.bool_wtype:
             return BoolConstant(value=literal_value, source_location=loc)
-        case wtypes.uint64_wtype | wtypes.biguint_wtype | wtypes.ARC4UIntN():
+        case wtypes.uint64_wtype | wtypes.biguint_wtype:
             return IntegerConstant(value=literal_value, wtype=target_wtype, source_location=loc)
         case wtypes.bytes_wtype:
             try:
@@ -230,59 +229,9 @@ def convert_literal(
             return BytesConstant(value=literal_value, source_location=loc, encoding=encoding)
         case wtypes.account_wtype:
             return AddressConstant(value=literal_value, source_location=loc)
-        case wtypes.arc4_dynamic_bytes:
-            return ARC4Encode(
-                value=BytesConstant(
-                    value=literal_value,
-                    source_location=loc,
-                    encoding=BytesEncoding.utf8,
-                ),
-                source_location=loc,
-                wtype=target_wtype,
-            )
-        case wtypes.arc4_string_wtype:
-            if isinstance(literal_value, str):
-                try:
-                    literal_bytes = literal_value.encode("utf8")
-                except ValueError:
-                    pass
-                else:
-                    return ARC4Encode(
-                        value=BytesConstant(
-                            value=literal_bytes,
-                            source_location=loc,
-                            encoding=BytesEncoding.utf8,
-                        ),
-                        source_location=loc,
-                        wtype=target_wtype,
-                    )
-        case wtypes.arc4_bool_wtype:
-            return ARC4Encode(
-                value=BoolConstant(
-                    value=literal_value,
-                    source_location=loc,
-                ),
-                source_location=loc,
-                wtype=target_wtype,
-            )
-        case wtypes.ARC4UIntN():
-            return ARC4Encode(
-                value=UInt64Constant(
-                    value=literal_value,
-                    source_location=loc,
-                ),
-                source_location=loc,
-                wtype=target_wtype,
-            )
         case wtypes.asset_wtype | wtypes.application_wtype:
             return ReinterpretCast(
                 expr=UInt64Constant(value=literal_value, source_location=loc),
-                wtype=target_wtype,
-                source_location=loc,
-            )
-        case wtypes.account_wtype:
-            return ReinterpretCast(
-                expr=BytesConstant(value=literal_value, source_location=loc),
                 wtype=target_wtype,
                 source_location=loc,
             )

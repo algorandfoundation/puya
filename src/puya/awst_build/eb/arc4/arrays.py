@@ -31,6 +31,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
 from puya.awst_build.eb.arc4.base import (
     CopyBuilder,
     arc4_bool_bytes,
@@ -446,7 +447,7 @@ class AppendExpressionBuilder(IntermediateExpressionBuilder):
         location: SourceLocation,
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
-        args_expr = [expect_operand_wtype(a, self.wtype.element_type) for a in args]
+        args_expr = [expect_arc4_operand_wtype(a, self.wtype.element_type) for a in args]
         args_tuple = TupleExpression.from_items(args_expr, location)
         return var_expression(
             ArrayExtend(

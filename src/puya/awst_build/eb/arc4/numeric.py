@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import decimal
 from typing import TYPE_CHECKING
 
 import structlog
@@ -8,15 +7,14 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
-    DecimalConstant,
     Expression,
-    IntegerConstant,
     Literal,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
 )
 from puya.awst_build.eb._utils import uint64_to_biguint
+from puya.awst_build.eb.arc4._utils import convert_arc4_literal
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
@@ -25,7 +23,6 @@ from puya.awst_build.eb.arc4.base import (
 )
 from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import convert_literal_to_expr
 from puya.errors import CodeError, InternalError, TodoError
 
 if TYPE_CHECKING:
@@ -65,49 +62,8 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder):
                 " the generic type parameter."
             )
         match args:
-            case [Literal(value=int(int_literal), source_location=loc)] if isinstance(
-                self.wtype, wtypes.ARC4UIntN
-            ):
-                return var_expression(
-                    IntegerConstant(
-                        source_location=loc,
-                        value=int_literal,
-                        wtype=self.wtype,
-                    )
-                )
-            case [Literal(value=str(decimal_str), source_location=loc)] if isinstance(
-                self.wtype, wtypes.ARC4UFixedNxM
-            ):
-                with decimal.localcontext(
-                    decimal.Context(
-                        prec=160,
-                        traps=[
-                            decimal.Rounded,
-                            decimal.InvalidOperation,
-                            decimal.Overflow,
-                            decimal.DivisionByZero,
-                        ],
-                    )
-                ):
-                    try:
-                        d = decimal.Decimal(decimal_str)
-                    except ArithmeticError as ex:
-                        raise CodeError(f"Invalid decimal literal: {decimal_str}", loc) from ex
-                    if d < 0:
-                        raise CodeError("Negative numbers not allowed", loc)
-                    try:
-                        q = d.quantize(decimal.Decimal(f"1e-{self.wtype.m}"))
-                    except ArithmeticError as ex:
-                        raise CodeError(
-                            f"Too many decimals, expected max of {self.wtype.m}", loc
-                        ) from ex
-                return var_expression(
-                    DecimalConstant(
-                        source_location=loc,
-                        value=q,
-                        wtype=self.wtype,
-                    )
-                )
+            case [Literal() as lit]:
+                return var_expression(convert_arc4_literal(lit, self.wtype, location))
             case [ExpressionBuilder(value_type=wtypes.WType() as value_type) as eb]:
                 value = eb.rvalue()
                 if value_type not in (
@@ -188,7 +144,10 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = convert_literal_to_expr(other, self.wtype)
+        if isinstance(other, Literal):
+            other_expr = convert_arc4_literal(other, self.wtype)
+        else:
+            other_expr = other.rvalue()
         match other_expr.wtype:
             case wtypes.biguint_wtype:
                 pass

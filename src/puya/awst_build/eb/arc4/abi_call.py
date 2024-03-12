@@ -29,6 +29,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import constants
 from puya.awst_build.arc4_utils import arc4_encode, get_arc4_method_config
+from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
@@ -39,7 +40,6 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
-    expect_operand_wtype,
     get_decorators_by_fullname,
 )
 from puya.errors import CodeError, InternalError
@@ -263,7 +263,7 @@ def _arg_to_wtype(
 ) -> wtypes.WType:
     # if wtype is known, then ensure arg can be coerced to that type
     if wtype:
-        return expect_operand_wtype(arg, wtype).wtype
+        return expect_arc4_operand_wtype(arg, wtype).wtype
     # otherwise infer arg from literal type
     match arg:
         case ExpressionBuilder(value_type=wtypes.WType() as expr_wtype):
@@ -312,7 +312,7 @@ def _create_abi_call_expr(
         )
 
     for arg, wtype in zip(abi_args, abi_arg_types, strict=True):
-        arg_expr = expect_operand_wtype(arg, wtype)
+        arg_expr = expect_arc4_operand_wtype(arg, wtype)
         match wtype:
             case wtypes.ARC4Type():
                 abi_arg_exprs.append(arg_expr)
