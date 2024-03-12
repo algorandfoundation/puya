@@ -44,7 +44,7 @@ class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
 
 class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
     wtype = wtypes.application_wtype
-    native_access_member = "application_id"
+    native_access_member = "id"
     field_mapping = immutabledict(
         {
             "approval_program": ("AppApprovalProgram", wtypes.bytes_wtype),

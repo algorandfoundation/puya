@@ -46,7 +46,7 @@ class Reference(Contract):
         ITxnCreate.set_type_enum(TransactionType.AssetTransfer)
         ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
         ITxnCreate.set_asset_receiver(Global.current_application_address)
-        ITxnCreate.set_xfer_asset(asset.asset_id)
+        ITxnCreate.set_xfer_asset(asset)
         ITxnCreate.submit()
 
     @subroutine

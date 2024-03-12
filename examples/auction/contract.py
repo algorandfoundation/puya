@@ -27,7 +27,7 @@ class Auction(ARC4Contract):
         # Only allow app creator to opt the app account into a ASA
         assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
         # Verify a ASA hasn't already been opted into
-        assert self.asa.asset_id == 0, "ASA already opted in"
+        assert self.asa.id == 0, "ASA already opted in"
         # Save ASA ID in global state
         self.asa = asset
 

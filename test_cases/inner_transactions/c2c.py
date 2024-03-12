@@ -19,7 +19,7 @@ class Greeter(ARC4Contract):
             .submit()
             .created_app
         )
-        return self.hello_app.application_id
+        return self.hello_app.id
 
     @arc4.abimethod()
     def log_greetings(self, name: arc4.String) -> None:

@@ -71,14 +71,14 @@ class ConstantProductAMM(ARC4Contract):
         assert seed.receiver == Global.current_application_address, "receiver not app address"
 
         assert seed.amount >= 300_000, "amount minimum not met"  # 0.3 Algos
-        assert a_asset.asset_id < b_asset.asset_id, "asset a must be less than asset b"
+        assert a_asset.id < b_asset.id, "asset a must be less than asset b"
         self.asset_a = a_asset
         self.asset_b = b_asset
         self.pool_token = self._create_pool_token()
 
         self._do_opt_in(self.asset_a)
         self._do_opt_in(self.asset_b)
-        return arc4.UInt64(self.pool_token.asset_id)
+        return arc4.UInt64(self.pool_token.id)
 
     @arc4.abimethod(
         default_args={
