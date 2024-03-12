@@ -22,7 +22,7 @@ class Augmented(Contract):
         if op.Txn.on_completion == OnCompleteAction.OptIn:
             self.my_uint[me] = UInt64(0)
             self.my_bytes[me] = Bytes(b"")
-        if op.Txn.application_id > 0:
+        if op.Txn.application_id:
             # variable augmented assignment
             n = op.Txn.num_app_args
             bytes_to_add = BigUInt(n).bytes

@@ -13,11 +13,11 @@ contract Reference
   {
     if (txn<NumAppArgs>() == 1u) {
       if (txna<ApplicationArgs, 0>() == 'opt_in') {
-        asset: puyapy.Asset = reinterpret_cast<puyapy.Asset>(txna<Assets, 0>())
+        asset: puyapy.Asset = txna<Assets, 0>()
         this::opt_into_asset(asset)
       } else {
         if (txna<ApplicationArgs, 0>() == 'is_opted_in') {
-          asset: puyapy.Asset = reinterpret_cast<puyapy.Asset>(txna<Assets, 0>())
+          asset: puyapy.Asset = txna<Assets, 0>()
           this::is_opted_asset(asset)
         } else {
           assert(false, comment="Expected opt_in or is_opted_in")
@@ -41,7 +41,7 @@ contract Reference
     itxn_field<TypeEnum>(axfer)
     itxn_field<Fee>(0u)
     itxn_field<AssetReceiver>(global<CurrentApplicationAddress>())
-    itxn_field<XferAsset>(reinterpret_cast<puyapy.UInt64>(asset))
+    itxn_field<XferAsset>(asset)
     itxn_submit()
   }
   

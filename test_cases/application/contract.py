@@ -25,7 +25,7 @@ class Reference(Contract):
     def approval_program(self) -> bool:
         if op.Txn.num_app_args == 1:
             if op.Txn.application_args(0) == b"validate":
-                self.validate_asset(Application(op.Global.current_application_id))
+                self.validate_asset(op.Global.current_application_id)
             else:
                 assert False, "Expected validate"
         return True
@@ -42,9 +42,7 @@ class Reference(Contract):
         assert app.local_num_byte_slice == 4, "expected local_num_byte_slice"
         assert app.approval_program, "expected approval_program"
         assert app.clear_state_program, "expected clear_state_program"
-        assert (
-            app.application_id == op.Global.current_application_id
-        ), "expected current_application_id"
+        assert app == op.Global.current_application_id, "expected current_application_id"
         assert (
             app.address == op.Global.current_application_address
         ), "expected current_application_address"

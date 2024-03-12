@@ -151,7 +151,7 @@ class VotingRoundApp(ARC4Contract):
                 note=note,
             )
             .submit()
-            .created_asset.asset_id
+            .created_asset.id
         )
 
     @arc4.abimethod(readonly=True)

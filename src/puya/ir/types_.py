@@ -77,7 +77,7 @@ def wtype_to_avm_types(
 
 def stack_type_to_avm_type(stack_type: StackType) -> AVMType:
     match stack_type:
-        case StackType.uint64 | StackType.bool:
+        case StackType.uint64 | StackType.bool | StackType.asset | StackType.application:
             return AVMType.uint64
         case StackType.bytes | StackType.bigint | StackType.box_name | StackType.address:
             return AVMType.bytes

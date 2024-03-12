@@ -66,6 +66,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -772,7 +773,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -788,7 +789,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -1794,6 +1795,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -1821,6 +1823,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -1953,6 +1956,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -1988,6 +1992,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2076,6 +2081,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2098,6 +2104,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2120,6 +2127,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2142,6 +2150,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2164,6 +2173,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2186,6 +2196,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2208,6 +2219,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2230,6 +2242,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2252,6 +2265,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2282,6 +2296,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2312,6 +2327,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="b",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2334,6 +2350,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2356,6 +2373,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2378,6 +2396,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2400,6 +2419,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2422,6 +2442,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2444,6 +2465,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2466,6 +2488,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2488,6 +2511,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2510,6 +2534,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2532,6 +2557,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2554,6 +2580,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -2576,6 +2603,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -3386,7 +3414,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -3519,7 +3547,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -3752,7 +3780,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -3980,7 +4008,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -4045,7 +4073,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -4068,7 +4096,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -4114,7 +4142,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -4137,7 +4165,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -4358,7 +4386,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -4377,7 +4405,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -5220,7 +5248,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -5237,7 +5265,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -5486,7 +5514,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -5503,7 +5531,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -5954,7 +5982,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -5971,7 +5999,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -6410,7 +6438,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -6427,7 +6455,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -6531,7 +6559,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -6556,7 +6584,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -6579,7 +6607,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -6604,7 +6632,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -6670,7 +6698,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -6695,7 +6723,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -6718,7 +6746,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -6743,7 +6771,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -7169,7 +7197,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -7186,7 +7214,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -7207,7 +7235,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -7224,7 +7252,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -7695,7 +7723,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -8046,7 +8074,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -8137,7 +8165,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -8304,7 +8332,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -8460,7 +8488,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -8507,7 +8535,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -8524,7 +8552,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -8558,7 +8586,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -8575,7 +8603,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -8730,7 +8758,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -8743,7 +8771,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -9159,6 +9187,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -9251,6 +9280,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.application_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -9382,6 +9412,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -9608,6 +9639,7 @@ STUB_TO_AST_MAPPER = {
                 ArgMapping(
                     arg_name="a",
                     allowed_types=[
+                        wtypes.asset_wtype,
                         wtypes.uint64_wtype,
                         int,
                     ],
@@ -10242,7 +10274,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -10333,7 +10365,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -10500,7 +10532,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -10656,7 +10688,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -10703,7 +10735,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -10720,7 +10752,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -10754,7 +10786,7 @@ STUB_TO_AST_MAPPER = {
                 ),
             ],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
         FunctionOpMapping(
@@ -10771,7 +10803,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],
@@ -10926,7 +10958,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.asset_wtype,
             ],
         ),
     ],
@@ -10939,7 +10971,7 @@ STUB_TO_AST_MAPPER = {
             ],
             stack_inputs=[],
             stack_outputs=[
-                wtypes.uint64_wtype,
+                wtypes.application_wtype,
             ],
         ),
     ],

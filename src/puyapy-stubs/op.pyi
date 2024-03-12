@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import Account, BigUInt, Bytes, UInt64
+from puyapy import Account, Application, Asset, BigUInt, Bytes, UInt64
 
 class Base64(str):
     """Available values for the `base64` enum"""
@@ -34,7 +34,7 @@ def addw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
     Native TEAL opcode: [`addw`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#addw)
     """
 
-def app_opted_in(a: Account | UInt64 | int, b: UInt64 | int, /) -> bool:
+def app_opted_in(a: Account | UInt64 | int, b: Application | UInt64 | int, /) -> bool:
     """
     1 if account A is opted in to application B, else 0
     params: Txn.Accounts offset (or, since v4, an _available_ account address), _available_ application id (or, since v4, a Txn.ForeignApps offset). Return: 1 if opted in and 0 otherwise.
@@ -240,7 +240,7 @@ def extract_uint64(a: Bytes | bytes, b: UInt64 | int, /) -> UInt64:
     Native TEAL opcode: [`extract_uint64`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#extract_uint64)
     """
 
-def gaid(a: UInt64 | int, /) -> UInt64:
+def gaid(a: UInt64 | int, /) -> Application:
     """
     ID of the asset or application created in the Ath transaction of the current group
     `gaids` fails unless the requested transaction created an asset or application and A < GroupIndex.
@@ -511,7 +511,7 @@ class AppGlobal:
         Native TEAL opcode: [`app_global_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get)
         """
     @staticmethod
-    def get_ex_bytes(a: UInt64 | int, b: Bytes | bytes, /) -> tuple[Bytes, bool]:
+    def get_ex_bytes(a: Application | UInt64 | int, b: Bytes | bytes, /) -> tuple[Bytes, bool]:
         """
         X is the global state of application A, key B. Y is 1 if key existed, else 0
         params: Txn.ForeignApps offset (or, since v4, an _available_ application id), state key. Return: did_exist flag (top of the stack, 1 if the application and key existed and 0 otherwise), value. The value is zero (of type uint64) if the key does not exist.
@@ -519,7 +519,7 @@ class AppGlobal:
         Native TEAL opcode: [`app_global_get_ex`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get_ex)
         """
     @staticmethod
-    def get_ex_uint64(a: UInt64 | int, b: Bytes | bytes, /) -> tuple[UInt64, bool]:
+    def get_ex_uint64(a: Application | UInt64 | int, b: Bytes | bytes, /) -> tuple[UInt64, bool]:
         """
         X is the global state of application A, key B. Y is 1 if key existed, else 0
         params: Txn.ForeignApps offset (or, since v4, an _available_ application id), state key. Return: did_exist flag (top of the stack, 1 if the application and key existed and 0 otherwise), value. The value is zero (of type uint64) if the key does not exist.
@@ -568,7 +568,7 @@ class AppLocal:
         """
     @staticmethod
     def get_ex_bytes(
-        a: Account | UInt64 | int, b: UInt64 | int, c: Bytes | bytes, /
+        a: Account | UInt64 | int, b: Application | UInt64 | int, c: Bytes | bytes, /
     ) -> tuple[Bytes, bool]:
         """
         X is the local state of application B, key C in account A. Y is 1 if key existed, else 0
@@ -578,7 +578,7 @@ class AppLocal:
         """
     @staticmethod
     def get_ex_uint64(
-        a: Account | UInt64 | int, b: UInt64 | int, c: Bytes | bytes, /
+        a: Account | UInt64 | int, b: Application | UInt64 | int, c: Bytes | bytes, /
     ) -> tuple[UInt64, bool]:
         """
         X is the local state of application B, key C in account A. Y is 1 if key existed, else 0
@@ -614,63 +614,63 @@ class AppParamsGet:
     """
 
     @staticmethod
-    def app_approval_program(a: UInt64 | int, /) -> tuple[Bytes, bool]:
+    def app_approval_program(a: Application | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
         Bytecode of Approval Program
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
     @staticmethod
-    def app_clear_state_program(a: UInt64 | int, /) -> tuple[Bytes, bool]:
+    def app_clear_state_program(a: Application | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
         Bytecode of Clear State Program
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
     @staticmethod
-    def app_global_num_uint(a: UInt64 | int, /) -> tuple[UInt64, bool]:
+    def app_global_num_uint(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Number of uint64 values allowed in Global State
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
     @staticmethod
-    def app_global_num_byte_slice(a: UInt64 | int, /) -> tuple[UInt64, bool]:
+    def app_global_num_byte_slice(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Number of byte array values allowed in Global State
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
     @staticmethod
-    def app_local_num_uint(a: UInt64 | int, /) -> tuple[UInt64, bool]:
+    def app_local_num_uint(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Number of uint64 values allowed in Local State
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
     @staticmethod
-    def app_local_num_byte_slice(a: UInt64 | int, /) -> tuple[UInt64, bool]:
+    def app_local_num_byte_slice(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Number of byte array values allowed in Local State
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
     @staticmethod
-    def app_extra_program_pages(a: UInt64 | int, /) -> tuple[UInt64, bool]:
+    def app_extra_program_pages(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Number of Extra Program Pages of code space
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
     @staticmethod
-    def app_creator(a: UInt64 | int, /) -> tuple[Account, bool]:
+    def app_creator(a: Application | UInt64 | int, /) -> tuple[Account, bool]:
         """
         Creator address
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
     @staticmethod
-    def app_address(a: UInt64 | int, /) -> tuple[Account, bool]:
+    def app_address(a: Application | UInt64 | int, /) -> tuple[Account, bool]:
         """
         Address for which this application has authority
 
@@ -684,14 +684,16 @@ class AssetHoldingGet:
     """
 
     @staticmethod
-    def asset_balance(a: Account | UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, bool]:
+    def asset_balance(
+        a: Account | UInt64 | int, b: Asset | UInt64 | int, /
+    ) -> tuple[UInt64, bool]:
         """
         Amount of the asset unit held by this account
 
         Native TEAL opcode: [`asset_holding_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_holding_get)
         """
     @staticmethod
-    def asset_frozen(a: Account | UInt64 | int, b: UInt64 | int, /) -> tuple[bool, bool]:
+    def asset_frozen(a: Account | UInt64 | int, b: Asset | UInt64 | int, /) -> tuple[bool, bool]:
         """
         Is the asset frozen or not
 
@@ -705,84 +707,84 @@ class AssetParamsGet:
     """
 
     @staticmethod
-    def asset_total(a: UInt64 | int, /) -> tuple[UInt64, bool]:
+    def asset_total(a: Asset | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         Total number of units of this asset
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_decimals(a: UInt64 | int, /) -> tuple[UInt64, bool]:
+    def asset_decimals(a: Asset | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
         See AssetParams.Decimals
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_default_frozen(a: UInt64 | int, /) -> tuple[bool, bool]:
+    def asset_default_frozen(a: Asset | UInt64 | int, /) -> tuple[bool, bool]:
         """
         Frozen by default or not
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_unit_name(a: UInt64 | int, /) -> tuple[Bytes, bool]:
+    def asset_unit_name(a: Asset | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
         Asset unit name
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_name(a: UInt64 | int, /) -> tuple[Bytes, bool]:
+    def asset_name(a: Asset | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
         Asset name
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_url(a: UInt64 | int, /) -> tuple[Bytes, bool]:
+    def asset_url(a: Asset | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
         URL with additional info about the asset
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_metadata_hash(a: UInt64 | int, /) -> tuple[Bytes, bool]:
+    def asset_metadata_hash(a: Asset | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
         Arbitrary commitment
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_manager(a: UInt64 | int, /) -> tuple[Account, bool]:
+    def asset_manager(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
         Manager address
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_reserve(a: UInt64 | int, /) -> tuple[Account, bool]:
+    def asset_reserve(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
         Reserve address
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_freeze(a: UInt64 | int, /) -> tuple[Account, bool]:
+    def asset_freeze(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
         Freeze address
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_clawback(a: UInt64 | int, /) -> tuple[Account, bool]:
+    def asset_clawback(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
         Clawback address
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
     @staticmethod
-    def asset_creator(a: UInt64 | int, /) -> tuple[Account, bool]:
+    def asset_creator(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
         Creator address
 
@@ -1096,10 +1098,10 @@ class GITxn:
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
     @staticmethod
-    def xfer_asset(t: int, /) -> UInt64:
+    def xfer_asset(t: int, /) -> Asset:
         """
         :param int t: transaction group index
-        :returns UInt64: Asset ID
+        :returns Asset: Asset ID
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
@@ -1152,10 +1154,10 @@ class GITxn:
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
     @staticmethod
-    def application_id(t: int, /) -> UInt64:
+    def application_id(t: int, /) -> Application:
         """
         :param int t: transaction group index
-        :returns UInt64: ApplicationID from ApplicationCall transaction
+        :returns Application: ApplicationID from ApplicationCall transaction
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
@@ -1224,10 +1226,10 @@ class GITxn:
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
     @staticmethod
-    def config_asset(t: int, /) -> UInt64:
+    def config_asset(t: int, /) -> Asset:
         """
         :param int t: transaction group index
-        :returns UInt64: Asset ID in asset config transaction
+        :returns Asset: Asset ID in asset config transaction
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
@@ -1320,10 +1322,10 @@ class GITxn:
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
     @staticmethod
-    def freeze_asset(t: int, /) -> UInt64:
+    def freeze_asset(t: int, /) -> Asset:
         """
         :param int t: transaction group index
-        :returns UInt64: Asset ID being frozen or un-frozen
+        :returns Asset: Asset ID being frozen or un-frozen
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
@@ -1344,10 +1346,10 @@ class GITxn:
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
     @staticmethod
-    def assets(t: int, a: UInt64 | int, /) -> UInt64:
+    def assets(t: int, a: UInt64 | int, /) -> Asset:
         """
         :param int t: transaction group index
-        :returns UInt64: Foreign Assets listed in the ApplicationCall transaction
+        :returns Asset: Foreign Assets listed in the ApplicationCall transaction
 
         Native TEAL opcode: [`gitxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxna), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
         """
@@ -1360,10 +1362,10 @@ class GITxn:
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
     @staticmethod
-    def applications(t: int, a: UInt64 | int, /) -> UInt64:
+    def applications(t: int, a: UInt64 | int, /) -> Application:
         """
         :param int t: transaction group index
-        :returns UInt64: Foreign Apps listed in the ApplicationCall transaction
+        :returns Application: Foreign Apps listed in the ApplicationCall transaction
 
         Native TEAL opcode: [`gitxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxna), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
         """
@@ -1440,18 +1442,18 @@ class GITxn:
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
     @staticmethod
-    def created_asset_id(t: int, /) -> UInt64:
+    def created_asset_id(t: int, /) -> Asset:
         """
         :param int t: transaction group index
-        :returns UInt64: Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
+        :returns Asset: Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
     @staticmethod
-    def created_application_id(t: int, /) -> UInt64:
+    def created_application_id(t: int, /) -> Application:
         """
         :param int t: transaction group index
-        :returns UInt64: ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
+        :returns Application: ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
@@ -1630,7 +1632,7 @@ class GTxn:
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
     @staticmethod
-    def xfer_asset(a: UInt64 | int, /) -> UInt64:
+    def xfer_asset(a: UInt64 | int, /) -> Asset:
         """
         Asset ID
 
@@ -1679,7 +1681,7 @@ class GTxn:
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
     @staticmethod
-    def application_id(a: UInt64 | int, /) -> UInt64:
+    def application_id(a: UInt64 | int, /) -> Application:
         """
         ApplicationID from ApplicationCall transaction
 
@@ -1742,7 +1744,7 @@ class GTxn:
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
     @staticmethod
-    def config_asset(a: UInt64 | int, /) -> UInt64:
+    def config_asset(a: UInt64 | int, /) -> Asset:
         """
         Asset ID in asset config transaction
 
@@ -1826,7 +1828,7 @@ class GTxn:
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
     @staticmethod
-    def freeze_asset(a: UInt64 | int, /) -> UInt64:
+    def freeze_asset(a: UInt64 | int, /) -> Asset:
         """
         Asset ID being frozen or un-frozen
 
@@ -1847,7 +1849,7 @@ class GTxn:
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
     @staticmethod
-    def assets(a: UInt64 | int, b: UInt64 | int, /) -> UInt64:
+    def assets(a: UInt64 | int, b: UInt64 | int, /) -> Asset:
         """
         Foreign Assets listed in the ApplicationCall transaction
 
@@ -1861,7 +1863,7 @@ class GTxn:
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
     @staticmethod
-    def applications(a: UInt64 | int, b: UInt64 | int, /) -> UInt64:
+    def applications(a: UInt64 | int, b: UInt64 | int, /) -> Application:
         """
         Foreign Apps listed in the ApplicationCall transaction
 
@@ -1931,14 +1933,14 @@ class GTxn:
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
     @staticmethod
-    def created_asset_id(a: UInt64 | int, /) -> UInt64:
+    def created_asset_id(a: UInt64 | int, /) -> Asset:
         """
         Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
     @staticmethod
-    def created_application_id(a: UInt64 | int, /) -> UInt64:
+    def created_application_id(a: UInt64 | int, /) -> Application:
         """
         ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
 
@@ -2033,7 +2035,7 @@ class Global:
     Last confirmed block UNIX timestamp. Fails if negative. Application mode only.
     """
 
-    current_application_id: typing.Final[UInt64] = ...
+    current_application_id: typing.Final[Application] = ...
     """
     ID of current application executing. Application mode only.
     """
@@ -2211,7 +2213,7 @@ class ITxn:
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
     @staticmethod
-    def xfer_asset() -> UInt64:
+    def xfer_asset() -> Asset:
         """
         Asset ID
 
@@ -2260,7 +2262,7 @@ class ITxn:
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
     @staticmethod
-    def application_id() -> UInt64:
+    def application_id() -> Application:
         """
         ApplicationID from ApplicationCall transaction
 
@@ -2323,7 +2325,7 @@ class ITxn:
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
     @staticmethod
-    def config_asset() -> UInt64:
+    def config_asset() -> Asset:
         """
         Asset ID in asset config transaction
 
@@ -2407,7 +2409,7 @@ class ITxn:
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
     @staticmethod
-    def freeze_asset() -> UInt64:
+    def freeze_asset() -> Asset:
         """
         Asset ID being frozen or un-frozen
 
@@ -2428,7 +2430,7 @@ class ITxn:
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
     @staticmethod
-    def assets(a: UInt64 | int, /) -> UInt64:
+    def assets(a: UInt64 | int, /) -> Asset:
         """
         Foreign Assets listed in the ApplicationCall transaction
 
@@ -2442,7 +2444,7 @@ class ITxn:
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
     @staticmethod
-    def applications(a: UInt64 | int, /) -> UInt64:
+    def applications(a: UInt64 | int, /) -> Application:
         """
         Foreign Apps listed in the ApplicationCall transaction
 
@@ -2512,14 +2514,14 @@ class ITxn:
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
     @staticmethod
-    def created_asset_id() -> UInt64:
+    def created_asset_id() -> Asset:
         """
         Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
     @staticmethod
-    def created_application_id() -> UInt64:
+    def created_application_id() -> Application:
         """
         ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
 
@@ -2690,9 +2692,9 @@ class ITxnCreate:
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
     @staticmethod
-    def set_xfer_asset(a: UInt64 | int, /) -> None:
+    def set_xfer_asset(a: Asset | UInt64 | int, /) -> None:
         """
-        :param UInt64 | int a: Asset ID
+        :param Asset | UInt64 | int a: Asset ID
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
@@ -2725,9 +2727,9 @@ class ITxnCreate:
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
     @staticmethod
-    def set_application_id(a: UInt64 | int, /) -> None:
+    def set_application_id(a: Application | UInt64 | int, /) -> None:
         """
-        :param UInt64 | int a: ApplicationID from ApplicationCall transaction
+        :param Application | UInt64 | int a: ApplicationID from ApplicationCall transaction
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
@@ -2774,9 +2776,9 @@ class ITxnCreate:
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
     @staticmethod
-    def set_config_asset(a: UInt64 | int, /) -> None:
+    def set_config_asset(a: Asset | UInt64 | int, /) -> None:
         """
-        :param UInt64 | int a: Asset ID in asset config transaction
+        :param Asset | UInt64 | int a: Asset ID in asset config transaction
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
@@ -2858,9 +2860,9 @@ class ITxnCreate:
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
     @staticmethod
-    def set_freeze_asset(a: UInt64 | int, /) -> None:
+    def set_freeze_asset(a: Asset | UInt64 | int, /) -> None:
         """
-        :param UInt64 | int a: Asset ID being frozen or un-frozen
+        :param Asset | UInt64 | int a: Asset ID being frozen or un-frozen
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
@@ -3100,7 +3102,7 @@ class Txn:
     Transaction type as integer
     """
 
-    xfer_asset: typing.Final[UInt64] = ...
+    xfer_asset: typing.Final[Asset] = ...
     """
     Asset ID
     """
@@ -3135,7 +3137,7 @@ class Txn:
     The computed ID for this transaction. 32 bytes.
     """
 
-    application_id: typing.Final[UInt64] = ...
+    application_id: typing.Final[Application] = ...
     """
     ApplicationID from ApplicationCall transaction
     """
@@ -3184,7 +3186,7 @@ class Txn:
     32 byte Sender's new AuthAddr
     """
 
-    config_asset: typing.Final[UInt64] = ...
+    config_asset: typing.Final[Asset] = ...
     """
     Asset ID in asset config transaction
     """
@@ -3244,7 +3246,7 @@ class Txn:
     32 byte address
     """
 
-    freeze_asset: typing.Final[UInt64] = ...
+    freeze_asset: typing.Final[Asset] = ...
     """
     Asset ID being frozen or un-frozen
     """
@@ -3260,7 +3262,7 @@ class Txn:
     """
 
     @staticmethod
-    def assets(a: UInt64 | int, /) -> UInt64:
+    def assets(a: UInt64 | int, /) -> Asset:
         """
         Foreign Assets listed in the ApplicationCall transaction
 
@@ -3272,7 +3274,7 @@ class Txn:
     """
 
     @staticmethod
-    def applications(a: UInt64 | int, /) -> UInt64:
+    def applications(a: UInt64 | int, /) -> Application:
         """
         Foreign Apps listed in the ApplicationCall transaction
 
@@ -3325,12 +3327,12 @@ class Txn:
     Number of Logs (only with `itxn` in v5). Application mode only
     """
 
-    created_asset_id: typing.Final[UInt64] = ...
+    created_asset_id: typing.Final[Asset] = ...
     """
     Asset ID allocated by the creation of an ASA (only with `itxn` in v5). Application mode only
     """
 
-    created_application_id: typing.Final[UInt64] = ...
+    created_application_id: typing.Final[Application] = ...
     """
     ApplicationID allocated by the creation of an application (only with `itxn` in v5). Application mode only
     """

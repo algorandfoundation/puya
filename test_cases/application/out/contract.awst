@@ -26,7 +26,7 @@ contract Reference
   {
     if (txn<NumAppArgs>() == 1u) {
       if (txna<ApplicationArgs, 0>() == 'validate') {
-        this::validate_asset(reinterpret_cast<puyapy.Application>(global<CurrentApplicationID>()))
+        this::validate_asset(global<CurrentApplicationID>())
       } else {
         assert(false, comment="Expected validate")
       }
@@ -48,7 +48,7 @@ contract Reference
     assert(checked_maybe(app_params_get<AppLocalNumByteSlice>(app)) == 4u, comment="expected local_num_byte_slice")
     assert(reinterpret_cast<bool>(len(checked_maybe(app_params_get<AppApprovalProgram>(app)))), comment="expected approval_program")
     assert(reinterpret_cast<bool>(len(checked_maybe(app_params_get<AppClearStateProgram>(app)))), comment="expected clear_state_program")
-    assert(reinterpret_cast<puyapy.UInt64>(app) == global<CurrentApplicationID>(), comment="expected current_application_id")
+    assert(app == global<CurrentApplicationID>(), comment="expected current_application_id")
     assert(checked_maybe(app_params_get<AppAddress>(app)) == global<CurrentApplicationAddress>(), comment="expected current_application_address")
   }
 }
