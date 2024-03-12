@@ -3,6 +3,28 @@ import typing
 
 from puyapy import UInt64, urange
 
+class StateTotals:
+    """
+    Defines the total amount of state per resource and type a contract will use.
+
+    This is not required when using the declarative state proxies, but may be required if a
+    contract dynamically interacts with state via AppGlobal.get_bytes etc
+    """
+
+    def __init__(
+        self,
+        *,
+        global_uints: int | None = None,
+        global_bytes: int | None = None,
+        local_uints: int | None = None,
+        local_bytes: int | None = None,
+    ) -> None: ...
+
+    global_uints: int | None = None
+    global_bytes: int | None = None
+    local_uints: int | None = None
+    local_bytes: int | None = None
+
 class Contract(abc.ABC):
     """Base class for an Algorand Smart Contract"""
 
@@ -11,6 +33,7 @@ class Contract(abc.ABC):
         *,
         name: typing.LiteralString = ...,
         scratch_slots: urange | tuple[int | urange, ...] | list[int | urange] = ...,
+        state_totals: StateTotals | None = ...,
         **kwargs: object,
     ):
         """

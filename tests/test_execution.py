@@ -29,7 +29,7 @@ from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
 from immutabledict import immutabledict
 from nacl.signing import SigningKey
 from puya.avm_type import AVMType
-from puya.models import CompiledContract, ContractMetaData, ContractState
+from puya.models import CompiledContract, ContractMetaData, ContractState, StateTotals
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.utils import compile_src
@@ -516,6 +516,12 @@ def no_op_app_id(algod_client: AlgodClient, account: Account, worker_id: str) ->
             global_state=immutabledict(),
             local_state=immutabledict(),
             arc4_methods=[],
+            state_totals=StateTotals(
+                global_uints=0,
+                global_bytes=0,
+                local_uints=0,
+                local_bytes=0,
+            ),
         ),
     )
     compilation = assemble_src(contract=contract, client=algod_client)

@@ -1,0 +1,63 @@
+#pragma version 10
+
+test_cases.state_totals.contract.Contract.approval_program:
+    // state_totals/contract.py:4-7
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=3, global_bytes=None),
+    // ):
+    txn NumAppArgs
+    bz main_bare_routing@4
+    txna ApplicationArgs 0
+    match
+    b main_after_if_else@7
+
+main_bare_routing@4:
+    // state_totals/contract.py:4-7
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=3, global_bytes=None),
+    // ):
+    txn OnCompletion
+    int 0
+    swap
+    match main_create@5
+    b main_reject_bare_on_completion@6
+
+main_create@5:
+    // state_totals/contract.py:12
+    // @arc4.baremethod(create=True)
+    txn ApplicationID
+    !
+    assert // is creating
+    // state_totals/contract.py:12-13
+    // @arc4.baremethod(create=True)
+    // def create(self) -> None:
+    callsub create
+    int 1
+    return
+
+main_reject_bare_on_completion@6:
+    // state_totals/contract.py:4-7
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=3, global_bytes=None),
+    // ):
+    err // reject transaction
+
+main_after_if_else@7:
+    // state_totals/contract.py:4-7
+    // class Contract(
+    //     arc4.ARC4Contract,
+    //     state_totals=StateTotals(local_bytes=1, global_uints=3, global_bytes=None),
+    // ):
+    err // reject transaction
+
+
+// test_cases.state_totals.contract.Contract.create() -> void:
+create:
+    // state_totals/contract.py:12-13
+    // @arc4.baremethod(create=True)
+    // def create(self) -> None:
+    proto 0 0
+    retsub

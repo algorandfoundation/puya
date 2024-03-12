@@ -25,6 +25,15 @@ class AppStateDeclaration:
 
 
 @attrs.define
+class StateTotals:
+    global_uints: int | None = None
+    global_bytes: int | None = None
+    local_uints: int | None = None
+    local_bytes: int | None = None
+
+
+@attrs.define
 class ContractClassOptions:
     name_override: str | None
     scratch_slot_reservations: StableSet[int]
+    state_totals: StateTotals

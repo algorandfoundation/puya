@@ -1646,6 +1646,21 @@ class LogicSignature(ModuleStatement):
 
 
 @attrs.frozen
+class StateTotals:
+    global_uints: int | None
+    local_uints: int | None
+    global_bytes: int | None
+    local_bytes: int | None
+
+    @property
+    def any_defined(self) -> bool:
+        return any(
+            a is not None
+            for a in [self.global_uints, self.local_uints, self.global_bytes, self.local_bytes]
+        )
+
+
+@attrs.frozen
 class ContractFragment(ModuleStatement):
     # note: it's a fragment because it needs to be stitched together with bases,
     #       assuming it's not abstract (in which case it should remain a fragment?)
@@ -1659,6 +1674,7 @@ class ContractFragment(ModuleStatement):
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
     app_state: Mapping[str, AppStateDefinition]
     reserved_scratch_space: StableSet[int]
+    state_totals: StateTotals
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
     symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)

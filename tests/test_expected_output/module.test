@@ -197,3 +197,24 @@ def three() -> Bytes:
 @logicsig # type: ignore[arg-type] ## E: Invalid return type for logicsig method, should be either bool or UInt64.
 def four() -> None:
     pass
+
+## case: state_totals_test
+## path: state_totals_contract.py
+from puyapy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
+
+
+class BaseContract(
+    arc4.ARC4Contract,
+    state_totals=StateTotals(local_bytes=1, global_uints=3, global_bytes=None),
+):
+    def __init__(self) -> None:
+        self.local_one = LocalState(UInt64)
+        self.global_one = GlobalState(Bytes)
+
+    @arc4.baremethod(create=True)
+    def create(self) -> None:
+        pass
+
+
+class AnotherContract(BaseContract): ## W: Contract AnotherContract extends base contract BaseContract with explicit state_totals, but does not define its own state_totals. This could result in insufficient reserved state at run time.
+    pass

@@ -21,6 +21,7 @@ def main(example: str) -> None:
     options.output_memory_ir = True
     options.output_arc32 = True
     options.out_dir = Path("out")
+    options.output_client = True
 
     compile_to_teal(options)
 

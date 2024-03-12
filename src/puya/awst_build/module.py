@@ -22,7 +22,7 @@ from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionContext, ASTConversionModuleContext
 from puya.awst_build.contract import ContractASTConverter
-from puya.awst_build.contract_data import ContractClassOptions
+from puya.awst_build.contract_data import ContractClassOptions, StateTotals
 from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.subroutine import FunctionASTConverter
 from puya.awst_build.utils import (
@@ -30,6 +30,7 @@ from puya.awst_build.utils import (
     extract_docstring,
     fold_binary_expr,
     fold_unary_expr,
+    get_arg_mapping,
     get_decorators_by_fullname,
     get_unaliased_fullname,
 )
@@ -549,6 +550,7 @@ def _process_contract_class_options(
 ) -> ContractClassOptions:
     name_override: str | None = None
     scratch_slot_reservations = StableSet[int]()
+    state_totals = StateTotals()
     for kw_name, kw_expr in cdef.keywords.items():
         with context.log_exceptions(kw_expr):
             match kw_name:
@@ -576,6 +578,32 @@ def _process_contract_class_options(
                             )
                         else:
                             scratch_slot_reservations |= slots
+                case "state_totals":
+                    match kw_expr:
+                        case mypy.nodes.CallExpr(arg_names=arg_names, args=args):
+                            arg_map = get_arg_mapping(
+                                positional_arg_names=[
+                                    "global_uints",
+                                    "global_bytes",
+                                    "local_uints",
+                                    "local_bytes",
+                                ],
+                                args=zip(arg_names, args, strict=True),
+                                location=context.node_location(kw_expr),
+                            )
+
+                            state_totals = StateTotals(
+                                global_uints=_map_state_total_arg(
+                                    context, arg_map, "global_uints"
+                                ),
+                                global_bytes=_map_state_total_arg(
+                                    context, arg_map, "global_bytes"
+                                ),
+                                local_uints=_map_state_total_arg(context, arg_map, "local_uints"),
+                                local_bytes=_map_state_total_arg(context, arg_map, "local_bytes"),
+                            )
+                        case _:
+                            raise CodeError("Invalid value for state_totals")
                 case _:
                     context.error("Unrecognised class keyword", kw_expr)
     for base in cdef.info.bases:
@@ -588,7 +616,26 @@ def _process_contract_class_options(
     return ContractClassOptions(
         name_override=name_override,
         scratch_slot_reservations=scratch_slot_reservations,
+        state_totals=state_totals,
     )
+
+
+def _map_state_total_arg(
+    ctx: ASTConversionModuleContext, arg_map: dict[str, mypy.nodes.Expression], name: str
+) -> int | None:
+    expr = arg_map.pop(name, None)
+    if expr is None:
+        return None
+    match expr:
+        case mypy.nodes.IntExpr(value=int_value):
+            return int_value
+        case mypy.nodes.NameExpr(fullname="builtins.None"):
+            return None
+        case _:
+            raise CodeError(
+                "Invalid value for state_total",
+                ctx.node_location(expr),
+            )
 
 
 def _process_struct(

@@ -9,6 +9,7 @@ import attrs
 import structlog
 from immutabledict import immutabledict
 
+import puya.parse
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -40,6 +41,7 @@ from puya.models import (
     ContractMetaData,
     ContractState,
     LogicSignatureMetaData,
+    StateTotals,
 )
 from puya.parse import EMBEDDED_MODULES
 from puya.utils import StableSet, attrs_extend
@@ -187,6 +189,12 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
             arc4_methods=folded.arc4_methods,
             global_state=immutabledict(folded.global_state),
             local_state=immutabledict(folded.local_state),
+            state_totals=_build_state_totals(
+                contract.state_totals,
+                declared_local=folded.local_state.values(),
+                declared_global=folded.global_state.values(),
+                source_location=contract.source_location,
+            ),
         ),
     )
     return result
@@ -226,6 +234,65 @@ def _build_logic_sig_ir(
         ),
     )
     return result
+
+
+def _build_state_totals(
+    state_totals: awst_nodes.StateTotals,
+    *,
+    declared_global: Iterable[ContractState],
+    declared_local: Iterable[ContractState],
+    source_location: puya.parse.SourceLocation,
+) -> StateTotals:
+    return StateTotals(
+        global_uints=_get_total_state_count_for_type(
+            total_count=state_totals.global_uints,
+            declared_state=declared_global,
+            storage_type=AVMType.uint64,
+            state_name="global_uints",
+            source_location=source_location,
+        ),
+        global_bytes=_get_total_state_count_for_type(
+            total_count=state_totals.global_bytes,
+            declared_state=declared_global,
+            storage_type=AVMType.bytes,
+            state_name="global_byte",
+            source_location=source_location,
+        ),
+        local_uints=_get_total_state_count_for_type(
+            total_count=state_totals.local_uints,
+            declared_state=declared_local,
+            storage_type=AVMType.uint64,
+            state_name="local_uints",
+            source_location=source_location,
+        ),
+        local_bytes=_get_total_state_count_for_type(
+            total_count=state_totals.local_bytes,
+            declared_state=declared_local,
+            storage_type=AVMType.bytes,
+            state_name="local_bytes",
+            source_location=source_location,
+        ),
+    )
+
+
+def _get_total_state_count_for_type(
+    *,
+    total_count: int | None,
+    declared_state: Iterable[ContractState],
+    storage_type: typing.Literal[AVMType.uint64, AVMType.bytes],
+    state_name: str,
+    source_location: puya.parse.SourceLocation,
+) -> int:
+    declared_count = sum(1 for s in declared_state if s.storage_type == storage_type)
+    if total_count is None:
+        return declared_count
+    if total_count < declared_count:
+        raise CodeError(
+            f"When {state_name} is specified, it must be greater than or equal to "
+            f"the number of explicitly declared state properties",
+            source_location,
+        )
+    return total_count
 
 
 def _build_parameter_list(
@@ -334,6 +401,15 @@ def fold_state_and_special_methods(
     ctx: IRBuildContext, contract: awst_nodes.ContractFragment
 ) -> FoldedContract:
     bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
+    if not contract.state_totals.any_defined:
+        base_with_defined = next((b for b in bases if b.state_totals.any_defined), None)
+        if base_with_defined:
+            ctx.errors.warning(
+                f"Contract {contract.name} extends base contract {base_with_defined.name} "
+                "with explicit state_totals, but does not define its own state_totals. "
+                "This could result in insufficient reserved state at run time.",
+                location=contract.source_location,
+            )
     result = FoldedContract()
     maybe_arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig] | None]()
     for c in [contract, *bases]:

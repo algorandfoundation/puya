@@ -12,6 +12,7 @@ from puya.awst.nodes import (
     ContractFragment,
     ContractMethod,
     ContractReference,
+    StateTotals,
 )
 from puya.awst_build import constants
 from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
@@ -96,6 +97,12 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             docstring=docstring,
             source_location=self._location(class_def),
             reserved_scratch_space=class_options.scratch_slot_reservations,
+            state_totals=StateTotals(
+                global_uints=class_options.state_totals.global_uints,
+                global_bytes=class_options.state_totals.global_bytes,
+                local_uints=class_options.state_totals.local_uints,
+                local_bytes=class_options.state_totals.local_bytes,
+            ),
         )
 
     @classmethod
