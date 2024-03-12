@@ -7,12 +7,16 @@ from immutabledict import immutabledict
 
 import puya.models
 from puya.arc4_util import wtype_to_arc4
-from puya.awst import wtypes
+from puya.awst import (
+    nodes as awst_nodes,
+    wtypes,
+)
 from puya.awst_build import constants
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_func_types
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig, ARC32StructDef, OnCompletionAction
+from puya.parse import SourceLocation
 
 ALLOWABLE_OCA = [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
 
@@ -182,3 +186,120 @@ def _wtype_to_struct_def(wtype: wtypes.ARC4Struct) -> ARC32StructDef:
         name=wtype.stub_name.rsplit(".", maxsplit=1)[-1],
         elements=[(n, wtype_to_arc4(t)) for n, t in wtype.fields.items()],
     )
+
+
+def arc4_encode(
+    base: awst_nodes.Expression, target_wtype: wtypes.WType, location: SourceLocation
+) -> awst_nodes.Expression:
+    match base.wtype:
+        case wtypes.bytes_wtype:
+            base_temp = awst_nodes.SingleEvaluation(base)
+
+            length = awst_nodes.IntrinsicCall(
+                source_location=location,
+                op_code="substring",
+                immediates=[6, 8],
+                wtype=wtypes.bytes_wtype,
+                stack_args=[
+                    awst_nodes.IntrinsicCall(
+                        source_location=location,
+                        op_code="itob",
+                        stack_args=[awst_nodes.IntrinsicCall.bytes_len(base_temp, location)],
+                        wtype=wtypes.bytes_wtype,
+                    )
+                ],
+            )
+            return awst_nodes.ReinterpretCast(
+                source_location=location,
+                wtype=wtypes.arc4_dynamic_bytes,
+                expr=awst_nodes.IntrinsicCall(
+                    source_location=location,
+                    op_code="concat",
+                    stack_args=[length, base_temp],
+                    wtype=wtypes.bytes_wtype,
+                ),
+            )
+        case wtypes.WTuple(types=types):
+            base_temp = awst_nodes.SingleEvaluation(base)
+
+            return awst_nodes.ARC4Encode(
+                source_location=location,
+                value=awst_nodes.TupleExpression.from_items(
+                    items=[
+                        arc4_encode(
+                            awst_nodes.TupleItemExpression(
+                                base=base_temp,
+                                index=i,
+                                source_location=location,
+                            ),
+                            wtypes.avm_to_arc4_equivalent_type(t),
+                            location,
+                        )
+                        for i, t in enumerate(types)
+                    ],
+                    location=location,
+                ),
+                wtype=target_wtype,
+            )
+
+        case _:
+            return awst_nodes.ARC4Encode(
+                source_location=location,
+                value=base,
+                wtype=target_wtype,
+            )
+
+
+def arc4_decode(
+    bytes_arg: awst_nodes.Expression,
+    target_wtype: wtypes.WType,
+    location: SourceLocation,
+    *,
+    decode_nested_items: bool = False,
+) -> awst_nodes.Expression:
+    match bytes_arg.wtype:
+        case wtypes.ARC4DynamicArray(
+            element_type=wtypes.ARC4UIntN(n=8)
+        ) if target_wtype == wtypes.bytes_wtype:
+            return awst_nodes.IntrinsicCall(
+                wtype=wtypes.bytes_wtype,
+                op_code="extract",
+                immediates=[2, 0],
+                source_location=location,
+                stack_args=[
+                    awst_nodes.ReinterpretCast(
+                        expr=bytes_arg, wtype=wtypes.bytes_wtype, source_location=location
+                    )
+                ],
+            )
+        case wtypes.ARC4Tuple(types=tuple_types):
+            decode_expression = awst_nodes.ARC4Decode(
+                source_location=location,
+                wtype=wtypes.WTuple.from_types(tuple_types),
+                value=bytes_arg,
+            )
+            if not decode_nested_items:
+                return decode_expression
+            decoded = awst_nodes.SingleEvaluation(decode_expression)
+            return awst_nodes.TupleExpression.from_items(
+                items=[
+                    arc4_decode(
+                        awst_nodes.TupleItemExpression(
+                            base=decoded,
+                            index=i,
+                            source_location=location,
+                        ),
+                        wtypes.arc4_to_avm_equivalent_wtype(t),
+                        location,
+                    )
+                    for i, t in enumerate(tuple_types)
+                ],
+                location=location,
+            )
+
+        case _:
+            return awst_nodes.ARC4Decode(
+                source_location=location,
+                wtype=target_wtype,
+                value=bytes_arg,
+            )

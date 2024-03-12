@@ -28,7 +28,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import constants
-from puya.awst_build.arc4_utils import get_arc4_method_config
+from puya.awst_build.arc4_utils import arc4_encode, get_arc4_method_config
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
@@ -43,7 +43,6 @@ from puya.awst_build.utils import (
     get_decorators_by_fullname,
 )
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_router import arc4_encode
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
