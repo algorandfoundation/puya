@@ -1,4 +1,5 @@
 import argparse
+from importlib.metadata import version
 from pathlib import Path
 
 from puya.algo_constants import MAINNET_TEAL_LANGUAGE_VERSION, SUPPORTED_TEAL_LANGUAGE_VERSIONS
@@ -9,9 +10,10 @@ from puya.options import LocalsCoalescingStrategy, PuyaOptions
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="puya",
+        prog="puyapy",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {version('puya')}")
     parser.add_argument(
         "-O",
         "--optimization-level",

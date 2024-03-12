@@ -19,7 +19,7 @@ main_entrypoint@2:
     ==
     bz main_else_body@5
     // asset/contract.py:23
-    // asset = Asset(Txn.assets(0))
+    // asset = Txn.assets(0)
     txna Assets 0
     // asset/contract.py:24
     // self.opt_into_asset(asset)
@@ -34,7 +34,7 @@ main_else_body@5:
     ==
     bz main_else_body@7
     // asset/contract.py:26
-    // asset = Asset(Txn.assets(0))
+    // asset = Txn.assets(0)
     txna Assets 0
     // asset/contract.py:27
     // self.is_opted_asset(asset)
@@ -76,7 +76,7 @@ opt_into_asset:
     int 0
     byte "asa"
     app_global_get_ex
-    assert // check value exists
+    assert // check asa exists
     !
     assert // ASA already opted in
     // asset/contract.py:41-42
@@ -102,7 +102,7 @@ opt_into_asset:
     global CurrentApplicationAddress
     itxn_field AssetReceiver
     // asset/contract.py:49
-    // ITxnCreate.set_xfer_asset(asset.asset_id)
+    // ITxnCreate.set_xfer_asset(asset)
     frame_dig -1
     itxn_field XferAsset
     // asset/contract.py:50
@@ -122,7 +122,7 @@ is_opted_asset:
     int 0
     byte "asa"
     app_global_get_ex
-    assert // check value exists
+    assert // check asa exists
     frame_dig -1
     ==
     assert // asset self.asa == asset

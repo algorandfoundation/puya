@@ -95,5 +95,9 @@ class MIRVisitor(abc.ABC, typing.Generic[_T]):
         ...
 
     @abc.abstractmethod
-    def visit_push_method(self, addr: models.PushMethod) -> _T:
+    def visit_push_method(self, method: models.PushMethod) -> _T:
+        ...
+
+    @abc.abstractmethod
+    def visit_push_deploy_var(self, deploy_var: models.PushTemplateVar) -> _T:
         ...

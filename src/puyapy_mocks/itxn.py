@@ -38,7 +38,7 @@ class AssetTransfer:
             sender_address = self.sender
 
         if isinstance(self.asset, Asset):
-            asset_id = self.asset.id
+            asset_id = int(self.asset.id)
         else:
             asset_id = int(self.asset)
 

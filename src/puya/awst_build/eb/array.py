@@ -120,5 +120,6 @@ class ArrayAppenderExpressionBuilder(IntermediateExpressionBuilder):
             location,
             base=self.array,
             other=TupleExpression.from_items([elem_expr], location),
+            wtype=wtypes.void_wtype,
         )
         return var_expression(append_expr)

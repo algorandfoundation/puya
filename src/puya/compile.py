@@ -1,5 +1,7 @@
+import functools
 import os
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 import mypy.build
@@ -9,6 +11,7 @@ import mypy.fscache
 import mypy.modulefinder
 import mypy.nodes
 import mypy.options
+import mypy.util
 import structlog
 
 from puya.arc32 import create_arc32_json
@@ -41,11 +44,15 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
         _log_parse_errors(ex)
         sys.exit(ErrorExitCode.code)
 
-    with log_exceptions(context.errors, exit_check=True):
+    with log_exceptions(context.errors):
         awst = transform_ast(context)
+        context.errors.exit_if_errors()
         module_irs = build_module_irs(context, awst)
+        context.errors.exit_if_errors()
         compiled_contracts_by_source_path = module_irs_to_teal(context, module_irs)
+        context.errors.exit_if_errors()
         write_artifacts(context, compiled_contracts_by_source_path)
+    context.errors.exit_if_errors()
 
 
 def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
@@ -66,10 +73,9 @@ def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
     # We don't want to crash when that happens.
     parse_result.manager.errors.set_file("<puya>", module=None, scope=None, options=mypy_options)
 
-    # extract the source reader
-    read_source = parse_result.manager.errors.read_source
-    if read_source is None:
-        raise InternalError("parse_results.manager.errors.read_source is None")
+    @functools.cache
+    def read_source(p: str) -> Sequence[str] | None:
+        return mypy.util.read_py_file(p, parse_result.manager.fscache.read)
 
     context = CompileContext(
         options=puya_options,

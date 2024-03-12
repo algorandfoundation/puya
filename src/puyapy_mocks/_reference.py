@@ -68,8 +68,8 @@ class Account:
 
 class Asset:
     def __init__(self, asset_id: UInt64 | int):
-        self.id = int(asset_id)
+        self.asset_id = int(asset_id)
 
     @property
-    def asset_id(self) -> UInt64:
-        return UInt64(self.id)
+    def id(self) -> UInt64:
+        return UInt64(self.asset_id)

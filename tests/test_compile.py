@@ -10,7 +10,6 @@ import pytest
 from puya.awst_build.main import output_awst
 from puya.logging_config import LogLevel
 from puya.options import PuyaOptions
-from puya.parse import EMBEDDED_MODULES
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR, VCS_ROOT
 from tests.utils import APPROVAL_EXTENSIONS, compile_src
@@ -69,9 +68,7 @@ def compile_test_case(
     # TODO: include this in compile_src
     if puya_options.output_awst:
         sources = tuple(str(s.path) for s in context.parse_result.sources)
-        for module_name, module in compile_result.module_awst.items():
-            if module_name in EMBEDDED_MODULES:
-                continue
+        for module in compile_result.module_awst.values():
             if module.source_file_path.startswith(sources):
                 output_awst(module, puya_options)
 

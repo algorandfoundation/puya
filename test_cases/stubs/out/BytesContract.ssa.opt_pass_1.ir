@@ -2,258 +2,376 @@ contract test_cases.stubs.bytes.BytesContract:
     program approval:
         subroutine test_cases.stubs.bytes.BytesContract.approval_program() -> uint64:
             block@0: // L5
-                let tmp%0#0: uint64 = (== QmFzZSA2NCBlbmNvZGVk "Base 64 encoded")
+                let tmp%0#0: uint64 = 1u
                 (assert tmp%0#0)
-                let tmp%1#0: uint64 = (== IJQXGZJAGMZCAZLOMNXWIZLE "Base 32 encoded")
+                let tmp%1#0: uint64 = 1u
                 (assert tmp%1#0)
-                let tmp%2#0: uint64 = (== 0x4261736520313620656e636f646564 "Base 16 encoded")
+                let tmp%2#0: uint64 = 1u
                 (assert tmp%2#0)
-                let tmp%3#0: uint64 = (len QmFzZSA2NCBlbmNvZGVk)
+                let tmp%3#0: uint64 = 15u
                 (assert tmp%3#0) // Non empty bytes should be Truthy
-                let tmp%4#0: uint64 = (len "")
+                let tmp%4#0: uint64 = 0u
                 let tmp%5#0: uint64 = (! tmp%4#0)
                 (assert tmp%5#0) // Empty bytes should be Falsy
-                let tmp%7#0: uint64 = (== "ab" "ab")
+                let tmp%6#0: bytes = "ab"
+                let tmp%7#0: uint64 = (== tmp%6#0 "ab")
                 (assert tmp%7#0)
-                let c#1: bytes = (concat "c" "d")
+                let c#1: bytes = "cd"
                 let tmp%8#0: uint64 = (== c#1 "cd")
                 (assert tmp%8#0)
-                let tmp%9#0: bytes = ((extract 0 1) "abc")
+                let tmp%9#0: bytes = "a"
                 let tmp%10#0: uint64 = (== tmp%9#0 "a")
                 (assert tmp%10#0)
-                let awst_tmp%11#0: uint64 = (len "abc")
-                let tmp%12#0: uint64 = (< 1u awst_tmp%11#0)
-                goto tmp%12#0 ? block@1 : block@2
-            block@1: // ternary_true_L26
-                let ternary_result%13#0: uint64 = 1u
-                goto block@3
-            block@2: // ternary_false_L26
-                goto block@3
-            block@3: // ternary_merge_L26
-                let ternary_result%13#2: uint64 = φ(ternary_result%13#0 <- block@1, awst_tmp%11#0 <- block@2)
-                let tmp%15#0: bytes = (substring3 "abc" ternary_result%13#2 awst_tmp%11#0)
-                let tmp%16#0: uint64 = (== tmp%15#0 "bc")
-                (assert tmp%16#0)
-                goto tmp%12#0 ? block@4 : block@5
-            block@4: // ternary_true_L27
-                let ternary_result%19#0: uint64 = 1u
-                goto block@6
-            block@5: // ternary_false_L27
-                goto block@6
-            block@6: // ternary_merge_L27
-                let ternary_result%19#2: uint64 = φ(ternary_result%19#0 <- block@4, awst_tmp%11#0 <- block@5)
-                goto tmp%12#0 ? block@7 : block@8
-            block@7: // ternary_true_L27
-                let ternary_result%21#0: uint64 = 1u
-                goto block@9
-            block@8: // ternary_false_L27
-                goto block@9
-            block@9: // ternary_merge_L27
-                let ternary_result%21#2: uint64 = φ(ternary_result%21#0 <- block@7, awst_tmp%11#0 <- block@8)
-                let tmp%22#0: bytes = (substring3 "abc" ternary_result%19#2 ternary_result%21#2)
-                let tmp%23#0: uint64 = (== tmp%22#0 "")
-                (assert tmp%23#0)
-                goto tmp%12#0 ? block@10 : block@11
-            block@10: // ternary_true_L28
-                let ternary_result%26#0: uint64 = 1u
-                goto block@12
-            block@11: // ternary_false_L28
-                goto block@12
-            block@12: // ternary_merge_L28
-                let ternary_result%26#2: uint64 = φ(ternary_result%26#0 <- block@10, awst_tmp%11#0 <- block@11)
-                let tmp%27#0: bytes = (substring3 "abc" 0u ternary_result%26#2)
-                let tmp%28#0: uint64 = (== tmp%27#0 "a")
-                (assert tmp%28#0)
-                goto tmp%12#0 ? block@13 : block@14
-            block@13: // ternary_true_L29
-                let ternary_result%31#0: uint64 = (- awst_tmp%11#0 1u)
-                goto block@15
-            block@14: // ternary_false_L29
-                let ternary_result%31#1: uint64 = 0u
-                goto block@15
-            block@15: // ternary_merge_L29
-                let ternary_result%31#2: uint64 = φ(ternary_result%31#0 <- block@13, ternary_result%31#1 <- block@14)
-                let tmp%32#0: bytes = (substring3 "abc" 0u ternary_result%31#2)
-                let tmp%33#0: uint64 = (== tmp%32#0 "ab")
-                (assert tmp%33#0)
-                let tmp%35#0: uint64 = (< 2u awst_tmp%11#0)
-                goto tmp%35#0 ? block@16 : block@17
-            block@16: // ternary_true_L30
-                let ternary_result%36#0: uint64 = (- awst_tmp%11#0 2u)
-                goto block@18
-            block@17: // ternary_false_L30
-                let ternary_result%36#1: uint64 = 0u
-                goto block@18
-            block@18: // ternary_merge_L30
-                let ternary_result%36#2: uint64 = φ(ternary_result%36#0 <- block@16, ternary_result%36#1 <- block@17)
-                let tmp%38#0: bytes = (substring3 "abc" ternary_result%36#2 awst_tmp%11#0)
-                let tmp%39#0: uint64 = (== tmp%38#0 "bc")
-                (assert tmp%39#0)
-                goto tmp%35#0 ? block@19 : block@20
-            block@19: // ternary_true_L31
-                let ternary_result%42#0: uint64 = (- awst_tmp%11#0 2u)
-                goto block@21
-            block@20: // ternary_false_L31
-                let ternary_result%42#1: uint64 = 0u
-                goto block@21
-            block@21: // ternary_merge_L31
-                let ternary_result%42#2: uint64 = φ(ternary_result%42#0 <- block@19, ternary_result%42#1 <- block@20)
-                goto tmp%12#0 ? block@22 : block@23
-            block@22: // ternary_true_L31
-                let ternary_result%44#0: uint64 = (- awst_tmp%11#0 1u)
-                goto block@24
-            block@23: // ternary_false_L31
-                let ternary_result%44#1: uint64 = 0u
-                goto block@24
-            block@24: // ternary_merge_L31
-                let ternary_result%44#2: uint64 = φ(ternary_result%44#0 <- block@22, ternary_result%44#1 <- block@23)
-                let tmp%45#0: bytes = (substring3 "abc" ternary_result%42#2 ternary_result%44#2)
-                let tmp%46#0: uint64 = (== tmp%45#0 "b")
-                (assert tmp%46#0)
-                let tmp%48#0: uint64 = (== "23456" "23456")
-                (assert tmp%48#0)
-                let tmp%50#0: uint64 = (< 10u awst_tmp%11#0)
-                goto tmp%50#0 ? block@25 : block@26
-            block@25: // ternary_true_L33
-                let ternary_result%51#0: uint64 = (- awst_tmp%11#0 10u)
-                goto block@27
-            block@26: // ternary_false_L33
-                let ternary_result%51#1: uint64 = 0u
-                goto block@27
-            block@27: // ternary_merge_L33
-                let ternary_result%51#2: uint64 = φ(ternary_result%51#0 <- block@25, ternary_result%51#1 <- block@26)
-                goto tmp%50#0 ? block@28 : block@29
-            block@28: // ternary_true_L33
-                let ternary_result%53#0: uint64 = 10u
-                goto block@30
-            block@29: // ternary_false_L33
-                goto block@30
-            block@30: // ternary_merge_L33
-                let ternary_result%53#2: uint64 = φ(ternary_result%53#0 <- block@28, awst_tmp%11#0 <- block@29)
-                let tmp%54#0: bytes = (substring3 "abc" ternary_result%51#2 ternary_result%53#2)
-                let tmp%55#0: uint64 = (== tmp%54#0 "abc")
-                (assert tmp%55#0)
-                let tmp%56#0: uint64 = (len "1")
-                goto tmp%56#0 ? block@32 : block@31
-            block@31: // ternary_true_L38
-                let ternary_result%57#0: bytes = "1"
-                goto block@33
-            block@32: // ternary_false_L38
-                let ternary_result%57#1: bytes = "1"
-                goto block@33
-            block@33: // ternary_merge_L38
-                let ternary_result%57#2: bytes = φ(ternary_result%57#0 <- block@31, ternary_result%57#1 <- block@32)
-                let x#0: uint64 = (== ternary_result%57#2 "1")
-                (assert x#0)
-                goto tmp%56#0 ? block@35 : block@34
-            block@34: // ternary_true_L40
-                let ternary_result%59#0: bytes = "1"
-                goto block@36
-            block@35: // ternary_false_L40
-                let ternary_result%59#1: bytes = "1"
-                goto block@36
-            block@36: // ternary_merge_L40
-                let ternary_result%59#2: bytes = φ(ternary_result%59#0 <- block@34, ternary_result%59#1 <- block@35)
-                let tmp%60#0: uint64 = (== ternary_result%59#2 "1")
-                (assert tmp%60#0)
-                goto tmp%56#0 ? block@38 : block@37
-            block@37: // ternary_true_L41
-                let ternary_result%62#0: bytes = "1"
-                goto block@39
-            block@38: // ternary_false_L41
-                let ternary_result%62#1: bytes = ""
-                goto block@39
-            block@39: // ternary_merge_L41
-                let ternary_result%62#2: bytes = φ(ternary_result%62#0 <- block@37, ternary_result%62#1 <- block@38)
-                let tmp%63#0: uint64 = (== ternary_result%62#2 "")
-                (assert tmp%63#0)
-                goto tmp%4#0 ? block@41 : block@40
-            block@40: // ternary_true_L42
-                let ternary_result%65#0: bytes = ""
-                goto block@42
-            block@41: // ternary_false_L42
-                let ternary_result%65#1: bytes = "1"
-                goto block@42
-            block@42: // ternary_merge_L42
-                let ternary_result%65#2: bytes = φ(ternary_result%65#0 <- block@40, ternary_result%65#1 <- block@41)
-                let tmp%66#0: uint64 = (== ternary_result%65#2 "")
-                (assert tmp%66#0)
-                goto tmp%4#0 ? block@44 : block@43
-            block@43: // ternary_true_L43
-                let ternary_result%68#0: bytes = ""
-                goto block@45
-            block@44: // ternary_false_L43
-                let ternary_result%68#1: bytes = ""
-                goto block@45
-            block@45: // ternary_merge_L43
-                let ternary_result%68#2: bytes = φ(ternary_result%68#0 <- block@43, ternary_result%68#1 <- block@44)
-                let tmp%69#0: uint64 = (== ternary_result%68#2 "")
+                let tmp%12#0: uint64 = 3u
+                let tmp%13#0: uint64 = 3u
+                let tmp%14#0: uint64 = (< 1u tmp%13#0)
+                let tmp%15#0: uint64 = (select tmp%12#0 1u tmp%14#0)
+                let base_length%16#0: uint64 = 3u
+                let tmp%17#0: bytes = (substring3 "abc" tmp%15#0 base_length%16#0)
+                let tmp%18#0: uint64 = (== tmp%17#0 "bc")
+                (assert tmp%18#0)
+                let tmp%20#0: uint64 = 3u
+                let tmp%21#0: uint64 = 3u
+                let tmp%22#0: uint64 = (< 1u tmp%21#0)
+                let tmp%23#0: uint64 = (select tmp%20#0 1u tmp%22#0)
+                let tmp%24#0: uint64 = 3u
+                let tmp%25#0: uint64 = 3u
+                let tmp%26#0: uint64 = (< 1u tmp%25#0)
+                let tmp%27#0: uint64 = (select tmp%24#0 1u tmp%26#0)
+                let tmp%28#0: uint64 = 3u
+                let tmp%29#0: uint64 = 3u
+                let tmp%30#0: uint64 = (< 1u tmp%29#0)
+                let tmp%31#0: uint64 = (select tmp%28#0 1u tmp%30#0)
+                let tmp%32#0: uint64 = 3u
+                let tmp%33#0: uint64 = 3u
+                let tmp%34#0: uint64 = (< 1u tmp%33#0)
+                let tmp%35#0: uint64 = (select tmp%32#0 1u tmp%34#0)
+                let tmp%36#0: uint64 = 3u
+                let tmp%37#0: uint64 = 3u
+                let tmp%38#0: uint64 = (< 1u tmp%37#0)
+                let tmp%39#0: uint64 = (select tmp%36#0 1u tmp%38#0)
+                let tmp%40#0: uint64 = (> tmp%35#0 tmp%39#0)
+                let tmp%41#0: uint64 = (select tmp%27#0 tmp%31#0 tmp%40#0)
+                let tmp%42#0: bytes = (substring3 "abc" tmp%23#0 tmp%41#0)
+                let tmp%43#0: uint64 = (== tmp%42#0 "")
+                (assert tmp%43#0)
+                let tmp%45#0: uint64 = 3u
+                let tmp%46#0: uint64 = 3u
+                let tmp%47#0: uint64 = (< 1u tmp%46#0)
+                let tmp%48#0: uint64 = (select tmp%45#0 1u tmp%47#0)
+                let tmp%49#0: bytes = (substring3 "abc" 0u tmp%48#0)
+                let tmp%50#0: uint64 = (== tmp%49#0 "a")
+                (assert tmp%50#0)
+                let tmp%52#0: uint64 = 3u
+                let tmp%53#0: uint64 = 3u
+                let tmp%54#0: uint64 = 3u
+                let tmp%55#0: uint64 = (< 1u tmp%54#0)
+                let tmp%56#0: uint64 = (select tmp%53#0 1u tmp%55#0)
+                let tmp%57#0: uint64 = (- tmp%52#0 tmp%56#0)
+                let tmp%58#0: bytes = (substring3 "abc" 0u tmp%57#0)
+                let tmp%59#0: uint64 = (== tmp%58#0 "ab")
+                (assert tmp%59#0)
+                let tmp%61#0: uint64 = 3u
+                let tmp%62#0: uint64 = 3u
+                let tmp%63#0: uint64 = 3u
+                let tmp%64#0: uint64 = (< 2u tmp%63#0)
+                let tmp%65#0: uint64 = (select tmp%62#0 2u tmp%64#0)
+                let tmp%66#0: uint64 = (- tmp%61#0 tmp%65#0)
+                let base_length%67#0: uint64 = 3u
+                let tmp%68#0: bytes = (substring3 "abc" tmp%66#0 base_length%67#0)
+                let tmp%69#0: uint64 = (== tmp%68#0 "bc")
                 (assert tmp%69#0)
-                goto tmp%56#0 ? block@46 : block@47
-            block@46: // ternary_true_L44
-                let ternary_result%71#0: bytes = "1"
-                goto block@48
-            block@47: // ternary_false_L44
-                let ternary_result%71#1: bytes = "1"
-                goto block@48
-            block@48: // ternary_merge_L44
-                let ternary_result%71#2: bytes = φ(ternary_result%71#0 <- block@46, ternary_result%71#1 <- block@47)
-                let tmp%72#0: uint64 = (== ternary_result%71#2 "1")
-                (assert tmp%72#0)
-                goto tmp%56#0 ? block@49 : block@50
-            block@49: // ternary_true_L45
-                let ternary_result%74#0: bytes = "1"
-                goto block@51
-            block@50: // ternary_false_L45
-                let ternary_result%74#1: bytes = ""
-                goto block@51
-            block@51: // ternary_merge_L45
-                let ternary_result%74#2: bytes = φ(ternary_result%74#0 <- block@49, ternary_result%74#1 <- block@50)
-                let tmp%75#0: uint64 = (== ternary_result%74#2 "1")
-                (assert tmp%75#0)
-                goto tmp%4#0 ? block@52 : block@53
-            block@52: // ternary_true_L46
-                let ternary_result%77#0: bytes = ""
-                goto block@54
-            block@53: // ternary_false_L46
-                let ternary_result%77#1: bytes = "1"
-                goto block@54
-            block@54: // ternary_merge_L46
-                let ternary_result%77#2: bytes = φ(ternary_result%77#0 <- block@52, ternary_result%77#1 <- block@53)
-                let tmp%78#0: uint64 = (== ternary_result%77#2 "1")
-                (assert tmp%78#0)
-                goto tmp%4#0 ? block@55 : block@56
-            block@55: // ternary_true_L47
-                let ternary_result%80#0: bytes = ""
-                goto block@57
-            block@56: // ternary_false_L47
-                let ternary_result%80#1: bytes = ""
-                goto block@57
-            block@57: // ternary_merge_L47
-                let ternary_result%80#2: bytes = φ(ternary_result%80#0 <- block@55, ternary_result%80#1 <- block@56)
-                let tmp%81#0: uint64 = (== ternary_result%80#2 "")
-                (assert tmp%81#0)
-                let tmp%82#0: bytes = (b& 0x00 0x0f)
-                let tmp%83#0: uint64 = (== tmp%82#0 0x00)
-                (assert tmp%83#0)
-                let tmp%84#0: bytes = (b| 0x0f 0xf0)
-                let tmp%85#0: uint64 = (== tmp%84#0 0xff)
-                (assert tmp%85#0)
-                let tmp%86#0: bytes = (b^ 0x0f 0xff)
-                let tmp%87#0: uint64 = (== tmp%86#0 0xf0)
-                (assert tmp%87#0)
-                let y#1: bytes = (b& 0x00 0xff)
-                let tmp%88#0: uint64 = (== y#1 0x00)
-                (assert tmp%88#0)
+                let tmp%71#0: uint64 = 3u
+                let tmp%72#0: uint64 = 3u
+                let tmp%73#0: uint64 = 3u
+                let tmp%74#0: uint64 = (< 2u tmp%73#0)
+                let tmp%75#0: uint64 = (select tmp%72#0 2u tmp%74#0)
+                let tmp%76#0: uint64 = (- tmp%71#0 tmp%75#0)
+                let tmp%77#0: uint64 = 3u
+                let tmp%78#0: uint64 = 3u
+                let tmp%79#0: uint64 = 3u
+                let tmp%80#0: uint64 = (< 1u tmp%79#0)
+                let tmp%81#0: uint64 = (select tmp%78#0 1u tmp%80#0)
+                let tmp%82#0: uint64 = (- tmp%77#0 tmp%81#0)
+                let tmp%83#0: uint64 = 3u
+                let tmp%84#0: uint64 = 3u
+                let tmp%85#0: uint64 = 3u
+                let tmp%86#0: uint64 = (< 2u tmp%85#0)
+                let tmp%87#0: uint64 = (select tmp%84#0 2u tmp%86#0)
+                let tmp%88#0: uint64 = (- tmp%83#0 tmp%87#0)
+                let tmp%89#0: uint64 = 3u
+                let tmp%90#0: uint64 = 3u
+                let tmp%91#0: uint64 = 3u
+                let tmp%92#0: uint64 = (< 2u tmp%91#0)
+                let tmp%93#0: uint64 = (select tmp%90#0 2u tmp%92#0)
+                let tmp%94#0: uint64 = (- tmp%89#0 tmp%93#0)
+                let tmp%95#0: uint64 = 3u
+                let tmp%96#0: uint64 = 3u
+                let tmp%97#0: uint64 = 3u
+                let tmp%98#0: uint64 = (< 1u tmp%97#0)
+                let tmp%99#0: uint64 = (select tmp%96#0 1u tmp%98#0)
+                let tmp%100#0: uint64 = (- tmp%95#0 tmp%99#0)
+                let tmp%101#0: uint64 = (> tmp%94#0 tmp%100#0)
+                let tmp%102#0: uint64 = (select tmp%82#0 tmp%88#0 tmp%101#0)
+                let tmp%103#0: bytes = (substring3 "abc" tmp%76#0 tmp%102#0)
+                let tmp%104#0: uint64 = (== tmp%103#0 "b")
+                (assert tmp%104#0)
+                let tmp%106#0: uint64 = 7u
+                let tmp%107#0: uint64 = 7u
+                let tmp%108#0: uint64 = (< 1u tmp%107#0)
+                let tmp%109#0: uint64 = (select tmp%106#0 1u tmp%108#0)
+                let tmp%110#0: uint64 = 7u
+                let tmp%111#0: uint64 = 7u
+                let tmp%112#0: uint64 = 7u
+                let tmp%113#0: uint64 = (< 1u tmp%112#0)
+                let tmp%114#0: uint64 = (select tmp%111#0 1u tmp%113#0)
+                let tmp%115#0: uint64 = (- tmp%110#0 tmp%114#0)
+                let tmp%116#0: uint64 = 7u
+                let tmp%117#0: uint64 = 7u
+                let tmp%118#0: uint64 = (< 1u tmp%117#0)
+                let tmp%119#0: uint64 = (select tmp%116#0 1u tmp%118#0)
+                let tmp%120#0: uint64 = 7u
+                let tmp%121#0: uint64 = 7u
+                let tmp%122#0: uint64 = (< 1u tmp%121#0)
+                let tmp%123#0: uint64 = (select tmp%120#0 1u tmp%122#0)
+                let tmp%124#0: uint64 = 7u
+                let tmp%125#0: uint64 = 7u
+                let tmp%126#0: uint64 = 7u
+                let tmp%127#0: uint64 = (< 1u tmp%126#0)
+                let tmp%128#0: uint64 = (select tmp%125#0 1u tmp%127#0)
+                let tmp%129#0: uint64 = (- tmp%124#0 tmp%128#0)
+                let tmp%130#0: uint64 = (> tmp%123#0 tmp%129#0)
+                let tmp%131#0: uint64 = (select tmp%115#0 tmp%119#0 tmp%130#0)
+                let tmp%132#0: bytes = (substring3 "1234567" tmp%109#0 tmp%131#0)
+                let tmp%133#0: uint64 = (== tmp%132#0 "23456")
+                (assert tmp%133#0)
+                let tmp%135#0: uint64 = 3u
+                let tmp%136#0: uint64 = 3u
+                let tmp%137#0: uint64 = 3u
+                let tmp%138#0: uint64 = (< 10u tmp%137#0)
+                let tmp%139#0: uint64 = (select tmp%136#0 10u tmp%138#0)
+                let tmp%140#0: uint64 = (- tmp%135#0 tmp%139#0)
+                let tmp%141#0: uint64 = 3u
+                let tmp%142#0: uint64 = 3u
+                let tmp%143#0: uint64 = (< 10u tmp%142#0)
+                let tmp%144#0: uint64 = (select tmp%141#0 10u tmp%143#0)
+                let tmp%145#0: uint64 = 3u
+                let tmp%146#0: uint64 = 3u
+                let tmp%147#0: uint64 = 3u
+                let tmp%148#0: uint64 = (< 10u tmp%147#0)
+                let tmp%149#0: uint64 = (select tmp%146#0 10u tmp%148#0)
+                let tmp%150#0: uint64 = (- tmp%145#0 tmp%149#0)
+                let tmp%151#0: uint64 = 3u
+                let tmp%152#0: uint64 = 3u
+                let tmp%153#0: uint64 = 3u
+                let tmp%154#0: uint64 = (< 10u tmp%153#0)
+                let tmp%155#0: uint64 = (select tmp%152#0 10u tmp%154#0)
+                let tmp%156#0: uint64 = (- tmp%151#0 tmp%155#0)
+                let tmp%157#0: uint64 = 3u
+                let tmp%158#0: uint64 = 3u
+                let tmp%159#0: uint64 = (< 10u tmp%158#0)
+                let tmp%160#0: uint64 = (select tmp%157#0 10u tmp%159#0)
+                let tmp%161#0: uint64 = (> tmp%156#0 tmp%160#0)
+                let tmp%162#0: uint64 = (select tmp%144#0 tmp%150#0 tmp%161#0)
+                let tmp%163#0: bytes = (substring3 "abc" tmp%140#0 tmp%162#0)
+                let tmp%164#0: uint64 = (== tmp%163#0 "abc")
+                (assert tmp%164#0)
+                let tmp%165#0: uint64 = 1u
+                goto tmp%165#0 ? block@2 : block@1
+            block@1: // ternary_true_L38
+                let ternary_result%166#0: bytes = "1"
+                goto block@3
+            block@2: // ternary_false_L38
+                let ternary_result%166#1: bytes = "1"
+                goto block@3
+            block@3: // ternary_merge_L38
+                let ternary_result%166#2: bytes = φ(ternary_result%166#0 <- block@1, ternary_result%166#1 <- block@2)
+                let x#0: uint64 = (== ternary_result%166#2 "1")
+                (assert x#0)
+                let tmp%167#0: uint64 = 1u
+                goto tmp%167#0 ? block@5 : block@4
+            block@4: // ternary_true_L40
+                let ternary_result%168#0: bytes = "1"
+                goto block@6
+            block@5: // ternary_false_L40
+                let ternary_result%168#1: bytes = "1"
+                goto block@6
+            block@6: // ternary_merge_L40
+                let ternary_result%168#2: bytes = φ(ternary_result%168#0 <- block@4, ternary_result%168#1 <- block@5)
+                let tmp%169#0: uint64 = (== ternary_result%168#2 "1")
+                (assert tmp%169#0)
+                let tmp%170#0: uint64 = 1u
+                goto tmp%170#0 ? block@8 : block@7
+            block@7: // ternary_true_L41
+                let ternary_result%171#0: bytes = "1"
+                goto block@9
+            block@8: // ternary_false_L41
+                let ternary_result%171#1: bytes = ""
+                goto block@9
+            block@9: // ternary_merge_L41
+                let ternary_result%171#2: bytes = φ(ternary_result%171#0 <- block@7, ternary_result%171#1 <- block@8)
+                let tmp%172#0: uint64 = (== ternary_result%171#2 "")
+                (assert tmp%172#0)
+                let tmp%173#0: uint64 = 0u
+                goto tmp%173#0 ? block@11 : block@10
+            block@10: // ternary_true_L42
+                let ternary_result%174#0: bytes = ""
+                goto block@12
+            block@11: // ternary_false_L42
+                let ternary_result%174#1: bytes = "1"
+                goto block@12
+            block@12: // ternary_merge_L42
+                let ternary_result%174#2: bytes = φ(ternary_result%174#0 <- block@10, ternary_result%174#1 <- block@11)
+                let tmp%175#0: uint64 = (== ternary_result%174#2 "")
+                (assert tmp%175#0)
+                let tmp%176#0: uint64 = 0u
+                goto tmp%176#0 ? block@14 : block@13
+            block@13: // ternary_true_L43
+                let ternary_result%177#0: bytes = ""
+                goto block@15
+            block@14: // ternary_false_L43
+                let ternary_result%177#1: bytes = ""
+                goto block@15
+            block@15: // ternary_merge_L43
+                let ternary_result%177#2: bytes = φ(ternary_result%177#0 <- block@13, ternary_result%177#1 <- block@14)
+                let tmp%178#0: uint64 = (== ternary_result%177#2 "")
+                (assert tmp%178#0)
+                let tmp%179#0: uint64 = 1u
+                goto tmp%179#0 ? block@16 : block@17
+            block@16: // ternary_true_L44
+                let ternary_result%180#0: bytes = "1"
+                goto block@18
+            block@17: // ternary_false_L44
+                let ternary_result%180#1: bytes = "1"
+                goto block@18
+            block@18: // ternary_merge_L44
+                let ternary_result%180#2: bytes = φ(ternary_result%180#0 <- block@16, ternary_result%180#1 <- block@17)
+                let tmp%181#0: uint64 = (== ternary_result%180#2 "1")
+                (assert tmp%181#0)
+                let tmp%182#0: uint64 = 1u
+                goto tmp%182#0 ? block@19 : block@20
+            block@19: // ternary_true_L45
+                let ternary_result%183#0: bytes = "1"
+                goto block@21
+            block@20: // ternary_false_L45
+                let ternary_result%183#1: bytes = ""
+                goto block@21
+            block@21: // ternary_merge_L45
+                let ternary_result%183#2: bytes = φ(ternary_result%183#0 <- block@19, ternary_result%183#1 <- block@20)
+                let tmp%184#0: uint64 = (== ternary_result%183#2 "1")
+                (assert tmp%184#0)
+                let tmp%185#0: uint64 = 0u
+                goto tmp%185#0 ? block@22 : block@23
+            block@22: // ternary_true_L46
+                let ternary_result%186#0: bytes = ""
+                goto block@24
+            block@23: // ternary_false_L46
+                let ternary_result%186#1: bytes = "1"
+                goto block@24
+            block@24: // ternary_merge_L46
+                let ternary_result%186#2: bytes = φ(ternary_result%186#0 <- block@22, ternary_result%186#1 <- block@23)
+                let tmp%187#0: uint64 = (== ternary_result%186#2 "1")
+                (assert tmp%187#0)
+                let tmp%188#0: uint64 = 0u
+                goto tmp%188#0 ? block@25 : block@26
+            block@25: // ternary_true_L47
+                let ternary_result%189#0: bytes = ""
+                goto block@27
+            block@26: // ternary_false_L47
+                let ternary_result%189#1: bytes = ""
+                goto block@27
+            block@27: // ternary_merge_L47
+                let ternary_result%189#2: bytes = φ(ternary_result%189#0 <- block@25, ternary_result%189#1 <- block@26)
+                let tmp%190#0: uint64 = (== ternary_result%189#2 "")
+                (assert tmp%190#0)
+                let tmp%191#0: bytes = 0x00
+                let tmp%192#0: uint64 = (== tmp%191#0 0x00)
+                (assert tmp%192#0)
+                let tmp%193#0: bytes = 0xff
+                let tmp%194#0: uint64 = (== tmp%193#0 0xff)
+                (assert tmp%194#0)
+                let tmp%195#0: bytes = 0xf0
+                let tmp%196#0: uint64 = (== tmp%195#0 0xf0)
+                (assert tmp%196#0)
+                let y#1: bytes = 0x00
+                let tmp%197#0: uint64 = (== y#1 0x00)
+                (assert tmp%197#0)
                 let y#2: bytes = (b| y#1 0xff)
-                let tmp%89#0: uint64 = (== y#2 0xff)
-                (assert tmp%89#0)
+                let tmp%198#0: uint64 = (== y#2 0xff)
+                (assert tmp%198#0)
                 let y#3: bytes = (b^ y#2 0xf0)
-                let tmp%90#0: uint64 = (== y#3 0x0f)
-                (assert tmp%90#0)
+                let tmp%199#0: uint64 = (== y#3 0x0f)
+                (assert tmp%199#0)
+                test_cases.stubs.bytes.check_slicing_with_uint64("abc")
+                test_cases.stubs.bytes.check_end_before_start_slicing("abc")
                 return 1u
+        
+        subroutine test_cases.stubs.bytes.check_slicing_with_uint64(abc: bytes) -> void:
+            block@0: // L77
+                let tmp%1#0: uint64 = (len abc#0)
+                let tmp%4#0: uint64 = (< 1u tmp%1#0)
+                let tmp%5#0: uint64 = (select tmp%1#0 1u tmp%4#0)
+                let tmp%7#0: bytes = (substring3 abc#0 tmp%5#0 tmp%1#0)
+                let tmp%8#0: uint64 = (== tmp%7#0 "bc")
+                (assert tmp%8#0)
+                let tmp%32#0: uint64 = (> tmp%5#0 tmp%5#0)
+                let tmp%33#0: uint64 = (select tmp%5#0 tmp%5#0 tmp%32#0)
+                let tmp%34#0: bytes = (substring3 abc#0 tmp%5#0 tmp%33#0)
+                let tmp%35#0: uint64 = (== tmp%34#0 "")
+                (assert tmp%35#0)
+                let tmp%42#0: bytes = (substring3 abc#0 0u tmp%5#0)
+                let tmp%43#0: uint64 = (== tmp%42#0 "a")
+                (assert tmp%43#0)
+                let awst_tmp%44#0: bytes = test_cases.stubs.bytes.one_to_seven()
+                let tmp%45#0: uint64 = (len awst_tmp%44#0)
+                let tmp%48#0: uint64 = (< 1u tmp%45#0)
+                let tmp%49#0: uint64 = (select tmp%45#0 1u tmp%48#0)
+                let tmp%55#0: uint64 = (- tmp%45#0 tmp%49#0)
+                let tmp%70#0: uint64 = (> tmp%49#0 tmp%55#0)
+                let tmp%71#0: uint64 = (select tmp%55#0 tmp%49#0 tmp%70#0)
+                let tmp%72#0: bytes = (substring3 awst_tmp%44#0 tmp%49#0 tmp%71#0)
+                let tmp%73#0: uint64 = (== tmp%72#0 "23456")
+                (assert tmp%73#0)
+                let tmp%78#0: uint64 = (< 0u tmp%1#0)
+                let tmp%79#0: uint64 = (select tmp%1#0 0u tmp%78#0)
+                let tmp%83#0: uint64 = (< 10u tmp%1#0)
+                let tmp%84#0: uint64 = (select tmp%1#0 10u tmp%83#0)
+                let tmp%97#0: uint64 = (> tmp%79#0 tmp%84#0)
+                let tmp%98#0: uint64 = (select tmp%84#0 tmp%79#0 tmp%97#0)
+                let tmp%99#0: bytes = (substring3 abc#0 tmp%79#0 tmp%98#0)
+                let tmp%100#0: uint64 = (== tmp%99#0 "abc")
+                (assert tmp%100#0)
+                return 
+        
+        subroutine test_cases.stubs.bytes.one_to_seven() -> bytes:
+            block@0: // L97
+                (log "one_to_seven called")
+                return "1234567"
+        
+        subroutine test_cases.stubs.bytes.check_end_before_start_slicing(abc: bytes) -> void:
+            block@0: // L88
+                let tmp%1#0: uint64 = (len abc#0)
+                let tmp%3#0: uint64 = (< 10u tmp%1#0)
+                let tmp%4#0: uint64 = (select tmp%1#0 10u tmp%3#0)
+                let tmp%7#0: uint64 = (< 1u tmp%1#0)
+                let tmp%8#0: uint64 = (select tmp%1#0 1u tmp%7#0)
+                let tmp%21#0: uint64 = (> tmp%4#0 tmp%8#0)
+                let tmp%22#0: uint64 = (select tmp%8#0 tmp%4#0 tmp%21#0)
+                let tmp%23#0: bytes = (substring3 abc#0 tmp%4#0 tmp%22#0)
+                let tmp%24#0: uint64 = (== tmp%23#0 "")
+                (assert tmp%24#0)
+                let tmp%31#0: uint64 = (- tmp%1#0 tmp%4#0)
+                let tmp%35#0: uint64 = (< 12u tmp%1#0)
+                let tmp%36#0: uint64 = (select tmp%1#0 12u tmp%35#0)
+                let tmp%37#0: uint64 = (- tmp%1#0 tmp%36#0)
+                let tmp%56#0: uint64 = (> tmp%31#0 tmp%37#0)
+                let tmp%57#0: uint64 = (select tmp%37#0 tmp%31#0 tmp%56#0)
+                let tmp%58#0: bytes = (substring3 abc#0 tmp%31#0 tmp%57#0)
+                let tmp%59#0: uint64 = (== tmp%58#0 "")
+                (assert tmp%59#0)
+                return 
     
     program clear-state:
         subroutine test_cases.stubs.bytes.BytesContract.clear_state_program() -> uint64:
-            block@0: // L70
+            block@0: // L73
                 return 1u

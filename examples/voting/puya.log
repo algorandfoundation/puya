@@ -461,15 +461,6 @@ debug: Sealing block@0: // L238
 debug: Terminated block@0: // L238
 debug: Sealing block@0: // L157
 debug: Terminated block@0: // L157
-debug: Sealing block@None: // ternary_true_L161
-debug: Sealing block@None: // ternary_false_L161
-debug: Terminated block@1: // ternary_true_L161
-debug: Terminated block@2: // ternary_false_L161
-debug: Sealing block@3: // ternary_merge_L161
-debug: Created Phi assignment: let ternary_result%4#2: uint64 = undefined while trying to resolve 'ternary_result%4' in block@3: // ternary_merge_L161
-debug: Added ternary_result%4#0 to Phi node: let ternary_result%4#2: uint64 = φ(ternary_result%4#0 <- block@1) in block@1: // ternary_true_L161
-debug: Added ternary_result%4#1 to Phi node: let ternary_result%4#2: uint64 = φ(ternary_result%4#0 <- block@1, ternary_result%4#1 <- block@2) in block@2: // ternary_false_L161
-debug: Terminated block@3: // ternary_merge_L161
 debug: Sealing block@0: // L202
 debug: Terminated block@0: // L202
 debug: Sealing block@None: // and_contd_L205
@@ -565,18 +556,22 @@ info: Optimizing examples.voting.voting.VotingRoundApp at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.approval_program
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: awst_tmp%24#0, maybe_value%21#0
-debug: Replacing {maybe_value%21#0} with awst_tmp%24#0 made 1 modifications
-debug: Found equivalence set: tmp%26#0, maybe_value_did_exist%22#0
-debug: Replacing {maybe_value_did_exist%22#0} with tmp%26#0 made 1 modifications
-debug: Found equivalence set: awst_tmp%24#1, maybe_value%39#0
-debug: Replacing {maybe_value%39#0} with awst_tmp%24#1 made 1 modifications
-debug: Found equivalence set: tmp%43#0, maybe_value_did_exist%40#0
-debug: Replacing {maybe_value_did_exist%40#0} with tmp%43#0 made 1 modifications
+debug: Found equivalence set: awst_tmp%22#0, value%25#0
+debug: Replacing {value%25#0} with awst_tmp%22#0 made 1 modifications
+debug: Found equivalence set: tmp%24#0, check%26#0
+debug: Replacing {check%26#0} with tmp%24#0 made 1 modifications
+debug: Found equivalence set: awst_tmp%40#0, value%43#0
+debug: Replacing {value%43#0} with awst_tmp%40#0 made 1 modifications
+debug: Found equivalence set: tmp%42#0, check%44#0
+debug: Replacing {check%44#0} with tmp%42#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (== tmp%2#0 NoOp) to (! tmp%2#0)
+debug: Simplified (== tmp%18#0 NoOp) to (! tmp%18#0)
+debug: Simplified (== tmp%27#0 NoOp) to (! tmp%27#0)
+debug: Simplified (== tmp%30#0 NoOp) to (! tmp%30#0)
+debug: Simplified (== tmp%36#0 NoOp) to (! tmp%36#0)
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: adding block@2: // entrypoint_L49 as a predecessor of block@9: // switch_case_next_L48 due to inlining of block@8: // switch_case_default_L48
@@ -590,11 +585,14 @@ debug: Removing unreachable blocks: block@8: // switch_case_default_L48
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.create
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: option_counts#0, copy%6#0
+debug: Replacing {copy%6#0} with option_counts#0 made 1 modifications
+debug: Found equivalence set: store_option_counts%7#0, copy%6#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let store_option_counts%7#0: bytes = examples.voting.voting.VotingRoundApp.store_option_counts(option_counts#0)
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
@@ -602,14 +600,13 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.store_option_counts
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
-debug: Folded item_index_internal%5#1 * 1u to item_index_internal%5#1
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_length%3#0, reverse_index_internal%6#0
-debug: Found equivalence set: item_index_internal%5#1, item_index%8#0
-debug: Replacing {item_index%8#0} with item_index_internal%5#1 made 1 modifications
+debug: Found equivalence set: option_counts#0, copy%11#0
+debug: Replacing {copy%11#0} with option_counts#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* item_index_internal%5#1 1u) to item_index_internal%5#1
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -622,9 +619,10 @@ debug: Replacing redundant declaration let tmp%1#0: uint64 = (extract_uint16 opt
 debug: Replacing redundant declaration let array_length%3#0: uint64 = (extract_uint16 option_counts#0 0u) with copy of existing registers [Register(atype=uint64, name='tmp%0', version=0, source_location=voting/voting.py:217:15-35)]
 debug: Found equivalence set: tmp%0#0, tmp%1#0, array_length%3#0
 debug: Replacing {tmp%1#0, array_length%3#0} with tmp%0#0 made 2 modifications
+debug: Found equivalence set: item_index_internal%5#1, item_index%8#0
+debug: Replacing {item_index%8#0} with item_index_internal%5#1 made 1 modifications
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.bootstrap
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -636,20 +634,19 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.close
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
-debug: Folded item_index_internal%29#1 * 1u to item_index_internal%29#1
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_length%27#0, reverse_index_internal%30#0
 debug: Found equivalence set: note#12, inner_txn_params%40%%param_Note_idx_0#0
 debug: Replacing {inner_txn_params%40%%param_Note_idx_0#0} with note#12 made 1 modifications
-debug: Found equivalence set: app_global_get_ex_value%43#0, inner_txn_params%40%%param_ConfigAssetURL_idx_0#0
-debug: Replacing {inner_txn_params%40%%param_ConfigAssetURL_idx_0#0} with app_global_get_ex_value%43#0 made 1 modifications
-debug: Found equivalence set: item_index_internal%29#1, item_index%32#0, question_index#0
-debug: Replacing {item_index_internal%29#1, item_index%32#0} with question_index#0 made 4 modifications
+debug: Found equivalence set: nft_image_url_value%43#0, inner_txn_params%40%%param_ConfigAssetURL_idx_0#0
+debug: Replacing {inner_txn_params%40%%param_ConfigAssetURL_idx_0#0} with nft_image_url_value%43#0 made 1 modifications
+debug: Found equivalence set: item_index_internal%29#1, question_index#0
+debug: Replacing {item_index_internal%29#1} with question_index#0 made 4 modifications
 debug: Found equivalence set: range_item%35#1, option_index#0
 debug: Replacing {range_item%35#1} with option_index#0 made 3 modifications
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* question_index#0 1u) to question_index#0
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable inner_txn_params%40%%Accounts_length#0
 debug: Removing unused variable inner_txn_params%40%%Amount_length#0
@@ -782,7 +779,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine puyapy.ensure_budget
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -798,10 +794,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.itoa
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (len "0123456789") to 10u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable digits#0
 debug: Optimizer: Simplify Control Ops
@@ -811,7 +807,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.get_vote_from_box
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tuple_assignment%0#0, box_data#0
@@ -827,27 +822,28 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.get_preconditions
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: awst_tmp%2#0, ternary_result%4#1
-debug: Replacing {ternary_result%4#1} with awst_tmp%2#0 made 1 modifications
+debug: Found equivalence set: signature#0, awst_tmp%2#0
+debug: Replacing {awst_tmp%2#0} with signature#0 made 4 modifications
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x val_as_bytes%1#0) to val_as_bytes%1#0
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable current_tail_offset%13#0
-debug: Removing unused variable encoded_tuple_buffer%14#0
+debug: Removing unused variable current_tail_offset%15#0
+debug: Removing unused variable encoded_tuple_buffer%16#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@2: // ternary_false_L161 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let base_length%5#0: uint64 = (len signature#0) with copy of existing registers [Register(atype=uint64, name='awst_tmp%2', version=0, source_location=voting/voting.py:161:64-83)]
-debug: Found equivalence set: awst_tmp%2#0, base_length%5#0
-debug: Replacing {base_length%5#0} with awst_tmp%2#0 made 1 modifications
+debug: Replacing redundant declaration let tmp%4#0: uint64 = (len signature#0) with copy of existing registers [Register(atype=uint64, name='tmp%3', version=0, source_location=voting/voting.py:161:64-83)]
+debug: Replacing redundant declaration let base_length%7#0: uint64 = (len signature#0) with copy of existing registers [Register(atype=uint64, name='tmp%3', version=0, source_location=voting/voting.py:161:64-83)]
+debug: Found equivalence set: tmp%3#0, tmp%4#0, base_length%7#0
+debug: Replacing {tmp%4#0, base_length%7#0} with tmp%3#0 made 2 modifications
+debug: Found equivalence set: val_as_bytes%1#0, encoded_tuple_buffer%16#1
+debug: Replacing {encoded_tuple_buffer%16#1} with val_as_bytes%1#0 made 1 modifications
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.voting_open
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -859,7 +855,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.allowed_to_vote
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -871,7 +866,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.already_voted
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tuple_assignment%1#0, votes#0
@@ -887,17 +881,14 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.vote
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
-debug: Folded 1u * tmp%8#0 to tmp%8#0
-debug: Folded question_index#0 * 1u to question_index#0
-debug: Folded question_index#0 * 1u to question_index#0
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%8#0, tmp%9#0
-debug: Replacing {tmp%9#0} with tmp%8#0 made 1 modifications
-debug: Found equivalence set: range_item%18#1, question_index#0, item_index%23#0, item_index%30#0
-debug: Replacing {range_item%18#1, item_index%23#0, item_index%30#0} with question_index#0 made 5 modifications
+debug: Found equivalence set: range_item%18#1, question_index#0
+debug: Replacing {range_item%18#1} with question_index#0 made 3 modifications
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (* 1u tmp%8#0) to tmp%8#0
+debug: Simplified (* question_index#0 1u) to question_index#0
+debug: Simplified (* question_index#0 1u) to question_index#0
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -910,11 +901,12 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let tmp%8#0: uint64 = (extract_uint16 answer_ids#0 0u) with copy of existing registers [Register(atype=uint64, name='tmp%6', version=0, source_location=voting/voting.py:179:15-32)]
 debug: Replacing redundant declaration let array_length%20#0: uint64 = (extract_uint16 answer_ids#0 0u) with copy of existing registers [Register(atype=uint64, name='tmp%6', version=0, source_location=voting/voting.py:179:15-32)]
-debug: Found equivalence set: tmp%6#0, tmp%8#0, array_length%20#0
-debug: Replacing {tmp%8#0, array_length%20#0} with tmp%6#0 made 2 modifications
+debug: Found equivalence set: tmp%6#0, tmp%8#0, tmp%9#0, array_length%20#0
+debug: Replacing {tmp%8#0, tmp%9#0, array_length%20#0} with tmp%6#0 made 2 modifications
+debug: Found equivalence set: question_index#0, item_index%23#0, item_index%30#0
+debug: Replacing {item_index%23#0, item_index%30#0} with question_index#0 made 2 modifications
 debug: Optimizing subroutine examples.voting.voting.increment_vote_in_box
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tuple_assignment%0#0, box_data#0
@@ -930,7 +922,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.__init__
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -942,7 +933,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.clear_state_program
 debug: Splitting parallel copies prior to optimization
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -955,7 +945,6 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Output IR to voting/out/VotingRoundApp.ssa.opt_pass_1.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.approval_program
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -966,18 +955,17 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.create
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let store_option_counts%7#0: bytes = examples.voting.voting.VotingRoundApp.store_option_counts(option_counts#0)
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.store_option_counts
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -988,7 +976,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.bootstrap
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -999,9 +986,10 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.close
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: question_index#0, item_index%32#0
+debug: Replacing {item_index%32#0} with question_index#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
@@ -1010,7 +998,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine puyapy.ensure_budget
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1021,8 +1008,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.itoa
-debug: Optimizer: Arithmetic Simplification
-debug: Folded len("0123456789") to 10
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1034,7 +1019,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.get_vote_from_box
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1045,21 +1029,16 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.get_preconditions
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: val_as_bytes%1#0, encoded_tuple_buffer%14#1
-debug: Replacing {encoded_tuple_buffer%14#1} with val_as_bytes%1#0 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@2: // ternary_false_L161 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.voting_open
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1070,7 +1049,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.allowed_to_vote
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1081,7 +1059,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.already_voted
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1092,7 +1069,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.vote
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1103,7 +1079,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.increment_vote_in_box
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1114,7 +1089,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.__init__
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1125,7 +1099,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.clear_state_program
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1138,7 +1111,6 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Output IR to voting/out/VotingRoundApp.ssa.opt_pass_2.ir
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.approval_program
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1149,18 +1121,17 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.create
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let store_option_counts%7#0: bytes = examples.voting.voting.VotingRoundApp.store_option_counts(option_counts#0)
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.store_option_counts
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1171,7 +1142,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.bootstrap
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1182,7 +1152,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.close
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1193,7 +1162,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine puyapy.ensure_budget
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1204,7 +1172,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.itoa
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1215,7 +1182,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.get_vote_from_box
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1226,7 +1192,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.get_preconditions
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1234,11 +1199,9 @@ debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@2: // ternary_false_L161 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.voting_open
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1249,7 +1212,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.allowed_to_vote
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1260,7 +1222,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.already_voted
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1271,7 +1232,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.vote
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1282,7 +1242,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.increment_vote_in_box
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1293,7 +1252,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.__init__
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1304,7 +1262,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.clear_state_program
-debug: Optimizer: Arithmetic Simplification
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
@@ -1332,8 +1289,7 @@ debug: Removing Phis from examples.voting.voting.increment_vote_in_box
 debug: Removing Phis from examples.voting.voting.VotingRoundApp.__init__
 debug: Removing Phis from examples.voting.voting.VotingRoundApp.clear_state_program
 debug: Coalescing local variables in examples.voting.voting.VotingRoundApp.approval_program using strategy RootOperandGrouping
-debug: Coalescing awst_tmp%24#0 with [awst_tmp%24#1]
-debug: Coalescing resulted in 3 replacement/s
+debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in examples.voting.voting.VotingRoundApp.create using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in examples.voting.voting.VotingRoundApp.store_option_counts using strategy RootOperandGrouping
@@ -1358,9 +1314,8 @@ debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in examples.voting.voting.get_vote_from_box using strategy RootOperandGrouping
 debug: Coalescing resulted in 0 replacement/s
 debug: Coalescing local variables in examples.voting.voting.VotingRoundApp.get_preconditions using strategy RootOperandGrouping
-debug: Coalescing ternary_result%4#0 with [ternary_result%4#4, ternary_result%4#2]
-debug: Coalescing encoded_tuple_buffer%14#2 with [encoded_tuple_buffer%14#3, encoded_tuple_buffer%14#4]
-debug: Coalescing resulted in 9 replacement/s
+debug: Coalescing encoded_tuple_buffer%16#2 with [encoded_tuple_buffer%16#3, encoded_tuple_buffer%16#4]
+debug: Coalescing resulted in 4 replacement/s
 debug: Coalescing local variables in examples.voting.voting.VotingRoundApp.voting_open using strategy RootOperandGrouping
 debug: Coalescing and_result%11#0 with [and_result%11#5, and_result%11#1, and_result%11#2]
 debug: Coalescing resulted in 7 replacement/s
@@ -1559,16 +1514,16 @@ debug: Inserted main_bootstrap_route@4.ops[5]: 'store tmp%19#0 to l-stack (copy)
 debug: Replaced main_bootstrap_route@4.ops[7]: 'load tmp%19#0' with 'load tmp%19#0 from l-stack (no copy)'
 debug: Inserted main_bootstrap_route@4.ops[10]: 'store tmp%20#0 to l-stack (copy)'
 debug: Replaced main_bootstrap_route@4.ops[12]: 'load tmp%20#0' with 'load tmp%20#0 from l-stack (no copy)'
-debug: Inserted main_bootstrap_route@4.ops[15]: 'store tmp%23#0 to l-stack (copy)'
-debug: Replaced main_bootstrap_route@4.ops[17]: 'load tmp%23#0' with 'load tmp%23#0 from l-stack (no copy)'
-debug: Inserted main_bootstrap_route@4.ops[20]: 'store awst_tmp%24#0 to l-stack (copy)'
-debug: Replaced main_bootstrap_route@4.ops[22]: 'load awst_tmp%24#0' with 'load awst_tmp%24#0 from l-stack (no copy)'
-debug: Inserted main_bootstrap_route@4.ops[24]: 'store tmp%25#0 to l-stack (copy)'
-debug: Replaced main_bootstrap_route@4.ops[26]: 'load tmp%25#0' with 'load tmp%25#0 from l-stack (no copy)'
-debug: Inserted main_bootstrap_route@4.ops[29]: 'store tmp%26#0 to l-stack (copy)'
-debug: Replaced main_bootstrap_route@4.ops[31]: 'load tmp%26#0' with 'load tmp%26#0 from l-stack (no copy)'
-debug: Inserted main_bootstrap_route@4.ops[23]: 'store awst_tmp%24#0 to l-stack (copy)'
-debug: Replaced main_bootstrap_route@4.ops[34]: 'load awst_tmp%24#0' with 'load awst_tmp%24#0 from l-stack (no copy)'
+debug: Inserted main_bootstrap_route@4.ops[15]: 'store tmp%21#0 to l-stack (copy)'
+debug: Replaced main_bootstrap_route@4.ops[17]: 'load tmp%21#0' with 'load tmp%21#0 from l-stack (no copy)'
+debug: Inserted main_bootstrap_route@4.ops[20]: 'store awst_tmp%22#0 to l-stack (copy)'
+debug: Replaced main_bootstrap_route@4.ops[22]: 'load awst_tmp%22#0' with 'load awst_tmp%22#0 from l-stack (no copy)'
+debug: Inserted main_bootstrap_route@4.ops[24]: 'store tmp%23#0 to l-stack (copy)'
+debug: Replaced main_bootstrap_route@4.ops[26]: 'load tmp%23#0' with 'load tmp%23#0 from l-stack (no copy)'
+debug: Inserted main_bootstrap_route@4.ops[29]: 'store tmp%24#0 to l-stack (copy)'
+debug: Replaced main_bootstrap_route@4.ops[31]: 'load tmp%24#0' with 'load tmp%24#0 from l-stack (no copy)'
+debug: Inserted main_bootstrap_route@4.ops[23]: 'store awst_tmp%22#0 to l-stack (copy)'
+debug: Replaced main_bootstrap_route@4.ops[34]: 'load awst_tmp%22#0' with 'load awst_tmp%22#0 from l-stack (no copy)'
 debug: Inserted main_close_route@5.ops[1]: 'store tmp%27#0 to l-stack (copy)'
 debug: Replaced main_close_route@5.ops[3]: 'load tmp%27#0' with 'load tmp%27#0 from l-stack (no copy)'
 debug: Inserted main_close_route@5.ops[5]: 'store tmp%28#0 to l-stack (copy)'
@@ -1593,22 +1548,22 @@ debug: Inserted main_vote_route@7.ops[5]: 'store tmp%37#0 to l-stack (copy)'
 debug: Replaced main_vote_route@7.ops[7]: 'load tmp%37#0' with 'load tmp%37#0 from l-stack (no copy)'
 debug: Inserted main_vote_route@7.ops[10]: 'store tmp%38#0 to l-stack (copy)'
 debug: Replaced main_vote_route@7.ops[12]: 'load tmp%38#0' with 'load tmp%38#0 from l-stack (no copy)'
-debug: Inserted main_vote_route@7.ops[15]: 'store tmp%41#0 to l-stack (copy)'
-debug: Replaced main_vote_route@7.ops[17]: 'load tmp%41#0' with 'load tmp%41#0 from l-stack (no copy)'
-debug: Inserted main_vote_route@7.ops[20]: 'store awst_tmp%24#0 to l-stack (copy)'
-debug: Replaced main_vote_route@7.ops[22]: 'load awst_tmp%24#0' with 'load awst_tmp%24#0 from l-stack (no copy)'
-debug: Inserted main_vote_route@7.ops[24]: 'store tmp%42#0 to l-stack (copy)'
-debug: Replaced main_vote_route@7.ops[26]: 'load tmp%42#0' with 'load tmp%42#0 from l-stack (no copy)'
-debug: Inserted main_vote_route@7.ops[29]: 'store tmp%43#0 to l-stack (copy)'
-debug: Replaced main_vote_route@7.ops[31]: 'load tmp%43#0' with 'load tmp%43#0 from l-stack (no copy)'
-debug: Inserted main_vote_route@7.ops[34]: 'store tmp%44#0 to l-stack (copy)'
-debug: Replaced main_vote_route@7.ops[36]: 'load tmp%44#0' with 'load tmp%44#0 from l-stack (no copy)'
-debug: Inserted main_vote_route@7.ops[40]: 'store tmp%46#0 to l-stack (copy)'
+debug: Inserted main_vote_route@7.ops[15]: 'store tmp%39#0 to l-stack (copy)'
+debug: Replaced main_vote_route@7.ops[17]: 'load tmp%39#0' with 'load tmp%39#0 from l-stack (no copy)'
+debug: Inserted main_vote_route@7.ops[20]: 'store awst_tmp%40#0 to l-stack (copy)'
+debug: Replaced main_vote_route@7.ops[22]: 'load awst_tmp%40#0' with 'load awst_tmp%40#0 from l-stack (no copy)'
+debug: Inserted main_vote_route@7.ops[24]: 'store tmp%41#0 to l-stack (copy)'
+debug: Replaced main_vote_route@7.ops[26]: 'load tmp%41#0' with 'load tmp%41#0 from l-stack (no copy)'
+debug: Inserted main_vote_route@7.ops[29]: 'store tmp%42#0 to l-stack (copy)'
+debug: Replaced main_vote_route@7.ops[31]: 'load tmp%42#0' with 'load tmp%42#0 from l-stack (no copy)'
+debug: Inserted main_vote_route@7.ops[34]: 'store tmp%45#0 to l-stack (copy)'
+debug: Replaced main_vote_route@7.ops[36]: 'load tmp%45#0' with 'load tmp%45#0 from l-stack (no copy)'
+debug: Inserted main_vote_route@7.ops[40]: 'store tmp%47#0 to l-stack (copy)'
+debug: Replaced main_vote_route@7.ops[44]: 'load tmp%47#0' with 'load tmp%47#0 from l-stack (no copy)'
+debug: Inserted main_vote_route@7.ops[38]: 'store tmp%46#0 to l-stack (copy)'
 debug: Replaced main_vote_route@7.ops[44]: 'load tmp%46#0' with 'load tmp%46#0 from l-stack (no copy)'
-debug: Inserted main_vote_route@7.ops[38]: 'store tmp%45#0 to l-stack (copy)'
-debug: Replaced main_vote_route@7.ops[44]: 'load tmp%45#0' with 'load tmp%45#0 from l-stack (no copy)'
-debug: Inserted main_vote_route@7.ops[23]: 'store awst_tmp%24#0 to l-stack (copy)'
-debug: Replaced main_vote_route@7.ops[44]: 'load awst_tmp%24#0' with 'load awst_tmp%24#0 from l-stack (no copy)'
+debug: Inserted main_vote_route@7.ops[23]: 'store awst_tmp%40#0 to l-stack (copy)'
+debug: Replaced main_vote_route@7.ops[44]: 'load awst_tmp%40#0' with 'load awst_tmp%40#0 from l-stack (no copy)'
 debug: Found 2 edge set/s for examples.voting.voting.VotingRoundApp.approval_program
 debug: Inserted create_block@0.ops[3]: 'store tmp%0#0 to l-stack (copy)'
 debug: Replaced create_block@0.ops[5]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
@@ -1659,20 +1614,20 @@ debug: Inserted bootstrap_block@0.ops[62]: 'store tmp%11#0 to l-stack (copy)'
 debug: Replaced bootstrap_block@0.ops[64]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
 debug: Inserted bootstrap_block@0.ops[69]: 'store tmp%12#0 to l-stack (copy)'
 debug: Replaced bootstrap_block@0.ops[71]: 'load tmp%12#0' with 'load tmp%12#0 from l-stack (no copy)'
-debug: Inserted bootstrap_block@0.ops[3]: 'store app_global_get_ex_did_exist%1#0 to l-stack (copy)'
-debug: Replaced bootstrap_block@0.ops[6]: 'load app_global_get_ex_did_exist%1#0' with 'load app_global_get_ex_did_exist%1#0 from l-stack (no copy)'
+debug: Inserted bootstrap_block@0.ops[3]: 'store is_bootstrapped_exists%1#0 to l-stack (copy)'
+debug: Replaced bootstrap_block@0.ops[6]: 'load is_bootstrapped_exists%1#0' with 'load is_bootstrapped_exists%1#0 from l-stack (no copy)'
 debug: Inserted bootstrap_block@0.ops[21]: 'store tmp%4#0 to l-stack (copy)'
 debug: Replaced bootstrap_block@0.ops[24]: 'load tmp%4#0' with 'load tmp%4#0 from l-stack (no copy)'
-debug: Inserted bootstrap_block@0.ops[33]: 'store app_global_get_ex_did_exist%7#0 to l-stack (copy)'
-debug: Replaced bootstrap_block@0.ops[36]: 'load app_global_get_ex_did_exist%7#0' with 'load app_global_get_ex_did_exist%7#0 from l-stack (no copy)'
+debug: Inserted bootstrap_block@0.ops[33]: 'store total_options_exists%7#0 to l-stack (copy)'
+debug: Replaced bootstrap_block@0.ops[36]: 'load total_options_exists%7#0' with 'load total_options_exists%7#0 from l-stack (no copy)'
 debug: Inserted bootstrap_block@0.ops[46]: 'store tmp%8#0 to l-stack (copy)'
 debug: Replaced bootstrap_block@0.ops[49]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
-debug: Inserted bootstrap_block@0.ops[5]: 'store app_global_get_ex_value%0#0 to l-stack (copy)'
-debug: Replaced bootstrap_block@0.ops[9]: 'load app_global_get_ex_value%0#0' with 'load app_global_get_ex_value%0#0 from l-stack (no copy)'
+debug: Inserted bootstrap_block@0.ops[5]: 'store is_bootstrapped_value%0#0 to l-stack (copy)'
+debug: Replaced bootstrap_block@0.ops[9]: 'load is_bootstrapped_value%0#0' with 'load is_bootstrapped_value%0#0 from l-stack (no copy)'
 debug: Inserted bootstrap_block@0.ops[20]: 'store tmp%3#0 to l-stack (copy)'
 debug: Replaced bootstrap_block@0.ops[25]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
-debug: Inserted bootstrap_block@0.ops[37]: 'store app_global_get_ex_value%6#0 to l-stack (copy)'
-debug: Replaced bootstrap_block@0.ops[41]: 'load app_global_get_ex_value%6#0' with 'load app_global_get_ex_value%6#0 from l-stack (no copy)'
+debug: Inserted bootstrap_block@0.ops[37]: 'store total_options_value%6#0 to l-stack (copy)'
+debug: Replaced bootstrap_block@0.ops[41]: 'load total_options_value%6#0' with 'load total_options_value%6#0 from l-stack (no copy)'
 debug: Inserted bootstrap_block@0.ops[57]: 'store min_balance_req#0 to l-stack (copy)'
 debug: Replaced bootstrap_block@0.ops[68]: 'load min_balance_req#0' with 'load min_balance_req#0 from l-stack (no copy)'
 debug: Inserted bootstrap_block@0.ops[47]: 'store tally_box_size#0 to l-stack (copy)'
@@ -1691,40 +1646,40 @@ debug: Inserted close_block@0.ops[99]: 'store tmp%24#0 to l-stack (copy)'
 debug: Replaced close_block@0.ops[101]: 'load tmp%24#0' with 'load tmp%24#0 from l-stack (no copy)'
 debug: Inserted close_block@0.ops[122]: 'store item_index_internal%29#0 to l-stack (copy)'
 debug: Replaced close_block@0.ops[124]: 'load item_index_internal%29#0' with 'load item_index_internal%29#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[6]: 'store tmp%1#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[9]: 'load tmp%1#0' with 'load tmp%1#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[6]: 'store close_time_exists%1#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[9]: 'load close_time_exists%1#0' with 'load close_time_exists%1#0 from l-stack (no copy)'
 debug: Inserted close_block@0.ops[16]: 'store new_state_value%3#0 to l-stack (copy)'
 debug: Replaced close_block@0.ops[19]: 'load new_state_value%3#0' with 'load new_state_value%3#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[24]: 'store app_global_get_ex_did_exist%5#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[27]: 'load app_global_get_ex_did_exist%5#0' with 'load app_global_get_ex_did_exist%5#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[41]: 'store app_global_get_ex_did_exist%9#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[44]: 'load app_global_get_ex_did_exist%9#0' with 'load app_global_get_ex_did_exist%9#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[58]: 'store app_global_get_ex_did_exist%13#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[61]: 'load app_global_get_ex_did_exist%13#0' with 'load app_global_get_ex_did_exist%13#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[75]: 'store app_global_get_ex_did_exist%17#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[78]: 'load app_global_get_ex_did_exist%17#0' with 'load app_global_get_ex_did_exist%17#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[24]: 'store vote_id_exists%5#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[27]: 'load vote_id_exists%5#0' with 'load vote_id_exists%5#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[41]: 'store metadata_ipfs_cid_exists%9#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[44]: 'load metadata_ipfs_cid_exists%9#0' with 'load metadata_ipfs_cid_exists%9#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[58]: 'store vote_id_exists%13#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[61]: 'load vote_id_exists%13#0' with 'load vote_id_exists%13#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[75]: 'store quorum_exists%17#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[78]: 'load quorum_exists%17#0' with 'load quorum_exists%17#0 from l-stack (no copy)'
 debug: Inserted close_block@0.ops[82]: 'store tmp%18#0 to l-stack (copy)'
 debug: Replaced close_block@0.ops[85]: 'load tmp%18#0' with 'load tmp%18#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[96]: 'store app_global_get_ex_did_exist%22#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[99]: 'load app_global_get_ex_did_exist%22#0' with 'load app_global_get_ex_did_exist%22#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[96]: 'store voter_count_exists%22#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[99]: 'load voter_count_exists%22#0' with 'load voter_count_exists%22#0 from l-stack (no copy)'
 debug: Inserted close_block@0.ops[103]: 'store tmp%23#0 to l-stack (copy)'
 debug: Replaced close_block@0.ops[106]: 'load tmp%23#0' with 'load tmp%23#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[119]: 'store app_global_get_ex_did_exist%26#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[122]: 'load app_global_get_ex_did_exist%26#0' with 'load app_global_get_ex_did_exist%26#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[77]: 'store app_global_get_ex_value%16#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[81]: 'load app_global_get_ex_value%16#0' with 'load app_global_get_ex_value%16#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[99]: 'store app_global_get_ex_value%21#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[103]: 'load app_global_get_ex_value%21#0' with 'load app_global_get_ex_value%21#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[123]: 'store app_global_get_ex_value%25#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[127]: 'load app_global_get_ex_value%25#0' with 'load app_global_get_ex_value%25#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[26]: 'store app_global_get_ex_value%4#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[31]: 'load app_global_get_ex_value%4#0' with 'load app_global_get_ex_value%4#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[44]: 'store app_global_get_ex_value%8#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[49]: 'load app_global_get_ex_value%8#0' with 'load app_global_get_ex_value%8#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[62]: 'store app_global_get_ex_value%12#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[67]: 'load app_global_get_ex_value%12#0' with 'load app_global_get_ex_value%12#0 from l-stack (no copy)'
-debug: Inserted close_block@0.ops[131]: 'store app_global_get_ex_value%25#0 to l-stack (copy)'
-debug: Replaced close_block@0.ops[135]: 'load app_global_get_ex_value%25#0' with 'load app_global_get_ex_value%25#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[119]: 'store option_counts_exists%26#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[122]: 'load option_counts_exists%26#0' with 'load option_counts_exists%26#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[77]: 'store quorum_value%16#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[81]: 'load quorum_value%16#0' with 'load quorum_value%16#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[99]: 'store voter_count_value%21#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[103]: 'load voter_count_value%21#0' with 'load voter_count_value%21#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[123]: 'store option_counts_value%25#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[127]: 'load option_counts_value%25#0' with 'load option_counts_value%25#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[26]: 'store vote_id_value%4#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[31]: 'load vote_id_value%4#0' with 'load vote_id_value%4#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[44]: 'store metadata_ipfs_cid_value%8#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[49]: 'load metadata_ipfs_cid_value%8#0' with 'load metadata_ipfs_cid_value%8#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[62]: 'store vote_id_value%12#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[67]: 'load vote_id_value%12#0' with 'load vote_id_value%12#0 from l-stack (no copy)'
+debug: Inserted close_block@0.ops[131]: 'store option_counts_value%25#0 to l-stack (copy)'
+debug: Replaced close_block@0.ops[135]: 'load option_counts_value%25#0' with 'load option_counts_value%25#0 from l-stack (no copy)'
 debug: Inserted close_block@0.ops[38]: 'store tmp%7#0 to l-stack (copy)'
 debug: Replaced close_block@0.ops[49]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
 debug: Inserted close_block@0.ops[57]: 'store tmp%11#0 to l-stack (copy)'
@@ -1769,16 +1724,16 @@ debug: Inserted close_after_for@12.ops[3]: 'store note#0 to l-stack (copy)'
 debug: Replaced close_after_for@12.ops[7]: 'load note#0' with 'load note#0 from l-stack (no copy)'
 debug: Inserted close_after_if_else@13.ops[7]: 'store item_index_internal%29#0 to l-stack (copy)'
 debug: Replaced close_after_if_else@13.ops[9]: 'load item_index_internal%29#0' with 'load item_index_internal%29#0 from l-stack (no copy)'
-debug: Inserted close_after_for@15.ops[8]: 'store app_global_get_ex_did_exist%42#0 to l-stack (copy)'
-debug: Replaced close_after_for@15.ops[11]: 'load app_global_get_ex_did_exist%42#0' with 'load app_global_get_ex_did_exist%42#0 from l-stack (no copy)'
-debug: Inserted close_after_for@15.ops[20]: 'store app_global_get_ex_did_exist%44#0 to l-stack (copy)'
-debug: Replaced close_after_for@15.ops[23]: 'load app_global_get_ex_did_exist%44#0' with 'load app_global_get_ex_did_exist%44#0 from l-stack (no copy)'
+debug: Inserted close_after_for@15.ops[8]: 'store vote_id_exists%42#0 to l-stack (copy)'
+debug: Replaced close_after_for@15.ops[11]: 'load vote_id_exists%42#0' with 'load vote_id_exists%42#0 from l-stack (no copy)'
+debug: Inserted close_after_for@15.ops[20]: 'store nft_image_url_exists%44#0 to l-stack (copy)'
+debug: Replaced close_after_for@15.ops[23]: 'load nft_image_url_exists%44#0' with 'load nft_image_url_exists%44#0 from l-stack (no copy)'
 debug: Inserted close_after_for@15.ops[43]: 'store submit_result_0%39%%CreatedAssetID#0 to l-stack (copy)'
 debug: Replaced close_after_for@15.ops[46]: 'load submit_result_0%39%%CreatedAssetID#0' with 'load submit_result_0%39%%CreatedAssetID#0 from l-stack (no copy)'
-debug: Inserted close_after_for@15.ops[22]: 'store app_global_get_ex_value%43#0 to l-stack (copy)'
-debug: Replaced close_after_for@15.ops[26]: 'load app_global_get_ex_value%43#0' with 'load app_global_get_ex_value%43#0 from l-stack (no copy)'
-debug: Inserted close_after_for@15.ops[10]: 'store app_global_get_ex_value%41#0 to l-stack (copy)'
-debug: Replaced close_after_for@15.ops[15]: 'load app_global_get_ex_value%41#0' with 'load app_global_get_ex_value%41#0 from l-stack (no copy)'
+debug: Inserted close_after_for@15.ops[22]: 'store nft_image_url_value%43#0 to l-stack (copy)'
+debug: Replaced close_after_for@15.ops[26]: 'load nft_image_url_value%43#0' with 'load nft_image_url_value%43#0 from l-stack (no copy)'
+debug: Inserted close_after_for@15.ops[10]: 'store vote_id_value%41#0 to l-stack (copy)'
+debug: Replaced close_after_for@15.ops[15]: 'load vote_id_value%41#0' with 'load vote_id_value%41#0 from l-stack (no copy)'
 debug: Inserted close_after_for@15.ops[17]: 'store inner_txn_params%40%%param_ConfigAssetName_idx_0#0 to l-stack (copy)'
 debug: Replaced close_after_for@15.ops[42]: 'load inner_txn_params%40%%param_ConfigAssetName_idx_0#0' with 'load inner_txn_params%40%%param_ConfigAssetName_idx_0#0 from l-stack (no copy)'
 debug: Inserted close_after_for@15.ops[3]: 'store note#0 to l-stack (copy)'
@@ -1826,56 +1781,58 @@ debug: Inserted get_vote_from_box_block@0.ops[4]: 'store box_data#0 to l-stack (
 debug: Replaced get_vote_from_box_block@0.ops[8]: 'load box_data#0' with 'load box_data#0 from l-stack (no copy)'
 debug: Inserted get_preconditions_block@0.ops[1]: 'store tmp%0#0 to l-stack (copy)'
 debug: Replaced get_preconditions_block@0.ops[3]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[22]: 'store tmp%8#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[24]: 'load tmp%8#0' with 'load tmp%8#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[26]: 'store tmp%9#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[28]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[32]: 'store tmp%11#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[34]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[38]: 'store tmp%13#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[40]: 'load tmp%13#0' with 'load tmp%13#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[46]: 'store encoded_tuple_buffer%16#2 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[48]: 'load encoded_tuple_buffer%16#2' with 'load encoded_tuple_buffer%16#2 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[51]: 'store encoded_tuple_buffer%16#2 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[53]: 'load encoded_tuple_buffer%16#2' with 'load encoded_tuple_buffer%16#2 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[56]: 'store encoded_tuple_buffer%16#2 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[58]: 'load encoded_tuple_buffer%16#2' with 'load encoded_tuple_buffer%16#2 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[8]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[11]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[18]: 'store tmp%6#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[21]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
 debug: Inserted get_preconditions_block@0.ops[12]: 'store tmp%3#0 to l-stack (copy)'
-debug: Replaced get_preconditions_block@0.ops[14]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_block@0.ops[8]: 'store awst_tmp%2#0 to l-stack (copy)'
-debug: Replaced get_preconditions_block@0.ops[11]: 'load awst_tmp%2#0' with 'load awst_tmp%2#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[4]: 'store tmp%6#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[6]: 'load tmp%6#0' with 'load tmp%6#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[8]: 'store tmp%7#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[10]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[14]: 'store tmp%9#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[16]: 'load tmp%9#0' with 'load tmp%9#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[20]: 'store tmp%11#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[22]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[28]: 'store encoded_tuple_buffer%14#2 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[30]: 'load encoded_tuple_buffer%14#2' with 'load encoded_tuple_buffer%14#2 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[33]: 'store encoded_tuple_buffer%14#2 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[35]: 'load encoded_tuple_buffer%14#2' with 'load encoded_tuple_buffer%14#2 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[38]: 'store encoded_tuple_buffer%14#2 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[40]: 'load encoded_tuple_buffer%14#2' with 'load encoded_tuple_buffer%14#2 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[24]: 'store val_as_bytes%12#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[37]: 'load val_as_bytes%12#0' with 'load val_as_bytes%12#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[18]: 'store val_as_bytes%10#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[33]: 'load val_as_bytes%10#0' with 'load val_as_bytes%10#0 from l-stack (no copy)'
-debug: Inserted get_preconditions_ternary_merge@3.ops[12]: 'store val_as_bytes%8#0 to l-stack (copy)'
-debug: Replaced get_preconditions_ternary_merge@3.ops[29]: 'load val_as_bytes%8#0' with 'load val_as_bytes%8#0 from l-stack (no copy)'
-debug: Found 2 edge set/s for examples.voting.voting.VotingRoundApp.get_preconditions
-debug: Allocated 1 variable/s to x-stack: ternary_result%4#0
-debug: shared x-stack for get_preconditions_ternary_true@1 -> get_preconditions_ternary_merge@3: ternary_result%4#0
-debug: shared x-stack for get_preconditions_ternary_false@2 -> get_preconditions_ternary_merge@3: ternary_result%4#0
-debug: examples.voting.voting.VotingRoundApp.get_preconditions f-stack entry: []
-debug: examples.voting.voting.VotingRoundApp.get_preconditions f-stack on first store: ['val_as_bytes%1#0', 'awst_tmp%2#0']
-debug: Inserted voting_open_block@0.ops[3]: 'store app_global_get_ex_did_exist%1#0 to l-stack (copy)'
-debug: Replaced voting_open_block@0.ops[6]: 'load app_global_get_ex_did_exist%1#0' with 'load app_global_get_ex_did_exist%1#0 from l-stack (no copy)'
-debug: Inserted voting_open_block@0.ops[5]: 'store app_global_get_ex_value%0#0 to l-stack (copy)'
-debug: Replaced voting_open_block@0.ops[9]: 'load app_global_get_ex_value%0#0' with 'load app_global_get_ex_value%0#0 from l-stack (no copy)'
-debug: Inserted voting_open_and_contd@1.ops[3]: 'store tmp%3#0 to l-stack (copy)'
-debug: Replaced voting_open_and_contd@1.ops[6]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Replaced get_preconditions_block@0.ops[15]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[14]: 'store tmp%5#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[18]: 'load tmp%5#0' with 'load tmp%5#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[17]: 'store tmp%3#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[25]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[47]: 'store val_as_bytes%14#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[60]: 'load val_as_bytes%14#0' with 'load val_as_bytes%14#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[41]: 'store val_as_bytes%12#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[56]: 'load val_as_bytes%12#0' with 'load val_as_bytes%12#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[35]: 'store val_as_bytes%10#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[52]: 'load val_as_bytes%10#0' with 'load val_as_bytes%10#0 from l-stack (no copy)'
+debug: Inserted get_preconditions_block@0.ops[5]: 'store val_as_bytes%1#0 to l-stack (copy)'
+debug: Replaced get_preconditions_block@0.ops[52]: 'load val_as_bytes%1#0' with 'load val_as_bytes%1#0 from l-stack (no copy)'
+debug: Inserted voting_open_block@0.ops[3]: 'store is_bootstrapped_exists%1#0 to l-stack (copy)'
+debug: Replaced voting_open_block@0.ops[6]: 'load is_bootstrapped_exists%1#0' with 'load is_bootstrapped_exists%1#0 from l-stack (no copy)'
+debug: Inserted voting_open_block@0.ops[5]: 'store is_bootstrapped_value%0#0 to l-stack (copy)'
+debug: Replaced voting_open_block@0.ops[9]: 'load is_bootstrapped_value%0#0' with 'load is_bootstrapped_value%0#0 from l-stack (no copy)'
+debug: Inserted voting_open_and_contd@1.ops[3]: 'store close_time_exists%3#0 to l-stack (copy)'
+debug: Replaced voting_open_and_contd@1.ops[6]: 'load close_time_exists%3#0' with 'load close_time_exists%3#0 from l-stack (no copy)'
 debug: Inserted voting_open_and_contd@2.ops[12]: 'store tmp%7#0 to l-stack (copy)'
 debug: Replaced voting_open_and_contd@2.ops[14]: 'load tmp%7#0' with 'load tmp%7#0 from l-stack (no copy)'
-debug: Inserted voting_open_and_contd@2.ops[3]: 'store app_global_get_ex_did_exist%5#0 to l-stack (copy)'
-debug: Replaced voting_open_and_contd@2.ops[6]: 'load app_global_get_ex_did_exist%5#0' with 'load app_global_get_ex_did_exist%5#0 from l-stack (no copy)'
+debug: Inserted voting_open_and_contd@2.ops[3]: 'store start_time_exists%5#0 to l-stack (copy)'
+debug: Replaced voting_open_and_contd@2.ops[6]: 'load start_time_exists%5#0' with 'load start_time_exists%5#0 from l-stack (no copy)'
 debug: Inserted voting_open_and_contd@2.ops[9]: 'store awst_tmp%6#0 to l-stack (copy)'
 debug: Replaced voting_open_and_contd@2.ops[12]: 'load awst_tmp%6#0' with 'load awst_tmp%6#0 from l-stack (no copy)'
-debug: Inserted voting_open_and_contd@2.ops[5]: 'store app_global_get_ex_value%4#0 to l-stack (copy)'
-debug: Replaced voting_open_and_contd@2.ops[12]: 'load app_global_get_ex_value%4#0' with 'load app_global_get_ex_value%4#0 from l-stack (no copy)'
+debug: Inserted voting_open_and_contd@2.ops[5]: 'store start_time_value%4#0 to l-stack (copy)'
+debug: Replaced voting_open_and_contd@2.ops[12]: 'load start_time_value%4#0' with 'load start_time_value%4#0 from l-stack (no copy)'
 debug: Inserted voting_open_and_contd@3.ops[10]: 'store tmp%10#0 to l-stack (copy)'
 debug: Replaced voting_open_and_contd@3.ops[12]: 'load tmp%10#0' with 'load tmp%10#0 from l-stack (no copy)'
-debug: Inserted voting_open_and_contd@3.ops[3]: 'store app_global_get_ex_did_exist%9#0 to l-stack (copy)'
-debug: Replaced voting_open_and_contd@3.ops[6]: 'load app_global_get_ex_did_exist%9#0' with 'load app_global_get_ex_did_exist%9#0 from l-stack (no copy)'
-debug: Inserted voting_open_and_contd@3.ops[5]: 'store app_global_get_ex_value%8#0 to l-stack (copy)'
-debug: Replaced voting_open_and_contd@3.ops[10]: 'load app_global_get_ex_value%8#0' with 'load app_global_get_ex_value%8#0 from l-stack (no copy)'
+debug: Inserted voting_open_and_contd@3.ops[3]: 'store end_time_exists%9#0 to l-stack (copy)'
+debug: Replaced voting_open_and_contd@3.ops[6]: 'load end_time_exists%9#0' with 'load end_time_exists%9#0 from l-stack (no copy)'
+debug: Inserted voting_open_and_contd@3.ops[5]: 'store end_time_value%8#0 to l-stack (copy)'
+debug: Replaced voting_open_and_contd@3.ops[10]: 'load end_time_value%8#0' with 'load end_time_value%8#0 from l-stack (no copy)'
 debug: Found 2 edge set/s for examples.voting.voting.VotingRoundApp.voting_open
 debug: Allocated 1 variable/s to x-stack: and_result%11#0
 debug: shared x-stack for voting_open_bool_true@4 -> voting_open_bool_merge@6: and_result%11#0
@@ -1884,10 +1841,10 @@ debug: examples.voting.voting.VotingRoundApp.voting_open f-stack entry: ['awst_t
 debug: examples.voting.voting.VotingRoundApp.voting_open f-stack on first store: []
 debug: Inserted allowed_to_vote_block@0.ops[16]: 'store tmp%3#0 to l-stack (copy)'
 debug: Replaced allowed_to_vote_block@0.ops[18]: 'load tmp%3#0' with 'load tmp%3#0 from l-stack (no copy)'
-debug: Inserted allowed_to_vote_block@0.ops[8]: 'store app_global_get_ex_did_exist%2#0 to l-stack (copy)'
-debug: Replaced allowed_to_vote_block@0.ops[11]: 'load app_global_get_ex_did_exist%2#0' with 'load app_global_get_ex_did_exist%2#0 from l-stack (no copy)'
-debug: Inserted allowed_to_vote_block@0.ops[10]: 'store app_global_get_ex_value%1#0 to l-stack (copy)'
-debug: Replaced allowed_to_vote_block@0.ops[16]: 'load app_global_get_ex_value%1#0' with 'load app_global_get_ex_value%1#0 from l-stack (no copy)'
+debug: Inserted allowed_to_vote_block@0.ops[8]: 'store snapshot_public_key_exists%2#0 to l-stack (copy)'
+debug: Replaced allowed_to_vote_block@0.ops[11]: 'load snapshot_public_key_exists%2#0' with 'load snapshot_public_key_exists%2#0 from l-stack (no copy)'
+debug: Inserted allowed_to_vote_block@0.ops[10]: 'store snapshot_public_key_value%1#0 to l-stack (copy)'
+debug: Replaced allowed_to_vote_block@0.ops[16]: 'load snapshot_public_key_value%1#0' with 'load snapshot_public_key_value%1#0 from l-stack (no copy)'
 debug: Inserted allowed_to_vote_block@0.ops[4]: 'store tmp%0#0 to l-stack (copy)'
 debug: Replaced allowed_to_vote_block@0.ops[15]: 'load tmp%0#0' with 'load tmp%0#0 from l-stack (no copy)'
 debug: Inserted already_voted_block@0.ops[1]: 'store tmp%0#0 to l-stack (copy)'
@@ -1918,14 +1875,14 @@ debug: Inserted vote_block@0.ops[84]: 'store tmp%17#0 to l-stack (copy)'
 debug: Replaced vote_block@0.ops[86]: 'load tmp%17#0' with 'load tmp%17#0 from l-stack (no copy)'
 debug: Inserted vote_block@0.ops[91]: 'store range_item%18#0 to l-stack (copy)'
 debug: Replaced vote_block@0.ops[93]: 'load range_item%18#0' with 'load range_item%18#0 from l-stack (no copy)'
-debug: Inserted vote_block@0.ops[26]: 'store app_global_get_ex_did_exist%5#0 to l-stack (copy)'
-debug: Replaced vote_block@0.ops[29]: 'load app_global_get_ex_did_exist%5#0' with 'load app_global_get_ex_did_exist%5#0 from l-stack (no copy)'
+debug: Inserted vote_block@0.ops[26]: 'store option_counts_exists%5#0 to l-stack (copy)'
+debug: Replaced vote_block@0.ops[29]: 'load option_counts_exists%5#0' with 'load option_counts_exists%5#0 from l-stack (no copy)'
 debug: Inserted vote_block@0.ops[55]: 'store tmp%11#0 to l-stack (copy)'
 debug: Replaced vote_block@0.ops[58]: 'load tmp%11#0' with 'load tmp%11#0 from l-stack (no copy)'
 debug: Inserted vote_block@0.ops[65]: 'store tmp%13#0 to l-stack (copy)'
 debug: Replaced vote_block@0.ops[68]: 'load tmp%13#0' with 'load tmp%13#0 from l-stack (no copy)'
-debug: Inserted vote_block@0.ops[28]: 'store app_global_get_ex_value%4#0 to l-stack (copy)'
-debug: Replaced vote_block@0.ops[32]: 'load app_global_get_ex_value%4#0' with 'load app_global_get_ex_value%4#0 from l-stack (no copy)'
+debug: Inserted vote_block@0.ops[28]: 'store option_counts_value%4#0 to l-stack (copy)'
+debug: Replaced vote_block@0.ops[32]: 'load option_counts_value%4#0' with 'load option_counts_value%4#0 from l-stack (no copy)'
 debug: Inserted vote_block@0.ops[64]: 'store tmp%12#0 to l-stack (copy)'
 debug: Replaced vote_block@0.ops[69]: 'load tmp%12#0' with 'load tmp%12#0 from l-stack (no copy)'
 debug: Inserted vote_block@0.ops[35]: 'store questions_count#0 to l-stack (copy)'
@@ -1958,28 +1915,28 @@ debug: Inserted vote_for_body@2.ops[70]: 'store tmp%34#0 to l-stack (copy)'
 debug: Replaced vote_for_body@2.ops[72]: 'load tmp%34#0' with 'load tmp%34#0 from l-stack (no copy)'
 debug: Inserted vote_for_body@2.ops[92]: 'store range_item%18#0 to l-stack (copy)'
 debug: Replaced vote_for_body@2.ops[94]: 'load range_item%18#0' with 'load range_item%18#0 from l-stack (no copy)'
-debug: Inserted vote_for_body@2.ops[23]: 'store app_global_get_ex_did_exist%26#0 to l-stack (copy)'
-debug: Replaced vote_for_body@2.ops[26]: 'load app_global_get_ex_did_exist%26#0' with 'load app_global_get_ex_did_exist%26#0 from l-stack (no copy)'
+debug: Inserted vote_for_body@2.ops[23]: 'store option_counts_exists%26#0 to l-stack (copy)'
+debug: Replaced vote_for_body@2.ops[26]: 'load option_counts_exists%26#0' with 'load option_counts_exists%26#0 from l-stack (no copy)'
 debug: Inserted vote_for_body@2.ops[31]: 'store array_length%27#0 to l-stack (copy)'
 debug: Replaced vote_for_body@2.ops[34]: 'load array_length%27#0' with 'load array_length%27#0 from l-stack (no copy)'
 debug: Inserted vote_for_body@2.ops[52]: 'store options_count#0 to l-stack (copy)'
 debug: Replaced vote_for_body@2.ops[55]: 'load options_count#0' with 'load options_count#0 from l-stack (no copy)'
-debug: Inserted vote_for_body@2.ops[81]: 'store app_global_get_ex_did_exist%36#0 to l-stack (copy)'
-debug: Replaced vote_for_body@2.ops[84]: 'load app_global_get_ex_did_exist%36#0' with 'load app_global_get_ex_did_exist%36#0 from l-stack (no copy)'
+debug: Inserted vote_for_body@2.ops[81]: 'store voter_count_exists%36#0 to l-stack (copy)'
+debug: Replaced vote_for_body@2.ops[84]: 'load voter_count_exists%36#0' with 'load voter_count_exists%36#0 from l-stack (no copy)'
 debug: Inserted vote_for_body@2.ops[89]: 'store new_state_value%37#0 to l-stack (copy)'
 debug: Replaced vote_for_body@2.ops[92]: 'load new_state_value%37#0' with 'load new_state_value%37#0 from l-stack (no copy)'
-debug: Inserted vote_for_body@2.ops[25]: 'store app_global_get_ex_value%25#0 to l-stack (copy)'
-debug: Replaced vote_for_body@2.ops[29]: 'load app_global_get_ex_value%25#0' with 'load app_global_get_ex_value%25#0 from l-stack (no copy)'
-debug: Inserted vote_for_body@2.ops[84]: 'store app_global_get_ex_value%35#0 to l-stack (copy)'
-debug: Replaced vote_for_body@2.ops[88]: 'load app_global_get_ex_value%35#0' with 'load app_global_get_ex_value%35#0 from l-stack (no copy)'
+debug: Inserted vote_for_body@2.ops[25]: 'store option_counts_value%25#0 to l-stack (copy)'
+debug: Replaced vote_for_body@2.ops[29]: 'load option_counts_value%25#0' with 'load option_counts_value%25#0 from l-stack (no copy)'
+debug: Inserted vote_for_body@2.ops[84]: 'store voter_count_value%35#0 to l-stack (copy)'
+debug: Replaced vote_for_body@2.ops[88]: 'load voter_count_value%35#0' with 'load voter_count_value%35#0 from l-stack (no copy)'
 debug: Inserted vote_for_body@2.ops[63]: 'store cumulative_offset#0 to l-stack (copy)'
 debug: Replaced vote_for_body@2.ops[70]: 'load cumulative_offset#0' with 'load cumulative_offset#0 from l-stack (no copy)'
 debug: Inserted vote_for_body@2.ops[56]: 'store answer_option_index#0 to l-stack (copy)'
 debug: Replaced vote_for_body@2.ops[65]: 'load answer_option_index#0' with 'load answer_option_index#0 from l-stack (no copy)'
 debug: Inserted vote_for_body@2.ops[1]: 'store question_index#0 to l-stack (copy)'
 debug: Replaced vote_for_body@2.ops[13]: 'load question_index#0' with 'load question_index#0 from l-stack (no copy)'
-debug: Inserted vote_for_body@2.ops[31]: 'store app_global_get_ex_value%25#0 to l-stack (copy)'
-debug: Replaced vote_for_body@2.ops[43]: 'load app_global_get_ex_value%25#0' with 'load app_global_get_ex_value%25#0 from l-stack (no copy)'
+debug: Inserted vote_for_body@2.ops[31]: 'store option_counts_value%25#0 to l-stack (copy)'
+debug: Replaced vote_for_body@2.ops[43]: 'load option_counts_value%25#0' with 'load option_counts_value%25#0 from l-stack (no copy)'
 debug: Inserted vote_for_body@2.ops[37]: 'store question_index#0 to l-stack (copy)'
 debug: Replaced vote_for_body@2.ops[49]: 'load question_index#0' with 'load question_index#0 from l-stack (no copy)'
 debug: Inserted vote_for_body@2.ops[61]: 'store options_count#0 to l-stack (copy)'

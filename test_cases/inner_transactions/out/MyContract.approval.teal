@@ -87,7 +87,7 @@ test1:
     int 0
     byte "name"
     app_global_get_ex
-    assert // check value exists
+    assert // check name exists
     // inner_transactions/contract.py:50
     // manager=op.Global.current_application_address,
     global CurrentApplicationAddress
@@ -140,7 +140,7 @@ test1:
     int 0
     byte "name"
     app_global_get_ex
-    assert // check value exists
+    assert // check name exists
     // inner_transactions/contract.py:61
     // asset2_txn = asset_params.submit()
     itxn_begin
@@ -1362,8 +1362,6 @@ test4:
     // @subroutine
     // def test4(self) -> None:
     proto 0 0
-    int 0
-    byte ""
     // inner_transactions/contract.py:233
     // lots_of_bytes = op.bzero(2044)
     int 2044
@@ -1391,16 +1389,6 @@ test4:
     // + lots_of_bytes
     // + Bytes(b"\x48")  # pop
     concat
-    // inner_transactions/contract.py:235-242
-    // approval_2 = (
-    //     Bytes(
-    //         b"\x80"  # pushbytes
-    //         b"\xFC\x0F"  # varuint 2044
-    //     )
-    //     + lots_of_bytes
-    //     + Bytes(b"\x48")  # pop
-    // )
-    dup
     // inner_transactions/contract.py:251
     // app_1 = app_p_1.submit()
     itxn_begin
@@ -1467,35 +1455,27 @@ test4:
     dig 1
     concat
     swap
+    dup
     len
+    int 3
+    dig 1
+    <
+    swap
     dup
     int 3
-    >
-    dup
-    bz test4_ternary_false@3
-    frame_dig 6
-    int 3
+    uncover 3
+    select
+    dig 1
+    swap
     -
-    dup
-    frame_bury 1
-    b test4_ternary_merge@4
-
-test4_ternary_false@3:
-    // inner_transactions/contract.py:255
-    // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
+    dig 2
     int 0
-
-test4_ternary_merge@4:
-    // inner_transactions/contract.py:255
-    // app_1.approval_program_pages(0) == approval_1 + approval_2 + approval_2[:-3]
-    frame_dig 2
-    int 0
-    uncover 2
+    dig 2
     substring3
-    frame_dig 5
+    uncover 4
     swap
     concat
-    frame_dig 4
+    uncover 4
     ==
     // inner_transactions/contract.py:254-256
     // assert (
@@ -1505,28 +1485,12 @@ test4_ternary_merge@4:
     // inner_transactions/contract.py:258
     // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
     itxna ApprovalProgramPages 1
-    frame_bury 0
-    frame_dig 7
-    bz test4_ternary_false@6
-    frame_dig 1
-    b test4_ternary_merge@7
-
-test4_ternary_false@6:
-    // inner_transactions/contract.py:258
-    // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
-    int 0
-
-test4_ternary_merge@7:
-    // inner_transactions/contract.py:258
-    // app_1.approval_program_pages(1) == approval_2[-3:] + approval_2
-    frame_dig 2
-    dup
+    dig 3
     uncover 2
-    frame_dig 6
+    uncover 3
     substring3
-    swap
+    uncover 2
     concat
-    frame_dig 0
     ==
     // inner_transactions/contract.py:257-259
     // assert (
@@ -1535,7 +1499,6 @@ test4_ternary_merge@7:
     assert // expected approval page 1
     // inner_transactions/contract.py:260
     // assert app_1.num_clear_state_program_pages == 1, "clear_state_pages == 1"
-    frame_dig 3
     int 1
     ==
     assert // clear_state_pages == 1

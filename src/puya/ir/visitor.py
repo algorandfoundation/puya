@@ -91,6 +91,10 @@ class IRVisitor(t.Generic[T], ABC):
     def visit_fail(self, fail: puya.ir.models.Fail) -> T:
         ...
 
+    @abstractmethod
+    def visit_template_var(self, deploy_var: puya.ir.models.TemplateVar) -> T:
+        ...
+
 
 class IRTraverser(IRVisitor[None]):
     active_block: puya.ir.models.BasicBlock
@@ -122,6 +126,9 @@ class IRTraverser(IRVisitor[None]):
         pass
 
     def visit_address_constant(self, const: puya.ir.models.AddressConstant) -> None:
+        pass
+
+    def visit_template_var(self, deploy_var: puya.ir.models.TemplateVar) -> None:
         pass
 
     def visit_method_constant(self, const: puya.ir.models.MethodConstant) -> None:
@@ -197,6 +204,9 @@ class NoOpIRVisitor(typing.Generic[T], IRVisitor[T | None]):
         return None
 
     def visit_phi(self, phi: puya.ir.models.Phi) -> T | None:
+        return None
+
+    def visit_template_var(self, deploy_var: puya.ir.models.TemplateVar) -> T | None:
         return None
 
     def visit_phi_argument(self, arg: puya.ir.models.PhiArgument) -> T | None:

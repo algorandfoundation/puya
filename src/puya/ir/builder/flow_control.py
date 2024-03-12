@@ -5,10 +5,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.builder.utils import (
-    assign,
-    mkblocks,
-)
+from puya.ir.builder._utils import assign, mkblocks
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,
@@ -85,7 +82,6 @@ def handle_switch(context: IRFunctionBuildContext, statement: awst_nodes.Switch)
         (statement.default_case and statement.default_case.description) or "switch_case_default",
         "switch_case_next",
     )
-
     switch_value = context.visitor.visit_and_materialise_single(statement.value)
     goto_default = Goto(
         target=default_block,

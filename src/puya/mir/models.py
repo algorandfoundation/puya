@@ -6,13 +6,13 @@ from functools import cached_property
 
 import attrs
 
+from puya.avm_type import AVMType
 from puya.errors import InternalError
 from puya.ir.utils import format_bytes
 
 if t.TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Sequence
 
-    from puya.avm_type import AVMType
     from puya.ir.types_ import AVMBytesEncoding
     from puya.mir.visitor import MIRVisitor
     from puya.parse import SourceLocation
@@ -51,6 +51,31 @@ class PushBytes(BaseOp):
 
     def __str__(self) -> str:
         return f"byte {format_bytes(self.value, self.encoding)}"
+
+
+@attrs.frozen(eq=False)
+class PushTemplateVar(BaseOp):
+    name: str
+    atype: AVMType = attrs.field()
+    op_code: str = attrs.field(init=False)
+
+    @op_code.default
+    def _default_opcode(self) -> str:
+        match self.atype:
+            case AVMType.bytes:
+                return "byte"
+            case AVMType.uint64:
+                return "int"
+            case _:
+                raise InternalError(
+                    f"Unsupported atype for PushTemplateVar: {self.atype}", self.source_location
+                )
+
+    def accept(self, visitor: MIRVisitor[_T]) -> _T:
+        return visitor.visit_push_deploy_var(self)
+
+    def __str__(self) -> str:
+        return f"{self.op_code} {self.name}"
 
 
 @attrs.frozen(eq=False)

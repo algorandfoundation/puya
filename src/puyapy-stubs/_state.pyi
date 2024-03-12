@@ -1,27 +1,34 @@
 import typing
 
-from puyapy import Account, UInt64
+from puyapy import Account, Bytes, BytesBacked, UInt64
 
-_T = typing.TypeVar("_T")
+_TState = typing.TypeVar("_TState", bound=UInt64 | Bytes | BytesBacked)
 
-class LocalState(typing.Generic[_T]):
+class LocalState(typing.Generic[_TState]):
     """Local state associated with the application and an account"""
 
-    def __init__(self, type_: type[_T], /) -> None:
-        """Must be initialized with the type that will be stored
+    def __init__(
+        self,
+        type_: type[_TState],
+        /,
+        *,
+        key: bytes | typing.LiteralString | None = None,
+        description: typing.LiteralString | None = None,
+    ) -> None:
+        """Declare the local state key and it's associated type
 
         ```python
         self.names = LocalState(puyapy.Bytes)
         ```
         """
-    def __getitem__(self, account: Account | UInt64 | int) -> _T:
+    def __getitem__(self, account: Account | UInt64 | int) -> _TState:
         """Data can be accessed by an `Account` reference or foreign account index
 
         ```python
         account_name = self.names[account]
         ```
         """
-    def __setitem__(self, account: Account | UInt64 | int, value: _T) -> None:
+    def __setitem__(self, account: Account | UInt64 | int, value: _TState) -> None:
         """Data can be stored by using an `Account` reference or foreign account index
 
         ```python
@@ -42,7 +49,7 @@ class LocalState(typing.Generic[_T]):
         assert account in self.names
         ```
         """
-    def get(self, account: Account | UInt64 | int, default: _T) -> _T:
+    def get(self, account: Account | UInt64 | int, default: _TState) -> _TState:
         """Can retrieve value using an `Account` reference or foreign account index,
         and a fallback default value.
 
@@ -50,7 +57,7 @@ class LocalState(typing.Generic[_T]):
         name = self.names.get(account, Bytes(b"no name")
         ```
         """
-    def maybe(self, account: Account | UInt64 | int) -> tuple[_T, bool]:
+    def maybe(self, account: Account | UInt64 | int) -> tuple[_TState, bool]:
         """Can retrieve value, and a bool indicating if the value was present
         using an `Account` reference or foreign account index.
 
@@ -61,7 +68,7 @@ class LocalState(typing.Generic[_T]):
         ```
         """
 
-class GlobalState(typing.Generic[_T]):
+class GlobalState(typing.Generic[_TState]):
     """Global state associated with the application, the key will be the name of the member, this
     is assigned to
 
@@ -74,13 +81,26 @@ class GlobalState(typing.Generic[_T]):
     """
 
     @typing.overload
-    def __init__(self, type_: type[_T], /) -> None:
-        """Can be initialized with the type of the value to store, with the value unset"""
+    def __init__(
+        self,
+        type_: type[_TState],
+        /,
+        *,
+        key: bytes | typing.LiteralString | None = None,
+        description: typing.LiteralString | None = None,
+    ) -> None:
+        """Declare the global state key and its type without initializing its value"""
     @typing.overload
-    def __init__(self, initial_value: _T, /) -> None:
-        """Can be initialized with an initial value"""
+    def __init__(
+        self,
+        initial_value: _TState,
+        /,
+        key: typing.LiteralString | bytes | None = None,
+        description: typing.LiteralString | None = None,
+    ) -> None:
+        """Declare the global state key and initialize its value"""
     @property
-    def value(self) -> _T:
+    def value(self) -> _TState:
         """Returns the value or and error if the value is not set
 
         ```python
@@ -88,7 +108,7 @@ class GlobalState(typing.Generic[_T]):
         ```
         """
     @value.setter
-    def value(self, value: _T) -> None:
+    def value(self, value: _TState) -> None:
         """Sets the value
 
         ```python
@@ -105,14 +125,14 @@ class GlobalState(typing.Generic[_T]):
         """
     def __bool__(self) -> bool:
         """Returns `True` if the key has a value set, regardless of the truthiness of that value"""
-    def get(self, default: _T) -> _T:
+    def get(self, default: _TState) -> _TState:
         """Returns the value or `default` if no value is set
 
         ```python
         name = self.name.get(Bytes(b"no name")
         ```
         """
-    def maybe(self) -> tuple[_T, bool]:
+    def maybe(self) -> tuple[_TState, bool]:
         """Returns the value, and a bool
 
         ```python

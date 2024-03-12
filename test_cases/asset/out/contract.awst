@@ -6,18 +6,18 @@ contract Reference
   
   constructor()
   {
-    this.globals['asa']: puyapy.Asset = reinterpret_cast<puyapy.Asset>(0u)
+    this.asa: puyapy.Asset = reinterpret_cast<puyapy.Asset>(0u)
   }
   
   approval_program(): bool
   {
     if (txn<NumAppArgs>() == 1u) {
       if (txna<ApplicationArgs, 0>() == 'opt_in') {
-        asset: puyapy.Asset = reinterpret_cast<puyapy.Asset>(txna<Assets, 0>())
+        asset: puyapy.Asset = txna<Assets, 0>()
         this::opt_into_asset(asset)
       } else {
         if (txna<ApplicationArgs, 0>() == 'is_opted_in') {
-          asset: puyapy.Asset = reinterpret_cast<puyapy.Asset>(txna<Assets, 0>())
+          asset: puyapy.Asset = txna<Assets, 0>()
           this::is_opted_asset(asset)
         } else {
           assert(false, comment="Expected opt_in or is_opted_in")
@@ -35,19 +35,19 @@ contract Reference
   subroutine opt_into_asset(asset: puyapy.Asset): None
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
-    assert(!(reinterpret_cast<bool>(this.globals['asa'])), comment="ASA already opted in")
-    this.globals['asa']: puyapy.Asset = asset
+    assert(!(reinterpret_cast<bool>(this.asa)), comment="ASA already opted in")
+    this.asa: puyapy.Asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)
     itxn_field<Fee>(0u)
     itxn_field<AssetReceiver>(global<CurrentApplicationAddress>())
-    itxn_field<XferAsset>(reinterpret_cast<puyapy.UInt64>(asset))
+    itxn_field<XferAsset>(asset)
     itxn_submit()
   }
   
   subroutine is_opted_asset(asset: puyapy.Asset): None
   {
-    assert(this.globals['asa'] == asset, comment="asset self.asa == asset")
+    assert(this.asa == asset, comment="asset self.asa == asset")
     assert(checked_maybe(asset_params_get<AssetTotal>(asset)) == 10000000u, comment="total")
     assert(checked_maybe(asset_params_get<AssetDecimals>(asset)) == 0u, comment="decimals")
     assert(!(checked_maybe(asset_params_get<AssetDefaultFrozen>(asset))), comment="default frozen")

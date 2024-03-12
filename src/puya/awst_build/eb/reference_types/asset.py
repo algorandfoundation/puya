@@ -92,7 +92,7 @@ class AssetHoldingExpressionBuilder(IntermediateExpressionBuilder):
 
 class AssetExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):
     wtype = wtypes.asset_wtype
-    native_access_member = "asset_id"
+    native_access_member = "id"
     field_mapping = immutabledict(
         {
             "total": ("AssetTotal", wtypes.uint64_wtype),

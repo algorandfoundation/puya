@@ -5,7 +5,7 @@ import sys
 import traceback
 import typing
 import typing as t
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 
 import attrs
@@ -82,7 +82,7 @@ class TodoError(CodeError):
         super().__init__(msg or "TODO: support this thing", location=location)
 
 
-def _get_pretty_source(file_source: list[str], location: SourceLocation) -> list[str]:
+def _get_pretty_source(file_source: Sequence[str], location: SourceLocation) -> list[str]:
     source_line = file_source[location.line - 1]
     column = location.column
     end_column = len(source_line)
@@ -104,7 +104,7 @@ def _get_pretty_source(file_source: list[str], location: SourceLocation) -> list
 
 
 class Errors:
-    def __init__(self, read_source: Callable[[str], list[str] | None]) -> None:
+    def __init__(self, read_source: Callable[[str], Sequence[str] | None]) -> None:
         self.num_errors = 0
         self.num_warnings = 0
         self.read_source = read_source
@@ -166,7 +166,7 @@ def _crash_report(location: SourceLocation | None, exit_code: ErrorExitCode) -> 
 
 @contextlib.contextmanager
 def log_exceptions(
-    errors: Errors, fallback_location: SourceLocation | None = None, *, exit_check: bool = False
+    errors: Errors, fallback_location: SourceLocation | None = None
 ) -> Iterator[None]:
     try:
         yield
@@ -176,7 +176,3 @@ def log_exceptions(
         errors.fatal(f"FATAL {ex!s}", location=ex.location or fallback_location)
     except Exception as ex:
         errors.fatal(f"UNEXPECTED {ex!s}", location=fallback_location)
-    if exit_check:
-        # note, we check here, in case of logged errors, not just in case of one
-        # we caught at this level in the above try/except block
-        errors.exit_if_errors()

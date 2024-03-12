@@ -15,17 +15,16 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError, InternalError, TodoError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, flow_control
+from puya.ir.builder import arc4, flow_control, state
+from puya.ir.builder._utils import (
+    assert_value,
+    assign,
+    mkblocks,
+)
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
+from puya.ir.builder.callsub import visit_subroutine_call_expression
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
-from puya.ir.builder.utils import (
-    assign,
-    assign_targets,
-    format_tuple_index,
-    mkblocks,
-    mktemp,
-)
 from puya.ir.context import IRBuildContext, IRFunctionBuildContext
 from puya.ir.models import (
     AddressConstant,
@@ -40,6 +39,7 @@ from puya.ir.models import (
     ProgramExit,
     Subroutine,
     SubroutineReturn,
+    TemplateVar,
     UInt64Constant,
     Value,
     ValueProvider,
@@ -49,7 +49,9 @@ from puya.ir.types_ import (
     AVMBytesEncoding,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_avm_type,
+    wtype_to_avm_types,
 )
+from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ValueProvider | None
@@ -67,7 +69,7 @@ class FunctionIRBuilder(
     ):
         self.context = context.for_function(function, subroutine, self)
         self._itxn = InnerTransactionBuilder(self.context)
-        self._awst_temp_var_names = dict[awst_nodes.TemporaryVariable, str]()
+        self._single_eval_registers = dict[awst_nodes.SingleEvaluation, TExpression]()
 
     @classmethod
     def build_body(
@@ -84,7 +86,7 @@ class FunctionIRBuilder(
                 insert_on_create_call(func_ctx, to=on_create)
             function.body.accept(builder)
             if function.return_type == wtypes.void_wtype:
-                func_ctx.block_builder.maybe_add_implicit_subroutine_return()
+                func_ctx.block_builder.maybe_add_implicit_subroutine_return(subroutine.parameters)
             func_ctx.ssa.verify_complete()
             func_ctx.block_builder.validate_block_predecessors()
             result = list(func_ctx.block_builder.blocks)
@@ -101,11 +103,19 @@ class FunctionIRBuilder(
     def visit_copy(self, expr: puya.awst.nodes.Copy) -> TExpression:
         # For reference types, we need to clone the data
         # For value types, we can just visit the expression and the resulting read
-        # will effectively be a copy
+        # will effectively be a copy. We assign the copy to a new register in case it is
+        # mutated.
         match expr.value.wtype:
-            case wtypes.ARC4Array() | wtypes.ARC4Struct():
+            case wtypes.ARC4Type(immutable=False):
                 # Arc4 encoded types are value types
-                return self.visit_and_materialise_single(expr.value)
+                original_value = self.visit_and_materialise_single(expr.value)
+                (copy,) = assign(
+                    temp_description="copy",
+                    source=original_value,
+                    source_location=expr.source_location,
+                    context=self.context,
+                )
+                return copy
         raise InternalError(
             f"Invalid source wtype for Copy {expr.value.wtype}", expr.source_location
         )
@@ -255,36 +265,20 @@ class FunctionIRBuilder(
         )
 
     def visit_checked_maybe(self, expr: awst_nodes.CheckedMaybe) -> TExpression:
-        value_atype = wtype_to_avm_type(expr.wtype)
-        value_tmp = mktemp(
+        value_with_check = self.visit_expr(expr.expr)
+        value, check = assign(
             self.context,
-            atype=value_atype,
+            value_with_check,
+            temp_description=("value", "check"),
             source_location=expr.source_location,
-            description="maybe_value",
         )
-        did_exist_tmp = mktemp(
+        assert_value(
             self.context,
-            atype=AVMType.uint64,
+            check,
+            comment=expr.comment,
             source_location=expr.source_location,
-            description="maybe_value_did_exist",
         )
-        maybe_value = self.visit_expr(expr.expr)
-        assign_targets(
-            self.context,
-            source=maybe_value,
-            targets=[value_tmp, did_exist_tmp],
-            assignment_location=expr.source_location,
-        )
-        self.context.block_builder.add(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[did_exist_tmp],
-                comment=expr.comment or "check value exists",
-                source_location=expr.source_location,
-            )
-        )
-
-        return value_tmp
+        return value
 
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
         if isinstance(expr.wtype, wtypes.WTuple):
@@ -327,6 +321,7 @@ class FunctionIRBuilder(
                     source_location=call.source_location,
                     args=args,
                     immediates=list(call.immediates),
+                    types=wtype_to_avm_types(call.wtype),
                 )
 
     def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:
@@ -470,117 +465,50 @@ class FunctionIRBuilder(
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
         return flow_control.handle_conditional_expression(self.context, expr)
 
-    def visit_temporary_variable(self, expr: awst_nodes.TemporaryVariable) -> TExpression:
-        tmp_name = self.context.get_awst_tmp_name(expr)
-        if not isinstance(expr.wtype, wtypes.WTuple):
-            atype = wtype_to_avm_type(expr)
-            return self.context.ssa.read_variable(
-                tmp_name, atype, self.context.block_builder.active_block
-            )
+    def visit_single_evaluation(self, expr: awst_nodes.SingleEvaluation) -> TExpression:
+        try:
+            return self._single_eval_registers[expr]
+        except KeyError:
+            pass
+        source = expr.source.accept(self)
+        result: TExpression
+        if source is None:
+            result = None
         else:
-            registers: list[Value] = [
-                self.context.ssa.read_variable(
-                    format_tuple_index(tmp_name, idx),
-                    wtype_to_avm_type(t),
-                    self.context.block_builder.active_block,
+            registers = assign(
+                self.context,
+                source=source,
+                temp_description="awst_tmp",
+                source_location=expr.source_location,
+            )
+            if len(registers) == 1:
+                (result,) = registers
+            else:
+                result = ValueTuple(
+                    values=list[Value](registers), source_location=expr.source_location
                 )
-                for idx, t in enumerate(expr.wtype.types)
-            ]
-            return ValueTuple(expr.source_location, registers)
+        self._single_eval_registers[expr] = result
+        return result
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> TExpression:
-        # TODO: add specific (unsafe) optimisation flag to allow skipping this check
-        current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-        # TODO: keep encoding? modify AWST to add source location for key?
-        key = BytesConstant(
-            value=expr.key,
-            source_location=expr.source_location,
-            encoding=bytes_enc_to_avm_bytes_enc(expr.key_encoding),
-        )
-
-        # note: we manually construct temporary targets here since atype is any,
-        #       but we "know" the type from the expression
-        value_atype = wtype_to_avm_type(expr.wtype)
-        value_tmp = mktemp(
-            self.context,
-            atype=value_atype,
-            source_location=expr.source_location,
-            description="app_global_get_ex_value",
-        )
-        did_exist_tmp = mktemp(
-            self.context,
-            atype=AVMType.uint64,
-            source_location=expr.source_location,
-            description="app_global_get_ex_did_exist",
-        )
-        assign_targets(
-            self.context,
-            source=Intrinsic(
-                op=AVMOp.app_global_get_ex,
-                args=[current_app_offset, key],
-                source_location=expr.source_location,
-            ),
-            targets=[value_tmp, did_exist_tmp],
-            assignment_location=expr.source_location,
-        )
-        self.context.block_builder.add(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[did_exist_tmp],
-                comment="check value exists",  # TODO: add field name here
-                source_location=expr.source_location,
-            )
-        )
-
-        return value_tmp
+        return state.visit_app_state_expression(self.context, expr)
 
     def visit_app_account_state_expression(
         self, expr: awst_nodes.AppAccountStateExpression
     ) -> TExpression:
-        account = self.visit_and_materialise_single(expr.account)
+        return state.visit_app_account_state_expression(self.context, expr)
 
-        # TODO: add specific (unsafe) optimisation flag to allow skipping this check
-        current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-        # TODO: keep encoding? modify AWST to add source location for key?
-        key = BytesConstant(
-            value=expr.key,
-            source_location=expr.source_location,
-            encoding=bytes_enc_to_avm_bytes_enc(expr.key_encoding),
-        )
+    def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> TExpression:
+        return state.visit_state_get_ex(self.context, expr)
 
-        # note: we manually construct temporary targets here since atype is any,
-        #       but we "know" the type from the expression
-        value_tmp = mktemp(
-            self.context,
-            atype=wtype_to_avm_type(expr.wtype),
-            source_location=expr.source_location,
-            description="app_local_get_ex_value",
-        )
-        did_exist_tmp = mktemp(
-            self.context,
-            atype=AVMType.uint64,
-            source_location=expr.source_location,
-            description="app_local_get_ex_did_exist",
-        )
-        assign_targets(
-            self.context,
-            source=Intrinsic(
-                op=AVMOp.app_local_get_ex,
-                args=[account, current_app_offset, key],
-                source_location=expr.source_location,
-            ),
-            targets=[value_tmp, did_exist_tmp],
-            assignment_location=expr.source_location,
-        )
-        self.context.block_builder.add(
-            Intrinsic(
-                op=AVMOp.assert_,
-                args=[did_exist_tmp],
-                comment="check value exists",  # TODO: add field name here
-                source_location=expr.source_location,
-            )
-        )
-        return value_tmp
+    def visit_state_delete(self, statement: awst_nodes.StateDelete) -> TStatement:
+        return state.visit_state_delete(self.context, statement)
+
+    def visit_state_get(self, expr: awst_nodes.StateGet) -> TExpression:
+        return state.visit_state_get(self.context, expr)
+
+    def visit_state_exists(self, expr: awst_nodes.StateExists) -> TExpression:
+        return state.visit_state_exists(self.context, expr)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
         raise TodoError(expr.source_location, "TODO: visit_new_array")
@@ -610,31 +538,7 @@ class FunctionIRBuilder(
     def visit_subroutine_call_expression(
         self, expr: awst_nodes.SubroutineCallExpression
     ) -> TExpression:
-        sref = self.context.resolve_function_reference(expr.target, expr.source_location)
-        target = self.context.subroutines[sref]
-        # TODO: what if args are multi-valued?
-        args_expanded = list[tuple[str | None, Value]]()
-        for expr_arg in expr.args:
-            if not isinstance(expr_arg.value.wtype, wtypes.WTuple):
-                arg = self.visit_and_materialise_single(expr_arg.value)
-                args_expanded.append((expr_arg.name, arg))
-            else:
-                tup_args = self.visit_and_materialise(expr_arg.value)
-                for tup_idx, tup_arg in enumerate(tup_args):
-                    if expr_arg.name is None:
-                        tup_name: str | None = None
-                    else:
-                        tup_name = format_tuple_index(expr_arg.name, tup_idx)
-                    args_expanded.append((tup_name, tup_arg))
-        target_name_to_index = {par.name: idx for idx, par in enumerate(target.parameters)}
-        resolved_args = [val for name, val in args_expanded]
-        for name, val in args_expanded:
-            if name is not None:
-                name_idx = target_name_to_index[name]
-                resolved_args[name_idx] = val
-        return InvokeSubroutine(
-            source_location=expr.source_location, args=resolved_args, target=target
-        )
+        return visit_subroutine_call_expression(self.context, expr)
 
     def visit_bytes_binary_operation(self, expr: awst_nodes.BytesBinaryOperation) -> TExpression:
         left = self.visit_and_materialise_single(expr.left)
@@ -785,6 +689,16 @@ class FunctionIRBuilder(
             result = list(self.visit_and_materialise(statement.value))
         else:
             result = []
+
+        for param in self.context.subroutine.parameters:
+            if param.implicit_return:
+                result.append(
+                    self.context.ssa.read_variable(
+                        param.name,
+                        param.atype,
+                        self.context.block_builder.active_block,
+                    )
+                )
         return_types = [r.atype for r in result]
         if not (
             len(return_types) == len(self.context.subroutine.returns)
@@ -803,6 +717,11 @@ class FunctionIRBuilder(
                 result=result,
             )
         )
+
+    def visit_template_var(self, expr: puya.awst.nodes.TemplateVar) -> TExpression:
+        atype = wtype_to_avm_type(expr.wtype)
+        typing.assert_type(atype, typing.Literal[AVMType.uint64, AVMType.bytes])
+        return TemplateVar(name=expr.name, atype=atype, source_location=expr.source_location)
 
     def visit_continue_statement(self, statement: awst_nodes.ContinueStatement) -> TStatement:
         self.context.block_builder.loop_continue(statement.source_location)

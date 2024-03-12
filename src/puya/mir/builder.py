@@ -1,5 +1,3 @@
-from math import ceil
-
 import attrs
 import structlog
 
@@ -9,6 +7,7 @@ from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import IRVisitor
 from puya.mir import models
 from puya.mir.context import ProgramCodeGenContext
+from puya.utils import biguint_bytes_eval
 
 logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
 
@@ -78,6 +77,15 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
             )
 
+    def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:
+        self._add_op(
+            models.PushTemplateVar(
+                name=deploy_var.name,
+                atype=deploy_var.atype,
+                source_location=deploy_var.source_location,
+            )
+        )
+
     def visit_value_tuple(self, tup: ir.ValueTuple) -> None:
         raise InternalError(
             "Encountered ValueTuple during codegen - should have been eliminated in prior stages",
@@ -93,9 +101,7 @@ class MemoryIRBuilder(IRVisitor[None]):
         )
 
     def visit_biguint_constant(self, const: ir.BigUIntConstant) -> None:
-        byte_length = ceil(const.value.bit_length() / 8.0)
-        assert byte_length <= 64, "Biguints must be 64 bytes or less"
-        big_uint_bytes = const.value.to_bytes(byteorder="big", length=byte_length)
+        big_uint_bytes = biguint_bytes_eval(const.value)
         self._add_op(
             models.PushBytes(
                 big_uint_bytes,

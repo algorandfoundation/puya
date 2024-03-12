@@ -124,7 +124,7 @@ class Asset:
     def __init__(self, asset_id: UInt64 | int):
         """Initialized with the id of an asset"""
     @property
-    def asset_id(self) -> UInt64:
+    def id(self) -> UInt64:
         """Returns the id of the Asset"""
     def __eq__(self, other: Asset) -> bool:  # type: ignore[override]
         """Asset equality is determined by the equality of an Asset's id"""
@@ -250,7 +250,7 @@ class Application:
     def __init__(self, application_id: UInt64 | int):
         """Initialized with the id of an application"""
     @property
-    def application_id(self) -> UInt64:
+    def id(self) -> UInt64:
         """Returns the id of the application"""
     def __eq__(self, other: Application) -> bool:  # type: ignore[override]
         """Application equality is determined by the equality of an Application's id"""

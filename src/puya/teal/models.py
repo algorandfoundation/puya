@@ -219,10 +219,23 @@ class PushBytes(TealOp):
         if self.encoding in (
             AVMBytesEncoding.utf8,
             AVMBytesEncoding.base16,
+            AVMBytesEncoding.unknown,
         ):
             return (bytes_str,)
         hint = self.encoding.name
         return hint, bytes_str
+
+
+@attrs.frozen
+class PushTemplateVar(TealOp):
+    name: str
+    op_code: str
+    consumes: int = attrs.field(default=0, init=False)
+    produces: int = attrs.field(default=1, init=False)
+
+    @property
+    def immediates(self) -> Sequence[int | str]:
+        return (self.name,)
 
 
 @attrs.frozen

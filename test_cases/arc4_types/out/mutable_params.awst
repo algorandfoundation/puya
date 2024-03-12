@@ -1,0 +1,78 @@
+struct TestStruct {
+  b_val: puyapy.arc4.Bool
+  u_val: puyapy.arc4.UIntN[typing.Literal[8]]
+  s_val_1: puyapy.arc4.String
+  s_val_2: puyapy.arc4.String
+}
+
+struct StructWithArray {
+  test_array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]]
+}
+
+contract Arc4MutableParamsContract
+{
+  approval_program(): bool
+  {
+    this::mutating_copies()
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine mutating_copies(): None
+  {
+    my_array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]] = arc4_array_encode([1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]])
+    my_struct: test_cases.arc4_types.mutable_params.TestStruct = arc4_encode((arc4_encode(true, puyapy.arc4.Bool), 50arc4u8, arc4_encode('Happy', puyapy.arc4.String), arc4_encode('Days', puyapy.arc4.String)), test_cases.arc4_types.mutable_params.TestStruct)
+    my_array_copy: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]] = my_array.copy()
+    my_struct_copy: test_cases.arc4_types.mutable_params.TestStruct = my_struct.copy()
+    my_array[2u]: puyapy.arc4.UIntN[typing.Literal[8]] = 5arc4u8
+    assert(reinterpret_cast<puyapy.BigUInt>(my_array_copy[2u]) == reinterpret_cast<puyapy.BigUInt>(3arc4u8), comment="my_array_copy should be unchanged")
+    assert(reinterpret_cast<puyapy.BigUInt>(my_array[2u]) == reinterpret_cast<puyapy.BigUInt>(5arc4u8), comment="my_array should be mutated")
+    (t, f): tuple[bool, bool] = this::other_routine(my_array, my_struct)
+    assert(t)
+    assert(!(f))
+    assert(reinterpret_cast<puyapy.BigUInt>(my_array[1u]) == reinterpret_cast<puyapy.BigUInt>(5arc4u8), comment="my_array has been mutated by the subroutine")
+    assert(reinterpret_cast<puyapy.Bytes>(my_struct[2u]) == reinterpret_cast<puyapy.Bytes>(arc4_encode('AARRGH!', puyapy.arc4.String)), comment="my_struct has been mutated by the subroutine")
+    this::other_routine(my_array_copy.copy(), my_struct_copy.copy())
+    assert(reinterpret_cast<puyapy.BigUInt>(my_array_copy[1u]) == reinterpret_cast<puyapy.BigUInt>(2arc4u8), comment="my_array_copy should not be mutated by the subroutine")
+    assert(reinterpret_cast<puyapy.Bytes>(my_struct_copy[2u]) == reinterpret_cast<puyapy.Bytes>(arc4_encode('Happy', puyapy.arc4.String)), comment="my_struct_copy should not be mutated by the subroutine")
+    my_array_copy_2: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]] = my_array_copy.copy()
+    my_array_copy_2: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]] = this::other_routine_2(my_array_copy_2)
+    assert(reinterpret_cast<puyapy.BigUInt>(my_array_copy_2[0u]) == reinterpret_cast<puyapy.BigUInt>(1arc4u8), comment="my_array_copy_2 should have original value")
+    this::other_routine_2(my_array_copy_2)
+    assert(reinterpret_cast<puyapy.BigUInt>(my_array_copy_2[0u]) == reinterpret_cast<puyapy.BigUInt>(10arc4u8), comment="my_array_copy_2 should have mutated value")
+    nested: test_cases.arc4_types.mutable_params.StructWithArray = arc4_encode((my_array.copy()), test_cases.arc4_types.mutable_params.StructWithArray)
+    this::other_routine_2(nested[0u].copy())
+  }
+  
+  subroutine other_routine(array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]], struct: test_cases.arc4_types.mutable_params.TestStruct): tuple[bool, bool]
+  {
+    array[1u]: puyapy.arc4.UIntN[typing.Literal[8]] = 5arc4u8
+    struct[2u]: puyapy.arc4.String = arc4_encode('AARRGH!', puyapy.arc4.String)
+    return (true, false)
+  }
+  
+  subroutine other_routine_2(array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]]): puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]]
+  {
+    copy: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]] = array.copy()
+    array[0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 10arc4u8
+    return copy
+  }
+  
+  subroutine other_routine_3(arrays: tuple[puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]]]): None
+  {
+    for array in arrays {
+      array[0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 99arc4u8
+    }
+    arrays[0][0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 99arc4u8
+    arrays[1][0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 99arc4u8
+    arrays[2][0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 99arc4u8
+    (one, two, three): tuple[puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]]] = arrays
+    one[0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 99arc4u8
+    two[0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 99arc4u8
+    three[0u]: puyapy.arc4.UIntN[typing.Literal[8]] = 99arc4u8
+  }
+}

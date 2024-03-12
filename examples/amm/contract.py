@@ -71,14 +71,14 @@ class ConstantProductAMM(ARC4Contract):
         assert seed.receiver == Global.current_application_address, "receiver not app address"
 
         assert seed.amount >= 300_000, "amount minimum not met"  # 0.3 Algos
-        assert a_asset.asset_id < b_asset.asset_id, "asset a must be less than asset b"
+        assert a_asset.id < b_asset.id, "asset a must be less than asset b"
         self.asset_a = a_asset
         self.asset_b = b_asset
         self.pool_token = self._create_pool_token()
 
         self._do_opt_in(self.asset_a)
         self._do_opt_in(self.asset_b)
-        return arc4.UInt64(self.pool_token.asset_id)
+        return arc4.UInt64(self.pool_token.id)
 
     @arc4.abimethod(
         default_args={
@@ -358,7 +358,7 @@ def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) 
 
 @subroutine
 def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
-    balance_before = op.AssetHoldingGet.asset_balance(receiver, asset.asset_id)
+    balance_before = op.AssetHoldingGet.asset_balance(receiver, asset.id)
 
     itxn.AssetTransfer(
         xfer_asset=asset,
@@ -367,5 +367,5 @@ def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> Non
         fee=0,
     ).submit()
 
-    balance_after = op.AssetHoldingGet.asset_balance(receiver, asset.asset_id)
+    balance_after = op.AssetHoldingGet.asset_balance(receiver, asset.id)
     assert balance_before[0] + amount == balance_after[0], "Balance not updated correctly"

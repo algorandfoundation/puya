@@ -9,9 +9,7 @@ from puya.awst import (
 from puya.errors import CodeError, TodoError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
-from puya.ir.builder.utils import (
-    assign,
-)
+from puya.ir.builder._utils import assign
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BytesConstant,
@@ -53,14 +51,6 @@ def handle_assignment(
                 names=[(var_name, var_loc)],
                 source_location=assignment_location,
             )
-        case awst_nodes.TemporaryVariable(source_location=var_loc) as tmp:
-            tmp_name = context.get_awst_tmp_name(tmp)
-            return assign(
-                context,
-                source=value,
-                names=[(tmp_name, var_loc)],
-                source_location=assignment_location,
-            )
         case awst_nodes.TupleExpression(items=items):
             source = context.visitor.materialise_value_provider(
                 value, description="tuple_assignment"
@@ -77,22 +67,21 @@ def handle_assignment(
                     assignment_location=assignment_location,
                 )
             ]
-        case awst_nodes.AppStateExpression(
-            key=app_state_key, source_location=key_loc, key_encoding=key_encoding
-        ):
+        case awst_nodes.AppStateExpression(field_name=field_name, source_location=key_loc):
             source = context.visitor.materialise_value_provider(
                 value, description="new_state_value"
             )
             if len(source) != 1:
                 raise CodeError("Tuple state is not supported", assignment_location)
+            state_def = context.resolve_state(field_name, key_loc)
             context.block_builder.add(
                 Intrinsic(
                     op=AVMOp.app_global_put,
                     args=[
                         BytesConstant(
-                            value=app_state_key,
+                            value=state_def.key,
                             source_location=key_loc,
-                            encoding=bytes_enc_to_avm_bytes_enc(key_encoding),
+                            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
                         ),
                         source[0],
                     ],
@@ -101,10 +90,9 @@ def handle_assignment(
             )
             return source
         case awst_nodes.AppAccountStateExpression(
-            key=app_acct_state_key,
+            field_name=field_name,
             account=account_expr,
             source_location=key_loc,
-            key_encoding=key_encoding,
         ):
             source = context.visitor.materialise_value_provider(
                 value, description="new_state_value"
@@ -112,15 +100,16 @@ def handle_assignment(
             account = context.visitor.visit_and_materialise_single(account_expr)
             if len(source) != 1:
                 raise CodeError("Tuple state is not supported", assignment_location)
+            state_def = context.resolve_state(field_name, key_loc)
             context.block_builder.add(
                 Intrinsic(
                     op=AVMOp.app_local_put,
                     args=[
                         account,
                         BytesConstant(
-                            value=app_acct_state_key,
+                            value=state_def.key,
                             source_location=key_loc,
-                            encoding=bytes_enc_to_avm_bytes_enc(key_encoding),
+                            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
                         ),
                         source[0],
                     ],

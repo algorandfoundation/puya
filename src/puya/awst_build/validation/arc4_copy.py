@@ -22,7 +22,7 @@ class ARC4CopyValidator(AWSTTraverser):
 
     def _check_for_arc4_copy(self, expr: awst_nodes.Expression) -> None:
         match expr.wtype:
-            case wtypes.ARC4Array() | wtypes.ARC4Struct():
+            case wtypes.ARC4Type(immutable=False):
                 match expr:
                     case (
                         awst_nodes.ARC4ArrayEncode()
@@ -47,4 +47,21 @@ class ARC4CopyValidator(AWSTTraverser):
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
         super().visit_subroutine_call_expression(expr)
         for arg in expr.args:
+            if isinstance(arg.value, awst_nodes.VarExpression):
+                continue
             self._check_for_arc4_copy(arg.value)
+
+    def visit_arc4_array_encode(self, expr: awst_nodes.ARC4ArrayEncode) -> None:
+        super().visit_arc4_array_encode(expr)
+        for v in expr.values:
+            self._check_for_arc4_copy(v)
+
+    def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> None:
+        super().visit_arc4_encode(expr)
+
+        match expr.value:
+            case awst_nodes.TupleExpression(items=items):
+                for item in items:
+                    self._check_for_arc4_copy(item)
+            case _:
+                self._check_for_arc4_copy(expr.value)

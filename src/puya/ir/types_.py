@@ -1,4 +1,5 @@
 import enum
+import typing
 
 from puya.avm_type import AVMType
 from puya.awst import (
@@ -13,6 +14,7 @@ from puya.parse import SourceLocation
 
 @enum.unique
 class AVMBytesEncoding(enum.StrEnum):
+    unknown = enum.auto()
     base16 = enum.auto()
     base32 = enum.auto()
     base64 = enum.auto()
@@ -29,14 +31,13 @@ def bytes_enc_to_avm_bytes_enc(bytes_encoding: BytesEncoding) -> AVMBytesEncodin
 def wtype_to_avm_type(
     expr_or_wtype: wtypes.WType | awst_nodes.Expression,
     source_location: SourceLocation | None = None,
-) -> AVMType:
+) -> typing.Literal[AVMType.bytes, AVMType.uint64]:
     if isinstance(expr_or_wtype, awst_nodes.Expression):
         return wtype_to_avm_type(
             expr_or_wtype.wtype, source_location=source_location or expr_or_wtype.source_location
         )
     else:
         wtype = expr_or_wtype
-    # TODO: compound types 🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔🤔
     match wtype:
         case (
             wtypes.uint64_wtype
@@ -51,15 +52,32 @@ def wtype_to_avm_type(
         case wtypes.void_wtype:
             raise InternalError("Can't translate void WType to AVMType", source_location)
         case _:
+            # TODO: make this a CodeError
             raise InternalError(
-                f"UH OH SPAGHETTI-O's, darn tooting compound type(?!) encountered: {wtype}",
+                f"Unsupported nested/compound type encountered: {wtype}",
                 source_location,
             )
 
 
+def wtype_to_avm_types(
+    expr_or_wtype: wtypes.WType | awst_nodes.Expression,
+    source_location: SourceLocation | None = None,
+) -> list[AVMType]:
+    if isinstance(expr_or_wtype, awst_nodes.Expression):
+        wtype = expr_or_wtype.wtype
+    else:
+        wtype = expr_or_wtype
+    if wtype == wtypes.void_wtype:
+        return []
+    elif isinstance(wtype, wtypes.WTuple):
+        return [wtype_to_avm_type(t, source_location) for t in wtype.types]
+    else:
+        return [wtype_to_avm_type(wtype, source_location)]
+
+
 def stack_type_to_avm_type(stack_type: StackType) -> AVMType:
     match stack_type:
-        case StackType.uint64 | StackType.bool:
+        case StackType.uint64 | StackType.bool | StackType.asset | StackType.application:
             return AVMType.uint64
         case StackType.bytes | StackType.bigint | StackType.box_name | StackType.address:
             return AVMType.bytes

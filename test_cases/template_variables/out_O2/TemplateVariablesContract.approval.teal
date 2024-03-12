@@ -1,0 +1,111 @@
+#pragma version 10
+
+test_cases.template_variables.contract.TemplateVariablesContract.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@6
+    method "get_bytes()byte[]"
+    method "get_big_uint()uint512"
+    txna ApplicationArgs 0
+    match main_get_bytes_route@2 main_get_big_uint_route@3
+    err // reject transaction
+
+main_get_bytes_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub get_bytes
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_get_big_uint_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub get_big_uint
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    switch main_create@7 main_reject_bare_on_completion@10 main_reject_bare_on_completion@10 main_reject_bare_on_completion@10 main_on_update@8 main_on_delete@9
+    err // reject transaction
+
+main_create@7:
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+main_on_update@8:
+    txn ApplicationID
+    assert // is not creating
+    callsub on_update
+    int 1
+    return
+
+main_on_delete@9:
+    txn ApplicationID
+    assert // is not creating
+    callsub on_delete
+    int 1
+    return
+
+main_reject_bare_on_completion@10:
+    err // reject transaction
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.get_bytes() -> bytes:
+get_bytes:
+    proto 0 1
+    byte TMPL_SOME_BYTES
+    retsub
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> bytes:
+get_big_uint:
+    proto 0 1
+    byte TMPL_SOME_BIG_UINT
+    dup
+    len
+    int 64
+    <=
+    assert // overflow
+    int 64
+    bzero
+    b|
+    retsub
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.on_update() -> void:
+on_update:
+    proto 0 0
+    int TMPL_UPDATABLE
+    assert
+    retsub
+
+
+// test_cases.template_variables.contract.TemplateVariablesContract.on_delete() -> void:
+on_delete:
+    proto 0 0
+    int TMPL_DELETABLE
+    assert
+    retsub

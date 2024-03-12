@@ -2,18 +2,14 @@
 
 test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     int 0
-    dupn 3
     byte ""
-    dupn 4
+    dupn 2
     int 0
-    byte 0x00020102
-    int 0
-    extract_uint16
     int 0
 
 main_for_header@1:
     dup
-    dig 2
+    int 2
     <
     bz main_after_for@4
     byte 0x0102
@@ -23,32 +19,28 @@ main_for_header@1:
     int 1
     extract3
     btoi
-    dig 4
+    dig 3
     +
-    bury 4
+    bury 3
     int 1
     +
     bury 1
     b main_for_header@1
 
 main_after_for@4:
-    dig 2
+    dig 1
     int 3
     ==
     assert // Total should be sum of dynamic_uint8_array items
-    byte 0x00010001
     int 0
-    extract_uint16
-    bury 8
-    int 0
-    bury 6
+    bury 4
 
 main_for_header@5:
-    dig 5
-    dig 8
+    dig 3
+    int 1
     <
     bz main_after_for@8
-    dig 5
+    dig 3
     dup
     int 2
     *
@@ -57,88 +49,48 @@ main_for_header@5:
     int 2
     extract3
     btoi
-    dig 4
+    dig 3
     +
-    bury 4
+    bury 3
     int 1
     +
-    bury 6
+    bury 4
     b main_for_header@5
 
 main_after_for@8:
-    dig 2
+    dig 1
     int 4
     ==
     assert // Total should now include sum of aliased_dynamic items
-    int 4
-    itob
-    extract 6 2
-    dup
-    bury 10
-    byte 0x0002
-    swap
-    concat
-    int 11
-    itob
-    extract 6 2
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05World"
-    concat
-    dup
-    int 0
-    extract_uint16
-    dup
-    bury 6
-    dup
-    int 2
-    ==
-    assert
-    int 0
-    >
-    assert // Index access is out of bounds
-    extract 2 0
-    dup
-    bury 13
-    dup
-    int 0
-    extract_uint16
-    dup2
-    extract_uint16
-    int 2
-    +
-    extract3
-    byte "\x00\x05Hello"
-    ==
-    assert
     byte ""
-    bury 11
+    bury 6
     int 0
-    bury 7
+    bury 5
 
 main_for_header@9:
-    dig 6
     dig 4
+    int 2
     <
     bz main_after_for@15
-    dig 6
+    dig 4
     dup
     int 2
     *
-    dig 13
-    dup
-    uncover 2
+    byte 0x0004000b000548656c6c6f0005576f726c64
+    swap
     extract_uint16
-    dup2
+    byte 0x0004000b000548656c6c6f0005576f726c64
+    dig 1
     extract_uint16
     int 2
     +
+    byte 0x0004000b000548656c6c6f0005576f726c64
+    cover 2
     extract3
     swap
     bnz main_else_body@12
     extract 2 0
-    bury 11
+    bury 6
     b main_after_if_else@13
 
 main_else_body@12:
@@ -146,32 +98,32 @@ main_else_body@12:
     byte " "
     swap
     concat
-    dig 11
+    dig 6
     swap
     concat
-    bury 11
+    bury 6
 
 main_after_if_else@13:
-    dig 6
+    dig 4
     int 1
     +
-    bury 7
+    bury 5
     b main_for_header@9
 
 main_after_for@15:
-    dig 10
+    dig 5
     byte "Hello World"
     ==
     assert
     int 0
-    bury 5
+    bury 3
 
 main_for_header@16:
-    dig 4
+    dig 2
     int 4
     <
     bz main_after_for@19
-    dig 4
+    dig 2
     dup
     int 4
     *
@@ -180,64 +132,48 @@ main_for_header@16:
     int 4
     extract3
     btoi
-    dig 4
+    dig 3
     +
-    bury 4
+    bury 3
     int 1
     +
-    bury 5
+    bury 3
     b main_for_header@16
 
 main_after_for@19:
-    dig 2
+    dig 1
     int 398
     ==
     assert
-    byte 0x65
-    btoi
-    dup
-    +
-    int 202
-    ==
-    assert
-    int 10
-    itob
-    extract 6 2
-    dig 9
-    swap
-    concat
-    byte "\x00\x04Ping"
-    concat
-    byte "\x00\x04Pong"
-    concat
-    bury 10
     byte ""
-    bury 11
+    bury 6
     int 0
-    bury 7
+    bury 5
 
 main_for_header@20:
-    dig 6
+    dig 4
     int 2
     <
     bz main_after_for@26
-    dig 6
+    dig 4
     dup
     int 2
     *
-    dig 11
-    dup
-    uncover 2
+    byte 0x0004000a000450696e670004506f6e67
+    swap
     extract_uint16
-    dup2
+    byte 0x0004000a000450696e670004506f6e67
+    dig 1
     extract_uint16
     int 2
     +
+    byte 0x0004000a000450696e670004506f6e67
+    cover 2
     extract3
     swap
     bnz main_else_body@23
     extract 2 0
-    bury 11
+    bury 6
     b main_after_if_else@24
 
 main_else_body@23:
@@ -245,20 +181,20 @@ main_else_body@23:
     byte " "
     swap
     concat
-    dig 11
+    dig 6
     swap
     concat
-    bury 11
+    bury 6
 
 main_after_if_else@24:
-    dig 6
+    dig 4
     int 1
     +
-    bury 7
+    bury 5
     b main_for_header@20
 
 main_after_for@26:
-    dig 10
+    dig 5
     byte "Ping Pong"
     ==
     assert

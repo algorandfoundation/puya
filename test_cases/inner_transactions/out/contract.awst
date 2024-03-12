@@ -9,13 +9,13 @@ contract MyContract
   
   constructor()
   {
-    this.globals['name']: puyapy.Bytes = ''
+    this.name: puyapy.Bytes = ''
   }
   
   approval_program(): bool
   {
     if (reinterpret_cast<bool>(txn<NumAppArgs>())) {
-      switch (tmp$0: puyapy.Bytes := txna<ApplicationArgs, 0>()) {
+      switch (SINGLE_EVAL(id=0, source=txna<ApplicationArgs, 0>())) {
         case 'test1': {
           this::test1()
         }
@@ -40,11 +40,11 @@ contract MyContract
   
   subroutine test1(): None
   {
-    this.globals['name']: puyapy.Bytes = 'AST1'
-    asset_params: puyapy.itxn.AssetConfig = create_inner_transaction(TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName=this.globals['name'], ConfigAssetUnitName='unit', ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>(), Fee=0u)
-    this.globals['name']: puyapy.Bytes = 'AST2'
+    this.name: puyapy.Bytes = 'AST1'
+    asset_params: puyapy.itxn.AssetConfig = create_inner_transaction(TypeEnum=acfg, ConfigAssetTotal=1000u, ConfigAssetName=this.name, ConfigAssetUnitName='unit', ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>(), Fee=0u)
+    this.name: puyapy.Bytes = 'AST2'
     asset1_txn: puyapy.itxn.AssetConfigInnerTransaction = submit_txn(asset_params)
-    update_inner_transaction(asset_params,ConfigAssetName=this.globals['name'])
+    update_inner_transaction(asset_params,ConfigAssetName=this.name)
     asset2_txn: puyapy.itxn.AssetConfigInnerTransaction = submit_txn(asset_params)
     assert(asset1_txn.ConfigAssetName == 'AST1', comment="asset1_txn is correct")
     assert(asset2_txn.ConfigAssetName == 'AST2', comment="asset2_txn is correct")
@@ -139,8 +139,8 @@ contract MyContract
     app_1: puyapy.itxn.ApplicationCallInnerTransaction = submit_txn(app_p_1)
     assert(app_1.ExtraProgramPages == 3u, comment="extra_pages == 3")
     assert(app_1.NumApprovalProgramPages == 2u, comment="approval_pages == 2")
-    assert(app_1.ApprovalProgramPages[0u] == approval_1 + approval_2 + approval_2[:(3u < tmp$1: puyapy.UInt64 := len(approval_2)) ? (tmp$1 - 3u) : (0u)], comment="expected approval page 0")
-    assert(app_1.ApprovalProgramPages[1u] == approval_2[(3u < tmp$2: puyapy.UInt64 := len(approval_2)) ? (tmp$2 - 3u) : (0u):] + approval_2, comment="expected approval page 1")
+    assert(app_1.ApprovalProgramPages[0u] == approval_1 + approval_2 + SINGLE_EVAL(id=1, source=approval_2)[:len(SINGLE_EVAL(id=1, source=approval_2)) - select(len(SINGLE_EVAL(id=1, source=approval_2)), 3u, 3u < len(SINGLE_EVAL(id=1, source=approval_2)))], comment="expected approval page 0")
+    assert(app_1.ApprovalProgramPages[1u] == SINGLE_EVAL(id=2, source=approval_2)[len(SINGLE_EVAL(id=2, source=approval_2)) - select(len(SINGLE_EVAL(id=2, source=approval_2)), 3u, 3u < len(SINGLE_EVAL(id=2, source=approval_2))):] + approval_2, comment="expected approval page 1")
     assert(app_1.NumClearStateProgramPages == 1u, comment="clear_state_pages == 1")
     assert(app_1.ClearStateProgramPages[0u] == hex<"098101">, comment="expected clear_state_pages")
   }

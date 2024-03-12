@@ -10,6 +10,7 @@ from puyapy._hints import *
 from puyapy._state import *
 from puyapy._unsigned_builtins import *
 from puyapy._util import *
+from puyapy._template_variables import *
 from puyapy import arc4 as arc4
 from puyapy import gtxn as gtxn
 from puyapy import itxn as itxn

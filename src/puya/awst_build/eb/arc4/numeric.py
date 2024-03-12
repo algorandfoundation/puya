@@ -12,22 +12,27 @@ from puya.awst.nodes import (
     Expression,
     IntegerConstant,
     Literal,
+    NumericComparison,
+    NumericComparisonExpression,
+    ReinterpretCast,
 )
+from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
+    arc4_bool_bytes,
     get_integer_literal_value,
 )
-from puya.awst_build.eb.base import ValueExpressionBuilder
+from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.errors import CodeError, InternalError
+from puya.awst_build.utils import convert_literal_to_expr
+from puya.errors import CodeError, InternalError, TodoError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     import mypy.nodes
 
-    from puya.awst_build.eb.base import ExpressionBuilder
     from puya.parse import SourceLocation
 
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
@@ -103,9 +108,9 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder):
                         wtype=self.wtype,
                     )
                 )
-            case [ValueExpressionBuilder() as eb]:
+            case [ExpressionBuilder(value_type=wtypes.WType() as value_type) as eb]:
                 value = eb.rvalue()
-                if value.wtype not in (
+                if value_type not in (
                     wtypes.bool_wtype,
                     wtypes.uint64_wtype,
                     wtypes.biguint_wtype,
@@ -168,11 +173,60 @@ class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
 
 class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
     def __init__(self, expr: Expression):
-        self.wtype = expr.wtype
+        assert isinstance(expr.wtype, wtypes.ARC4UIntN)
+        self.wtype: wtypes.ARC4UIntN = expr.wtype
         super().__init__(expr)
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return arc4_bool_bytes(
+            self.expr,
+            false_bytes=b"\x00" * (self.wtype.n // 8),
+            location=location,
+            negate=negate,
+        )
+
+    def compare(
+        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> ExpressionBuilder:
+        other_expr = convert_literal_to_expr(other, self.wtype)
+        match other_expr.wtype:
+            case wtypes.biguint_wtype:
+                pass
+            case wtypes.ARC4UIntN():
+                other_expr = ReinterpretCast(
+                    expr=other_expr,
+                    wtype=wtypes.biguint_wtype,
+                    source_location=other_expr.source_location,
+                )
+            case wtypes.uint64_wtype:
+                other_expr = uint64_to_biguint(other, location)
+            case wtypes.bool_wtype:
+                raise TodoError(location, "TODO: support upcast from bool to arc4.UIntN")
+            case _:
+                return NotImplemented
+        cmp_expr = NumericComparisonExpression(
+            source_location=location,
+            lhs=ReinterpretCast(
+                expr=self.expr,
+                wtype=wtypes.biguint_wtype,
+                source_location=self.source_location,
+            ),
+            operator=NumericComparison(op.value),
+            rhs=other_expr,
+        )
+        return var_expression(cmp_expr)
 
 
 class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder):
     def __init__(self, expr: Expression):
-        self.wtype = expr.wtype
+        assert isinstance(expr.wtype, wtypes.ARC4UFixedNxM)
+        self.wtype: wtypes.ARC4UFixedNxM = expr.wtype
         super().__init__(expr)
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return arc4_bool_bytes(
+            self.expr,
+            false_bytes=b"\x00" * (self.wtype.n // 8),
+            location=location,
+            negate=negate,
+        )

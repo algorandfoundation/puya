@@ -10,8 +10,8 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
+from puya.ir.builder._utils import assign, assign_intrinsic_op
 from puya.ir.builder.blocks import BlocksBuilder
-from puya.ir.builder.utils import assign, assign_intrinsic_op
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,
@@ -116,8 +116,6 @@ class InnerTransactionBuilder:
             match stmt.target:
                 case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
                     pass
-                case awst_nodes.TemporaryVariable(source_location=var_loc) as tmp:
-                    var_name = self.context.get_awst_tmp_name(tmp)
                 case _:
                     raise CodeError(
                         "Inner Transaction params can only be assigned to (non-tuple) variables",

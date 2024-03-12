@@ -7,7 +7,6 @@ import structlog
 
 from puya.context import CompileContext
 from puya.ir import models
-from puya.ir.optimize.arithmetic import arithmetic_simplification
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from puya.ir.optimize.constant_propagation import constant_replacer
@@ -52,10 +51,9 @@ class SubroutineOptimization:
 def get_subroutine_optimizations(optimization_level: int) -> Iterable[SubroutineOptimization]:
     if optimization_level:
         return [
-            SubroutineOptimization.from_function(arithmetic_simplification, loop=True),
             SubroutineOptimization.from_function(constant_replacer, loop=True),
             SubroutineOptimization.from_function(copy_propagation),
-            SubroutineOptimization.from_function(intrinsic_simplifier),
+            SubroutineOptimization.from_function(intrinsic_simplifier, loop=True),
             SubroutineOptimization.from_function(remove_unused_variables),
             SubroutineOptimization.from_function(simplify_control_ops, loop=True),
             SubroutineOptimization.from_function(remove_linear_jump),

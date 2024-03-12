@@ -5,14 +5,14 @@ contract Simplish extends (test_cases.simplish.base_class::CallCounter)
 {
   approval_program(): bool
   {
-    if (txn<ApplicationID>() == 0u) {
+    if (txn<ApplicationID>() == reinterpret_cast<puyapy.Application>(0u)) {
       return true
     }
     oca: puyapy.UInt64 = txn<OnCompletion>()
     sender: puyapy.Account = txn<Sender>()
     if (oca IS IN (UpdateApplication, DeleteApplication)) {
       if (oca == DeleteApplication) {
-        log('I was used ' + test_cases.simplish.contract::itoa(this.globals['counter']) + ' time(s) before I died')
+        log('I was used ' + test_cases.simplish.contract::itoa(this.counter) + ' time(s) before I died')
       }
       return global<CreatorAddress>() == sender
     }

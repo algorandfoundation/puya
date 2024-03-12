@@ -143,12 +143,13 @@ create:
     app_global_put
     frame_dig -3
     callsub store_option_counts
+    pop
     retsub
 
 
-// examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> void:
+// examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> bytes:
 store_option_counts:
-    proto 1 0
+    proto 1 1
     frame_dig -1
     int 0
     extract_uint16
@@ -194,6 +195,8 @@ store_option_counts_after_for@4:
     byte "total_options"
     swap
     app_global_put
+    frame_dig -1
+    frame_bury 0
     retsub
 
 
@@ -203,7 +206,7 @@ bootstrap:
     int 0
     byte "is_bootstrapped"
     app_global_get_ex
-    assert // check value exists
+    assert // check is_bootstrapped exists
     !
     assert // Must not be already bootstrapped
     byte "is_bootstrapped"
@@ -217,7 +220,7 @@ bootstrap:
     int 0
     byte "total_options"
     app_global_get_ex
-    assert // check value exists
+    assert // check total_options exists
     int 8
     *
     dup
@@ -261,7 +264,7 @@ close:
     int 0
     byte "vote_id"
     app_global_get_ex
-    assert // check value exists
+    assert // check vote_id exists
     byte "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID "
     swap
     concat
@@ -270,21 +273,21 @@ close:
     int 0
     byte "metadata_ipfs_cid"
     app_global_get_ex
-    assert // check value exists
+    assert // check metadata_ipfs_cid exists
     concat
     byte "\",\"id\":\""
     concat
     int 0
     byte "vote_id"
     app_global_get_ex
-    assert // check value exists
+    assert // check vote_id exists
     concat
     byte "\",\"quorum\":"
     concat
     int 0
     byte "quorum"
     app_global_get_ex
-    assert // check value exists
+    assert // check quorum exists
     callsub itoa
     concat
     byte ",\"voterCount\":"
@@ -292,7 +295,7 @@ close:
     int 0
     byte "voter_count"
     app_global_get_ex
-    assert // check value exists
+    assert // check voter_count exists
     callsub itoa
     concat
     byte ",\"tallies\":["
@@ -301,7 +304,7 @@ close:
     int 0
     byte "option_counts"
     app_global_get_ex
-    assert // check value exists
+    assert // check option_counts exists
     dup
     int 0
     extract_uint16
@@ -414,14 +417,14 @@ close_after_for@15:
     int 0
     byte "vote_id"
     app_global_get_ex
-    assert // check value exists
+    assert // check vote_id exists
     byte "[VOTE RESULT] "
     swap
     concat
     int 0
     byte "nft_image_url"
     app_global_get_ex
-    assert // check value exists
+    assert // check nft_image_url exists
     itxn_field ConfigAssetURL
     byte "VOTERSLT"
     itxn_field ConfigAssetUnitName
@@ -539,20 +542,17 @@ get_preconditions:
     itob
     frame_dig -1
     len
+    int 2
+    dig 1
+    <
+    swap
     dup
     int 2
-    >
-    bz get_preconditions_ternary_false@2
-    int 2
-    b get_preconditions_ternary_merge@3
-
-get_preconditions_ternary_false@2:
-    frame_dig 1
-
-get_preconditions_ternary_merge@3:
+    uncover 3
+    select
     frame_dig -1
     swap
-    frame_dig 1
+    uncover 2
     substring3
     callsub allowed_to_vote
     itob
@@ -560,14 +560,13 @@ get_preconditions_ternary_merge@3:
     itob
     global LatestTimestamp
     itob
-    frame_dig 0
+    uncover 3
     uncover 3
     concat
     uncover 2
     concat
     swap
     concat
-    frame_bury 0
     retsub
 
 
@@ -578,7 +577,7 @@ voting_open:
     int 0
     byte "is_bootstrapped"
     app_global_get_ex
-    assert // check value exists
+    assert // check is_bootstrapped exists
     bz voting_open_bool_false@5
     int 0
     byte "close_time"
@@ -588,7 +587,7 @@ voting_open:
     int 0
     byte "start_time"
     app_global_get_ex
-    assert // check value exists
+    assert // check start_time exists
     global LatestTimestamp
     dup
     frame_bury 0
@@ -597,7 +596,7 @@ voting_open:
     int 0
     byte "end_time"
     app_global_get_ex
-    assert // check value exists
+    assert // check end_time exists
     frame_dig 0
     >=
     bz voting_open_bool_false@5
@@ -622,7 +621,7 @@ allowed_to_vote:
     int 0
     byte "snapshot_public_key"
     app_global_get_ex
-    assert // check value exists
+    assert // check snapshot_public_key exists
     frame_dig -1
     swap
     ed25519verify_bare
@@ -655,7 +654,7 @@ vote:
     int 0
     byte "option_counts"
     app_global_get_ex
-    assert // check value exists
+    assert // check option_counts exists
     int 0
     extract_uint16
     dup
@@ -709,7 +708,7 @@ vote_for_header@1:
     int 0
     byte "option_counts"
     app_global_get_ex
-    assert // check value exists
+    assert // check option_counts exists
     dup
     int 0
     extract_uint16
@@ -738,7 +737,7 @@ vote_for_header@1:
     int 0
     byte "voter_count"
     app_global_get_ex
-    assert // check value exists
+    assert // check voter_count exists
     int 1
     +
     byte "voter_count"

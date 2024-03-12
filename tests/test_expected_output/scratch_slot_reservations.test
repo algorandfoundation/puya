@@ -1,0 +1,60 @@
+## case: negative_scratch_slot_arg
+import abc
+from puyapy import Contract, urange
+
+class MyContract(
+    Contract,
+    abc.ABC,
+    scratch_slots=[-1], ## E: Invalid scratch slot reservation. Reserved range must fall entirely between 0 and 255
+):
+    pass
+
+class MyContract2(
+    Contract,
+    abc.ABC,
+    scratch_slots=urange(1, -2, -1), ## E: Invalid scratch slot reservation. Reserved range must fall entirely between 0 and 255
+):
+    pass
+
+
+class MyContract3(
+    Contract,
+    abc.ABC,
+    scratch_slots=[urange(1, -2, -1)], ## E: Invalid scratch slot reservation. Reserved range must fall entirely between 0 and 255
+):
+    pass
+
+## case: scratch_slot_too_high
+import abc
+from puyapy import Contract, urange
+
+class MyContract(
+    Contract,
+    abc.ABC,
+    scratch_slots=[256],  ## E: Invalid scratch slot reservation. Reserved range must fall entirely between 0 and 255
+):
+    pass
+
+
+## case: scratch_slot_range_empty
+import abc
+from puyapy import Contract, urange
+
+class MyContract(
+    Contract,
+    abc.ABC,
+    scratch_slots=urange(0, 1, -1), ## E: Slot range is empty
+):
+    pass
+
+
+## case: scratch_slot_bad_urange_args
+import abc
+from puyapy import Contract, urange
+
+class MyContract(
+    Contract,
+    abc.ABC,
+    scratch_slots=urange(0, 2, 0),  ## E: urange arg 3 must not be zero
+):
+    pass

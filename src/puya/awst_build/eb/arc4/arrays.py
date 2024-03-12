@@ -23,14 +23,18 @@ from puya.awst.nodes import (
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
+    SingleEvaluation,
     Statement,
     TupleExpression,
     UInt64BinaryOperation,
     UInt64BinaryOperator,
     UInt64Constant,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import (
     CopyBuilder,
+    arc4_bool_bytes,
+    arc4_compare_bytes,
     get_bytes_expr,
     get_bytes_expr_builder,
     get_integer_literal_value,
@@ -48,7 +52,6 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
-    create_temporary_assignment,
     expect_operand_wtype,
     require_expression_builder,
 )
@@ -259,19 +262,18 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
                     )
                 address_bytes = BytesConstant(value=bytes_literal, source_location=bytes_location)
             case (ExpressionBuilder() as eb,) if eb.rvalue().wtype == wtypes.bytes_wtype:
-                address_bytes_temp = create_temporary_assignment(eb.rvalue(), location=location)
+                value = eb.rvalue()
+                address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
                     operator=NumericComparison.eq,
                     source_location=location,
                     lhs=UInt64Constant(value=32, source_location=location),
-                    rhs=IntrinsicCall.bytes_len(
-                        expr=address_bytes_temp.read, source_location=location
-                    ),
+                    rhs=IntrinsicCall.bytes_len(expr=address_bytes_temp, source_location=location),
                 )
-                address_bytes = CheckedMaybe(
-                    expr=TupleExpression.from_items(
-                        (address_bytes_temp.define, is_correct_length), location=location
-                    ),
+                address_bytes = CheckedMaybe.from_tuple_items(
+                    expr=address_bytes_temp,
+                    check=is_correct_length,
+                    source_location=location,
                     comment="Address length is 32 bytes",
                 )
             case _:
@@ -337,20 +339,7 @@ class ARC4ArrayExpressionBuilder(ValueExpressionBuilder, ABC):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        if isinstance(other, Literal):
-            raise CodeError(
-                f"Cannot compare arc4 encoded value of {self.wtype} to a literal value", location
-            )
-        other_expr = other.rvalue()
-        if other_expr.wtype != self.wtype:
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=get_bytes_expr(self.expr),
-            operator=EqualityComparison(op.value),
-            rhs=get_bytes_expr(other_expr),
-        )
-        return var_expression(cmp_expr)
+        return arc4_compare_bytes(self, op, other, location)
 
 
 class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
@@ -434,6 +423,14 @@ class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
             case _:
                 return super().binary_op(other, op, location, reverse=reverse)
 
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        return arc4_bool_bytes(
+            expr=self.expr,
+            false_bytes=b"\x00\x00",
+            location=location,
+            negate=negate,
+        )
+
 
 class AppendExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, expr: Expression, location: SourceLocation):
@@ -460,6 +457,7 @@ class AppendExpressionBuilder(IntermediateExpressionBuilder):
                 base=self.expr,
                 other=args_tuple,
                 source_location=location,
+                wtype=wtypes.void_wtype,
             )
         )
 
@@ -523,6 +521,7 @@ class ExtendExpressionBuilder(IntermediateExpressionBuilder):
                 base=self.expr,
                 other=other,
                 source_location=location,
+                wtype=wtypes.void_wtype,
             )
         )
 
@@ -561,3 +560,23 @@ class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
                 )
             case _:
                 return super().member_access(name, location)
+
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        if self.wtype.alias != "address":
+            return bool_eval_to_constant(
+                value=self.wtype.array_size > 0, location=location, negate=negate
+            )
+        else:
+            cmp_with_zero_expr = BytesComparisonExpression(
+                lhs=get_bytes_expr(self.expr),
+                operator=EqualityComparison.eq if negate else EqualityComparison.ne,
+                rhs=IntrinsicCall(
+                    wtype=wtypes.bytes_wtype,
+                    op_code="global",
+                    immediates=["ZeroAddress"],
+                    source_location=location,
+                ),
+                source_location=location,
+            )
+
+            return var_expression(cmp_with_zero_expr)

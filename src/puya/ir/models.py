@@ -19,8 +19,8 @@ T = t.TypeVar("T")
 
 def _check_stack_types(
     error_format: str,
-    target_types: list[AVMType],
-    source_types: list[AVMType],
+    target_types: Sequence[AVMType],
+    source_types: Sequence[AVMType],
     source_location: SourceLocation | None,
 ) -> None:
     if len(target_types) != len(source_types) or not all(
@@ -224,6 +224,15 @@ class BigUIntConstant(Constant):
 
 
 @attrs.frozen
+class TemplateVar(Value):
+    name: str
+    atype: AVMType
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_template_var(self)
+
+
+@attrs.frozen
 class BytesConstant(Constant):
     """Constant for types that are logically bytes"""
 
@@ -276,6 +285,25 @@ class Intrinsic(Op, ValueProvider):
     immediates: list[str | int] = attrs.field(factory=list)
     args: list[Value] = attrs.field(factory=list)
     comment: str | None = None  # used e.g. for asserts
+    _types: Sequence[AVMType] = attrs.field(converter=tuple[AVMType, ...])
+
+    @_types.default
+    def _default_types(self) -> tuple[AVMType, ...]:
+        return tuple(map(stack_type_to_avm_type, self.op_signature.returns))
+
+    @_types.validator
+    def _validate_types(self, _attribute: object, types: Sequence[AVMType]) -> None:
+        expected_types = self._default_types()
+        received_types = tuple(types)
+        desc = f"({self.op} {' '.join(map(str, self.immediates))}): "
+        _check_stack_types(
+            "Incompatible return types on Intrinsic"
+            + desc
+            + " received = {source_types}, expected = {target_types}",
+            expected_types,
+            received_types,
+            self.source_location,
+        )
 
     def _frozen_data(self) -> object:
         return self.op, tuple(self.immediates), tuple(self.args), self.comment
@@ -285,7 +313,7 @@ class Intrinsic(Op, ValueProvider):
 
     @property
     def types(self) -> Sequence[AVMType]:
-        return tuple(map(stack_type_to_avm_type, self.op_signature.returns))
+        return self._types
 
     @property
     def op_signature(self) -> OpSignature:
@@ -635,6 +663,11 @@ class Fail(ControlOp):
         return self.comment
 
 
+@attrs.frozen
+class Parameter(Register):
+    implicit_return: bool
+
+
 @attrs.define(eq=False)
 class Subroutine(Context):
     # source_location might be None if it was synthesized e.g. ARC4 approval method
@@ -642,9 +675,13 @@ class Subroutine(Context):
     module_name: str
     class_name: str | None  # None if a function (vs a method)
     method_name: str
-    parameters: Sequence[Register]
-    returns: Sequence[AVMType]
+    parameters: Sequence[Parameter]
+    _returns: Sequence[AVMType]
     body: list[BasicBlock] = attrs.field()
+
+    @property
+    def returns(self) -> Sequence[AVMType]:
+        return [*self._returns, *(p.atype for p in self.parameters if p.implicit_return)]
 
     @body.validator
     def _check_blocks(self, _attribute: object, body: list[BasicBlock]) -> None:

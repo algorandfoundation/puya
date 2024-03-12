@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+import abc
 from typing import TYPE_CHECKING
 
 import structlog
@@ -19,7 +19,6 @@ from puya.awst.nodes import (
     IntrinsicCall,
     Literal,
     ReinterpretCast,
-    TupleExpression,
 )
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
@@ -51,7 +50,7 @@ def get_bytes_expr_builder(expr: Expression) -> ExpressionBuilder:
     return var_expression(get_bytes_expr(expr))
 
 
-class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder, ABC):
+class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder, abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
             case "encode":
@@ -144,12 +143,10 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
                         source_location=location,
                         stack_args=[value_bytes],
                     )
-                    checked_arc4_value = CheckedMaybe(
-                        expr=TupleExpression(
-                            items=(arc4_value, arc4_prefix_is_valid),
-                            wtype=wtypes.WTuple.from_types((arc4_value.wtype, wtypes.bool_wtype)),
-                            source_location=location,
-                        ),
+                    checked_arc4_value = CheckedMaybe.from_tuple_items(
+                        expr=arc4_value,
+                        check=arc4_prefix_is_valid,
+                        source_location=location,
                         comment="ARC4 prefix is valid",
                     )
                     return var_expression(
@@ -223,7 +220,7 @@ class ARC4DecodeBuilder(IntermediateExpressionBuilder):
         return var_expression(expr)
 
 
-class ARC4EncodedExpressionBuilder(ValueExpressionBuilder):
+class ARC4EncodedExpressionBuilder(ValueExpressionBuilder, abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
             case "decode":
@@ -236,17 +233,48 @@ class ARC4EncodedExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        if isinstance(other, Literal):
-            raise CodeError(
-                f"Cannot compare arc4 encoded value of {self.wtype} to a literal value", location
-            )
-        other_expr = other.rvalue()
-        if other_expr.wtype != self.wtype:
-            return NotImplemented
-        cmp_expr = BytesComparisonExpression(
-            source_location=location,
-            lhs=get_bytes_expr(self.expr),
-            operator=EqualityComparison(op.value),
-            rhs=get_bytes_expr(other_expr),
+        return arc4_compare_bytes(self, op, other, location)
+
+    @abc.abstractmethod
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
+        # TODO: lift this up to ValueExpressionBuilder
+        raise NotImplementedError
+
+
+def arc4_compare_bytes(
+    lhs: ValueExpressionBuilder,
+    op: BuilderComparisonOp,
+    rhs: ExpressionBuilder | Literal,
+    location: SourceLocation,
+) -> ExpressionBuilder:
+    if isinstance(rhs, Literal):
+        raise CodeError(
+            f"Cannot compare arc4 encoded value of {lhs.wtype} to a literal value", location
         )
-        return var_expression(cmp_expr)
+    other_expr = rhs.rvalue()
+    if other_expr.wtype != lhs.wtype:
+        return NotImplemented
+    cmp_expr = BytesComparisonExpression(
+        source_location=location,
+        lhs=get_bytes_expr(lhs.expr),
+        operator=EqualityComparison(op.value),
+        rhs=get_bytes_expr(other_expr),
+    )
+    return var_expression(cmp_expr)
+
+
+def arc4_bool_bytes(
+    expr: Expression, false_bytes: bytes, location: SourceLocation, *, negate: bool
+) -> ExpressionBuilder:
+    return var_expression(
+        BytesComparisonExpression(
+            operator=EqualityComparison.eq if negate else EqualityComparison.ne,
+            lhs=get_bytes_expr(expr),
+            rhs=BytesConstant(
+                value=false_bytes,
+                encoding=BytesEncoding.base16,
+                source_location=location,
+            ),
+            source_location=location,
+        )
+    )

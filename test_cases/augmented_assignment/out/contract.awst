@@ -11,24 +11,24 @@ contract Augmented
   
   constructor()
   {
-    this.globals['global_uint']: puyapy.UInt64 = 0u
-    this.globals['global_bytes']: puyapy.Bytes = ''
+    this.global_uint: puyapy.UInt64 = 0u
+    this.global_bytes: puyapy.Bytes = ''
   }
   
   approval_program(): bool
   {
     me: puyapy.Account = txn<Sender>()
     if (txn<OnCompletion>() == OptIn) {
-      this.locals['my_uint'].account[me]: puyapy.UInt64 = 0u
-      this.locals['my_bytes'].account[me]: puyapy.Bytes = ''
+      this.my_uint[me]: puyapy.UInt64 = 0u
+      this.my_bytes[me]: puyapy.Bytes = ''
     }
-    if (txn<ApplicationID>() > 0u) {
+    if (reinterpret_cast<bool>(txn<ApplicationID>())) {
       n: puyapy.UInt64 = txn<NumAppArgs>()
       bytes_to_add: puyapy.Bytes = reinterpret_cast<puyapy.Bytes>(itob(n))
-      this.locals['my_uint'].account[me] += n
-      this.locals['my_bytes'].account[me] += bytes_to_add
-      this.globals['global_uint'] += n
-      this.globals['global_bytes'] += bytes_to_add
+      this.my_uint[me] += n
+      this.my_bytes[me] += bytes_to_add
+      this.global_uint += n
+      this.global_bytes += bytes_to_add
     }
     return true
   }

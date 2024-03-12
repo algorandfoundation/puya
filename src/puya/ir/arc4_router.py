@@ -1,4 +1,4 @@
-import itertools
+from collections.abc import Mapping
 from typing import Iterable, Sequence
 
 from puya.arc4_util import get_abi_signature, wtype_to_arc4
@@ -7,9 +7,13 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import NumericComparison, NumericComparisonExpression, UInt64Constant
+from puya.awst.nodes import (
+    NumericComparison,
+    NumericComparisonExpression,
+    SingleEvaluation,
+    UInt64Constant,
+)
 from puya.awst_build.eb.transaction import check_transaction_type
-from puya.awst_build.utils import create_temporary_assignment
 from puya.errors import CodeError, InternalError
 from puya.models import (
     ARC4Method,
@@ -51,16 +55,23 @@ def call(
     )
 
 
-def load_abi_arg(
+def app_arg(
     index: int,
     wtype: wtypes.WType,
     location: SourceLocation,
-) -> awst_nodes.IntrinsicCall:
-    return awst_nodes.IntrinsicCall(
+) -> awst_nodes.Expression:
+    value = awst_nodes.IntrinsicCall(
         source_location=location,
-        wtype=wtype,
+        wtype=wtypes.bytes_wtype,
         op_code="txna",
         immediates=["ApplicationArgs", index],
+    )
+    if wtype == wtypes.bytes_wtype:
+        return value
+    return awst_nodes.ReinterpretCast(
+        source_location=location,
+        expr=value,
+        wtype=wtype,
     )
 
 
@@ -78,7 +89,7 @@ def arc4_encode(
 ) -> awst_nodes.Expression:
     match base.wtype:
         case wtypes.bytes_wtype:
-            base_temp = create_temporary_assignment(base, location)
+            base_temp = SingleEvaluation(base)
 
             length = awst_nodes.IntrinsicCall(
                 source_location=location,
@@ -89,9 +100,7 @@ def arc4_encode(
                     awst_nodes.IntrinsicCall(
                         source_location=location,
                         op_code="itob",
-                        stack_args=[
-                            awst_nodes.IntrinsicCall.bytes_len(base_temp.define, location)
-                        ],
+                        stack_args=[awst_nodes.IntrinsicCall.bytes_len(base_temp, location)],
                         wtype=wtypes.bytes_wtype,
                     )
                 ],
@@ -104,12 +113,12 @@ def arc4_encode(
                 expr=awst_nodes.IntrinsicCall(
                     source_location=location,
                     op_code="concat",
-                    stack_args=[length, base_temp.read],
+                    stack_args=[length, base_temp],
                     wtype=wtypes.bytes_wtype,
                 ),
             )
         case wtypes.WTuple(types=types):
-            base_temp = create_temporary_assignment(base, location)
+            base_temp = SingleEvaluation(base)
 
             return awst_nodes.ARC4Encode(
                 source_location=location,
@@ -117,7 +126,7 @@ def arc4_encode(
                     items=[
                         arc4_encode(
                             awst_nodes.TupleItemExpression(
-                                base=base_temp.define if i == 0 else base_temp.read,
+                                base=base_temp,
                                 index=i,
                                 source_location=location,
                             ),
@@ -169,15 +178,12 @@ def arc4_decode(
             )
             if not decode_nested_items:
                 return decode_expression
-            decoded = create_temporary_assignment(
-                decode_expression,
-                location=location,
-            )
+            decoded = SingleEvaluation(decode_expression)
             return awst_nodes.TupleExpression.from_items(
                 items=[
                     arc4_decode(
                         awst_nodes.TupleItemExpression(
-                            base=decoded.define if i == 0 else decoded.read,
+                            base=decoded,
                             index=i,
                             source_location=location,
                         ),
@@ -573,11 +579,11 @@ def map_abi_args(
         args_overflow_wtype = wtypes.ARC4Tuple.from_types(
             [map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]]
         )
-        last_arg = load_abi_arg(15, args_overflow_wtype, location)
+        last_arg = app_arg(15, args_overflow_wtype, location)
 
     def get_arg(index: int, arg_wtype: wtypes.WType) -> awst_nodes.Expression:
         if index < 15:
-            return load_abi_arg(index, arg_wtype, location)
+            return app_arg(index, arg_wtype, location)
         else:
             if last_arg is None:
                 raise InternalError("last_arg should not be None if there are more than 15 args")
@@ -586,20 +592,20 @@ def map_abi_args(
     for arg in args:
         match arg.wtype:
             case wtypes.asset_wtype:
-                bytes_arg = get_arg(abi_arg_index, arg.wtype)
+                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
                 asset_index = btoi(bytes_arg, location)
                 asset_id = asset_id_at(asset_index, location)
                 yield asset_id
                 abi_arg_index += 1
 
             case wtypes.account_wtype:
-                bytes_arg = get_arg(abi_arg_index, arg.wtype)
+                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
                 account_index = btoi(bytes_arg, location)
                 account = account_at(account_index, location)
                 yield account
                 abi_arg_index += 1
             case wtypes.application_wtype:
-                bytes_arg = get_arg(abi_arg_index, arg.wtype)
+                bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
                 application_index = btoi(bytes_arg, location)
                 application = application_at(application_index, location)
                 yield application
@@ -689,9 +695,9 @@ def _validate_default_args(
     for method in arc4_methods:
         assert method.abimethod_config
         args_by_name = {a.name: a for a in method.args}
-        for default_arg in method.abimethod_config.default_args:
+        for parameter_name, source_name in method.abimethod_config.default_args.items():
             # any invalid parameter matches should have been caught earlier
-            parameter = args_by_name[default_arg.parameter]
+            parameter = args_by_name[parameter_name]
             param_arc4_type = wtype_to_arc4(parameter.wtype)
             # special handling for reference types
             match param_arc4_type:
@@ -701,10 +707,10 @@ def _validate_default_args(
                     param_arc4_type = "address"
 
             try:
-                source = known_sources[default_arg.source]
+                source = known_sources[source_name]
             except KeyError as ex:
                 raise CodeError(
-                    f"'{default_arg.source}' is not a known state or method attribute",
+                    f"'{source_name}' is not a known state or method attribute",
                     method.source_location,
                 ) from ex
 
@@ -716,32 +722,32 @@ def _validate_default_args(
                 ):
                     if OnCompletionAction.NoOp not in abimethod_config.allowed_completion_types:
                         raise CodeError(
-                            f"'{default_arg.source}' does not allow no_op on completion calls",
+                            f"'{source_name}' does not allow no_op on completion calls",
                             method.source_location,
                         )
                     if abimethod_config.require_create:
                         raise CodeError(
-                            f"'{default_arg.source}' can only be used for create calls",
+                            f"'{source_name}' can only be used for create calls",
                             method.source_location,
                         )
                     if not abimethod_config.readonly:
                         raise CodeError(
-                            f"'{default_arg.source}' is not readonly",
+                            f"'{source_name}' is not readonly",
                             method.source_location,
                         )
                     if args:
                         raise CodeError(
-                            f"'{default_arg.source}' does not take zero arguments",
+                            f"'{source_name}' does not take zero arguments",
                             method.source_location,
                         )
                     if return_type is wtypes.void_wtype:
                         raise CodeError(
-                            f"'{default_arg.source}' does not provide a value",
+                            f"'{source_name}' does not provide a value",
                             method.source_location,
                         )
                     if wtype_to_arc4(return_type) != param_arc4_type:
                         raise CodeError(
-                            f"'{default_arg.source}' does not provide '{param_arc4_type}' type",
+                            f"'{source_name}' does not provide '{param_arc4_type}' type",
                             method.source_location,
                         )
                 case ContractState(storage_type=storage_type):
@@ -761,7 +767,7 @@ def _validate_default_args(
                         pass
                     else:
                         raise CodeError(
-                            f"'{default_arg.source}' cannot provide '{param_arc4_type}' type",
+                            f"'{source_name}' cannot provide '{param_arc4_type}' type",
                             method.source_location,
                         )
                 case _:
@@ -775,8 +781,8 @@ def create_abi_router(
     contract: awst_nodes.ContractFragment,
     arc4_methods_with_configs: dict[awst_nodes.ContractMethod, ARC4MethodConfig],
     *,
-    global_state: list[ContractState],
-    local_state: list[ContractState],
+    global_state: Mapping[str, ContractState],
+    local_state: Mapping[str, ContractState],
 ) -> tuple[awst_nodes.ContractMethod, list[ARC4Method]]:
     abi_methods = {}
     bare_methods = {}
@@ -805,7 +811,8 @@ def create_abi_router(
         router = list(route_abi_methods(router_location, abi_methods).body)
 
     known_sources: dict[str, ContractState | awst_nodes.ContractMethod] = {
-        s.name: s for s in itertools.chain(global_state, local_state)
+        **global_state,
+        **local_state,
     }
     for method in arc4_methods_with_configs:
         known_sources[method.name] = method

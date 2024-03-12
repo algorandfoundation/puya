@@ -3,6 +3,7 @@ import attrs
 from puya.teal import models
 from puya.teal.optimize._data import (
     COMMUTATIVE_OPS,
+    LOAD_OP_CODES,
     LOAD_OP_CODES_INCL_OFFSET,
     ORDERING_OPS,
     STORE_OPS_INCL_OFFSET,
@@ -86,6 +87,13 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
             (n2,) = b.immediates or (1,)
             assert isinstance(n2, int)
             return [models.DupN(n=n1 + n2, source_location=a.source_location)], True
+        # combine consecutive pop/popn's
+        case models.TealOp(op_code="pop" | "popn"), models.TealOp(op_code="pop" | "popn"):
+            (n1,) = a.immediates or (1,)
+            assert isinstance(n1, int)
+            (n2,) = b.immediates or (1,)
+            assert isinstance(n2, int)
+            return [models.PopN(n=n1 + n2, source_location=a.source_location)], True
         # `dig 1; dig 1` -> `dup2`
         case models.TealOpN(op_code="dig", n=1), models.TealOpN(op_code="dig", n=1):
             return [models.Dup2(source_location=a.source_location or b.source_location)], True
@@ -204,10 +212,14 @@ def _frame_digs_overlap_with_ops(stack_height: int, *ops: models.TealOp) -> bool
 def _optimize_quadruplet(
     a: models.TealOp, b: models.TealOp, c: models.TealOp, d: models.TealOp
 ) -> tuple[list[models.TealOp], bool]:
-    # `swap; dig|uncover n >= 2; swap; uncover 2` -> `dig|uncover n; cover 2`
+    # `swap; <re-orderable load op>; swap; uncover 2` -> `dig|uncover n; cover 2`
     if (
         is_stack_swap(a)
-        and (b.op_code in ("dig", "uncover") and int(b.immediates[0]) >= 2)
+        and (
+            b.op_code in LOAD_OP_CODES
+            or (b.op_code in ("dig", "uncover") and int(b.immediates[0]) >= 2)
+            or (b.op_code == "frame_dig" and int(b.immediates[0]) < 0)
+        )
         and is_stack_swap(c)
         and (d.op_code == "uncover" and d.immediates[0] == 2)
     ):

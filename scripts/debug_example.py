@@ -7,7 +7,7 @@ from puya.options import PuyaOptions
 
 
 def main(example: str) -> None:
-    configure_logging(min_log_level=LogLevel.debug)
+    configure_logging(min_log_level=LogLevel.warn)
     options = PuyaOptions()
 
     options.paths = [Path(example).resolve()]

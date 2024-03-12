@@ -2,9 +2,9 @@
 
 test_cases.reversed_iteration.contract.MyContract.approval_program:
     int 0
-    dupn 6
+    dupn 3
     byte ""
-    dupn 12
+    dupn 11
     int 0
     int 0
 
@@ -31,7 +31,7 @@ main_for_header@7:
 
 main_after_for@10:
     byte 0x00000000
-    bury 18
+    bury 16
     int 3
     int 0
     bury 15
@@ -47,11 +47,11 @@ main_for_body@13:
     int 4
     <
     assert // Index access is out of bounds
-    dig 20
+    dig 18
     swap
     uncover 2
     replace3
-    bury 19
+    bury 17
     int 0
     >
     bz main_after_for@16
@@ -66,7 +66,7 @@ main_for_body@13:
     b main_for_body@13
 
 main_after_for@16:
-    dig 17
+    dig 15
     byte 0x03020100
     ==
     assert
@@ -79,8 +79,8 @@ main_for_header@18:
     dig 12
     int 8
     <
-    dig 18
-    bury 18
+    dig 16
+    bury 16
     bz main_after_for@24
     int 3
     dig 9
@@ -93,16 +93,16 @@ main_for_header@18:
     int 4
     <
     assert // Index access is out of bounds
-    dig 19
+    dig 17
     dig 1
     uncover 3
     replace3
-    bury 19
+    bury 17
     int 2
     ==
     bz main_after_if_else@21
-    dig 17
-    bury 17
+    dig 15
+    bury 15
     b main_after_for@24
 
 main_after_if_else@21:
@@ -117,30 +117,12 @@ main_after_if_else@21:
     b main_for_header@18
 
 main_after_for@24:
-    dig 16
+    dig 14
     byte 0x03020504
     ==
     assert
-    int 6
-    itob
-    extract 6 2
-    int 9
-    itob
-    extract 6 2
-    concat
-    int 12
-    itob
-    extract 6 2
-    concat
-    byte "\x00\x01a"
-    concat
-    byte "\x00\x01b"
-    concat
-    byte "\x00\x01c"
-    concat
-    bury 19
     byte "\x00\x00"
-    bury 20
+    bury 17
     int 0
     bury 12
     int 3
@@ -158,16 +140,18 @@ main_for_header@25:
     bury 9
     int 2
     *
-    dig 19
-    dup
-    uncover 2
+    byte 0x00060009000c000161000162000163
+    swap
     extract_uint16
-    dup2
+    byte 0x00060009000c000161000162000163
+    dig 1
     extract_uint16
     int 2
     +
+    byte 0x00060009000c000161000162000163
+    cover 2
     extract3
-    dig 20
+    dig 17
     extract 2 0
     swap
     extract 2 0
@@ -178,7 +162,7 @@ main_for_header@25:
     extract 6 0
     swap
     concat
-    bury 20
+    bury 17
     dig 11
     int 1
     +
@@ -186,70 +170,62 @@ main_for_header@25:
     b main_for_header@25
 
 main_after_for@28:
-    dig 19
+    dig 16
     byte "\x00\x03cba"
     ==
     assert
     byte ""
-    bury 21
-    int 0
-    bury 11
+    bury 18
     int 5
+    int 0
+    bury 12
     bury 7
 
 main_for_header@29:
     dig 10
     int 5
     <
-    bz main_after_for@35
+    bz main_after_for@32
     dig 6
     int 1
     -
-    dup
-    bury 15
     byte "HELLO"
     dig 1
     int 1
     extract3
-    bury 23
+    swap
+    dup
     itob
     dup
-    bury 17
     len
+    int 1
+    dig 1
+    <
+    swap
     dup
-    bury 16
     int 1
-    >
-    bz main_ternary_false@32
-    dig 14
-    int 1
+    uncover 3
+    select
+    dig 1
+    swap
     -
-    b main_ternary_merge@33
-
-main_ternary_false@32:
-    int 0
-
-main_ternary_merge@33:
-    dig 16
     swap
-    dig 16
     substring3
-    dig 22
+    uncover 2
     concat
-    dig 21
+    dig 19
     swap
     concat
-    bury 21
-    dig 10
+    bury 19
+    dig 11
     int 1
     +
-    bury 11
-    dig 13
+    bury 12
     bury 7
     b main_for_header@29
 
-main_after_for@35:
-    dig 20
+main_after_for@32:
+    dig 17
     byte "\x04O\x03L\x02L\x01E\x00H"
     ==
     assert
@@ -257,29 +233,29 @@ main_after_for@35:
     int 3
     bury 5
     bury 14
-    b main_for_body@40
+    b main_for_body@37
 
-main_for_header_2@37:
+main_for_header_2@34:
     int 2
     bury 4
-    dig 4
+    dig 5
     bury 14
-    b main_for_body@40
+    b main_for_body@37
 
-main_for_header_1@38:
+main_for_header_1@35:
     int 1
     bury 4
-    dig 4
+    dig 5
     bury 14
-    b main_for_body@40
+    b main_for_body@37
 
-main_for_header_0@39:
+main_for_header_0@36:
     int 0
     bury 4
-    dig 4
+    dig 5
     bury 14
 
-main_for_body@40:
+main_for_body@37:
     dig 13
     dup
     dig 5
@@ -290,8 +266,8 @@ main_for_body@40:
     dup
     int 1
     +
-    bury 6
-    switch main_for_header_2@37 main_for_header_1@38 main_for_header_0@39
+    bury 7
+    switch main_for_header_2@34 main_for_header_1@35 main_for_header_0@36
     int 0
     int 99
     bury 11
@@ -299,35 +275,35 @@ main_for_body@40:
     swap
     int 5
     bury 6
-    b main_for_body@47
+    b main_for_body@44
 
-main_for_header_1@44:
+main_for_header_1@41:
     int 6
     bury 4
     dig 13
     bury 10
-    dig 5
+    dig 4
     dig 3
-    b main_for_body@47
+    b main_for_body@44
 
-main_for_header_2@45:
+main_for_header_2@42:
     int 7
     bury 4
     dig 13
     bury 10
-    dig 5
+    dig 4
     dig 3
-    b main_for_body@47
+    b main_for_body@44
 
-main_for_header_3@46:
+main_for_header_3@43:
     int 8
     bury 4
     dig 13
     bury 10
-    dig 5
+    dig 4
     dig 3
 
-main_for_body@47:
+main_for_body@44:
     dig 5
     dup
     bury 6
@@ -354,7 +330,7 @@ main_for_body@47:
     dup
     int 1
     +
-    bury 7
-    switch main_for_header_1@44 main_for_header_2@45 main_for_header_3@46
+    bury 6
+    switch main_for_header_1@41 main_for_header_2@42 main_for_header_3@43
     int 1
     return

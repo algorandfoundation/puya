@@ -2,7 +2,10 @@ import enum
 
 import attrs
 
-from puya.awst.nodes import AppStateDefinition
+from puya.awst.nodes import AppStateKind
+from puya.awst.wtypes import WType
+from puya.parse import SourceLocation
+from puya.utils import StableSet
 
 
 @enum.unique
@@ -14,5 +17,14 @@ class AppStateDeclType(enum.Enum):
 
 @attrs.frozen
 class AppStateDeclaration:
-    state_def: AppStateDefinition
+    member_name: str
+    kind: AppStateKind
+    storage_wtype: WType
     decl_type: AppStateDeclType
+    source_location: SourceLocation
+
+
+@attrs.define
+class ContractClassOptions:
+    name_override: str | None
+    scratch_slot_reservations: StableSet[int]

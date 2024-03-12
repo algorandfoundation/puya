@@ -46,7 +46,7 @@ test1:
     int 0
     byte "name"
     app_global_get_ex
-    assert // check value exists
+    assert // check name exists
     global CurrentApplicationAddress
     global CurrentApplicationAddress
     byte "name"
@@ -77,7 +77,7 @@ test1:
     int 0
     byte "name"
     app_global_get_ex
-    assert // check value exists
+    assert // check name exists
     itxn_begin
     byte "unit"
     itxn_field ConfigAssetUnitName
@@ -584,8 +584,6 @@ test3:
 // test_cases.inner_transactions.contract.MyContract.test4() -> void:
 test4:
     proto 0 0
-    int 0
-    byte ""
     int 2044
     bzero
     byte 0x80fc0f
@@ -593,7 +591,6 @@ test4:
     concat
     byte "H"
     concat
-    dup
     itxn_begin
     int appl
     itxn_field TypeEnum
@@ -632,55 +629,38 @@ test4:
     dig 1
     concat
     swap
+    dup
     len
+    int 3
+    dig 1
+    <
+    swap
     dup
     int 3
-    >
-    dup
-    bz test4_ternary_false@3
-    frame_dig 6
-    int 3
+    uncover 3
+    select
+    dig 1
+    swap
     -
-    dup
-    frame_bury 1
-    b test4_ternary_merge@4
-
-test4_ternary_false@3:
+    dig 2
     int 0
-
-test4_ternary_merge@4:
-    frame_dig 2
-    int 0
-    uncover 2
+    dig 2
     substring3
-    frame_dig 5
+    uncover 4
     swap
     concat
-    frame_dig 4
+    uncover 4
     ==
     assert // expected approval page 0
     itxna ApprovalProgramPages 1
-    frame_bury 0
-    frame_dig 7
-    bz test4_ternary_false@6
-    frame_dig 1
-    b test4_ternary_merge@7
-
-test4_ternary_false@6:
-    int 0
-
-test4_ternary_merge@7:
-    frame_dig 2
-    dup
+    dig 3
     uncover 2
-    frame_dig 6
+    uncover 3
     substring3
-    swap
+    uncover 2
     concat
-    frame_dig 0
     ==
     assert // expected approval page 1
-    frame_dig 3
     int 1
     ==
     assert // clear_state_pages == 1

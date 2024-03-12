@@ -15,6 +15,7 @@ from puya.awst.nodes import (
     TupleItemExpression,
     UInt64Constant,
 )
+from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
@@ -154,13 +155,7 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
         return var_expression(contains_expr)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        value = not negate  # if negate is False, return True and vice versa
-        logger.warning(f"expression is always {value}", location=location)
-        const = BoolConstant(
-            location,
-            value=value,
-        )
-        return var_expression(const)
+        return bool_eval_to_constant(value=True, location=location, negate=negate)
 
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation

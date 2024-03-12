@@ -6,8 +6,10 @@ import algokit_utils
 import algokit_utils.config
 import algosdk
 import pytest
+from algokit_utils import LogicError
 from algosdk import constants, transaction
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
+from algosdk.transaction import OnComplete
 from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
 from puya.arc32 import create_arc32_json
@@ -646,3 +648,80 @@ def test_inner_transactions_c2c(algod_client: AlgodClient, account: algokit_util
         transaction_parameters={"foreign_apps": [inner_app_id]},
     )
     assert decode_logs(result.tx_info["logs"], "b") == [b"HelloWorld returned: Hello, There"]
+
+
+def test_state_proxies(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    example = TEST_CASES_DIR / "state_proxies" / "contract.py"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    app_client.create(transaction_parameters={"on_complete": OnComplete.OptInOC})
+    assert app_client.get_global_state() == {"g1": 1, "g2": 0}
+    assert app_client.get_local_state(account.address) == {"l1": 2, "l2": 3}
+
+
+def test_template_variables(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "template_variables"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        app_spec,
+        signer=account,
+        template_values={
+            "SOME_BYTES": b"Hello I'm a variable",
+            "SOME_BIG_UINT": (1337).to_bytes(length=2),
+            "UPDATABLE": 1,
+            "DELETABLE": 1,
+        },
+    )
+
+    app_client.create()
+
+    get_bytes = app_client.call(
+        call_abi_method="get_bytes",
+    )
+    assert bytes(get_bytes.return_value) == b"Hello I'm a variable"
+
+    get_uint = app_client.call(
+        call_abi_method="get_big_uint",
+    )
+
+    assert get_uint.return_value == 1337
+
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        app_spec,
+        signer=account,
+        app_id=app_client.app_id,
+        template_values={
+            "SOME_BYTES": b"Updated variable",
+            "SOME_BIG_UINT": (0).to_bytes(length=2),
+            "UPDATABLE": 0,
+            "DELETABLE": 1,
+        },
+    )
+
+    app_client.update()
+
+    get_bytes = app_client.call(
+        call_abi_method="get_bytes",
+    )
+    assert bytes(get_bytes.return_value) == b"Updated variable"
+
+    get_uint = app_client.call(
+        call_abi_method="get_big_uint",
+    )
+
+    assert get_uint.return_value == 0
+
+    try:
+        app_client.update()
+        raise AssertionError("Update should fail")
+    except LogicError:
+        pass
+
+    app_client.delete()

@@ -5,6 +5,10 @@ struct TestStruct {
   s_val_2: puyapy.arc4.String
 }
 
+struct StructWithArray {
+  d_array: puyapy.arc4.DynamicArray[puyapy.arc4.String]
+}
+
 contract Arc4MutationContract
 {
   approval_program(): bool
@@ -25,23 +29,12 @@ contract Arc4MutationContract
     return true
   }
   
-  subroutine mutating_copies(): None
+  subroutine check_copy_required(): None
   {
-    my_array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]] = arc4_array_encode([1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]])
-    my_struct: test_cases.arc4_types.mutation.TestStruct = arc4_encode((arc4_encode(true, puyapy.arc4.Bool), 50arc4u8, arc4_encode('Happy', puyapy.arc4.String), arc4_encode('Days', puyapy.arc4.String)), test_cases.arc4_types.mutation.TestStruct)
-    my_array_copy: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]] = my_array.copy()
-    my_array[2u]: puyapy.arc4.UIntN[typing.Literal[8]] = 5arc4u8
-    assert(reinterpret_cast<puyapy.Bytes>(my_array_copy[2u]) == reinterpret_cast<puyapy.Bytes>(5arc4u8))
-    this::other_routine(my_array.copy(), my_struct.copy())
-    assert(reinterpret_cast<puyapy.Bytes>(my_array[1u]) == reinterpret_cast<puyapy.Bytes>(2arc4u8))
-    assert(reinterpret_cast<puyapy.Bytes>(my_array_copy[1u]) == reinterpret_cast<puyapy.Bytes>(2arc4u8))
-    assert(reinterpret_cast<puyapy.Bytes>(my_struct[2u]) == reinterpret_cast<puyapy.Bytes>(arc4_encode('Happy', puyapy.arc4.String)))
-  }
-  
-  subroutine other_routine(array: puyapy.arc4.StaticArray[puyapy.arc4.UIntN[typing.Literal[8]], typing.Literal[4]], struct: test_cases.arc4_types.mutation.TestStruct): None
-  {
-    array[1u]: puyapy.arc4.UIntN[typing.Literal[8]] = 5arc4u8
-    struct[2u]: puyapy.arc4.String = arc4_encode('AARRGH!', puyapy.arc4.String)
+    d_array: puyapy.arc4.DynamicArray[puyapy.arc4.String] = arc4_array_encode([arc4_encode('Test', puyapy.arc4.String)], puyapy.arc4.DynamicArray[puyapy.arc4.String])
+    nested_in_array: puyapy.arc4.DynamicArray[puyapy.arc4.DynamicArray[puyapy.arc4.String]] = arc4_array_encode([d_array.copy()], puyapy.arc4.DynamicArray[puyapy.arc4.DynamicArray[puyapy.arc4.String]])
+    nested_in_struct: test_cases.arc4_types.mutation.StructWithArray = arc4_encode((nested_in_array[0u].copy()), test_cases.arc4_types.mutation.StructWithArray)
+    assert(reinterpret_cast<puyapy.Bytes>(d_array) == reinterpret_cast<puyapy.Bytes>(nested_in_struct[0u]))
   }
   
   subroutine array_concat(): None
@@ -117,7 +110,7 @@ contract Arc4MutationContract
     dynamic_uint8_array.extend((4arc4u8, 90arc4u8))
     assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8, 90arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
     popped: puyapy.arc4.UIntN[typing.Literal[8]] = dynamic_uint8_array.pop()
-    assert(reinterpret_cast<puyapy.Bytes>(popped) == reinterpret_cast<puyapy.Bytes>(90arc4u8))
+    assert(reinterpret_cast<puyapy.BigUInt>(popped) == reinterpret_cast<puyapy.BigUInt>(90arc4u8))
     assert(reinterpret_cast<puyapy.Bytes>(dynamic_uint8_array) == reinterpret_cast<puyapy.Bytes>(arc4_array_encode([1arc4u8, 2arc4u8, 50arc4u8, 1arc4u8, 2arc4u8, 50arc4u8, 4arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UIntN[typing.Literal[8]]])))
   }
   

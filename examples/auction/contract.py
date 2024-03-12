@@ -20,14 +20,14 @@ class Auction(ARC4Contract):
         self.asa = Asset(0)
         # Use zero address rather than an empty string for Account type safety
         self.previous_bidder = Global.zero_address
-        self.claimable_amount = LocalState(UInt64)
+        self.claimable_amount = LocalState(UInt64, key="claim", description="The claimable amount")
 
     @arc4.abimethod
     def opt_into_asset(self, asset: Asset) -> None:
         # Only allow app creator to opt the app account into a ASA
         assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
         # Verify a ASA hasn't already been opted into
-        assert self.asa.asset_id == 0, "ASA already opted in"
+        assert self.asa.id == 0, "ASA already opted in"
         # Save ASA ID in global state
         self.asa = asset
 

@@ -16,46 +16,12 @@ test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
 // test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fixed_size() -> void:
 dynamic_array_fixed_size:
     proto 0 0
-    int 3
-    itob
-    extract 6 0
-    byte 0x010232
-    concat
-    dup
-    byte 0x0003010232
-    ==
-    assert
-    extract 2 0
-    dup
-    concat
-    dup
-    len
-    itob
-    extract 6 0
-    swap
-    concat
-    dup
-    byte 0x0006010232010232
-    ==
-    assert
-    extract 2 0
-    byte 0x045a
-    concat
-    dup
-    len
-    itob
-    extract 6 0
-    swap
-    concat
-    dup
     byte 0x0008010232010232045a
-    ==
-    assert
     int 1
     callsub dynamic_array_pop_fixed_size
     swap
     byte 0x5a
-    ==
+    b==
     assert
     byte 0x000701023201023204
     ==
@@ -115,24 +81,7 @@ dynamic_array_bool:
 // test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string() -> void:
 dynamic_array_string:
     proto 0 0
-    int 4
-    itob
-    extract 6 2
-    byte 0x0002
-    swap
-    concat
-    int 11
-    itob
-    extract 6 2
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05World"
-    concat
-    dup
-    byte "\x00\x02\x00\x04\x00\x0b\x00\x05Hello\x00\x05World"
-    ==
-    assert
+    byte 0x00020004000b000548656c6c6f0005576f726c64
     byte "\x00\x03Foo\x00\x03Bar"
     int 2
     callsub dynamic_array_concat_variable_size
@@ -155,103 +104,18 @@ dynamic_array_string:
     substring3
     swap
     callsub dynamic_array_concat_variable_size
-    int 16
-    itob
-    extract 6 2
-    byte 0x0008
-    swap
-    concat
-    int 23
-    itob
-    extract 6 2
-    concat
-    int 30
-    itob
-    extract 6 2
-    concat
-    int 35
-    itob
-    extract 6 2
-    concat
-    int 40
-    itob
-    extract 6 2
-    dig 1
-    swap
-    concat
-    int 47
-    itob
-    extract 6 2
-    concat
-    int 54
-    itob
-    extract 6 2
-    concat
-    int 59
-    itob
-    extract 6 2
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05World"
-    concat
-    byte "\x00\x03Foo"
-    concat
-    byte "\x00\x03Bar"
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05World"
-    concat
-    byte "\x00\x03Foo"
-    concat
-    byte "\x00\x03Bar"
-    concat
-    uncover 2
-    dig 1
+    byte 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     ==
     assert
+    byte 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     byte "\x00\x05Hello"
     int 3
     callsub dynamic_array_replace_variable_size
     byte "\x00\x05Hello"
     int 5
     callsub dynamic_array_replace_variable_size
-    int 42
-    itob
-    extract 6 2
-    uncover 2
-    swap
-    concat
-    int 49
-    itob
-    extract 6 2
-    concat
-    int 56
-    itob
-    extract 6 2
-    concat
-    int 61
-    itob
-    extract 6 2
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05World"
-    concat
-    byte "\x00\x03Foo"
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x03Foo"
-    concat
-    byte "\x00\x03Bar"
-    concat
-    dig 1
+    dup
+    byte 0x000800100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f0003466f6f0003426172
     ==
     assert
     callsub dynamic_array_pop_variable_size
@@ -264,44 +128,7 @@ dynamic_array_string:
     byte "\x00\x03Foo"
     ==
     assert
-    int 12
-    itob
-    extract 6 2
-    byte 0x0006
-    swap
-    concat
-    int 19
-    itob
-    extract 6 2
-    concat
-    int 26
-    itob
-    extract 6 2
-    concat
-    int 31
-    itob
-    extract 6 2
-    concat
-    int 38
-    itob
-    extract 6 2
-    concat
-    int 45
-    itob
-    extract 6 2
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05World"
-    concat
-    byte "\x00\x03Foo"
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05Hello"
-    concat
+    byte 0x0006000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f000548656c6c6f000548656c6c6f000548656c6c6f
     ==
     assert
     retsub
@@ -413,12 +240,6 @@ array_of_array_static:
 index_assign:
     proto 0 0
     byte 0x00020102
-    int 0
-    extract_uint16
-    int 0
-    >
-    assert // Index access is out of bounds
-    byte 0x00020102
     byte 0xff
     replace2 2
     byte 0x0002ff02
@@ -430,67 +251,34 @@ index_assign:
     byte 0x01ff
     ==
     assert
-    byte 0x000280
-    int 0
-    extract_uint16
-    int 0
-    >
-    assert // Index access is out of bounds
     retsub
 
 
 // test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign() -> void:
 struct_assign:
     proto 0 0
-    int 6
-    itob
-    extract 6 2
-    byte 0x8032
-    dig 1
-    concat
-    int 13
-    itob
-    extract 6 2
-    dup
-    cover 2
-    concat
-    byte "\x00\x05Happy"
-    concat
-    byte "\x00\x04Days"
-    concat
-    int 0
-    int 0
-    setbit
+    byte 0x00320006000d00054861707079000444617973
     byte 0x0c
     replace2 1
-    byte 0x000c
-    uncover 3
-    concat
-    uncover 2
-    concat
     dup
-    byte "\x00\x05Happy"
-    concat
-    byte "\x00\x04Days"
-    concat
-    dig 2
+    byte 0x000c0006000d00054861707079000444617973
     ==
     assert
-    dig 1
+    dup
     int 2
     extract_uint16
-    dig 2
+    dig 1
     int 0
     dig 2
     extract3
     swap
-    dig 3
+    dig 2
     int 4
     extract_uint16
     swap
-    dig 4
+    dig 3
     len
-    uncover 5
+    uncover 4
     uncover 3
     uncover 2
     substring3
@@ -513,11 +301,7 @@ struct_assign:
     extract3
     byte "\x00\x07Oh well"
     concat
-    swap
-    byte "\x00\x05Hmmmm"
-    concat
-    byte "\x00\x07Oh well"
-    concat
+    byte 0x000c0006000d0005486d6d6d6d00074f682077656c6c
     ==
     assert
     retsub
@@ -526,68 +310,11 @@ struct_assign:
 // test_cases.arc4_types.mutation.Arc4MutationContract.array_concat() -> void:
 array_concat:
     proto 0 0
-    int 4
-    itob
-    dup
-    extract 6 0
-    byte 0x01020304
-    concat
-    dup
-    byte 0x000401020304
-    ==
-    assert
-    extract 2 0
-    byte 0x05
-    concat
-    dup
-    len
-    itob
-    extract 6 0
-    swap
-    concat
-    byte 0x00050102030405
-    ==
-    assert
-    extract 6 2
-    byte 0x0002
-    swap
-    concat
-    int 11
-    itob
-    extract 6 2
-    concat
-    byte "\x00\x05Hello"
-    concat
-    byte "\x00\x05World"
-    concat
-    int 2
-    itob
-    extract 6 2
-    byte 0x0001
-    swap
-    concat
-    dup
-    byte "\x00\x05World"
-    concat
-    dup
-    int 0
-    extract_uint16
-    dup
-    int 2
-    *
-    int 2
-    +
-    dig 2
-    len
-    uncover 3
-    cover 2
-    substring3
-    uncover 2
-    byte "\x00\x05Hello"
-    concat
-    swap
-    uncover 2
+    byte 0x00010002000548656c6c6f
+    byte 0x0005576f726c64
+    int 1
     callsub dynamic_array_concat_variable_size
+    byte 0x00020004000b000548656c6c6f0005576f726c64
     ==
     assert
     retsub

@@ -128,8 +128,8 @@ class FunctionTraverser(
         expr.true_expr.accept(self)
         expr.false_expr.accept(self)
 
-    def visit_temporary_variable(self, expr: awst_nodes.TemporaryVariable) -> None:
-        pass
+    def visit_single_evaluation(self, expr: awst_nodes.SingleEvaluation) -> None:
+        expr.source.accept(self)
 
     def visit_app_state_expression(self, expr: awst_nodes.AppStateExpression) -> None:
         pass
@@ -212,6 +212,9 @@ class FunctionTraverser(
     def visit_assert_statement(self, statement: awst_nodes.AssertStatement) -> None:
         statement.condition.accept(self)
 
+    def visit_template_var(self, statement: awst_nodes.TemplateVar) -> None:
+        pass
+
     def visit_uint64_augmented_assignment(
         self, statement: awst_nodes.UInt64AugmentedAssignment
     ) -> None:
@@ -252,3 +255,16 @@ class FunctionTraverser(
             range_.step.accept(self)
         else:
             expr.expr.accept(self)
+
+    def visit_state_get_ex(self, expr: awst_nodes.StateGetEx) -> None:
+        expr.field.accept(self)
+
+    def visit_state_delete(self, statement: awst_nodes.StateDelete) -> None:
+        statement.field.accept(self)
+
+    def visit_state_get(self, expr: awst_nodes.StateGet) -> None:
+        expr.field.accept(self)
+        expr.default.accept(self)
+
+    def visit_state_exists(self, expr: awst_nodes.StateExists) -> None:
+        expr.field.accept(self)

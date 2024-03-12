@@ -292,7 +292,7 @@ _check_is_governor:
     int 0
     byte "governor"
     app_global_get_ex
-    assert // check value exists
+    assert // check governor exists
     ==
     // amm/contract.py:266-268
     // assert (
@@ -315,7 +315,7 @@ bootstrap:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check value exists
+    assert // check pool_token exists
     !
     assert // application has already been bootstrapped
     // amm/contract.py:69
@@ -342,7 +342,7 @@ bootstrap:
     >=
     assert // amount minimum not met
     // amm/contract.py:74
-    // assert a_asset.asset_id < b_asset.asset_id, "asset a must be less than asset b"
+    // assert a_asset.id < b_asset.id, "asset a must be less than asset b"
     frame_dig -2
     frame_dig -1
     <
@@ -368,21 +368,21 @@ bootstrap:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     callsub _do_opt_in
     // amm/contract.py:80
     // self._do_opt_in(self.asset_b)
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     callsub _do_opt_in
     // amm/contract.py:81
-    // return arc4.UInt64(self.pool_token.asset_id)
+    // return arc4.UInt64(self.pool_token.id)
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check value exists
+    assert // check pool_token exists
     itob
     retsub
 
@@ -410,7 +410,7 @@ _create_pool_token:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     asset_params_get AssetUnitName
     assert // asset exists
     byte "DPT-"
@@ -421,7 +421,7 @@ _create_pool_token:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     asset_params_get AssetUnitName
     assert // asset exists
     concat
@@ -520,7 +520,7 @@ do_asset_transfer:
     // def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
     proto 3 0
     // amm/contract.py:361
-    // balance_before = op.AssetHoldingGet.asset_balance(receiver, asset.asset_id)
+    // balance_before = op.AssetHoldingGet.asset_balance(receiver, asset.id)
     frame_dig -3
     frame_dig -2
     asset_holding_get AssetBalance
@@ -560,7 +560,7 @@ do_asset_transfer:
     // ).submit()
     itxn_submit
     // amm/contract.py:370
-    // balance_after = op.AssetHoldingGet.asset_balance(receiver, asset.asset_id)
+    // balance_after = op.AssetHoldingGet.asset_balance(receiver, asset.id)
     frame_dig -3
     frame_dig -2
     asset_holding_get AssetBalance
@@ -604,7 +604,7 @@ mint:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check value exists
+    assert // check pool_token exists
     frame_dig -3
     swap
     ==
@@ -614,7 +614,7 @@ mint:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     frame_dig -2
     swap
     ==
@@ -624,7 +624,7 @@ mint:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     frame_dig -1
     swap
     ==
@@ -662,7 +662,7 @@ mint:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     ==
     assert // asset a incorrect
     // amm/contract.py:127
@@ -691,7 +691,7 @@ mint:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     ==
     assert // asset b incorrect
     // amm/contract.py:134
@@ -745,7 +745,7 @@ mint:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check value exists
+    assert // check pool_token exists
     uncover 2
     callsub do_asset_transfer
     // amm/contract.py:147
@@ -765,7 +765,7 @@ _check_bootstrapped:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check value exists
+    assert // check pool_token exists
     assert // bootstrap method needs to be called first
     retsub
 
@@ -782,7 +782,7 @@ _current_pool_balance:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check value exists
+    assert // check pool_token exists
     asset_holding_get AssetBalance
     assert // account opted into asset
     retsub
@@ -800,7 +800,7 @@ _current_a_balance:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     asset_holding_get AssetBalance
     assert // account opted into asset
     retsub
@@ -818,7 +818,7 @@ _current_b_balance:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     asset_holding_get AssetBalance
     assert // account opted into asset
     retsub
@@ -975,7 +975,7 @@ burn:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check value exists
+    assert // check pool_token exists
     frame_dig -3
     swap
     ==
@@ -985,7 +985,7 @@ burn:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     frame_dig -2
     swap
     ==
@@ -995,7 +995,7 @@ burn:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     frame_dig -1
     swap
     ==
@@ -1025,7 +1025,7 @@ burn:
     int 0
     byte "pool_token"
     app_global_get_ex
-    assert // check value exists
+    assert // check pool_token exists
     ==
     assert // asset pool incorrect
     // amm/contract.py:183
@@ -1083,7 +1083,7 @@ burn:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     uncover 2
     callsub do_asset_transfer
     // amm/contract.py:202-203
@@ -1093,7 +1093,7 @@ burn:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     uncover 2
     callsub do_asset_transfer
     // amm/contract.py:204
@@ -1151,7 +1151,7 @@ swap:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     frame_dig -2
     swap
     ==
@@ -1161,7 +1161,7 @@ swap:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     frame_dig -1
     swap
     ==
@@ -1185,13 +1185,13 @@ swap:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     // amm/contract.py:238
     // case self.asset_b:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     // amm/contract.py:233
     // match swap_xfer.xfer_asset:
     frame_dig -3
@@ -1229,7 +1229,7 @@ swap_switch_case_0@1:
     int 0
     byte "asset_a"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_a exists
     frame_bury 1
     b swap_switch_case_next@4
 
@@ -1246,7 +1246,7 @@ swap_switch_case_1@2:
     int 0
     byte "asset_b"
     app_global_get_ex
-    assert // check value exists
+    assert // check asset_b exists
     frame_bury 1
     b swap_switch_case_next@4
 

@@ -89,7 +89,7 @@ class Reference(ARC4Contract):
         op.ITxnCreate.set_type_enum(TransactionType.AssetTransfer)
         op.ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
         op.ITxnCreate.set_asset_receiver(op.Global.current_application_address)
-        op.ITxnCreate.set_xfer_asset(asset.asset_id)
+        op.ITxnCreate.set_xfer_asset(asset)
         op.ITxnCreate.submit()
 
     @arc4.abimethod
@@ -200,8 +200,8 @@ class Reference(ARC4Contract):
         assert op.Txn.num_app_args == 16
         assert pay.amount == 100000
         assert pay2.amount == 200000
-        assert asset.asset_id
-        assert asset2.asset_id
+        assert asset.id
+        assert asset2.id
 
         log(s + t)
 

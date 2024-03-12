@@ -1,5 +1,5 @@
 import typing as t
-from collections.abc import Iterable
+from collections.abc import Callable
 
 import mypy.nodes
 import mypy.types
@@ -18,8 +18,9 @@ from puya.awst.nodes import (
 )
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
-from puya.awst_build.context import ASTConversionContext
-from puya.awst_build.contract import ContractASTConverter, ContractClassOptions
+from puya.awst_build.context import ASTConversionContext, ASTConversionModuleContext
+from puya.awst_build.contract import ContractASTConverter
+from puya.awst_build.contract_data import ContractClassOptions
 from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.subroutine import FunctionASTConverter
 from puya.awst_build.utils import (
@@ -29,50 +30,71 @@ from puya.awst_build.utils import (
     get_decorators_by_fullname,
     get_unaliased_fullname,
 )
+from puya.awst_build.validation.main import validate_awst
 from puya.errors import CodeError, InternalError
-from puya.parse import SourceLocation
 from puya.utils import StableSet
 
 logger = structlog.get_logger()
 
 
-class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
+DeferredModuleStatement: t.TypeAlias = Callable[[ASTConversionModuleContext], ModuleStatement]
+
+StatementResult: t.TypeAlias = list[ModuleStatement | DeferredModuleStatement]
+
+
+class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     """This does basic validation, and traversal of valid module scope elements, collecting
-    and folding constants.
-
-    Note that constants must appear before usage, unlike in regular Python.
-
-    TODO: maybe collect constants in a pre-processing step?
-    """
+    and folding constants."""
 
     def __init__(self, context: ASTConversionContext, module: mypy.nodes.MypyFile):
         super().__init__(context=context.for_module(module))
 
-        docstring = extract_docstring(module)
+        self._mypy_module = module
+        self._docstring = extract_docstring(module)
 
-        self._statements = list[ModuleStatement]()
-        for node in module.defs:
+        # pre-parse
+        errors_start = self.context.errors.num_errors
+        pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
+        for node in self._mypy_module.defs:
             with self.context.log_exceptions(fallback_location=node):
-                node.accept(self)
-        self.result = Module(
+                items = node.accept(self)
+                pre_parse_result.append((node, items))
+        self._pre_parse_result = pre_parse_result
+        self._error_count = self.context.errors.num_errors - errors_start
+
+    @property
+    def has_errors(self) -> bool:
+        return self._error_count > 0
+
+    def convert(self) -> Module:
+        statements = []
+        errors_start = self.context.errors.num_errors
+        for node, items in self._pre_parse_result:
+            with self.context.log_exceptions(fallback_location=node):
+                for stmt_or_deferred in items:
+                    if isinstance(stmt_or_deferred, ModuleStatement):
+                        statements.append(stmt_or_deferred)
+                    else:
+                        statements.append(stmt_or_deferred(self.context))
+        module = self._mypy_module
+        result = Module(
             name=module.name,
             source_file_path=module.path,
-            docstring=docstring,
-            body=self._statements,
+            docstring=self._docstring,
+            body=statements,
         )
-
-    @classmethod
-    def convert(cls, context: ASTConversionContext, module: mypy.nodes.MypyFile) -> Module:
-        return cls(context=context, module=module).result
+        validate_awst(self.context, result)
+        self._error_count += self.context.errors.num_errors - errors_start
+        return result
 
     # Supported Statements
 
-    def empty_statement(self, _stmt: mypy.nodes.Statement) -> None:
-        return None
+    def empty_statement(self, _stmt: mypy.nodes.Statement) -> StatementResult:
+        return []
 
     def visit_function(
         self, func_def: mypy.nodes.FuncDef, decorator: mypy.nodes.Decorator | None
-    ) -> None:
+    ) -> StatementResult:
         self._precondition(
             func_def.abstract_status == mypy.nodes.NOT_ABSTRACT,
             "module level functions should not be classified as abstract by mypy",
@@ -93,10 +115,9 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             self._error(f'Unsupported function decorator "{dec_fullname}"', dec)
 
         source_location = self._location(decorator or func_def)
-        sub = FunctionASTConverter.convert(self.context, func_def, source_location)
-        self._statements.append(sub)
+        return [lambda ctx: FunctionASTConverter.convert(ctx, func_def, source_location)]
 
-    def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> None:
+    def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
         self.check_fatal_decorators(cdef.decorators)
         match cdef.analyzed:
             case None:
@@ -135,13 +156,13 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                     "arc4.Struct classes must only inherit directly from arc4.Struct", cdef
                 )
             else:
-                self._process_arc4_struct(cdef)
+                return _process_arc4_struct(self.context, cdef)
         elif cdef.info.has_base(constants.STRUCT_BASE):
             if [ti.fullname for ti in cdef.info.direct_base_classes()] != [constants.STRUCT_BASE]:
                 # TODO: allow inheritance of Structs?
                 self._error("Struct classes must only inherit directly from Struct", cdef)
             else:
-                self._process_struct(cdef)
+                return _process_struct(self.context, cdef)
         elif cdef.info.has_base(constants.CONTRACT_BASE):
             # TODO: mypyc also checks for typing.TypingMeta and typing.GenericMeta equivalently
             #       in a similar check - I can't find many references to these, should we include
@@ -156,161 +177,39 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                 )
             # TODO: other checks above?
             else:
-                class_options = self._process_contract_class_options(cdef)
-                self._statements.append(
-                    ContractASTConverter.convert(self.context, cdef, class_options)
-                )
+                class_options = _process_contract_class_options(self.context, self, cdef)
+                return [lambda ctx: ContractASTConverter.convert(ctx, cdef, class_options)]
         else:
             self._error(
                 f"not a subclass of {constants.CONTRACT_BASE_ALIAS}"
                 f" or a direct subclass of {constants.STRUCT_BASE_ALIAS}",
                 location=cdef,
             )
+        return []
 
-    def _process_contract_class_options(self, cdef: mypy.nodes.ClassDef) -> ContractClassOptions:
-        name_override: str | None = None
-        scratch_slot_reservations = StableSet[int]()
-        for kw_name, kw_expr in cdef.keywords.items():
-            with self.context.log_exceptions(kw_expr):
-                match kw_name:
-                    case "name":
-                        name_value = kw_expr.accept(self)
-                        if isinstance(name_value, str):
-                            name_override = name_value
-                        else:
-                            self._error("Invalid type for name=", kw_expr)
-                    case "scratch_slots":
-                        if not isinstance(kw_expr, mypy.nodes.TupleExpr):
-                            self._error(
-                                "scratch_slots should be a tuple of slot numbers or "
-                                "slot number ranges",
-                                kw_expr,
-                            )
-                        else:
-                            for item in kw_expr.items:
-                                scratch_slot_reservations |= _map_scratch_space_reservation(
-                                    item, self._location(item)
-                                )
-                    case _:
-                        self._error("Unrecognised class keyword", kw_expr)
-        for base in cdef.info.bases:
-            base_cdef = base.type.defn
-            if not base_cdef.info.has_base(constants.CONTRACT_BASE):
-                continue
-            base_options = self._process_contract_class_options(base_cdef)
-            for reservation in base_options.scratch_slot_reservations:
-                scratch_slot_reservations.add(reservation)
-        return ContractClassOptions(
-            name_override=name_override,
-            scratch_slot_reservations=scratch_slot_reservations,
-        )
-
-    def _process_arc4_struct(self, cdef: mypy.nodes.ClassDef) -> None:
-        field_types = dict[str, wtypes.WType]()
-        field_decls = list[StructureField]()
-        docstring = extract_docstring(cdef)
-
-        for stmt in cdef.defs.body:
-            match stmt:
-                case mypy.nodes.AssignmentStmt(
-                    lvalues=[mypy.nodes.NameExpr(name=field_name)],
-                    rvalue=mypy.nodes.TempNode(),
-                    type=mypy.types.Type() as mypy_type,
-                ):
-                    wtype = self.context.type_to_wtype(mypy_type, source_location=stmt)
-                    if not wtypes.is_arc4_encoded_type(wtype):
-                        raise CodeError(
-                            f"Invalid field type for arc4.Struct: {wtype}", self._location(stmt)
-                        )
-                    field_types[field_name] = wtype
-                    field_decls.append(
-                        StructureField(
-                            source_location=self._location(stmt),
-                            name=field_name,
-                            wtype=wtype,
-                        )
-                    )
-                case mypy.nodes.SymbolNode(name=symbol_name) if (
-                    cdef.info.names[symbol_name].plugin_generated
-                ):
-                    pass
-                case _:
-                    self._error("Unsupported Struct declaration", stmt)
-        if not field_types:
-            raise CodeError("arc4.Struct requires at least one field", self._location(cdef))
-        tuple_wtype = wtypes.ARC4Struct.from_name_and_fields(
-            python_name=cdef.fullname, fields=field_types
-        )
-        self._statements.append(
-            StructureDefinition(
-                name=cdef.name,
-                source_location=self._location(cdef),
-                fields=field_decls,
-                wtype=tuple_wtype,
-                docstring=docstring,
-            )
-        )
-        self.context.type_map[cdef.info.fullname] = tuple_wtype
-
-    def _process_struct(self, cdef: mypy.nodes.ClassDef) -> None:
-        field_types = dict[str, wtypes.WType]()
-        field_decls = list[StructureField]()
-        docstring = extract_docstring(cdef)
-        for stmt in cdef.defs.body:
-            match stmt:
-                case mypy.nodes.AssignmentStmt(
-                    lvalues=[mypy.nodes.NameExpr(name=field_name)],
-                    rvalue=mypy.nodes.TempNode(),
-                    type=mypy.types.Type() as mypy_type,
-                ):
-                    wtype = self.context.type_to_wtype(mypy_type, source_location=stmt)
-                    field_decls.append(
-                        StructureField(
-                            source_location=self._location(stmt),
-                            name=field_name,
-                            wtype=wtype,
-                        )
-                    )
-                    field_types[field_name] = wtype
-                case mypy.nodes.SymbolNode(name=symbol_name) if (
-                    cdef.info.names[symbol_name].plugin_generated
-                ):
-                    pass
-                case _:
-                    self._error("Unsupported Struct declaration", stmt)
-        struct_wtype = wtypes.WStructType.from_name_and_fields(cdef.fullname, field_types)
-        self._statements.append(
-            StructureDefinition(
-                name=cdef.name,
-                source_location=self._location(cdef),
-                fields=field_decls,
-                wtype=struct_wtype,
-                docstring=docstring,
-            )
-        )
-        self.context.type_map[cdef.info.fullname] = struct_wtype
-
-    def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> None:
+    def visit_operator_assignment_stmt(
+        self, stmt: mypy.nodes.OperatorAssignmentStmt
+    ) -> StatementResult:
         match stmt.lvalue:
             case mypy.nodes.NameExpr(name="__all__"):
                 # TODO: this value is technically usable at runtime in Python,
                 #       any references to it in the method bodies should fail
-                pass  # skip it
+                return self.empty_statement(stmt)
             case _:
                 self._unsupported(stmt)
 
-    def visit_if_stmt(self, stmt: mypy.nodes.IfStmt) -> None:
+    def visit_if_stmt(self, stmt: mypy.nodes.IfStmt) -> StatementResult:
         for expr, block in zip(stmt.expr, stmt.body, strict=True):
             if self._evaluate_compile_time_constant_condition(expr):
-                block.accept(self)
-                break
+                return block.accept(self)
+        # if we didn't return, we end up here, which means the user code
+        # should evaluate to the else body (if present)
+        if stmt.else_body:
+            return stmt.else_body.accept(self)
         else:
-            # if we didn't "break", we end up here, which means the user code
-            # should evaluate to the else body (if present)
-            if stmt.else_body:
-                stmt.else_body.accept(self)
+            return []
 
-    def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> None:
+    def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> StatementResult:
         self._precondition(
             bool(stmt.lvalues), "assignment statements should have at least one lvalue", stmt
         )
@@ -320,12 +219,12 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
             stmt,
         )
         if stmt.is_alias_def:  # ie is this a typing.TypeAlias
-            return  # skip it
+            return []  # skip it
         match stmt.lvalues:
             case [mypy.nodes.NameExpr(name="__all__")]:
                 # TODO: this value is technically usable at runtime in Python,
                 #       any references to it in the method bodies should fail
-                return  # skip it
+                return []  # skip it
             # mypy comments here indicate if this is a special form,
             # it will be a single lvalue of type NameExpr
             # https://github.com/python/mypy/blob/d2022a0007c0eb176ccaf37a9aa54c958be7fb10/mypy/semanal.py#L3508
@@ -340,7 +239,8 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                     ):
                         self._unsupported(stmt.rvalue, "unsupported type")
                     case _:
-                        return  # skip it
+                        return []  # skip it
+        const_delcs = StatementResult()
         rvalue = stmt.rvalue.accept(self)
         for lvalue in stmt.lvalues:
             match lvalue:
@@ -356,7 +256,7 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                             lvalue,
                         )
                     self.context.constants[fullname] = rvalue
-                    self._statements.append(
+                    const_delcs.append(
                         ConstantDeclaration(
                             name=name_expr.name,
                             value=rvalue,
@@ -368,10 +268,14 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
                         lvalue,
                         "only straight-forward assignment targets supported at module level",
                     )
+        return const_delcs
 
-    def visit_block(self, block: mypy.nodes.Block) -> None:
+    def visit_block(self, block: mypy.nodes.Block) -> StatementResult:
+        result = StatementResult()
         for stmt in block.body:
-            stmt.accept(self)
+            items = stmt.accept(self)
+            result.extend(items)
+        return result
 
     # Expressions
 
@@ -533,36 +437,36 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
 
     # Unsupported Statements
 
-    def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> None:
-        self._unsupported(stmt)
+    def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> None:
-        self._unsupported(stmt)
+    def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_for_stmt(self, stmt: mypy.nodes.ForStmt) -> None:
-        self._unsupported(stmt)
+    def visit_for_stmt(self, stmt: mypy.nodes.ForStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_break_stmt(self, stmt: mypy.nodes.BreakStmt) -> None:
-        self._unsupported(stmt)
+    def visit_break_stmt(self, stmt: mypy.nodes.BreakStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_continue_stmt(self, stmt: mypy.nodes.ContinueStmt) -> None:
-        self._unsupported(stmt)
+    def visit_continue_stmt(self, stmt: mypy.nodes.ContinueStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> None:
-        self._unsupported(stmt)
+    def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_del_stmt(self, stmt: mypy.nodes.DelStmt) -> None:
-        self._unsupported(stmt)
+    def visit_del_stmt(self, stmt: mypy.nodes.DelStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
-    def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> None:
-        self._unsupported(stmt)
+    def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> StatementResult:
+        return self._unsupported(stmt)
 
     # the remaining statements (below) are invalid at the module lexical scope,
     # mypy should have caught these errors already
-    def visit_return_stmt(self, stmt: mypy.nodes.ReturnStmt) -> None:
+    def visit_return_stmt(self, stmt: mypy.nodes.ReturnStmt) -> StatementResult:
         raise InternalError("encountered return statement at module level", self._location(stmt))
 
-    def visit_nonlocal_decl(self, stmt: mypy.nodes.NonlocalDecl) -> None:
+    def visit_nonlocal_decl(self, stmt: mypy.nodes.NonlocalDecl) -> StatementResult:
         raise InternalError(
             "encountered nonlocal declaration at module level", self._location(stmt)
         )
@@ -597,47 +501,215 @@ class ModuleASTConverter(BaseMyPyVisitor[None, ConstantValue]):
         return self._unsupported(expr)
 
 
-def _map_scratch_space_reservation(
-    expr: mypy.nodes.Expression, source_location: SourceLocation
-) -> Iterable[int]:
-    def check_slot_is_in_range(slot: int) -> None:
-        if not (0 <= slot <= MAX_SCRATCH_SLOT_NUMBER):
-            raise CodeError(
-                f"Invalid scratch slot {slot}. Reserved range must fall entirely between "
-                f"0 and {MAX_SCRATCH_SLOT_NUMBER}",
-                source_location,
-            )
+def _process_contract_class_options(
+    context: ASTConversionModuleContext,
+    expr_visitor: mypy.visitor.ExpressionVisitor[ConstantValue],
+    cdef: mypy.nodes.ClassDef,
+) -> ContractClassOptions:
+    name_override: str | None = None
+    scratch_slot_reservations = StableSet[int]()
+    for kw_name, kw_expr in cdef.keywords.items():
+        with context.log_exceptions(kw_expr):
+            match kw_name:
+                case "name":
+                    name_value = kw_expr.accept(expr_visitor)
+                    if isinstance(name_value, str):
+                        name_override = name_value
+                    else:
+                        context.error("Invalid type for name=", kw_expr)
+                case "scratch_slots":
+                    if isinstance(kw_expr, mypy.nodes.TupleExpr | mypy.nodes.ListExpr):
+                        slot_items = kw_expr.items
+                    else:
+                        slot_items = [kw_expr]
+                    for item_expr in slot_items:
+                        slots = _map_scratch_space_reservation(context, item_expr)
+                        if not slots:
+                            context.error("Slot range is empty", item_expr)
+                        elif (min(slots) < 0) or (max(slots) > MAX_SCRATCH_SLOT_NUMBER):
+                            context.error(
+                                f"Invalid scratch slot reservation."
+                                f" Reserved range must fall entirely between 0"
+                                f" and {MAX_SCRATCH_SLOT_NUMBER}",
+                                item_expr,
+                            )
+                        else:
+                            scratch_slot_reservations |= slots
+                case _:
+                    context.error("Unrecognised class keyword", kw_expr)
+    for base in cdef.info.bases:
+        base_cdef = base.type.defn
+        if not base_cdef.info.has_base(constants.CONTRACT_BASE):
+            continue
+        base_options = _process_contract_class_options(context, expr_visitor, base_cdef)
+        for reservation in base_options.scratch_slot_reservations:
+            scratch_slot_reservations.add(reservation)
+    return ContractClassOptions(
+        name_override=name_override,
+        scratch_slot_reservations=scratch_slot_reservations,
+    )
 
-    def map_urange_args(args: list[mypy.nodes.Expression]) -> range:
-        match args:
-            case [mypy.nodes.IntExpr(value=stop)]:
-                check_slot_is_in_range(stop - 1)
-                return range(stop)
-            case [mypy.nodes.IntExpr(value=start), mypy.nodes.IntExpr(value=stop)]:
-                check_slot_is_in_range(start)
-                check_slot_is_in_range(stop - 1)
-                return range(start, stop)
-            case [
-                mypy.nodes.IntExpr(value=start),
-                mypy.nodes.IntExpr(value=stop),
-                mypy.nodes.IntExpr(value=step),
-            ]:
-                the_range = range(start, stop, step)
-                for slot in the_range:
-                    check_slot_is_in_range(slot)
-                return the_range
+
+def _process_struct(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+) -> StatementResult:
+    field_types = dict[str, wtypes.WType]()
+    field_decls = list[StructureField]()
+    docstring = extract_docstring(cdef)
+    has_error = False
+    for stmt in cdef.defs.body:
+        match stmt:
+            case mypy.nodes.AssignmentStmt(
+                lvalues=[mypy.nodes.NameExpr(name=field_name)],
+                rvalue=mypy.nodes.TempNode(),
+                type=mypy.types.Type() as mypy_type,
+            ):
+                wtype = context.type_to_wtype(mypy_type, source_location=stmt)
+                field_types[field_name] = wtype
+                field_decls.append(
+                    StructureField(
+                        source_location=context.node_location(stmt),
+                        name=field_name,
+                        wtype=wtype,
+                    )
+                )
+            case mypy.nodes.SymbolNode(name=symbol_name) if (
+                cdef.info.names[symbol_name].plugin_generated
+            ):
+                pass
             case _:
-                raise CodeError("Unexpected arguments for urange", source_location)
+                context.error("Unsupported Struct declaration", stmt)
+                has_error = True
+    if has_error:
+        return []
+    struct_wtype = wtypes.WStructType.from_name_and_fields(cdef.fullname, field_types)
+    context.type_map[cdef.info.fullname] = struct_wtype
+    return [
+        StructureDefinition(
+            name=cdef.name,
+            source_location=context.node_location(cdef),
+            fields=field_decls,
+            wtype=struct_wtype,
+            docstring=docstring,
+        )
+    ]
 
-    match expr:
-        case mypy.nodes.IntExpr(value):
-            check_slot_is_in_range(value)
-            return [value]
-        case mypy.nodes.CallExpr(
-            callee=mypy.nodes.RefExpr() as expr, args=args
-        ) if get_unaliased_fullname(expr) == constants.URANGE:
-            return map_urange_args(args)
-        case _:
+
+def _process_arc4_struct(
+    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+) -> StatementResult:
+    field_types = dict[str, wtypes.WType]()
+    field_decls = list[StructureField]()
+    docstring = extract_docstring(cdef)
+
+    has_error = False
+    for stmt in cdef.defs.body:
+        match stmt:
+            case mypy.nodes.AssignmentStmt(
+                lvalues=[mypy.nodes.NameExpr(name=field_name)],
+                rvalue=mypy.nodes.TempNode(),
+                type=mypy.types.Type() as mypy_type,
+            ):
+                wtype = context.type_to_wtype(mypy_type, source_location=stmt)
+                if not wtypes.is_arc4_encoded_type(wtype):
+                    context.error(f"Invalid field type for arc4.Struct: {wtype}", stmt)
+                    has_error = True
+                else:
+                    field_types[field_name] = wtype
+                    field_decls.append(
+                        StructureField(
+                            source_location=context.node_location(stmt),
+                            name=field_name,
+                            wtype=wtype,
+                        )
+                    )
+            case mypy.nodes.SymbolNode(name=symbol_name) if (
+                cdef.info.names[symbol_name].plugin_generated
+            ):
+                pass
+            case _:
+                context.error("Unsupported arc4.Struct declaration", stmt)
+                has_error = True
+    if has_error:
+        return []
+    if not field_types:
+        context.error("arc4.Struct requires at least one field", cdef)
+        return []
+    tuple_wtype = wtypes.ARC4Struct.from_name_and_fields(
+        python_name=cdef.fullname, fields=field_types
+    )
+    context.type_map[cdef.info.fullname] = tuple_wtype
+    return [
+        StructureDefinition(
+            name=cdef.name,
+            source_location=context.node_location(cdef),
+            fields=field_decls,
+            wtype=tuple_wtype,
+            docstring=docstring,
+        )
+    ]
+
+
+def _get_int_arg(
+    context: ASTConversionModuleContext, arg_expr: mypy.nodes.Expression, *, error_msg: str
+) -> int:
+    if isinstance(arg_expr, mypy.nodes.UnaryExpr):
+        if arg_expr.op == "-":
+            return -_get_int_arg(context, arg_expr.expr, error_msg=error_msg)
+    elif isinstance(arg_expr, mypy.nodes.IntExpr):
+        return arg_expr.value
+    elif (
+        isinstance(arg_expr, mypy.nodes.NameExpr)
+        and arg_expr.kind == mypy.nodes.GDEF
+        and isinstance(arg_expr.node, mypy.nodes.Var)
+    ):
+        const_value = context.constants.get(arg_expr.fullname)
+        if isinstance(const_value, int):
+            return const_value
+        if const_value is None:
             raise CodeError(
-                "Unexpected value: Expected int literal or urange expression", source_location
+                f"not a known constant value: {arg_expr.name}"
+                f" (qualified source name: {arg_expr.fullname})",
+                context.node_location(arg_expr),
             )
+        # other types: fall through to default error message
+    raise CodeError(error_msg, context.node_location(arg_expr))
+
+
+def _map_scratch_space_reservation(
+    context: ASTConversionModuleContext, expr: mypy.nodes.Expression
+) -> list[int]:
+    expr_loc = context.node_location(expr)
+    match expr:
+        case mypy.nodes.CallExpr(
+            callee=mypy.nodes.RefExpr() as callee, args=args
+        ) if get_unaliased_fullname(callee) == constants.URANGE:
+            if not args:
+                raise CodeError("Expected at least one argument to urange", expr_loc)
+            if len(args) > 3:
+                raise CodeError("Expected at most three arguments to urange", expr_loc)
+            int_args = [
+                _get_int_arg(
+                    context,
+                    arg_expr,
+                    error_msg=(
+                        "Unexpected argument for urange:"
+                        " expected an in integer literal or module constant reference"
+                    ),
+                )
+                for arg_expr in args
+            ]
+            if len(int_args) == 3 and int_args[-1] == 0:
+                raise CodeError("urange arg 3 must not be zero", context.node_location(args[-1]))
+            return list(range(*int_args))
+        case _:
+            return [
+                _get_int_arg(
+                    context,
+                    expr,
+                    error_msg=(
+                        "Unexpected value:"
+                        " Expected int literal, module constant reference, or urange expression"
+                    ),
+                )
+            ]
