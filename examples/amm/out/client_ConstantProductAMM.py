@@ -6,13 +6,12 @@ import typing
 import puyapy
 
 
-class ConstantProductAMM(puyapy.arc4.ARC4Client):
+class ConstantProductAMM(puyapy.arc4.ARC4Client, typing.Protocol):
     @puyapy.arc4.abimethod
     def set_governor(
         self,
         new_governor: puyapy.Account,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def bootstrap(
@@ -20,8 +19,7 @@ class ConstantProductAMM(puyapy.arc4.ARC4Client):
         seed: puyapy.gtxn.PaymentTransaction,
         a_asset: puyapy.Asset,
         b_asset: puyapy.Asset,
-    ) -> puyapy.arc4.UInt64:
-        raise NotImplementedError
+    ) -> puyapy.arc4.UInt64: ...
 
     @puyapy.arc4.abimethod(default_args={'pool_asset': 'pool_token', 'a_asset': 'asset_a', 'b_asset': 'asset_b'})
     def mint(
@@ -31,8 +29,7 @@ class ConstantProductAMM(puyapy.arc4.ARC4Client):
         pool_asset: puyapy.Asset,
         a_asset: puyapy.Asset,
         b_asset: puyapy.Asset,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod(default_args={'pool_asset': 'pool_token', 'a_asset': 'asset_a', 'b_asset': 'asset_b'})
     def burn(
@@ -41,8 +38,7 @@ class ConstantProductAMM(puyapy.arc4.ARC4Client):
         pool_asset: puyapy.Asset,
         a_asset: puyapy.Asset,
         b_asset: puyapy.Asset,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod(default_args={'a_asset': 'asset_a', 'b_asset': 'asset_b'})
     def swap(
@@ -50,5 +46,4 @@ class ConstantProductAMM(puyapy.arc4.ARC4Client):
         swap_xfer: puyapy.gtxn.AssetTransferTransaction,
         a_asset: puyapy.Asset,
         b_asset: puyapy.Asset,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...

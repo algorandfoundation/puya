@@ -6,48 +6,42 @@ import typing
 import puyapy
 
 
-class Logger(puyapy.arc4.ARC4Client):
+class Logger(puyapy.arc4.ARC4Client, typing.Protocol):
     @puyapy.arc4.abimethod
     def echo(
         self,
         value: puyapy.arc4.String,
-    ) -> puyapy.arc4.String:
-        raise NotImplementedError
+    ) -> puyapy.arc4.String: ...
 
     @puyapy.arc4.abimethod
     def log_uint64(
         self,
         value: puyapy.arc4.UInt64,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def log_uint512(
         self,
         value: puyapy.arc4.UInt512,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def log_string(
         self,
         value: puyapy.arc4.String,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def log_bool(
         self,
         value: puyapy.arc4.Bool,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def log_bytes(
         self,
         value: puyapy.arc4.DynamicBytes,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def log_asset_account_app(
@@ -55,8 +49,7 @@ class Logger(puyapy.arc4.ARC4Client):
         asset: puyapy.Asset,
         account: puyapy.Account,
         app: puyapy.Application,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def return_args_after_14th(
@@ -81,5 +74,4 @@ class Logger(puyapy.arc4.ARC4Client):
         a18: puyapy.arc4.UInt8,
         a19: puyapy.arc4.Tuple[puyapy.arc4.UInt8, puyapy.arc4.UInt8, puyapy.arc4.UInt8, puyapy.arc4.UInt8],
         a20: puyapy.arc4.UInt8,
-    ) -> puyapy.arc4.DynamicBytes:
-        raise NotImplementedError
+    ) -> puyapy.arc4.DynamicBytes: ...

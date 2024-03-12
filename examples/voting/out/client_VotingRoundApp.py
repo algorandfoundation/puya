@@ -11,7 +11,7 @@ class VotingPreconditions(puyapy.arc4.Struct):
     has_already_voted: puyapy.arc4.UInt64
     current_time: puyapy.arc4.UInt64
 
-class VotingRoundApp(puyapy.arc4.ARC4Client):
+class VotingRoundApp(puyapy.arc4.ARC4Client, typing.Protocol):
     @puyapy.arc4.abimethod(create=True)
     def create(
         self,
@@ -23,28 +23,24 @@ class VotingRoundApp(puyapy.arc4.ARC4Client):
         option_counts: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8],
         quorum: puyapy.arc4.UInt64,
         nft_image_url: puyapy.arc4.String,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def bootstrap(
         self,
         fund_min_bal_req: puyapy.gtxn.PaymentTransaction,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def close(
         self,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod(readonly=True)
     def get_preconditions(
         self,
         signature: puyapy.arc4.DynamicBytes,
-    ) -> VotingPreconditions:
-        raise NotImplementedError
+    ) -> VotingPreconditions: ...
 
     @puyapy.arc4.abimethod
     def vote(
@@ -52,5 +48,4 @@ class VotingRoundApp(puyapy.arc4.ARC4Client):
         fund_min_bal_req: puyapy.gtxn.PaymentTransaction,
         signature: puyapy.arc4.DynamicBytes,
         answer_ids: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8],
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...

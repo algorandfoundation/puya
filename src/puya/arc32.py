@@ -1,6 +1,7 @@
 import base64
 import itertools
 import json
+import textwrap
 import typing
 from collections.abc import Collection, Iterable, Mapping, Sequence
 from pathlib import Path
@@ -21,7 +22,7 @@ from puya.models import (
     OnCompletionAction,
 )
 from puya.parse import SourceLocation
-from puya.utils import make_path_relative_to_cwd
+from puya.utils import make_path_relative_to_cwd, unique
 
 OCA_ARC32_MAPPING = {
     OnCompletionAction.NoOp: "no_op",
@@ -228,7 +229,7 @@ def _can_overwrite_auto_generated_file(path: Path) -> bool:
 
 def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
     return "\n".join(
-        [
+        (
             _AUTO_GENERATED_COMMENT,
             "# flake8: noqa",  # this works for flake8 and ruff
             "# fmt: off",  # disable formatting"
@@ -237,46 +238,55 @@ def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
             "import puyapy",
             "",
             *itertools.chain(
-                *(_abi_struct_to_class(s) for m in methods for s in m.config.structs.values())
+                *(
+                    _abi_struct_to_class(s)
+                    for s in unique(s for m in methods for s in m.config.structs.values())
+                )
             ),
             "",
-            f"class {name}(puyapy.arc4.ARC4Client):",
-            *itertools.chain(
-                *(_abi_method_to_signature(m) for m in methods if not m.config.is_bare)
-            ),
-        ]
+            f"class {name}(puyapy.arc4.ARC4Client, typing.Protocol):",
+            *(_abi_method_to_signature(m) for m in methods if not m.config.is_bare),
+        )
     )
 
 
 def _abi_struct_to_class(s: ARC32StructDef) -> Iterable[str]:
-    yield f"class {s.name}(puyapy.arc4.Struct):"
-    for name, elem_type in s.elements:
-        yield _INDENT + f"{name}: {_arc4_type_to_puyapy_cls(elem_type)}"
+    return (
+        f"class {s.name}(puyapy.arc4.Struct):",
+        _indent(
+            f"{name}: {_arc4_type_to_puyapy_cls(elem_type)}" for name, elem_type in s.elements
+        ),
+    )
 
 
-def _abi_method_to_signature(m: ARC4Method) -> Iterable[str]:
-    yield _INDENT + _arc4_method_to_decorator(m)
-    yield _INDENT + f"def {m.name}("
-    yield _INDENT * 2 + "self,"
+def _abi_method_to_signature(m: ARC4Method) -> str:
     structs = dict(m.config.structs)
-    for arg in m.args:
-        stub_arg = _abi_arg(arg, structs.get(arg.name))
-        yield _INDENT * 2 + f"{stub_arg},"
     try:
         output_struct = structs["output"]
     except KeyError:
         return_type = _arc4_type_to_puyapy_cls(m.returns.type_)
     else:
         return_type = output_struct.name
-    yield _INDENT + f") -> {return_type}:"
-    # TODO doc
-    yield _INDENT * 2 + "raise NotImplementedError"
-    yield ""
+
+    return _indent(
+        (
+            _arc4_method_to_decorator(m),
+            f"def {m.name}(",
+            _indent(
+                (
+                    "self,",
+                    *(_abi_arg(arg, structs.get(arg.name)) for arg in m.args),
+                )
+            ),
+            f") -> {return_type}: ...",
+            "",
+        )
+    )
 
 
 def _abi_arg(arg: ARC4MethodArg, struct: ARC32StructDef | None) -> str:
     python_type = struct.name if struct else _arc4_type_to_puyapy_cls(arg.type_)
-    return f"{arg.name}: {python_type}"
+    return f"{arg.name}: {python_type},"
 
 
 def _arc4_type_to_puyapy_cls(typ: str) -> str:
@@ -303,3 +313,9 @@ def _arc4_method_to_decorator(method: ARC4Method) -> str:
     if kwargs:
         decorator += f"({kwargs})"
     return decorator
+
+
+def _indent(lines: Iterable[str] | str) -> str:
+    if not isinstance(lines, str):
+        lines = "\n".join(lines)
+    return textwrap.indent(lines, _INDENT)

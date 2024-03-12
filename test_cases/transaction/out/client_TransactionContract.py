@@ -6,54 +6,47 @@ import typing
 import puyapy
 
 
-class TransactionContract(puyapy.arc4.ARC4Client):
+class TransactionContract(puyapy.arc4.ARC4Client, typing.Protocol):
     @puyapy.arc4.abimethod(create=True)
     def create(
         self,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def pay(
         self,
         txn: puyapy.gtxn.PaymentTransaction,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def key(
         self,
         txn: puyapy.gtxn.KeyRegistrationTransaction,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def asset_config(
         self,
         txn: puyapy.gtxn.AssetConfigTransaction,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def asset_transfer(
         self,
         txn: puyapy.gtxn.AssetTransferTransaction,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def asset_freeze(
         self,
         txn: puyapy.gtxn.AssetFreezeTransaction,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def application_call(
         self,
         txn: puyapy.gtxn.ApplicationCallTransaction,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def multiple_txns(
@@ -61,8 +54,7 @@ class TransactionContract(puyapy.arc4.ARC4Client):
         txn1: puyapy.gtxn.ApplicationCallTransaction,
         txn2: puyapy.gtxn.ApplicationCallTransaction,
         txn3: puyapy.gtxn.ApplicationCallTransaction,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...
 
     @puyapy.arc4.abimethod
     def any_txn(
@@ -70,5 +62,4 @@ class TransactionContract(puyapy.arc4.ARC4Client):
         _txn1: puyapy.gtxn.ApplicationCallTransaction,
         _txn2: puyapy.gtxn.ApplicationCallTransaction,
         _txn3: puyapy.gtxn.ApplicationCallTransaction,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...

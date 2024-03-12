@@ -49,26 +49,27 @@ _UFIXED_REGEX = re.compile(r"^ufixed(?P<n>[0-9]+)x(?P<m>[0-9]+)$")
 _FIXED_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[(?P<size>[0-9]+)]$")
 _DYNAMIC_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[]$")
 _TUPLE_REGEX = re.compile(r"^\((?P<types>.+)\)$")
+_ARC4_WTYPE_MAPPING = {
+    "bool": wtypes.arc4_bool_wtype,
+    "string": wtypes.arc4_string_wtype,
+    "account": wtypes.account_wtype,
+    "application": wtypes.application_wtype,
+    "asset": wtypes.asset_wtype,
+    "void": wtypes.void_wtype,
+    **{
+        t.name: wtypes.WGroupTransaction.from_type(t)
+        for t in constants.TRANSACTION_TYPE_TO_CLS
+        if t is not None
+    },
+    "address": wtypes.arc4_address_type,
+    "byte": wtypes.arc4_byte_type,
+    "byte[]": wtypes.arc4_dynamic_bytes,
+}
 
 
 def arc4_to_wtype(typ: str) -> wtypes.WType:
     try:
-        return {
-            "bool": wtypes.arc4_bool_wtype,
-            "string": wtypes.arc4_string_wtype,
-            "account": wtypes.account_wtype,
-            "application": wtypes.application_wtype,
-            "asset": wtypes.asset_wtype,
-            "void": wtypes.void_wtype,
-            **{
-                t.name: wtypes.WGroupTransaction.from_type(t)
-                for t in constants.TRANSACTION_TYPE_TO_CLS
-                if t is not None
-            },
-            "address": wtypes.arc4_address_type,
-            "byte": wtypes.arc4_byte_type,
-            "byte[]": wtypes.arc4_dynamic_bytes,
-        }[typ]
+        return _ARC4_WTYPE_MAPPING[typ]
     except KeyError:
         pass
     if uint := _UINT_REGEX.match(typ):

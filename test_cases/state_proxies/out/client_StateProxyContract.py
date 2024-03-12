@@ -6,9 +6,8 @@ import typing
 import puyapy
 
 
-class StateProxyContract(puyapy.arc4.ARC4Client):
+class StateProxyContract(puyapy.arc4.ARC4Client, typing.Protocol):
     @puyapy.arc4.abimethod(allow_actions=['OptIn'], create=True)
     def create(
         self,
-    ) -> None:
-        raise NotImplementedError
+    ) -> None: ...

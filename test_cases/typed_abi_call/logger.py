@@ -1,3 +1,5 @@
+import typing
+
 from puyapy import Account, Application, ARC4Contract, Asset, Bytes, Txn, arc4, log
 
 
@@ -59,7 +61,7 @@ class Logger(ARC4Contract):
         return arc4.DynamicBytes(last_arg.bytes)
 
 
-class LoggerClient(arc4.ARC4Client):
+class LoggerClient(arc4.ARC4Client, typing.Protocol):
     @arc4.abimethod
     def echo(self, value: arc4.String) -> arc4.String:
-        raise NotImplementedError
+        ...
