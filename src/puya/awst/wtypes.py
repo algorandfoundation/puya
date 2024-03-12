@@ -30,10 +30,7 @@ class WType:
     stub_name: str
     lvalue: bool = True
     immutable: bool = True
-    is_valid_literal: LiteralValidator = attrs.field(
-        default=_all_literals_invalid,
-        eq=False,  # TODO: is this the right thing to do?
-    )
+    is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
 
     def __str__(self) -> str:
         return self.stub_name
@@ -245,7 +242,7 @@ class ARC4Type(WType):
 class ARC4UIntN(ARC4Type):
     n: int
 
-    is_valid_literal: LiteralValidator = attrs.field(init=False)
+    is_valid_literal: LiteralValidator = attrs.field(init=False, eq=False)
 
     @is_valid_literal.default
     def _literal_validator(self) -> LiteralValidator:

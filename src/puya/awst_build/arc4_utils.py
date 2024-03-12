@@ -315,28 +315,22 @@ def get_func_types(
             " which means it can't be an ABI method",
             location,
         )
-    start_idx = 1
-    args = func_def.arguments[start_idx:]
-    in_var_names = [arg.variable.name for arg in args]
-    if "output" in in_var_names:
+    func_type = func_def.type
+    if not isinstance(func_type, mypy.types.CallableType):
+        raise InternalError(f"Unexpected FuncDef type: {type(func_def.type).__name__}", location)
+    if "output" in (arg.variable.name for arg in func_def.arguments):
         # https://github.com/algorandfoundation/ARCs/blob/main/assets/arc-0032/application.schema.json
         raise CodeError(
             "For compatibility with ARC-32, ARC-4 methods cannot have an argument named output",
             location,
         )
-    match func_def.type:
-        case mypy.types.CallableType(arg_types=arg_types, ret_type=ret_type):
-            arg_types = arg_types[start_idx:]
-        case _:
-            raise InternalError("Unexpected FuncDef type")
-    return_type = context.type_to_wtype(ret_type, source_location=location)
-    result = {
-        "output": return_type,
+    return {
         **{
-            name: context.type_to_wtype(
-                t, source_location=context.node_location(a, module_src=func_def.info)
+            arg.variable.name: context.type_to_wtype(
+                t, source_location=context.node_location(arg, module_src=func_def.info)
             )
-            for name, t, a in zip(in_var_names, arg_types, args, strict=True)
+            for t, arg in zip(func_type.arg_types, func_def.arguments, strict=True)
+            if not arg.variable.is_self
         },
+        "output": context.type_to_wtype(func_type.ret_type, source_location=location),
     }
-    return result

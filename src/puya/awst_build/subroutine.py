@@ -507,7 +507,9 @@ class FunctionASTConverter(
 
         returning = require_expression_builder(return_expr.accept(self)).rvalue()
         if returning.wtype != self._return_type:
-            self._error("invalid return type", loc)
+            self._error(
+                f"invalid return type of {returning.wtype}, expected {self._return_type}", loc
+            )
         return ReturnStatement(source_location=loc, value=returning)
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
