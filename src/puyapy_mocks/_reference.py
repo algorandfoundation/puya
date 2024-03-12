@@ -19,7 +19,7 @@ class Account:
 
     @property
     def balance(self) -> UInt64:
-        return UInt64(active_ctx().balances[self.address]["0"])
+        return UInt64(active_ctx().get_balance(self.address, 0))
 
     @property
     def min_balance(self) -> UInt64:

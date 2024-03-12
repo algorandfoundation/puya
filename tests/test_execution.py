@@ -1314,7 +1314,7 @@ def test_hello_world_approval_with_patching_succeeds(mocker: MockerFixture) -> N
     contract = HelloWorldContract()
 
     with execution_ctx() as ctx:
-        mocker.patch("puyapy_mocks.op.Txn.application_args").return_value = b"Jane"
+        mocker.patch("puyapy.op.Txn.application_args").return_value = b"Jane"
 
         result = contract.approval_program()
 

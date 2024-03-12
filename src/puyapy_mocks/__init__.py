@@ -7,16 +7,16 @@ from puyapy_mocks._contract import *
 from puyapy_mocks._hints import *
 from puyapy_mocks._util import *
 from puyapy_mocks import (
-    arc4 as arc4,
-    gtxn as gtxn,
-    itxn as itxn,
-    op as op,
+    arc4,
+    gtxn,
+    itxn,
+    op,
 )
 from puyapy_mocks._ctx import execution_ctx as execution_ctx
 from puyapy_mocks.arc4 import (
-    ARC4Contract as ARC4Contract,
+    ARC4Contract,
 )
 from puyapy_mocks.op import (
-    Global as Global,
-    Txn as Txn,
+    Global,
+    Txn,
 )

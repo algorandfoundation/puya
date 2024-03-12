@@ -367,7 +367,7 @@ class Bytes:
         return int.from_bytes(self.__match_value__)
 
     def __repr__(self) -> str:
-        return self.__repr__()
+        return self.__str__()
 
     def __str__(self) -> str:
         return self.__match_value__.decode()
