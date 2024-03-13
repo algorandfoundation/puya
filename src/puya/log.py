@@ -118,7 +118,7 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
         location_as_link = self._location_as_link(location) if location else ""
         level = event_dict.pop("level", "")
 
-        align_related_lines = " " * (len(location_as_link) + 1 + len(level) + 2)
+        align_related_lines = " " * (len(location_as_link) + 1 + len(level) + 1)
         sio = StringIO()
         for idx, line in enumerate(lines):
             if idx:

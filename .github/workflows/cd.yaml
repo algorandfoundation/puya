@@ -3,6 +3,16 @@ name: Continuous Delivery of Python package
 on:
   workflow_dispatch:
     inputs:
+      compiler_wheel:
+        description: "Include compiler wheel?"
+        type: boolean
+        required: true
+        default: true
+      stubs_wheel:
+        description: "Include stubs wheel?"
+        type: boolean
+        required: true
+        default: true
       run_checks:
         description: "Run checks?"
         type: boolean
@@ -72,8 +82,20 @@ jobs:
         env:
             GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
 
-      - name: Create Wheel
+      - name: Create Compiler Wheel
+        if: inputs.compiler_wheel
         run: poetry build --format wheel
+
+      - name: Create Stubs Wheel
+        if: inputs.stubs_wheel
+        run: |
+            pushd stubs
+            poetry build --format wheel --output ../dist
+            popd
+
+      - uses: actions/upload-artifact@v4 # upload artifacts so they are retained on the job
+        with:
+          path: dist
 
       - name: Publish to GitHub
         run: poetry run semantic-release $DRY_RUN publish
@@ -86,6 +108,7 @@ jobs:
 
   publish-docs:
     name: Publish Docs
+    if: ${{ !inputs.dry_run }}
     uses: ./.github/workflows/gh-pages.yaml
     permissions:
       contents: read

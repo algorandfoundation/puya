@@ -1,15 +1,18 @@
 [tool.poetry]
-name = "puya"
+name = "puyapy"
 version = "0.6.0"
-description = "An optimising Python to TEAL compiler"
+description = "An optimising compiler for Algorand Python"
 authors = ["Algorand Foundation <contact@algorand.foundation>"]
 readme = "README.md"
 packages = [
     { include = "puya", from = "src" },
-    { include = "algopy-stubs", from = "src" },
+    # copy stubs into published artifacts without the -stubs suffix
+    # if poetry adds support for includes with a "to" like parameter, that might be a better solution
+    # but in the mean-time this will suffice
+    { include = "*", from = "stubs/algopy-stubs", to = "puya/_vendor/stubs/algopy" }
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Compilers",
 ]
@@ -23,19 +26,13 @@ networkx = "^3.1"
 docstring-parser = ">=0.14.1"
 pycryptodomex = ">=3.6.0,<4"
 immutabledict = "^4.2.0"
+packaging = "^24.0"
 # vendored mypy dependencies
 mypy_extensions = "^1.0.0"
 
-
-[tool.poetry.group.testing.dependencies]
-pytest = "^7.4.0"
-pytest-xdist = {extras = ["psutil"], version = "^3.3.1"}
-py-algorand-sdk = "^2.4.0"
-algokit-utils = "^2.2.1"
-pytest-cov = "^4.1.0"
-prettytable = "^3.9.0"
-
 [tool.poetry.group.dev.dependencies]
+# include stubs distribution package as a dev dependency
+algorand-python = { path="stubs", develop=true }
 black = [
     {extras = ["d"], version = "^23.10.1", markers = "sys_platform != 'win32'"},
     {version = "^23.10.1", markers = "sys_platform == 'win32'"}
@@ -46,6 +43,14 @@ pre-commit = "^3.3.3"
 cattrs = "^23.1.2"
 ruff-lsp = "^0.0.53"
 poethepoet = "^0.24.4"
+
+[tool.poetry.group.testing.dependencies]
+pytest = "^7.4.0"
+pytest-xdist = {extras = ["psutil"], version = "^3.3.1"}
+py-algorand-sdk = "^2.4.0"
+algokit-utils = "^2.2.1"
+pytest-cov = "^4.1.0"
+prettytable = "^3.9.0"
 
 [tool.poetry.group.doc]
 optional = true
@@ -106,6 +111,7 @@ untyped_calls_exclude = [
 exclude = [
     "src/puya/_typeshed",
     "src/puya/_vendor",
+    "stubs/algopy\\.py",
 ]
 
 [[tool.mypy.overrides]]
@@ -217,6 +223,9 @@ unfixable = [
     "F841",     # don't delete unused local variables automatically
 ]
 [tool.ruff.lint.per-file-ignores]
+"stubs/algopy.py" = [
+    "INP001"
+]
 "src/**" = [
     "PT",       # no pytest rules
 ]
