@@ -60,12 +60,7 @@ def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str
         case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM():
             return wtype.name.removeprefix("arc4.")
         case wtypes.WGroupTransaction(transaction_type=transaction_type):
-            if transaction_type is None:
-                raise InternalError(
-                    "Only specific transaction types should appear as ARC4 types", loc
-                )
-            else:
-                return transaction_type.name
+            return transaction_type.name if transaction_type else "txn"
         case wtypes.ARC4DynamicArray(element_type=inner_type):
             return f"{wtype_to_arc4(inner_type, loc)}[]"
         case wtypes.ARC4StaticArray(element_type=inner_type, array_size=size):
