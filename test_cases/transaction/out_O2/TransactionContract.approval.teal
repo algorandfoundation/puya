@@ -9,7 +9,7 @@ test_cases.transaction.contract.TransactionContract.approval_program:
     method "asset_freeze(afrz)void"
     method "application_call(appl)void"
     method "multiple_txns(appl,appl,appl)void"
-    method "any_txn(appl,appl,appl)void"
+    method "any_txn(txn,txn,txn)void"
     txna ApplicationArgs 0
     match main_create_route@1 main_pay_route@2 main_key_route@3 main_asset_config_route@4 main_asset_transfer_route@5 main_asset_freeze_route@6 main_application_call_route@7 main_multiple_txns_route@8 main_any_txn_route@9
     err // reject transaction
@@ -176,27 +176,12 @@ main_any_txn_route@9:
     txn GroupIndex
     int 3
     -
-    dup
-    gtxns TypeEnum
-    int appl
-    ==
-    assert // transaction type is appl
     txn GroupIndex
     int 2
     -
-    dup
-    gtxns TypeEnum
-    int appl
-    ==
-    assert // transaction type is appl
     txn GroupIndex
     int 1
     -
-    dup
-    gtxns TypeEnum
-    int appl
-    ==
-    assert // transaction type is appl
     callsub any_txn
     int 1
     return
@@ -539,22 +524,22 @@ multiple_txns_for_body@4:
     retsub
 
 
-// test_cases.transaction.contract.TransactionContract.any_txn(_txn1: uint64, _txn2: uint64, _txn3: uint64) -> void:
+// test_cases.transaction.contract.TransactionContract.any_txn(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
 any_txn:
     proto 3 0
     byte ""
     int 0
-    int 0
+    frame_dig -3
     b any_txn_for_body@4
 
 any_txn_for_header_1@2:
-    int 1
+    frame_dig -2
     frame_dig 0
     frame_bury 1
     b any_txn_for_body@4
 
 any_txn_for_header_2@3:
-    int 2
+    frame_dig -1
     frame_dig 0
     frame_bury 1
 

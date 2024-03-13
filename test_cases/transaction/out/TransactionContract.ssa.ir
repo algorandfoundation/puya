@@ -3,7 +3,7 @@ contract test_cases.transaction.contract.TransactionContract:
         subroutine test_cases.transaction.contract.TransactionContract.approval_program() -> uint64:
             block@0: // L11
                 let tmp%0#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%0#0 {method "create()void" => block@1, method "pay(pay)void" => block@2, method "key(keyreg)void" => block@3, method "asset_config(acfg)void" => block@4, method "asset_transfer(axfer)void" => block@5, method "asset_freeze(afrz)void" => block@6, method "application_call(appl)void" => block@7, method "multiple_txns(appl,appl,appl)void" => block@8, method "any_txn(appl,appl,appl)void" => block@9, * => block@10}
+                switch tmp%0#0 {method "create()void" => block@1, method "pay(pay)void" => block@2, method "key(keyreg)void" => block@3, method "asset_config(acfg)void" => block@4, method "asset_transfer(axfer)void" => block@5, method "asset_freeze(afrz)void" => block@6, method "application_call(appl)void" => block@7, method "multiple_txns(appl,appl,appl)void" => block@8, method "any_txn(txn,txn,txn)void" => block@9, * => block@10}
             block@1: // create_route_L12
                 let tmp%1#0: uint64 = (txn OnCompletion)
                 let tmp%2#0: uint64 = (== tmp%1#0 NoOp)
@@ -130,24 +130,12 @@ contract test_cases.transaction.contract.TransactionContract:
                 let tmp%82#0: uint64 = (txn ApplicationID)
                 (assert tmp%82#0) // is not creating
                 let tmp%83#0: uint64 = (txn GroupIndex)
-                let awst_tmp%84#0: uint64 = (- tmp%83#0 3u)
-                let tmp%85#0: uint64 = ((gtxns TypeEnum) awst_tmp%84#0)
-                let tmp%86#0: uint64 = (== tmp%85#0 appl)
-                let (value%87#0: uint64, check%88#0: uint64) = (awst_tmp%84#0, tmp%86#0)
-                (assert check%88#0) // transaction type is appl
-                let tmp%89#0: uint64 = (txn GroupIndex)
-                let awst_tmp%90#0: uint64 = (- tmp%89#0 2u)
-                let tmp%91#0: uint64 = ((gtxns TypeEnum) awst_tmp%90#0)
-                let tmp%92#0: uint64 = (== tmp%91#0 appl)
-                let (value%93#0: uint64, check%94#0: uint64) = (awst_tmp%90#0, tmp%92#0)
-                (assert check%94#0) // transaction type is appl
-                let tmp%95#0: uint64 = (txn GroupIndex)
-                let awst_tmp%96#0: uint64 = (- tmp%95#0 1u)
-                let tmp%97#0: uint64 = ((gtxns TypeEnum) awst_tmp%96#0)
-                let tmp%98#0: uint64 = (== tmp%97#0 appl)
-                let (value%99#0: uint64, check%100#0: uint64) = (awst_tmp%96#0, tmp%98#0)
-                (assert check%100#0) // transaction type is appl
-                test_cases.transaction.contract.TransactionContract.any_txn(value%87#0, value%93#0, value%99#0)
+                let tmp%84#0: uint64 = (- tmp%83#0 3u)
+                let tmp%85#0: uint64 = (txn GroupIndex)
+                let tmp%86#0: uint64 = (- tmp%85#0 2u)
+                let tmp%87#0: uint64 = (txn GroupIndex)
+                let tmp%88#0: uint64 = (- tmp%87#0 1u)
+                test_cases.transaction.contract.TransactionContract.any_txn(tmp%84#0, tmp%86#0, tmp%88#0)
                 return 1u
             block@10: // switch_case_default_L11
                 goto block@11
@@ -392,23 +380,20 @@ contract test_cases.transaction.contract.TransactionContract:
             block@6: // after_for_L118
                 return 
         
-        subroutine test_cases.transaction.contract.TransactionContract.any_txn(_txn1: uint64, _txn2: uint64, _txn3: uint64) -> void:
+        subroutine test_cases.transaction.contract.TransactionContract.any_txn(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
             block@0: // L121
-                let txn1#0: uint64 = 0u
-                let txn2#0: uint64 = 1u
-                let txn3#0: uint64 = 2u
                 goto block@1
-            block@1: // for_header_0_L131
+            block@1: // for_header_0_L128
                 let tuple_index%0#0: uint64 = 0u
                 let txn#0: uint64 = txn1#0
                 goto block@4
-            block@2: // for_header_1_L131
+            block@2: // for_header_1_L128
                 let txn#1: uint64 = txn2#0
                 goto block@4
-            block@3: // for_header_2_L131
+            block@3: // for_header_2_L128
                 let txn#2: uint64 = txn3#0
                 goto block@4
-            block@4: // for_body_L131
+            block@4: // for_body_L128
                 let tuple_index%0#1: uint64 = φ(tuple_index%0#0 <- block@1, tuple_index%0#4 <- block@2, tuple_index%0#4 <- block@3)
                 let txn#3: uint64 = φ(txn#0 <- block@1, txn#1 <- block@2, txn#2 <- block@3)
                 let index#0: uint64 = tuple_index%0#1
@@ -416,10 +401,10 @@ contract test_cases.transaction.contract.TransactionContract:
                 let tmp%2#0: uint64 = (== tmp%1#0 index#0)
                 (assert tmp%2#0)
                 goto block@5
-            block@5: // for_footer_L131
+            block@5: // for_footer_L128
                 let tuple_index%0#4: uint64 = (+ tuple_index%0#1 1u)
                 goto_nth [block@2, block@3][tuple_index%0#1] else goto block@6
-            block@6: // after_for_L131
+            block@6: // after_for_L128
                 return 
     
     program clear-state:
