@@ -6,33 +6,33 @@ test_cases.application.contract.Reference.approval_program:
     callsub __init__
 
 main_entrypoint@2:
-    // application/contract.py:26
+    // application/contract.py:27
     // if op.Txn.num_app_args == 1:
     txn NumAppArgs
     int 1
     ==
     bz main_after_if_else@7
-    // application/contract.py:27
+    // application/contract.py:28
     // if op.Txn.application_args(0) == b"validate":
     txna ApplicationArgs 0
     byte "validate"
     ==
     bz main_else_body@5
-    // application/contract.py:28
+    // application/contract.py:29
     // self.validate_asset(op.Global.current_application_id)
     global CurrentApplicationID
     callsub validate_asset
     b main_after_if_else@6
 
 main_else_body@5:
-    // application/contract.py:30
+    // application/contract.py:31
     // assert False, "Expected validate"
     err // Expected validate
 
 main_after_if_else@6:
 
 main_after_if_else@7:
-    // application/contract.py:31
+    // application/contract.py:32
     // return True
     int 1
     return
@@ -40,11 +40,18 @@ main_after_if_else@7:
 
 // test_cases.application.contract.Reference.validate_asset(app: uint64) -> void:
 validate_asset:
-    // application/contract.py:36-37
+    // application/contract.py:37-38
     // @subroutine
     // def validate_asset(self, app: Application) -> None:
     proto 1 0
-    // application/contract.py:38
+    // application/contract.py:39
+    // assert not Txn.sender.is_opted_in(app), "app opted in"
+    txn Sender
+    frame_dig -1
+    app_opted_in
+    !
+    assert // app opted in
+    // application/contract.py:40
     // assert app.creator == op.Global.creator_address, "expected creator"
     frame_dig -1
     app_params_get AppCreator
@@ -52,7 +59,7 @@ validate_asset:
     global CreatorAddress
     ==
     assert // expected creator
-    // application/contract.py:39
+    // application/contract.py:41
     // assert app.global_num_uint == 1, "expected global_num_uint"
     frame_dig -1
     app_params_get AppGlobalNumUint
@@ -60,7 +67,7 @@ validate_asset:
     int 1
     ==
     assert // expected global_num_uint
-    // application/contract.py:40
+    // application/contract.py:42
     // assert app.global_num_byte_slice == 2, "expected global_num_byte_slice"
     frame_dig -1
     app_params_get AppGlobalNumByteSlice
@@ -68,7 +75,7 @@ validate_asset:
     int 2
     ==
     assert // expected global_num_byte_slice
-    // application/contract.py:41
+    // application/contract.py:43
     // assert app.local_num_uint == 3, "expected local_num_uint"
     frame_dig -1
     app_params_get AppLocalNumUint
@@ -76,7 +83,7 @@ validate_asset:
     int 3
     ==
     assert // expected local_num_uint
-    // application/contract.py:42
+    // application/contract.py:44
     // assert app.local_num_byte_slice == 4, "expected local_num_byte_slice"
     frame_dig -1
     app_params_get AppLocalNumByteSlice
@@ -84,35 +91,35 @@ validate_asset:
     int 4
     ==
     assert // expected local_num_byte_slice
-    // application/contract.py:43
+    // application/contract.py:45
     // assert app.approval_program, "expected approval_program"
     frame_dig -1
     app_params_get AppApprovalProgram
     assert // application exists
     len
     assert // expected approval_program
-    // application/contract.py:44
+    // application/contract.py:46
     // assert app.clear_state_program, "expected clear_state_program"
     frame_dig -1
     app_params_get AppClearStateProgram
     assert // application exists
     len
     assert // expected clear_state_program
-    // application/contract.py:45
+    // application/contract.py:47
     // assert app == op.Global.current_application_id, "expected current_application_id"
     global CurrentApplicationID
     frame_dig -1
     swap
     ==
     assert // expected current_application_id
-    // application/contract.py:47
+    // application/contract.py:49
     // app.address == op.Global.current_application_address
     frame_dig -1
     app_params_get AppAddress
     assert // application exists
     global CurrentApplicationAddress
     ==
-    // application/contract.py:46-48
+    // application/contract.py:48-50
     // assert (
     //     app.address == op.Global.current_application_address
     // ), "expected current_application_address"
@@ -122,20 +129,20 @@ validate_asset:
 
 // test_cases.application.contract.Reference.__init__() -> void:
 __init__:
-    // application/contract.py:13
+    // application/contract.py:14
     // def __init__(self) -> None:
     proto 0 0
-    // application/contract.py:14
+    // application/contract.py:15
     // self.int_1 = UInt64(0)
     byte "int_1"
     int 0
     app_global_put
-    // application/contract.py:15
+    // application/contract.py:16
     // self.bytes_1 = Bytes(b"")
     byte "bytes_1"
     byte ""
     app_global_put
-    // application/contract.py:16
+    // application/contract.py:17
     // self.bytes_2 = Bytes(b"")
     byte "bytes_2"
     byte ""

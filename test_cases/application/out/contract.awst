@@ -41,6 +41,7 @@ contract Reference
   
   subroutine validate_asset(app: puyapy.Application): None
   {
+    assert(!(app_opted_in(txn<Sender>(), app)), comment="app opted in")
     assert(checked_maybe(app_params_get<AppCreator>(app)) == global<CreatorAddress>(), comment="expected creator")
     assert(checked_maybe(app_params_get<AppGlobalNumUint>(app)) == 1u, comment="expected global_num_uint")
     assert(checked_maybe(app_params_get<AppGlobalNumByteSlice>(app)) == 2u, comment="expected global_num_byte_slice")
