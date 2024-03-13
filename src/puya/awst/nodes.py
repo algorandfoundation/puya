@@ -1021,7 +1021,7 @@ class AssignmentStatement(Statement):
     value: Expression = attrs.field(validator=[lvalue_expr_validator])
 
     def __attrs_post_init__(self) -> None:
-        if self.value.wtype != self.target.wtype:
+        if not wtypes.is_valid_assignment(self.target.wtype, self.value.wtype):
             raise CodeError(
                 f"Assignment target type {self.target.wtype}"
                 f" differs from expression value type {self.value.wtype}",
@@ -1052,7 +1052,7 @@ class AssignmentExpression(Expression):
                 "Tuple unpacking in assignment expressions is not supported",
                 target.source_location,
             )
-        if value.wtype != target.wtype:
+        if not wtypes.is_valid_assignment(target.wtype, value.wtype):
             raise CodeError(
                 f"Assignment target type {target.wtype}"
                 f" differs from expression value type {value.wtype}",

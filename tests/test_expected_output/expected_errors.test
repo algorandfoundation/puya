@@ -62,3 +62,41 @@ class ContractWithUndefinedVariable(Contract):
 
     def clear_state_program(self) -> bool:
         return True
+
+## case: test_throwaway_var
+
+from puyapy import Account, ARC4Contract, LocalState, Txn, UInt64, arc4, subroutine
+
+@subroutine
+def get_tuple() -> tuple[Account, UInt64]:
+    return Txn.sender, Txn.num_app_args
+
+@subroutine
+def read_() -> None:
+    sender, _ = get_tuple()
+    assert _ ## E: '_' variables can only be assigned to
+
+@subroutine
+def assign_() -> None:
+    sender, _ = get_tuple()
+    bad_assign = _ ## E: '_' variables can only be assigned to
+
+@subroutine
+def get_account(index: tuple[UInt64, UInt64]) -> Account:
+    return Txn.accounts(index[0])
+
+
+class MyContract(ARC4Contract):
+
+    def __init__(self) -> None:
+        self.value = LocalState(UInt64)
+
+    @arc4.abimethod
+    def test1(self) -> None:
+        _, _ = get_tuple()
+        self.value[get_account(
+            (
+                _, ## E: '_' variables can only be assigned to
+                UInt64(2),
+            )
+        )] = UInt64(42)

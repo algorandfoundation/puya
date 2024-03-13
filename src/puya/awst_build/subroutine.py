@@ -45,7 +45,6 @@ from puya.awst.nodes import (
     VarExpression,
     WhileLoop,
 )
-from puya.awst.wtypes import WType
 from puya.awst_build import constants, intrinsic_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
@@ -123,6 +122,7 @@ class FunctionASTConverter(
         func_loc = self._location(func_def)
         self.contract_method_info = contract_method_info
         self._is_bool_context = False
+        self._is_lvalue_context = False
         self.func_def = func_def
         self._precondition(
             func_def.abstract_status == mypy.nodes.NOT_ABSTRACT,
@@ -164,7 +164,11 @@ class FunctionASTConverter(
                 func_loc,
             )
         # TODO: this should be more than just type?
-        self._symtable = dict[str, WType]()
+        # mypy has special behaviour to treat '_' as Any, so predefine the '_' symbol as
+        # a type that can only be assigned to
+        self._symtable = {
+            "_": wtypes.throwaway_type,
+        }
         args = list[SubroutineArgument]()
         for arg, arg_type in zip(mypy_args, mypy_arg_types, strict=True):
             if arg.kind.is_star():
@@ -266,6 +270,18 @@ class FunctionASTConverter(
 
     _enter_bool_context = partialmethod(_set_bool_context, is_bool_context=True)
     _leave_bool_context = partialmethod(_set_bool_context, is_bool_context=False)
+
+    @contextlib.contextmanager
+    def _set_lvalue_context(self, *, is_lvalue_context: bool) -> Iterator[None]:
+        was_lvalue_context = self._is_lvalue_context
+        self._is_lvalue_context = is_lvalue_context
+        try:
+            yield
+        finally:
+            self._is_lvalue_context = was_lvalue_context
+
+    _enter_lvalue_context = partialmethod(_set_lvalue_context, is_lvalue_context=True)
+    _enter_rvalue_context = partialmethod(_set_lvalue_context, is_lvalue_context=False)
 
     def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> ExpressionStatement | None:
         stmt_loc = self._location(stmt)
@@ -391,9 +407,10 @@ class FunctionASTConverter(
             ]
 
     def resolve_lvalue(self, lvalue: mypy.nodes.Expression) -> Lvalue:
-        builder_or_literal = lvalue.accept(self)
-        builder = require_expression_builder(builder_or_literal)
-        return builder.lvalue()
+        with self._enter_lvalue_context():
+            builder_or_literal = lvalue.accept(self)
+            builder = require_expression_builder(builder_or_literal)
+            return builder.lvalue()
 
     def empty_statement(self, _tmt: mypy.nodes.Statement) -> None:
         return None
@@ -708,9 +725,6 @@ class FunctionASTConverter(
                     " as a singular lvalue in an assignment statement",
                     expr_loc,
                 )
-                if var_name == "_":
-                    # TODO: ignore "_"
-                    raise CodeError("_ is not currently supported as a variable name", expr_loc)
                 local_type = lazy_setdefault(
                     self._symtable,
                     key=var_name,
@@ -845,7 +859,7 @@ class FunctionASTConverter(
             args_context: typing.Any = self._enter_bool_context
         else:
             args_context = contextlib.nullcontext
-        with args_context():
+        with args_context(), self._enter_rvalue_context():
             args = [arg.accept(self) for arg in call.args]
         return callee_builder.call(
             args=args,
@@ -1147,11 +1161,14 @@ class FunctionASTConverter(
 
     def visit_tuple_expr(self, mypy_expr: mypy.nodes.TupleExpr) -> ExpressionBuilder:
         items = [
-            require_expression_builder(
-                mypy_item.accept(self),
-                msg="Python literals (other than True/False) are not valid as tuple elements",
-            ).rvalue()
-            for mypy_item in mypy_expr.items
+            eb.lvalue() if self._is_lvalue_context else eb.rvalue()
+            for eb in (
+                require_expression_builder(
+                    mypy_item.accept(self),
+                    msg="Python literals (other than True/False) are not valid as tuple elements",
+                )
+                for mypy_item in mypy_expr.items
+            )
         ]
         if not items:
             raise CodeError(

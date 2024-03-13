@@ -75,6 +75,11 @@ void_wtype: typing.Final = WType(
     lvalue=False,
 )
 
+throwaway_type: typing.Final = WType(
+    name="throwaway",
+    stub_name="typing.Any",
+)
+
 bool_wtype: typing.Final = WType(
     name="bool",
     stub_name="bool",
@@ -565,3 +570,18 @@ def arc4_to_avm_equivalent_wtype(arc4_wtype: WType) -> WType:
         return bool_wtype
 
     raise InternalError(f"Invalid arc4_wtype: {arc4_wtype}")
+
+
+def is_valid_assignment(target: WType, source: WType) -> bool:
+    if target == throwaway_type:
+        return True
+    if (
+        isinstance(target, WTuple)
+        and isinstance(source, WTuple)
+        and len(target.types) == len(source.types)
+    ):
+        return all(
+            is_valid_assignment(target_item, source_item)
+            for target_item, source_item in zip(target.types, source.types, strict=True)
+        )
+    return target == source
