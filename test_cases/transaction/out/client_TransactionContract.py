@@ -59,7 +59,7 @@ class TransactionContract(puyapy.arc4.ARC4Client, typing.Protocol):
     @puyapy.arc4.abimethod
     def any_txn(
         self,
-        _txn1: puyapy.gtxn.ApplicationCallTransaction,
-        _txn2: puyapy.gtxn.ApplicationCallTransaction,
-        _txn3: puyapy.gtxn.ApplicationCallTransaction,
+        txn1: puyapy.gtxn.Transaction,
+        txn2: puyapy.gtxn.Transaction,
+        txn3: puyapy.gtxn.Transaction,
     ) -> None: ...
