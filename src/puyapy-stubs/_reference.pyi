@@ -117,6 +117,13 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+    def is_opted_in(self, aseet_or_app: Asset | Application) -> bool:
+        """Returns true if this account is opted in to the specified Asset or Application.
+
+        ```{note}
+        Account and Asset/Application must be an available resource
+        ```
+        """
 
 class Asset:
     """An Asset on the Algorand network."""

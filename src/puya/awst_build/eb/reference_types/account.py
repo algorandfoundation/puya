@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from typing import Sequence
 
 from immutabledict import immutabledict
 
@@ -10,10 +11,16 @@ from puya.awst.nodes import (
     AddressConstant,
     BytesComparisonExpression,
     EqualityComparison,
+    Expression,
     IntrinsicCall,
     Literal,
+    TupleItemExpression,
 )
-from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder
+from puya.awst_build.eb.base import (
+    BuilderComparisonOp,
+    ExpressionBuilder,
+    IntermediateExpressionBuilder,
+)
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
@@ -57,6 +64,48 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                 raise CodeError("Invalid/unhandled arguments", location)
 
 
+class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
+    def __init__(self, expr: Expression, source_location: SourceLocation):
+        super().__init__(source_location)
+        self.expr = expr
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+        original_expr: mypy.nodes.CallExpr,
+    ) -> ExpressionBuilder:
+        match args:
+            case [ExpressionBuilder(value_type=wtypes.asset_wtype) as asset]:
+                return var_expression(
+                    TupleItemExpression(
+                        base=IntrinsicCall(
+                            op_code="asset_holding_get",
+                            immediates=["AssetBalance"],
+                            stack_args=[self.expr, asset.rvalue()],
+                            wtype=wtypes.WTuple.from_types(
+                                (wtypes.uint64_wtype, wtypes.bool_wtype)
+                            ),
+                            source_location=location,
+                        ),
+                        index=1,
+                        source_location=location,
+                    )
+                )
+            case [ExpressionBuilder(value_type=wtypes.application_wtype) as app]:
+                return var_expression(
+                    IntrinsicCall(
+                        op_code="app_opted_in",
+                        stack_args=[self.expr, app.rvalue()],
+                        source_location=location,
+                        wtype=wtypes.bool_wtype,
+                    )
+                )
+        raise CodeError("Unexpected argument", location)
+
+
 class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
     wtype = wtypes.account_wtype
     native_wtype = wtypes.bytes_wtype
@@ -79,6 +128,11 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
     )
     field_op_code = "acct_params_get"
     field_bool_comment = "account funded"
+
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+        if name == "is_opted_in":
+            return AccountOptedInExpressionBuilder(self.expr, location)
+        return super().member_access(name, location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         cmp_with_zero_expr = BytesComparisonExpression(

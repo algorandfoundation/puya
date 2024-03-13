@@ -64,3 +64,4 @@ class Reference(Contract):
         assert asset.freeze == Global.zero_address, "freeze"
         assert asset.clawback == Global.zero_address, "clawback"
         assert asset.creator == Global.creator_address, "creator"
+        assert Global.current_application_address.is_opted_in(asset), "asset opted in"

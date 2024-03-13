@@ -3,6 +3,7 @@ from puyapy import (
     Bytes,
     Contract,
     LocalState,
+    Txn,
     UInt64,
     op,
     subroutine,
@@ -35,6 +36,7 @@ class Reference(Contract):
 
     @subroutine
     def validate_asset(self, app: Application) -> None:
+        assert not Txn.sender.is_opted_in(app), "app opted in"
         assert app.creator == op.Global.creator_address, "expected creator"
         assert app.global_num_uint == 1, "expected global_num_uint"
         assert app.global_num_byte_slice == 2, "expected global_num_byte_slice"
