@@ -17,6 +17,7 @@ from puya.arc32 import create_arc32_json
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.test_execution import decode_logs
 from tests.utils import compile_src
+from tests.utils.merkle_tree import MerkleTree, sha_256_raw
 
 pytestmark = pytest.mark.localnet
 
@@ -725,3 +726,29 @@ def test_template_variables(
         pass
 
     app_client.delete()
+
+
+def test_merkle(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    example = EXAMPLES_DIR / "merkle"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        app_spec,
+        signer=account,
+    )
+
+    test_tree = MerkleTree(
+        [
+            b"a",
+            b"b",
+            b"c",
+            b"d",
+            b"e",
+        ]
+    )
+    print(len(test_tree.root))
+    app_client.create(call_abi_method="create", root=test_tree.root)
+
+    assert app_client.call(
+        call_abi_method="verify", leaf=sha_256_raw(b"a"), proof=test_tree.get_proof(b"a")
+    ).return_value

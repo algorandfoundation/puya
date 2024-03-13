@@ -1,0 +1,89 @@
+contract examples.merkle.contract.MerkleTree:
+    program approval:
+        subroutine examples.merkle.contract.MerkleTree.approval_program() -> uint64:
+            block@0: // L14
+                let tmp%0#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%0#0 {method "create(byte[32])void" => block@1, method "verify(byte[32][],byte[32])bool" => block@2, * => block@3}
+            block@1: // create_route_L31
+                let tmp%1#0: uint64 = (txn OnCompletion)
+                let tmp%2#0: uint64 = (== tmp%1#0 NoOp)
+                (assert tmp%2#0) // OnCompletion is NoOp
+                let tmp%3#0: uint64 = (txn ApplicationID)
+                let tmp%4#0: uint64 = (! tmp%3#0)
+                (assert tmp%4#0) // is creating
+                let tmp%5#0: bytes = (txna ApplicationArgs 1)
+                examples.merkle.contract.MerkleTree.create(tmp%5#0)
+                return 1u
+            block@2: // verify_route_L35
+                let tmp%6#0: uint64 = (txn OnCompletion)
+                let tmp%7#0: uint64 = (== tmp%6#0 NoOp)
+                (assert tmp%7#0) // OnCompletion is NoOp
+                let tmp%8#0: uint64 = (txn ApplicationID)
+                (assert tmp%8#0) // is not creating
+                let tmp%9#0: bytes = (txna ApplicationArgs 1)
+                let tmp%10#0: bytes = (txna ApplicationArgs 2)
+                let tmp%11#0: uint64 = examples.merkle.contract.MerkleTree.verify(tmp%9#0, tmp%10#0)
+                let tmp%12#0: any = (setbit 0x00 0u tmp%11#0)
+                let tmp%13#0: bytes = (concat 0x151f7c75 tmp%12#0)
+                (log tmp%13#0)
+                return 1u
+            block@3: // switch_case_default_L14
+                goto block@4
+            block@4: // switch_case_next_L14
+                fail // reject transaction
+        
+        subroutine examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
+            block@0: // L31
+                let copy%0#0: bytes = root#0
+                (app_global_put "root" copy%0#0)
+                return 
+        
+        subroutine examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> uint64:
+            block@0: // L35
+                let (root_value%0#0: bytes, root_exists%1#0: uint64) = (app_global_get_ex 0u "root")
+                (assert root_exists%1#0) // check root exists
+                let (compute_root_hash%2#0: bytes, compute_root_hash%3#0: bytes, compute_root_hash%4#0: bytes) = examples.merkle.contract.MerkleTree.compute_root_hash(proof#0, leaf#0)
+                let tmp%5#0: uint64 = (== root_value%0#0 compute_root_hash%2#0)
+                return tmp%5#0
+        
+        subroutine examples.merkle.contract.MerkleTree.compute_root_hash(proof: bytes, leaf: bytes) -> <bytes, bytes, bytes>:
+            block@0: // L24
+                let copy%0#0: bytes = leaf#0
+                let computed#0: bytes = copy%0#0
+                let array_length%1#0: uint64 = (extract_uint16 proof#0 0u)
+                let array_value%2#0: bytes = ((extract 2 0) proof#0)
+                let item_index_internal%3#0: uint64 = 0u
+                goto block@1
+            block@1: // for_header_L27
+                let continue_looping%5#0: uint64 = (< item_index_internal%3#0 array_length%1#0)
+                goto continue_looping%5#0 ? block@2 : block@4
+            block@2: // for_body_L27
+                let item_index%6#0: uint64 = (* item_index_internal%3#0 32u)
+                let proof_hash#0: bytes = (extract3 array_value%2#0 item_index%6#0 32u)
+                let (hash_pair%7#0: bytes, hash_pair%8#0: bytes, hash_pair%9#0: bytes) = examples.merkle.contract.MerkleTree.hash_pair(computed#0, proof_hash#0)
+                let computed#0: bytes = hash_pair%7#0
+                goto block@3
+            block@3: // for_footer_L27
+                let item_index_internal%3#0: uint64 = (+ item_index_internal%3#0 1u)
+                goto block@1
+            block@4: // after_for_L27
+                return computed#0 proof#0 leaf#0
+        
+        subroutine examples.merkle.contract.MerkleTree.hash_pair(a: bytes, b: bytes) -> <bytes, bytes, bytes>:
+            block@0: // L15
+                let tmp%0#0: uint64 = (b< a#0 b#0)
+                goto tmp%0#0 ? block@1 : block@2
+            block@1: // ternary_true_L18
+                let ternary_result%1#0: bytes = (concat a#0 b#0)
+                goto block@3
+            block@2: // ternary_false_L18
+                let ternary_result%1#0: bytes = (concat b#0 a#0)
+                goto block@3
+            block@3: // ternary_merge_L18
+                let hash_bytes#0: bytes = (sha256 ternary_result%1#0)
+                return hash_bytes#0 a#0 b#0
+    
+    program clear-state:
+        subroutine examples.merkle.contract.MerkleTree.clear_state_program() -> uint64:
+            block@0: // L14
+                return 1u
