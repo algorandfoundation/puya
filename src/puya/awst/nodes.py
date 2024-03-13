@@ -1579,6 +1579,32 @@ class AppStateDefinition(Node):
 
 
 @attrs.frozen
+class LogicSignature(ModuleStatement):
+    module_name: str
+    program: Subroutine = attrs.field()
+
+    @program.validator
+    def _validate_program(self, _instance: object, program: Subroutine) -> None:
+        if program.args:
+            raise CodeError(
+                "logicsig should not take any args",
+                program.args[0].source_location,
+            )
+        if program.return_type not in (wtypes.uint64_wtype, wtypes.bool_wtype):
+            raise CodeError(
+                "Invalid return type for logicsig method, should be either bool or UInt64.",
+                program.source_location,
+            )
+
+    @property
+    def full_name(self) -> str:
+        return ".".join((self.module_name, self.name))
+
+    def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
+        return visitor.visit_logic_signature(self)
+
+
+@attrs.frozen
 class ContractFragment(ModuleStatement):
     # note: it's a fragment because it needs to be stitched together with bases,
     #       assuming it's not abstract (in which case it should remain a fragment?)

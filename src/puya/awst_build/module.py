@@ -1,6 +1,7 @@
 import typing as t
 from collections.abc import Callable
 
+import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
@@ -11,6 +12,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ConstantDeclaration,
     ConstantValue,
+    LogicSignature,
     Module,
     ModuleStatement,
     StructureDefinition,
@@ -33,7 +35,7 @@ from puya.awst_build.utils import (
 )
 from puya.awst_build.validation.main import validate_awst
 from puya.errors import CodeError, InternalError
-from puya.utils import StableSet
+from puya.utils import StableSet, coalesce
 
 logger = structlog.get_logger(__name__)
 
@@ -41,6 +43,11 @@ logger = structlog.get_logger(__name__)
 DeferredModuleStatement: t.TypeAlias = Callable[[ASTConversionModuleContext], ModuleStatement]
 
 StatementResult: t.TypeAlias = list[ModuleStatement | DeferredModuleStatement]
+
+
+@attrs.frozen(kw_only=True)
+class _LogicSigDecoratorInfo:
+    name_override: str | None
 
 
 class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
@@ -102,6 +109,27 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             decorator or func_def,
         )
         dec_by_fullname = get_decorators_by_fullname(self.context, decorator) if decorator else {}
+        source_location = self._location(decorator or func_def)
+        logicsig_dec = dec_by_fullname.pop(constants.LOGICSIG_DECORATOR, None)
+        if logicsig_dec:
+            for dec_fullname, dec in dec_by_fullname.items():
+                self._error(f'Unsupported logicsig decorator "{dec_fullname}"', dec)
+            info = self._process_logic_sig_decorator(logicsig_dec)
+
+            def deferred(ctx: ASTConversionModuleContext) -> ModuleStatement:
+                program = FunctionASTConverter.convert(
+                    ctx,
+                    func_def,
+                    source_location,
+                )
+                return LogicSignature(
+                    module_name=ctx.module_name,
+                    program=program,
+                    name=coalesce(info.name_override, program.name),
+                    source_location=self._location(logicsig_dec),
+                )
+
+            return [deferred]
         subroutine_dec = dec_by_fullname.pop(constants.SUBROUTINE_HINT, None)
         if subroutine_dec is None:
             self._error(
@@ -115,8 +143,24 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         for dec_fullname, dec in dec_by_fullname.items():
             self._error(f'Unsupported function decorator "{dec_fullname}"', dec)
 
-        source_location = self._location(decorator or func_def)
         return [lambda ctx: FunctionASTConverter.convert(ctx, func_def, source_location)]
+
+    def _process_logic_sig_decorator(
+        self, decorator: mypy.nodes.Expression
+    ) -> _LogicSigDecoratorInfo:
+        match decorator:
+            case mypy.nodes.NameExpr() | mypy.nodes.CallExpr(args=[]):
+                pass
+            case mypy.nodes.CallExpr(arg_names=["name"], args=[name_arg]):
+                name_const = name_arg.accept(self)
+                if isinstance(name_const, str):
+                    return _LogicSigDecoratorInfo(name_override=name_const)
+                self.context.error(f"Expected a string, got {name_const!r}", name_arg)
+            case _:
+                self.context.error(
+                    f"Invalid {constants.LOGICSIG_DECORATOR_ALIAS} usage", decorator
+                )
+        return _LogicSigDecoratorInfo(name_override=None)
 
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
         self.check_fatal_decorators(cdef.decorators)

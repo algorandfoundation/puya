@@ -23,16 +23,24 @@ from puya.ir.context import IRBuildContext, IRBuildContextWithFallback
 from puya.ir.destructure.main import destructure_ssa
 from puya.ir.models import (
     Contract,
+    LogicSignature,
+    ModuleArtifact,
     Parameter,
     Program,
     Subroutine,
 )
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
-from puya.ir.to_text_visitor import output_contract_ir_to_path
+from puya.ir.to_text_visitor import output_artifact_ir_to_path
 from puya.ir.types_ import wtype_to_avm_type, wtype_to_avm_types
 from puya.ir.utils import format_tuple_index
-from puya.models import ARC4Method, ARC4MethodConfig, ContractMetaData, ContractState
+from puya.models import (
+    ARC4Method,
+    ARC4MethodConfig,
+    ContractMetaData,
+    ContractState,
+    LogicSignatureMetaData,
+)
 from puya.parse import EMBEDDED_MODULES
 from puya.utils import StableSet, attrs_extend
 
@@ -44,7 +52,7 @@ CalleesLookup: typing.TypeAlias = defaultdict[awst_nodes.Function, set[awst_node
 
 def build_module_irs(
     context: CompileContext, module_asts: dict[str, awst_nodes.Module]
-) -> dict[str, list[Contract]]:
+) -> dict[str, list[ModuleArtifact]]:
     embedded_funcs = [
         func
         for embedded_module_name in EMBEDDED_MODULES
@@ -62,7 +70,7 @@ def build_module_irs(
 
     result = {}
     for source in context.parse_result.sources:
-        contracts = result[source.module_name] = list[Contract]()
+        artifacts = result[source.module_name] = list[ModuleArtifact]()
         concrete_contract_nodes = [
             node
             for node in module_asts[source.module_name].body
@@ -72,31 +80,43 @@ def build_module_irs(
             ctx = build_context.for_contract(contract_node)
             with ctx.log_exceptions():
                 contract_ir = _build_ir(ctx, contract_node)
-                contracts.append(contract_ir)
+                artifacts.append(contract_ir)
+
+        logic_signature_nodes = [
+            node
+            for node in module_asts[source.module_name].body
+            if isinstance(node, awst_nodes.LogicSignature)
+        ]
+        for logic_signature in logic_signature_nodes:
+            ctx = build_context.for_logic_signature(logic_signature)
+            with ctx.log_exceptions():
+                logic_sig_ir = _build_logic_sig_ir(ctx, logic_signature)
+                artifacts.append(logic_sig_ir)
+
     return result
 
 
 def optimize_and_destructure_ir(
-    context: CompileContext, contract_ir: Contract, contract_ir_base_path: Path
-) -> Contract:
-    remove_unused_subroutines(context, contract_ir)
+    context: CompileContext, artifact_ir: ModuleArtifact, artifact_ir_base_path: Path
+) -> ModuleArtifact:
+    remove_unused_subroutines(context, artifact_ir)
     if context.options.output_ssa_ir:
-        output_contract_ir_to_path(contract_ir, contract_ir_base_path.with_suffix(".ssa.ir"))
+        output_artifact_ir_to_path(artifact_ir, artifact_ir_base_path.with_suffix(".ssa.ir"))
     logger.info(
-        f"Optimizing {contract_ir.metadata.full_name} "
+        f"Optimizing {artifact_ir.metadata.full_name} "
         f"at level {context.options.optimization_level}"
     )
-    contract_ir = optimize_contract_ir(
+    artifact_ir = optimize_contract_ir(
         context,
-        contract_ir,
-        contract_ir_base_path if context.options.output_optimization_ir else None,
+        artifact_ir,
+        artifact_ir_base_path if context.options.output_optimization_ir else None,
     )
-    contract_ir = destructure_ssa(context, contract_ir)
+    artifact_ir = destructure_ssa(context, artifact_ir)
     if context.options.output_destructured_ir:
-        output_contract_ir_to_path(
-            contract_ir, contract_ir_base_path.with_suffix(".destructured.ir")
+        output_artifact_ir_to_path(
+            artifact_ir, artifact_ir_base_path.with_suffix(".destructured.ir")
         )
-    return contract_ir
+    return artifact_ir
 
 
 def _build_embedded_ir(ctx: IRBuildContext) -> None:
@@ -172,6 +192,42 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
     return result
 
 
+def _build_logic_sig_ir(
+    ctx: IRBuildContextWithFallback, logic_sig: awst_nodes.LogicSignature
+) -> LogicSignature:
+    # visit call graph starting at entry point(s) to collect all references for each
+    callees = CalleesLookup(set)
+    program_sub_refs = SubroutineCollector.collect(ctx, start=logic_sig.program, callees=callees)
+
+    # construct unique Subroutine objects for each function
+    # that was referenced through either entry point
+    for func in program_sub_refs:
+        if func not in ctx.subroutines:
+            # make the emtpy subroutine, because functions reference other functions
+            ctx.subroutines[func] = _make_subroutine(func, allow_implicits=True)
+    # now construct the subroutine IR
+    for func, sub in ctx.subroutines.items():
+        if not sub.body:  # in case something is pre-built (ie from embedded lib)
+            FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub, on_create=None)
+
+    sig_ir = _make_program(
+        ctx,
+        logic_sig.program,
+        StableSet(*program_sub_refs, *ctx.embedded_funcs),
+        on_create=None,
+    )
+    result = LogicSignature(
+        source_location=logic_sig.source_location,
+        program=sig_ir,
+        metadata=LogicSignatureMetaData(
+            module_name=logic_sig.module_name,
+            name=logic_sig.name,
+            description=logic_sig.program.docstring,
+        ),
+    )
+    return result
+
+
 def _build_parameter_list(
     args: Sequence[awst_nodes.SubroutineArgument], *, allow_implicits: bool
 ) -> Iterator[Parameter]:
@@ -237,7 +293,7 @@ def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Sub
 
 def _make_program(
     ctx: IRBuildContext,
-    main: awst_nodes.ContractMethod,
+    main: awst_nodes.Function,
     references: Iterable[awst_nodes.Function],
     on_create: awst_nodes.Function | None,
 ) -> Program:
@@ -248,7 +304,7 @@ def _make_program(
     main_sub = Subroutine(
         source_location=main.source_location,
         module_name=main.module_name,
-        class_name=main.class_name,
+        class_name=main.class_name if isinstance(main, awst_nodes.ContractMethod) else None,
         method_name=main.name,
         parameters=[],
         returns=[AVMType.uint64],
@@ -335,7 +391,10 @@ class SubroutineCollector(FunctionTraverser):
 
     @classmethod
     def collect(
-        cls, context: IRBuildContext, start: awst_nodes.Function, callees: CalleesLookup
+        cls,
+        context: IRBuildContext,
+        start: awst_nodes.Function,
+        callees: CalleesLookup,
     ) -> StableSet[awst_nodes.Function]:
         collector = cls(context, callees)
         with collector._enter_func(start):  # noqa: SLF001

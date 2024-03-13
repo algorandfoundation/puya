@@ -18,7 +18,7 @@ from puya.ir.optimize.dead_code_elimination import (
 )
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
-from puya.ir.to_text_visitor import output_contract_ir_to_path
+from puya.ir.to_text_visitor import output_artifact_ir_to_path
 
 MAX_PASSES = 100
 SubroutineOptimizerCallable = Callable[[CompileContext, models.Subroutine], bool]
@@ -93,9 +93,9 @@ def _split_parallel_copies(sub: models.Subroutine) -> None:
 
 def optimize_contract_ir(
     context: CompileContext,
-    contract_ir: models.Contract,
+    artifact_ir: models.ModuleArtifact,
     output_ir_base_path: Path | None = None,
-) -> models.Contract:
+) -> models.ModuleArtifact:
     # TODO: program optimizer for trivial function inliner
     pipeline = get_subroutine_optimizations(context.options.optimization_level)
     if output_ir_base_path:
@@ -108,8 +108,8 @@ def optimize_contract_ir(
     for pass_num in range(1, MAX_PASSES + 1):
         contract_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
-        contract_ir = deepcopy(contract_ir)
-        for subroutine in contract_ir.all_subroutines():
+        artifact_ir = deepcopy(artifact_ir)
+        for subroutine in artifact_ir.all_subroutines():
             logger.debug(f"Optimizing subroutine {subroutine.full_name}")
             if pass_num == 1:
                 logger.debug("Splitting parallel copies prior to optimization")
@@ -119,12 +119,12 @@ def optimize_contract_ir(
                 if optimizer.optimize(context, subroutine):
                     contract_modified = True
                 subroutine.validate_with_ssa()
-        if remove_unused_subroutines(context, contract_ir):
+        if remove_unused_subroutines(context, artifact_ir):
             contract_modified = True
         if not contract_modified:
             logger.debug(f"No optimizations performed in pass {pass_num}, ending loop")
             break
         if output_ir_base_path:
             ir_path = output_ir_base_path.with_suffix(f".ssa.opt_pass_{pass_num}.ir")
-            output_contract_ir_to_path(contract_ir, ir_path)
-    return contract_ir
+            output_artifact_ir_to_path(artifact_ir, ir_path)
+    return artifact_ir

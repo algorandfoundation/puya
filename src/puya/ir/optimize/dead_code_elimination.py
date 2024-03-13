@@ -186,9 +186,11 @@ class SubroutineCollector(visitor.IRTraverser):
         self.visit_subroutine(callsub.target)
 
 
-def remove_unused_subroutines(_context: CompileContext, contract_ir: models.Contract) -> bool:
+def remove_unused_subroutines(
+    _context: CompileContext, artifact_ir: models.ModuleArtifact
+) -> bool:
     modified = False
-    for program in (contract_ir.approval_program, contract_ir.clear_program):
+    for program in artifact_ir.all_programs():
         collector = SubroutineCollector()
         collector.visit_subroutine(program.main)
         to_keep = [p for p in program.subroutines if p in collector.subroutines]

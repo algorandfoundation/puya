@@ -1,0 +1,151 @@
+#pragma version 10
+
+test_cases.logic_signature.signature.pre_approved_sale:
+    // logic_signature/signature.py:13
+    // assert_correct_payment(txn_offset=UInt64(0))
+    int 0
+    callsub assert_correct_payment
+    // logic_signature/signature.py:14
+    // assert_correct_asset(txn_offset=UInt64(1))
+    int 1
+    callsub assert_correct_asset
+    // logic_signature/signature.py:15
+    // assert GTxn.sender(UInt64(0)) == GTxn.asset_receiver(UInt64(1))
+    int 0
+    gtxns Sender
+    int 1
+    gtxns AssetReceiver
+    ==
+    assert
+    // logic_signature/signature.py:16
+    // return True
+    int 1
+    return
+
+
+// test_cases.logic_signature.signature.assert_correct_payment(txn_offset: uint64) -> void:
+assert_correct_payment:
+    // logic_signature/signature.py:24-25
+    // @subroutine
+    // def assert_correct_payment(txn_offset: UInt64) -> None:
+    proto 1 0
+    // logic_signature/signature.py:27
+    // GTxn.type_enum(txn_offset) == TransactionType.Payment
+    frame_dig -1
+    gtxns TypeEnum
+    int pay
+    ==
+    // logic_signature/signature.py:27-29
+    // GTxn.type_enum(txn_offset) == TransactionType.Payment
+    // and GTxn.receiver(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    // and GTxn.amount(txn_offset) == TemplateVar[UInt64]("PRICE")
+    bz assert_correct_payment_bool_false@4
+    // logic_signature/signature.py:28
+    // and GTxn.receiver(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    frame_dig -1
+    gtxns Receiver
+    byte TMPL_SELLER
+    ==
+    // logic_signature/signature.py:27-29
+    // GTxn.type_enum(txn_offset) == TransactionType.Payment
+    // and GTxn.receiver(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    // and GTxn.amount(txn_offset) == TemplateVar[UInt64]("PRICE")
+    bz assert_correct_payment_bool_false@4
+    // logic_signature/signature.py:29
+    // and GTxn.amount(txn_offset) == TemplateVar[UInt64]("PRICE")
+    frame_dig -1
+    gtxns Amount
+    int TMPL_PRICE
+    ==
+    // logic_signature/signature.py:27-29
+    // GTxn.type_enum(txn_offset) == TransactionType.Payment
+    // and GTxn.receiver(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    // and GTxn.amount(txn_offset) == TemplateVar[UInt64]("PRICE")
+    bz assert_correct_payment_bool_false@4
+    int 1
+    b assert_correct_payment_bool_merge@5
+
+assert_correct_payment_bool_false@4:
+    int 0
+
+assert_correct_payment_bool_merge@5:
+    // logic_signature/signature.py:26-30
+    // assert (
+    //     GTxn.type_enum(txn_offset) == TransactionType.Payment
+    //     and GTxn.receiver(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    //     and GTxn.amount(txn_offset) == TemplateVar[UInt64]("PRICE")
+    // )
+    assert
+    retsub
+
+
+// test_cases.logic_signature.signature.assert_correct_asset(txn_offset: uint64) -> void:
+assert_correct_asset:
+    // logic_signature/signature.py:33-34
+    // @subroutine
+    // def assert_correct_asset(txn_offset: UInt64) -> None:
+    proto 1 0
+    // logic_signature/signature.py:36
+    // GTxn.type_enum(txn_offset) == TransactionType.AssetTransfer
+    frame_dig -1
+    gtxns TypeEnum
+    int axfer
+    ==
+    // logic_signature/signature.py:36-39
+    // GTxn.type_enum(txn_offset) == TransactionType.AssetTransfer
+    // and GTxn.asset_amount(txn_offset) == 1
+    // and GTxn.sender(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    // and GTxn.xfer_asset(txn_offset).id == TemplateVar[UInt64]("ASSET_ID")
+    bz assert_correct_asset_bool_false@5
+    // logic_signature/signature.py:37
+    // and GTxn.asset_amount(txn_offset) == 1
+    frame_dig -1
+    gtxns AssetAmount
+    int 1
+    ==
+    // logic_signature/signature.py:36-39
+    // GTxn.type_enum(txn_offset) == TransactionType.AssetTransfer
+    // and GTxn.asset_amount(txn_offset) == 1
+    // and GTxn.sender(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    // and GTxn.xfer_asset(txn_offset).id == TemplateVar[UInt64]("ASSET_ID")
+    bz assert_correct_asset_bool_false@5
+    // logic_signature/signature.py:38
+    // and GTxn.sender(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    frame_dig -1
+    gtxns Sender
+    byte TMPL_SELLER
+    ==
+    // logic_signature/signature.py:36-39
+    // GTxn.type_enum(txn_offset) == TransactionType.AssetTransfer
+    // and GTxn.asset_amount(txn_offset) == 1
+    // and GTxn.sender(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    // and GTxn.xfer_asset(txn_offset).id == TemplateVar[UInt64]("ASSET_ID")
+    bz assert_correct_asset_bool_false@5
+    // logic_signature/signature.py:39
+    // and GTxn.xfer_asset(txn_offset).id == TemplateVar[UInt64]("ASSET_ID")
+    frame_dig -1
+    gtxns XferAsset
+    int TMPL_ASSET_ID
+    ==
+    // logic_signature/signature.py:36-39
+    // GTxn.type_enum(txn_offset) == TransactionType.AssetTransfer
+    // and GTxn.asset_amount(txn_offset) == 1
+    // and GTxn.sender(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    // and GTxn.xfer_asset(txn_offset).id == TemplateVar[UInt64]("ASSET_ID")
+    bz assert_correct_asset_bool_false@5
+    int 1
+    b assert_correct_asset_bool_merge@6
+
+assert_correct_asset_bool_false@5:
+    int 0
+
+assert_correct_asset_bool_merge@6:
+    // logic_signature/signature.py:35-40
+    // assert (
+    //     GTxn.type_enum(txn_offset) == TransactionType.AssetTransfer
+    //     and GTxn.asset_amount(txn_offset) == 1
+    //     and GTxn.sender(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
+    //     and GTxn.xfer_asset(txn_offset).id == TemplateVar[UInt64]("ASSET_ID")
+    // )
+    assert
+    retsub

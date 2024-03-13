@@ -45,3 +45,6 @@ class AWSTTraverser(FunctionTraverser, ModuleStatementVisitor[None]):
 
     def visit_constant_declaration(self, statement: awst_nodes.ConstantDeclaration) -> None:
         pass
+
+    def visit_logic_signature(self, statement: awst_nodes.LogicSignature) -> None:
+        statement.program.accept(self)

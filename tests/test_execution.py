@@ -494,6 +494,8 @@ class _TestHarness:
             src_path, optimization_level=optimization_level, debug_level=debug_level
         )
         ((contract,),) = result.teal.values()
+        assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
+
         return assemble_src(contract=contract, client=self.client)
 
 

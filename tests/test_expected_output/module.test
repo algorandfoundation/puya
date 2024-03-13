@@ -174,3 +174,26 @@ class MyContract(MyContractBase):
     @subroutine
     def get_value(self) -> UInt64:
         return UInt64(1)
+
+
+## case: bad_logic_sig_decorators
+from puyapy import Bytes, UInt64, logicsig, subroutine
+
+@logicsig
+@subroutine ## E: Unsupported logicsig decorator "puyapy._hints.subroutine"
+def one() -> UInt64:
+    return UInt64(1)
+
+@logicsig # type: ignore[arg-type]
+def two(a: UInt64) -> UInt64: ## E: logicsig should not take any args
+    return UInt64(1)
+
+
+@logicsig # type: ignore[arg-type] ## E: Invalid return type for logicsig method, should be either bool or UInt64.
+def three() -> Bytes:
+    return Bytes(b"hello")
+
+
+@logicsig # type: ignore[arg-type] ## E: Invalid return type for logicsig method, should be either bool or UInt64.
+def four() -> None:
+    pass

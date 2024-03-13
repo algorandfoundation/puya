@@ -98,6 +98,10 @@ class ModuleStatementVisitor(t.Generic[T], ABC):
     def visit_contract_method(self, statement: puya.awst.nodes.ContractMethod) -> T:
         ...
 
+    @abstractmethod
+    def visit_logic_signature(self, statement: puya.awst.nodes.LogicSignature) -> T:
+        ...
+
 
 class ExpressionVisitor(t.Generic[T], ABC):
     @abstractmethod

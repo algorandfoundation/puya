@@ -80,6 +80,17 @@ class ContractState:
 
 
 @attrs.frozen
+class LogicSignatureMetaData:
+    module_name: str
+    name: str
+    description: str | None
+
+    @property
+    def full_name(self) -> str:
+        return ".".join((self.module_name, self.name))
+
+
+@attrs.frozen
 class ContractMetaData:
     description: str | None
     name_override: str | None
@@ -109,3 +120,13 @@ class CompiledContract:
     clear_program: list[str]
     """lines of the TEAL clear program for the contract"""
     metadata: ContractMetaData
+
+
+@attrs.define(kw_only=True)
+class CompiledLogicSignature:
+    program: list[str]
+    """lines of the TEAL program for the logic signature"""
+    metadata: LogicSignatureMetaData
+
+
+CompilationArtifact: typing.TypeAlias = CompiledContract | CompiledLogicSignature

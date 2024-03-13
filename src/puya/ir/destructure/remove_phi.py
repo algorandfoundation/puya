@@ -100,17 +100,19 @@ def destructure_cssa(sub: models.Subroutine) -> None:
             )
 
 
-def convert_contract_to_cssa(
-    _context: CompileContext, contract: models.Contract
-) -> models.Contract:
+def convert_artifact_to_cssa(
+    _context: CompileContext, contract: models.ModuleArtifact
+) -> models.ModuleArtifact:
     cloned = deepcopy(contract)
     for sub in cloned.all_subroutines():
         convert_to_cssa(sub)
     return cloned
 
 
-def remove_phi_nodes(_context: CompileContext, contract: models.Contract) -> models.Contract:
-    cloned = deepcopy(contract)
+def remove_phi_nodes(
+    _context: CompileContext, artifact: models.ModuleArtifact
+) -> models.ModuleArtifact:
+    cloned = deepcopy(artifact)
     for subroutine in cloned.all_subroutines():
         logger.debug(f"Removing Phis from {subroutine.full_name}")
         subroutine.validate_with_ssa()

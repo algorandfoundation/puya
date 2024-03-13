@@ -1,6 +1,7 @@
 import functools
 import os
 import sys
+import typing
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -19,9 +20,13 @@ from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
 from puya.errors import ErrorExitCode, Errors, InternalError, ParseError, log_exceptions
 from puya.ir.main import build_module_irs, optimize_and_destructure_ir
-from puya.ir.models import Contract as ContractIR
+from puya.ir.models import (
+    Contract as ContractIR,
+    LogicSignature,
+    ModuleArtifact,
+)
 from puya.mir.main import program_ir_to_mir
-from puya.models import CompiledContract
+from puya.models import CompilationArtifact, CompiledContract, CompiledLogicSignature
 from puya.options import PuyaOptions
 from puya.parse import (
     TYPESHED_PATH,
@@ -127,11 +132,11 @@ def get_mypy_options() -> mypy.options.Options:
 
 
 def module_irs_to_teal(
-    context: CompileContext, module_irs: dict[str, list[ContractIR]]
-) -> dict[ParseSource, list[CompiledContract]]:
-    result = dict[ParseSource, list[CompiledContract]]()
+    context: CompileContext, module_irs: dict[str, list[ModuleArtifact]]
+) -> dict[ParseSource, list[CompilationArtifact]]:
+    result = dict[ParseSource, list[CompilationArtifact]]()
     # used to check for conflicts that would occur on output
-    contracts_by_output_base = dict[Path, ContractIR]()
+    artifacts_by_output_base = dict[Path, ModuleArtifact]()
     for src in context.parse_result.sources:
         module_ir = module_irs.get(src.module_name)
         if module_ir is None:
@@ -144,24 +149,34 @@ def module_irs_to_teal(
                     f" {make_path_relative_to_cwd(src.path)}"
                 )
         else:
-            for contract_ir in module_ir:
+            for artifact_ir in module_ir:
                 out_dir = determine_out_dir(src.path.parent, context.options)
-                name = contract_ir.metadata.name
-                contract_ir_base_path = out_dir / name
-                if existing := contracts_by_output_base.get(contract_ir_base_path):
+                name = artifact_ir.metadata.name
+                artifact_ir_base_path = out_dir / name
+                if existing := artifacts_by_output_base.get(artifact_ir_base_path):
                     context.errors.error(
-                        f"Duplicate contract name {name}", location=contract_ir.source_location
+                        f"Duplicate contract name {name}", location=artifact_ir.source_location
                     )
                     context.errors.note(
                         f"Contract name {name} first seen here", location=existing.source_location
                     )
                 else:
-                    contracts_by_output_base[contract_ir_base_path] = contract_ir
+                    artifacts_by_output_base[artifact_ir_base_path] = artifact_ir
 
-                contract_ir = optimize_and_destructure_ir(
-                    context, contract_ir, contract_ir_base_path
+                artifact_ir = optimize_and_destructure_ir(
+                    context, artifact_ir, artifact_ir_base_path
                 )
-                compiled = _contract_ir_to_teal(context, contract_ir, contract_ir_base_path)
+
+                match artifact_ir:
+                    case ContractIR() as contract:
+                        compiled: CompilationArtifact = _contract_ir_to_teal(
+                            context, contract, artifact_ir_base_path
+                        )
+                    case LogicSignature() as logic_sig:
+                        compiled = _logic_sig_to_teal(context, logic_sig, artifact_ir_base_path)
+                    case _:
+                        typing.assert_never(artifact_ir)
+
                 result.setdefault(src, []).append(compiled)
     return result
 
@@ -185,31 +200,54 @@ def _contract_ir_to_teal(
     return compiled
 
 
+def _logic_sig_to_teal(
+    context: CompileContext, logic_sig_ir: LogicSignature, logic_sig_ir_base_path: Path
+) -> CompiledLogicSignature:
+    program_mir = program_ir_to_mir(
+        context, logic_sig_ir.program, logic_sig_ir_base_path.with_suffix(".mir")
+    )
+    program_output = mir_to_teal(context, program_mir)
+    compiled = CompiledLogicSignature(
+        program=program_output,
+        metadata=logic_sig_ir.metadata,
+    )
+    return compiled
+
+
 def write_artifacts(
     context: CompileContext,
-    compiled_contracts_by_source_path: dict[ParseSource, list[CompiledContract]],
+    compiled_artifacts_by_source_path: dict[ParseSource, list[CompilationArtifact]],
 ) -> None:
-    if not compiled_contracts_by_source_path:
-        logger.warning("No contracts discovered in any source files")
+    if not compiled_artifacts_by_source_path:
+        logger.warning("No contracts or logic signatures discovered in any source files")
         return
-    for src, compiled_contracts in compiled_contracts_by_source_path.items():
+    for src, compiled_artifacts in compiled_artifacts_by_source_path.items():
         out_dir = determine_out_dir(src.path.parent, context.options)
-        for contract in compiled_contracts:
-            teal_file_stem = contract.metadata.name
+        for artifact in compiled_artifacts:
+            teal_file_stem = artifact.metadata.name
             arc32_file_stem = f"{teal_file_stem}.arc32.json"
-            if context.options.output_teal:
-                teal_path = out_dir / teal_file_stem
-                write_contract_files(base_path=teal_path, compiled_contract=contract)
-            if contract.metadata.is_arc4:
-                if context.options.output_arc32:
-                    arc32_path = out_dir / arc32_file_stem
-                    logger.info(f"Writing {make_path_relative_to_cwd(arc32_path)}")
-                    json_text = create_arc32_json(contract)
-                    arc32_path.write_text(json_text)
-                if context.options.output_client:
-                    write_arc32_client(
-                        contract.metadata.name, contract.metadata.arc4_methods, out_dir
-                    )
+            match artifact:
+                case CompiledLogicSignature() as logic_sig:
+                    if context.options.output_teal:
+                        write_logic_sig_files(
+                            base_path=out_dir / teal_file_stem, compiled_logic_sig=logic_sig
+                        )
+                case CompiledContract() as contract:
+                    if context.options.output_teal:
+                        teal_path = out_dir / teal_file_stem
+                        write_contract_files(base_path=teal_path, compiled_contract=contract)
+                    if artifact.metadata.is_arc4:
+                        if context.options.output_arc32:
+                            arc32_path = out_dir / arc32_file_stem
+                            logger.info(f"Writing {make_path_relative_to_cwd(arc32_path)}")
+                            json_text = create_arc32_json(contract)
+                            arc32_path.write_text(json_text)
+                        if context.options.output_client:
+                            write_arc32_client(
+                                contract.metadata.name, contract.metadata.arc4_methods, out_dir
+                            )
+                case _:
+                    typing.assert_never(artifact)
 
 
 def write_contract_files(base_path: Path, compiled_contract: CompiledContract) -> None:
@@ -222,6 +260,13 @@ def write_contract_files(base_path: Path, compiled_contract: CompiledContract) -
         output_text = "\n".join(src)
         logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
         output_path.write_text(output_text, encoding="utf-8")
+
+
+def write_logic_sig_files(base_path: Path, compiled_logic_sig: CompiledLogicSignature) -> None:
+    output_path = base_path.with_suffix(".teal")
+    output_text = "\n".join(compiled_logic_sig.program)
+    logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
+    output_path.write_text(output_text, encoding="utf-8")
 
 
 def _log_parse_error(errors: list[str], location: SourceLocation | None) -> None:
