@@ -480,11 +480,7 @@ def is_arc4_encoded_type(wtype: WType) -> typing.TypeGuard[ARC4Type]:
 
 
 def is_arc4_argument_type(wtype: WType) -> bool:
-    return (
-        is_arc4_encoded_type(wtype)
-        or is_reference_type(wtype)
-        or (is_transaction_type(wtype) and wtype.transaction_type is not None)
-    )
+    return is_arc4_encoded_type(wtype) or is_reference_type(wtype) or (is_transaction_type(wtype))
 
 
 def has_arc4_equivalent_type(wtype: WType) -> bool:

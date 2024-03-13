@@ -12,7 +12,7 @@ test_cases.transaction.contract.TransactionContract.approval_program:
     method "asset_freeze(afrz)void"
     method "application_call(appl)void"
     method "multiple_txns(appl,appl,appl)void"
-    method "any_txn(appl,appl,appl)void"
+    method "any_txn(txn,txn,txn)void"
     uncover 9
     match main_create_route@1 main_pay_route@2 main_key_route@3 main_asset_config_route@4 main_asset_transfer_route@5 main_asset_freeze_route@6 main_application_call_route@7 main_multiple_txns_route@8 main_any_txn_route@9
     b main_switch_case_default@10
@@ -239,27 +239,12 @@ main_any_txn_route@9:
     txn GroupIndex
     int 3
     -
-    dup
-    gtxns TypeEnum
-    int appl
-    ==
-    assert // transaction type is appl
     txn GroupIndex
     int 2
     -
-    dup
-    gtxns TypeEnum
-    int appl
-    ==
-    assert // transaction type is appl
     txn GroupIndex
     int 1
     -
-    dup
-    gtxns TypeEnum
-    int appl
-    ==
-    assert // transaction type is appl
     // transaction/contract.py:121
     // @arc4.abimethod
     uncover 2
@@ -807,54 +792,46 @@ multiple_txns_for_body@4:
     retsub
 
 
-// test_cases.transaction.contract.TransactionContract.any_txn(_txn1: uint64, _txn2: uint64, _txn3: uint64) -> void:
+// test_cases.transaction.contract.TransactionContract.any_txn(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
 any_txn:
     // transaction/contract.py:121-127
     // @arc4.abimethod
     // def any_txn(
     //     self,
-    //     _txn1: gtxn.ApplicationCallTransaction,
-    //     _txn2: gtxn.ApplicationCallTransaction,
-    //     _txn3: gtxn.ApplicationCallTransaction,
+    //     txn1: gtxn.Transaction,
+    //     txn2: gtxn.Transaction,
+    //     txn3: gtxn.Transaction,
     // ) -> None:
     proto 3 0
     byte ""
     dup
-    // transaction/contract.py:128
-    // txn1 = gtxn.Transaction(0)
-    int 0
-    // transaction/contract.py:129
-    // txn2 = gtxn.Transaction(1)
-    int 1
-    swap
-    // transaction/contract.py:130
-    // txn3 = gtxn.Transaction(2)
-    int 2
-    swap
     int 0
     frame_bury 0
+    // transaction/contract.py:128
+    // for index, txn in uenumerate((txn1, txn2, txn3)):
+    frame_dig -3
     b any_txn_for_body@4
 
 any_txn_for_header_1@2:
-    // transaction/contract.py:131
+    // transaction/contract.py:128
     // for index, txn in uenumerate((txn1, txn2, txn3)):
-    frame_dig 2
+    frame_dig -2
     frame_dig 1
     frame_bury 0
     b any_txn_for_body@4
 
 any_txn_for_header_2@3:
-    // transaction/contract.py:131
+    // transaction/contract.py:128
     // for index, txn in uenumerate((txn1, txn2, txn3)):
-    frame_dig 3
+    frame_dig -1
     frame_dig 1
     frame_bury 0
 
 any_txn_for_body@4:
-    // transaction/contract.py:131
+    // transaction/contract.py:128
     // for index, txn in uenumerate((txn1, txn2, txn3)):
     frame_dig 0
-    // transaction/contract.py:132
+    // transaction/contract.py:129
     // assert txn.group_index == index
     swap
     gtxns GroupIndex
@@ -866,7 +843,7 @@ any_txn_for_body@4:
     int 1
     +
     frame_bury 1
-    // transaction/contract.py:131
+    // transaction/contract.py:128
     // for index, txn in uenumerate((txn1, txn2, txn3)):
     switch any_txn_for_header_1@2 any_txn_for_header_2@3
     retsub

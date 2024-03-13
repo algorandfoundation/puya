@@ -37,10 +37,6 @@ class MyContract(puyapy.ARC4Contract):
         ...
 ```
 
-```{note}
-The [Transaction](puyapy.gtxn.Transaction) type cannot be used as an ARC4 ABI argument
-```
-
 ### Group Index
 
 Group transactions can also be created using the group index of the transaction. 
