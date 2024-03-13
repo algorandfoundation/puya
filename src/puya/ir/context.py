@@ -26,6 +26,7 @@ class IRBuildContext(CompileContext):
     subroutines: dict[awst_nodes.Function, Subroutine]
     embedded_funcs: Sequence[awst_nodes.Function] = attrs.field()
     contract: awst_nodes.ContractFragment | None = None
+    logic_sig: awst_nodes.LogicSignature | None = None
 
     def for_contract(self, contract: awst_nodes.ContractFragment) -> "IRBuildContextWithFallback":
         return attrs_extend(
@@ -48,6 +49,17 @@ class IRBuildContext(CompileContext):
             visitor=visitor,
             function=function,
             subroutine=subroutine,
+        )
+
+    def for_logic_signature(
+        self, logic_sig: awst_nodes.LogicSignature
+    ) -> "IRBuildContextWithFallback":
+        return attrs_extend(
+            IRBuildContextWithFallback,
+            self,
+            default_fallback=logic_sig.source_location,
+            logic_sig=logic_sig,
+            subroutines=self.subroutines.copy(),
         )
 
     def resolve_contract_reference(

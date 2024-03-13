@@ -1,0 +1,60 @@
+program logicsig test_cases.logic_signature.signature.pre_approved_sale:
+    subroutine test_cases.logic_signature.signature.pre_approved_sale() -> uint64:
+        block@0: // L5
+            test_cases.logic_signature.signature.assert_correct_payment(0u)
+            test_cases.logic_signature.signature.assert_correct_asset(1u)
+            let tmp%0#0: bytes = ((gtxns Sender) 0u)
+            let tmp%1#0: bytes = ((gtxns AssetReceiver) 1u)
+            let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
+            (assert tmp%2#0)
+            return 1u
+    
+    subroutine test_cases.logic_signature.signature.assert_correct_payment(txn_offset: uint64) -> void:
+        block@0: // L24
+            let tmp%0#0: uint64 = ((gtxns TypeEnum) txn_offset#0)
+            let tmp%1#0: uint64 = (== tmp%0#0 pay)
+            goto tmp%1#0 ? block@1 : block@4
+        block@1: // and_contd_L27
+            let tmp%2#0: bytes = ((gtxns Receiver) txn_offset#0)
+            let tmp%3#0: uint64 = (== tmp%2#0 TemplateVar[AVMType.bytes](TMPL_SELLER))
+            goto tmp%3#0 ? block@2 : block@4
+        block@2: // and_contd_L27
+            let tmp%4#0: uint64 = ((gtxns Amount) txn_offset#0)
+            let tmp%5#0: uint64 = (== tmp%4#0 TemplateVar[AVMType.uint64](TMPL_PRICE))
+            goto tmp%5#0 ? block@3 : block@4
+        block@3: // bool_true_L27
+            let and_result%6#0: uint64 = 1u
+            goto block@5
+        block@4: // bool_false_L27
+            let and_result%6#0: uint64 = 0u
+            goto block@5
+        block@5: // bool_merge_L27
+            (assert and_result%6#0)
+            return 
+    
+    subroutine test_cases.logic_signature.signature.assert_correct_asset(txn_offset: uint64) -> void:
+        block@0: // L33
+            let tmp%0#0: uint64 = ((gtxns TypeEnum) txn_offset#0)
+            let tmp%1#0: uint64 = (== tmp%0#0 axfer)
+            goto tmp%1#0 ? block@1 : block@5
+        block@1: // and_contd_L36
+            let tmp%2#0: uint64 = ((gtxns AssetAmount) txn_offset#0)
+            let tmp%3#0: uint64 = (== tmp%2#0 1u)
+            goto tmp%3#0 ? block@2 : block@5
+        block@2: // and_contd_L36
+            let tmp%4#0: bytes = ((gtxns Sender) txn_offset#0)
+            let tmp%5#0: uint64 = (== tmp%4#0 TemplateVar[AVMType.bytes](TMPL_SELLER))
+            goto tmp%5#0 ? block@3 : block@5
+        block@3: // and_contd_L36
+            let tmp%6#0: uint64 = ((gtxns XferAsset) txn_offset#0)
+            let tmp%7#0: uint64 = (== tmp%6#0 TemplateVar[AVMType.uint64](TMPL_ASSET_ID))
+            goto tmp%7#0 ? block@4 : block@5
+        block@4: // bool_true_L36
+            let and_result%8#0: uint64 = 1u
+            goto block@6
+        block@5: // bool_false_L36
+            let and_result%8#0: uint64 = 0u
+            goto block@6
+        block@6: // bool_merge_L36
+            (assert and_result%8#0)
+            return 

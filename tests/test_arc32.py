@@ -8,11 +8,15 @@ import algosdk
 import pytest
 from algokit_utils import LogicError
 from algosdk import constants, transaction
-from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
+from algosdk.atomic_transaction_composer import (
+    AtomicTransactionComposer,
+    TransactionWithSigner,
+)
 from algosdk.transaction import OnComplete
 from algosdk.v2client.algod import AlgodClient
 from nacl.signing import SigningKey
 from puya.arc32 import create_arc32_json
+from puya.models import CompiledContract
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.test_execution import decode_logs
@@ -25,6 +29,7 @@ pytestmark = pytest.mark.localnet
 def compile_arc32(src_path: Path, *, optimization_level: int = 1, debug_level: int = 2) -> str:
     result = compile_src(src_path, optimization_level=optimization_level, debug_level=debug_level)
     ((contract,),) = result.teal.values()
+    assert isinstance(contract, CompiledContract), "Compilation artifact must be a contract"
     return create_arc32_json(contract)
 
 

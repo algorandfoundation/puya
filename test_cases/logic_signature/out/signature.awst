@@ -1,0 +1,22 @@
+logicsig pre_approved_sale
+{
+  test_cases.logic_signature.signature::assert_correct_payment(txn_offset=0u)
+  test_cases.logic_signature.signature::assert_correct_asset(txn_offset=1u)
+  assert(gtxns<Sender>(0u) == gtxns<AssetReceiver>(1u))
+  return true
+}
+
+logicsig always_allow
+{
+  return true
+}
+
+subroutine assert_correct_payment(txn_offset: puyapy.UInt64): None
+{
+  assert(gtxns<TypeEnum>(txn_offset) == pay and reinterpret_cast<puyapy.Bytes>(gtxns<Receiver>(txn_offset)) == TemplateVar[puyapy.Bytes](TMPL_SELLER) and gtxns<Amount>(txn_offset) == TemplateVar[puyapy.UInt64](TMPL_PRICE))
+}
+
+subroutine assert_correct_asset(txn_offset: puyapy.UInt64): None
+{
+  assert(gtxns<TypeEnum>(txn_offset) == axfer and gtxns<AssetAmount>(txn_offset) == 1u and reinterpret_cast<puyapy.Bytes>(gtxns<Sender>(txn_offset)) == TemplateVar[puyapy.Bytes](TMPL_SELLER) and reinterpret_cast<puyapy.UInt64>(gtxns<XferAsset>(txn_offset)) == TemplateVar[puyapy.UInt64](TMPL_ASSET_ID))
+}

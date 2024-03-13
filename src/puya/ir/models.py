@@ -10,7 +10,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import OpSignature
 from puya.ir.types_ import AVMBytesEncoding, stack_type_to_avm_type
 from puya.ir.visitor import IRVisitor
-from puya.models import ContractMetaData
+from puya.models import ContractMetaData, LogicSignatureMetaData
 from puya.parse import SourceLocation
 from puya.utils import unique
 
@@ -845,3 +845,22 @@ class Contract(Context):
                 self.clear_program.all_subroutines,
             )
         )
+
+    def all_programs(self) -> Iterable[Program]:
+        return [self.approval_program, self.clear_program]
+
+
+@attrs.define(eq=False)
+class LogicSignature(Context):
+    source_location: SourceLocation
+    program: Program
+    metadata: LogicSignatureMetaData
+
+    def all_subroutines(self) -> Iterable[Subroutine]:
+        return self.program.all_subroutines
+
+    def all_programs(self) -> Iterable[Program]:
+        return [self.program]
+
+
+ModuleArtifact: t.TypeAlias = Contract | LogicSignature

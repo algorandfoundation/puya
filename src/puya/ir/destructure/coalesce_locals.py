@@ -144,7 +144,9 @@ class AggressiveGrouping(CoalesceGroupStrategy):
         )
 
 
-def coalesce_locals(context: CompileContext, contract: models.Contract) -> models.Contract:
+def coalesce_locals(
+    context: CompileContext, contract: models.ModuleArtifact
+) -> models.ModuleArtifact:
     cloned = deepcopy(contract)
     for subroutine in cloned.all_subroutines():
         match context.options.locals_coalescing_strategy:

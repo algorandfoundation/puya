@@ -14,7 +14,7 @@ from puya.compile import module_irs_to_teal, parse_with_mypy, write_artifacts
 from puya.context import CompileContext
 from puya.errors import CodeError, Errors
 from puya.ir.main import build_module_irs
-from puya.models import CompiledContract
+from puya.models import CompilationArtifact
 from puya.options import PuyaOptions
 from puya.parse import ParseResult, ParseSource, SourceLocation, get_parse_sources
 from puya.utils import pushd
@@ -120,11 +120,11 @@ def _stabilise_logs(
 
 
 @attrs.define
-class CompileContractResult:
+class CompilationResult:
     context: CompileContext
     module_awst: dict[str, Module]
     logs: str
-    teal: dict[ParseSource, list[CompiledContract]]
+    teal: dict[ParseSource, list[CompilationArtifact]]
     output_files: dict[str, str]
 
 
@@ -164,7 +164,7 @@ def _get_log_errors(logs: Iterable[Log]) -> str:
 
 def awst_to_teal(
     context: CompileContext, module_asts: dict[str, Module]
-) -> dict[ParseSource, list[CompiledContract]] | None:
+) -> dict[ParseSource, list[CompilationArtifact]] | None:
     errors = context.errors
     if errors.num_errors:
         return None
@@ -178,9 +178,7 @@ def awst_to_teal(
 
 
 @functools.cache
-def compile_src(
-    src_path: Path, optimization_level: int, debug_level: int
-) -> CompileContractResult:
+def compile_src(src_path: Path, optimization_level: int, debug_level: int) -> CompilationResult:
     root_dir = _get_root_dir(src_path)
     context, awst, awst_logs = get_awst_cache(root_dir)
     awst_logs = _filter_logs(awst_logs, root_dir, src_path)
@@ -228,4 +226,4 @@ def compile_src(
                 awst_logs + logs, root_dir=root_dir, tmp_dir=tmp_dir, actual_path=src_path
             )
         )
-        return CompileContractResult(context, awst, log_txt, teal, output_files)
+        return CompilationResult(context, awst, log_txt, teal, output_files)

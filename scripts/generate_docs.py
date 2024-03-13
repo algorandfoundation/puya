@@ -79,7 +79,7 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
     output.write_text("\n".join(lines))
 
     subprocess.run(["black", str(output)], check=True, cwd=VCS_ROOT)
-    subprocess.run(["ruff", "--fix", str(output)], check=True, cwd=VCS_ROOT)
+    subprocess.run(["ruff", "check", "--fix", str(output)], check=True, cwd=VCS_ROOT)
 
 
 def run_sphinx() -> None:

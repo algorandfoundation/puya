@@ -14,6 +14,7 @@ from puya.awst_build.main import transform_ast
 from puya.compile import parse_with_mypy
 from puya.errors import Errors, ParseError, PuyaError, log_exceptions
 from puya.options import PuyaOptions
+from puya.utils import coalesce
 
 from tests.utils import awst_to_teal, narrow_sources
 
@@ -90,15 +91,9 @@ class TestCaseOutputDifferenceError(Exception):
         unexpected_output: dict[Path, OutputMapping] | None = None,
         unexpected_awst: dict[Path, list[str]] | None = None,
     ):
-        self.missing_output: dict[Path, OutputMapping] = (
-            {} if missing_output is None else missing_output
-        )
-        self.unexpected_output: dict[Path, OutputMapping] = (
-            {} if unexpected_output is None else unexpected_output
-        )
-        self.unexpected_awst: dict[Path, list[str]] = (
-            {} if unexpected_awst is None else unexpected_awst
-        )
+        self.missing_output: dict[Path, OutputMapping] = coalesce(missing_output, {})
+        self.unexpected_output: dict[Path, OutputMapping] = coalesce(unexpected_output, {})
+        self.unexpected_awst: dict[Path, list[str]] = coalesce(unexpected_awst, {})
 
 
 @attrs.define

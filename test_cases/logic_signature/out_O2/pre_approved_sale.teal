@@ -1,0 +1,78 @@
+#pragma version 10
+
+test_cases.logic_signature.signature.pre_approved_sale:
+    int 0
+    callsub assert_correct_payment
+    int 1
+    callsub assert_correct_asset
+    int 0
+    gtxns Sender
+    int 1
+    gtxns AssetReceiver
+    ==
+    assert
+    int 1
+    return
+
+
+// test_cases.logic_signature.signature.assert_correct_payment(txn_offset: uint64) -> void:
+assert_correct_payment:
+    proto 1 0
+    frame_dig -1
+    gtxns TypeEnum
+    int pay
+    ==
+    bz assert_correct_payment_bool_false@4
+    frame_dig -1
+    gtxns Receiver
+    byte TMPL_SELLER
+    ==
+    bz assert_correct_payment_bool_false@4
+    frame_dig -1
+    gtxns Amount
+    int TMPL_PRICE
+    ==
+    bz assert_correct_payment_bool_false@4
+    int 1
+    b assert_correct_payment_bool_merge@5
+
+assert_correct_payment_bool_false@4:
+    int 0
+
+assert_correct_payment_bool_merge@5:
+    assert
+    retsub
+
+
+// test_cases.logic_signature.signature.assert_correct_asset(txn_offset: uint64) -> void:
+assert_correct_asset:
+    proto 1 0
+    frame_dig -1
+    gtxns TypeEnum
+    int axfer
+    ==
+    bz assert_correct_asset_bool_false@5
+    frame_dig -1
+    gtxns AssetAmount
+    int 1
+    ==
+    bz assert_correct_asset_bool_false@5
+    frame_dig -1
+    gtxns Sender
+    byte TMPL_SELLER
+    ==
+    bz assert_correct_asset_bool_false@5
+    frame_dig -1
+    gtxns XferAsset
+    int TMPL_ASSET_ID
+    ==
+    bz assert_correct_asset_bool_false@5
+    int 1
+    b assert_correct_asset_bool_merge@6
+
+assert_correct_asset_bool_false@5:
+    int 0
+
+assert_correct_asset_bool_merge@6:
+    assert
+    retsub

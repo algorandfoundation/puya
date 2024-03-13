@@ -1,4 +1,5 @@
 import contextlib
+import typing
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 
@@ -160,10 +161,19 @@ def render_contract(emitter: TextEmitter, contract: models.Contract) -> None:
         render_program(emitter, "clear-state", contract.clear_program)
 
 
-def output_contract_ir_to_path(contract: models.Contract, path: Path) -> None:
-    emitter = TextEmitter()
+def render_logic_signature(emitter: TextEmitter, logic_sig: models.LogicSignature) -> None:
+    render_program(emitter, f"logicsig {logic_sig.metadata.full_name}", logic_sig.program)
 
-    render_contract(emitter, contract)
+
+def output_artifact_ir_to_path(artifact: models.ModuleArtifact, path: Path) -> None:
+    emitter = TextEmitter()
+    match artifact:
+        case models.Contract():
+            render_contract(emitter, artifact)
+        case models.LogicSignature():
+            render_logic_signature(emitter, artifact)
+        case _:
+            typing.assert_never(artifact)
     path.write_text("\n".join(emitter.lines), encoding="utf-8")
     logger.debug(f"Output IR to {make_path_relative_to_cwd(path)}")
 

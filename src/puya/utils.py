@@ -228,3 +228,29 @@ def biguint_bytes_eval(value: int) -> bytes:
     assert byte_length <= 64, "Biguints must be 64 bytes or less"
     big_uint_bytes = value.to_bytes(byteorder="big", length=byte_length)
     return big_uint_bytes
+
+
+@typing.overload
+def coalesce(arg1: T | None, arg2: T, /) -> T:
+    ...
+
+
+@typing.overload
+def coalesce(arg1: T | None, arg2: T | None, arg3: T, /) -> T:
+    ...
+
+
+@typing.overload
+def coalesce(*args: T | None) -> T | None:
+    ...
+
+
+def coalesce(*args: T | None) -> T | None:
+    """Shorthand for `a if a is not None else b`, with eager evaluation as a tradeoff"""
+    # REFACTOR: if there's a better way to do the above overloads, we should.
+    #           the problem is you can't have a positional argument after *args,
+    #           and we want to take the last one's type separately
+    for arg in args:
+        if arg is not None:
+            return arg
+    return None

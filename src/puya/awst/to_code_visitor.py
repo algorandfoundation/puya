@@ -239,6 +239,16 @@ class ToCodeVisitor(
             "}",
         ]
 
+    def visit_logic_signature(self, statement: nodes.LogicSignature) -> list[str]:
+        body = statement.program.body.accept(self)
+        return [
+            "",
+            f"logicsig {statement.name}",
+            "{",
+            *_indent(body),
+            "}",
+        ]
+
     def visit_contract_init(self, statement: nodes.ContractMethod) -> list[str]:
         body = statement.body.accept(self)
         return [

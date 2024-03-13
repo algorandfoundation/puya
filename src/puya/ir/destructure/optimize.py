@@ -13,9 +13,11 @@ from puya.utils import unique
 logger = structlog.get_logger(__name__)
 
 
-def post_ssa_optimizer(context: CompileContext, contract: models.Contract) -> models.Contract:
+def post_ssa_optimizer(
+    context: CompileContext, artifact: models.ModuleArtifact
+) -> models.ModuleArtifact:
     logger.debug("Performing post-SSA optimizations")
-    cloned = deepcopy(contract)
+    cloned = deepcopy(artifact)
     for sub in cloned.all_subroutines():
         remove_linear_jumps(sub)
         if context.options.optimization_level >= 2:

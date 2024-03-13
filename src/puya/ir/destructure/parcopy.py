@@ -135,9 +135,9 @@ def _impl(sub: models.Subroutine) -> None:
 
 
 def sequentialize_parallel_copies(
-    _context: CompileContext, contract: models.Contract
-) -> models.Contract:
-    cloned = deepcopy(contract)
+    _context: CompileContext, artifact: models.ModuleArtifact
+) -> models.ModuleArtifact:
+    cloned = deepcopy(artifact)
     for subroutine in cloned.all_subroutines():
         logger.debug(f"Sequentializing parallel copies in {subroutine.full_name}")
         _impl(subroutine)

@@ -19,6 +19,7 @@ from puya.awst.nodes import (
     TupleExpression,
 )
 from puya.errors import CodeError, InternalError
+from puya.utils import coalesce
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -264,7 +265,7 @@ class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
     def build_definition(self, member_name: str, location: SourceLocation) -> AppStateDefinition:
         return AppStateDefinition(
             description=self.description,
-            key=(self.key if self.key is not None else member_name.encode("utf8")),
+            key=coalesce(self.key, member_name.encode("utf8")),
             key_encoding=self.key_encoding or BytesEncoding.utf8,
             source_location=location,
             member_name=member_name,
