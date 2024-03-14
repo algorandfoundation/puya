@@ -4,8 +4,9 @@ test_cases.avm_types_in_abi.contract.TestContract.approval_program:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     method "create(bool,uint64,byte[],(bool,uint64,byte[]))(bool,uint64,byte[])"
+    method "tuple_of_arc4((uint8,address))(uint8,address)"
     txna ApplicationArgs 0
-    match main_create_route@1
+    match main_create_route@1 main_tuple_of_arc4_route@2
     err // reject transaction
 
 main_create_route@1:
@@ -85,6 +86,32 @@ main_create_route@1:
     int 1
     return
 
+main_tuple_of_arc4_route@2:
+    // avm_types_in_abi/contract.py:17
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // avm_types_in_abi/contract.py:4
+    // class TestContract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    dup
+    extract 0 1
+    swap
+    extract 1 32
+    // avm_types_in_abi/contract.py:17
+    // @arc4.abimethod
+    callsub tuple_of_arc4
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
 
 // test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes) -> uint64, uint64, bytes:
 create:
@@ -127,4 +154,33 @@ create_bool_merge@5:
     frame_dig -6
     frame_dig -5
     frame_dig -4
+    retsub
+
+
+// test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes, args.1: bytes) -> bytes, bytes:
+tuple_of_arc4:
+    // avm_types_in_abi/contract.py:17-20
+    // @arc4.abimethod
+    // def tuple_of_arc4(
+    //     self, args: tuple[arc4.UInt8, arc4.Address]
+    // ) -> tuple[arc4.UInt8, arc4.Address]:
+    proto 2 2
+    // avm_types_in_abi/contract.py:21
+    // assert args[0].bytes.length == 1
+    frame_dig -2
+    len
+    int 1
+    ==
+    assert
+    // avm_types_in_abi/contract.py:22
+    // assert args[1].bytes.length == 32
+    frame_dig -1
+    len
+    int 32
+    ==
+    assert
+    // avm_types_in_abi/contract.py:23
+    // return args
+    frame_dig -2
+    frame_dig -1
     retsub

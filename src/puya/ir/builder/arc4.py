@@ -22,6 +22,7 @@ from puya.ir.builder._utils import (
     mktemp,
     reassign,
 )
+from puya.ir.builder.assignment import handle_assignment
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BytesConstant,
@@ -1137,6 +1138,12 @@ def handle_arc4_assign(
                 source_location=source_location,
             )
             return register
+        case awst_nodes.AppAccountStateExpression() | awst_nodes.AppStateExpression():
+            (result,) = handle_assignment(
+                context, target, value=value, assignment_location=source_location
+            )
+            return result
+
         case awst_nodes.IndexExpression(
             base=awst_nodes.Expression(
                 wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype

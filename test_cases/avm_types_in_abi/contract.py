@@ -13,3 +13,11 @@ class TestContract(arc4.ARC4Contract):
         result = (bool_param, uint64_param, bytes_param)
         assert result == tuple_param
         return result
+
+    @arc4.abimethod
+    def tuple_of_arc4(
+        self, args: tuple[arc4.UInt8, arc4.Address]
+    ) -> tuple[arc4.UInt8, arc4.Address]:
+        assert args[0].bytes.length == 1
+        assert args[1].bytes.length == 32
+        return args

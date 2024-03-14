@@ -216,13 +216,13 @@ def arc4_encode(
                 source_location=location,
                 value=awst_nodes.TupleExpression.from_items(
                     items=[
-                        arc4_encode(
+                        maybe_arc4_encode(
                             awst_nodes.TupleItemExpression(
                                 base=base_temp,
                                 index=i,
                                 source_location=location,
                             ),
-                            wtypes.avm_to_arc4_equivalent_type(t),
+                            t,
                             location,
                         )
                         for i, t in enumerate(types)
@@ -240,12 +240,42 @@ def arc4_encode(
             )
 
 
+def maybe_arc4_encode(
+    item: awst_nodes.Expression, wtype: wtypes.WType, location: SourceLocation
+) -> awst_nodes.Expression:
+    """Encode as arc4 if wtype is not already an arc4 encoded type"""
+    if wtypes.is_arc4_encoded_type(wtype):
+        return item
+    return arc4_encode(
+        item,
+        wtypes.avm_to_arc4_equivalent_type(wtype),
+        location,
+    )
+
+
+def maybe_arc4_decode(
+    item: awst_nodes.Expression,
+    *,
+    current_wtype: wtypes.WType,
+    target_wtype: wtypes.WType,
+    location: SourceLocation,
+) -> awst_nodes.Expression:
+    if current_wtype == target_wtype:
+        return item
+    assert target_wtype == wtypes.arc4_to_avm_equivalent_wtype(
+        current_wtype
+    ), "target type must be avm equivalent of current type"
+    return arc4_decode(
+        item,
+        target_wtype,
+        location,
+    )
+
+
 def arc4_decode(
     bytes_arg: awst_nodes.Expression,
     target_wtype: wtypes.WType,
     location: SourceLocation,
-    *,
-    decode_nested_items: bool = False,
 ) -> awst_nodes.Expression:
     match bytes_arg.wtype:
         case wtypes.ARC4DynamicArray(
@@ -263,21 +293,30 @@ def arc4_decode(
                 wtype=wtypes.WTuple.from_types(tuple_types),
                 value=bytes_arg,
             )
-            if not decode_nested_items:
+            assert isinstance(
+                target_wtype, wtypes.WTuple
+            ), "Target wtype must be a WTuple when decoding ARC4Tuple"
+            if all(
+                target == current
+                for target, current in zip(target_wtype.types, tuple_types, strict=True)
+            ):
                 return decode_expression
             decoded = awst_nodes.SingleEvaluation(decode_expression)
             return awst_nodes.TupleExpression.from_items(
                 items=[
-                    arc4_decode(
+                    maybe_arc4_decode(
                         awst_nodes.TupleItemExpression(
                             base=decoded,
                             index=i,
                             source_location=location,
                         ),
-                        wtypes.arc4_to_avm_equivalent_wtype(t),
-                        location,
+                        target_wtype=t_t,
+                        current_wtype=t_c,
+                        location=location,
                     )
-                    for i, t in enumerate(tuple_types)
+                    for i, (t_c, t_t) in enumerate(
+                        zip(tuple_types, target_wtype.types, strict=True)
+                    )
                 ],
                 location=location,
             )

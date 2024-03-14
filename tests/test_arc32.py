@@ -627,6 +627,11 @@ def test_avm_types_in_abi(algod_client: AlgodClient, account: algokit_utils.Acco
 
     assert mapped_return == (True, 45, b"Hello world!")
 
+    result2 = app_client.call(call_abi_method="tuple_of_arc4", args=(255, account.address))
+
+    assert result2.return_value[0] == 255
+    assert result2.return_value[1] == account.address
+
 
 def test_inner_transactions_c2c(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     example = TEST_CASES_DIR / "inner_transactions" / "c2c.py"
@@ -840,3 +845,71 @@ def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> Non
         event_data = event[4:]
         assert event_sig == bytes.fromhex("1ccbd925")
         assert event_data == b.to_bytes(length=8) + a.to_bytes(length=8)
+        
+        
+@pytest.fixture()
+def other_account(algod_client: AlgodClient) -> algokit_utils.Account:
+    v = algosdk.account.generate_account()
+    voter_account = algokit_utils.Account(private_key=v[0], address=v[1])
+    algokit_utils.transfer(
+        client=algod_client,
+        parameters=algokit_utils.TransferParameters(
+            from_account=algokit_utils.get_localnet_default_account(algod_client),
+            to_address=voter_account.address,
+            micro_algos=10000000,
+        ),
+    )
+    return voter_account
+
+
+def test_tictactoe(
+    algod_client: AlgodClient, account: algokit_utils.Account, other_account: algokit_utils.Account
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(EXAMPLES_DIR / "tictactoe" / "tictactoe.py")
+    )
+    client_host = algokit_utils.ApplicationClient(
+        algod_client,
+        app_spec,
+        signer=account,
+    )
+
+    def print_board() -> None:
+        state = client_host.get_global_state(raw=True)
+        game = state[b"game"]
+        assert isinstance(game, bytes)
+        chars = ["X" if b == 1 else "O" if b == 2 else "-" for b in game]
+        print(f"{" ".join(chars[0:3])}\n{" ".join(chars[3:6])}\n{" ".join(chars[6:])}")
+
+        winner = state[b"winner"]
+        match winner:
+            case b"\00":
+                print("Game has no winner yet")
+            case b"\01":
+                print("Host (X) is the winner!")
+            case b"\02":
+                print("Challenger (O) is the winner!")
+
+    client_host.create(call_abi_method="new_game", move=(1, 1))
+
+    print_board()
+
+    client_challenger = algokit_utils.ApplicationClient(
+        algod_client,
+        app_spec,
+        app_id=client_host.app_id,
+        signer=other_account,
+    )
+
+    client_challenger.call(call_abi_method="join_game", move=(0, 0))
+
+    print_board()
+
+    client_host.call(call_abi_method="play", move=(0, 1))
+    print_board()
+
+    client_challenger.call(call_abi_method="play", move=(1, 0))
+    print_board()
+
+    client_host.call(call_abi_method="play", move=(2, 1))
+    print_board()
