@@ -127,13 +127,13 @@ class ApplicationProtocol(typing.Protocol):
     def global_num_uint(self) -> UInt64:
         """Number of global state integers in ApplicationCall"""
     @property
-    def global_num_byte_slice(self) -> UInt64:
+    def global_num_bytes(self) -> UInt64:
         """Number of global state byteslices in ApplicationCall"""
     @property
     def local_num_uint(self) -> UInt64:
         """Number of local state integers in ApplicationCall"""
     @property
-    def local_num_byte_slice(self) -> UInt64:
+    def local_num_bytes(self) -> UInt64:
         """Number of local state byteslices in ApplicationCall"""
     @property
     def extra_program_pages(self) -> UInt64:

@@ -650,9 +650,9 @@ class TxnFields:
     num_assets = TxnField.uint64(is_inner_param=False)
     num_apps = TxnField.uint64(immediate="NumApplications", is_inner_param=False)
     global_num_uint = TxnField.uint64()
-    global_num_byte_slice = TxnField.uint64()
+    global_num_bytes = TxnField.uint64(immediate="GlobalNumByteSlice")
     local_num_uint = TxnField.uint64()
-    local_num_byte_slice = TxnField.uint64()
+    local_num_bytes = TxnField.uint64(immediate="LocalNumByteSlice")
     # v4
     extra_program_pages = TxnField.uint64()
     # v5

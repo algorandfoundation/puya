@@ -291,7 +291,7 @@ class Application:
         ```
         """
     @property
-    def global_num_byte_slice(self) -> UInt64:
+    def global_num_bytes(self) -> UInt64:
         """Number of byte array values allowed in Global State
 
         ```{note}
@@ -307,7 +307,7 @@ class Application:
         ```
         """
     @property
-    def local_num_byte_slice(self) -> UInt64:
+    def local_num_bytes(self) -> UInt64:
         """Number of byte array values allowed in Local State
 
         ```{note}
