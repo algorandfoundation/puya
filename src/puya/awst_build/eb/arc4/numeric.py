@@ -7,7 +7,9 @@ import structlog
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ARC4Decode,
     ARC4Encode,
+    BigUIntBinaryOperation,
     DecimalConstant,
     Expression,
     IntegerConstant,
@@ -15,15 +17,21 @@ from puya.awst.nodes import (
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
+    Statement,
+    UInt64BinaryOperation,
 )
-from puya.awst_build.eb._utils import uint64_to_biguint
+from puya.awst_build.eb._utils import (
+    translate_biguint_math_operator,
+    translate_uint64_math_operator,
+    uint64_to_biguint,
+)
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
     arc4_bool_bytes,
     get_integer_literal_value,
 )
-from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder
+from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal_to_expr
 from puya.errors import CodeError, InternalError, TodoError
@@ -185,6 +193,14 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
             negate=negate,
         )
 
+    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
+        # unary + is allowed, but for the current types it has no real impact
+        # so just expand the existing expression to include the unary operator
+        raise TodoError(location)
+
+    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
+        raise TodoError(location)
+
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
@@ -215,6 +231,96 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
             rhs=other_expr,
         )
         return var_expression(cmp_expr)
+
+    def binary_op(
+        self,
+        other: ExpressionBuilder | Literal,
+        op: BuilderBinaryOp,
+        location: SourceLocation,
+        *,
+        reverse: bool,
+    ) -> ExpressionBuilder:
+        other_expr = convert_literal_to_expr(other, self.wtype)
+        if self.wtype.n <= 64:
+            result_expr = self._uint64_binary_op(other_expr, op, location, reverse=reverse)
+        else:
+            result_expr = self._biguint_binary_op(other_expr, op, location, reverse=reverse)
+        encoded_result = ARC4Encode(value=result_expr, source_location=location, wtype=self.wtype)
+        return var_expression(encoded_result)
+
+    def _uint64_binary_op(
+        self, other: Expression, op: BuilderBinaryOp, location: SourceLocation, *, reverse: bool
+    ) -> Expression:
+        if other.wtype == self.wtype:
+            other = ARC4Decode(
+                value=other,
+                wtype=wtypes.uint64_wtype,
+                source_location=location,
+            )
+        elif isinstance(other.wtype, wtypes.ARC4UIntN):
+            raise TodoError(location, "TODO: support mixed size operators with arc4 numerics")
+        elif other.wtype == wtypes.uint64_wtype:
+            pass
+        elif other.wtype == wtypes.bool_wtype:
+            raise TodoError(location, "TODO: support upcast from bool to arc4.UIntN")
+        else:
+            return NotImplemented
+        lhs: Expression = ARC4Decode(
+            value=self.expr,
+            wtype=wtypes.uint64_wtype,
+            source_location=self.source_location,
+        )
+        rhs = other
+        if reverse:
+            (lhs, rhs) = (rhs, lhs)
+        uint64_op = translate_uint64_math_operator(op, location)
+        bin_op_expr = UInt64BinaryOperation(
+            source_location=location, left=lhs, op=uint64_op, right=rhs
+        )
+        return bin_op_expr
+
+    def _biguint_binary_op(
+        self, other: Expression, op: BuilderBinaryOp, location: SourceLocation, *, reverse: bool
+    ) -> Expression:
+        if other.wtype == self.wtype:
+            other = ReinterpretCast(
+                expr=other,
+                wtype=wtypes.biguint_wtype,
+                source_location=other.source_location,
+            )
+        elif isinstance(other.wtype, wtypes.ARC4UIntN):
+            raise TodoError(location, "TODO: support mixed size operators with arc4 numerics")
+        elif other.wtype == wtypes.uint64_wtype:
+            other = uint64_to_biguint(other, location)
+        elif other.wtype == wtypes.biguint_wtype:
+            pass
+        elif other.wtype == wtypes.bool_wtype:
+            raise TodoError(location, "TODO: support upcast from bool to arc4.UIntN")
+        else:
+            return NotImplemented
+        lhs: Expression = ReinterpretCast(
+            expr=self.expr,
+            wtype=wtypes.biguint_wtype,
+            source_location=self.source_location,
+        )
+        rhs = other
+        if reverse:
+            (lhs, rhs) = (rhs, lhs)
+        biguint_op = translate_biguint_math_operator(op, location)
+        bin_op_expr = BigUIntBinaryOperation(
+            source_location=location, left=lhs, op=biguint_op, right=rhs
+        )
+        return bin_op_expr
+
+    def augmented_assignment(
+        self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation
+    ) -> Statement:
+        raise TodoError(location)
+        # rhs_expr = convert_literal_to_expr(rhs, self.wtype)
+        # if self.wtype.n <= 64:
+        #     return self._uint64_augmented_assignment(rhs_expr, op, location)
+        # else:
+        #     return self._biguint_augmented_assignment(rhs_expr, op, location)
 
 
 class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder):
