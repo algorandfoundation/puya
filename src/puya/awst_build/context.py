@@ -50,14 +50,14 @@ class ASTConversionModuleContext(ASTConversionContext):
         node: mypy.nodes.Context,
         module_src: mypy.nodes.TypeInfo | None = None,
     ) -> SourceLocation:
-        if module_src:
+        if not module_src:
+            module_path = self.module_path
+        else:
             module_name = module_src.module_name
             try:
                 module_path = self.module_paths[module_name]
             except KeyError as ex:
                 raise CodeError(f"Could not find module '{module_name}'") from ex
-        else:
-            module_path = self.module_path
         loc = SourceLocation.from_mypy(file=module_path, node=node)
         lines = self.try_get_source(loc).code
         if loc.line > 1:
