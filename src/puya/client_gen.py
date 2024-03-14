@@ -66,8 +66,7 @@ def resolve_app_specs(paths: Sequence[Path]) -> Sequence[Path]:
             for pattern in patterns:
                 app_specs.extend(path.rglob(pattern))
 
-    app_specs = list(set(app_specs))
-    app_specs.sort()
+    app_specs = sorted(set(app_specs))
     if not app_specs:
         raise PuyaError("No app specs found")
     return app_specs
