@@ -488,7 +488,7 @@ class Signature:
         return f"{self.name}({params}) -> {returns or 'void'}:"
 
 
-@attrs.define(slots=False)
+@attrs.define
 class MemorySubroutine:
     """A lower form of IR that is concerned with memory assignment (both stack and scratch)"""
 

@@ -31,6 +31,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
 from puya.awst_build.eb.arc4.base import (
     CopyBuilder,
     arc4_bool_bytes,
@@ -104,7 +105,7 @@ def dynamic_array_constructor(
             element_wtype = non_literal_args[0].wtype
             wtype = wtypes.ARC4DynamicArray.from_element_type(element_wtype)
         else:
-            raise CodeError("Empy arrays require a type annotation to be instantiated", location)
+            raise CodeError("Empty arrays require a type annotation to be instantiated", location)
 
     for a in non_literal_args:
         expect_operand_wtype(a, wtype.element_type)
@@ -238,11 +239,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
 class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(location=location)
-        element_wtype = wtypes.ARC4UIntN.from_scale(8, alias="byte")
-        array_size = 32
-        self.wtype = wtypes.ARC4StaticArray.from_element_type_and_size(
-            element_wtype, array_size=array_size, alias="address"
-        )
+        self.wtype = wtypes.arc4_address_type
 
     def call(
         self,
@@ -450,7 +447,7 @@ class AppendExpressionBuilder(IntermediateExpressionBuilder):
         location: SourceLocation,
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
-        args_expr = [expect_operand_wtype(a, self.wtype.element_type) for a in args]
+        args_expr = [expect_arc4_operand_wtype(a, self.wtype.element_type) for a in args]
         args_tuple = TupleExpression.from_items(args_expr, location)
         return var_expression(
             ArrayExtend(

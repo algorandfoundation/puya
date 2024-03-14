@@ -1,12 +1,14 @@
+import re
 import typing
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from itertools import zip_longest
 
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.errors import InternalError
+from puya.awst_build import constants
+from puya.errors import InternalError, PuyaError
 from puya.models import ARC4MethodConfig
 from puya.parse import SourceLocation
 from puya.utils import round_bits_to_nearest_bytes
@@ -40,6 +42,104 @@ def determine_arc4_tuple_head_size(
         dynamic_size=16,  # size of "pointer"
         round_end_result=round_end_result,
     )
+
+
+_UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
+_UFIXED_REGEX = re.compile(r"^ufixed(?P<n>[0-9]+)x(?P<m>[0-9]+)$")
+_FIXED_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[(?P<size>[0-9]+)]$")
+_DYNAMIC_ARRAY_REGEX = re.compile(r"^(?P<type>.+)\[]$")
+_TUPLE_REGEX = re.compile(r"^\((?P<types>.+)\)$")
+_ARC4_WTYPE_MAPPING = {
+    "bool": wtypes.arc4_bool_wtype,
+    "string": wtypes.arc4_string_wtype,
+    "account": wtypes.account_wtype,
+    "application": wtypes.application_wtype,
+    "asset": wtypes.asset_wtype,
+    "void": wtypes.void_wtype,
+    **{
+        t.name if t else "txn": wtypes.WGroupTransaction.from_type(t)
+        for t in constants.TRANSACTION_TYPE_TO_CLS
+    },
+    "address": wtypes.arc4_address_type,
+    "byte": wtypes.arc4_byte_type,
+    "byte[]": wtypes.arc4_dynamic_bytes,
+}
+
+
+def arc4_to_wtype(typ: str) -> wtypes.WType:
+    try:
+        return _ARC4_WTYPE_MAPPING[typ]
+    except KeyError:
+        pass
+    if uint := _UINT_REGEX.match(typ):
+        n = uint.group("n")
+        return wtypes.ARC4UIntN.from_scale(int(n))
+    if ufixed := _UFIXED_REGEX.match(typ):
+        n, m = ufixed.group("n", "m")
+        return wtypes.ARC4UFixedNxM.from_scale_and_precision(int(n), int(m))
+    if fixed_array := _FIXED_ARRAY_REGEX.match(typ):
+        arr_type, size = fixed_array.group("type", "size")
+        inner_cls = arc4_to_wtype(arr_type)
+        return wtypes.ARC4StaticArray.from_element_type_and_size(inner_cls, int(size))
+    if dynamic_array := _DYNAMIC_ARRAY_REGEX.match(typ):
+        arr_type = dynamic_array.group("type")
+        inner_cls = arc4_to_wtype(arr_type)
+        return wtypes.ARC4DynamicArray.from_element_type(inner_cls)
+    if tuple_match := _TUPLE_REGEX.match(typ):
+        tuple_types = map(arc4_to_wtype, _split_tuple_types(tuple_match.group("types")))
+        return wtypes.ARC4Tuple.from_types(tuple_types)
+    raise PuyaError(f"Unknown ARC4 type '{typ}'")
+
+
+def _split_tuple_types(types: str) -> Iterable[str]:
+    """Splits inner tuple types into individual elements.
+
+    e.g. "uint64,(uint8,string),bool" becomes ["uint64", "(uint8,string)", "bool"]
+    """
+    tuple_level = 0
+    last_idx = 0
+    for idx, token in enumerate(types):
+        if token == "(":
+            tuple_level += 1
+        elif token == ")":
+            tuple_level -= 1
+        if token == "," and tuple_level == 0:
+            yield types[last_idx:idx]
+            last_idx = idx + 1
+    yield types[last_idx:]
+
+
+def _split_signature(signature: str) -> Iterable[str]:
+    """Splits signature into name, args and returns"""
+    level = 0
+    last_idx = 0
+    for idx, token in enumerate(signature):
+        if token == "(":
+            level += 1
+            if level == 1:
+                yield signature[:idx]
+                last_idx = idx + 1
+        elif token == ")":
+            level -= 1
+            if level == 0:
+                yield signature[last_idx:idx]
+                last_idx = idx + 1
+    if last_idx < len(signature):
+        yield signature[last_idx:]
+
+
+def parse_method_signature(
+    signature: str,
+) -> tuple[str, list[wtypes.WType] | None, wtypes.WType | None]:
+    name, *maybe_arg_returns = _split_signature(signature)
+    args: list[wtypes.WType] | None = None
+    returns: wtypes.WType | None = None
+    if maybe_arg_returns:
+        args_str, *maybe_returns = maybe_arg_returns
+        args = [arc4_to_wtype(a) for a in _split_tuple_types(args_str)]
+        if maybe_returns:
+            returns = arc4_to_wtype(maybe_returns[0])
+    return name, args, returns
 
 
 def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str:
@@ -77,6 +177,14 @@ def get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4MethodC
     arg_types = [wtype_to_arc4(a.wtype, a.source_location) for a in subroutine.args]
     return_type = wtype_to_arc4(subroutine.return_type, subroutine.source_location)
     return f"{config.name}({','.join(arg_types)}){return_type}"
+
+
+def get_abi_signature_from_wtypes(
+    name: str, args: Sequence[wtypes.WType], return_wtype: wtypes.WType
+) -> str:
+    arg_types = [wtype_to_arc4(a) for a in args]
+    return_type = wtype_to_arc4(return_wtype)
+    return f"{name}({','.join(arg_types)}){return_type}"
 
 
 _TIntOrNone = typing.TypeVar("_TIntOrNone", int, None)

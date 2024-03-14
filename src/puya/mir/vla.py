@@ -21,7 +21,7 @@ class _OpLifetime:
     live_out: StableSet[str] = attrs.field(factory=StableSet)
 
 
-@attrs.define(slots=False)
+@attrs.define
 class VariableLifetimeAnalysis:
     """Performs VLA analysis for a subroutine, providing a mapping of ops to sets of live local_ids
     see https://www.classes.cs.uchicago.edu/archive/2004/spring/22620-1/docs/liveness.pdf"""

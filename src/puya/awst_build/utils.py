@@ -4,6 +4,7 @@ from typing import Iterator
 
 import mypy.build
 import mypy.nodes
+import mypy.types
 import structlog
 from mypy.types import get_proper_type, is_named_instance
 
@@ -180,12 +181,9 @@ def expect_operand_wtype(
 
 
 @typing.overload
-def convert_literal(literal_or_expr: Literal, target_wtype: wtypes.WType) -> Expression:
-    ...
-
-
-@typing.overload
-def convert_literal(literal_or_expr: Expression, target_wtype: wtypes.WType) -> Expression:
+def convert_literal(
+    literal_or_expr: Literal | Expression, target_wtype: wtypes.WType
+) -> Expression:
     ...
 
 
@@ -202,45 +200,36 @@ def convert_literal(
     if not isinstance(literal_or_expr, Literal):
         return literal_or_expr
 
-    literal_value: typing.Any = literal_or_expr.value
     loc = literal_or_expr.source_location
-    if not target_wtype.is_valid_literal(literal_value):
-        raise CodeError(
-            f"Cannot implicitly convert literal value {literal_value}"
-            f" to target type {target_wtype}",
-            loc,
-        )
-    match target_wtype:
-        case wtypes.bool_wtype:
-            return BoolConstant(value=literal_value, source_location=loc)
-        case wtypes.uint64_wtype | wtypes.biguint_wtype | wtypes.ARC4UIntN():
-            return IntegerConstant(value=literal_value, wtype=target_wtype, source_location=loc)
-        case wtypes.bytes_wtype:
+    match literal_or_expr.value, target_wtype:
+        case bool(bool_value), wtypes.bool_wtype:
+            return BoolConstant(value=bool_value, source_location=loc)
+        case int(int_value), wtypes.uint64_wtype | wtypes.biguint_wtype:
+            return IntegerConstant(value=int_value, wtype=target_wtype, source_location=loc)
+        case bytes(bytes_value), wtypes.bytes_wtype:
             try:
-                literal_value.decode("utf8")
+                # TODO: YEET ME
+                bytes_value.decode("utf8")
             except ValueError:
                 encoding = BytesEncoding.unknown
             else:
                 encoding = BytesEncoding.utf8
-            return BytesConstant(value=literal_value, source_location=loc, encoding=encoding)
-        case wtypes.account_wtype:
-            return AddressConstant(value=literal_value, source_location=loc)
-        case wtypes.asset_wtype | wtypes.application_wtype:
+            return BytesConstant(value=bytes_value, encoding=encoding, source_location=loc)
+        case str(str_value), wtypes.bytes_wtype:
+            return BytesConstant(
+                value=str_value.encode("utf8"), encoding=BytesEncoding.utf8, source_location=loc
+            )
+        case str(str_value), wtypes.account_wtype:
+            return AddressConstant(value=str_value, source_location=loc)
+        case int(int_value), wtypes.asset_wtype | wtypes.application_wtype:
             return ReinterpretCast(
-                expr=UInt64Constant(value=literal_value, source_location=loc),
+                expr=UInt64Constant(value=int_value, source_location=loc),
                 wtype=target_wtype,
                 source_location=loc,
             )
-        case wtypes.account_wtype:
-            return ReinterpretCast(
-                expr=BytesConstant(value=literal_value, source_location=loc),
-                wtype=target_wtype,
-                source_location=loc,
-            )
-        case _:
-            raise CodeError(
-                f"Can't construct {target_wtype} from Python literal {literal_value}", loc
-            )
+    raise CodeError(
+        f"Can't construct {target_wtype} from Python literal {literal_or_expr.value!r}", loc
+    )
 
 
 def convert_literal_to_expr(

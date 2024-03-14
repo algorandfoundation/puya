@@ -752,3 +752,59 @@ def test_merkle(algod_client: AlgodClient, account: algokit_utils.Account) -> No
     assert app_client.call(
         call_abi_method="verify", leaf=sha_256_raw(b"a"), proof=test_tree.get_proof(b"a")
     ).return_value
+
+
+def test_typed_abi_call(
+    algod_client: AlgodClient, account: algokit_utils.Account, asset_a: int
+) -> None:
+    logger = algokit_utils.ApplicationClient(
+        algod_client,
+        algokit_utils.ApplicationSpecification.from_json(
+            compile_arc32(TEST_CASES_DIR / "typed_abi_call" / "logger.py")
+        ),
+        signer=account,
+    )
+    logger.create()
+
+    example = TEST_CASES_DIR / "typed_abi_call" / "typed_c2c.py"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+
+    # deploy greeter
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    increased_fee = algod_client.suggested_params()
+    increased_fee.flat_fee = True
+    increased_fee.fee = constants.min_txn_fee * 6
+    txn_params = algokit_utils.OnCompleteCallParameters(suggested_params=increased_fee)
+
+    app_client.call(
+        "test_method_selector_kinds",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_arg_conversion",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_15plus_args",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_void",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_ref_types",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+        asset=asset_a,
+    )

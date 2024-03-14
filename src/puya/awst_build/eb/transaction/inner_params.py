@@ -38,27 +38,13 @@ _parameter_mapping: typing.Final = {
 }
 
 
-def get_field_exprs(
-    arg_name: str, arg: ExpressionBuilder | Literal
-) -> tuple[TxnField, Expression]:
+def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[TxnField, Expression]:
     try:
         field = _parameter_mapping[arg_name]
     except KeyError as ex:
         raise CodeError(f"{arg_name} is not a valid keyword argument", arg.source_location) from ex
-    if field in (TxnFields.approval_program, TxnFields.clear_state_program):
-        field = (
-            TxnFields.approval_program_pages
-            if field == TxnFields.approval_program
-            else TxnFields.clear_state_program_pages
-        )
-        match arg:
-            case ExpressionBuilder(
-                value_type=wtypes.WTuple(types=tuple_item_types) as wtype
-            ) if all(field.valid_type(t) for t in tuple_item_types):
-                expr = expect_operand_wtype(arg, wtype)
-                return field, expr
-            case _:
-                field_expr = expect_operand_wtype(arg, field.wtype)
+    if remapped_field := _maybe_transform_program_field_expr(field, arg):
+        return remapped_field
     elif field.is_array:
         match arg:
             case ExpressionBuilder(
@@ -74,6 +60,26 @@ def get_field_exprs(
     else:
         field_expr = expect_operand_wtype(arg, field.wtype)
     return field, field_expr
+
+
+def _maybe_transform_program_field_expr(
+    field: TxnField, eb: ExpressionBuilder | Literal
+) -> tuple[TxnField, Expression] | None:
+    if field not in (TxnFields.approval_program, TxnFields.clear_state_program):
+        return None
+    field = (
+        TxnFields.approval_program_pages
+        if field == TxnFields.approval_program
+        else TxnFields.clear_state_program_pages
+    )
+    match eb:
+        case ValueExpressionBuilder(wtype=wtypes.WTuple(types=tuple_item_types) as wtype) if all(
+            field.valid_type(t) for t in tuple_item_types
+        ):
+            expr = expect_operand_wtype(eb, wtype)
+        case _:
+            expr = expect_operand_wtype(eb, field.wtype)
+    return field, expr
 
 
 class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
@@ -105,7 +111,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
                 raise CodeError(
                     f"Positional arguments are not supported for {self.produces()}", location
                 )
-            field, expression = get_field_exprs(arg_name, arg)
+            field, expression = get_field_expr(arg_name, arg)
             transaction_fields[field] = expression
         return var_expression(
             CreateInnerTransaction(
@@ -187,7 +193,7 @@ class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
         transaction_fields = dict[TxnField, Expression]()
         for arg_name, arg in zip(arg_names, args, strict=True):
             assert arg_name is not None
-            field, expression = get_field_exprs(arg_name, arg)
+            field, expression = get_field_expr(arg_name, arg)
             transaction_fields[field] = expression
         return var_expression(
             UpdateInnerTransaction(

@@ -11,7 +11,6 @@ from puya.awst.nodes import (
     Expression,
     IntrinsicCall,
     Literal,
-    ReinterpretCast,
     UInt64Constant,
 )
 from puya.awst_build.eb.base import (
@@ -61,18 +60,12 @@ class LogBuilder(IntermediateExpressionBuilder):
             match arg:
                 case ExpressionBuilder(value_type=wtypes.uint64_wtype):
                     bytes_expr = _itob(arg.rvalue(), arg.source_location)
+                case ExpressionBuilder() as eb:
+                    bytes_expr = eb.rvalue()
                 case Literal(value=int(int_literal)):
                     bytes_expr = _itob(
                         UInt64Constant(value=int_literal, source_location=arg.source_location),
                         arg.source_location,
-                    )
-                case ExpressionBuilder(value_type=wtypes.bytes_wtype):
-                    bytes_expr = arg.rvalue()
-                case ExpressionBuilder(value_type=wtypes.biguint_wtype):
-                    bytes_expr = ReinterpretCast(
-                        expr=arg.rvalue(),
-                        wtype=wtypes.bytes_wtype,
-                        source_location=arg.source_location,
                     )
                 case Literal(value=bytes(bytes_literal)):
                     bytes_expr = BytesConstant(
@@ -81,10 +74,6 @@ class LogBuilder(IntermediateExpressionBuilder):
                 case Literal(value=str(str_literal)):
                     bytes_expr = BytesConstant(
                         value=str_literal.encode("utf8"), source_location=arg.source_location
-                    )
-                case ExpressionBuilder() as eb:
-                    raise CodeError(
-                        f"Unexpected argument type: {eb.value_type}", arg.source_location
                     )
                 case Literal() as lit:
                     raise CodeError(

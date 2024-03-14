@@ -36,11 +36,16 @@ def transform_ast(compile_context: CompileContext) -> dict[str, Module]:
         else:
             logger.debug(f"Discovered user module {module_name} at {module_rel_path}")
             user_modules[module_name] = ModuleASTConverter(ctx, module)
+    sources = tuple(str(s.path) for s in compile_context.parse_result.sources)
     for module_name, converter in user_modules.items():
         logger.debug(f"Building AWST for module {module_name}")
         module_awst = converter.convert()
         result[module_name] = module_awst
-        if ctx.options.output_awst and not converter.has_errors:
+        if (
+            ctx.options.output_awst
+            and not converter.has_errors
+            and module_awst.source_file_path.startswith(sources)
+        ):
             output_awst(module_awst, ctx.options)
     return result
 

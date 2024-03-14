@@ -28,7 +28,7 @@ contract ConstantProductAMM
     this.governor: puyapy.Account = new_governor
   }
   
-  abimethod bootstrap(seed: puyapy.gtxn.PaymentTransaction, a_asset: puyapy.Asset, b_asset: puyapy.Asset): puyapy.arc4.UIntN[typing.Literal[64]]
+  abimethod bootstrap(seed: puyapy.gtxn.PaymentTransaction, a_asset: puyapy.Asset, b_asset: puyapy.Asset): puyapy.arc4.UInt64
   {
     assert(!(reinterpret_cast<bool>(this.pool_token)), comment="application has already been bootstrapped")
     this::_check_is_governor()
@@ -41,7 +41,7 @@ contract ConstantProductAMM
     this.pool_token: puyapy.Asset = this::_create_pool_token()
     this::_do_opt_in(this.asset_a)
     this::_do_opt_in(this.asset_b)
-    return arc4_encode(reinterpret_cast<puyapy.UInt64>(this.pool_token), puyapy.arc4.UIntN[typing.Literal[64]])
+    return arc4_encode(reinterpret_cast<puyapy.UInt64>(this.pool_token), puyapy.arc4.UInt64)
   }
   
   abimethod mint(a_xfer: puyapy.gtxn.AssetTransferTransaction, b_xfer: puyapy.gtxn.AssetTransferTransaction, pool_asset: puyapy.Asset, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None

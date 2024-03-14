@@ -52,7 +52,7 @@ def output_doc_stubs(parse_result: ParseResult) -> None:
 
 def output_combined_stub(stubs: "DocStub", output: Path) -> None:
     # remove puyapy imports that have been inlined
-    lines = ["# ruff: noqa: A001, E501, F403, PYI021, PYI034"]
+    lines = ["# ruff: noqa: A001, E501, F403, PYI021, PYI034, W291"]
     rexported = list[str]()
     for module, imports in stubs.collected_imports.items():
         if imports.import_module:
@@ -103,9 +103,10 @@ class SymbolCollector(NodeVisitor[None]):
     all_classes: dict[str, tuple[mypy.nodes.MypyFile, mypy.nodes.ClassDef]]
     inlined_protocols: dict[str, set[str]]
     symbols: dict[str, str] = attrs.field(factory=dict)
+    last_stmt: mypy.nodes.Statement | None = None
 
     def get_src(
-        self, node: mypy.nodes.Node, *, path: str | None = None, entire_lines: bool = True
+        self, node: mypy.nodes.Context, *, path: str | None = None, entire_lines: bool = True
     ) -> str:
         columns: tuple[int, int] | None = None
         if node.end_column and not entire_lines:
@@ -131,6 +132,7 @@ class SymbolCollector(NodeVisitor[None]):
     def visit_mypy_file(self, o: mypy.nodes.MypyFile) -> None:
         for stmt in o.defs:
             stmt.accept(self)
+            self.last_stmt = stmt
 
     def _get_bases(self, klass: mypy.nodes.ClassDef) -> ClassBases:
         bases = list[mypy.nodes.Expression]()
@@ -194,7 +196,20 @@ class SymbolCollector(NodeVisitor[None]):
             raise Exception(f"Multi assignments are not supported: {o}") from ex
         if not isinstance(lvalue, mypy.nodes.NameExpr):
             raise Exception(f"Multi assignments are not supported: {lvalue}")
-        self.symbols[lvalue.name] = self.get_src(o.rvalue)
+        # find actual rvalue src location by taking the entire statement and subtracting the lvalue
+        loc = mypy.nodes.Context()
+        loc.set_line(o)
+        if lvalue.end_column:
+            loc.column = lvalue.end_column
+        self.symbols[lvalue.name] = self.get_src(loc)
+
+    def visit_expression_stmt(self, o: mypy.nodes.ExpressionStmt) -> None:
+        if isinstance(o.expr, mypy.nodes.StrExpr) and isinstance(
+            self.last_stmt, mypy.nodes.AssignmentStmt
+        ):
+            (lvalue,) = self.last_stmt.lvalues
+            if isinstance(lvalue, mypy.nodes.NameExpr):
+                self.symbols[lvalue.name] += "\n" + self.get_src(o.expr)
 
     def _is_protocol(self, fullname: str) -> bool:
         try:

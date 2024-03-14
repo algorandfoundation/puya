@@ -57,8 +57,11 @@ CLS_ARC4_UFIXEDNXM = "puyapy.arc4.UFixedNxM"
 CLS_ARC4_BIG_UFIXEDNXM = "puyapy.arc4.BigUFixedNxM"
 CLS_ARC4_DYNAMIC_ARRAY = "puyapy.arc4.DynamicArray"
 CLS_ARC4_STATIC_ARRAY = "puyapy.arc4.StaticArray"
+CLS_ARC4_DYNAMIC_BYTES = "puyapy.arc4.DynamicBytes"
 CLS_ARC4_TUPLE = "puyapy.arc4.Tuple"
 CLS_ARC4_STRUCT = "puyapy.arc4.Struct"
+CLS_ARC4_ABI_CALL = "puyapy.arc4.abi_call"
+CLS_ARC4_CLIENT = "puyapy.arc4.ARC4Client"
 CLS_TEMPLATE_VAR_METHOD = f"{PUYAPY_PREFIX}_template_variables.TemplateVar"
 
 CONTRACT_STUB_TYPES = [

@@ -7,12 +7,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import (
-    NumericComparison,
-    NumericComparisonExpression,
-    SingleEvaluation,
-    UInt64Constant,
-)
+from puya.awst_build.arc4_utils import arc4_decode, arc4_encode
 from puya.awst_build.eb.transaction import check_transaction_type
 from puya.errors import CodeError, InternalError
 from puya.models import (
@@ -82,125 +77,6 @@ def btoi(bytes_arg: awst_nodes.Expression, location: SourceLocation) -> awst_nod
         op_code="btoi",
         stack_args=[bytes_arg],
     )
-
-
-def arc4_encode(
-    base: awst_nodes.Expression, target_wtype: wtypes.WType, location: SourceLocation
-) -> awst_nodes.Expression:
-    match base.wtype:
-        case wtypes.bytes_wtype:
-            base_temp = SingleEvaluation(base)
-
-            length = awst_nodes.IntrinsicCall(
-                source_location=location,
-                op_code="substring",
-                immediates=[6, 8],
-                wtype=wtypes.bytes_wtype,
-                stack_args=[
-                    awst_nodes.IntrinsicCall(
-                        source_location=location,
-                        op_code="itob",
-                        stack_args=[awst_nodes.IntrinsicCall.bytes_len(base_temp, location)],
-                        wtype=wtypes.bytes_wtype,
-                    )
-                ],
-            )
-            return awst_nodes.ReinterpretCast(
-                source_location=location,
-                wtype=wtypes.ARC4DynamicArray.from_element_type(
-                    wtypes.ARC4UIntN.from_scale(8, alias="byte")
-                ),
-                expr=awst_nodes.IntrinsicCall(
-                    source_location=location,
-                    op_code="concat",
-                    stack_args=[length, base_temp],
-                    wtype=wtypes.bytes_wtype,
-                ),
-            )
-        case wtypes.WTuple(types=types):
-            base_temp = SingleEvaluation(base)
-
-            return awst_nodes.ARC4Encode(
-                source_location=location,
-                value=awst_nodes.TupleExpression.from_items(
-                    items=[
-                        arc4_encode(
-                            awst_nodes.TupleItemExpression(
-                                base=base_temp,
-                                index=i,
-                                source_location=location,
-                            ),
-                            wtypes.avm_to_arc4_equivalent_type(t),
-                            location,
-                        )
-                        for i, t in enumerate(types)
-                    ],
-                    location=location,
-                ),
-                wtype=target_wtype,
-            )
-
-        case _:
-            return awst_nodes.ARC4Encode(
-                source_location=location,
-                value=base,
-                wtype=target_wtype,
-            )
-
-
-def arc4_decode(
-    bytes_arg: awst_nodes.Expression,
-    target_wtype: wtypes.WType,
-    location: SourceLocation,
-    *,
-    decode_nested_items: bool = False,
-) -> awst_nodes.Expression:
-    match bytes_arg.wtype:
-        case wtypes.ARC4DynamicArray(
-            element_type=wtypes.ARC4UIntN(n=8)
-        ) if target_wtype == wtypes.bytes_wtype:
-            return awst_nodes.IntrinsicCall(
-                wtype=wtypes.bytes_wtype,
-                op_code="extract",
-                immediates=[2, 0],
-                source_location=location,
-                stack_args=[
-                    awst_nodes.ReinterpretCast(
-                        expr=bytes_arg, wtype=wtypes.bytes_wtype, source_location=location
-                    )
-                ],
-            )
-        case wtypes.ARC4Tuple(types=tuple_types):
-            decode_expression = awst_nodes.ARC4Decode(
-                source_location=location,
-                wtype=wtypes.WTuple.from_types(tuple_types),
-                value=bytes_arg,
-            )
-            if not decode_nested_items:
-                return decode_expression
-            decoded = SingleEvaluation(decode_expression)
-            return awst_nodes.TupleExpression.from_items(
-                items=[
-                    arc4_decode(
-                        awst_nodes.TupleItemExpression(
-                            base=decoded,
-                            index=i,
-                            source_location=location,
-                        ),
-                        wtypes.arc4_to_avm_equivalent_wtype(t),
-                        location,
-                    )
-                    for i, t in enumerate(tuple_types)
-                ],
-                location=location,
-            )
-
-        case _:
-            return awst_nodes.ARC4Decode(
-                source_location=location,
-                wtype=target_wtype,
-                value=bytes_arg,
-            )
 
 
 def has_app_id(location: SourceLocation) -> awst_nodes.Expression:
@@ -290,7 +166,7 @@ def route_bare_methods(
         bare_block = create_block(
             bare_location,
             bare_method.name,
-            *assert_create_state(config),
+            *assert_create_state(config, config.source_location or bare_location),
             awst_nodes.ExpressionStatement(expr=call(bare_location, bare_method)),
             approve(bare_location),
         )
@@ -318,7 +194,8 @@ def route_bare_methods(
                 *assert_create_state(
                     ARC4MethodConfig(
                         name="", source_location=location, is_bare=True, require_create=True
-                    )
+                    ),
+                    location,
                 ),
                 approve(location),
             )
@@ -367,10 +244,11 @@ def log_arc4_result(
     )
 
 
-def assert_create_state(config: ARC4MethodConfig) -> Sequence[awst_nodes.AssertStatement]:
+def assert_create_state(
+    config: ARC4MethodConfig, location: SourceLocation
+) -> Sequence[awst_nodes.AssertStatement]:
     if config.allow_create:  # if create is allowed, we don't need to check anything
         return ()
-    location = config.source_location
     existing_app = has_app_id(location)
     return (
         awst_nodes.AssertStatement(
@@ -449,25 +327,25 @@ def check_allowed_oca(
     )
     match allowed_ocas, not_allowed_ocas:
         case [single_allowed], _:
-            condition: awst_nodes.Expression = NumericComparisonExpression(
+            condition: awst_nodes.Expression = awst_nodes.NumericComparisonExpression(
                 lhs=on_completion(location),
-                rhs=UInt64Constant(
+                rhs=awst_nodes.UInt64Constant(
                     source_location=location,
                     value=single_allowed.value,
                     teal_alias=single_allowed.name,
                 ),
-                operator=NumericComparison.eq,
+                operator=awst_nodes.NumericComparison.eq,
                 source_location=location,
             )
         case _, [single_disallowed]:
-            condition = NumericComparisonExpression(
+            condition = awst_nodes.NumericComparisonExpression(
                 lhs=on_completion(location),
-                rhs=UInt64Constant(
+                rhs=awst_nodes.UInt64Constant(
                     source_location=location,
                     value=single_disallowed.value,
                     teal_alias=single_disallowed.name,
                 ),
-                operator=NumericComparison.ne,
+                operator=awst_nodes.NumericComparison.ne,
                 source_location=location,
             )
         case _:
@@ -552,7 +430,7 @@ def arc4_tuple_index(
 
     return awst_nodes.IndexExpression(
         source_location=location,
-        index=UInt64Constant(value=index, source_location=location),
+        index=awst_nodes.UInt64Constant(value=index, source_location=location),
         wtype=arc4_tuple_expression.wtype.types[index],
         base=arc4_tuple_expression,
     )
@@ -572,7 +450,7 @@ def map_abi_args(
             if wtypes.has_arc4_equivalent_type(wtype):
                 return wtypes.avm_to_arc4_equivalent_type(wtype)
             elif wtypes.is_reference_type(wtype):
-                return wtypes.ARC4UIntN.from_scale(8)
+                return wtypes.arc4_byte_type
             else:
                 return wtype
 
@@ -644,7 +522,7 @@ def route_abi_methods(
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
     for method, config in methods.items():
-        abi_loc = config.source_location
+        abi_loc = config.source_location or location
         method_result = call(abi_loc, method, *map_abi_args(method.args, location))
         match method.return_type:
             case wtypes.void_wtype:
@@ -662,7 +540,7 @@ def route_abi_methods(
             abi_loc,
             f"{config.name}_route",
             *check_allowed_oca(config.allowed_completion_types, abi_loc),
-            *assert_create_state(config),
+            *assert_create_state(config, config.source_location or abi_loc),
             call_and_maybe_log,
             approve(abi_loc),
         )

@@ -163,6 +163,14 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 self._error("Struct classes must only inherit directly from Struct", cdef)
             else:
                 return _process_struct(self.context, cdef)
+        elif cdef.info.has_base(constants.CLS_ARC4_CLIENT):
+            if [ti.fullname for ti in cdef.info.direct_base_classes()] != [
+                constants.CLS_ARC4_CLIENT
+            ]:
+                self._error("ARC4Client classes must only inherit directly from ARC4Client", cdef)
+            else:
+                # nothing to do, ARC4Client classes are used for type info only
+                pass
         elif cdef.info.has_base(constants.CONTRACT_BASE):
             # TODO: mypyc also checks for typing.TypingMeta and typing.GenericMeta equivalently
             #       in a similar check - I can't find many references to these, should we include

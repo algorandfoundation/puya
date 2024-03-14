@@ -35,6 +35,12 @@ def main() -> None:
         help="Output arc32.json",
     )
     parser.add_argument(
+        "--output-client",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Output puyapy contract client for typed ARC4 ABI calls",
+    )
+    parser.add_argument(
         "--out-dir", type=Path, help="path for outputting artefacts", default=False
     )
     parser.add_argument(

@@ -1,0 +1,204 @@
+#pragma version 10
+
+test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program:
+    int 0
+    dupn 2
+    byte ""
+    dupn 3
+    // arc4_types/dynamic_bytes.py:11
+    // total = UInt64(0)
+    int 0
+    // arc4_types/dynamic_bytes.py:12
+    // dynamic_bytes = DynamicBytes(Byte(2), UInt8(3), 1)
+    byte 0x0003
+    byte 0x02
+    concat
+    byte 0x03
+    concat
+    byte 0x01
+    concat
+    // arc4_types/dynamic_bytes.py:13
+    // assert dynamic_bytes.decode() == b"\x02\x03\x01"
+    dup
+    extract 2 0
+    byte "\x02\x03\x01"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:14
+    // assert dynamic_bytes.bytes == b"\x00\x03\x02\x03\x01"
+    dup
+    byte "\x00\x03\x02\x03\x01"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:16
+    // for uint8_item in dynamic_bytes:
+    dup
+    int 0
+    extract_uint16
+    swap
+    extract 2 0
+    int 0
+
+main_for_header@1:
+    // arc4_types/dynamic_bytes.py:16
+    // for uint8_item in dynamic_bytes:
+    dup
+    dig 3
+    <
+    bz main_after_for@4
+    dup
+    int 1
+    *
+    dig 2
+    swap
+    int 1
+    extract3
+    // arc4_types/dynamic_bytes.py:17
+    // total += uint8_item.decode()
+    btoi
+    dig 4
+    swap
+    +
+    bury 4
+    dup
+    int 1
+    +
+    bury 1
+    b main_for_header@1
+
+main_after_for@4:
+    // arc4_types/dynamic_bytes.py:19
+    // assert total == 6, "Total should be of dynamic_bytes items"
+    dig 3
+    int 6
+    ==
+    assert // Total should be of dynamic_bytes items
+    // arc4_types/dynamic_bytes.py:21
+    // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
+    byte 0x00020304
+    dup
+    bury 10
+    // arc4_types/dynamic_bytes.py:22
+    // assert dynamic_bytes2.decode() == b"\x03\x04"
+    dup
+    extract 2 0
+    byte "\x03\x04"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:23
+    // assert dynamic_bytes2.bytes == b"\x00\x02\x03\x04"
+    dup
+    byte "\x00\x02\x03\x04"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:25
+    // for uint8_item in dynamic_bytes2:
+    dup
+    int 0
+    extract_uint16
+    bury 9
+    extract 2 0
+    bury 11
+    int 0
+    bury 6
+
+main_for_header@5:
+    // arc4_types/dynamic_bytes.py:25
+    // for uint8_item in dynamic_bytes2:
+    dig 5
+    dig 8
+    <
+    bz main_after_for@8
+    dig 5
+    int 1
+    *
+    dig 11
+    swap
+    int 1
+    extract3
+    // arc4_types/dynamic_bytes.py:26
+    // total += uint8_item.decode()
+    btoi
+    dig 4
+    swap
+    +
+    bury 4
+    dig 5
+    int 1
+    +
+    bury 6
+    b main_for_header@5
+
+main_after_for@8:
+    // arc4_types/dynamic_bytes.py:28
+    // dynamic_bytes3 = DynamicBytes(dynamic_bytes2.decode())
+    dig 8
+    dup
+    extract 2 0
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    // arc4_types/dynamic_bytes.py:29
+    // assert dynamic_bytes3.decode() == b"\x03\x04"
+    dup
+    extract 2 0
+    byte "\x03\x04"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:30
+    // assert dynamic_bytes3.bytes == b"\x00\x02\x03\x04"
+    byte "\x00\x02\x03\x04"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:32
+    // for uint8_item in dynamic_bytes2:
+    dup
+    int 0
+    extract_uint16
+    bury 8
+    extract 2 0
+    bury 10
+    int 0
+    bury 5
+
+main_for_header@9:
+    // arc4_types/dynamic_bytes.py:32
+    // for uint8_item in dynamic_bytes2:
+    dig 4
+    dig 7
+    <
+    bz main_after_for@12
+    dig 4
+    int 1
+    *
+    dig 10
+    swap
+    int 1
+    extract3
+    // arc4_types/dynamic_bytes.py:33
+    // total += uint8_item.decode()
+    btoi
+    dig 4
+    swap
+    +
+    bury 4
+    dig 4
+    int 1
+    +
+    bury 5
+    b main_for_header@9
+
+main_after_for@12:
+    // arc4_types/dynamic_bytes.py:35
+    // assert total == 20, "Total should now include sum of dynamic_bytes3 items"
+    dig 3
+    int 20
+    ==
+    assert // Total should now include sum of dynamic_bytes3 items
+    // arc4_types/dynamic_bytes.py:36
+    // return True
+    int 1
+    return

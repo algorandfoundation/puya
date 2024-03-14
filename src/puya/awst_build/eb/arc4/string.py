@@ -50,21 +50,9 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
         location: SourceLocation,
         original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
-        match args:
-            case [Literal(value=str(str_val), source_location=loc)]:
-                return var_expression(
-                    ARC4Encode(
-                        value=BytesConstant(
-                            value=str_val.encode("utf8"),
-                            source_location=loc,
-                            encoding=BytesEncoding.utf8,
-                        ),
-                        source_location=location,
-                        wtype=self.produces(),
-                    )
-                )
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+        if len(args) == 1:
+            return var_expression(expect_string_or_bytes(args[0], location))
+        raise CodeError("Invalid/unhandled arguments", location)
 
 
 def arc4_encode_bytes(bytes_expr: Expression, source_location: SourceLocation) -> Expression:
@@ -73,9 +61,11 @@ def arc4_encode_bytes(bytes_expr: Expression, source_location: SourceLocation) -
     )
 
 
-def expect_string_or_bytes(expr: ExpressionBuilder | Literal) -> Expression:
+def expect_string_or_bytes(
+    expr: ExpressionBuilder | Literal, source_location: SourceLocation
+) -> Expression:
     match expr:
-        case Literal(value=str(string_literal), source_location=source_location):
+        case Literal(value=str(string_literal)):
             return arc4_encode_bytes(
                 BytesConstant(
                     value=string_literal.encode("utf-8"),
@@ -84,7 +74,7 @@ def expect_string_or_bytes(expr: ExpressionBuilder | Literal) -> Expression:
                 ),
                 source_location,
             )
-        case Literal(value=bytes(bytes_literal), source_location=source_location):
+        case Literal(value=bytes(bytes_literal)):
             return arc4_encode_bytes(
                 BytesConstant(
                     value=bytes_literal,
@@ -113,7 +103,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
                 return ExpressionStatement(
                     expr=ArrayExtend(
                         base=self.expr,
-                        other=expect_string_or_bytes(rhs),
+                        other=expect_string_or_bytes(rhs, rhs.source_location),
                         source_location=location,
                         wtype=wtypes.arc4_string_wtype,
                     )
@@ -132,7 +122,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
         match op:
             case BuilderBinaryOp.add:
                 lhs = self.expr
-                rhs = expect_string_or_bytes(other)
+                rhs = expect_string_or_bytes(other, other.source_location)
                 if reverse:
                     (lhs, rhs) = (rhs, lhs)
                 return var_expression(

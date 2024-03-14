@@ -14,11 +14,12 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
+from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes, get_bytes_expr_builder
 from puya.awst_build.eb.base import BuilderComparisonOp, ValueExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
+from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 
 if TYPE_CHECKING:
@@ -66,7 +67,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             field_value = field_mapping.pop(field_name, None)
             if field_value is None:
                 raise CodeError(f"Missing required argument {field_name}", location)
-            args_positioned.append(expect_operand_wtype(field_value, field_type))
+            args_positioned.append(expect_arc4_operand_wtype(field_value, field_type))
         if field_mapping:
             raise CodeError(f"Unexpected keyword arguments: {' '.join(field_mapping)}", location)
 

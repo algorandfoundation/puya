@@ -21,16 +21,16 @@ def _all_literals_invalid(_value: object) -> bool:
     return False
 
 
+LiteralValidator: typing.TypeAlias = Callable[[object], bool]
+
+
 @attrs.frozen(str=False, kw_only=True)
 class WType:
     name: str
     stub_name: str
     lvalue: bool = True
     immutable: bool = True
-    is_valid_literal: Callable[[object], bool] = attrs.field(
-        default=_all_literals_invalid,
-        eq=False,  # TODO: is this the right thing to do?
-    )
+    is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
 
     def __str__(self) -> str:
         return self.stub_name
@@ -44,12 +44,17 @@ def _is_unsigned_int(value: object) -> typing.TypeGuard[int]:
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
-def is_valid_uint64_literal(value: object) -> typing.TypeGuard[int]:
-    return _is_unsigned_int(value) and value.bit_length() <= 64
+def _uint_literal_validator(*, max_bits: int) -> Callable[[object], typing.TypeGuard[int]]:
+    def validator(value: object) -> typing.TypeGuard[int]:
+        return _is_unsigned_int(value) and value.bit_length() <= max_bits
+
+    return validator
 
 
-def is_valid_biguint_literal(value: object) -> typing.TypeGuard[int]:
-    return _is_unsigned_int(value) and value.bit_length() <= MAX_BIGUINT_BITS
+is_valid_uint64_literal = _uint_literal_validator(max_bits=64)
+
+
+is_valid_biguint_literal = _uint_literal_validator(max_bits=MAX_BIGUINT_BITS)
 
 
 def is_valid_bytes_literal(value: object) -> typing.TypeGuard[bytes]:
@@ -237,23 +242,24 @@ class ARC4Type(WType):
 class ARC4UIntN(ARC4Type):
     n: int
 
+    is_valid_literal: LiteralValidator = attrs.field(init=False, eq=False)
+
+    @is_valid_literal.default
+    def _literal_validator(self) -> LiteralValidator:
+        return _uint_literal_validator(max_bits=self.n)
+
     @classmethod
-    def from_scale(cls, n: int, *, alias: str | None = None) -> typing.Self:
+    def from_scale(cls, n: int) -> typing.Self:
         assert n % 8 == 0, "bit size must be multiple of 8"
         assert 8 <= n <= 512, "bit size must be between 8 and 512 inclusive"
         name = f"arc4.uint{n}"
-        base_cls = constants.CLS_ARC4_UINTN if n <= 64 else constants.CLS_ARC4_BIG_UINTN
+        if n.bit_count() == 1:  # quick way to check for power of 2
+            stub_name = f"{constants.ARC4_PREFIX}UInt{n}"
+        else:
+            base_cls = constants.CLS_ARC4_UINTN if n <= 64 else constants.CLS_ARC4_BIG_UINTN
+            stub_name = f"{base_cls}[typing.Literal[{n}]]"
 
-        def is_valid_literal(value: object) -> bool:
-            return isinstance(value, int) and value >= 0 and value.bit_length() <= n
-
-        return cls(
-            n=n,
-            name=name,
-            stub_name=f"{base_cls}[typing.Literal[{n}]]",
-            alias=alias,
-            is_valid_literal=is_valid_literal,
-        )
+        return cls(n=n, name=name, stub_name=stub_name)
 
 
 @typing.final
@@ -294,17 +300,15 @@ class ARC4UFixedNxM(ARC4Type):
 
             if not isinstance(value, decimal.Decimal):
                 return False
-            if value < 0 or not value.is_finite():
+            sign, digits, exponent = value.as_tuple()
+            if sign != 0:  # is negative
                 return False
-            decimal_str = str(value)
-            try:
-                whole, part = decimal_str.split(".")
-            except ValueError:
+            if not isinstance(exponent, int):  # is infinite
                 return False
             # note: input is expected to be quantized correctly already
-            if len(part) != m:
+            if -exponent != m:  # wrong precision
                 return False
-            adjusted_int = int(decimal_str.replace(".", ""))
+            adjusted_int = int("".join(map(str, digits)))
             return adjusted_int.bit_length() <= n
 
         return cls(
@@ -404,7 +408,29 @@ arc4_string_wtype: typing.Final = ARC4Type(
     is_valid_literal=is_valid_utf8_literal,
 )
 arc4_bool_wtype: typing.Final = ARC4Type(
-    name="arc4.bool", stub_name=constants.CLS_ARC4_BOOL, alias="bool"
+    name="arc4.bool",
+    stub_name=constants.CLS_ARC4_BOOL,
+    alias="bool",
+    is_valid_literal=is_valid_bool_literal,
+)
+arc4_byte_type: typing.Final = ARC4UIntN(
+    n=8,
+    name="arc4.byte",
+    stub_name=constants.CLS_ARC4_BYTE,
+    alias="byte",
+)
+arc4_dynamic_bytes: typing.Final = ARC4DynamicArray(
+    name="arc4.dynamic_bytes",
+    element_type=arc4_byte_type,
+    is_valid_literal=is_valid_bytes_literal,
+    stub_name=constants.CLS_ARC4_DYNAMIC_BYTES,
+)
+arc4_address_type: typing.Final = ARC4StaticArray(
+    array_size=32,
+    name="arc4.address",
+    element_type=arc4_byte_type,
+    stub_name=constants.CLS_ARC4_ADDRESS,
+    alias="address",
 )
 
 
@@ -504,9 +530,7 @@ def avm_to_arc4_equivalent_type(wtype: WType) -> WType:
     if wtype is biguint_wtype:
         return ARC4UIntN.from_scale(512)
     if wtype is bytes_wtype:
-        return ARC4DynamicArray.from_element_type(
-            element_type=ARC4UIntN.from_scale(8, alias="byte")
-        )
+        return arc4_dynamic_bytes
     if isinstance(wtype, WTuple):
         return ARC4Tuple.from_types(types=[avm_to_arc4_equivalent_type(t) for t in wtype.types])
     raise InternalError(f"{wtype} does not have an arc4 equivalent type")

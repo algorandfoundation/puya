@@ -50,7 +50,10 @@ from puya.awst_build import constants, intrinsic_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStateDeclaration
-from puya.awst_build.eb.arc4 import ARC4StructClassExpressionBuilder
+from puya.awst_build.eb.arc4 import (
+    ARC4ClientClassExpressionBuilder,
+    ARC4StructClassExpressionBuilder,
+)
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -504,7 +507,9 @@ class FunctionASTConverter(
 
         returning = require_expression_builder(return_expr.accept(self)).rvalue()
         if returning.wtype != self._return_type:
-            self._error("invalid return type", loc)
+            self._error(
+                f"invalid return type of {returning.wtype}, expected {self._return_type}", loc
+            )
         return ReturnStatement(source_location=loc, value=returning)
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
@@ -611,6 +616,13 @@ class FunctionASTConverter(
         if fullname.startswith(constants.PUYAPY_PREFIX):
             return self._visit_ref_expr_of_puyapy(fullname, expr_loc, expr.node)
         match expr:
+            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if (
+                typ.has_base(constants.CLS_ARC4_CLIENT)
+                or typ.has_base(constants.ARC4_CONTRACT_BASE)
+            ):
+                # provides type info only
+                # TODO: need to do this only when resolving abi_call args
+                return ARC4ClientClassExpressionBuilder(self.context, expr_loc, typ.defn.info)
             case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if (
                 typ.has_base(constants.STRUCT_BASE) or typ.has_base(constants.CLS_ARC4_STRUCT)
             ):

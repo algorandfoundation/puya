@@ -1,4 +1,5 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
+from functools import cached_property
 
 import attrs
 
@@ -23,6 +24,10 @@ class CompileContext:
     errors: Errors
     read_source: Callable[[str], Sequence[str] | None]
 
+    @cached_property
+    def module_paths(self) -> Mapping[str, str]:
+        return {m.fullname: m.path for m in self.parse_result.ordered_modules}
+
     def try_get_source(self, location: SourceLocation | None) -> SourceMeta:
         if location is None:
             return _EmptyMeta
@@ -39,7 +44,9 @@ class CompileContext:
 
             start_column = location.column
             end_column = location.end_column
-            if start_line == end_line and start_column is not None and end_column is not None:
+            if not src_content:
+                self.errors.warning(f"Could not locate source: {location}", None)
+            elif start_line == end_line and start_column is not None and end_column is not None:
                 src_content[0] = src_content[0][start_column:end_column]
             else:
                 if start_column is not None:

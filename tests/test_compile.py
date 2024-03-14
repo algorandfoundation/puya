@@ -125,6 +125,7 @@ def compile_with_level1_optimizations(test_case: PuyaExample) -> None:
             output_optimization_ir=True,
             output_destructured_ir=True,
             output_memory_ir=True,
+            output_client=True,
         ),
         write_logs=True,
         suffix=SUFFIX_O1,

@@ -127,7 +127,9 @@ class FunctionIRBuilder(
         return arc4.encode_expr(self.context, expr)
 
     def visit_assignment_statement(self, stmt: awst_nodes.AssignmentStatement) -> TStatement:
-        if not self._itxn.handle_inner_transaction_assignments(stmt):
+        if not self._itxn.handle_inner_transaction_assignments(
+            stmt.target, stmt.value, stmt.source_location
+        ):
             handle_assignment_expr(
                 self.context,
                 target=stmt.target,
@@ -137,6 +139,10 @@ class FunctionIRBuilder(
         return None
 
     def visit_assignment_expression(self, expr: awst_nodes.AssignmentExpression) -> TExpression:
+        if self._itxn.handle_inner_transaction_assignments(
+            expr.target, expr.value, expr.source_location
+        ):
+            return None
         result = handle_assignment_expr(
             self.context,
             target=expr.target,
@@ -204,7 +210,8 @@ class FunctionIRBuilder(
         match expr.wtype:
             case wtypes.ARC4UFixedNxM(n=bit_size):
                 num_bytes = bit_size // 8
-                adjusted_int = int(str(expr.value).replace(".", ""))
+                _, digits, _ = expr.value.as_tuple()
+                adjusted_int = int("".join(map(str, digits)))
                 return BytesConstant(
                     source_location=expr.source_location,
                     encoding=AVMBytesEncoding.base16,

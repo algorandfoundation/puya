@@ -8,9 +8,11 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assign, assign_intrinsic_op
+from puya.ir.builder.assignment import handle_assignment
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
@@ -82,6 +84,7 @@ class InnerTransactionBuilder:
         self.context = context
         self._inner_txn_params_data = dict[str, CreateInnerTransactionData]()
         self._inner_txn_submit_data = dict[str, SubmitInnerTransactionData]()
+        self._evaluated_itxn_expr = dict[awst_nodes.SingleEvaluation, str]()
         self._last_submit_id = 0
 
     @property
@@ -92,36 +95,50 @@ class InnerTransactionBuilder:
     def block_builder(self) -> BlocksBuilder:
         return self.context.block_builder
 
-    def handle_inner_transaction_assignments(self, stmt: awst_nodes.AssignmentStatement) -> bool:
+    def handle_inner_transaction_assignments(
+        self,
+        target: awst_nodes.Expression,
+        value: awst_nodes.Expression,
+        source_location: SourceLocation,
+    ) -> bool:
         """Performs special handling for inner transaction related assignments
 
         Returns True if assignment was handled, False otherwise"""
-        if isinstance(stmt.value, awst_nodes.SubmitInnerTransaction):
-            num_inner_txns = len(stmt.value.itxns)
-            match stmt.target:
-                case awst_nodes.VarExpression(name=var_name) if num_inner_txns == 1:
-                    names = [var_name]
-                case awst_nodes.TupleExpression(items=items) if num_inner_txns == len(
-                    items
-                ) and all(isinstance(i, awst_nodes.VarExpression) for i in items):
-                    items = typing.cast(Sequence[awst_nodes.VarExpression], items)
-                    names = [expr.name for expr in items]
-                case _:
-                    raise CodeError(
-                        "Inner Transactions can only be assigned to local variables",
-                        stmt.source_location,
-                    )
-            self.handle_submit_inner_transaction(stmt.value, names)
-        elif isinstance(stmt.value.wtype, wtypes.WInnerTransactionFields):
-            match stmt.target:
+        # assign submit to unpacked tuples
+        if isinstance(value, awst_nodes.SubmitInnerTransaction):
+            num_inner_txns = len(value.itxns)
+            names = self._get_expression_names(target, num_inner_txns)
+            self.handle_submit_inner_transaction(value, names)
+        # assign a tuple expression containing inner transaction results
+        elif (
+            isinstance(target, awst_nodes.TupleExpression)
+            and isinstance(value, awst_nodes.TupleExpression)
+            and any(isinstance(i.wtype, wtypes.WInnerTransaction) for i in value.items)
+        ):
+            for item_target, item_value in zip(target.items, value.items, strict=True):
+                if isinstance(item_value, awst_nodes.SubmitInnerTransaction):
+                    names = self._get_expression_names(item_target, 1)
+                    self.handle_submit_inner_transaction(item_value, names)
+                elif isinstance(item_value.wtype, wtypes.WInnerTransaction) and isinstance(
+                    item_value, awst_nodes.SingleEvaluation
+                ):
+                    (dst_name,) = self._get_expression_names(item_target, 1)
+                    src_name = self._get_itxn_var_name(item_value)
+                    self._inner_txn_submit_data[dst_name] = self._inner_txn_submit_data[src_name]
+                else:
+                    value_provider = self.context.visitor.visit_expr(item_value)
+                    handle_assignment(self.context, item_target, value_provider, source_location)
+        # assign itxn fields to local temporaries
+        elif isinstance(value.wtype, wtypes.WInnerTransactionFields):
+            match target:
                 case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
                     pass
                 case _:
                     raise CodeError(
                         "Inner Transaction params can only be assigned to (non-tuple) variables",
-                        stmt.source_location,
+                        source_location,
                     )
-            match stmt.value:
+            match value:
                 case awst_nodes.CreateInnerTransaction(fields=fields):
                     self._set_inner_transaction_fields(var_name, fields, var_loc)
                 case awst_nodes.Copy(value=value):
@@ -130,17 +147,21 @@ class InnerTransactionBuilder:
                 case _:
                     raise CodeError(
                         "Inner Transaction params can only be reassigned using copy()",
-                        stmt.source_location,
+                        source_location,
                     )
-
-        elif isinstance(
-            stmt.value.wtype, (wtypes.WInnerTransaction, wtypes.WInnerTransactionFields)
-        ):
-            raise CodeError(
-                "Inner Transactions cannot be reassigned",
-                stmt.source_location,
-            )
+        # reassigning itxn results is not allowed
+        elif isinstance(value.wtype, wtypes.WInnerTransaction):
+            if isinstance(value, awst_nodes.SingleEvaluation):
+                (dst_name,) = self._get_expression_names(target, 1)
+                src_name = self._get_itxn_var_name(value)
+                self._inner_txn_submit_data[dst_name] = self._inner_txn_submit_data[src_name]
+            else:
+                raise CodeError(
+                    "Inner Transactions cannot be reassigned",
+                    source_location,
+                )
         else:
+            # not a itxn scenario
             return False
         return True
 
@@ -442,6 +463,12 @@ class InnerTransactionBuilder:
                     return self._inner_txn_submit_data[var_name]
                 except KeyError:
                     pass
+            case awst_nodes.SingleEvaluation() as itxn_var:
+                var_name = self._get_itxn_var_name(itxn_var)
+                try:
+                    return self._inner_txn_submit_data[var_name]
+                except KeyError:
+                    pass
             case awst_nodes.SubmitInnerTransaction() as submit:
                 submit_data = self.handle_submit_inner_transaction(submit)
                 try:
@@ -454,9 +481,21 @@ class InnerTransactionBuilder:
                     ) from ex
                 return first_submit
         raise CodeError(
-            f"Could not resolve inner transaction group index for {expr}",
+            f"Could not resolve inner transaction group index for {expr.accept(ToCodeVisitor())}",
             expr.source_location,
         )
+
+    def _get_itxn_var_name(self, expr: awst_nodes.SingleEvaluation) -> str:
+        try:
+            return self._evaluated_itxn_expr[expr]
+        except KeyError:
+            pass
+        if not isinstance(expr.source, awst_nodes.SubmitInnerTransaction):
+            raise CodeError("Could not resolve inner transaction", expr.source_location)
+        var_name = f"tmp_itxn_{len(self._evaluated_itxn_expr)}"
+        self._evaluated_itxn_expr[expr] = var_name
+        self.handle_submit_inner_transaction(expr.source, (var_name,))
+        return var_name
 
     def _resolve_inner_txn_params_var_name(self, params: awst_nodes.Expression) -> str:
         match params:
@@ -500,6 +539,26 @@ class InnerTransactionBuilder:
                 names=[(register_name, source_location)],
                 source_location=source_location,
             )
+
+    def _get_expression_names(
+        self, expr: awst_nodes.Expression, expected_number: int
+    ) -> list[str]:
+        match expr:
+            case awst_nodes.VarExpression(name=var_name) if expected_number == 1:
+                names = [var_name]
+            case awst_nodes.TupleExpression(items=items) if expected_number == len(items) and all(
+                isinstance(i, awst_nodes.VarExpression) for i in items
+            ):
+                items = typing.cast(Sequence[awst_nodes.VarExpression], items)
+                names = [expr.name for expr in items]
+            case awst_nodes.SingleEvaluation() as itxn:
+                names = [self._get_itxn_var_name(itxn)]
+            case _:
+                raise CodeError(
+                    "Inner Transactions can only be assigned to local variables",
+                    expr.source_location,
+                )
+        return names
 
 
 def get_inner_txn_field_name(var_name: str, field: str) -> str:

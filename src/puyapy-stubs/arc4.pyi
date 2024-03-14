@@ -66,10 +66,10 @@ class _ABIEncoded(puyapy.BytesBacked, typing.Protocol[_T]):
 class String(_ABIEncoded[puyapy.Bytes]):
     """An ARC4 sequence of bytes containing a UTF8 string"""
 
-    def __init__(self, value: typing.LiteralString) -> None: ...
-    def __add__(self, other: String | str | bytes | puyapy.Bytes) -> String: ...
-    def __iadd__(self, other: String | str | bytes | puyapy.Bytes) -> String: ...
-    def __radd__(self, other: String | str | bytes | puyapy.Bytes) -> String: ...
+    def __init__(self, value: str | puyapy.Bytes) -> None: ...
+    def __add__(self, other: String | str) -> String: ...
+    def __iadd__(self, other: String | str) -> String: ...
+    def __radd__(self, other: String | str) -> String: ...
     def __eq__(self, other: String | str) -> bool: ...  # type: ignore[override]
     def __bool__(self) -> bool:
         """Returns `True` if length is not zero"""
@@ -379,8 +379,13 @@ class Address(StaticArray[Byte, typing.Literal[32]]):
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero address"""
 
-DynamicBytes: typing.TypeAlias = DynamicArray[Byte]
-"""A variable sized array of bytes"""
+class DynamicBytes(_ABIEncoded[puyapy.Bytes], DynamicArray[Byte]):
+    """A variable sized array of bytes"""
+
+    @typing.overload
+    def __init__(self, *values: Byte | UInt8 | int): ...
+    @typing.overload
+    def __init__(self, value: puyapy.Bytes | bytes, /): ...
 
 class ARC4Contract(puyapy.Contract):
     """A contract that conforms to the ARC4 ABI specification, functions decorated with
@@ -431,3 +436,106 @@ class Struct(metaclass=_StructMeta):
         """Construct an instance from the underlying bytes[] (no validation)"""
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
+
+class ARC4Client(typing.Protocol): ...
+
+_TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
+_TABIArg = (
+    puyapy.BytesBacked
+    | puyapy.UInt64
+    | puyapy.Bytes
+    | puyapy.Asset
+    | puyapy.Account
+    | puyapy.Application
+    | int
+    | bool
+    | bytes
+    | str
+)
+
+class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
+    def __call__(
+        self,
+        method: str,
+        /,
+        *args: _TABIArg,
+        app_id: puyapy.Application | puyapy.UInt64 | int = ...,
+        on_completion: puyapy.OnCompleteAction = ...,
+        approval_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
+        clear_state_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
+        global_num_uint: UInt64 | int = ...,
+        global_num_bytes: UInt64 | int = ...,
+        local_num_uint: UInt64 | int = ...,
+        local_num_bytes: UInt64 | int = ...,
+        extra_program_pages: UInt64 | int = ...,
+        fee: puyapy.UInt64 | int = ...,
+        sender: puyapy.Account | str = ...,
+        note: puyapy.Bytes | bytes | str = ...,
+        rekey_to: puyapy.Account | str = ...,
+    ) -> tuple[_TABIResult_co, puyapy.itxn.ApplicationCallInnerTransaction]: ...
+
+class _ABICallProtocolType(typing.Protocol):
+    @typing.overload
+    def __call__(  # type: ignore[misc]
+        self,
+        method: Callable[..., None] | str,
+        /,
+        *args: _TABIArg,
+        app_id: puyapy.Application | puyapy.UInt64 | int = ...,
+        on_completion: puyapy.OnCompleteAction = ...,
+        approval_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
+        clear_state_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
+        global_num_uint: UInt64 | int = ...,
+        global_num_bytes: UInt64 | int = ...,
+        local_num_uint: UInt64 | int = ...,
+        local_num_bytes: UInt64 | int = ...,
+        extra_program_pages: UInt64 | int = ...,
+        fee: puyapy.UInt64 | int = ...,
+        sender: puyapy.Account | str = ...,
+        note: puyapy.Bytes | bytes | str = ...,
+        rekey_to: puyapy.Account | str = ...,
+    ) -> puyapy.itxn.ApplicationCallInnerTransaction: ...
+    @typing.overload
+    def __call__(  # type: ignore[misc]
+        self,
+        method: Callable[..., _TABIResult_co],
+        /,
+        *args: _TABIArg,
+        app_id: puyapy.Application | puyapy.UInt64 | int = ...,
+        on_completion: puyapy.OnCompleteAction = ...,
+        approval_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
+        clear_state_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
+        global_num_uint: UInt64 | int = ...,
+        global_num_bytes: UInt64 | int = ...,
+        local_num_uint: UInt64 | int = ...,
+        local_num_bytes: UInt64 | int = ...,
+        extra_program_pages: UInt64 | int = ...,
+        fee: puyapy.UInt64 | int = ...,
+        sender: puyapy.Account | str = ...,
+        note: puyapy.Bytes | bytes | str = ...,
+        rekey_to: puyapy.Account | str = ...,
+    ) -> tuple[_TABIResult_co, puyapy.itxn.ApplicationCallInnerTransaction]: ...
+    def __getitem__(
+        self, _: type[_TABIResult_co]
+    ) -> _ABICallWithReturnProtocol[_TABIResult_co]: ...
+
+abi_call: _ABICallProtocolType = ...
+"""Provides a typesafe way of calling ARC4 methods via an inner transaction
+
+Examples:
+```
+# can reference another puyapy contract method
+result, txn = abi_call(HelloWorldContract.hello, arc4.String("World"), app=...)
+assert result == "Hello, World"
+
+# can reference a method selector
+result, txn = abi_call[arc4.String]("hello(string)string", arc4.String("Algo"), app=...)
+assert result == "Hello, Algo"
+
+# can reference a method name, the method selector is inferred from arguments and return type
+result, txn = abi_call[arc4.String]("hello", "There", app=...)
+assert result == "Hello, There"
+```
+
+
+"""
