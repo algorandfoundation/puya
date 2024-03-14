@@ -170,112 +170,128 @@ test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
     ==
     assert
     // arc4_types/numeric.py:53
-    // one_decimal = Decimal("1.0")
-    byte 0x00000002540be400
+    // thousand = Decimal("1e3")
+    byte 0x000009184e72a000
     // arc4_types/numeric.py:55
-    // assert one_decimal.bytes.length == (64 // 8)
+    // assert thousand.bytes.length == 8
     dup
     len
     int 8
     ==
     assert
     // arc4_types/numeric.py:56
-    // assert one_decimal.decode() == 1_0000000000
+    // assert thousand.decode() == 1000_0000000000
     btoi
-    int 10000000000
+    int 10000000000000
     ==
     assert
     // arc4_types/numeric.py:58
-    // zero_decimal = Decimal("0.0")
-    byte 0x0000000000000000
+    // one_decimal = Decimal("1.0")
+    byte 0x00000002540be400
     // arc4_types/numeric.py:60
-    // assert zero_decimal.bytes.length == (64 // 8)
+    // assert one_decimal.bytes.length == (64 // 8)
     dup
     len
     int 8
     ==
     assert
     // arc4_types/numeric.py:61
-    // assert zero_decimal.decode() == 0
+    // assert one_decimal.decode() == 1_0000000000
     btoi
-    int 0
+    int 10000000000
     ==
     assert
     // arc4_types/numeric.py:63
-    // small_decimal = Decimal("0.00000001")
-    byte 0x0000000000000064
+    // zero_decimal = Decimal("0.0")
+    byte 0x0000000000000000
     // arc4_types/numeric.py:65
-    // assert small_decimal.bytes.length == (64 // 8)
+    // assert zero_decimal.bytes.length == (64 // 8)
     dup
     len
     int 8
     ==
     assert
     // arc4_types/numeric.py:66
-    // assert small_decimal.decode() == 100
+    // assert zero_decimal.decode() == 0
     btoi
-    int 100
+    int 0
     ==
     assert
     // arc4_types/numeric.py:68
-    // smaller_decimal = Decimal("1E-9")
-    byte 0x000000000000000a
+    // small_decimal = Decimal("0.00000001")
+    byte 0x0000000000000064
     // arc4_types/numeric.py:70
-    // assert smaller_decimal.bytes.length == (64 // 8)
+    // assert small_decimal.bytes.length == (64 // 8)
     dup
     len
     int 8
     ==
     assert
     // arc4_types/numeric.py:71
-    // assert smaller_decimal.decode() == 10
+    // assert small_decimal.decode() == 100
     btoi
-    int 10
+    int 100
     ==
     assert
     // arc4_types/numeric.py:73
-    // smallest_decimal = Decimal("0.0000000001")
-    byte 0x0000000000000001
+    // smaller_decimal = Decimal("1E-9")
+    byte 0x000000000000000a
     // arc4_types/numeric.py:75
-    // assert smallest_decimal.bytes.length == (64 // 8)
+    // assert smaller_decimal.bytes.length == (64 // 8)
     dup
     len
     int 8
     ==
     assert
     // arc4_types/numeric.py:76
-    // assert smallest_decimal.decode() == 1
+    // assert smaller_decimal.decode() == 10
     btoi
-    int 1
+    int 10
     ==
     assert
     // arc4_types/numeric.py:78
-    // sixty_four_decimal = Decimal("1844674407.3709551615")
-    byte 0xffffffffffffffff
+    // smallest_decimal = Decimal("0.0000000001")
+    byte 0x0000000000000001
     // arc4_types/numeric.py:80
-    // assert sixty_four_decimal.bytes.length == (64 // 8)
+    // assert smallest_decimal.bytes.length == (64 // 8)
     dup
     len
     int 8
     ==
     assert
     // arc4_types/numeric.py:81
+    // assert smallest_decimal.decode() == 1
+    btoi
+    int 1
+    ==
+    assert
+    // arc4_types/numeric.py:83
+    // sixty_four_decimal = Decimal("1844674407.3709551615")
+    byte 0xffffffffffffffff
+    // arc4_types/numeric.py:85
+    // assert sixty_four_decimal.bytes.length == (64 // 8)
+    dup
+    len
+    int 8
+    ==
+    assert
+    // arc4_types/numeric.py:86
     // assert sixty_four_decimal.decode() == 1844674407_3709551615
     btoi
     int 18446744073709551615
     ==
     assert
-    // arc4_types/numeric.py:83
+    // arc4_types/numeric.py:88
     // really_big_int = BigUIntN[t.Literal[512]](sixty_four_byte_num)
     byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    // arc4_types/numeric.py:85
+    // arc4_types/numeric.py:90
     // assert really_big_int.bytes.length == 64
     dup
     len
     int 64
     ==
     assert
-    // arc4_types/numeric.py:86
+    // arc4_types/numeric.py:91
     // assert really_big_int == BigUIntN[t.Literal[512]](really_big_int.decode())
     dup
     len
@@ -289,10 +305,10 @@ test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
     b|
     b==
     assert
-    // arc4_types/numeric.py:89
+    // arc4_types/numeric.py:94
     // BigUInt(sixty_four_byte_num)
     byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    // arc4_types/numeric.py:88-90
+    // arc4_types/numeric.py:93-95
     // really_big_decimal = BigUFixedNxM[t.Literal[512], t.Literal[2]].encode(
     //     BigUInt(sixty_four_byte_num)
     // )
@@ -302,23 +318,23 @@ test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
     assert // overflow
     int 64
     bzero
-    // arc4_types/numeric.py:89
+    // arc4_types/numeric.py:94
     // BigUInt(sixty_four_byte_num)
     byte 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    // arc4_types/numeric.py:88-90
+    // arc4_types/numeric.py:93-95
     // really_big_decimal = BigUFixedNxM[t.Literal[512], t.Literal[2]].encode(
     //     BigUInt(sixty_four_byte_num)
     // )
     swap
     b|
-    // arc4_types/numeric.py:92
+    // arc4_types/numeric.py:97
     // biguint = BigUInt(1)
     byte 0x01
-    // arc4_types/numeric.py:93
+    // arc4_types/numeric.py:98
     // arc4_biguint_const = ARC4BigUInt(1)
     byte 0x00000000000000000000000000000001
     swap
-    // arc4_types/numeric.py:94
+    // arc4_types/numeric.py:99
     // arc4_biguint_dynamic = ARC4BigUInt(biguint + 1)
     dup
     byte 0x01
@@ -331,25 +347,25 @@ test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
     int 16
     bzero
     b|
-    // arc4_types/numeric.py:96
+    // arc4_types/numeric.py:101
     // assert biguint == arc4_biguint_const.decode()
     swap
     uncover 2
     b==
     assert
-    // arc4_types/numeric.py:98
+    // arc4_types/numeric.py:103
     // assert arc4_biguint_dynamic.bytes.length == (128 // 8)
     len
     int 16
     ==
     assert
-    // arc4_types/numeric.py:100
+    // arc4_types/numeric.py:105
     // assert really_big_decimal.bytes.length == 64
     len
     int 64
     ==
     assert
-    // arc4_types/numeric.py:102
+    // arc4_types/numeric.py:107
     // return True
     int 1
     return

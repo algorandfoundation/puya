@@ -50,6 +50,11 @@ class Arc4NumericTypesContract(Contract):
         assert decimals_from_truncated_str.bytes.length == (64 // 8)
         assert decimals_from_truncated_str.decode() == 145_0000000000
 
+        thousand = Decimal("1e3")
+
+        assert thousand.bytes.length == 8
+        assert thousand.decode() == 1000_0000000000
+
         one_decimal = Decimal("1.0")
 
         assert one_decimal.bytes.length == (64 // 8)
