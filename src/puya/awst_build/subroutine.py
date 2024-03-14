@@ -616,13 +616,12 @@ class FunctionASTConverter(
         if fullname.startswith(constants.PUYAPY_PREFIX):
             return self._visit_ref_expr_of_puyapy(fullname, expr_loc, expr.node)
         match expr:
-            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) | mypy.nodes.NameExpr(
-                node=mypy.nodes.TypeInfo() as typ
-            ) if (
+            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if (
                 typ.has_base(constants.CLS_ARC4_CLIENT)
                 or typ.has_base(constants.ARC4_CONTRACT_BASE)
             ):
                 # provides type info only
+                # TODO: need to do this only when resolving abi_call args
                 return ARC4ClientClassExpressionBuilder(self.context, expr_loc, typ.defn.info)
             case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if (
                 typ.has_base(constants.STRUCT_BASE) or typ.has_base(constants.CLS_ARC4_STRUCT)
