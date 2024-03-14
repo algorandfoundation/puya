@@ -32,10 +32,10 @@ class Arc4StringTypesContract(Contract):
         thing += thing
         assert thing == String("hihi")
 
-        value = String("a") + Bytes(b"b") + b"c" + "d"
+        value = String("a") + String(Bytes(b"b")) + "cd"
         value += "e"
-        value += b"f"
-        value += Bytes(b"g")
+        value += String("f")
+        value += String(Bytes(b"g"))
         assert String("abcdefg") == value
         return True
 
