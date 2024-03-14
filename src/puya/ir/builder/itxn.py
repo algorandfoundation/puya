@@ -469,15 +469,6 @@ class InnerTransactionBuilder:
                     return self._inner_txn_submit_data[var_name]
                 except KeyError:
                     pass
-            case awst_nodes.AssignmentExpression(
-                target=awst_nodes.SingleEvaluation() as itxn_var, value=value, source_location=loc
-            ):
-                self.handle_inner_transaction_assignments(itxn_var, value, loc)
-                var_name = self._get_itxn_var_name(itxn_var)
-                try:
-                    return self._inner_txn_submit_data[var_name]
-                except KeyError:
-                    pass
             case awst_nodes.SubmitInnerTransaction() as submit:
                 submit_data = self.handle_submit_inner_transaction(submit)
                 try:
