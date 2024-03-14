@@ -462,10 +462,7 @@ def map_abi_args(
             case _ if wtypes.has_arc4_equivalent_type(arg.wtype):
                 abi_arg = get_arg(abi_arg_index, wtypes.avm_to_arc4_equivalent_type(arg.wtype))
                 decoded_abi_arg = arc4_decode(
-                    bytes_arg=abi_arg,
-                    target_wtype=arg.wtype,
-                    location=location,
-                    decode_nested_items=True,
+                    bytes_arg=abi_arg, target_wtype=arg.wtype, location=location
                 )
                 yield decoded_abi_arg
                 abi_arg_index += 1

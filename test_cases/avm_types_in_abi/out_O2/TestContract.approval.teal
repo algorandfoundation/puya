@@ -2,8 +2,9 @@
 
 test_cases.avm_types_in_abi.contract.TestContract.approval_program:
     method "create(bool,uint64,byte[],(bool,uint64,byte[]))(bool,uint64,byte[])"
+    method "tuple_of_arc4((uint8,address))(uint8,address)"
     txna ApplicationArgs 0
-    match main_create_route@1
+    match main_create_route@1 main_tuple_of_arc4_route@2
     err // reject transaction
 
 main_create_route@1:
@@ -77,6 +78,26 @@ main_create_route@1:
     int 1
     return
 
+main_tuple_of_arc4_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    dup
+    extract 0 1
+    swap
+    extract 1 32
+    callsub tuple_of_arc4
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
 
 // test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes) -> uint64, uint64, bytes:
 create:
@@ -104,4 +125,22 @@ create_bool_merge@5:
     frame_dig -6
     frame_dig -5
     frame_dig -4
+    retsub
+
+
+// test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes, args.1: bytes) -> bytes, bytes:
+tuple_of_arc4:
+    proto 2 2
+    frame_dig -2
+    len
+    int 1
+    ==
+    assert
+    frame_dig -1
+    len
+    int 32
+    ==
+    assert
+    frame_dig -2
+    frame_dig -1
     retsub

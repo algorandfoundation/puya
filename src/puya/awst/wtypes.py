@@ -522,7 +522,11 @@ def has_arc4_equivalent_type(wtype: WType) -> bool:
 
     match wtype:
         case WTuple(types=types):
-            return all(has_arc4_equivalent_type(t) and not isinstance(t, WTuple) for t in types)
+            return all(
+                (has_arc4_equivalent_type(t) or is_arc4_encoded_type(t))
+                and not isinstance(t, WTuple)
+                for t in types
+            )
     return False
 
 
@@ -538,7 +542,12 @@ def avm_to_arc4_equivalent_type(wtype: WType) -> WType:
     if wtype is string_wtype:
         return arc4_string_wtype
     if isinstance(wtype, WTuple):
-        return ARC4Tuple.from_types(types=[avm_to_arc4_equivalent_type(t) for t in wtype.types])
+        return ARC4Tuple.from_types(
+            types=[
+                t if is_arc4_encoded_type(t) else avm_to_arc4_equivalent_type(t)
+                for t in wtype.types
+            ]
+        )
     raise InternalError(f"{wtype} does not have an arc4 equivalent type")
 
 

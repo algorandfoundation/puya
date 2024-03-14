@@ -15,3 +15,9 @@ class TestContract(puyapy.arc4.ARC4Client, typing.Protocol):
         bytes_param: puyapy.arc4.DynamicBytes,
         tuple_param: puyapy.arc4.Tuple[puyapy.arc4.Bool, puyapy.arc4.UInt64, puyapy.arc4.DynamicBytes],
     ) -> puyapy.arc4.Tuple[puyapy.arc4.Bool, puyapy.arc4.UInt64, puyapy.arc4.DynamicBytes]: ...
+
+    @puyapy.arc4.abimethod
+    def tuple_of_arc4(
+        self,
+        args: puyapy.arc4.Tuple[puyapy.arc4.UInt8, puyapy.arc4.Address],
+    ) -> puyapy.arc4.Tuple[puyapy.arc4.UInt8, puyapy.arc4.Address]: ...
