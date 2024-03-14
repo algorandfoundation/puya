@@ -17,7 +17,7 @@ class SourceMeta:
 _EmptyMeta = SourceMeta(None, None)
 
 
-@attrs.define(slots=False)
+@attrs.define
 class CompileContext:
     options: PuyaOptions
     parse_result: ParseResult

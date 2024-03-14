@@ -1709,7 +1709,7 @@ class StructureDefinition(ModuleStatement):
         return visitor.visit_structure_definition(self)
 
 
-@attrs.frozen(slots=False)
+@attrs.frozen
 class Module:
     name: str
     source_file_path: str
