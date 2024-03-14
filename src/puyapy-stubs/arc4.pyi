@@ -470,7 +470,7 @@ class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
         extra_program_pages: UInt64 | int = ...,
         fee: puyapy.UInt64 | int = ...,
         sender: puyapy.Account | str = ...,
-        note: puyapy.Bytes | bytes = ...,
+        note: puyapy.Bytes | bytes | str = ...,
         rekey_to: puyapy.Account | str = ...,
     ) -> tuple[_TABIResult_co, puyapy.itxn.ApplicationCallInnerTransaction]: ...
 
@@ -492,7 +492,7 @@ class _ABICallProtocolType(typing.Protocol):
         extra_program_pages: UInt64 | int = ...,
         fee: puyapy.UInt64 | int = ...,
         sender: puyapy.Account | str = ...,
-        note: puyapy.Bytes | bytes = ...,
+        note: puyapy.Bytes | bytes | str = ...,
         rekey_to: puyapy.Account | str = ...,
     ) -> puyapy.itxn.ApplicationCallInnerTransaction: ...
     @typing.overload
@@ -512,7 +512,7 @@ class _ABICallProtocolType(typing.Protocol):
         extra_program_pages: UInt64 | int = ...,
         fee: puyapy.UInt64 | int = ...,
         sender: puyapy.Account | str = ...,
-        note: puyapy.Bytes | bytes = ...,
+        note: puyapy.Bytes | bytes | str = ...,
         rekey_to: puyapy.Account | str = ...,
     ) -> tuple[_TABIResult_co, puyapy.itxn.ApplicationCallInnerTransaction]: ...
     def __getitem__(
