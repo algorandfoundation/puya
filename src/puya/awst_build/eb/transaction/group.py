@@ -133,7 +133,7 @@ class GroupTransactionClassExpressionBuilder(TypeClassExpressionBuilder, abc.ABC
 
     def call(
         self,
-        args: typing.Sequence[ExpressionBuilder | Literal],
+        args: Sequence[ExpressionBuilder | Literal],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

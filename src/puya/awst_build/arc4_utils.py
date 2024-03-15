@@ -1,5 +1,4 @@
 import typing
-from typing import Never
 
 import mypy.nodes
 import mypy.types
@@ -111,7 +110,7 @@ class _DecoratorArgEvaluator(mypy.visitor.NodeVisitor[typing.Any]):
             return self._not_supported
         return attr
 
-    def _not_supported(self, o: mypy.nodes.Context) -> Never:
+    def _not_supported(self, o: mypy.nodes.Context) -> typing.Never:
         raise CodeError(f"Cannot evaluate expression {o}")
 
     def visit_int_expr(self, o: mypy.nodes.IntExpr) -> int:
@@ -154,15 +153,15 @@ class _DecoratorArgEvaluator(mypy.visitor.NodeVisitor[typing.Any]):
     def visit_unary_expr(self, o: mypy.nodes.UnaryExpr) -> object:
         operand: object = o.expr.accept(self)
         if o.op == "-":
-            if isinstance(operand, (int, float, complex)):
+            if isinstance(operand, int | float | complex):
                 return -operand
         elif o.op == "+":
-            if isinstance(operand, (int, float, complex)):
+            if isinstance(operand, int | float | complex):
                 return +operand
         elif o.op == "~":
             if isinstance(operand, int):
                 return ~operand
-        elif o.op == "not" and isinstance(operand, (bool, int, float, str, bytes)):
+        elif o.op == "not" and isinstance(operand, bool | int | float | str | bytes):
             return not operand
         self._not_supported(o)
 

@@ -150,10 +150,9 @@ class ASTConversionModuleContext(ASTConversionContext):
             case mypy.types.UnionType(items=items):
                 if not items:
                     raise CodeError("Cannot resolve empty type", loc)
-                elif len(items) == 1:
-                    return self._type_to_builder(items[0], source_location=loc)
-                else:
+                if len(items) > 1:
                     raise CodeError("Type unions are unsupported at this location", loc)
+                return self._type_to_builder(items[0], source_location=loc)
             case mypy.types.AnyType():
                 raise CodeError("Any type is not supported", loc)
             case _:

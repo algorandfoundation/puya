@@ -76,9 +76,7 @@ def bytes_multiply(arg: tuple[Bytes, UInt64]) -> Bytes:
 def add_three_values(values: tuple[UInt64, UInt64, UInt64]) -> UInt64:
     total = UInt64(0)
     for value in values:
-        # log(itob(total))
         total += value
-    # log(itob(total))
 
     return total
 

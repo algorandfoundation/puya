@@ -1,6 +1,6 @@
+import operator
 import typing
-from collections.abc import Iterable, Sequence
-from typing import Iterator
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 
 import mypy.build
 import mypy.nodes
@@ -27,10 +27,10 @@ from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import UnsupportedASTError
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
-logger = structlog.get_logger()
+logger = structlog.get_logger(__name__)
 
 
 def extract_docstring(
@@ -103,26 +103,57 @@ def get_decorators_by_fullname(
     return result
 
 
-def fold_unary_expr(
-    location: SourceLocation,
-    op: str,
-    expr: ConstantValue,
-) -> ConstantValue:
+UNARY_OPS: typing.Final[Mapping[str, Callable[[typing.Any], typing.Any]]] = {
+    "~": operator.inv,
+    "not": operator.not_,
+    "+": operator.pos,
+    "-": operator.neg,
+}
+
+
+def fold_unary_expr(location: SourceLocation, op: str, expr: ConstantValue) -> ConstantValue:
+    if not (func := UNARY_OPS.get(op)):
+        raise InternalError(f"Unhandled unary operator: {op}", location)
     try:
-        result = eval(
-            f"{op} expr",
-            {"expr": expr},
-        )
+        result = func(expr)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
+    # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
+    # so we have to suppress the error and do a typing.cast instead
     if not isinstance(result, ConstantValue):  # type: ignore[arg-type,misc]
         raise UnsupportedASTError(
             location, details=f"unsupported result type of {type(result).__name__}"
         )
-    assert isinstance(
-        result, int | str | bytes | bool
-    )  # TODO: why can't we use ConstantValue here?
-    return result
+    return typing.cast(ConstantValue, result)
+
+
+BINARY_OPS: typing.Final[Mapping[str, Callable[[typing.Any, typing.Any], typing.Any]]] = {
+    "+": operator.add,
+    "-": operator.sub,
+    "*": operator.mul,
+    "@": operator.matmul,
+    "/": operator.truediv,
+    "%": operator.mod,
+    "**": operator.pow,
+    "<<": operator.lshift,
+    ">>": operator.rshift,
+    "|": operator.or_,
+    "^": operator.xor,
+    "&": operator.and_,
+    "//": operator.floordiv,
+    ">": operator.gt,
+    "<": operator.lt,
+    "==": operator.eq,
+    ">=": operator.ge,
+    "<=": operator.le,
+    "!=": operator.ne,
+    "is": operator.is_,
+    "is not": operator.is_not,
+    "in": lambda a, b: a in b,
+    "not in": lambda a, b: a not in b,
+    "and": lambda a, b: a and b,
+    "or": lambda a, b: a or b,
+}
 
 
 def fold_binary_expr(
@@ -131,21 +162,19 @@ def fold_binary_expr(
     lhs: ConstantValue,
     rhs: ConstantValue,
 ) -> ConstantValue:
+    if not (func := BINARY_OPS.get(op)):
+        raise InternalError(f"Unhandled binary operator: {op}", location)
     try:
-        result = eval(
-            f"lhs {op} rhs",
-            {"lhs": lhs, "rhs": rhs},
-        )
+        result = func(lhs, rhs)
     except Exception as ex:
         raise CodeError(str(ex), location) from ex
+    # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
+    # so we have to suppress the error and do a typing.cast instead
     if not isinstance(result, ConstantValue):  # type: ignore[arg-type,misc]
         raise UnsupportedASTError(
             location, details=f"unsupported result type of {type(result).__name__}"
         )
-    assert isinstance(
-        result, int | str | bytes | bool
-    )  # TODO: why can't we use ConstantValue here?
-    return result
+    return typing.cast(ConstantValue, result)
 
 
 def require_expression_builder(

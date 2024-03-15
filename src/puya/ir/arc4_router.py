@@ -1,5 +1,4 @@
-from collections.abc import Mapping
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 
 from puya.arc4_util import get_abi_signature, wtype_to_arc4
 from puya.avm_type import AVMType
@@ -187,18 +186,17 @@ def route_bare_methods(
                 'decorated method with create=True or create="allow"',
                 location,
             )
-        else:
-            bare_blocks[OnCompletionAction.NoOp] = create_block(
-                location,
-                "create",
-                *assert_create_state(
-                    ARC4MethodConfig(
-                        name="", source_location=location, is_bare=True, require_create=True
-                    ),
-                    location,
+        bare_blocks[OnCompletionAction.NoOp] = create_block(
+            location,
+            "create",
+            *assert_create_state(
+                ARC4MethodConfig(
+                    name="", source_location=location, is_bare=True, require_create=True
                 ),
-                approve(location),
-            )
+                location,
+            ),
+            approve(location),
+        )
 
     return create_block(
         location,

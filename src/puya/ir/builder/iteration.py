@@ -623,7 +623,7 @@ def _iterate_tuple(
 
     tuple_index = context.next_tmp_name("tuple_index")
 
-    for index, (item, header) in enumerate(zip(tuple_items, headers)):
+    for index, (item, header) in enumerate(zip(tuple_items, headers, strict=True)):
         if index == 0:
             context.block_builder.goto_and_activate(header)
             context.ssa.seal_block(header)

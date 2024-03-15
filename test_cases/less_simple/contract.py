@@ -1,4 +1,5 @@
-from puyapy import *  # noqa: F403 # note: star import here to explicitly test that
+# ruff: noqa: F403, F405
+from puyapy import *  # note: star import here to explicitly test that
 
 
 class MyContract(Contract):

@@ -285,7 +285,7 @@ def _visit_arc4_tuple_encode(
             Intrinsic(op=AVMOp.concat, args=[encoded_tuple_buffer, item], source_location=expr_loc)
         )
 
-    for index, (element, el_wtype) in enumerate(zip(elements, tuple_items)):
+    for index, (element, el_wtype) in enumerate(zip(elements, tuple_items, strict=True)):
         if el_wtype == wtypes.arc4_bool_wtype:
             # Pack boolean
             before_header = determine_arc4_tuple_head_size(
@@ -339,7 +339,7 @@ def _visit_arc4_tuple_encode(
                 context, current_tail_offset, next_tail_offset, expr_loc
             )
 
-    for element, el_wtype in zip(elements, tuple_items):
+    for element, el_wtype in zip(elements, tuple_items, strict=True):
         if is_arc4_dynamic_size(el_wtype):
             append_to_buffer(element)
     return encoded_tuple_buffer
@@ -1441,7 +1441,6 @@ def concat_values(
             match element_size:
                 case 1:
                     method_name = "dynamic_array_concat_bits"
-                    # is_packed = True
                     additional_args: list[Value] = [
                         UInt64Constant(value=1, source_location=source_location)
                     ]
@@ -1479,7 +1478,6 @@ def concat_values(
             match element_size:
                 case 1:
                     method_name = "dynamic_array_concat_bits"
-                    # is_packed = False
                     additional_args = [UInt64Constant(value=0, source_location=source_location)]
                 case None:
                     method_name = "dynamic_array_concat_variable_size"

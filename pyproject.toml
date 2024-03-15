@@ -41,10 +41,10 @@ black = [
     {version = "^23.10.1", markers = "sys_platform == 'win32'"}
 ]
 mypy = "1.8.0"
-ruff = "^0.2.1"
+ruff = "^0.3.2"
 pre-commit = "^3.3.3"
 cattrs = "^23.1.2"
-ruff-lsp = "^0.0.51"
+ruff-lsp = "^0.0.53"
 poethepoet = "^0.24.4"
 
 [tool.poetry.group.doc]
@@ -119,6 +119,7 @@ module = ["algosdk", "algosdk.*"]
 disallow_untyped_calls = false
 
 [tool.ruff]
+target-version = "py312"
 line-length = 99
 extend-exclude = [
     "src/puya/_typeshed",
@@ -130,54 +131,68 @@ force-exclude = true
 
 [tool.ruff.lint]
 select = [
-      # all possible codes as of this ruff version are listed here,
-      # ones we don't want/need are commented out to make it clear
-      # which have been omitted on purpose vs which ones get added
-      # in new ruff releases and should be considered for enabling
-      "F",      # pyflakes
-      "E", "W", # pycodestyle
-      "C90",    # mccabe
-      "I",      # isort
-      "N",      # PEP8 naming
-      "UP",     # pyupgrade
-      "YTT",    # flake8-2020
-      "ANN",    # flake8-annotations
-      # "S",    # flake8-bandit
-      # "BLE",  # flake8-blind-except
-      "FBT",    # flake8-boolean-trap
-      "B",      # flake8-bugbear
-      "A",      # flake8-builtins
-      # "COM",  # flake8-commas
-      "C4",     # flake8-comprehensions
-      "DTZ",    # flake8-datetimez
-      "T10",    # flake8-debugger
-      # "DJ",   # flake8-django
-      # "EM",   # flake8-errmsg
-      # "EXE",  # flake8-executable
-      "ISC",    # flake8-implicit-str-concat
-      "ICN",    # flake8-import-conventions
-      # "G",    # flake8-logging-format
-      # "INP",  # flake8-no-pep420
-      "PIE",    # flake8-pie
-      "T20",    # flake8-print
-      "PYI",    # flake8-pyi
-      "PT",     # flake8-pytest-style
-      "Q",      # flake8-quotes
-      "RSE",    # flake8-raise
-      # "RET",    # flake8-return
-      "SLF",    # flake8-self
-      "SIM",    # flake8-simplify
-      "TID",    # flake8-tidy-imports
-      "TCH",    # flake8-type-checking
-      "ARG",    # flake8-unused-arguments
-      "PTH",    # flake8-use-pathlib
-      "ERA",    # eradicate
-      # "PD",   # pandas-vet
-      "PGH",    # pygrep-hooks
-      "PL",     # pylint
-      # "TRY",  # tryceratops
-      # "NPY",  # NumPy-specific rules
-      "RUF",    # Ruff-specific rules
+    # all possible codes as of this ruff version are listed here,
+    # ones we don't want/need are commented out to make it clear
+    # which have been omitted on purpose vs which ones get added
+    # in new ruff releases and should be considered for enabling
+    "F",      # pyflakes
+    "E", "W", # pycodestyle
+    "C90",    # mccabe
+    "I",      # isort
+    "N",      # PEP8 naming
+    # "D",    # pydocstyle
+    "UP",     # pyupgrade
+    "YTT",    # flake8-2020
+    "ANN",    # flake8-annotations
+    "ASYNC",  # flake8-async
+    "S",    # flake8-bandit
+    # "BLE",  # flake8-blind-except
+    "FBT",    # flake8-boolean-trap
+    "B",      # flake8-bugbear
+    "A",      # flake8-builtins
+    # "COM",  # flake8-commas
+    "C4",     # flake8-comprehensions
+    "DTZ",    # flake8-datetimez
+    "T10",    # flake8-debugger
+    # "EM",   # flake8-errmsg
+    "EXE",  # flake8-executable
+    "FA",     # flake8-future-annotations
+    "ISC",    # flake8-implicit-str-concat
+    "ICN",    # flake8-import-conventions
+    # "G",    # flake8-logging-format
+    "INP",    # flake8-no-pep420
+    "PIE",    # flake8-pie
+    "T20",    # flake8-print
+    "PYI",    # flake8-pyi
+    "PT",     # flake8-pytest-style
+    "Q",      # flake8-quotes
+    "RSE",    # flake8-raise
+    "RET",    # flake8-return
+    "SLF",    # flake8-self
+    "SLOT",   # flake8-slots
+    "SIM",    # flake8-simplify
+    "TID",    # flake8-tidy-imports
+    "TCH",    # flake8-type-checking
+    "INT",    # flake8-gettext
+    "ARG",    # flake8-unused-arguments
+    "PTH",    # flake8-use-pathlib
+    # "TD",     # flake8-todos
+    # "FIX",    # flake8-fixme
+    # "ERA",    # eradicate
+    "PGH",    # pygrep-hooks
+    "PL",     # pylint
+    "TRY",  # tryceratops
+    # "FLY",    # flynt
+    "PERF",   # Perflint
+    "FURB",   # refurb
+    "LOG",    # flake8-logging
+    "RUF",    # Ruff-specific rules
+    # below are for packages we're not using
+    # "TRIO",  # flake8-trio
+    # "DJ",   # flake8-django
+    # "AIR",  # Airflow
+    # "PD",   # pandas-vet
+    # "NPY",  # NumPy-specific rules
 ]
 ignore = [
     "ANN101",  # no type for self
@@ -186,44 +201,51 @@ ignore = [
     "PLR2004", # magic values... can't configure to ignore simple low value ints like 2
     "PLW2901", # allow updating loop value...
     "PYI025",  # I can tell the difference between set and Set thank you very much
-    # TODO: REMOVE ALL THE BELOW vvv
-    "ERA001",  # don't automatically remove commented out code
-    "T201",    # allow prints (FOR NOW)
+    "UP040",   # TypeAlias -> type keyword, waiting for mypy support
+    "TRY003",  # allow long exception messages in Exception constructor
+    "RET503",  # false negatives when involving typing.Never, covered by mypy anyway
+    "RET504", "RET505", # stylistic choices for readability
+    "S101",   # allow asserts
     # TODO: REMOVE ALL THE BELOW AFTER REFACTORING BUILDING CODE vvv
     "C901", # is too complex (> 10)
     "PLR0911", # Too many return statements (> 6)
     "PLR0912", # Too many branches (> 12)
     "PLR0913", # Too many arguments to function call (> 5)
     "PLR0915", # Too many statements (> 50)
-
 ]
 unfixable = [
-    # TODO: REMOVE THE BELOW
-    # "ERA001", # don't automatically remove commented out code
-    "F841", # don't delete unused local variables automatically
-    "B011", # don't automatically convert assert False -> raise AssertionError - we want the former
-            # in any smart contracts in this repo
+    "F841",     # don't delete unused local variables automatically
 ]
 [tool.ruff.lint.per-file-ignores]
 "src/**" = [
     "PT",       # no pytest rules
 ]
+"**/*.pyi" = [
+    "SLOT"
+]
+"src/puya/awst_build/eb/**" = [
+    "ARG002", # TODO: remove this by either figuring out how to make it respect abstract methods
+              #       or manually adding @typing.override everywhere 🥲
+]
+"src/puya/lib_embedded/**" = [
+    "INP",      # allow missing __init__.py
+]
 "src/puyapy-stubs/**" = [
     "PYI021",   # allow docstrings in stubs
     "PYI053",   # allow "docstrings" in overloads
+]
+"scripts/**" = [
+    "S",
+    "PT",       # no pytest rules
+    "T201",     # allow prints
+    "TRY002",   # allow raising builtin exceptions
 ]
 "{examples,test_cases}/**" = [
     "PT",       # no pytest rules
     "B011",     # allow assert False, "msg"
     "FBT001",   # allow positional definitions
     "FBT003",   # allow positional booleans
-]
-"test_cases/less_simple/contract.py" = [
-    "F405",     # this case is explicitly to test star imports
-]
-"src/puya/awst_build/eb/**" = [
-    # TODO: remove the below
-    "ARG002",
+    "INP",      # allow missing __init__.py
 ]
 
 [tool.ruff.lint.flake8-annotations]

@@ -339,7 +339,7 @@ def run_compiler_and_handle_parse_errors(cases: list[TestCase]) -> None:
         failed_cases = set(find_parse_errors_and_mark_as_failed(cases, ex))
         if not failed_cases:
             # prevent infinite looping if failed cases can't be identified
-            raise ex
+            raise
         retry_cases = [c for c in cases if c not in failed_cases]
         return run_compiler_and_handle_parse_errors(retry_cases)
 
@@ -586,7 +586,9 @@ class TestFile(pytest.File):
             # don't allow updating output if tests are being executed in parallel
             self.auto_update_output = False
             # TODO: work out how to inform the user of this
-            print("`--test-auto-update` ignored due to --dist option. Use `--dist no` to enable")
+            print(  # noqa: T201
+                "`--test-auto-update` ignored due to --dist option. Use `--dist no` to enable"
+            )
 
     def collect(self) -> t.Iterable[pytest.Item | pytest.Collector]:
         self.preamble, self.cases = parse_file(self.path)

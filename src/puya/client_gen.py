@@ -20,7 +20,7 @@ from puya.models import (
     OnCompletionAction,
 )
 
-logger = structlog.get_logger(__file__)
+logger = structlog.get_logger(__name__)
 ARC32_OCA_MAPPING = {v: k for k, v in OCA_ARC32_MAPPING.items()}
 
 
@@ -51,7 +51,7 @@ def output_stubs(paths: Sequence[Path]) -> None:
             name, methods = _parse_app_spec_methods(app_spec_path)
             write_arc32_client(name, methods, app_spec_path.parent)
     except PuyaError as ex:
-        logger.error(str(ex))
+        logger.error(str(ex))  # noqa: TRY400
 
 
 def resolve_app_specs(paths: Sequence[Path]) -> Sequence[Path]:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Never
+import typing
 
 import mypy.nodes
 import structlog
@@ -28,7 +28,7 @@ from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
 from puya.awst_build.utils import get_arg_mapping, require_expression_builder
 from puya.errors import CodeError, InternalError
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
     from puya.parse import SourceLocation
@@ -216,7 +216,7 @@ def _find_op_mapping(
     return best_mapping
 
 
-def _code_error(arg: Node, arg_mapping: ArgMapping, callee: str) -> Never:
+def _code_error(arg: Node, arg_mapping: ArgMapping, callee: str) -> typing.Never:
     # TODO: better error
     raise CodeError(
         f"Invalid argument {arg} for argument {arg_mapping.arg_name} when calling {callee}",

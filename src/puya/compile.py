@@ -121,9 +121,6 @@ def get_mypy_options() -> mypy.options.Options:
     mypy_opts.disallow_any_decorated = True
     mypy_opts.disallow_any_explicit = True
 
-    # mypy_opts.dump_graph = True
-    # mypy_opts.dump_deps = True
-
     mypy_opts.pretty = True  # show source in output
 
     return mypy_opts

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import decimal
 import typing
-from typing import TYPE_CHECKING
 
 import structlog
 
@@ -15,7 +14,7 @@ from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.utils import convert_literal
 from puya.errors import CodeError
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)

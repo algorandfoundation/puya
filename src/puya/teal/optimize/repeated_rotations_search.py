@@ -1,7 +1,7 @@
 import functools
 import itertools
 import typing
-from typing import Sequence
+from collections.abc import Sequence
 
 import attrs
 import structlog

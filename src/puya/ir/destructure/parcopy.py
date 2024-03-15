@@ -119,7 +119,7 @@ def _impl(sub: models.Subroutine) -> None:
         for op in block.ops:
             match op:
                 case models.Assignment(targets=targets, source=models.ValueTuple(values=sources)):
-                    seqd = sequentialize(zip(targets, sources), mktmp=make_temp)
+                    seqd = sequentialize(zip(targets, sources, strict=True), mktmp=make_temp)
                     for dst, src in seqd:
                         assert isinstance(dst, models.Register)  # TODO: this is bad
                         ops.append(

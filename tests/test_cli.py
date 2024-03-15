@@ -17,7 +17,7 @@ def run_puyapy(
     puyapy = shutil.which("puyapy")
     assert puyapy is not None
     result = subprocess.run(
-        [
+        [  # noqa: S603
             puyapy,
             "--no-output-teal",  # we don't want to overwrite outputs, just check the CLI works
             *map(str, args),

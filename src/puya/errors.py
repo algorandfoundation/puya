@@ -13,7 +13,7 @@ import structlog
 
 from puya.parse import SourceLocation
 
-logger = structlog.get_logger()
+logger = structlog.get_logger(__name__)
 _VALID_SEVERITY = ("error", "note", "warning")
 
 
@@ -156,11 +156,11 @@ def _crash_report(location: SourceLocation | None, exit_code: ErrorExitCode) -> 
             break
     *_, tb_type = sys.exc_info()
     tb2 = traceback.extract_tb(tb_type)[1:]
-    print("Traceback (most recent call last):")
-    for s in traceback.format_list(tb + tb2):
-        print(s.rstrip("\n"))
+    output = ["Traceback (most recent call last):"]
+    output.extend(s.rstrip("\n") for s in traceback.format_list(tb + tb2))
     if location:
-        print(f"{location.file}:{location.line}: {type(err).__name__}: {err}")
+        output.append(f"{location.file}:{location.line}: {type(err).__name__}: {err}")
+    print("\n".join(output), file=sys.stderr)  # noqa: T201
     raise SystemExit(exit_code.value)
 
 

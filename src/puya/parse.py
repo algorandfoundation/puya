@@ -4,7 +4,6 @@ import sys
 import typing
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Self
 
 import attrs
 import docstring_parser
@@ -21,7 +20,7 @@ import structlog
 from puya.logging_config import mypy_severity_to_loglevel
 from puya.utils import make_path_relative_to_cwd
 
-logger = structlog.get_logger()
+logger = structlog.get_logger(__name__)
 _SRC_ROOT = Path(__file__).parent
 TYPESHED_PATH = _SRC_ROOT / "_typeshed"
 
@@ -72,7 +71,7 @@ class SourceLocation:
     mypy_src_node: str | None = None
 
     @classmethod
-    def from_mypy(cls, file: str, node: mypy.nodes.Context) -> Self:
+    def from_mypy(cls, file: str, node: mypy.nodes.Context) -> typing.Self:
         assert node.line is not None
         assert node.line >= 1
 
@@ -361,12 +360,11 @@ def _mypy_build(
         if not file_name.startswith(os.devnull)
     ):
         raise mypy.errors.CompileError(all_messages)
-    else:
-        for message in all_messages:
-            path, line, severity, msg = split_log_message(message)
-            level = mypy_severity_to_loglevel(severity.strip())
-            location = SourceLocation(file=path, line=int(line))
-            logger.log(level, msg, location=location)
+    for message in all_messages:
+        path, line, severity, msg = split_log_message(message)
+        level = mypy_severity_to_loglevel(severity.strip())
+        location = SourceLocation(file=path, line=int(line))
+        logger.log(level, msg, location=location)
     return result
 
 

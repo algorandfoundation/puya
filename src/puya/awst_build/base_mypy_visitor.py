@@ -107,7 +107,7 @@ class BaseMyPyStatementVisitor(
             raise UnsupportedASTError(
                 self._location(o), details="property decorator/descriptor not supported currently"
             )
-        elif o.impl:
+        if o.impl:
             self.context.warning(
                 "@typing.overload() should not be required, "
                 "and may not function exactly as intended",

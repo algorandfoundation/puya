@@ -1,12 +1,14 @@
+# ruff: noqa: T201, F403, F405, PLR0133
+
 import typing
 
 import test_cases.module_consts.constants as consts
 from test_cases.module_consts import constants, constants4
 from test_cases.module_consts.constants import BANNED, EXT_ONE, EXT_ZERO
-from test_cases.module_consts.constants2 import *  # noqa: F403
-from test_cases.module_consts.constants3 import *  # noqa: F403
+from test_cases.module_consts.constants2 import *
+from test_cases.module_consts.constants3 import *
 
-T = True and (1 == 1)  # noqa: PLR0133
+T = True and (1 == 1)
 
 _T = typing.TypeVar("_T")
 TruthyType = bool | typing.Literal[0, 1]
@@ -18,7 +20,7 @@ if typing.TYPE_CHECKING:
 
 elif False:
     print("HOW DO I GET HERE")
-elif 0 > 1:  # noqa: PLR0133
+elif 0 > 1:
     print("please sir can I have some more consistency")
 else:
     SNEAKY_CONST = "so sneak"
@@ -51,14 +53,13 @@ MAYBE7 = fr'{MAYBE}"'
 MAYBE_MORE = f"{MAYBE} \
  maybe not"
 TWO = consts.EXT_ONE + constants.EXT_ONE + consts.EXT_ZERO
-# TODO: make the line below work
-# EXT_NAME_REF_F_STR = f"{consts.BANNED}"
+EXT_NAME_REF_F_STR = f"{consts.BANNED}"
 YES_TWICE_AND_NO = 2 * f"2{YES}" + f"1{NO!r}"
 SHOULD_BE_1 = EXT_ONE if not typing.TYPE_CHECKING else EXT_ZERO
 SHOULD_BE_0 = EXT_ONE if False else EXT_ZERO
 
-STAR1 = USE_CONSTANTS2  # noqa: F405
-STAR2 = USED_CONSTANTS3  # noqa: F405
+STAR1 = USE_CONSTANTS2
+STAR2 = USED_CONSTANTS3
 # STAR3: str = USED_UNLISTED_CONSTANT3  # type: ignore[name-defined]
 FOOOO = constants4.constants3.USED_CONSTANTS3
 
