@@ -48,7 +48,6 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         if len(args) == 1:
             return var_expression(expect_string_or_bytes(args[0], location))

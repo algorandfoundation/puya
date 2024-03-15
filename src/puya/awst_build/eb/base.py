@@ -187,7 +187,6 @@ class ExpressionBuilder(abc.ABC):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         """Handle self(args...)"""
         raise CodeError(f"{type(self).__name__} does not support calling", location)
@@ -335,7 +334,6 @@ class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         ...
 
@@ -387,7 +385,6 @@ class ValueExpressionBuilder(ExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         raise CodeError(f"{self.wtype} does not support calling", location)
 

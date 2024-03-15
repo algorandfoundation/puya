@@ -53,7 +53,6 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         ordered_field_names = self.wtype.names
         field_mapping = get_arg_mapping(

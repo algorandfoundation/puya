@@ -48,7 +48,6 @@ class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
             case [(ExpressionBuilder() | Literal(value=int())) as eb]:
@@ -96,7 +95,6 @@ class InnerTransactionClassExpressionBuilder(TypeClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> typing.Never:
         params_wtype = wtypes.WInnerTransactionFields.from_type(self.wtype.transaction_type)
         raise CodeError(
@@ -123,7 +121,6 @@ class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         if len(args) > 1:
             transaction_types = {a: _get_transaction_type_from_arg(a) for a in args}

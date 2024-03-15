@@ -84,7 +84,6 @@ class ABICallGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         abi_call_expr = _extract_abi_call_args(args, arg_kinds, arg_names, location)
         method = abi_call_expr.method
@@ -188,7 +187,6 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         abi_call_expr = _extract_abi_call_args(args, arg_kinds, arg_names, location)
         method = abi_call_expr.method

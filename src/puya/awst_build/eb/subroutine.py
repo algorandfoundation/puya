@@ -31,7 +31,7 @@ class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
         context: ASTConversionModuleContext,
         target: InstanceSubroutineTarget | BaseClassSubroutineTarget | FreeSubroutineTarget,
         location: SourceLocation,
-        func_type: mypy.types.CallableType | None = None,
+        func_type: mypy.types.CallableType,
     ):
         super().__init__(location)
         self.context = context
@@ -44,7 +44,6 @@ class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         call_args = list[CallArg]()
         for arg, arg_name, arg_kind in zip(args, arg_names, arg_kinds, strict=True):
@@ -56,21 +55,16 @@ class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
                 CallArg(name=arg_name, value=require_expression_builder(arg).rvalue())
             )
 
-        if self.func_type is None:
-            # func_type might be none if it's an instance method call, for example,
-            # which doesn't get fully resolved until a specific contract is being compiled
-            result_wtype = self.context.mypy_expr_node_type(original_expr)
+        func_type = self.func_type
+        # bit of a kludge, but it works for us for now
+        if isinstance(self.target, FreeSubroutineTarget):
+            expected_arg_types = func_type.arg_types
         else:
-            func_type = self.func_type
-            # bit of a kludge, but it works for us for now
-            if isinstance(self.target, FreeSubroutineTarget):
-                expected_arg_types = func_type.arg_types
-            else:
-                expected_arg_types = func_type.arg_types[1:]
-            # TODO: type check fully, not just num args... requires matching keyword positions
-            if len(args) != len(expected_arg_types):
-                logger.error("incorrect number of arguments to subroutine call", location=location)
-            result_wtype = self.context.type_to_wtype(func_type.ret_type, source_location=location)
+            expected_arg_types = func_type.arg_types[1:]
+        # TODO: type check fully, not just num args... requires matching keyword positions
+        if len(args) != len(expected_arg_types):
+            logger.error("incorrect number of arguments to subroutine call", location=location)
+        result_wtype = self.context.type_to_wtype(func_type.ret_type, source_location=location)
 
         call_expr = SubroutineCallExpression(
             source_location=location,

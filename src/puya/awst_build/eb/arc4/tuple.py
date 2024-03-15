@@ -63,7 +63,6 @@ class ARC4TupleGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         return tuple_constructor(args, None, location)
 
@@ -141,7 +140,6 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         return tuple_constructor(args, self.wtype, location)
 

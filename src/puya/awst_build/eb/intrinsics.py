@@ -43,7 +43,6 @@ class Arc4SignatureBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
             case [Literal(value=str(str_value))]:
@@ -115,7 +114,6 @@ class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         resolved_args: list[Expression | Literal] = [
             a.rvalue() if isinstance(a, ExpressionBuilder) else a for a in args

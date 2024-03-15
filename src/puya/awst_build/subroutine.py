@@ -651,6 +651,7 @@ class FunctionASTConverter(
                 return ContractSelfExpressionBuilder(
                     context=self.context,
                     app_state=self.contract_method_info.app_state,
+                    type_info=self.contract_method_info.type_info,
                     location=expr_loc,
                 )
             case mypy.nodes.RefExpr(
@@ -860,7 +861,6 @@ class FunctionASTConverter(
             arg_kinds=call.arg_kinds,
             arg_names=call.arg_names,
             location=self._location(call),
-            original_expr=call,
         )
 
     def _visit_special_call_expr(
