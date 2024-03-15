@@ -1,8 +1,6 @@
 import contextlib
 from collections.abc import Iterator, Sequence
 
-import attrs
-
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -12,7 +10,6 @@ from puya.context import CompileContext
 from puya.parse import SourceLocation
 
 
-@attrs.define
 class InnerTransactionsValidator(AWSTTraverser):
     """Validates that inner transaction parameters and results are only used in the ways currently
     supported. Emits errors for:
@@ -24,18 +21,20 @@ class InnerTransactionsValidator(AWSTTraverser):
     Not unpacking the tuple of a submit result
     """
 
-    context: CompileContext
-    _current_itxn_var_stack: list[list[str]] = attrs.field(factory=list)
-
-    @property
-    def _current_loop_itxn_vars(self) -> list[str] | None:
-        return self._current_itxn_var_stack[-1] if self._current_itxn_var_stack else None
-
     @classmethod
     def validate(cls, context: CompileContext, module: awst_nodes.Module) -> None:
         for module_statement in module.body:
             validator = cls(context)
             module_statement.accept(validator)
+
+    def __init__(self, context: CompileContext):
+        super().__init__()
+        self.context = context
+        self._current_itxn_var_stack = list[list[str]]()
+
+    @property
+    def _current_loop_itxn_vars(self) -> list[str] | None:
+        return self._current_itxn_var_stack[-1] if self._current_itxn_var_stack else None
 
     def visit_contract_method(self, statement: awst_nodes.ContractMethod) -> None:
         self._check_method_types(statement.args, statement.return_type, statement.source_location)

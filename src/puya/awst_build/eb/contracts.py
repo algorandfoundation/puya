@@ -3,22 +3,36 @@ from collections.abc import Mapping
 import mypy.nodes
 import mypy.types
 
-from puya.awst.nodes import (
-    AppStateExpression,
-    InstanceSubroutineTarget,
-)
+from puya.awst.nodes import AppStateExpression, InstanceSubroutineTarget
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStateDeclaration, AppStateDeclType
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
+from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.subroutine import (
+    BaseClassSubroutineInvokerExpressionBuilder,
+    SubroutineInvokerExpressionBuilder,
 )
-from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError
 from puya.parse import SourceLocation
+
+
+class ContractTypeExpressionBuilder(IntermediateExpressionBuilder):
+    def __init__(
+        self,
+        context: ASTConversionModuleContext,
+        type_info: mypy.nodes.TypeInfo,
+        location: SourceLocation,
+    ):
+        super().__init__(location)
+        self.context = context
+        self._type_info = type_info
+
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+        return BaseClassSubroutineInvokerExpressionBuilder(
+            context=self.context, type_info=self._type_info, name=name, location=location
+        )
 
 
 class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):

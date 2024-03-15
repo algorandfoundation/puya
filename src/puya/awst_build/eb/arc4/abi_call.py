@@ -29,8 +29,11 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import constants
-from puya.awst_build.arc4_utils import arc4_encode, get_arc4_method_config, get_func_types
-from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
+from puya.awst_build.arc4_utils import arc4_encode
+from puya.awst_build.eb.arc4._utils import (
+    expect_arc4_operand_wtype,
+    get_arc4_signature,
+)
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
@@ -38,19 +41,16 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
 )
+from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import (
-    get_decorators_by_fullname,
-)
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
     from puya.awst_build.context import ASTConversionModuleContext
-    from puya.models import ARC4MethodConfig
     from puya.parse import SourceLocation
 
 
@@ -103,10 +103,13 @@ class ABICallGenericClassExpressionBuilder(GenericClassExpressionBuilder):
                     else maybe_args
                 )
                 return_type = maybe_return_type or wtypes.void_wtype
-            case ARC4MethodConfigExpressionBuilder() as eb:
-                method_name = eb.method_config.name
-                arg_types = eb.arg_types
-                return_type = eb.return_type
+            case (
+                ARC4ClientMethodExpressionBuilder() | BaseClassSubroutineInvokerExpressionBuilder()
+            ) as eb:
+                signature = get_arc4_signature(eb.context, eb.type_info, eb.name, location)
+                method_name = signature.method_name
+                arg_types = signature.arg_types
+                return_type = signature.return_type
             case _:
                 raise CodeError(
                     "First argument must be a reference to an ARC4 ABI method", location
@@ -150,32 +153,32 @@ class ARC4ClientClassExpressionBuilder(IntermediateExpressionBuilder):
         self.type_info = type_info
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        dec = self.type_info.get_method(name)
-        if isinstance(dec, mypy.nodes.Decorator):
-            decorators = get_decorators_by_fullname(self.context, dec)
-            abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
-            if abimethod_dec is not None:
-                func_def = dec.func
-                arc4_method_config = get_arc4_method_config(self.context, abimethod_dec, func_def)
-                *arg_types, return_type = get_func_types(self.context, func_def, location).values()
-                return ARC4MethodConfigExpressionBuilder(
-                    arc4_method_config, arg_types, return_type, location
-                )
-        raise CodeError(f"'{self.type_info.fullname}.{name}' is not a valid ARC4 method", location)
+        return ARC4ClientMethodExpressionBuilder(self.context, self.type_info, name, location)
 
 
-class ARC4MethodConfigExpressionBuilder(IntermediateExpressionBuilder):
+class ARC4ClientMethodExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(
         self,
-        method_config: ARC4MethodConfig,
-        arg_types: list[wtypes.WType],
-        return_type: wtypes.WType,
+        context: ASTConversionModuleContext,
+        type_info: mypy.nodes.TypeInfo,
+        name: str,
         location: SourceLocation,
     ):
         super().__init__(location)
-        self.method_config = method_config
-        self.arg_types = arg_types
-        self.return_type = return_type
+        self.context = context
+        self.type_info = type_info
+        self.name = name
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        raise CodeError(
+            f"Can't invoke client methods directly, use {constants.CLS_ARC4_ABI_CALL}", location
+        )
 
 
 class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
