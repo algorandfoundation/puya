@@ -6,6 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
+from puya.awst_build import intrinsic_factory
 from puya.awst_build.arc4_utils import arc4_decode, arc4_encode
 from puya.awst_build.eb.transaction import check_transaction_type
 from puya.errors import CodeError, InternalError
@@ -54,12 +55,7 @@ def app_arg(
     wtype: wtypes.WType,
     location: SourceLocation,
 ) -> awst_nodes.Expression:
-    value = awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.bytes_wtype,
-        op_code="txna",
-        immediates=["ApplicationArgs", index],
-    )
+    value = intrinsic_factory.txn_app_args(index, location)
     if wtype == wtypes.bytes_wtype:
         return value
     return awst_nodes.ReinterpretCast(
@@ -69,39 +65,23 @@ def app_arg(
     )
 
 
-def btoi(bytes_arg: awst_nodes.Expression, location: SourceLocation) -> awst_nodes.Expression:
-    return awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.uint64_wtype,
-        op_code="btoi",
-        stack_args=[bytes_arg],
-    )
-
-
 def has_app_id(location: SourceLocation) -> awst_nodes.Expression:
-    return awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.bool_wtype,  # treat as bool
-        op_code="txn",
-        immediates=["ApplicationID"],
+    return intrinsic_factory.txn(
+        "ApplicationID",
+        wtypes.bool_wtype,  # treat as bool
+        location,
     )
 
 
 def method_selector(location: SourceLocation) -> awst_nodes.Expression:
-    return awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.bytes_wtype,
-        op_code="txna",
-        immediates=["ApplicationArgs", 0],
-    )
+    return intrinsic_factory.txn_app_args(0, location)
 
 
 def has_app_args(location: SourceLocation) -> awst_nodes.Expression:
-    return awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.bool_wtype,  # treat as bool
-        op_code="txn",
-        immediates=["NumAppArgs"],
+    return intrinsic_factory.txn(
+        "NumAppArgs",
+        wtypes.bool_wtype,  # treat as bool
+        location,
     )
 
 
@@ -121,12 +101,7 @@ def approve(location: SourceLocation) -> awst_nodes.ReturnStatement:
 
 
 def on_completion(location: SourceLocation) -> awst_nodes.Expression:
-    return awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.uint64_wtype,
-        op_code="txn",
-        immediates=["OnCompletion"],
-    )
+    return intrinsic_factory.txn("OnCompletion", wtypes.uint64_wtype, location)
 
 
 def create_oca_switch(
@@ -232,14 +207,7 @@ def log_arc4_result(
             source_location=result_expression.source_location,
         ),
     )
-    return awst_nodes.ExpressionStatement(
-        awst_nodes.IntrinsicCall(
-            source_location=location,
-            wtype=wtypes.void_wtype,
-            op_code="log",
-            stack_args=[abi_log],
-        )
-    )
+    return awst_nodes.ExpressionStatement(intrinsic_factory.log(abi_log, location))
 
 
 def assert_create_state(
@@ -404,13 +372,7 @@ def application_at(
 
 
 def current_group_index(location: SourceLocation) -> awst_nodes.Expression:
-    return awst_nodes.IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.uint64_wtype,
-        op_code="txn",
-        immediates=["GroupIndex"],
-        stack_args=[],
-    )
+    return intrinsic_factory.txn("GroupIndex", wtypes.uint64_wtype, location)
 
 
 def tuple_item(
@@ -469,20 +431,20 @@ def map_abi_args(
         match arg.wtype:
             case wtypes.asset_wtype:
                 bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
-                asset_index = btoi(bytes_arg, location)
+                asset_index = intrinsic_factory.btoi(bytes_arg, location)
                 asset_id = asset_id_at(asset_index, location)
                 yield asset_id
                 abi_arg_index += 1
 
             case wtypes.account_wtype:
                 bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
-                account_index = btoi(bytes_arg, location)
+                account_index = intrinsic_factory.btoi(bytes_arg, location)
                 account = account_at(account_index, location)
                 yield account
                 abi_arg_index += 1
             case wtypes.application_wtype:
                 bytes_arg = get_arg(abi_arg_index, wtypes.bytes_wtype)
-                application_index = btoi(bytes_arg, location)
+                application_index = intrinsic_factory.btoi(bytes_arg, location)
                 application = application_at(application_index, location)
                 yield application
                 abi_arg_index += 1

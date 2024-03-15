@@ -16,12 +16,12 @@ from puya.awst.nodes import (
     Copy,
     EqualityComparison,
     Expression,
-    IntrinsicCall,
     Literal,
     ReinterpretCast,
     SingleEvaluation,
     TupleExpression,
 )
+from puya.awst_build import intrinsic_factory
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
@@ -110,20 +110,8 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
         cls, wtype: wtypes.WType, value: Expression, location: SourceLocation
     ) -> Expression:
         tmp_value = SingleEvaluation(value)
-        arc4_value = IntrinsicCall(
-            wtype=wtypes.bytes_wtype,
-            op_code="extract",
-            immediates=[4, 0],
-            source_location=location,
-            stack_args=[tmp_value],
-        )
-        arc4_prefix = IntrinsicCall(
-            wtype=wtypes.bytes_wtype,
-            op_code="extract",
-            immediates=[0, 4],
-            source_location=location,
-            stack_args=[tmp_value],
-        )
+        arc4_value = intrinsic_factory.extract(tmp_value, start=4, loc=location)
+        arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, end=4, loc=location)
         arc4_prefix_is_valid = BytesComparisonExpression(
             lhs=arc4_prefix,
             rhs=BytesConstant(

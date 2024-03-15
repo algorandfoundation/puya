@@ -5,7 +5,8 @@ import typing
 import structlog
 
 from puya.awst import wtypes
-from puya.awst.nodes import BoolConstant, Expression, IntrinsicCall, Literal
+from puya.awst.nodes import BoolConstant, Expression, Literal
+from puya.awst_build import intrinsic_factory
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import expect_operand_wtype
 
@@ -28,12 +29,11 @@ def bool_eval_to_constant(
 
 def uint64_to_biguint(
     arg_in: ExpressionBuilder | Expression | Literal, location: SourceLocation
-) -> IntrinsicCall:
+) -> Expression:
     arg = expect_operand_wtype(arg_in, wtypes.uint64_wtype)
-    itob_call = IntrinsicCall(
-        source_location=location,
-        wtype=wtypes.biguint_wtype,
-        op_code="itob",
-        stack_args=[arg],
+
+    return intrinsic_factory.itob_as(
+        arg,
+        wtypes.biguint_wtype,
+        location,
     )
-    return itob_call
