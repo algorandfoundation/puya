@@ -1,0 +1,67 @@
+#pragma version 10
+
+contract.EventEmitter.approval_program:
+    // arc-28/contract.py:9
+    // class EventEmitter(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@5
+    method "emit_swapped(uint64,uint64)void"
+    txna ApplicationArgs 0
+    match main_emit_swapped_route@2
+    err // reject transaction
+
+main_emit_swapped_route@2:
+    // arc-28/contract.py:10
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // arc-28/contract.py:9
+    // class EventEmitter(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    // arc-28/contract.py:10
+    // @arc4.abimethod
+    callsub emit_swapped
+    int 1
+    return
+
+main_bare_routing@5:
+    // arc-28/contract.py:9
+    // class EventEmitter(ARC4Contract):
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:
+emit_swapped:
+    // arc-28/contract.py:10-11
+    // @arc4.abimethod
+    // def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
+    proto 2 0
+    // arc-28/contract.py:12
+    // arc4.emit(Swapped(b, a))
+    frame_dig -1
+    frame_dig -2
+    concat
+    method "Swapped(uint64,uint64)"
+    swap
+    concat
+    dup
+    log
+    // arc-28/contract.py:13
+    // arc4.emit("Swapped(uint64,uint64)", b, a)
+    dup
+    log
+    // arc-28/contract.py:14
+    // arc4.emit("Swapped", b, a)
+    log
+    retsub

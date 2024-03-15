@@ -1,0 +1,104 @@
+#pragma version 10
+
+contract.EventEmitter.approval_program:
+    // arc-28/contract.py:9
+    // class EventEmitter(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@5
+    txna ApplicationArgs 0
+    method "emit_swapped(uint64,uint64)void"
+    swap
+    match main_emit_swapped_route@2
+    b main_switch_case_default@3
+
+main_emit_swapped_route@2:
+    // arc-28/contract.py:10
+    // @arc4.abimethod
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // arc-28/contract.py:9
+    // class EventEmitter(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    // arc-28/contract.py:10
+    // @arc4.abimethod
+    callsub emit_swapped
+    int 1
+    return
+
+main_switch_case_default@3:
+    b main_after_if_else@8
+
+main_bare_routing@5:
+    // arc-28/contract.py:9
+    // class EventEmitter(ARC4Contract):
+    txn OnCompletion
+    int 0
+    swap
+    match main_create@6
+    b main_reject_bare_on_completion@7
+
+main_create@6:
+    // arc-28/contract.py:9
+    // class EventEmitter(ARC4Contract):
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+main_reject_bare_on_completion@7:
+    // arc-28/contract.py:9
+    // class EventEmitter(ARC4Contract):
+    err // reject transaction
+
+main_after_if_else@8:
+    // arc-28/contract.py:9
+    // class EventEmitter(ARC4Contract):
+    err // reject transaction
+
+
+// contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:
+emit_swapped:
+    // arc-28/contract.py:10-11
+    // @arc4.abimethod
+    // def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
+    proto 2 0
+    // arc-28/contract.py:12
+    // arc4.emit(Swapped(b, a))
+    byte 0x
+    frame_dig -1
+    concat
+    frame_dig -2
+    concat
+    method "Swapped(uint64,uint64)"
+    swap
+    concat
+    log
+    // arc-28/contract.py:13
+    // arc4.emit("Swapped(uint64,uint64)", b, a)
+    byte 0x
+    frame_dig -1
+    concat
+    frame_dig -2
+    concat
+    method "Swapped(uint64,uint64)"
+    swap
+    concat
+    log
+    // arc-28/contract.py:14
+    // arc4.emit("Swapped", b, a)
+    byte 0x
+    frame_dig -1
+    concat
+    frame_dig -2
+    concat
+    method "Swapped(uint64,uint64)"
+    swap
+    concat
+    log
+    retsub

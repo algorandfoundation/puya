@@ -46,6 +46,7 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
     constants.ENSURE_BUDGET: ensure_budget.EnsureBudgetBuilder,
     constants.LOG: log.LogBuilder,
+    constants.EMIT: arc4.EmitBuilder,
     constants.OP_UP_FEE_SOURCE: ensure_budget.OpUpFeeSourceClassBuilder,
     constants.CLS_LOCAL_STATE: app_account_state.AppAccountStateClassExpressionBuilder,
     constants.CLS_GLOBAL_STATE: app_state.AppStateClassExpressionBuilder,

@@ -8,18 +8,21 @@ import mypy.nodes
 import mypy.types
 import structlog
 
+from puya.arc4_util import parse_method_signature, wtype_to_arc4
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import DecimalConstant
+from puya.awst.nodes import DecimalConstant, Expression, Literal
 from puya.awst_build import constants
-from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
+from puya.awst_build.arc4_utils import arc4_encode, get_arc4_method_config, get_func_types
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.utils import convert_literal, get_decorators_by_fullname
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from puya.awst_build.context import ASTConversionModuleContext
     from puya.parse import SourceLocation
 
@@ -116,6 +119,12 @@ def expect_arc4_operand_wtype(
     if isinstance(literal_or_expr, ExpressionBuilder):
         literal_or_expr = literal_or_expr.rvalue()
 
+    if wtypes.has_arc4_equivalent_type(target_wtype):
+        target_wtype = wtypes.avm_to_arc4_equivalent_type(target_wtype)
+        literal_or_expr = arc4_encode(
+            literal_or_expr, target_wtype, literal_or_expr.source_location
+        )
+
     if literal_or_expr.wtype != target_wtype:
         raise CodeError(
             f"Expected type {target_wtype}, got type {literal_or_expr.wtype}",
@@ -129,6 +138,11 @@ class ARC4Signature:
     method_name: str
     arg_types: list[wtypes.WType]
     return_type: wtypes.WType
+
+    @property
+    def method_selector(self) -> str:
+        args = ",".join(map(wtype_to_arc4, self.arg_types))
+        return f"{self.method_name}({args}){wtype_to_arc4(self.return_type)}"
 
 
 def get_arc4_signature(
@@ -147,3 +161,56 @@ def get_arc4_signature(
             *arg_types, return_type = get_func_types(context, func_def, location).values()
             return ARC4Signature(arc4_method_config.name, arg_types, return_type)
     raise CodeError(f"'{type_info.fullname}.{member_name}' is not a valid ARC4 method", location)
+
+
+def get_arc4_args_and_signature(
+    method_sig: str,
+    native_args: Sequence[ExpressionBuilder | Literal],
+    loc: SourceLocation,
+    *,
+    return_wtype: wtypes.WType | None = None,
+) -> tuple[Sequence[Expression], ARC4Signature]:
+    method_name, maybe_args, maybe_return_type = parse_method_signature(method_sig)
+    arg_types = list(map(_arg_to_arc4_wtype, native_args)) if maybe_args is None else maybe_args
+    if len(native_args) != len(arg_types):
+        raise CodeError("Number of arguments does not match signature", loc)
+
+    arc4_args = [
+        expect_arc4_operand_wtype(arg, wtype)
+        for arg, wtype in zip(native_args, arg_types, strict=True)
+    ]
+    arc4_types = [a.wtype for a in arc4_args]
+    return_type = return_wtype or maybe_return_type or wtypes.void_wtype
+    return arc4_args, ARC4Signature(method_name, arc4_types, return_type)
+
+
+def _arg_to_arc4_wtype(
+    arg: ExpressionBuilder | Literal, wtype: wtypes.WType | None = None
+) -> wtypes.WType:
+    # if wtype is known, then ensure arg can be coerced to that type
+    if wtype:
+        return expect_arc4_operand_wtype(arg, wtype).wtype
+    # otherwise infer arg from literal type
+    match arg:
+        case ExpressionBuilder(value_type=wtypes.WType() as expr_wtype):
+            return expr_wtype
+        case Literal(value=bytes()):
+            return wtypes.arc4_dynamic_bytes
+        case Literal(value=int()):
+            return wtypes.ARC4UIntN.from_scale(64)
+        case Literal(value=str()):
+            return wtypes.arc4_string_wtype
+        case Literal(value=bool()):
+            return wtypes.arc4_bool_wtype
+    raise CodeError("Invalid arg type", arg.source_location)
+
+
+def arc4_tuple_from_items(
+    items: Sequence[awst_nodes.Expression], source_location: SourceLocation
+) -> awst_nodes.ARC4Encode:
+    args_tuple = awst_nodes.TupleExpression.from_items(items, source_location)
+    return awst_nodes.ARC4Encode(
+        value=args_tuple,
+        wtype=wtypes.ARC4Tuple.from_types(args_tuple.wtype.types),
+        source_location=source_location,
+    )

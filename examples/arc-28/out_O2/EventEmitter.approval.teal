@@ -1,0 +1,48 @@
+#pragma version 10
+
+contract.EventEmitter.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@5
+    method "emit_swapped(uint64,uint64)void"
+    txna ApplicationArgs 0
+    match main_emit_swapped_route@2
+    err // reject transaction
+
+main_emit_swapped_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    callsub emit_swapped
+    int 1
+    return
+
+main_bare_routing@5:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// contract.EventEmitter.emit_swapped(a: bytes, b: bytes) -> void:
+emit_swapped:
+    proto 2 0
+    frame_dig -1
+    frame_dig -2
+    concat
+    method "Swapped(uint64,uint64)"
+    swap
+    concat
+    dup
+    log
+    dup
+    log
+    log
+    retsub

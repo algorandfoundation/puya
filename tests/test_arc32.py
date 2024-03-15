@@ -807,3 +807,28 @@ def test_typed_abi_call(
         app=logger.app_id,
         asset=asset_a,
     )
+
+
+def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
+    app_client = algokit_utils.ApplicationClient(
+        algod_client,
+        algokit_utils.ApplicationSpecification.from_json(compile_arc32(EXAMPLES_DIR / "arc-28")),
+        signer=account,
+    )
+    app_client.create()
+
+    a = 42
+    b = 12
+    result = app_client.call(
+        "emit_swapped",
+        a=a,
+        b=b,
+    )
+    logs = result.tx_info["logs"]
+    events = decode_logs(logs, "bbb")
+    for event in events:
+        assert isinstance(event, bytes)
+        event_sig = event[:4]
+        event_data = event[4:]
+        assert event_sig == bytes.fromhex("1ccbd925")
+        assert event_data == b.to_bytes(length=8) + a.to_bytes(length=8)

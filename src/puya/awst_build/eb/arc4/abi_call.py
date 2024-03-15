@@ -9,11 +9,9 @@ import mypy.nodes
 import mypy.types
 import structlog
 
-from puya.arc4_util import get_abi_signature_from_wtypes, parse_method_signature
 from puya.awst import wtypes
 from puya.awst.nodes import (
     TXN_FIELDS,
-    ARC4Encode,
     BytesConstant,
     BytesEncoding,
     CreateInnerTransaction,
@@ -29,9 +27,11 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import constants
-from puya.awst_build.arc4_utils import arc4_encode
 from puya.awst_build.eb.arc4._utils import (
+    ARC4Signature,
+    arc4_tuple_from_items,
     expect_arc4_operand_wtype,
+    get_arc4_args_and_signature,
     get_arc4_signature,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
@@ -96,20 +96,19 @@ class ABICallGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         method = abi_call_expr.method
         match method:
             case Literal(value=str(method_sig)):
-                method_name, maybe_args, maybe_return_type = parse_method_signature(method_sig)
-                arg_types = (
-                    list(map(_arg_to_wtype, abi_call_expr.abi_args))
-                    if maybe_args is None
-                    else maybe_args
+                arc4_args, signature = get_arc4_args_and_signature(
+                    method_sig, abi_call_expr.abi_args, location
                 )
-                return_type = maybe_return_type or wtypes.void_wtype
             case (
                 ARC4ClientMethodExpressionBuilder() | BaseClassSubroutineInvokerExpressionBuilder()
             ) as eb:
                 signature = get_arc4_signature(eb.context, eb.type_info, eb.name, location)
-                method_name = signature.method_name
-                arg_types = signature.arg_types
-                return_type = signature.return_type
+                if len(signature.arg_types) != len(abi_call_expr.abi_args):
+                    raise CodeError("Number of arguments does not match signature", location)
+                arc4_args = [
+                    expect_arc4_operand_wtype(arg, wtype)
+                    for arg, wtype in zip(abi_call_expr.abi_args, signature.arg_types, strict=True)
+                ]
             case _:
                 raise CodeError(
                     "First argument must be a reference to an ARC4 ABI method", location
@@ -117,10 +116,8 @@ class ABICallGenericClassExpressionBuilder(GenericClassExpressionBuilder):
 
         return var_expression(
             _create_abi_call_expr(
-                get_abi_signature_from_wtypes(method_name, arg_types, return_type),
-                arg_types,
-                return_type,
-                abi_call_expr.abi_args,
+                signature,
+                arc4_args,
                 abi_call_expr.transaction_kwargs,
                 location,
             )
@@ -203,73 +200,41 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
 
         match method:
             case Literal(value=str(method_str)):
-                method_name, method_args, method_return = parse_method_signature(method_str)
+                arc4_args, signature = get_arc4_args_and_signature(
+                    method_str, abi_call_expr.abi_args, location, return_wtype=self.wtype
+                )
             case _:
                 raise CodeError(
                     "First argument must be a `str` value of an ARC4 method name/selector",
                     location,
                 )
 
-        if method_args:
-            arg_wtypes = [
-                _arg_to_wtype(arg, arg_wtype)
-                for arg, arg_wtype in zip(abi_call_expr.abi_args, method_args, strict=True)
-            ]
-        else:
-            arg_wtypes = list(map(_arg_to_wtype, abi_call_expr.abi_args))
-
-        calculated_signature = get_abi_signature_from_wtypes(method_name, arg_wtypes, self.wtype)
-        if not calculated_signature.startswith(method_str):
+        if not signature.method_selector.startswith(method_str):
             raise CodeError(
-                f"Method selector from args '{calculated_signature}' "
+                f"Method selector from args '{signature.method_selector}' "
                 f"does not match provided method selector: '{method_str}'",
                 method.source_location,
             )
 
         return var_expression(
             _create_abi_call_expr(
-                calculated_signature,
-                arg_wtypes,
-                self.wtype,
-                abi_call_expr.abi_args,
+                signature,
+                arc4_args,
                 abi_call_expr.transaction_kwargs,
                 location,
             )
         )
 
 
-def _arg_to_wtype(
-    arg: ExpressionBuilder | Literal, wtype: wtypes.WType | None = None
-) -> wtypes.WType:
-    # if wtype is known, then ensure arg can be coerced to that type
-    if wtype:
-        return expect_arc4_operand_wtype(arg, wtype).wtype
-    # otherwise infer arg from literal type
-    match arg:
-        case ExpressionBuilder(value_type=wtypes.WType() as expr_wtype):
-            return expr_wtype
-        case Literal(value=bytes()):
-            return wtypes.bytes_wtype
-        case Literal(value=int()):
-            return wtypes.uint64_wtype
-        case Literal(value=str()):
-            return wtypes.arc4_string_wtype
-        case Literal(value=bool()):
-            return wtypes.bool_wtype
-    raise CodeError("Invalid arg type", arg.source_location)
-
-
 def _create_abi_call_expr(
-    method_selector: str,
-    abi_arg_types: Sequence[wtypes.WType],
-    abi_return_type: wtypes.WType,
-    abi_args: Sequence[ExpressionBuilder | Literal],
+    signature: ARC4Signature,
+    abi_args: Sequence[Expression],
     transaction_kwargs: dict[str, ExpressionBuilder | Literal],
     location: SourceLocation,
 ) -> Expression:
     abi_arg_exprs: list[Expression] = [
         MethodConstant(
-            value=method_selector,
+            value=signature.method_selector,
             source_location=location,
         )
     ]
@@ -291,8 +256,7 @@ def _create_abi_call_expr(
             )
         )
 
-    for arg, wtype in zip(abi_args, abi_arg_types, strict=True):
-        arg_expr = expect_arc4_operand_wtype(arg, wtype)
+    for arg_expr, wtype in zip(abi_args, signature.arg_types, strict=True):
         match wtype:
             case wtypes.ARC4Type():
                 abi_arg_exprs.append(arg_expr)
@@ -302,9 +266,6 @@ def _create_abi_call_expr(
                 append_ref_arg(account_exprs, arg_expr)
             case wtypes.application_wtype:
                 append_ref_arg(application_exprs, arg_expr)
-            case _ if wtypes.has_arc4_equivalent_type(wtype):
-                arc4_wtype = wtypes.avm_to_arc4_equivalent_type(wtype)
-                abi_arg_exprs.append(arc4_encode(arg_expr, arc4_wtype, arg_expr.source_location))
             case wtypes.WGroupTransaction():
                 raise CodeError(
                     "Transaction arguments are not supported for contract to contract calls",
@@ -323,13 +284,8 @@ def _create_abi_call_expr(
     if len(abi_arg_exprs) > 15:
         packed_arg_slice = slice(15, None)
         args_to_pack = abi_arg_exprs[packed_arg_slice]
-        args_tuple = TupleExpression.from_items(args_to_pack, _combine_locs(args_to_pack))
         abi_arg_exprs[packed_arg_slice] = [
-            ARC4Encode(
-                value=args_tuple,
-                wtype=wtypes.ARC4Tuple.from_types(args_tuple.wtype.types),
-                source_location=args_tuple.source_location,
-            )
+            arc4_tuple_from_items(args_to_pack, _combine_locs(args_to_pack))
         ]
 
     _add_array_exprs(fields, TxnFields.app_args, abi_arg_exprs)
@@ -359,7 +315,7 @@ def _create_abi_call_expr(
         wtype=wtypes.WInnerTransaction.from_type(constants.TransactionType.appl),
     )
 
-    if abi_return_type == wtypes.void_wtype:
+    if signature.return_type == wtypes.void_wtype:
         return itxn
     itxn_tmp = SingleEvaluation(itxn)
     last_log = InnerTransactionField(
@@ -368,18 +324,12 @@ def _create_abi_call_expr(
         field=TxnFields.last_log,
         wtype=TxnFields.last_log.wtype,
     )
-    return TupleExpression(
-        items=(
-            ARC4FromLogBuilder.abi_expr_from_log(abi_return_type, last_log, location),
+    return TupleExpression.from_items(
+        (
+            ARC4FromLogBuilder.abi_expr_from_log(signature.return_type, last_log, location),
             itxn_tmp,
         ),
-        wtype=wtypes.WTuple.from_types(
-            (
-                abi_return_type,
-                wtypes.WInnerTransaction.from_type(constants.TransactionType.appl),
-            )
-        ),
-        source_location=location,
+        location,
     )
 
 
@@ -387,11 +337,7 @@ def _add_array_exprs(
     fields: dict[TxnField, Expression], field: TxnField, exprs: list[Expression]
 ) -> None:
     if exprs:
-        fields[field] = TupleExpression(
-            items=exprs,
-            wtype=wtypes.WTuple.from_types([field.wtype] * len(exprs)),
-            source_location=_combine_locs(exprs),
-        )
+        fields[field] = TupleExpression.from_items(exprs, _combine_locs(exprs))
 
 
 def _combine_locs(exprs: Sequence[Expression]) -> SourceLocation:

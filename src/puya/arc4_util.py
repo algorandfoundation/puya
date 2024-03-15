@@ -179,14 +179,6 @@ def get_abi_signature(subroutine: awst_nodes.ContractMethod, config: ARC4MethodC
     return f"{config.name}({','.join(arg_types)}){return_type}"
 
 
-def get_abi_signature_from_wtypes(
-    name: str, args: Sequence[wtypes.WType], return_wtype: wtypes.WType
-) -> str:
-    arg_types = [wtype_to_arc4(a) for a in args]
-    return_type = wtype_to_arc4(return_wtype)
-    return f"{name}({','.join(arg_types)}){return_type}"
-
-
 _TIntOrNone = typing.TypeVar("_TIntOrNone", int, None)
 
 
