@@ -97,14 +97,20 @@ class ABICallGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         match method:
             case Literal(value=str(method_sig)):
                 arc4_args, signature = get_arc4_args_and_signature(
-                    method_sig, abi_call_expr.abi_args, location
+                    method_sig, abi_call_expr.abi_args, location, return_wtype=wtypes.void_wtype
                 )
             case (
                 ARC4ClientMethodExpressionBuilder() | BaseClassSubroutineInvokerExpressionBuilder()
             ) as eb:
                 signature = get_arc4_signature(eb.context, eb.type_info, eb.name, location)
-                if len(signature.arg_types) != len(abi_call_expr.abi_args):
-                    raise CodeError("Number of arguments does not match signature", location)
+                num_args = len(abi_call_expr.abi_args)
+                num_types = len(signature.arg_types)
+                if num_types != num_args:
+                    raise CodeError(
+                        f"Number of arguments ({num_args})"
+                        f" does not match signature ({num_types})",
+                        location,
+                    )
                 arc4_args = [
                     expect_arc4_operand_wtype(arg, wtype)
                     for arg, wtype in zip(abi_call_expr.abi_args, signature.arg_types, strict=True)

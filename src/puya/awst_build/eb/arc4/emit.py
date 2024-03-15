@@ -45,7 +45,17 @@ class EmitBuilder(IntermediateExpressionBuilder):
                 event_name = struct_type.stub_name.split(".")[-1]
                 event_arg = event_arg_eb.rvalue()
             case [Literal(value=str(event_str)), *event_args]:
-                arc4_args, signature = get_arc4_args_and_signature(event_str, event_args, location)
+                arc4_args, signature = get_arc4_args_and_signature(
+                    event_str, event_args, location, return_wtype=None
+                )
+                # check signature does not contain a return type
+                if signature.return_type != wtypes.void_wtype or (
+                    "(" in event_str and not event_str.endswith(")")
+                ):
+                    after_args = wtype_to_arc4(signature.return_type)
+                    raise CodeError(
+                        f"Invalid signature, type specified after args {after_args!r}", location
+                    )
                 event_name = signature.method_name
                 event_arg = arc4_tuple_from_items(
                     arc4_args,
