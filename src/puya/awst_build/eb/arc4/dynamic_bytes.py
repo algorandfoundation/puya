@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-from typing import Sequence
 
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Encode, Literal, ReinterpretCast
@@ -13,6 +12,8 @@ from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
     import mypy.nodes
 
     from puya.parse import SourceLocation

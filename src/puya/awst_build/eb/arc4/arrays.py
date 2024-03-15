@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import typing
 from abc import ABC
-from typing import TYPE_CHECKING
 
 import structlog
 
@@ -58,7 +58,7 @@ from puya.awst_build.utils import (
 )
 from puya.errors import CodeError, InternalError
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
     import mypy.nodes

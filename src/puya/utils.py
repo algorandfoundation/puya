@@ -2,15 +2,15 @@ import contextlib
 import functools
 import math
 import os
-from collections.abc import Callable, Iterable, MutableMapping, MutableSet, Set
+import typing
+from collections.abc import Callable, Iterable, Iterator, MutableMapping, MutableSet, Set
 from pathlib import Path
-from typing import Any, Iterator, Self, TypeGuard, TypeVar
 
 import attrs
 
 from puya.options import PuyaOptions
 
-T_A = TypeVar("T_A", bound=attrs.AttrsInstance)
+T_A = typing.TypeVar("T_A", bound=attrs.AttrsInstance)
 
 
 def sha512_256_hash(value: bytes) -> bytes:
@@ -25,7 +25,9 @@ def sha512_256_hash(value: bytes) -> bytes:
     return sha.digest()
 
 
-def attrs_extend(new_type: type[T_A], base_instance: Any, **changes: Any) -> T_A:  # noqa: ANN401
+def attrs_extend(
+    new_type: type[T_A], base_instance: typing.Any, **changes: typing.Any  # noqa: ANN401
+) -> T_A:
     """Like attrs.evolve but allows creating a sub-type"""
     base_type = type(base_instance)
     assert issubclass(new_type, base_type)
@@ -42,14 +44,14 @@ def attrs_extend(new_type: type[T_A], base_instance: Any, **changes: Any) -> T_A
     return new_type(**changes)
 
 
-T = TypeVar("T")
+T = typing.TypeVar("T")
 
 
-def no_none_in_list(lst: list[T | None]) -> TypeGuard[list[T]]:
+def no_none_in_list(lst: list[T | None]) -> typing.TypeGuard[list[T]]:
     return None not in lst
 
 
-def no_none_in_tuple(tup: tuple[T | None, ...]) -> TypeGuard[tuple[T, ...]]:
+def no_none_in_tuple(tup: tuple[T | None, ...]) -> typing.TypeGuard[tuple[T, ...]]:
     return None not in tup
 
 
@@ -121,7 +123,7 @@ class StableSet(MutableSet[T]):
         result._data = self._data | other_data
         return result
 
-    def __ior__(self, other: Iterable[T]) -> Self:  # type: ignore[override]
+    def __ior__(self, other: Iterable[T]) -> typing.Self:  # type: ignore[override]
         if isinstance(other, StableSet):
             other_data = other._data
         else:
@@ -170,7 +172,7 @@ def determine_out_dir(contract_path: Path, options: PuyaOptions) -> Path:
     return out_dir
 
 
-U = TypeVar("U")
+U = typing.TypeVar("U")
 
 
 def lazy_setdefault(m: MutableMapping[T, U], /, key: T, default: Callable[[T], U]) -> U:

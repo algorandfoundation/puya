@@ -36,7 +36,7 @@ from puya.models import ARC4Method, ARC4MethodConfig, ContractMetaData, Contract
 from puya.parse import EMBEDDED_MODULES
 from puya.utils import StableSet, attrs_extend
 
-logger = structlog.get_logger()
+logger = structlog.get_logger(__name__)
 
 
 CalleesLookup: typing.TypeAlias = defaultdict[awst_nodes.Function, set[awst_nodes.Function]]

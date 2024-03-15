@@ -72,8 +72,7 @@ def output_combined_stub(stubs: "DocStub", output: Path) -> None:
     lines.append("]")
 
     # assemble symbols
-    for symbol in stubs.collected_symbols.values():
-        lines.append(symbol)
+    lines.extend(stubs.collected_symbols.values())
 
     # output and linting
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -154,12 +153,12 @@ class SymbolCollector(NodeVisitor[None]):
         if klass.bases:
             klass_str += f"({', '.join(self.get_src(b, entire_lines=False) for b in klass.bases)})"
         src = [f"{klass_str}:"]
-        for member in klass.klass.defs.body:
-            src.append(self.get_src(member))
+        src.extend(self.get_src(member) for member in klass.klass.defs.body)
         for base_class_file, base_class in klass.protocol_bases:
             self.inlined_protocols.setdefault(base_class_file.fullname, set()).add(base_class.name)
-            for member in base_class.defs.body:
-                src.append(self.get_src(member, path=base_class_file.path))
+            src.extend(
+                self.get_src(member, path=base_class_file.path) for member in base_class.defs.body
+            )
         return "\n".join(src)
 
     def visit_class_def(self, o: mypy.nodes.ClassDef) -> None:
@@ -193,9 +192,9 @@ class SymbolCollector(NodeVisitor[None]):
         try:
             (lvalue,) = o.lvalues
         except ValueError as ex:
-            raise Exception(f"Multi assignments are not supported: {o}") from ex
+            raise ValueError(f"Multi assignments are not supported: {o}") from ex
         if not isinstance(lvalue, mypy.nodes.NameExpr):
-            raise Exception(f"Multi assignments are not supported: {lvalue}")
+            raise TypeError(f"Multi assignments are not supported: {lvalue}")
         # find actual rvalue src location by taking the entire statement and subtracting the lvalue
         loc = mypy.nodes.Context()
         loc.set_line(o)

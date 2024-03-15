@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-from typing import Sequence
 
 from immutabledict import immutabledict
 
@@ -28,6 +27,8 @@ from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
     import mypy.nodes
 
     from puya.parse import SourceLocation
@@ -39,7 +40,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
 
     def call(
         self,
-        args: typing.Sequence[ExpressionBuilder | Literal],
+        args: Sequence[ExpressionBuilder | Literal],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

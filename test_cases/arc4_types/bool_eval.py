@@ -46,12 +46,11 @@ class Arc4BoolEvalContract(Contract):
         assert not arc4.BigUIntN[t.Literal[504]](0)
         assert arc4.BigUIntN[t.Literal[504]](1)
 
-        # TODO: fix ufixed parsing
-        # assert not arc4.UFixedNxM[t.Literal[48], t.Literal[10]]("0.0")
-        # assert arc4.UFixedNxM[t.Literal[48], t.Literal[10]]("1.0")
-        #
-        # assert not arc4.BigUFixedNxM[t.Literal[496], t.Literal[10]]("0.0")
-        # assert arc4.UFixedNxM[t.Literal[496], t.Literal[10]]("0.01")
+        assert not arc4.UFixedNxM[t.Literal[48], t.Literal[10]]("0.0")
+        assert arc4.UFixedNxM[t.Literal[48], t.Literal[10]]("1.0")
+
+        assert not arc4.BigUFixedNxM[t.Literal[496], t.Literal[10]]("0.0")
+        assert arc4.UFixedNxM[t.Literal[496], t.Literal[10]]("0.01")
 
         assert not arc4.StaticArray[arc4.UInt16, t.Literal[0]]()
         assert arc4.StaticArray(arc4.UInt16(0))

@@ -626,7 +626,7 @@ class FunctionIRBuilder(
         items_sequence = [
             item
             for item, item_wtype in zip(
-                self.visit_and_materialise(expr.sequence), expr.sequence.wtype.types
+                self.visit_and_materialise(expr.sequence), expr.sequence.wtype.types, strict=True
             )
             if item_wtype == expr.item.wtype
         ]

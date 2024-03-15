@@ -721,11 +721,7 @@ class FunctionASTConverter(
                     key=var_name,
                     default=lambda _: self.context.mypy_expr_node_type(name_expr),
                 )
-                var_expr = VarExpression(
-                    source_location=expr_loc,
-                    wtype=local_type,
-                    name=var_name,
-                )
+                var_expr = VarExpression(name=var_name, wtype=local_type, source_location=expr_loc)
                 return var_expression(var_expr)
         scope = {
             mypy.nodes.LDEF: "local",
@@ -924,8 +920,6 @@ class FunctionASTConverter(
 
         # constant fold if both literals
         if isinstance(lhs, Literal) and isinstance(rhs, Literal):
-            # TODO: this shouldn't typecheck (as in our code, not user code), need to
-            #       make mypy stricter (one day)
             folded_result = fold_binary_expr(
                 location=node_loc, op=node.op, lhs=lhs.value, rhs=rhs.value
             )

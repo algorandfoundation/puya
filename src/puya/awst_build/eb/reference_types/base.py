@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import typing
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -21,7 +21,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal_to_expr
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from immutabledict import immutabledict
 
     from puya.parse import SourceLocation

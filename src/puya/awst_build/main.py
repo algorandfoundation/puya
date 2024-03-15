@@ -11,7 +11,7 @@ from puya.options import PuyaOptions
 from puya.parse import EMBEDDED_MODULES, TYPESHED_PATH
 from puya.utils import attrs_extend, determine_out_dir, make_path_relative_to_cwd
 
-logger = structlog.get_logger()
+logger = structlog.get_logger(__name__)
 
 
 def transform_ast(compile_context: CompileContext) -> dict[str, Module]:

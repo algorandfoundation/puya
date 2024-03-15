@@ -1,5 +1,4 @@
-from collections.abc import Iterator, Set
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence, Set
 
 import attrs
 import structlog

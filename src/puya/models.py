@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import enum
 import typing
-from typing import Literal, Sequence
 
 import attrs
 from immutabledict import immutabledict
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from puya.avm_type import AVMType
     from puya.parse import SourceLocation
 
@@ -74,7 +75,7 @@ class ContractState:
     name: str
     source_location: SourceLocation
     key: bytes
-    storage_type: Literal[AVMType.uint64, AVMType.bytes]
+    storage_type: typing.Literal[AVMType.uint64, AVMType.bytes]
     description: str | None
 
 

@@ -27,6 +27,7 @@ from puya.awst_build.utils import (
     extract_bytes_literal_from_mypy,
     extract_docstring,
     fold_binary_expr,
+    fold_unary_expr,
     get_decorators_by_fullname,
     get_unaliased_fullname,
 )
@@ -34,7 +35,7 @@ from puya.awst_build.validation.main import validate_awst
 from puya.errors import CodeError, InternalError
 from puya.utils import StableSet
 
-logger = structlog.get_logger()
+logger = structlog.get_logger(__name__)
 
 
 DeferredModuleStatement: t.TypeAlias = Callable[[ASTConversionModuleContext], ModuleStatement]
@@ -311,19 +312,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
 
     def visit_unary_expr(self, expr: mypy.nodes.UnaryExpr) -> ConstantValue:
         value = expr.expr.accept(self)
-        try:
-            result = eval(
-                f"{expr.op} value",
-                {"value": value},
-            )
-        except Exception as ex:
-            self._unsupported(expr, details=str(ex), ex=ex)
-        if not isinstance(
-            result,
-            int | str | bytes | bool,  # TODO: why can't we use ConstantValue here?
-        ):
-            self._unsupported(expr, details=f"unsupported result type of {type(result).__name__}")
-        return result
+        return fold_unary_expr(self._location(expr), expr.op, value)
 
     def visit_op_expr(self, expr: mypy.nodes.OpExpr) -> ConstantValue:
         left_value = expr.left.accept(self)

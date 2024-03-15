@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from typing import TYPE_CHECKING
+import typing
 
 import structlog
 
@@ -32,7 +32,7 @@ from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError, InternalError
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
     import mypy.nodes

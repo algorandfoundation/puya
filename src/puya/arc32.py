@@ -38,7 +38,7 @@ JSONDict: typing.TypeAlias = Mapping[str, "JSONValue"]
 _AUTO_GENERATED_COMMENT = "# This file is auto-generated, do not modify"
 _INDENT = " " * 4
 
-logger = structlog.get_logger(__file__)
+logger = structlog.get_logger(__name__)
 
 
 def _encode_source(teal_text: str) -> str:

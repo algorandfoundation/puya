@@ -98,12 +98,12 @@ def _split_tuple_types(types: str) -> Iterable[str]:
     """
     tuple_level = 0
     last_idx = 0
-    for idx, token in enumerate(types):
-        if token == "(":
+    for idx, tok in enumerate(types):
+        if tok == "(":
             tuple_level += 1
-        elif token == ")":
+        elif tok == ")":
             tuple_level -= 1
-        if token == "," and tuple_level == 0:
+        if tok == "," and tuple_level == 0:
             yield types[last_idx:idx]
             last_idx = idx + 1
     yield types[last_idx:]
@@ -113,13 +113,13 @@ def _split_signature(signature: str) -> Iterable[str]:
     """Splits signature into name, args and returns"""
     level = 0
     last_idx = 0
-    for idx, token in enumerate(signature):
-        if token == "(":
+    for idx, tok in enumerate(signature):
+        if tok == "(":
             level += 1
             if level == 1:
                 yield signature[:idx]
                 last_idx = idx + 1
-        elif token == ")":
+        elif tok == ")":
             level -= 1
             if level == 0:
                 yield signature[last_idx:idx]

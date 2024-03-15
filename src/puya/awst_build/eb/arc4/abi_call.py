@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import operator
+import typing
 from functools import reduce
-from typing import TYPE_CHECKING
 
 import attrs
 import mypy.nodes
@@ -44,7 +44,7 @@ from puya.awst_build.utils import (
 )
 from puya.errors import CodeError, InternalError
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
     from puya.awst_build.context import ASTConversionModuleContext

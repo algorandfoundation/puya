@@ -1,11 +1,11 @@
 import argparse
 import contextlib
 import json
+import typing
 from collections.abc import Iterator
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any
 
 from algosdk.atomic_transaction_composer import (
     AccountTransactionSigner,
@@ -31,7 +31,7 @@ def main(approval_path: Path, clear_path: Path) -> None:
 def dryrun_create(
     approval_binary: bytes,
     clear_binary: bytes,
-) -> dict[str, Any]:
+) -> dict[str, typing.Any]:
     algod = AlgodClient(algod_token=DEFAULT_TOKEN, algod_address=DEFAULT_ALGOD_ADDRESS)
     account, *_ = get_accounts()
     atc = AtomicTransactionComposer()
@@ -44,7 +44,6 @@ def dryrun_create(
                 on_complete=OnComplete.NoOpOC,
                 approval_program=approval_binary,
                 clear_program=clear_binary,
-                # app_args=app_args,
             ),
             signer=account.signer,
         )

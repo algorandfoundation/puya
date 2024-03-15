@@ -15,7 +15,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 UNEXPECTED_SEVERITY = set[str]()
-logger = structlog.get_logger()
+logger = structlog.get_logger(__name__)
 
 
 class LogLevel(IntEnum):
@@ -23,7 +23,7 @@ class LogLevel(IntEnum):
     debug = logging.DEBUG
     info = logging.INFO
     warning = logging.WARNING
-    warn = logging.WARN
+    warn = logging.WARNING
     error = logging.ERROR
     fatal = logging.FATAL
     critical = logging.CRITICAL

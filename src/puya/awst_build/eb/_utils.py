@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import typing
 
 import structlog
 
@@ -9,7 +9,7 @@ from puya.awst.nodes import BoolConstant, Expression, IntrinsicCall, Literal
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import expect_operand_wtype
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from puya.awst_build.eb.base import ExpressionBuilder
     from puya.parse import SourceLocation
 

@@ -2,8 +2,8 @@ import contextlib
 import functools
 import tempfile
 import typing
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 import attrs
 import structlog.testing

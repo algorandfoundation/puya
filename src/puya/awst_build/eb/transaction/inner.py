@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-from typing import Sequence
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -25,6 +24,8 @@ from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
     import mypy.nodes
 
     from puya.awst_build.constants import TransactionType

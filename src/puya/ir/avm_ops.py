@@ -181,7 +181,7 @@ class AVMOp(enum.StrEnum):
     app_global_get_ex = AVMOpData(
         op_code="app_global_get_ex",
         signature=OpSignature(
-            args=[StackType.uint64, StackType.bytes], returns=[StackType.any, StackType.bool]
+            args=[StackType.application, StackType.bytes], returns=[StackType.any, StackType.bool]
         ),
         immediate_types=(),
         cost=1,
@@ -242,7 +242,7 @@ class AVMOp(enum.StrEnum):
     app_local_get_ex = AVMOpData(
         op_code="app_local_get_ex",
         signature=OpSignature(
-            args=[StackType.address_or_index, StackType.uint64, StackType.bytes],
+            args=[StackType.address_or_index, StackType.application, StackType.bytes],
             returns=[StackType.any, StackType.bool],
         ),
         immediate_types=(),
@@ -276,7 +276,7 @@ class AVMOp(enum.StrEnum):
     app_opted_in = AVMOpData(
         op_code="app_opted_in",
         signature=OpSignature(
-            args=[StackType.address_or_index, StackType.uint64], returns=[StackType.bool]
+            args=[StackType.address_or_index, StackType.application], returns=[StackType.bool]
         ),
         immediate_types=(),
         cost=1,
@@ -295,31 +295,31 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             signatures={
                 "AppApprovalProgram": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes, StackType.bool]
+                    args=[StackType.application], returns=[StackType.bytes, StackType.bool]
                 ),
                 "AppClearStateProgram": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes, StackType.bool]
+                    args=[StackType.application], returns=[StackType.bytes, StackType.bool]
                 ),
                 "AppGlobalNumUint": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64, StackType.bool]
+                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
                 ),
                 "AppGlobalNumByteSlice": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64, StackType.bool]
+                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
                 ),
                 "AppLocalNumUint": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64, StackType.bool]
+                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
                 ),
                 "AppLocalNumByteSlice": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64, StackType.bool]
+                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
                 ),
                 "AppExtraProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64, StackType.bool]
+                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
                 ),
                 "AppCreator": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address, StackType.bool]
+                    args=[StackType.application], returns=[StackType.address, StackType.bool]
                 ),
                 "AppAddress": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address, StackType.bool]
+                    args=[StackType.application], returns=[StackType.address, StackType.bool]
                 ),
             },
         ),
@@ -417,11 +417,11 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             signatures={
                 "AssetBalance": OpSignature(
-                    args=[StackType.address_or_index, StackType.uint64],
+                    args=[StackType.address_or_index, StackType.asset],
                     returns=[StackType.uint64, StackType.bool],
                 ),
                 "AssetFrozen": OpSignature(
-                    args=[StackType.address_or_index, StackType.uint64],
+                    args=[StackType.address_or_index, StackType.asset],
                     returns=[StackType.bool, StackType.bool],
                 ),
             },
@@ -444,40 +444,40 @@ class AVMOp(enum.StrEnum):
             immediate_index=0,
             signatures={
                 "AssetTotal": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.uint64, StackType.bool]
                 ),
                 "AssetDecimals": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.uint64, StackType.bool]
                 ),
                 "AssetDefaultFrozen": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bool, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.bool, StackType.bool]
                 ),
                 "AssetUnitName": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
                 ),
                 "AssetName": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
                 ),
                 "AssetURL": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
                 ),
                 "AssetMetadataHash": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
                 ),
                 "AssetManager": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
                 ),
                 "AssetReserve": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
                 ),
                 "AssetFreeze": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
                 ),
                 "AssetClawback": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
                 ),
                 "AssetCreator": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address, StackType.bool]
+                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
                 ),
             },
         ),
@@ -1231,7 +1231,7 @@ class AVMOp(enum.StrEnum):
 
     gaid = AVMOpData(
         op_code="gaid",
-        signature=OpSignature(args=[], returns=[StackType.uint64]),
+        signature=OpSignature(args=[], returns=[StackType.application]),
         immediate_types=(ImmediateKind.uint8,),
         cost=1,
         min_avm_version=4,
@@ -1245,7 +1245,7 @@ class AVMOp(enum.StrEnum):
 
     gaids = AVMOpData(
         op_code="gaids",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+        signature=OpSignature(args=[StackType.uint64], returns=[StackType.application]),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
@@ -1307,14 +1307,14 @@ class AVMOp(enum.StrEnum):
                 "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
                 "Type": OpSignature(args=[], returns=[StackType.bytes]),
                 "TypeEnum": OpSignature(args=[], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "XferAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "AssetAmount": OpSignature(args=[], returns=[StackType.uint64]),
                 "AssetSender": OpSignature(args=[], returns=[StackType.address]),
                 "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
                 "TxID": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
+                "ApplicationID": OpSignature(args=[], returns=[StackType.application]),
                 "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
                 "NumAppArgs": OpSignature(args=[], returns=[StackType.uint64]),
@@ -1323,7 +1323,7 @@ class AVMOp(enum.StrEnum):
                 "ApprovalProgram": OpSignature(args=[], returns=[StackType.bytes]),
                 "ClearStateProgram": OpSignature(args=[], returns=[StackType.bytes]),
                 "RekeyTo": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "ConfigAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "ConfigAssetTotal": OpSignature(args=[], returns=[StackType.uint64]),
                 "ConfigAssetDecimals": OpSignature(args=[], returns=[StackType.uint64]),
                 "ConfigAssetDefaultFrozen": OpSignature(args=[], returns=[StackType.bool]),
@@ -1335,7 +1335,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetClawback": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "FreezeAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "FreezeAssetAccount": OpSignature(args=[], returns=[StackType.address]),
                 "FreezeAssetFrozen": OpSignature(args=[], returns=[StackType.bool]),
                 "Assets": OpSignature(args=[], returns=[StackType.uint64]),
@@ -1350,8 +1350,8 @@ class AVMOp(enum.StrEnum):
                 "Nonparticipation": OpSignature(args=[], returns=[StackType.bool]),
                 "Logs": OpSignature(args=[], returns=[StackType.bytes]),
                 "NumLogs": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
+                "CreatedAssetID": OpSignature(args=[], returns=[StackType.asset]),
+                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.application]),
                 "LastLog": OpSignature(args=[], returns=[StackType.bytes]),
                 "StateProofPK": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
@@ -1375,8 +1375,8 @@ class AVMOp(enum.StrEnum):
             signatures={
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
                 "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "Assets": OpSignature(args=[], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[], returns=[StackType.uint64]),
+                "Assets": OpSignature(args=[], returns=[StackType.asset]),
+                "Applications": OpSignature(args=[], returns=[StackType.application]),
                 "Logs": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
                 "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
@@ -1397,8 +1397,10 @@ class AVMOp(enum.StrEnum):
             signatures={
                 "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                "Applications": OpSignature(
+                    args=[StackType.uint64], returns=[StackType.application]
+                ),
                 "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(
                     args=[StackType.uint64], returns=[StackType.bytes]
@@ -1466,7 +1468,7 @@ class AVMOp(enum.StrEnum):
                 "LogicSigVersion": OpSignature(args=[], returns=[StackType.uint64]),
                 "Round": OpSignature(args=[], returns=[StackType.uint64]),
                 "LatestTimestamp": OpSignature(args=[], returns=[StackType.uint64]),
-                "CurrentApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
+                "CurrentApplicationID": OpSignature(args=[], returns=[StackType.application]),
                 "CreatorAddress": OpSignature(args=[], returns=[StackType.address]),
                 "CurrentApplicationAddress": OpSignature(args=[], returns=[StackType.address]),
                 "GroupID": OpSignature(args=[], returns=[StackType.bytes]),
@@ -1553,14 +1555,14 @@ class AVMOp(enum.StrEnum):
                 "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
                 "Type": OpSignature(args=[], returns=[StackType.bytes]),
                 "TypeEnum": OpSignature(args=[], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "XferAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "AssetAmount": OpSignature(args=[], returns=[StackType.uint64]),
                 "AssetSender": OpSignature(args=[], returns=[StackType.address]),
                 "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
                 "TxID": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
+                "ApplicationID": OpSignature(args=[], returns=[StackType.application]),
                 "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
                 "NumAppArgs": OpSignature(args=[], returns=[StackType.uint64]),
@@ -1569,7 +1571,7 @@ class AVMOp(enum.StrEnum):
                 "ApprovalProgram": OpSignature(args=[], returns=[StackType.bytes]),
                 "ClearStateProgram": OpSignature(args=[], returns=[StackType.bytes]),
                 "RekeyTo": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "ConfigAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "ConfigAssetTotal": OpSignature(args=[], returns=[StackType.uint64]),
                 "ConfigAssetDecimals": OpSignature(args=[], returns=[StackType.uint64]),
                 "ConfigAssetDefaultFrozen": OpSignature(args=[], returns=[StackType.bool]),
@@ -1581,7 +1583,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetClawback": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "FreezeAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "FreezeAssetAccount": OpSignature(args=[], returns=[StackType.address]),
                 "FreezeAssetFrozen": OpSignature(args=[], returns=[StackType.bool]),
                 "Assets": OpSignature(args=[], returns=[StackType.uint64]),
@@ -1596,8 +1598,8 @@ class AVMOp(enum.StrEnum):
                 "Nonparticipation": OpSignature(args=[], returns=[StackType.bool]),
                 "Logs": OpSignature(args=[], returns=[StackType.bytes]),
                 "NumLogs": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
+                "CreatedAssetID": OpSignature(args=[], returns=[StackType.asset]),
+                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.application]),
                 "LastLog": OpSignature(args=[], returns=[StackType.bytes]),
                 "StateProofPK": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
@@ -1624,8 +1626,8 @@ class AVMOp(enum.StrEnum):
             signatures={
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
                 "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "Assets": OpSignature(args=[], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[], returns=[StackType.uint64]),
+                "Assets": OpSignature(args=[], returns=[StackType.asset]),
+                "Applications": OpSignature(args=[], returns=[StackType.application]),
                 "Logs": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
                 "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
@@ -1648,8 +1650,10 @@ class AVMOp(enum.StrEnum):
             signatures={
                 "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                "Applications": OpSignature(
+                    args=[StackType.uint64], returns=[StackType.application]
+                ),
                 "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(
                     args=[StackType.uint64], returns=[StackType.bytes]
@@ -1693,14 +1697,16 @@ class AVMOp(enum.StrEnum):
                 ),
                 "Type": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "TypeEnum": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "XferAsset": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
                 "AssetAmount": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "AssetSender": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
                 "AssetReceiver": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "TxID": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "ApplicationID": OpSignature(
+                    args=[StackType.uint64], returns=[StackType.application]
+                ),
                 "OnCompletion": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "NumAppArgs": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
@@ -1711,7 +1717,7 @@ class AVMOp(enum.StrEnum):
                     args=[StackType.uint64], returns=[StackType.bytes]
                 ),
                 "RekeyTo": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "ConfigAsset": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
                 "ConfigAssetTotal": OpSignature(
                     args=[StackType.uint64], returns=[StackType.uint64]
                 ),
@@ -1741,7 +1747,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetClawback": OpSignature(
                     args=[StackType.uint64], returns=[StackType.address]
                 ),
-                "FreezeAsset": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "FreezeAsset": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
                 "FreezeAssetAccount": OpSignature(
                     args=[StackType.uint64], returns=[StackType.address]
                 ),
@@ -1768,9 +1774,9 @@ class AVMOp(enum.StrEnum):
                 "Nonparticipation": OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
                 "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "NumLogs": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "CreatedAssetID": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
                 "CreatedApplicationID": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                    args=[StackType.uint64], returns=[StackType.application]
                 ),
                 "LastLog": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "StateProofPK": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
@@ -1807,8 +1813,10 @@ class AVMOp(enum.StrEnum):
             signatures={
                 "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                "Applications": OpSignature(
+                    args=[StackType.uint64], returns=[StackType.application]
+                ),
                 "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(
                     args=[StackType.uint64], returns=[StackType.bytes]
@@ -1840,10 +1848,10 @@ class AVMOp(enum.StrEnum):
                     args=[StackType.uint64, StackType.uint64], returns=[StackType.address]
                 ),
                 "Assets": OpSignature(
-                    args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                    args=[StackType.uint64, StackType.uint64], returns=[StackType.asset]
                 ),
                 "Applications": OpSignature(
-                    args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+                    args=[StackType.uint64, StackType.uint64], returns=[StackType.application]
                 ),
                 "Logs": OpSignature(
                     args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
@@ -1897,14 +1905,14 @@ class AVMOp(enum.StrEnum):
                 "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
                 "Type": OpSignature(args=[], returns=[StackType.bytes]),
                 "TypeEnum": OpSignature(args=[], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "XferAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "AssetAmount": OpSignature(args=[], returns=[StackType.uint64]),
                 "AssetSender": OpSignature(args=[], returns=[StackType.address]),
                 "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
                 "TxID": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
+                "ApplicationID": OpSignature(args=[], returns=[StackType.application]),
                 "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
                 "NumAppArgs": OpSignature(args=[], returns=[StackType.uint64]),
@@ -1913,7 +1921,7 @@ class AVMOp(enum.StrEnum):
                 "ApprovalProgram": OpSignature(args=[], returns=[StackType.bytes]),
                 "ClearStateProgram": OpSignature(args=[], returns=[StackType.bytes]),
                 "RekeyTo": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "ConfigAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "ConfigAssetTotal": OpSignature(args=[], returns=[StackType.uint64]),
                 "ConfigAssetDecimals": OpSignature(args=[], returns=[StackType.uint64]),
                 "ConfigAssetDefaultFrozen": OpSignature(args=[], returns=[StackType.bool]),
@@ -1925,7 +1933,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetClawback": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "FreezeAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "FreezeAssetAccount": OpSignature(args=[], returns=[StackType.address]),
                 "FreezeAssetFrozen": OpSignature(args=[], returns=[StackType.bool]),
                 "Assets": OpSignature(args=[], returns=[StackType.uint64]),
@@ -1940,8 +1948,8 @@ class AVMOp(enum.StrEnum):
                 "Nonparticipation": OpSignature(args=[], returns=[StackType.bool]),
                 "Logs": OpSignature(args=[], returns=[StackType.bytes]),
                 "NumLogs": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
+                "CreatedAssetID": OpSignature(args=[], returns=[StackType.asset]),
+                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.application]),
                 "LastLog": OpSignature(args=[], returns=[StackType.bytes]),
                 "StateProofPK": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
@@ -1992,19 +2000,19 @@ class AVMOp(enum.StrEnum):
                 "VoteKeyDilution": OpSignature(args=[StackType.uint64], returns=[]),
                 "Type": OpSignature(args=[StackType.bytes], returns=[]),
                 "TypeEnum": OpSignature(args=[StackType.uint64], returns=[]),
-                "XferAsset": OpSignature(args=[StackType.uint64], returns=[]),
+                "XferAsset": OpSignature(args=[StackType.asset], returns=[]),
                 "AssetAmount": OpSignature(args=[StackType.uint64], returns=[]),
                 "AssetSender": OpSignature(args=[StackType.address], returns=[]),
                 "AssetReceiver": OpSignature(args=[StackType.address], returns=[]),
                 "AssetCloseTo": OpSignature(args=[StackType.address], returns=[]),
-                "ApplicationID": OpSignature(args=[StackType.uint64], returns=[]),
+                "ApplicationID": OpSignature(args=[StackType.application], returns=[]),
                 "OnCompletion": OpSignature(args=[StackType.uint64], returns=[]),
                 "ApplicationArgs": OpSignature(args=[StackType.bytes], returns=[]),
                 "Accounts": OpSignature(args=[StackType.address], returns=[]),
                 "ApprovalProgram": OpSignature(args=[StackType.bytes], returns=[]),
                 "ClearStateProgram": OpSignature(args=[StackType.bytes], returns=[]),
                 "RekeyTo": OpSignature(args=[StackType.address], returns=[]),
-                "ConfigAsset": OpSignature(args=[StackType.uint64], returns=[]),
+                "ConfigAsset": OpSignature(args=[StackType.asset], returns=[]),
                 "ConfigAssetTotal": OpSignature(args=[StackType.uint64], returns=[]),
                 "ConfigAssetDecimals": OpSignature(args=[StackType.uint64], returns=[]),
                 "ConfigAssetDefaultFrozen": OpSignature(args=[StackType.bool], returns=[]),
@@ -2016,7 +2024,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetReserve": OpSignature(args=[StackType.address], returns=[]),
                 "ConfigAssetFreeze": OpSignature(args=[StackType.address], returns=[]),
                 "ConfigAssetClawback": OpSignature(args=[StackType.address], returns=[]),
-                "FreezeAsset": OpSignature(args=[StackType.uint64], returns=[]),
+                "FreezeAsset": OpSignature(args=[StackType.asset], returns=[]),
                 "FreezeAssetAccount": OpSignature(args=[StackType.address], returns=[]),
                 "FreezeAssetFrozen": OpSignature(args=[StackType.bool], returns=[]),
                 "Assets": OpSignature(args=[StackType.uint64], returns=[]),
@@ -2081,8 +2089,8 @@ class AVMOp(enum.StrEnum):
             signatures={
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
                 "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "Assets": OpSignature(args=[], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[], returns=[StackType.uint64]),
+                "Assets": OpSignature(args=[], returns=[StackType.asset]),
+                "Applications": OpSignature(args=[], returns=[StackType.application]),
                 "Logs": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
                 "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
@@ -2103,8 +2111,10 @@ class AVMOp(enum.StrEnum):
             signatures={
                 "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                "Applications": OpSignature(
+                    args=[StackType.uint64], returns=[StackType.application]
+                ),
                 "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(
                     args=[StackType.uint64], returns=[StackType.bytes]
@@ -2627,14 +2637,14 @@ class AVMOp(enum.StrEnum):
                 "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
                 "Type": OpSignature(args=[], returns=[StackType.bytes]),
                 "TypeEnum": OpSignature(args=[], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "XferAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "AssetAmount": OpSignature(args=[], returns=[StackType.uint64]),
                 "AssetSender": OpSignature(args=[], returns=[StackType.address]),
                 "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
                 "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
                 "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
                 "TxID": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
+                "ApplicationID": OpSignature(args=[], returns=[StackType.application]),
                 "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
                 "NumAppArgs": OpSignature(args=[], returns=[StackType.uint64]),
@@ -2643,7 +2653,7 @@ class AVMOp(enum.StrEnum):
                 "ApprovalProgram": OpSignature(args=[], returns=[StackType.bytes]),
                 "ClearStateProgram": OpSignature(args=[], returns=[StackType.bytes]),
                 "RekeyTo": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "ConfigAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "ConfigAssetTotal": OpSignature(args=[], returns=[StackType.uint64]),
                 "ConfigAssetDecimals": OpSignature(args=[], returns=[StackType.uint64]),
                 "ConfigAssetDefaultFrozen": OpSignature(args=[], returns=[StackType.bool]),
@@ -2655,7 +2665,7 @@ class AVMOp(enum.StrEnum):
                 "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
                 "ConfigAssetClawback": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAsset": OpSignature(args=[], returns=[StackType.uint64]),
+                "FreezeAsset": OpSignature(args=[], returns=[StackType.asset]),
                 "FreezeAssetAccount": OpSignature(args=[], returns=[StackType.address]),
                 "FreezeAssetFrozen": OpSignature(args=[], returns=[StackType.bool]),
                 "Assets": OpSignature(args=[], returns=[StackType.uint64]),
@@ -2670,8 +2680,8 @@ class AVMOp(enum.StrEnum):
                 "Nonparticipation": OpSignature(args=[], returns=[StackType.bool]),
                 "Logs": OpSignature(args=[], returns=[StackType.bytes]),
                 "NumLogs": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
+                "CreatedAssetID": OpSignature(args=[], returns=[StackType.asset]),
+                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.application]),
                 "LastLog": OpSignature(args=[], returns=[StackType.bytes]),
                 "StateProofPK": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
@@ -2695,8 +2705,8 @@ class AVMOp(enum.StrEnum):
             signatures={
                 "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
                 "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "Assets": OpSignature(args=[], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[], returns=[StackType.uint64]),
+                "Assets": OpSignature(args=[], returns=[StackType.asset]),
+                "Applications": OpSignature(args=[], returns=[StackType.application]),
                 "Logs": OpSignature(args=[], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
                 "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
@@ -2719,8 +2729,10 @@ class AVMOp(enum.StrEnum):
             signatures={
                 "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                "Applications": OpSignature(
+                    args=[StackType.uint64], returns=[StackType.application]
+                ),
                 "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
                 "ApprovalProgramPages": OpSignature(
                     args=[StackType.uint64], returns=[StackType.bytes]

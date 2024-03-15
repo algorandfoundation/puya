@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import TYPE_CHECKING, Never, TypeAlias, cast
+import typing
 
 from puya.awst.nodes import (
     AppStateDefinition,
@@ -20,7 +20,7 @@ from puya.awst.nodes import (
 )
 from puya.errors import CodeError, InternalError
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
     import mypy.nodes
@@ -43,7 +43,7 @@ __all__ = [
     "ValueExpressionBuilder",
 ]
 
-Iteration: TypeAlias = Expression | Range
+Iteration: typing.TypeAlias = Expression | Range
 
 
 @enum.unique
@@ -229,7 +229,7 @@ class IntermediateExpressionBuilder(ExpressionBuilder):
     ) -> ExpressionBuilder:
         return self._not_a_value(location)
 
-    def _not_a_value(self, location: SourceLocation) -> Never:
+    def _not_a_value(self, location: SourceLocation) -> typing.Never:
         raise CodeError(f"{type(self).__name__} is not a value", location)
 
 
@@ -300,7 +300,7 @@ class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
     ) -> ExpressionBuilder:
         return self._assign_first(location)
 
-    def _assign_first(self, location: SourceLocation) -> Never:
+    def _assign_first(self, location: SourceLocation) -> typing.Never:
         raise CodeError(
             f"{self.python_name} should be assigned to an instance variable before being used",
             location,
@@ -426,9 +426,9 @@ def _validate_lvalue(resolved: Expression) -> Lvalue:
             f" ({resolved.base.wtype.stub_name} is immutable)",
             resolved.source_location,
         )
-    elif isinstance(resolved, ReinterpretCast):
+    if isinstance(resolved, ReinterpretCast):
         _validate_lvalue(resolved.expr)
     elif isinstance(resolved, TupleExpression):
         for item in resolved.items:
             _validate_lvalue(item)
-    return cast(Lvalue, resolved)
+    return typing.cast(Lvalue, resolved)

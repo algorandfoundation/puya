@@ -1,7 +1,8 @@
-from typing import Sequence
+from __future__ import annotations
+
+import typing
 
 import mypy.nodes
-import mypy.types
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -18,7 +19,6 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import constants
-from puya.awst_build.contract_data import AppStateDeclaration
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -28,12 +28,16 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import (
-    expect_operand_wtype,
-    get_arg_mapping,
-)
+from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
 from puya.errors import CodeError, InternalError
-from puya.parse import SourceLocation
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    import mypy.types
+
+    from puya.awst_build.contract_data import AppStateDeclaration
+    from puya.parse import SourceLocation
 
 
 class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
