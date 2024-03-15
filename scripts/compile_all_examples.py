@@ -63,6 +63,7 @@ class ProgramSizes:
             for teal in teal_files:
                 name = get_unique_name(teal)
                 sizes = self.sizes.setdefault(name, {})
+                # this combines both approval and clear program sizes
                 sizes[level] = sizes.get(level, 0) + get_program_size(teal)
 
     @classmethod
@@ -70,8 +71,8 @@ class ProgramSizes:
         lines = path.read_text("utf-8").splitlines()
         program_sizes = ProgramSizes()
         for line in lines[1:]:
-            name, unoptimized, optimized, o2 = line.rsplit(maxsplit=3)
-            program_sizes.sizes[name] = {0: int(unoptimized), 1: int(optimized), 2: int(o2)}
+            name, o0, o1, o1_delta, o2, o2_delta = line.rsplit(maxsplit=5)
+            program_sizes.sizes[name] = {0: int(o0), 1: int(o1), 2: int(o2)}
         return program_sizes
 
     def update(self, other: "ProgramSizes") -> "ProgramSizes":
@@ -79,20 +80,23 @@ class ProgramSizes:
 
     def __str__(self) -> str:
         writer = prettytable.PrettyTable(
-            field_names=["Name", "O0 size", "O1 size", "O2 size"],
+            field_names=["Name", "O0 size", "O1 size", "O1 ⏷", "O2 size", "O2 ⏷"],
             sortby="Name",
             header=True,
             border=False,
-            padding_width=0,
+            padding_width=2,
             left_padding_width=0,
             right_padding_width=1,
-            align="l",
+            align="r",
         )
+        writer.align["Name"] = "l"
         for name, prog_sizes in self.sizes.items():
-            unoptimized = prog_sizes[0]
-            optimized = prog_sizes[1]
+            o0 = prog_sizes[0]
+            o1 = prog_sizes[1]
             o2 = prog_sizes[2]
-            writer.add_row([name, str(unoptimized), str(optimized), str(o2)])
+            o1_delta = o0 - o1
+            o2_delta = o1 - o2
+            writer.add_row(list(map(str, (name, o0, o1, o1_delta, o2, o2_delta))))
         return writer.get_string()
 
 
