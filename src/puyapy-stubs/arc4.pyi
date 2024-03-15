@@ -539,3 +539,33 @@ assert result == "Hello, There"
 
 
 """
+
+def emit(event: str | Struct, *args: _TABIArg) -> None:
+    """Emit an ARC-28 event for the provided event signature or name, and provided args.
+
+    :param event: Either an ARC4 Struct, an event name, or event signature.
+        * If event is an ARC4 Struct, the event signature will be determined from the Struct name and fields
+        * If event is a signature, then the following args will be typed checked to ensure they match.
+        * If event is just a name, the event signature will be inferred from the name and following arguments
+
+    :param args: When event is a signature or name, args will be used as the event data.
+    They will all be encoded as single ARC4 Tuple
+
+    Example:
+    ```
+    from puyapy import ARC4Contract, arc4
+
+
+    class Swapped(arc4.Struct):
+        a: arc4.UInt64
+        b: arc4.UInt64
+
+
+    class EventEmitter(ARC4Contract):
+        @arc4.abimethod
+        def emit_swapped(self, a: arc4.UInt64, b: arc4.UInt64) -> None:
+            arc4.emit(Swapped(b, a))
+            arc4.emit("Swapped(uint64,uint64)", b, a)
+            arc4.emit("Swapped", b, a)
+    ```
+    """
