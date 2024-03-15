@@ -14,6 +14,7 @@ class ARC4CopyValidator(AWSTTraverser):
             module_statement.accept(validator)
 
     def __init__(self, context: CompileContext) -> None:
+        super().__init__()
         self._context = context
 
     def visit_assignment_statement(self, statement: awst_nodes.AssignmentStatement) -> None:

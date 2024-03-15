@@ -20,6 +20,7 @@ class ScratchSlotReservationValidator(AWSTTraverser):
                 )
 
     def __init__(self) -> None:
+        super().__init__()
         self._reserved_slots = StableSet[int]()
         self._used_slots = list[tuple[int, SourceLocation]]()
 

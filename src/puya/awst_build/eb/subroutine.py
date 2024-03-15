@@ -73,9 +73,6 @@ class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBuilder):
-    # TODO: when call() is invoked, how do we validate this is actually a reference
-    #       to a base class at the calling location?
-
     def __init__(
         self,
         context: ASTConversionModuleContext,
