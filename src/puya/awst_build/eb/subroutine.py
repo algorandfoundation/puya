@@ -13,12 +13,9 @@ from puya.awst.nodes import (
     SubroutineCallExpression,
 )
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    IntermediateExpressionBuilder,
-)
+from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import require_expression_builder
+from puya.awst_build.utils import qualified_class_name, require_expression_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -73,3 +70,29 @@ class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
             wtype=result_wtype,
         )
         return var_expression(call_expr)
+
+
+class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBuilder):
+    # TODO: when call() is invoked, how do we validate this is actually a reference
+    #       to a base class at the calling location?
+
+    def __init__(
+        self,
+        context: ASTConversionModuleContext,
+        type_info: mypy.nodes.TypeInfo,
+        name: str,
+        location: SourceLocation,
+    ):
+        self.name = name
+        self.type_info = type_info
+        cref = qualified_class_name(type_info)
+
+        func_or_dec = type_info.get_method(name)
+        if func_or_dec is None:
+            raise CodeError(f"Unknown member: {name}", location)
+        func_type = func_or_dec.type
+        if not isinstance(func_type, mypy.types.CallableType):
+            raise CodeError(f"Couldn't resolve signature of {name!r}", location)
+
+        target = BaseClassSubroutineTarget(cref, name)
+        super().__init__(context, target, location, func_type)

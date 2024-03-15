@@ -3,6 +3,9 @@ from __future__ import annotations
 import decimal
 import typing
 
+import attrs
+import mypy.nodes
+import mypy.types
 import structlog
 
 from puya.awst import (
@@ -10,11 +13,14 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.nodes import DecimalConstant
+from puya.awst_build import constants
+from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
 from puya.awst_build.eb.base import ExpressionBuilder
-from puya.awst_build.utils import convert_literal
+from puya.awst_build.utils import convert_literal, get_decorators_by_fullname
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
+    from puya.awst_build.context import ASTConversionModuleContext
     from puya.parse import SourceLocation
 
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
@@ -116,3 +122,28 @@ def expect_arc4_operand_wtype(
             literal_or_expr.source_location,
         )
     return literal_or_expr
+
+
+@attrs.frozen
+class ARC4Signature:
+    method_name: str
+    arg_types: list[wtypes.WType]
+    return_type: wtypes.WType
+
+
+def get_arc4_signature(
+    context: ASTConversionModuleContext,
+    type_info: mypy.nodes.TypeInfo,
+    member_name: str,
+    location: SourceLocation,
+) -> ARC4Signature:
+    dec = type_info.get_method(member_name)
+    if isinstance(dec, mypy.nodes.Decorator):
+        decorators = get_decorators_by_fullname(context, dec)
+        abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
+        if abimethod_dec is not None:
+            func_def = dec.func
+            arc4_method_config = get_arc4_method_config(context, abimethod_dec, func_def)
+            *arg_types, return_type = get_func_types(context, func_def, location).values()
+            return ARC4Signature(arc4_method_config.name, arg_types, return_type)
+    raise CodeError(f"'{type_info.fullname}.{member_name}' is not a valid ARC4 method", location)

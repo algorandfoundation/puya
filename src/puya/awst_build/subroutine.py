@@ -65,6 +65,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
+    ContractTypeExpressionBuilder,
 )
 from puya.awst_build.eb.intrinsics import (
     IntrinsicEnumClassExpressionBuilder,
@@ -616,27 +617,23 @@ class FunctionASTConverter(
         if fullname.startswith(constants.PUYAPY_PREFIX):
             return self._visit_ref_expr_of_puyapy(fullname, expr_loc, expr.node)
         match expr:
-            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if (
-                typ.has_base(constants.CLS_ARC4_CLIENT)
-                or typ.has_base(constants.ARC4_CONTRACT_BASE)
-            ):
-                # provides type info only
-                # TODO: need to do this only when resolving abi_call args
-                return ARC4ClientClassExpressionBuilder(self.context, expr_loc, typ.defn.info)
-            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ) if (
-                typ.has_base(constants.STRUCT_BASE) or typ.has_base(constants.CLS_ARC4_STRUCT)
-            ):
-                try:
-                    wtype = self.context.type_map[fullname]
-                except KeyError:
-                    raise CodeError(
-                        f"Unknown struct subclass {fullname}",
-                        expr_loc,
-                    ) from None
-                if isinstance(wtype, wtypes.WStructType):
-                    return StructSubclassExpressionBuilder(wtype, expr_loc)
-                else:
-                    return ARC4StructClassExpressionBuilder(wtype, expr_loc)
+            case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ):
+                if typ.has_base(constants.CONTRACT_BASE):
+                    return ContractTypeExpressionBuilder(self.context, typ.defn.info, expr_loc)
+                if typ.has_base(constants.CLS_ARC4_CLIENT):  # provides type info only
+                    return ARC4ClientClassExpressionBuilder(self.context, expr_loc, typ.defn.info)
+                if typ.has_base(constants.STRUCT_BASE) or typ.has_base(constants.CLS_ARC4_STRUCT):
+                    try:
+                        wtype = self.context.type_map[fullname]
+                    except KeyError:
+                        raise CodeError(
+                            f"Unknown struct subclass {fullname}",
+                            expr_loc,
+                        ) from None
+                    if isinstance(wtype, wtypes.WStructType):
+                        return StructSubclassExpressionBuilder(wtype, expr_loc)
+                    else:
+                        return ARC4StructClassExpressionBuilder(wtype, expr_loc)
             case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True) as self_var):
                 if self.contract_method_info is None:
                     raise InternalError(
