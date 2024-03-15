@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import decimal
+import re
 import typing
 
 import attrs
@@ -8,7 +9,7 @@ import mypy.nodes
 import mypy.types
 import structlog
 
-from puya.arc4_util import parse_method_signature, wtype_to_arc4
+from puya.arc4_util import arc4_to_wtype, split_tuple_types, wtype_to_arc4
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -27,6 +28,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+_VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 
 def convert_arc4_literal(
@@ -168,12 +170,18 @@ def get_arc4_args_and_signature(
     native_args: Sequence[ExpressionBuilder | Literal],
     loc: SourceLocation,
     *,
-    return_wtype: wtypes.WType | None = None,
+    return_wtype: wtypes.WType | None,
 ) -> tuple[Sequence[Expression], ARC4Signature]:
-    method_name, maybe_args, maybe_return_type = parse_method_signature(method_sig)
+    method_name, maybe_args, maybe_return_type = _parse_method_signature(
+        method_sig, loc, is_event=return_wtype is None
+    )
     arg_types = list(map(_arg_to_arc4_wtype, native_args)) if maybe_args is None else maybe_args
-    if len(native_args) != len(arg_types):
-        raise CodeError("Number of arguments does not match signature", loc)
+    num_args = len(native_args)
+    num_types = len(arg_types)
+    if num_types != num_args:
+        raise CodeError(
+            f"Number of arguments ({num_args}) does not match signature ({num_types})", loc
+        )
 
     arc4_args = [
         expect_arc4_operand_wtype(arg, wtype)
@@ -214,3 +222,67 @@ def arc4_tuple_from_items(
         wtype=wtypes.ARC4Tuple.from_types(args_tuple.wtype.types),
         source_location=source_location,
     )
+
+
+def _split_signature(
+    signature: str, location: SourceLocation | None
+) -> tuple[str, str | None, str | None]:
+    """Splits signature into name, args and returns"""
+    level = 0
+    last_idx = 0
+    name: str = ""
+    args: str | None = None
+    returns: str | None = None
+    for idx, tok in enumerate(signature):
+        if tok == "(":
+            level += 1
+            if level == 1:
+                if not name:
+                    name = signature[:idx]
+                last_idx = idx + 1
+        elif tok == ")":
+            level -= 1
+            if level == 0:
+                if args is None:
+                    args = signature[last_idx:idx]
+                elif returns is None:
+                    returns = signature[last_idx - 1 : idx + 1]
+                last_idx = idx + 1
+    if last_idx < len(signature):
+        remaining = signature[last_idx:]
+        if remaining:
+            if not name:
+                name = remaining
+            elif not args:
+                raise CodeError(
+                    f"Invalid signature, args not well defined: {name=}, {remaining=}",
+                    location,
+                )
+            elif returns:
+                raise CodeError(
+                    f"Invalid signature, text after returns:"
+                    f" {name=}, {args=}, {returns=}, {remaining=}",
+                    location,
+                )
+            else:
+                returns = remaining
+    if not name or not _VALID_NAME_PATTERN.match(name):
+        raise CodeError(f"Invalid signature: {name=}", location)
+    return name, args, returns
+
+
+def _parse_method_signature(
+    signature: str, location: SourceLocation, *, is_event: bool
+) -> tuple[str, list[wtypes.WType] | None, wtypes.WType | None]:
+    name, maybe_args, maybe_returns = _split_signature(signature, location)
+    args: list[wtypes.WType] | None = None
+    returns: wtypes.WType | None = None
+    if maybe_args:
+        args = [arc4_to_wtype(a, location) for a in split_tuple_types(maybe_args)]
+    if maybe_returns:
+        if is_event:
+            raise CodeError(
+                f"Invalid signature, trailing text after args {maybe_returns!r}", location
+            )
+        returns = arc4_to_wtype(maybe_returns, location)
+    return name, args, returns

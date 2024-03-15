@@ -8,7 +8,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst_build import constants
-from puya.errors import InternalError, PuyaError
+from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig
 from puya.parse import SourceLocation
 from puya.utils import round_bits_to_nearest_bytes
@@ -66,7 +66,7 @@ _ARC4_WTYPE_MAPPING = {
 }
 
 
-def arc4_to_wtype(typ: str) -> wtypes.WType:
+def arc4_to_wtype(typ: str, location: SourceLocation | None = None) -> wtypes.WType:
     try:
         return _ARC4_WTYPE_MAPPING[typ]
     except KeyError:
@@ -79,19 +79,21 @@ def arc4_to_wtype(typ: str) -> wtypes.WType:
         return wtypes.ARC4UFixedNxM.from_scale_and_precision(int(n), int(m))
     if fixed_array := _FIXED_ARRAY_REGEX.match(typ):
         arr_type, size = fixed_array.group("type", "size")
-        inner_cls = arc4_to_wtype(arr_type)
+        inner_cls = arc4_to_wtype(arr_type, location)
         return wtypes.ARC4StaticArray.from_element_type_and_size(inner_cls, int(size))
     if dynamic_array := _DYNAMIC_ARRAY_REGEX.match(typ):
         arr_type = dynamic_array.group("type")
-        inner_cls = arc4_to_wtype(arr_type)
+        inner_cls = arc4_to_wtype(arr_type, location)
         return wtypes.ARC4DynamicArray.from_element_type(inner_cls)
     if tuple_match := _TUPLE_REGEX.match(typ):
-        tuple_types = map(arc4_to_wtype, _split_tuple_types(tuple_match.group("types")))
+        tuple_types = [
+            arc4_to_wtype(x, location) for x in split_tuple_types(tuple_match.group("types"))
+        ]
         return wtypes.ARC4Tuple.from_types(tuple_types)
-    raise PuyaError(f"Unknown ARC4 type '{typ}'")
+    raise CodeError(f"Unknown ARC4 type '{typ}'", location)
 
 
-def _split_tuple_types(types: str) -> Iterable[str]:
+def split_tuple_types(types: str) -> Iterable[str]:
     """Splits inner tuple types into individual elements.
 
     e.g. "uint64,(uint8,string),bool" becomes ["uint64", "(uint8,string)", "bool"]
@@ -107,39 +109,6 @@ def _split_tuple_types(types: str) -> Iterable[str]:
             yield types[last_idx:idx]
             last_idx = idx + 1
     yield types[last_idx:]
-
-
-def _split_signature(signature: str) -> Iterable[str]:
-    """Splits signature into name, args and returns"""
-    level = 0
-    last_idx = 0
-    for idx, tok in enumerate(signature):
-        if tok == "(":
-            level += 1
-            if level == 1:
-                yield signature[:idx]
-                last_idx = idx + 1
-        elif tok == ")":
-            level -= 1
-            if level == 0:
-                yield signature[last_idx:idx]
-                last_idx = idx + 1
-    if last_idx < len(signature):
-        yield signature[last_idx:]
-
-
-def parse_method_signature(
-    signature: str,
-) -> tuple[str, list[wtypes.WType] | None, wtypes.WType | None]:
-    name, *maybe_arg_returns = _split_signature(signature)
-    args: list[wtypes.WType] | None = None
-    returns: wtypes.WType | None = None
-    if maybe_arg_returns:
-        args_str, *maybe_returns = maybe_arg_returns
-        args = [arc4_to_wtype(a) for a in _split_tuple_types(args_str)]
-        if maybe_returns:
-            returns = arc4_to_wtype(maybe_returns[0])
-    return name, args, returns
 
 
 def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str:
