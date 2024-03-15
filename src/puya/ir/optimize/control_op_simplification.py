@@ -45,6 +45,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             case models.ConditionalBranch(
                 condition=models.UInt64Constant(value=value), zero=zero, non_zero=non_zero
             ):
+                logger.debug("simplifying conditional branch with a constant into a goto")
                 if value == 0:
                     goto, other = zero, non_zero
                 else:
@@ -136,6 +137,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 ),
                 source_location=source_location,
             ) as switch if can_simplify_switch(switch):
+                logger.debug("simplifying a switch with constants into goto nth")
                 # reduce to GotoNth
                 block_map = dict[int, models.BasicBlock]()
                 for case, case_block in cases.items():
@@ -153,6 +155,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 blocks=blocks,
                 default=models.ControlOp(unique_targets=[default_block], can_exit=False),
             ):
+                logger.debug("simplifying a goto nth with a constant into a goto")
                 goto = blocks[value] if value < len(blocks) else default_block
                 block.terminator = models.Goto(
                     source_location=terminator.source_location, target=goto
@@ -165,6 +168,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 blocks=[zero],  # the constant here is the size of blocks
                 default=models.ControlOp(unique_targets=[non_zero], can_exit=False),
             ):  # reduces to ConditionalBranch
+                logger.debug("simplifying a goto nth with two targets into a conditional branch")
                 block.terminator = models.ConditionalBranch(
                     condition=value,
                     zero=zero,
@@ -183,6 +187,10 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
             ) as fallthrough_terminator if (
                 # only if the default_block is empty
                 not (default_block.ops or default_block.phis)
+                # only if default_blocks targets don't have phi nodes,
+                # as this can result in excessive copies when ssa is destructured.
+                # re-evaluate this condition when destructuring algorithm is improved
+                and not any(s.phis for s in default_block.successors)
                 # and only if there is no overlap between the default_block successor and
                 # switch/gotonth targets, otherwise even though default_block appears empty now,
                 # it's actually filled with phi-node magic we need to retain
@@ -192,6 +200,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 #       and a merge to default_block
                 and set(default_block.successors).isdisjoint(fallthrough_terminator.targets())
             ):
+                logger.debug("inlining the default target of a switch/goto nth")
                 assert (
                     default_block.terminator is not None
                 ), f"block {default_block} should already have been terminated"
