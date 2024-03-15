@@ -41,7 +41,6 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
             case [val]:

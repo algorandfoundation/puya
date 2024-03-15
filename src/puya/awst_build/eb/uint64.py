@@ -53,7 +53,6 @@ class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
             case [Literal(value=int(int_value), source_location=loc)]:

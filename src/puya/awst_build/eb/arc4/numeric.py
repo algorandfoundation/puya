@@ -54,7 +54,6 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         if not self.wtype:
             raise InternalError(

@@ -63,7 +63,6 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         type_or_value_arg_name = "type_or_initial_value"
         arg_mapping = get_arg_mapping(
@@ -184,7 +183,6 @@ class AppStateMaybeExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         if args:
             raise CodeError("Unexpected/unhandled arguments", location)
@@ -203,7 +201,6 @@ class AppStateGetExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)

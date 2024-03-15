@@ -73,7 +73,6 @@ class AppAccountStateGetMethodBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         if len(args) != 2:
             raise CodeError(f"Expected 2 arguments, got {len(args)}", location)
@@ -104,7 +103,6 @@ class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
             case [item]:
@@ -152,7 +150,6 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         type_arg_name = "type_"
         arg_mapping = get_arg_mapping(

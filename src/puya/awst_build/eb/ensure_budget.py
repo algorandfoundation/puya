@@ -36,7 +36,6 @@ class EnsureBudgetBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         required_budget_arg_name = "required_budget"
         fee_source_arg_name = "fee_source"

@@ -43,7 +43,6 @@ class UnsignedRangeBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         uint64_args = [expect_operand_wtype(in_arg, wtypes.uint64_wtype) for in_arg in args]
         match uint64_args:
@@ -88,7 +87,6 @@ class UnsignedEnumerateBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         if not args:
             raise CodeError("insufficient arguments", location)
@@ -123,7 +121,6 @@ class ReversedFunctionExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         if not args:
             raise CodeError("insufficient arguments", location)

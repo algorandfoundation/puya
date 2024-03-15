@@ -30,7 +30,6 @@ class StructSubclassExpressionBuilder(TypeClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         # TODO: validation etc
         ctor_args = [

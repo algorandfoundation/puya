@@ -52,7 +52,6 @@ class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         non_literal_args = [
             require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
@@ -108,7 +107,6 @@ class ArrayAppenderExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
             case [elem]:

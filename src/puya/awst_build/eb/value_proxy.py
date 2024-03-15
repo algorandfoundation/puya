@@ -80,9 +80,8 @@ class ValueProxyExpressionBuilder(ValueExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
-        return self._proxied.call(args, arg_kinds, arg_names, location, original_expr)
+        return self._proxied.call(args, arg_kinds, arg_names, location)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         return self._proxied.member_access(name, location)

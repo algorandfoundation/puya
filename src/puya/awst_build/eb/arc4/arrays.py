@@ -86,7 +86,6 @@ class DynamicArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         return dynamic_array_constructor(args=args, wtype=None, location=location)
 
@@ -130,7 +129,6 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         return dynamic_array_constructor(args=args, wtype=self.wtype, location=location)
 
@@ -170,7 +168,6 @@ class StaticArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         return static_array_constructor(args=args, wtype=None, location=location)
 
@@ -223,7 +220,6 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         return static_array_constructor(args=args, wtype=self.wtype, location=location)
 
@@ -247,7 +243,6 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
             case (ExpressionBuilder() as eb,) if eb.rvalue().wtype == wtypes.account_wtype:
@@ -445,7 +440,6 @@ class AppendExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         args_expr = [expect_arc4_operand_wtype(a, self.wtype.element_type) for a in args]
         args_tuple = TupleExpression.from_items(args_expr, location)
@@ -475,7 +469,6 @@ class PopExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         match args:
             case []:
@@ -504,7 +497,6 @@ class ExtendExpressionBuilder(IntermediateExpressionBuilder):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-        original_expr: mypy.nodes.CallExpr,
     ) -> ExpressionBuilder:
         other = match_array_concat_arg(
             args,
