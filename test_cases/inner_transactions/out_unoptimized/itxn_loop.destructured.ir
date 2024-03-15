@@ -3,13 +3,13 @@ contract test_cases.inner_transactions.itxn_loop.MyContract:
         subroutine test_cases.inner_transactions.itxn_loop.MyContract.approval_program() -> uint64:
             block@0: // L19
                 let note#0: bytes = "ABCDE"
-                let app_params%%ApplicationArgs_length#0: uint64 = 0u
+                let app_params%%param_TypeEnum_idx_0#0: uint64 = appl
                 let app_params%%param_ApprovalProgramPages_idx_0#0: bytes = 0x0a8101
                 let app_params%%param_ClearStateProgramPages_idx_0#0: bytes = 0x0a8101
-                let app_params%%param_Fee_idx_0#0: uint64 = 0u
-                let app_params%%param_Note_idx_0#0: bytes = ""
                 let app_params%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
-                let app_params%%param_TypeEnum_idx_0#0: uint64 = appl
+                let app_params%%param_Note_idx_0#0: bytes = ""
+                let app_params%%param_Fee_idx_0#0: uint64 = 0u
+                let app_params%%ApplicationArgs_length#0: uint64 = 0u
                 (assert 1u) // Step cannot be zero
                 let range_item%0#0: uint64 = 0u
                 goto block@1
@@ -42,12 +42,6 @@ contract test_cases.inner_transactions.itxn_loop.MyContract:
                 goto block@7
             block@7: // switch_case_next_L30
                 itxn_begin
-                ((itxn_field TypeEnum) app_params%%param_TypeEnum_idx_0#0)
-                ((itxn_field OnCompletion) app_params%%param_OnCompletion_idx_0#0)
-                ((itxn_field Note) app_params%%param_Note_idx_0#0)
-                ((itxn_field Fee) app_params%%param_Fee_idx_0#0)
-                ((itxn_field ClearStateProgramPages) app_params%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_params%%param_ApprovalProgramPages_idx_0#0)
                 let is_ApplicationArgs_count_gte_1%2#0: uint64 = (>= app_params%%ApplicationArgs_length#0 1u)
                 goto is_ApplicationArgs_count_gte_1%2#0 ? block@8 : block@11
             block@8: // set_ApplicationArgs_0_to_0_L40
@@ -62,6 +56,12 @@ contract test_cases.inner_transactions.itxn_loop.MyContract:
                 ((itxn_field ApplicationArgs) app_params%%param_ApplicationArgs_idx_2#0)
                 goto block@11
             block@11: // next_field_L40
+                ((itxn_field Fee) app_params%%param_Fee_idx_0#0)
+                ((itxn_field Note) app_params%%param_Note_idx_0#0)
+                ((itxn_field OnCompletion) app_params%%param_OnCompletion_idx_0#0)
+                ((itxn_field ClearStateProgramPages) app_params%%param_ClearStateProgramPages_idx_0#0)
+                ((itxn_field ApprovalProgramPages) app_params%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field TypeEnum) app_params%%param_TypeEnum_idx_0#0)
                 goto block@12
             block@12: // next_txn_L40
                 itxn_submit

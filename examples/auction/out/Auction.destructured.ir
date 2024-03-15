@@ -101,10 +101,10 @@ contract examples.auction.contract.Auction:
                 (app_global_put "asa" asset#0)
                 itxn_begin
                 let inner_txn_params%7%%param_AssetReceiver_idx_0#0: bytes = (global CurrentApplicationAddress)
-                ((itxn_field XferAsset) asset#0)
-                ((itxn_field TypeEnum) axfer)
                 ((itxn_field Fee) 0u)
+                ((itxn_field XferAsset) asset#0)
                 ((itxn_field AssetReceiver) inner_txn_params%7%%param_AssetReceiver_idx_0#0)
+                ((itxn_field TypeEnum) axfer)
                 itxn_submit
                 return 
         
@@ -177,10 +177,10 @@ contract examples.auction.contract.Auction:
             block@2: // after_if_else_L87
                 itxn_begin
                 let inner_txn_params%11%%param_Receiver_idx_0#0: bytes = (txn Sender)
-                ((itxn_field TypeEnum) pay)
                 ((itxn_field Receiver) inner_txn_params%11%%param_Receiver_idx_0#0)
-                ((itxn_field Fee) 0u)
                 ((itxn_field Amount) amount#1)
+                ((itxn_field Fee) 0u)
+                ((itxn_field TypeEnum) pay)
                 itxn_submit
                 let new_state_value%12#0: uint64 = (- original_amount#0 amount#1)
                 let tmp%13#0: bytes = (txn Sender)
@@ -195,18 +195,18 @@ contract examples.auction.contract.Auction:
                 let tmp%3#0: uint64 = (> tmp%0#0 auction_end_value%1#0)
                 (assert tmp%3#0) // auction has not ended
                 itxn_begin
-                let (asa_amount_value%6#0: uint64, asa_amount_exists%7#0: uint64) = (app_global_get_ex 0u "asa_amount")
-                (assert asa_amount_exists%7#0) // check asa_amount exists
+                let (previous_bidder_value%6#0: bytes, previous_bidder_exists%7#0: uint64) = (app_global_get_ex 0u "previous_bidder")
+                (assert previous_bidder_exists%7#0) // check previous_bidder exists
                 let (previous_bidder_value%8#0: bytes, previous_bidder_exists%9#0: uint64) = (app_global_get_ex 0u "previous_bidder")
                 (assert previous_bidder_exists%9#0) // check previous_bidder exists
-                let (previous_bidder_value%10#0: bytes, previous_bidder_exists%11#0: uint64) = (app_global_get_ex 0u "previous_bidder")
-                (assert previous_bidder_exists%11#0) // check previous_bidder exists
+                let (asa_amount_value%10#0: uint64, asa_amount_exists%11#0: uint64) = (app_global_get_ex 0u "asa_amount")
+                (assert asa_amount_exists%11#0) // check asa_amount exists
+                ((itxn_field AssetAmount) asa_amount_value%10#0)
+                ((itxn_field AssetReceiver) previous_bidder_value%8#0)
+                ((itxn_field AssetCloseTo) previous_bidder_value%6#0)
                 ((itxn_field XferAsset) asset#0)
-                ((itxn_field TypeEnum) axfer)
                 ((itxn_field Fee) 0u)
-                ((itxn_field AssetReceiver) previous_bidder_value%10#0)
-                ((itxn_field AssetCloseTo) previous_bidder_value%8#0)
-                ((itxn_field AssetAmount) asa_amount_value%6#0)
+                ((itxn_field TypeEnum) axfer)
                 itxn_submit
                 return 
         

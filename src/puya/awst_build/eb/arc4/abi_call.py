@@ -12,6 +12,7 @@ import structlog
 from puya.arc4_util import get_abi_signature_from_wtypes, parse_method_signature
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    TXN_FIELDS,
     ARC4Encode,
     BytesConstant,
     BytesEncoding,
@@ -37,6 +38,7 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
 )
+from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
@@ -53,21 +55,26 @@ if typing.TYPE_CHECKING:
 
 
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
-_APP_TRANSACTION_FIELDS = (
-    TxnFields.app_id,
-    TxnFields.on_completion,
-    TxnFields.approval_program,
-    TxnFields.clear_state_program,
-    TxnFields.global_num_uint,
-    TxnFields.global_num_bytes,
-    TxnFields.local_num_uint,
-    TxnFields.local_num_bytes,
-    TxnFields.extra_program_pages,
-    TxnFields.fee,
-    TxnFields.sender,
-    TxnFields.note,
-    TxnFields.rekey_to,
-)
+_APP_TRANSACTION_FIELDS = {
+    get_field_python_name(f): f
+    for f in TXN_FIELDS
+    if f.immediate
+    in (
+        "ApplicationID",
+        "OnCompletion",
+        "ApprovalProgram",
+        "ClearStateProgram",
+        "GlobalNumUInt",
+        "GlobalNumByteSlice",
+        "LocalNumUInt",
+        "LocalNumByteSlice",
+        "ExtraProgramPages",
+        "Fee",
+        "Sender",
+        "Note",
+        "RekeyTo",
+    )
+}
 
 
 @attrs.frozen
@@ -326,12 +333,12 @@ def _create_abi_call_expr(
     _add_array_exprs(fields, TxnFields.accounts, account_exprs)
     _add_array_exprs(fields, TxnFields.apps, application_exprs)
     _add_array_exprs(fields, TxnFields.assets, asset_exprs)
-    for field in _APP_TRANSACTION_FIELDS:
+    for field_python_name, field in _APP_TRANSACTION_FIELDS.items():
         try:
-            value = transaction_kwargs.pop(field.python_name)
+            value = transaction_kwargs.pop(field_python_name)
         except KeyError:
             continue
-        field, field_expr = get_field_expr(field.python_name, value)
+        field, field_expr = get_field_expr(field_python_name, value)
         fields[field] = field_expr
 
     if transaction_kwargs:

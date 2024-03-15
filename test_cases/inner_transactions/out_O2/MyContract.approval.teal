@@ -53,22 +53,22 @@ test1:
     byte "AST2"
     app_global_put
     itxn_begin
-    byte "unit"
-    itxn_field ConfigAssetUnitName
-    int acfg
-    itxn_field TypeEnum
-    int 1000
-    itxn_field ConfigAssetTotal
+    int 0
+    itxn_field Fee
     dup
     itxn_field ConfigAssetReserve
     dig 1
     itxn_field ConfigAssetManager
-    int 0
-    itxn_field Fee
     int 3
     itxn_field ConfigAssetDecimals
+    byte "unit"
+    itxn_field ConfigAssetUnitName
     uncover 2
     itxn_field ConfigAssetName
+    int 1000
+    itxn_field ConfigAssetTotal
+    int acfg
+    itxn_field TypeEnum
     itxn_submit
     itxn ConfigAssetName
     cover 2
@@ -79,21 +79,21 @@ test1:
     app_global_get_ex
     assert // check name exists
     itxn_begin
-    byte "unit"
-    itxn_field ConfigAssetUnitName
-    int acfg
-    itxn_field TypeEnum
-    int 1000
-    itxn_field ConfigAssetTotal
+    int 0
+    itxn_field Fee
     dig 1
     itxn_field ConfigAssetReserve
     dig 2
     itxn_field ConfigAssetManager
-    int 0
-    itxn_field Fee
     int 3
     itxn_field ConfigAssetDecimals
+    byte "unit"
+    itxn_field ConfigAssetUnitName
     itxn_field ConfigAssetName
+    int 1000
+    itxn_field ConfigAssetTotal
+    int acfg
+    itxn_field TypeEnum
     itxn_submit
     itxn CreatedAssetID
     itxn ConfigAssetName
@@ -116,31 +116,31 @@ test1:
     ==
     assert // created asset 2 is correct
     itxn_begin
-    int appl
-    itxn_field TypeEnum
     int 0
     itxn_field Fee
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x098101
     itxn_field ApprovalProgramPages
-    itxn_next
-    byte "unit"
-    itxn_field ConfigAssetUnitName
-    int acfg
+    int appl
     itxn_field TypeEnum
-    int 1000
-    itxn_field ConfigAssetTotal
+    itxn_next
+    int 0
+    itxn_field Fee
     dup
     itxn_field ConfigAssetReserve
     dig 1
     itxn_field ConfigAssetManager
-    int 0
-    itxn_field Fee
     int 3
     itxn_field ConfigAssetDecimals
+    byte "unit"
+    itxn_field ConfigAssetUnitName
     byte "AST3"
     itxn_field ConfigAssetName
+    int 1000
+    itxn_field ConfigAssetTotal
+    int acfg
+    itxn_field TypeEnum
     itxn_submit
     itxn ConfigAssetName
     gitxn 0 CreatedApplicationID
@@ -149,8 +149,6 @@ test1:
     ==
     assert // asset3_txn is correct
     itxn_begin
-    int appl
-    itxn_field TypeEnum
     byte "3rd"
     itxn_field Note
     int 0
@@ -159,23 +157,25 @@ test1:
     itxn_field ClearStateProgramPages
     byte 0x098101
     itxn_field ApprovalProgramPages
-    itxn_next
-    byte "unit"
-    itxn_field ConfigAssetUnitName
-    int acfg
+    int appl
     itxn_field TypeEnum
-    int 1000
-    itxn_field ConfigAssetTotal
-    itxn_field ConfigAssetReserve
+    itxn_next
     byte "3rd"
     itxn_field Note
-    itxn_field ConfigAssetManager
     int 0
     itxn_field Fee
+    itxn_field ConfigAssetReserve
+    itxn_field ConfigAssetManager
     int 3
     itxn_field ConfigAssetDecimals
+    byte "unit"
+    itxn_field ConfigAssetUnitName
     byte "AST3"
     itxn_field ConfigAssetName
+    int 1000
+    itxn_field ConfigAssetTotal
+    int acfg
+    itxn_field TypeEnum
     itxn_submit
     retsub
 
@@ -213,8 +213,6 @@ test2_else_body@2:
 
 test2_after_if_else@3:
     itxn_begin
-    int appl
-    itxn_field TypeEnum
     int 1
     >=
     bz test2_next_field@5
@@ -224,10 +222,6 @@ test2_after_if_else@3:
 test2_next_field@5:
     int 0
     itxn_field Fee
-    byte 0x098101
-    itxn_field ClearStateProgramPages
-    byte 0x098101
-    itxn_field ApprovalProgramPages
     frame_dig 0
     itxn_field ApplicationArgs
     frame_dig 1
@@ -240,6 +234,12 @@ test2_next_field@5:
     itxn_field ApplicationArgs
 
 test2_next_field@7:
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
     itxn_submit
     int 1
     frame_bury 4
@@ -256,18 +256,18 @@ test2_next_field@7:
     >
     bz test2_after_if_else@11
     itxn_begin
-    int appl
-    itxn_field TypeEnum
-    int DeleteApplication
-    itxn_field OnCompletion
     int 0
     itxn_field Fee
+    byte "42"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x098101
     itxn_field ApprovalProgramPages
-    byte "42"
-    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
     itxn_submit
     int 2
     frame_bury 4
@@ -292,213 +292,213 @@ test2_after_if_else@11:
 test3:
     proto 0 0
     itxn_begin
-    int appl
-    itxn_field TypeEnum
-    int DeleteApplication
-    itxn_field OnCompletion
     int 0
     itxn_field Fee
+    byte "1"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
-    byte "1"
-    itxn_field ApplicationArgs
-    itxn_next
     int appl
     itxn_field TypeEnum
-    int DeleteApplication
-    itxn_field OnCompletion
-    int 0
-    itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "2"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "3"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "4"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "5"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "6"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "7"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "8"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "9"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "10"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "11"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "12"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "13"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "14"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "15"
     itxn_field ApplicationArgs
-    itxn_next
-    int appl
-    itxn_field TypeEnum
     int DeleteApplication
     itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    itxn_next
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x09361a00b08101
     itxn_field ApprovalProgramPages
     byte "16"
     itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
     itxn_submit
     gitxna 0 Logs 0
     byte "1"
@@ -578,14 +578,14 @@ test4:
     byte "H"
     concat
     itxn_begin
-    int appl
-    itxn_field TypeEnum
-    int DeleteApplication
-    itxn_field OnCompletion
     int 0
     itxn_field Fee
     int 3
     itxn_field ExtraProgramPages
+    byte "1"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
     byte 0x098101
     itxn_field ClearStateProgramPages
     byte 0x098101
@@ -596,8 +596,8 @@ test4:
     itxn_field ApprovalProgramPages
     dup
     itxn_field ApprovalProgramPages
-    byte "1"
-    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
     itxn_submit
     itxn NumApprovalProgramPages
     itxn ExtraProgramPages

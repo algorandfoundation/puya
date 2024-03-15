@@ -1158,6 +1158,10 @@ class FunctionASTConverter(
             ).rvalue()
             for mypy_item in mypy_expr.items
         ]
+        if not items:
+            raise CodeError(
+                "Empty tuples are not supported", self.context.node_location(mypy_expr)
+            )
         wtype = wtypes.WTuple.from_types(i.wtype for i in items)
         tuple_expr = TupleExpression(
             source_location=self._location(mypy_expr),

@@ -4,6 +4,7 @@ import typing
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    INNER_PARAM_TXN_FIELDS,
     Copy,
     CreateInnerTransaction,
     Expression,
@@ -20,6 +21,7 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import expect_operand_wtype
@@ -32,10 +34,7 @@ if typing.TYPE_CHECKING:
 
     from puya.parse import SourceLocation
 
-
-_parameter_mapping: typing.Final = {
-    f.python_name: f for f in TxnFields.inner_transaction_param_fields()
-}
+_parameter_mapping: typing.Final = {get_field_python_name(f): f for f in INNER_PARAM_TXN_FIELDS}
 
 
 def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[TxnField, Expression]:
@@ -65,11 +64,12 @@ def get_field_expr(arg_name: str, arg: ExpressionBuilder | Literal) -> tuple[Txn
 def _maybe_transform_program_field_expr(
     field: TxnField, eb: ExpressionBuilder | Literal
 ) -> tuple[TxnField, Expression] | None:
-    if field not in (TxnFields.approval_program, TxnFields.clear_state_program):
+    immediate = field.immediate
+    if immediate not in ("ApprovalProgram", "ClearStateProgram"):
         return None
     field = (
         TxnFields.approval_program_pages
-        if field == TxnFields.approval_program
+        if immediate == "ApprovalProgram"
         else TxnFields.clear_state_program_pages
     )
     match eb:

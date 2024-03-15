@@ -1,11 +1,15 @@
 from collections.abc import Iterable
 
 import mypy.nodes
-from puya.awst.nodes import TxnFields
+from puya.awst.nodes import INNER_PARAM_TXN_FIELDS, TXN_FIELDS
 from puya.awst_build import constants
+from puya.awst_build.eb.transaction import get_field_python_name
 
 from tests import EXAMPLES_DIR
 from tests.utils import get_awst_cache
+
+_ALL_PYTHON_TXN_FIELD_NAMES = set(map(get_field_python_name, TXN_FIELDS))
+_INNER_TRANSACTION_PYTHON_TXN_FIELD_NAMES = set(map(get_field_python_name, INNER_PARAM_TXN_FIELDS))
 
 
 def _get_type_infos(type_names: Iterable[str]) -> Iterable[mypy.nodes.TypeInfo]:
@@ -22,16 +26,14 @@ def _get_type_infos(type_names: Iterable[str]) -> Iterable[mypy.nodes.TypeInfo]:
 
 
 def test_group_transaction_members() -> None:
-    all_fields = {f.python_name for f in TxnFields.all_fields()}
     gtxn_types = [t.gtxn for t in constants.TRANSACTION_TYPE_TO_CLS.values()]
     gtxn_types.append(constants.CLS_TRANSACTION_BASE)
     for type_info in _get_type_infos(gtxn_types):
-        unknown = sorted(set(type_info.protocol_members) - all_fields)
+        unknown = sorted(set(type_info.protocol_members) - _ALL_PYTHON_TXN_FIELD_NAMES)
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
 
 
 def test_inner_transaction_field_setters() -> None:
-    param_fields = {f.python_name for f in TxnFields.inner_transaction_param_fields()}
     for type_info in _get_type_infos(
         t.itxn_fields for t in constants.TRANSACTION_TYPE_TO_CLS.values()
     ):
@@ -41,7 +43,7 @@ def test_inner_transaction_field_setters() -> None:
             assert isinstance(func_def, mypy.nodes.FuncDef)
             arg_names = [a for a in func_def.arg_names if a is not None]
             arg_names.remove("self")
-            unknown = sorted(set(arg_names) - param_fields)
+            unknown = sorted(set(arg_names) - _INNER_TRANSACTION_PYTHON_TXN_FIELD_NAMES)
             assert not unknown, f"{type_info.fullname}: Unknown TxnField param members: {unknown}"
 
             if init_args is None:
@@ -54,11 +56,10 @@ def test_inner_transaction_field_setters() -> None:
 
 
 def test_inner_transaction_members() -> None:
-    all_fields = {f.python_name for f in TxnFields.all_fields()}
     for type_info in _get_type_infos(
         t.itxn_result for t in constants.TRANSACTION_TYPE_TO_CLS.values()
     ):
-        unknown = sorted(set(type_info.protocol_members) - all_fields)
+        unknown = sorted(set(type_info.protocol_members) - _ALL_PYTHON_TXN_FIELD_NAMES)
         assert not unknown, f"{type_info.fullname}: Unknown TxnField members: {unknown}"
 
 
@@ -84,7 +85,5 @@ def test_txn_fields() -> None:
             )
 
     # anything missing is an error
-    missing_fields = [
-        f.python_name for f in TxnFields.all_fields() if f.python_name not in seen_fields
-    ]
+    missing_fields = sorted(_ALL_PYTHON_TXN_FIELD_NAMES - seen_fields)
     assert not missing_fields, f"Txn Fields not mapped: {missing_fields}"
