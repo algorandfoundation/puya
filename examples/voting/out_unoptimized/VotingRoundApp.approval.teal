@@ -761,15 +761,13 @@ close_after_for@15:
     // )
     // .submit()
     itxn_begin
-    // voting/voting.py:148
-    // asset_name=b"[VOTE RESULT] " + self.vote_id,
-    int 0
-    byte "vote_id"
-    app_global_get_ex
-    assert // check vote_id exists
-    byte "[VOTE RESULT] "
+    // voting/voting.py:144
+    // itxn.AssetConfig(
+    int acfg
     swap
-    concat
+    // voting/voting.py:145
+    // total=1,
+    int 1
     swap
     // voting/voting.py:146
     // decimals=0,
@@ -779,12 +777,15 @@ close_after_for@15:
     // default_frozen=False,
     int 0
     swap
-    // voting/voting.py:145
-    // total=1,
-    int 1
-    // voting/voting.py:144
-    // itxn.AssetConfig(
-    int acfg
+    // voting/voting.py:148
+    // asset_name=b"[VOTE RESULT] " + self.vote_id,
+    int 0
+    byte "vote_id"
+    app_global_get_ex
+    assert // check vote_id exists
+    byte "[VOTE RESULT] "
+    swap
+    concat
     // voting/voting.py:149
     // unit_name=b"VOTERSLT",
     byte "VOTERSLT"
@@ -794,14 +795,17 @@ close_after_for@15:
     byte "nft_image_url"
     app_global_get_ex
     assert // check nft_image_url exists
+    // voting/voting.py:142
+    // note += b"]}}"
+    uncover 3
+    itxn_field Note
     itxn_field ConfigAssetURL
     itxn_field ConfigAssetUnitName
-    itxn_field TypeEnum
-    itxn_field ConfigAssetTotal
-    itxn_field Note
+    itxn_field ConfigAssetName
     itxn_field ConfigAssetDefaultFrozen
     itxn_field ConfigAssetDecimals
-    itxn_field ConfigAssetName
+    itxn_field ConfigAssetTotal
+    itxn_field TypeEnum
     // voting/voting.py:144-153
     // itxn.AssetConfig(
     //     total=1,

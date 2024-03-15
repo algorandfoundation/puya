@@ -72,7 +72,7 @@ class ProgramSizes:
         program_sizes = ProgramSizes()
         for line in lines[1:]:
             name, o0, o1, o1_delta, o2, o2_delta = line.rsplit(maxsplit=5)
-            program_sizes.sizes[name] = {0: int(o0), 1: int(o1), 2: int(o2)}
+            program_sizes.sizes[name.strip()] = {0: int(o0), 1: int(o1), 2: int(o2)}
         return program_sizes
 
     def update(self, other: "ProgramSizes") -> "ProgramSizes":

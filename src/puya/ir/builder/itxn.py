@@ -27,6 +27,9 @@ from puya.ir.models import (
 from puya.ir.ssa import BraunSSA
 from puya.ir.types_ import wtype_to_avm_type
 from puya.parse import SourceLocation
+from puya.utils import StableSet
+
+_INNER_TRANSACTION_NON_ARRAY_FIELDS = [f for f in awst_nodes.TXN_FIELDS if not f.is_array]
 
 
 @attrs.frozen(kw_only=True)
@@ -364,11 +367,12 @@ class InnerTransactionBuilder:
         param_data = self._inner_txn_params_data.setdefault(
             var_name, CreateInnerTransactionData(var_name=var_name)
         )
-        fields = (
-            inner_txn_fields.keys()
-            if update
-            else awst_nodes.TxnFields.inner_transaction_param_fields()
-        )
+        fields = StableSet.from_iter(inner_txn_fields)
+        if not update:
+            # add missing fields to end
+            for field in awst_nodes.INNER_PARAM_TXN_FIELDS:
+                if field not in fields:
+                    fields.add(field)
         for field in fields:
             field_data = param_data.get_or_add_field_data(field)
             arg_expr = inner_txn_fields.get(field)
@@ -406,7 +410,7 @@ class InnerTransactionBuilder:
         dest_params_data = self._inner_txn_params_data.setdefault(
             dest_var_name, CreateInnerTransactionData(var_name=dest_var_name)
         )
-        for field in awst_nodes.TxnFields.inner_transaction_param_fields():
+        for field in awst_nodes.INNER_PARAM_TXN_FIELDS:
             src_field_data = src_params_data.get_or_add_field_data(field)
 
             dest_field_data = dest_params_data.get_or_add_field_data(field)
@@ -518,7 +522,7 @@ class InnerTransactionBuilder:
     def _assign_inner_txn_fields(
         self, submit_data: SubmitInnerTransactionData, source_location: SourceLocation
     ) -> None:
-        for field in awst_nodes.TxnFields.inner_transaction_non_array_fields():
+        for field in _INNER_TRANSACTION_NON_ARRAY_FIELDS:
             register_name = get_inner_txn_field_name(submit_data.var_name, field.immediate)
             value = (
                 Intrinsic(

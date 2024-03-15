@@ -89,45 +89,45 @@ test1:
     byte "name"
     byte "AST1"
     app_global_put
+    // inner_transactions/contract.py:45
+    // asset_params = itxn.AssetConfig(
+    int acfg
+    dup
+    swap
+    // inner_transactions/contract.py:46
+    // total=1000,
+    int 1000
+    dup
+    cover 2
     // inner_transactions/contract.py:47
     // asset_name=self.name,
     int 0
     byte "name"
     app_global_get_ex
     assert // check name exists
+    // inner_transactions/contract.py:48
+    // unit_name=b"unit",
+    byte "unit"
+    dup
+    cover 4
     // inner_transactions/contract.py:49
     // decimals=3,
     int 3
     dup
-    cover 2
-    // inner_transactions/contract.py:52
-    // fee=0,
-    int 0
-    dup
-    cover 3
+    cover 5
     // inner_transactions/contract.py:50
     // manager=op.Global.current_application_address,
     global CurrentApplicationAddress
     dup
-    cover 4
+    cover 6
     // inner_transactions/contract.py:51
     // reserve=op.Global.current_application_address,
     global CurrentApplicationAddress
     dup
-    cover 5
-    // inner_transactions/contract.py:46
-    // total=1000,
-    int 1000
-    dup
-    cover 6
-    // inner_transactions/contract.py:45
-    // asset_params = itxn.AssetConfig(
-    int acfg
-    dup
     cover 7
-    // inner_transactions/contract.py:48
-    // unit_name=b"unit",
-    byte "unit"
+    // inner_transactions/contract.py:52
+    // fee=0,
+    int 0
     dup
     cover 8
     // inner_transactions/contract.py:54
@@ -138,14 +138,14 @@ test1:
     // inner_transactions/contract.py:55
     // asset1_txn = asset_params.submit()
     itxn_begin
-    itxn_field ConfigAssetUnitName
-    itxn_field TypeEnum
-    itxn_field ConfigAssetTotal
+    itxn_field Fee
     itxn_field ConfigAssetReserve
     itxn_field ConfigAssetManager
-    itxn_field Fee
     itxn_field ConfigAssetDecimals
+    itxn_field ConfigAssetUnitName
     itxn_field ConfigAssetName
+    itxn_field ConfigAssetTotal
+    itxn_field TypeEnum
     itxn_submit
     itxn ConfigAssetName
     frame_bury 3
@@ -160,20 +160,20 @@ test1:
     // asset2_txn = asset_params.submit()
     itxn_begin
     frame_dig 15
-    itxn_field ConfigAssetUnitName
-    frame_dig 14
-    itxn_field TypeEnum
-    frame_dig 13
-    itxn_field ConfigAssetTotal
-    frame_dig 12
-    itxn_field ConfigAssetReserve
-    frame_dig 11
-    itxn_field ConfigAssetManager
-    frame_dig 10
     itxn_field Fee
-    frame_dig 9
+    frame_dig 14
+    itxn_field ConfigAssetReserve
+    frame_dig 13
+    itxn_field ConfigAssetManager
+    frame_dig 12
     itxn_field ConfigAssetDecimals
+    frame_dig 11
+    itxn_field ConfigAssetUnitName
     itxn_field ConfigAssetName
+    frame_dig 10
+    itxn_field ConfigAssetTotal
+    frame_dig 9
+    itxn_field TypeEnum
     itxn_submit
     itxn ConfigAssetName
     itxn CreatedAssetID
@@ -204,6 +204,11 @@ test1:
     byte "AST2"
     ==
     assert // created asset 2 is correct
+    // inner_transactions/contract.py:69
+    // app_create_params = itxn.ApplicationCall(
+    int appl
+    dup
+    frame_bury 7
     // inner_transactions/contract.py:70
     // approval_program=b"\x09\x81\x01",
     byte 0x098101
@@ -219,11 +224,6 @@ test1:
     int 0
     dup
     frame_bury 6
-    // inner_transactions/contract.py:69
-    // app_create_params = itxn.ApplicationCall(
-    int appl
-    dup
-    frame_bury 7
     // inner_transactions/contract.py:76
     // asset_name=Bytes(b"AST3"),
     byte "AST3"
@@ -231,27 +231,27 @@ test1:
     // inner_transactions/contract.py:79
     // app_create_txn, asset3_txn = itxn.submit_txns(app_create_params, asset_params)
     itxn_begin
-    itxn_field TypeEnum
     itxn_field Fee
     itxn_field ClearStateProgramPages
     itxn_field ApprovalProgramPages
+    itxn_field TypeEnum
     itxn_next
     frame_dig 15
-    itxn_field ConfigAssetUnitName
-    frame_dig 14
-    itxn_field TypeEnum
-    frame_dig 13
-    itxn_field ConfigAssetTotal
-    frame_dig 12
-    itxn_field ConfigAssetReserve
-    frame_dig 11
-    itxn_field ConfigAssetManager
-    frame_dig 10
     itxn_field Fee
-    frame_dig 9
+    frame_dig 14
+    itxn_field ConfigAssetReserve
+    frame_dig 13
+    itxn_field ConfigAssetManager
+    frame_dig 12
     itxn_field ConfigAssetDecimals
+    frame_dig 11
+    itxn_field ConfigAssetUnitName
     frame_dig 4
     itxn_field ConfigAssetName
+    frame_dig 10
+    itxn_field ConfigAssetTotal
+    frame_dig 9
+    itxn_field TypeEnum
     itxn_submit
     gitxn 0 CreatedApplicationID
     itxn ConfigAssetName
@@ -279,8 +279,6 @@ test1:
     // # unassigned result
     // itxn.submit_txns(app_create_params, asset_params)
     itxn_begin
-    frame_dig 7
-    itxn_field TypeEnum
     int 1
     >=
     bz test1_next_field@6
@@ -294,18 +292,12 @@ test1_next_field@6:
     itxn_field ClearStateProgramPages
     frame_dig 0
     itxn_field ApprovalProgramPages
+    frame_dig 7
+    itxn_field TypeEnum
     // inner_transactions/contract.py:86-87
     // # unassigned result
     // itxn.submit_txns(app_create_params, asset_params)
     itxn_next
-    frame_dig 15
-    itxn_field ConfigAssetUnitName
-    frame_dig 14
-    itxn_field TypeEnum
-    frame_dig 13
-    itxn_field ConfigAssetTotal
-    frame_dig 12
-    itxn_field ConfigAssetReserve
     frame_dig 8
     int 1
     >=
@@ -314,14 +306,22 @@ test1_next_field@6:
     itxn_field Note
 
 test1_next_field@9:
-    frame_dig 11
-    itxn_field ConfigAssetManager
-    frame_dig 10
+    frame_dig 15
     itxn_field Fee
-    frame_dig 9
+    frame_dig 14
+    itxn_field ConfigAssetReserve
+    frame_dig 13
+    itxn_field ConfigAssetManager
+    frame_dig 12
     itxn_field ConfigAssetDecimals
+    frame_dig 11
+    itxn_field ConfigAssetUnitName
     frame_dig 4
     itxn_field ConfigAssetName
+    frame_dig 10
+    itxn_field ConfigAssetTotal
+    frame_dig 9
+    itxn_field TypeEnum
     // inner_transactions/contract.py:86-87
     // # unassigned result
     // itxn.submit_txns(app_create_params, asset_params)
@@ -338,7 +338,7 @@ test2:
     int 0
     dupn 5
     byte ""
-    dupn 2
+    dupn 3
     // inner_transactions/contract.py:91
     // if op.Txn.num_app_args:
     txn NumAppArgs
@@ -348,12 +348,10 @@ test2:
     byte "1"
     byte "2"
     swap
-    frame_bury 0
-    frame_bury 1
-    // inner_transactions/contract.py:96
-    // app_args=args,
-    int 2
-    frame_bury 7
+    // inner_transactions/contract.py:93
+    // create_app_params = itxn.ApplicationCall(
+    int appl
+    frame_bury 9
     // inner_transactions/contract.py:94
     // approval_program=ALWAYS_APPROVE,
     byte 0x098101
@@ -362,6 +360,14 @@ test2:
     // clear_state_program=ALWAYS_APPROVE,
     byte 0x098101
     frame_bury 4
+    // inner_transactions/contract.py:92
+    // args = Bytes(b"1"), Bytes(b"2")
+    frame_bury 0
+    frame_bury 1
+    // inner_transactions/contract.py:96
+    // app_args=args,
+    int 2
+    frame_bury 7
     // inner_transactions/contract.py:97
     // fee=0,
     int 0
@@ -369,11 +375,21 @@ test2:
     // inner_transactions/contract.py:93
     // create_app_params = itxn.ApplicationCall(
     int 0
-    int appl
-    swap
     b test2_after_if_else@3
 
 test2_else_body@2:
+    // inner_transactions/contract.py:100
+    // create_app_params = itxn.ApplicationCall(
+    int appl
+    frame_bury 9
+    // inner_transactions/contract.py:101
+    // approval_program=ALWAYS_APPROVE,
+    byte 0x098101
+    frame_bury 3
+    // inner_transactions/contract.py:102
+    // clear_state_program=ALWAYS_APPROVE,
+    byte 0x098101
+    frame_bury 4
     // inner_transactions/contract.py:103
     // app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
     byte "3"
@@ -384,34 +400,20 @@ test2_else_body@2:
     frame_bury 2
     int 3
     frame_bury 7
-    // inner_transactions/contract.py:101
-    // approval_program=ALWAYS_APPROVE,
-    byte 0x098101
-    frame_bury 3
-    // inner_transactions/contract.py:102
-    // clear_state_program=ALWAYS_APPROVE,
-    byte 0x098101
-    frame_bury 4
-    // inner_transactions/contract.py:105
-    // fee=0,
-    int 0
-    frame_bury 8
     // inner_transactions/contract.py:104
     // note=b"different param set",
     byte "different param set"
     frame_bury 5
     int 1
-    // inner_transactions/contract.py:100
-    // create_app_params = itxn.ApplicationCall(
-    int appl
-    swap
+    // inner_transactions/contract.py:105
+    // fee=0,
+    int 0
+    frame_bury 8
 
 test2_after_if_else@3:
     // inner_transactions/contract.py:107
     // create_app_txn = create_app_params.submit()
     itxn_begin
-    swap
-    itxn_field TypeEnum
     int 1
     >=
     bz test2_next_field@5
@@ -421,10 +423,6 @@ test2_after_if_else@3:
 test2_next_field@5:
     frame_dig 8
     itxn_field Fee
-    frame_dig 4
-    itxn_field ClearStateProgramPages
-    frame_dig 3
-    itxn_field ApprovalProgramPages
     frame_dig 0
     itxn_field ApplicationArgs
     frame_dig 1
@@ -437,6 +435,12 @@ test2_next_field@5:
     itxn_field ApplicationArgs
 
 test2_next_field@7:
+    frame_dig 4
+    itxn_field ClearStateProgramPages
+    frame_dig 3
+    itxn_field ApprovalProgramPages
+    frame_dig 9
+    itxn_field TypeEnum
     // inner_transactions/contract.py:107
     // create_app_txn = create_app_params.submit()
     itxn_submit
@@ -479,30 +483,30 @@ test2_next_field@7:
     //     fee=0,
     // ).submit()
     itxn_begin
-    // inner_transactions/contract.py:116
-    // app_args=(Bytes(b"42"),),
-    byte "42"
+    // inner_transactions/contract.py:112
+    // create_app_txn2 = itxn.ApplicationCall(
+    int appl
     // inner_transactions/contract.py:113
     // approval_program=ALWAYS_APPROVE,
     byte 0x098101
     // inner_transactions/contract.py:114
     // clear_state_program=ALWAYS_APPROVE,
     byte 0x098101
-    // inner_transactions/contract.py:117
-    // fee=0,
-    int 0
     // inner_transactions/contract.py:115
     // on_completion=OnCompleteAction.DeleteApplication,
     int DeleteApplication
-    // inner_transactions/contract.py:112
-    // create_app_txn2 = itxn.ApplicationCall(
-    int appl
-    itxn_field TypeEnum
-    itxn_field OnCompletion
+    // inner_transactions/contract.py:116
+    // app_args=(Bytes(b"42"),),
+    byte "42"
+    // inner_transactions/contract.py:117
+    // fee=0,
+    int 0
     itxn_field Fee
+    itxn_field ApplicationArgs
+    itxn_field OnCompletion
     itxn_field ClearStateProgramPages
     itxn_field ApprovalProgramPages
-    itxn_field ApplicationArgs
+    itxn_field TypeEnum
     // inner_transactions/contract.py:112-118
     // create_app_txn2 = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
@@ -551,35 +555,34 @@ test3:
     // @subroutine
     // def test3(self) -> None:
     proto 0 0
-    // inner_transactions/contract.py:130
-    // app_args=(Bytes(b"1"),),
-    byte "1"
+    // inner_transactions/contract.py:126
+    // app_p_1 = itxn.ApplicationCall(
+    int appl
     // inner_transactions/contract.py:127
     // approval_program=LOG_1ST_ARG_AND_APPROVE,
     byte 0x09361a00b08101
+    swap
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
     byte 0x098101
-    swap
-    // inner_transactions/contract.py:131
-    // fee=0,
-    int 0
     cover 2
     // inner_transactions/contract.py:129
     // on_completion=OnCompleteAction.DeleteApplication,
     int DeleteApplication
-    cover 3
-    // inner_transactions/contract.py:126
-    // app_p_1 = itxn.ApplicationCall(
-    int appl
+    // inner_transactions/contract.py:130
+    // app_args=(Bytes(b"1"),),
+    byte "1"
     cover 4
+    // inner_transactions/contract.py:131
+    // fee=0,
+    int 0
     // inner_transactions/contract.py:134
     // app_p_2 = app_p_1.copy().copy()
     dup
     cover 6
-    dig 1
-    cover 7
     dig 2
+    cover 7
+    dig 1
     cover 8
     dig 3
     cover 9
@@ -593,9 +596,9 @@ test3:
     // app_p_3 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -609,9 +612,9 @@ test3:
     // app_p_4 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -625,9 +628,9 @@ test3:
     // app_p_5 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -641,9 +644,9 @@ test3:
     // app_p_6 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -657,9 +660,9 @@ test3:
     // app_p_7 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -673,9 +676,9 @@ test3:
     // app_p_8 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -689,9 +692,9 @@ test3:
     // app_p_9 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -705,9 +708,9 @@ test3:
     // app_p_10 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -721,9 +724,9 @@ test3:
     // app_p_11 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -737,9 +740,9 @@ test3:
     // app_p_12 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -753,9 +756,9 @@ test3:
     // app_p_13 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -769,9 +772,9 @@ test3:
     // app_p_14 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -785,9 +788,9 @@ test3:
     // app_p_15 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -801,9 +804,9 @@ test3:
     // app_p_16 = app_p_1.copy()
     dup
     cover 11
-    dig 1
-    cover 11
     dig 2
+    cover 11
+    dig 1
     cover 11
     dig 3
     cover 11
@@ -833,210 +836,209 @@ test3:
     //     app_p_16,
     // )
     itxn_begin
+    itxn_field Fee
     uncover 4
-    itxn_field TypeEnum
-    uncover 3
+    itxn_field ApplicationArgs
     itxn_field OnCompletion
     uncover 2
-    itxn_field Fee
-    swap
     itxn_field ClearStateProgramPages
+    swap
     itxn_field ApprovalProgramPages
-    itxn_field ApplicationArgs
+    itxn_field TypeEnum
     itxn_next
     uncover 4
-    itxn_field TypeEnum
-    uncover 3
-    itxn_field OnCompletion
-    uncover 2
-    itxn_field Fee
-    swap
     itxn_field ClearStateProgramPages
+    uncover 3
     itxn_field ApprovalProgramPages
     frame_dig 0
     itxn_field ApplicationArgs
+    uncover 2
+    itxn_field OnCompletion
+    swap
+    itxn_field TypeEnum
+    itxn_field Fee
     itxn_next
     frame_dig 5
-    itxn_field TypeEnum
-    frame_dig 4
-    itxn_field OnCompletion
-    frame_dig 3
-    itxn_field Fee
-    frame_dig 2
     itxn_field ClearStateProgramPages
-    frame_dig 1
+    frame_dig 4
     itxn_field ApprovalProgramPages
     frame_dig 6
     itxn_field ApplicationArgs
+    frame_dig 3
+    itxn_field OnCompletion
+    frame_dig 2
+    itxn_field TypeEnum
+    frame_dig 1
+    itxn_field Fee
     itxn_next
     frame_dig 11
-    itxn_field TypeEnum
-    frame_dig 10
-    itxn_field OnCompletion
-    frame_dig 9
-    itxn_field Fee
-    frame_dig 8
     itxn_field ClearStateProgramPages
-    frame_dig 7
+    frame_dig 10
     itxn_field ApprovalProgramPages
     frame_dig 12
     itxn_field ApplicationArgs
+    frame_dig 9
+    itxn_field OnCompletion
+    frame_dig 8
+    itxn_field TypeEnum
+    frame_dig 7
+    itxn_field Fee
     itxn_next
     frame_dig 17
-    itxn_field TypeEnum
-    frame_dig 16
-    itxn_field OnCompletion
-    frame_dig 15
-    itxn_field Fee
-    frame_dig 14
     itxn_field ClearStateProgramPages
-    frame_dig 13
+    frame_dig 16
     itxn_field ApprovalProgramPages
     frame_dig 18
     itxn_field ApplicationArgs
+    frame_dig 15
+    itxn_field OnCompletion
+    frame_dig 14
+    itxn_field TypeEnum
+    frame_dig 13
+    itxn_field Fee
     itxn_next
     frame_dig 23
-    itxn_field TypeEnum
-    frame_dig 22
-    itxn_field OnCompletion
-    frame_dig 21
-    itxn_field Fee
-    frame_dig 20
     itxn_field ClearStateProgramPages
-    frame_dig 19
+    frame_dig 22
     itxn_field ApprovalProgramPages
     frame_dig 24
     itxn_field ApplicationArgs
+    frame_dig 21
+    itxn_field OnCompletion
+    frame_dig 20
+    itxn_field TypeEnum
+    frame_dig 19
+    itxn_field Fee
     itxn_next
     frame_dig 29
-    itxn_field TypeEnum
-    frame_dig 28
-    itxn_field OnCompletion
-    frame_dig 27
-    itxn_field Fee
-    frame_dig 26
     itxn_field ClearStateProgramPages
-    frame_dig 25
+    frame_dig 28
     itxn_field ApprovalProgramPages
     frame_dig 30
     itxn_field ApplicationArgs
+    frame_dig 27
+    itxn_field OnCompletion
+    frame_dig 26
+    itxn_field TypeEnum
+    frame_dig 25
+    itxn_field Fee
     itxn_next
     frame_dig 35
-    itxn_field TypeEnum
-    frame_dig 34
-    itxn_field OnCompletion
-    frame_dig 33
-    itxn_field Fee
-    frame_dig 32
     itxn_field ClearStateProgramPages
-    frame_dig 31
+    frame_dig 34
     itxn_field ApprovalProgramPages
     frame_dig 36
     itxn_field ApplicationArgs
+    frame_dig 33
+    itxn_field OnCompletion
+    frame_dig 32
+    itxn_field TypeEnum
+    frame_dig 31
+    itxn_field Fee
     itxn_next
     frame_dig 41
-    itxn_field TypeEnum
-    frame_dig 40
-    itxn_field OnCompletion
-    frame_dig 39
-    itxn_field Fee
-    frame_dig 38
     itxn_field ClearStateProgramPages
-    frame_dig 37
+    frame_dig 40
     itxn_field ApprovalProgramPages
     frame_dig 42
     itxn_field ApplicationArgs
+    frame_dig 39
+    itxn_field OnCompletion
+    frame_dig 38
+    itxn_field TypeEnum
+    frame_dig 37
+    itxn_field Fee
     itxn_next
     frame_dig 47
-    itxn_field TypeEnum
-    frame_dig 46
-    itxn_field OnCompletion
-    frame_dig 45
-    itxn_field Fee
-    frame_dig 44
     itxn_field ClearStateProgramPages
-    frame_dig 43
+    frame_dig 46
     itxn_field ApprovalProgramPages
     frame_dig 48
     itxn_field ApplicationArgs
+    frame_dig 45
+    itxn_field OnCompletion
+    frame_dig 44
+    itxn_field TypeEnum
+    frame_dig 43
+    itxn_field Fee
     itxn_next
     frame_dig 53
-    itxn_field TypeEnum
-    frame_dig 52
-    itxn_field OnCompletion
-    frame_dig 51
-    itxn_field Fee
-    frame_dig 50
     itxn_field ClearStateProgramPages
-    frame_dig 49
+    frame_dig 52
     itxn_field ApprovalProgramPages
     frame_dig 54
     itxn_field ApplicationArgs
+    frame_dig 51
+    itxn_field OnCompletion
+    frame_dig 50
+    itxn_field TypeEnum
+    frame_dig 49
+    itxn_field Fee
     itxn_next
     frame_dig 59
-    itxn_field TypeEnum
-    frame_dig 58
-    itxn_field OnCompletion
-    frame_dig 57
-    itxn_field Fee
-    frame_dig 56
     itxn_field ClearStateProgramPages
-    frame_dig 55
+    frame_dig 58
     itxn_field ApprovalProgramPages
     frame_dig 60
     itxn_field ApplicationArgs
+    frame_dig 57
+    itxn_field OnCompletion
+    frame_dig 56
+    itxn_field TypeEnum
+    frame_dig 55
+    itxn_field Fee
     itxn_next
     frame_dig 65
-    itxn_field TypeEnum
-    frame_dig 64
-    itxn_field OnCompletion
-    frame_dig 63
-    itxn_field Fee
-    frame_dig 62
     itxn_field ClearStateProgramPages
-    frame_dig 61
+    frame_dig 64
     itxn_field ApprovalProgramPages
     frame_dig 66
     itxn_field ApplicationArgs
+    frame_dig 63
+    itxn_field OnCompletion
+    frame_dig 62
+    itxn_field TypeEnum
+    frame_dig 61
+    itxn_field Fee
     itxn_next
     frame_dig 71
-    itxn_field TypeEnum
-    frame_dig 70
-    itxn_field OnCompletion
-    frame_dig 69
-    itxn_field Fee
-    frame_dig 68
     itxn_field ClearStateProgramPages
-    frame_dig 67
+    frame_dig 70
     itxn_field ApprovalProgramPages
     frame_dig 72
     itxn_field ApplicationArgs
+    frame_dig 69
+    itxn_field OnCompletion
+    frame_dig 68
+    itxn_field TypeEnum
+    frame_dig 67
+    itxn_field Fee
     itxn_next
     frame_dig 77
-    itxn_field TypeEnum
-    frame_dig 76
-    itxn_field OnCompletion
-    frame_dig 75
-    itxn_field Fee
-    frame_dig 74
     itxn_field ClearStateProgramPages
-    frame_dig 73
+    frame_dig 76
     itxn_field ApprovalProgramPages
     frame_dig 78
     itxn_field ApplicationArgs
+    frame_dig 75
+    itxn_field OnCompletion
+    frame_dig 74
+    itxn_field TypeEnum
+    frame_dig 73
+    itxn_field Fee
     itxn_next
     frame_dig 83
-    itxn_field TypeEnum
-    frame_dig 82
-    itxn_field OnCompletion
-    frame_dig 81
-    itxn_field Fee
-    frame_dig 80
     itxn_field ClearStateProgramPages
-    frame_dig 79
+    frame_dig 82
     itxn_field ApprovalProgramPages
     frame_dig 84
     itxn_field ApplicationArgs
+    frame_dig 81
+    itxn_field OnCompletion
+    frame_dig 80
+    itxn_field TypeEnum
+    frame_dig 79
+    itxn_field Fee
     itxn_submit
     int 1
     // inner_transactions/contract.py:214
@@ -1267,9 +1269,9 @@ test4:
     // )
     dup
     cover 2
-    // inner_transactions/contract.py:247
-    // app_args=(Bytes(b"1"),),
-    byte "1"
+    // inner_transactions/contract.py:243
+    // app_p_1 = itxn.ApplicationCall(
+    int appl
     cover 2
     // inner_transactions/contract.py:235
     // approval_2 = (
@@ -1281,31 +1283,31 @@ test4:
     // inner_transactions/contract.py:245
     // clear_state_program=ALWAYS_APPROVE,
     byte 0x098101
+    // inner_transactions/contract.py:246
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
+    // inner_transactions/contract.py:247
+    // app_args=(Bytes(b"1"),),
+    byte "1"
     // inner_transactions/contract.py:248
     // extra_program_pages=3,
     int 3
     // inner_transactions/contract.py:249
     // fee=0,
     int 0
-    // inner_transactions/contract.py:246
-    // on_completion=OnCompleteAction.DeleteApplication,
-    int DeleteApplication
-    // inner_transactions/contract.py:243
-    // app_p_1 = itxn.ApplicationCall(
-    int appl
     // inner_transactions/contract.py:251
     // app_1 = app_p_1.submit()
     itxn_begin
-    itxn_field TypeEnum
-    itxn_field OnCompletion
     itxn_field Fee
     itxn_field ExtraProgramPages
+    itxn_field ApplicationArgs
+    itxn_field OnCompletion
     itxn_field ClearStateProgramPages
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
     itxn_field ApprovalProgramPages
-    itxn_field ApplicationArgs
+    itxn_field TypeEnum
     itxn_submit
     int 1
     itxn ExtraProgramPages

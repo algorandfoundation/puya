@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import enum
-import functools
 import itertools
 import typing as t
 from abc import ABC, abstractmethod
@@ -504,20 +503,14 @@ class IntrinsicCall(Expression):
 WTypes: t.TypeAlias = Sequence[WType | type[WType]]
 
 
-@attrs.define(eq=False, kw_only=True)
+@attrs.frozen(kw_only=True)
 class TxnField:
     wtype: WType
     additional_input_wtypes: WTypes = ()
     """Other wtypes that are valid as inputs e.g. UInt64 for an Application field"""
-    python_name: str = ""
-    immediate: str = ""
+    immediate: str
     num_values: int = attrs.field(default=1, validator=attrs.validators.ge(1))
     is_inner_param: bool = True
-
-    def __set_name__(self, owner: object, name: str) -> None:
-        self.python_name = name
-        if not self.immediate:
-            self.immediate = "".join(part.capitalize() for part in self.python_name.split("_"))
 
     @property
     def is_array(self) -> bool:
@@ -533,7 +526,7 @@ class TxnField:
         return " | ".join(map(str, (self.wtype, *self.additional_input_wtypes)))
 
     @classmethod
-    def uint64(cls, *, immediate: str = "", is_inner_param: bool = True) -> TxnField:
+    def uint64(cls, immediate: str, *, is_inner_param: bool = True) -> TxnField:
         return cls(
             wtype=wtypes.uint64_wtype,
             immediate=immediate,
@@ -543,8 +536,8 @@ class TxnField:
     @classmethod
     def bytes_(
         cls,
+        immediate: str,
         *,
-        immediate: str = "",
         is_inner_param: bool = True,
         num_values: int = 1,
         additional_input_wtypes: WTypes = (),
@@ -558,14 +551,14 @@ class TxnField:
         )
 
     @classmethod
-    def bool_(cls, *, immediate: str) -> TxnField:
+    def bool_(cls, immediate: str) -> TxnField:
         return cls(
             wtype=wtypes.bool_wtype,
             immediate=immediate,
         )
 
     @classmethod
-    def account(cls, *, immediate: str = "", num_values: int = 1) -> TxnField:
+    def account(cls, immediate: str, *, num_values: int = 1) -> TxnField:
         return cls(
             wtype=wtypes.account_wtype,
             immediate=immediate,
@@ -575,7 +568,7 @@ class TxnField:
 
     @classmethod
     def asset(
-        cls, *, immediate: str = "", is_inner_param: bool = True, num_values: int = 1
+        cls, immediate: str, *, is_inner_param: bool = True, num_values: int = 1
     ) -> TxnField:
         return cls(
             wtype=wtypes.asset_wtype,
@@ -587,7 +580,7 @@ class TxnField:
 
     @classmethod
     def application(
-        cls, *, immediate: str = "", is_inner_param: bool = True, num_values: int = 1
+        cls, immediate: str, *, is_inner_param: bool = True, num_values: int = 1
     ) -> TxnField:
         return cls(
             wtype=wtypes.application_wtype,
@@ -599,77 +592,9 @@ class TxnField:
 
 
 class TxnFields:
-    sender = TxnField.account()
-    fee = TxnField.uint64()
-    first_valid = TxnField.uint64(is_inner_param=False)
-    first_valid_time = TxnField.uint64(is_inner_param=False)
-    last_valid = TxnField.uint64(is_inner_param=False)
-    note = TxnField.bytes_()
-    lease = TxnField.bytes_(is_inner_param=False)
-    receiver = TxnField.account()
-    amount = TxnField.uint64()
-    close_remainder_to = TxnField.account()
-    vote_key = TxnField.account(immediate="VotePK")
-    selection_key = TxnField.account(immediate="SelectionPK")
-    vote_first = TxnField.uint64()
-    vote_last = TxnField.uint64()
-    vote_key_dilution = TxnField.uint64()
-    type_bytes = TxnField.bytes_(immediate="Type")
-    type = TxnField.uint64(immediate="TypeEnum")
-    xfer_asset = TxnField.asset()
-    asset_amount = TxnField.uint64()
-    asset_sender = TxnField.account()
-    asset_receiver = TxnField.account()
-    asset_close_to = TxnField.account()
-    group_index = TxnField.uint64(is_inner_param=False)
-    txn_id = TxnField.bytes_(immediate="TxID", is_inner_param=False)
-    # v2
-    app_id = TxnField.application(immediate="ApplicationID")
-    on_completion = TxnField.uint64()
-    num_app_args = TxnField.uint64(is_inner_param=False)
-    num_accounts = TxnField.uint64(is_inner_param=False)
-    approval_program = TxnField.bytes_()
-    clear_state_program = TxnField.bytes_()
-    rekey_to = TxnField.account()
-    config_asset = TxnField.asset()
-    total = TxnField.uint64(immediate="ConfigAssetTotal")
-    decimals = TxnField.uint64(immediate="ConfigAssetDecimals")
-    default_frozen = TxnField.bool_(immediate="ConfigAssetDefaultFrozen")
-    unit_name = TxnField.bytes_(immediate="ConfigAssetUnitName")
-    asset_name = TxnField.bytes_(immediate="ConfigAssetName")
-    url = TxnField.bytes_(immediate="ConfigAssetURL")
-    metadata_hash = TxnField.bytes_(immediate="ConfigAssetMetadataHash")
-    manager = TxnField.account(immediate="ConfigAssetManager")
-    reserve = TxnField.account(immediate="ConfigAssetReserve")
-    freeze = TxnField.account(immediate="ConfigAssetFreeze")
-    clawback = TxnField.account(immediate="ConfigAssetClawback")
-    freeze_asset = TxnField.asset()
-    freeze_account = TxnField.account(immediate="FreezeAssetAccount")
-    frozen = TxnField.asset(immediate="FreezeAssetFrozen")
-    # v3
-    num_assets = TxnField.uint64(is_inner_param=False)
-    num_apps = TxnField.uint64(immediate="NumApplications", is_inner_param=False)
-    global_num_uint = TxnField.uint64()
-    global_num_bytes = TxnField.uint64(immediate="GlobalNumByteSlice")
-    local_num_uint = TxnField.uint64()
-    local_num_bytes = TxnField.uint64(immediate="LocalNumByteSlice")
-    # v4
-    extra_program_pages = TxnField.uint64()
-    # v5
-    non_participation = TxnField.bool_(immediate="Nonparticipation")
-    num_logs = TxnField.uint64(is_inner_param=False)
-    created_asset = TxnField.asset(immediate="CreatedAssetID", is_inner_param=False)
-    created_app = TxnField.application(immediate="CreatedApplicationID", is_inner_param=False)
-    # v6
-    last_log = TxnField.bytes_(is_inner_param=False)
-    state_proof_key = TxnField.bytes_(immediate="StateProofPK")
-    # v7
-    num_approval_program_pages = TxnField.uint64(is_inner_param=False)
-    num_clear_state_program_pages = TxnField.uint64(is_inner_param=False)
-
-    # array fields
-    # TODO: allow configuring as these are consensus values
-    # v2
+    approval_program_pages = TxnField.bytes_("ApprovalProgramPages", num_values=4)
+    clear_state_program_pages = TxnField.bytes_("ClearStateProgramPages", num_values=4)
+    type = TxnField.uint64("TypeEnum")
     app_args = TxnField.bytes_(
         immediate="ApplicationArgs",
         num_values=16,
@@ -679,29 +604,95 @@ class TxnFields:
             wtypes.ARC4Type,
         ),
     )
-    accounts = TxnField.account(num_values=4)
+    accounts = TxnField.account("Accounts", num_values=4)
+    assets = TxnField.asset("Assets", num_values=8)
+    apps = TxnField.application("Applications", num_values=8)
+    last_log = TxnField.bytes_("LastLog", is_inner_param=False)
+
+
+TXN_FIELDS = [
+    TxnField.account("Sender"),
+    TxnField.uint64("Fee"),
+    TxnField.uint64("FirstValid", is_inner_param=False),
+    TxnField.uint64("FirstValidTime", is_inner_param=False),
+    TxnField.uint64("LastValid", is_inner_param=False),
+    TxnField.bytes_("Note"),
+    TxnField.bytes_("Lease", is_inner_param=False),
+    TxnField.account("Receiver"),
+    TxnField.uint64("Amount"),
+    TxnField.account("CloseRemainderTo"),
+    TxnField.account("VotePK"),
+    TxnField.account("SelectionPK"),
+    TxnField.uint64("VoteFirst"),
+    TxnField.uint64("VoteLast"),
+    TxnField.uint64("VoteKeyDilution"),
+    TxnField.bytes_("Type"),
+    TxnFields.type,
+    TxnField.asset("XferAsset"),
+    TxnField.uint64("AssetAmount"),
+    TxnField.account("AssetSender"),
+    TxnField.account("AssetReceiver"),
+    TxnField.account("AssetCloseTo"),
+    TxnField.uint64("GroupIndex", is_inner_param=False),
+    TxnField.bytes_("TxID", is_inner_param=False),
+    # v2
+    TxnField.application("ApplicationID"),
+    TxnField.uint64("OnCompletion"),
+    TxnField.uint64("NumAppArgs", is_inner_param=False),
+    TxnField.uint64("NumAccounts", is_inner_param=False),
+    TxnField.bytes_("ApprovalProgram"),
+    TxnField.bytes_("ClearStateProgram"),
+    TxnField.account("RekeyTo"),
+    TxnField.asset("ConfigAsset"),
+    TxnField.uint64("ConfigAssetTotal"),
+    TxnField.uint64("ConfigAssetDecimals"),
+    TxnField.bool_("ConfigAssetDefaultFrozen"),
+    TxnField.bytes_("ConfigAssetUnitName"),
+    TxnField.bytes_("ConfigAssetName"),
+    TxnField.bytes_("ConfigAssetURL"),
+    TxnField.bytes_("ConfigAssetMetadataHash"),
+    TxnField.account("ConfigAssetManager"),
+    TxnField.account("ConfigAssetReserve"),
+    TxnField.account("ConfigAssetFreeze"),
+    TxnField.account("ConfigAssetClawback"),
+    TxnField.asset("FreezeAsset"),
+    TxnField.account("FreezeAssetAccount"),
+    TxnField.asset("FreezeAssetFrozen"),
     # v3
-    assets = TxnField.asset(num_values=8)
-    apps = TxnField.application(immediate="Applications", num_values=8)
+    TxnField.uint64("NumAssets", is_inner_param=False),
+    TxnField.uint64("NumApplications", is_inner_param=False),
+    TxnField.uint64("GlobalNumUint"),
+    TxnField.uint64("GlobalNumByteSlice"),
+    TxnField.uint64("LocalNumUint"),
+    TxnField.uint64("LocalNumByteSlice"),
+    # v4
+    TxnField.uint64("ExtraProgramPages"),
     # v5
-    logs = TxnField.bytes_(num_values=32, is_inner_param=False)
+    TxnField.bool_("Nonparticipation"),
+    TxnField.uint64("NumLogs", is_inner_param=False),
+    TxnField.asset("CreatedAssetID", is_inner_param=False),
+    TxnField.application("CreatedApplicationID", is_inner_param=False),
+    # v6
+    TxnFields.last_log,
+    TxnField.bytes_("StateProofPK"),
     # v7
-    approval_program_pages = TxnField.bytes_(num_values=4)
-    clear_state_program_pages = TxnField.bytes_(num_values=4)
-
-    @classmethod
-    @functools.cache
-    def all_fields(cls) -> Sequence[TxnField]:
-        values = [getattr(cls, name) for name in dir(cls)]
-        return tuple(v for v in values if isinstance(v, TxnField))
-
-    @classmethod
-    def inner_transaction_param_fields(cls) -> Sequence[TxnField]:
-        return tuple(f for f in cls.all_fields() if f.is_inner_param)
-
-    @classmethod
-    def inner_transaction_non_array_fields(cls) -> Sequence[TxnField]:
-        return tuple(f for f in cls.all_fields() if not f.is_array)
+    TxnField.uint64("NumApprovalProgramPages", is_inner_param=False),
+    TxnField.uint64("NumClearStateProgramPages", is_inner_param=False),
+    # array fields
+    # TODO: allow configuring as these are consensus values
+    # v2
+    TxnFields.app_args,
+    TxnFields.accounts,
+    # v3
+    TxnFields.assets,
+    TxnFields.apps,
+    # v5
+    TxnField.bytes_("Logs", num_values=32, is_inner_param=False),
+    # v7
+    TxnFields.approval_program_pages,
+    TxnFields.clear_state_program_pages,
+]
+INNER_PARAM_TXN_FIELDS = [f for f in TXN_FIELDS if f.is_inner_param]
 
 
 @attrs.define

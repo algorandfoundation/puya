@@ -1,4 +1,5 @@
 import operator
+import re
 import typing
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 
@@ -334,3 +335,10 @@ def get_arg_mapping(
                 raise CodeError("Too many positional arguments", location) from ex
         arg_mapping[arg_name] = arg
     return arg_mapping
+
+
+def snake_case(s: str) -> str:
+    s = s.replace("-", " ")
+    s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
+    s = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", s)
+    return re.sub(r"[-\s]", "_", s).lower()

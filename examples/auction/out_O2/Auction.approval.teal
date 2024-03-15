@@ -131,13 +131,13 @@ opt_into_asset:
     app_global_put
     itxn_begin
     global CurrentApplicationAddress
-    frame_dig -1
-    itxn_field XferAsset
-    int axfer
-    itxn_field TypeEnum
     int 0
     itxn_field Fee
+    frame_dig -1
+    itxn_field XferAsset
     itxn_field AssetReceiver
+    int axfer
+    itxn_field TypeEnum
     itxn_submit
     retsub
 
@@ -254,14 +254,14 @@ claim_bids:
 claim_bids_after_if_else@2:
     itxn_begin
     txn Sender
-    int pay
-    itxn_field TypeEnum
     itxn_field Receiver
-    int 0
-    itxn_field Fee
     frame_dig 1
     dup
     itxn_field Amount
+    int 0
+    itxn_field Fee
+    int pay
+    itxn_field TypeEnum
     itxn_submit
     frame_dig 0
     swap
@@ -285,26 +285,26 @@ claim_asset:
     assert // auction has not ended
     itxn_begin
     int 0
+    byte "previous_bidder"
+    app_global_get_ex
+    assert // check previous_bidder exists
+    int 0
+    byte "previous_bidder"
+    app_global_get_ex
+    assert // check previous_bidder exists
+    int 0
     byte "asa_amount"
     app_global_get_ex
     assert // check asa_amount exists
-    int 0
-    byte "previous_bidder"
-    app_global_get_ex
-    assert // check previous_bidder exists
-    int 0
-    byte "previous_bidder"
-    app_global_get_ex
-    assert // check previous_bidder exists
-    frame_dig -1
-    itxn_field XferAsset
-    int axfer
-    itxn_field TypeEnum
-    int 0
-    itxn_field Fee
+    itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetCloseTo
-    itxn_field AssetAmount
+    frame_dig -1
+    itxn_field XferAsset
+    int 0
+    itxn_field Fee
+    int axfer
+    itxn_field TypeEnum
     itxn_submit
     retsub
 

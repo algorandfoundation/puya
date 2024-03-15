@@ -3,7 +3,6 @@ import builtins
 import copy
 import json
 import keyword
-import re
 import subprocess
 import textwrap
 import typing
@@ -14,6 +13,7 @@ import attrs
 import structlog
 from puya.awst import wtypes
 from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
+from puya.awst_build.utils import snake_case
 
 from scripts.transform_lang_spec import (
     ArgEnum,
@@ -1060,13 +1060,6 @@ def output_awst_data(
     awst_data_path = VCS_ROOT / "src" / "puya" / "awst_build" / "intrinsic_data.py"
     awst_data_path.write_text("\n".join(awst_data), encoding="utf-8")
     subprocess.run(["black", str(awst_data_path)], check=True, cwd=VCS_ROOT)
-
-
-def snake_case(s: str) -> str:
-    s = s.replace("-", " ")
-    s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
-    s = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", s)
-    return re.sub(r"[-\s]", "_", s).lower()
 
 
 def _get_algorand_doc(op: str) -> str:

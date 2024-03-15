@@ -4,21 +4,23 @@ import abc
 import typing
 
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, Literal, TxnField, TxnFields
+from puya.awst.nodes import TXN_FIELDS
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import InternalError
 
 if typing.TYPE_CHECKING:
+    from puya.awst.nodes import Expression, Literal, TxnField
     from puya.parse import SourceLocation
+
+_PYTHON_MEMBER_FIELD_MAP = {get_field_python_name(f): f for f in TXN_FIELDS}
 
 
 class BaseTransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
-    transaction_fields_mapping: typing.Final = {f.python_name: f for f in TxnFields.all_fields()}
-
     @abc.abstractmethod
     def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
         ...
@@ -29,7 +31,7 @@ class BaseTransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         try:
-            field = self.transaction_fields_mapping[name]
+            field = _PYTHON_MEMBER_FIELD_MAP[name]
         except KeyError:
             pass
         else:

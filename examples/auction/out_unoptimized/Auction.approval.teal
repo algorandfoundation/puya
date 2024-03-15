@@ -211,23 +211,23 @@ opt_into_asset:
     //     fee=0,
     // ).submit()
     itxn_begin
-    // auction/contract.py:36
-    // asset_receiver=Global.current_application_address,
-    global CurrentApplicationAddress
-    // auction/contract.py:38
-    // fee=0,
-    int 0
     // auction/contract.py:34-35
     // # Submit opt-in transaction: 0 asset transfer to self
     // itxn.AssetTransfer(
     int axfer
+    // auction/contract.py:36
+    // asset_receiver=Global.current_application_address,
+    global CurrentApplicationAddress
     // auction/contract.py:26
     // def opt_into_asset(self, asset: Asset) -> None:
     frame_dig -1
-    itxn_field XferAsset
-    itxn_field TypeEnum
+    // auction/contract.py:38
+    // fee=0,
+    int 0
     itxn_field Fee
+    itxn_field XferAsset
     itxn_field AssetReceiver
+    itxn_field TypeEnum
     // auction/contract.py:34-39
     // # Submit opt-in transaction: 0 asset transfer to self
     // itxn.AssetTransfer(
@@ -424,19 +424,21 @@ claim_bids_after_if_else@2:
     //     receiver=Txn.sender,
     // ).submit()
     itxn_begin
-    // auction/contract.py:92
-    // fee=0,
-    int 0
-    // auction/contract.py:94
-    // receiver=Txn.sender,
-    txn Sender
     // auction/contract.py:91
     // itxn.Payment(
     int pay
-    itxn_field TypeEnum
+    swap
+    // auction/contract.py:92
+    // fee=0,
+    int 0
+    swap
+    // auction/contract.py:94
+    // receiver=Txn.sender,
+    txn Sender
     itxn_field Receiver
-    itxn_field Fee
     itxn_field Amount
+    itxn_field Fee
+    itxn_field TypeEnum
     // auction/contract.py:91-95
     // itxn.Payment(
     //     fee=0,
@@ -481,12 +483,16 @@ claim_asset:
     //     asset_amount=self.asa_amount,
     // ).submit()
     itxn_begin
-    // auction/contract.py:108
-    // asset_amount=self.asa_amount,
+    // auction/contract.py:102-103
+    // # Send ASA to previous bidder
+    // itxn.AssetTransfer(
+    int axfer
+    // auction/contract.py:104
+    // fee=0,
     int 0
-    byte "asa_amount"
-    app_global_get_ex
-    assert // check asa_amount exists
+    // auction/contract.py:100
+    // def claim_asset(self, asset: Asset) -> None:
+    frame_dig -1
     // auction/contract.py:106
     // asset_close_to=self.previous_bidder,
     int 0
@@ -499,22 +505,18 @@ claim_asset:
     byte "previous_bidder"
     app_global_get_ex
     assert // check previous_bidder exists
-    // auction/contract.py:104
-    // fee=0,
+    // auction/contract.py:108
+    // asset_amount=self.asa_amount,
     int 0
-    // auction/contract.py:102-103
-    // # Send ASA to previous bidder
-    // itxn.AssetTransfer(
-    int axfer
-    // auction/contract.py:100
-    // def claim_asset(self, asset: Asset) -> None:
-    frame_dig -1
-    itxn_field XferAsset
-    itxn_field TypeEnum
-    itxn_field Fee
+    byte "asa_amount"
+    app_global_get_ex
+    assert // check asa_amount exists
+    itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetCloseTo
-    itxn_field AssetAmount
+    itxn_field XferAsset
+    itxn_field Fee
+    itxn_field TypeEnum
     // auction/contract.py:102-109
     // # Send ASA to previous bidder
     // itxn.AssetTransfer(
