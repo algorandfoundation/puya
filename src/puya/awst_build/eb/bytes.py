@@ -21,7 +21,6 @@ from puya.awst.nodes import (
     Expression,
     FreeSubroutineTarget,
     IndexExpression,
-    IntrinsicCall,
     Literal,
     NumericComparison,
     NumericComparisonExpression,
@@ -33,6 +32,7 @@ from puya.awst.nodes import (
     UInt64BinaryOperator,
     UInt64Constant,
 )
+from puya.awst_build import intrinsic_factory
 from puya.awst_build.constants import CLS_BYTES_ALIAS
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -146,7 +146,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "length":
-                len_call = IntrinsicCall.bytes_len(expr=self.expr, source_location=location)
+                len_call = intrinsic_factory.bytes_len(expr=self.expr, loc=location)
                 return var_expression(len_call)
         return super().member_access(name, location)
 
@@ -183,23 +183,16 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
             # TODO: maybe we could improve the generated code if the above conversions weren't
             #       isolated - ie, if we move this sort of checks to before the length
             #       truncating checks
-            end_index_expr = IntrinsicCall(
-                op_code="select",
-                stack_args=[
-                    # false: end = end
-                    end_index_expr,
-                    # true: end = begin
-                    begin_index_expr,
-                    # condition: begin > end
-                    NumericComparisonExpression(
-                        lhs=begin_index_expr,
-                        operator=NumericComparison.gt,
-                        rhs=end_index_expr,
-                        source_location=location,
-                    ),
-                ],
-                wtype=wtypes.uint64_wtype,
-                source_location=end_index_expr.source_location,
+            end_index_expr = intrinsic_factory.select(
+                false=end_index_expr,
+                true=begin_index_expr,
+                condition=NumericComparisonExpression(
+                    lhs=begin_index_expr,
+                    operator=NumericComparison.gt,
+                    rhs=end_index_expr,
+                    source_location=location,
+                ),
+                loc=end_index_expr.source_location,
             )
         slice_expr: Expression = SliceExpression(
             base=base,
@@ -214,7 +207,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         return self.rvalue()
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        len_expr = IntrinsicCall.bytes_len(source_location=location, expr=self.expr)
+        len_expr = intrinsic_factory.bytes_len(self.expr, location)
         len_builder = var_expression(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
@@ -301,26 +294,22 @@ def _eval_slice_component(
     if val is None:
         return None
 
-    len_expr = IntrinsicCall.bytes_len(base, source_location=location)
+    len_expr = intrinsic_factory.bytes_len(base, location)
 
     if isinstance(val, ExpressionBuilder):
         # no negatives to deal with here, easy
         index_expr = expect_operand_wtype(val, wtypes.uint64_wtype)
         temp_index = SingleEvaluation(index_expr)
-        return IntrinsicCall(
-            op_code="select",
-            stack_args=[
-                len_expr,
-                temp_index,
-                NumericComparisonExpression(
-                    lhs=temp_index,
-                    operator=NumericComparison.lt,
-                    rhs=len_expr,
-                    source_location=location,
-                ),
-            ],
-            wtype=wtypes.uint64_wtype,
-            source_location=location,
+        return intrinsic_factory.select(
+            false=len_expr,
+            true=temp_index,
+            condition=NumericComparisonExpression(
+                lhs=temp_index,
+                operator=NumericComparison.lt,
+                rhs=len_expr,
+                source_location=location,
+            ),
+            loc=location,
         )
 
     int_lit = val.value
@@ -328,20 +317,16 @@ def _eval_slice_component(
         raise CodeError(f"Invalid literal for slicing: {int_lit!r}", val.source_location)
     # take the min of abs(int_lit) and len(self.expr)
     abs_lit_expr = UInt64Constant(value=abs(int_lit), source_location=val.source_location)
-    trunc_value_expr = IntrinsicCall(
-        op_code="select",
-        stack_args=[
-            len_expr,
-            abs_lit_expr,
-            NumericComparisonExpression(
-                lhs=abs_lit_expr,
-                operator=NumericComparison.lt,
-                rhs=len_expr,
-                source_location=location,
-            ),
-        ],
-        wtype=wtypes.uint64_wtype,
-        source_location=location,
+    trunc_value_expr = intrinsic_factory.select(
+        false=len_expr,
+        true=abs_lit_expr,
+        condition=NumericComparisonExpression(
+            lhs=abs_lit_expr,
+            operator=NumericComparison.lt,
+            rhs=len_expr,
+            source_location=location,
+        ),
+        loc=location,
     )
     return (
         trunc_value_expr

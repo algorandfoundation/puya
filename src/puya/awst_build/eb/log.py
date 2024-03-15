@@ -9,10 +9,10 @@ from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
     Expression,
-    IntrinsicCall,
     Literal,
     UInt64Constant,
 )
+from puya.awst_build import intrinsic_factory
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -58,11 +58,13 @@ class LogBuilder(IntermediateExpressionBuilder):
         for arg in args_:
             match arg:
                 case ExpressionBuilder(value_type=wtypes.uint64_wtype):
-                    bytes_expr = _itob(arg.rvalue(), arg.source_location)
+                    bytes_expr: Expression = intrinsic_factory.itob(
+                        arg.rvalue(), arg.source_location
+                    )
                 case ExpressionBuilder() as eb:
                     bytes_expr = eb.rvalue()
                 case Literal(value=int(int_literal)):
-                    bytes_expr = _itob(
+                    bytes_expr = intrinsic_factory.itob(
                         UInt64Constant(value=int_literal, source_location=arg.source_location),
                         arg.source_location,
                     )
@@ -84,38 +86,13 @@ class LogBuilder(IntermediateExpressionBuilder):
             if log_value is None:
                 log_value = bytes_expr
             elif sep:
-                log_value = _concat(
-                    _concat(log_value, sep, arg.source_location),
+                log_value = intrinsic_factory.concat(
+                    intrinsic_factory.concat(log_value, sep, arg.source_location),
                     bytes_expr,
                     arg.source_location,
                 )
             else:
-                log_value = _concat(log_value, bytes_expr, arg.source_location)
+                log_value = intrinsic_factory.concat(log_value, bytes_expr, arg.source_location)
         if log_value is None:
             log_value = BytesConstant(value=b"", source_location=location)
-        return var_expression(
-            IntrinsicCall(
-                op_code="log",
-                wtype=wtypes.void_wtype,
-                stack_args=[log_value],
-                source_location=location,
-            )
-        )
-
-
-def _itob(expr: Expression, loc: SourceLocation) -> Expression:
-    return IntrinsicCall(
-        op_code="itob",
-        wtype=wtypes.bytes_wtype,
-        stack_args=[expr],
-        source_location=loc,
-    )
-
-
-def _concat(a: Expression, b: Expression, loc: SourceLocation) -> Expression:
-    return IntrinsicCall(
-        op_code="concat",
-        wtype=wtypes.bytes_wtype,
-        stack_args=[a, b],
-        source_location=loc,
-    )
+        return var_expression(intrinsic_factory.log(log_value, location))

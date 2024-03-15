@@ -30,6 +30,7 @@ from puya.awst.nodes import (
     UInt64BinaryOperator,
     UInt64Constant,
 )
+from puya.awst_build import intrinsic_factory
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
 from puya.awst_build.eb.arc4.base import (
@@ -260,7 +261,7 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
                     operator=NumericComparison.eq,
                     source_location=location,
                     lhs=UInt64Constant(value=32, source_location=location),
-                    rhs=IntrinsicCall.bytes_len(expr=address_bytes_temp, source_location=location),
+                    rhs=intrinsic_factory.bytes_len(address_bytes_temp, location),
                 )
                 address_bytes = CheckedMaybe.from_tuple_items(
                     expr=address_bytes_temp,

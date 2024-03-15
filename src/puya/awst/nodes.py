@@ -488,17 +488,6 @@ class IntrinsicCall(Expression):
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_intrinsic_call(self)
 
-    @classmethod
-    def bytes_len(cls, expr: Expression, source_location: SourceLocation) -> t.Self:
-        if expr.wtype != wtypes.bytes_wtype:
-            raise ValueError("Expression for bytes_len must have wtype of bytes")
-        return cls(
-            source_location=source_location,
-            op_code="len",
-            stack_args=[expr],
-            wtype=wtypes.uint64_wtype,
-        )
-
 
 WTypes: t.TypeAlias = Sequence[WType | type[WType]]
 

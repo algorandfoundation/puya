@@ -11,7 +11,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, intrinsic_factory
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.utils import extract_bytes_literal_from_mypy
 from puya.errors import CodeError, InternalError
@@ -201,23 +201,13 @@ def arc4_encode(
                 immediates=[6, 8],
                 wtype=wtypes.bytes_wtype,
                 stack_args=[
-                    awst_nodes.IntrinsicCall(
-                        source_location=location,
-                        op_code="itob",
-                        stack_args=[awst_nodes.IntrinsicCall.bytes_len(base_temp, location)],
-                        wtype=wtypes.bytes_wtype,
-                    )
+                    intrinsic_factory.itob(intrinsic_factory.bytes_len(base_temp, loc=location))
                 ],
             )
             return awst_nodes.ReinterpretCast(
                 source_location=location,
                 wtype=wtypes.arc4_dynamic_bytes,
-                expr=awst_nodes.IntrinsicCall(
-                    source_location=location,
-                    op_code="concat",
-                    stack_args=[length, base_temp],
-                    wtype=wtypes.bytes_wtype,
-                ),
+                expr=intrinsic_factory.concat(length, base_temp, location),
             )
         case wtypes.WTuple(types=types):
             base_temp = awst_nodes.SingleEvaluation(base)
@@ -261,16 +251,11 @@ def arc4_decode(
         case wtypes.ARC4DynamicArray(
             element_type=wtypes.ARC4UIntN(n=8)
         ) if target_wtype == wtypes.bytes_wtype:
-            return awst_nodes.IntrinsicCall(
-                wtype=wtypes.bytes_wtype,
-                op_code="extract",
-                immediates=[2, 0],
-                source_location=location,
-                stack_args=[
-                    awst_nodes.ReinterpretCast(
-                        expr=bytes_arg, wtype=wtypes.bytes_wtype, source_location=location
-                    )
-                ],
+            return intrinsic_factory.extract(
+                awst_nodes.ReinterpretCast(
+                    expr=bytes_arg, wtype=wtypes.bytes_wtype, source_location=location
+                ),
+                start=2,
             )
         case wtypes.ARC4Tuple(types=tuple_types):
             decode_expression = awst_nodes.ARC4Decode(
