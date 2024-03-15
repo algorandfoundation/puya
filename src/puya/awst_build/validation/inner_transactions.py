@@ -1,8 +1,6 @@
 import contextlib
 from collections.abc import Iterator, Sequence
 
-import attrs
-
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,

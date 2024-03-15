@@ -93,3 +93,19 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
 
         target = BaseClassSubroutineTarget(cref, name)
         super().__init__(context, target, location, func_type)
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        from puya.awst_build.eb.contracts import ContractSelfExpressionBuilder
+
+        if not args and isinstance(args[0], ContractSelfExpressionBuilder):
+            raise CodeError(
+                "First argument when calling a base class method directly should be self",
+                args[0].source_location,
+            )
+        return super().call(args[1:], arg_kinds[1:], arg_names[1:], location)
