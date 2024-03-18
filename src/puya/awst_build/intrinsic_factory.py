@@ -94,12 +94,23 @@ def select(
 
 
 def extract(
-    value: Expression, start: int, end: int = 0, loc: SourceLocation | None = None
+    value: Expression, start: int, length: int = 0, loc: SourceLocation | None = None
 ) -> IntrinsicCall:
     return IntrinsicCall(
         op_code="extract",
-        immediates=[start, end],
+        immediates=[start, length],
         wtype=wtypes.bytes_wtype,
         stack_args=[value],
+        source_location=loc or value.source_location,
+    )
+
+
+def extract3(
+    value: Expression, start: Expression, length: Expression, loc: SourceLocation | None = None
+) -> IntrinsicCall:
+    return IntrinsicCall(
+        op_code="extract3",
+        wtype=wtypes.bytes_wtype,
+        stack_args=[value, start, length],
         source_location=loc or value.source_location,
     )

@@ -357,7 +357,7 @@ class ToCodeVisitor(
                 return f'hex<"{expr.value.hex().upper()}">'
 
     def visit_string_constant(self, expr: nodes.StringConstant) -> str:
-        return expr.value
+        return repr(expr.value)
 
     def visit_method_constant(self, expr: nodes.MethodConstant) -> str:
         return f'Method("{expr.value}")'
