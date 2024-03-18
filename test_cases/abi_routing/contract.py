@@ -7,6 +7,7 @@ from puyapy import (
     Asset,
     Bytes,
     OnCompleteAction,
+    String,
     TransactionType,
     UInt64,
     arc4,
@@ -227,3 +228,7 @@ class Reference(ARC4Contract):
             + u.decode()
             + v.decode()
         )
+
+    @arc4.abimethod
+    def hello_with_puyapy_string(self, name: String) -> String:
+        return "Hello " + name + "!"
