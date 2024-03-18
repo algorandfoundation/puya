@@ -16,12 +16,12 @@ contract Arc4ArraysContract
     dynamic_string_array: puyapy.arc4.DynamicArray[puyapy.arc4.String] = arc4_array_encode([arc4_encode('Hello', puyapy.arc4.String), arc4_encode('World', puyapy.arc4.String)], puyapy.arc4.DynamicArray[puyapy.arc4.String])
     assert(extract_uint16(dynamic_string_array, 0u) == 2u)
     assert(reinterpret_cast<puyapy.Bytes>(dynamic_string_array[0u]) == reinterpret_cast<puyapy.Bytes>(arc4_encode('Hello', puyapy.arc4.String)))
-    result: puyapy.Bytes = ''
+    result: puyapy.String = ''
     for (index, string_item) in enumerate(dynamic_string_array) {
       if (index == 0u) {
-        result: puyapy.Bytes = arc4_decode(string_item, puyapy.Bytes)
+        result: puyapy.String = arc4_decode(string_item, puyapy.String)
       } else {
-        result += ' ' + arc4_decode(string_item, puyapy.Bytes)
+        result += ' ' + arc4_decode(string_item, puyapy.String)
       }
     }
     assert(result == 'Hello World')
@@ -34,12 +34,12 @@ contract Arc4ArraysContract
     index: puyapy.UInt64 = 0u
     assert(arc4_decode(aliased_static[0u], puyapy.UInt64) + arc4_decode(aliased_static[index], puyapy.UInt64) == 202u)
     static_string_array: puyapy.arc4.StaticArray[puyapy.arc4.String, typing.Literal[2]] = arc4_array_encode([arc4_encode('Ping', puyapy.arc4.String), arc4_encode('Pong', puyapy.arc4.String)], puyapy.arc4.StaticArray[puyapy.arc4.String, typing.Literal[2]])
-    result: puyapy.Bytes = ''
+    result: puyapy.String = ''
     for (index, string_item) in enumerate(static_string_array) {
       if (index == 0u) {
-        result: puyapy.Bytes = arc4_decode(string_item, puyapy.Bytes)
+        result: puyapy.String = arc4_decode(string_item, puyapy.String)
       } else {
-        result += ' ' + arc4_decode(string_item, puyapy.Bytes)
+        result += ' ' + arc4_decode(string_item, puyapy.String)
       }
     }
     assert(result == 'Ping Pong')

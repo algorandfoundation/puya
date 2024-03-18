@@ -1,16 +1,13 @@
-from puyapy import Bytes, Contract
-from puyapy.arc4 import (
-    String,
-)
+from puyapy import Bytes, Contract, String, arc4
 
 
 class Arc4StringTypesContract(Contract):
     def approval_program(self) -> bool:
         some_bytes = Bytes(b"Hello World!")
 
-        some_bytes_as_string = String.encode(some_bytes)
+        some_bytes_as_string = arc4.String(String.from_bytes(some_bytes))
 
-        some_bytes_as_bytes_again = some_bytes_as_string.decode()
+        some_bytes_as_bytes_again = some_bytes_as_string.native.bytes
 
         assert (
             some_bytes != some_bytes_as_string.bytes
@@ -22,21 +19,21 @@ class Arc4StringTypesContract(Contract):
 
         assert some_bytes == some_bytes_as_bytes_again
 
-        hello = String("Hello")
-        space = String(" ")
-        world = String("World!")
+        hello = arc4.String("Hello")
+        space = arc4.String(" ")
+        world = arc4.String("World!")
 
-        assert String("Hello World!") == (hello + space + world)
+        assert arc4.String("Hello World!") == (hello + space + world)
 
-        thing = String("hi")
+        thing = arc4.String("hi")
         thing += thing
-        assert thing == String("hihi")
+        assert thing == arc4.String("hihi")
 
-        value = String("a") + String(Bytes(b"b")) + "cd"
+        value = arc4.String("a") + arc4.String("b") + "cd"
         value += "e"
-        value += String("f")
-        value += String(Bytes(b"g"))
-        assert String("abcdefg") == value
+        value += arc4.String("f")
+        value += arc4.String("g")
+        assert arc4.String("abcdefg") == value
         return True
 
     def clear_state_program(self) -> bool:

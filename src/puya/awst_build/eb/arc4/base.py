@@ -55,8 +55,6 @@ def get_bytes_expr_builder(expr: Expression) -> ExpressionBuilder:
 class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder, abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
-            case "encode":
-                return ARC4EncodeBuilder(location, self.produces())
             case "from_log":
                 return ARC4FromLogBuilder(location, self.produces())
             case _:
@@ -170,44 +168,28 @@ class CopyBuilder(IntermediateExpressionBuilder):
         raise CodeError("Invalid/Unexpected arguments", location)
 
 
-class ARC4DecodeBuilder(IntermediateExpressionBuilder):
-    def __init__(self, expr: Expression, location: SourceLocation):
-        super().__init__(location=location)
-        match expr.wtype:
-            case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes | wtypes.arc4_bool_wtype:
-                pass
-            case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM() | wtypes.ARC4Tuple():
-                pass
-            case _:
-                raise InternalError("Unsupported wtype for ARC4Decode", location)
-        self.expr = expr
-
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> ExpressionBuilder:
-        match args:
-            case []:
-                pass
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-
-        expr = ARC4Decode(
+def native_eb(expr: Expression, location: SourceLocation) -> ExpressionBuilder:
+    match expr.wtype:
+        case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes | wtypes.arc4_bool_wtype:
+            pass
+        case wtypes.ARC4UIntN() | wtypes.ARC4UFixedNxM() | wtypes.ARC4Tuple():
+            pass
+        case _:
+            raise InternalError("Unsupported wtype for ARC4Decode", location)
+    return var_expression(
+        ARC4Decode(
             source_location=location,
-            value=self.expr,
-            wtype=wtypes.arc4_to_avm_equivalent_wtype(self.expr.wtype),
+            value=expr,
+            wtype=wtypes.arc4_to_avm_equivalent_wtype(expr.wtype),
         )
-        return var_expression(expr)
+    )
 
 
 class ARC4EncodedExpressionBuilder(ValueExpressionBuilder, abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
-            case "decode":
-                return ARC4DecodeBuilder(self.expr, location)
+            case "native":
+                return native_eb(self.expr, location)
             case "bytes":
                 return get_bytes_expr_builder(self.expr)
             case _:

@@ -8,7 +8,7 @@ test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     // total, concat = self.test_stuff(my_tuple)
     callsub test_stuff
     // arc4_types/tuples.py:46
-    // assert concat.decode() == b"hello world"
+    // assert concat.native == "hello world"
     extract 2 0
     byte "hello world"
     ==
@@ -31,7 +31,7 @@ test_stuff:
     // def test_stuff(self, test_tuple: TestTuple) -> tuple[UInt64, String]:
     proto 1 2
     // arc4_types/tuples.py:56
-    // a, b, c, d, e = test_tuple.decode()
+    // a, b, c, d, e = test_tuple.native
     frame_dig -1
     extract 0 1
     frame_dig -1
@@ -62,7 +62,7 @@ test_stuff:
     frame_dig -1
     extract 6 1
     // arc4_types/tuples.py:58
-    // total = a.decode() + b.decode() + e.decode()
+    // total = a.native + b.native + e.native
     uncover 3
     btoi
     uncover 4
@@ -73,7 +73,7 @@ test_stuff:
     +
     swap
     // arc4_types/tuples.py:59
-    // text = c.decode() + b" " + d.decode()
+    // text = c.native + " " + d.native
     uncover 2
     extract 2 0
     byte " "
@@ -82,7 +82,7 @@ test_stuff:
     extract 2 0
     concat
     // arc4_types/tuples.py:61
-    // return total, String.encode(text)
+    // return total, String(text)
     dup
     len
     itob

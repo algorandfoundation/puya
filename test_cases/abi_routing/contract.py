@@ -31,7 +31,7 @@ class Reference(ARC4Contract):
 
     @arc4.abimethod
     def noop_with_uint64(self, a: arc4.UInt64) -> arc4.UInt8:
-        result = 1 + a.decode()
+        result = 1 + a.native
         return arc4.UInt8(result)
 
     @arc4.abimethod(
@@ -47,7 +47,7 @@ class Reference(ARC4Contract):
         readonly=True,
     )
     def full_abi_config(self, a: arc4.UInt64) -> arc4.UInt8:
-        result = UInt64(1) + a.decode()
+        result = UInt64(1) + a.native
         return arc4.UInt8(result)
 
     @arc4.abimethod(
@@ -60,7 +60,7 @@ class Reference(ARC4Contract):
         readonly=True,
     )
     def mixed_oca(self, a: arc4.UInt64) -> arc4.UInt8:
-        result = UInt64(1) + a.decode()
+        result = UInt64(1) + a.native
         return arc4.UInt8(result)
 
     @arc4.baremethod(
@@ -102,9 +102,9 @@ class Reference(ARC4Contract):
         another_int: arc4.UInt64,
     ) -> None:
         assert self.asa == asset, "is correct asset"
-        assert an_int.decode() == 1, "is correct int"
+        assert an_int.native == 1, "is correct int"
         assert pay.receiver == op.Global.current_application_address, "is payment to app"
-        assert another_int.decode() == 2, "is correct int"
+        assert another_int.native == 2, "is correct int"
 
     @arc4.abimethod
     def compare_assets(self, asset_a: Asset, asset_b: Asset) -> None:
@@ -160,8 +160,8 @@ class Reference(ARC4Contract):
         assert bytes_from_storage[0] == arc4.Byte(7), "wrong 0th byte from storage"
         assert bytes_from_storage[1] == arc4.Byte(8), "wrong 1st byte from storage"
         assert bytes_from_storage[2] == arc4.Byte(9), "wrong 2nd byte from storage"
-        assert int_from_storage.decode() == 2, "wrong int from storage"
-        assert int_from_function.decode() == 3, "wrong int from function"
+        assert int_from_storage.native == 2, "wrong int from storage"
+        assert int_from_function.native == 3, "wrong int from function"
 
     @arc4.abimethod
     def method_with_more_than_15_args(
@@ -207,26 +207,26 @@ class Reference(ARC4Contract):
         log(s + t)
 
         return arc4.UInt64(
-            a.decode()
-            + b.decode()
-            + c.decode()
+            a.native
+            + b.native
+            + c.native
             + d
-            + e.decode()
-            + f.decode()
-            + g.decode()
-            + h.decode()
-            + i.decode()
-            + j.decode()
-            + k.decode()
-            + l.decode()
-            + m.decode()
-            + n.decode()
-            + o.decode()
+            + e.native
+            + f.native
+            + g.native
+            + h.native
+            + i.native
+            + j.native
+            + k.native
+            + l.native
+            + m.native
+            + n.native
+            + o.native
             + p
-            + q.decode()
-            + r.decode()
-            + u.decode()
-            + v.decode()
+            + q.native
+            + r.native
+            + u.native
+            + v.native
         )
 
     @arc4.abimethod

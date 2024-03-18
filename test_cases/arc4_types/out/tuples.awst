@@ -14,7 +14,7 @@ contract Arc4TuplesTypeContract
     assert(arc4_decode(k, puyapy.UInt64) == 16u, comment="k is 16")
     assert(reinterpret_cast<puyapy.Bytes>(boolean_packing) == reinterpret_cast<puyapy.Bytes>(arc4_encode(arc4_decode(boolean_packing, tuple[puyapy.arc4.UInt8, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.UInt8]), puyapy.arc4.Tuple[puyapy.arc4.UInt8, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.Bool, puyapy.arc4.UInt8])))
     (total, concat): tuple[puyapy.UInt64, puyapy.arc4.String] = this::test_stuff(my_tuple)
-    assert(arc4_decode(concat, puyapy.Bytes) == 'hello world')
+    assert(arc4_decode(concat, puyapy.String) == 'hello world')
     assert(total == 258u)
     return true
   }
@@ -28,7 +28,7 @@ contract Arc4TuplesTypeContract
   {
     (a, b, c, d, e): tuple[puyapy.arc4.UInt8, puyapy.arc4.UInt8, puyapy.arc4.String, puyapy.arc4.String, puyapy.arc4.UInt8] = arc4_decode(test_tuple, tuple[puyapy.arc4.UInt8, puyapy.arc4.UInt8, puyapy.arc4.String, puyapy.arc4.String, puyapy.arc4.UInt8])
     total: puyapy.UInt64 = arc4_decode(a, puyapy.UInt64) + arc4_decode(b, puyapy.UInt64) + arc4_decode(e, puyapy.UInt64)
-    text: puyapy.Bytes = arc4_decode(c, puyapy.Bytes) + ' ' + arc4_decode(d, puyapy.Bytes)
+    text: puyapy.String = arc4_decode(c, puyapy.String) + ' ' + arc4_decode(d, puyapy.String)
     return (total, arc4_encode(text, puyapy.arc4.String))
   }
 }

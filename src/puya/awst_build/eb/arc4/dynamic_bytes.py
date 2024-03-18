@@ -6,7 +6,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import ARC4Encode, Literal, ReinterpretCast
 from puya.awst_build.eb.arc4._utils import convert_arc4_literal
 from puya.awst_build.eb.arc4.arrays import DynamicArrayExpressionBuilder, dynamic_array_constructor
-from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4DecodeBuilder
+from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, native_eb
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError
@@ -66,7 +66,7 @@ class DynamicBytesExpressionBuilder(DynamicArrayExpressionBuilder):
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
-            case "decode":
-                return ARC4DecodeBuilder(self.expr, location)
+            case "native":
+                return native_eb(self.expr, location)
             case _:
                 return super().member_access(name, location)

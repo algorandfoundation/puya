@@ -7,6 +7,7 @@ from puyapy import (
     Global,
     GlobalState,
     OpUpFeeSource,
+    String,
     Txn,
     UInt64,
     arc4,
@@ -67,13 +68,13 @@ class VotingRoundApp(ARC4Contract):
         assert start_time < end_time, "End time should be after start time"
         assert end_time >= Global.latest_timestamp, "End time should be in the future"
 
-        self.vote_id = vote_id.decode()
+        self.vote_id = vote_id.native
         self.snapshot_public_key = snapshot_public_key
-        self.metadata_ipfs_cid = metadata_ipfs_cid.decode()
+        self.metadata_ipfs_cid = metadata_ipfs_cid.native
         self.start_time = start_time
         self.end_time = end_time
         self.quorum = quorum
-        self.nft_image_url = nft_image_url.decode()
+        self.nft_image_url = nft_image_url.native
         self.store_option_counts(option_counts.copy())
 
     @arc4.abimethod
@@ -111,42 +112,42 @@ class VotingRoundApp(ARC4Contract):
         self.close_time.value = Global.latest_timestamp
 
         note = (
-            b'{"standard":"arc69",'
-            b'"description":"This is a voting result NFT for voting round with ID '
+            '{"standard":"arc69",'
+            '"description":"This is a voting result NFT for voting round with ID '
             + self.vote_id
-            + b'.","properties":{"metadata":"ipfs://'
+            + '.","properties":{"metadata":"ipfs://'
             + self.metadata_ipfs_cid
-            + b'","id":"'
+            + '","id":"'
             + self.vote_id
-            + b'","quorum":'
+            + '","quorum":'
             + itoa(self.quorum)
-            + b',"voterCount":'
+            + ',"voterCount":'
             + itoa(self.voter_count)
-            + b',"tallies":['
+            + ',"tallies":['
         )
 
         current_index = UInt64(0)
         for question_index, question_options_arc in uenumerate(self.option_counts):
             if question_index > 0:
-                note += b","
-            question_options = question_options_arc.decode()
+                note += ","
+            question_options = question_options_arc.native
             if question_options > 0:
-                note += b"["
+                note += "["
                 for option_index in urange(question_options):
                     if option_index > 0:
-                        note += b","
+                        note += ","
                     votes_for_option = get_vote_from_box(current_index)
                     note += itoa(votes_for_option)
                     current_index += 1
-                note += b"]"
-        note += b"]}}"
+                note += "]"
+        note += "]}}"
         self.nft_asset_id = (
             itxn.AssetConfig(
                 total=1,
                 decimals=0,
                 default_frozen=False,
-                asset_name=b"[VOTE RESULT] " + self.vote_id,
-                unit_name=b"VOTERSLT",
+                asset_name="[VOTE RESULT] " + self.vote_id,
+                unit_name="VOTERSLT",
                 url=self.nft_image_url,
                 note=note,
             )
@@ -191,8 +192,8 @@ class VotingRoundApp(ARC4Contract):
         cumulative_offset = UInt64(0)
         for question_index in urange(questions_count):
             # Load the user's vote for this question
-            answer_option_index = answer_ids[question_index].decode()
-            options_count = self.option_counts[question_index].decode()
+            answer_option_index = answer_ids[question_index].native
+            options_count = self.option_counts[question_index].native
             assert answer_option_index < options_count, "Answer option index invalid"
             increment_vote_in_box(cumulative_offset + answer_option_index)
             cumulative_offset += options_count
@@ -219,7 +220,7 @@ class VotingRoundApp(ARC4Contract):
 
         total_options = UInt64(0)
         for item in option_counts:
-            total_options += item.decode()
+            total_options += item.native
         assert total_options <= 128, "Can't have more than 128 vote options"
 
         self.option_counts = option_counts.copy()
@@ -251,9 +252,9 @@ def increment_vote_in_box(index: UInt64) -> None:
 
 
 @subroutine
-def itoa(i: UInt64) -> Bytes:
+def itoa(i: UInt64) -> String:
     digits = Bytes(b"0123456789")
     radix = digits.length
     if i < radix:
-        return digits[i]
-    return itoa(i // radix) + digits[i % radix]
+        return String.from_bytes(digits[i])
+    return itoa(i // radix) + String.from_bytes(digits[i % radix])

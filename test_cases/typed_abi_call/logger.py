@@ -18,15 +18,15 @@ class Logger(ARC4Contract):
 
     @arc4.abimethod
     def log_string(self, value: arc4.String) -> None:
-        log(value.decode())  # decode to remove header
+        log(value.native)  # decode to remove header
 
     @arc4.abimethod
     def log_bool(self, value: arc4.Bool) -> None:
-        log(Bytes(b"True") if value.decode() else Bytes(b"False"))
+        log(Bytes(b"True") if value.native else Bytes(b"False"))
 
     @arc4.abimethod
     def log_bytes(self, value: arc4.DynamicBytes) -> None:
-        log(value.bytes[2:])  # decode to remove header
+        log(value.native)
 
     @arc4.abimethod
     def log_asset_account_app(self, asset: Asset, account: Account, app: Application) -> None:

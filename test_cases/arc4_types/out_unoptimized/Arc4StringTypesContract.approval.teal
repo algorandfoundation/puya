@@ -1,33 +1,33 @@
 #pragma version 10
 
 test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
-    // arc4_types/string.py:9
+    // arc4_types/string.py:6
     // some_bytes = Bytes(b"Hello World!")
     byte "Hello World!"
-    // arc4_types/string.py:11
-    // some_bytes_as_string = String.encode(some_bytes)
+    // arc4_types/string.py:8
+    // some_bytes_as_string = arc4.String(String.from_bytes(some_bytes))
     dup
     len
     itob
     extract 6 2
     dig 1
     concat
-    // arc4_types/string.py:13
-    // some_bytes_as_bytes_again = some_bytes_as_string.decode()
+    // arc4_types/string.py:10
+    // some_bytes_as_bytes_again = some_bytes_as_string.native.bytes
     dup
     extract 2 0
     cover 2
-    // arc4_types/string.py:16
+    // arc4_types/string.py:13
     // some_bytes != some_bytes_as_string.bytes
     dig 1
     dig 1
     !=
-    // arc4_types/string.py:15-17
+    // arc4_types/string.py:12-14
     // assert (
     //     some_bytes != some_bytes_as_string.bytes
     // ), "Original bytes should not match encoded bytes"
     assert // Original bytes should not match encoded bytes
-    // arc4_types/string.py:20
+    // arc4_types/string.py:17
     // some_bytes == some_bytes_as_string.bytes[2:]
     dup
     len
@@ -51,29 +51,29 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     dig 1
     swap
     ==
-    // arc4_types/string.py:19-21
+    // arc4_types/string.py:16-18
     // assert (
     //     some_bytes == some_bytes_as_string.bytes[2:]
     // ), "Original bytes should match encoded if we strip the length header"
     assert // Original bytes should match encoded if we strip the length header
-    // arc4_types/string.py:23
+    // arc4_types/string.py:20
     // assert some_bytes == some_bytes_as_bytes_again
     swap
     ==
     assert
-    // arc4_types/string.py:25
-    // hello = String("Hello")
+    // arc4_types/string.py:22
+    // hello = arc4.String("Hello")
     byte "\x00\x05Hello"
-    // arc4_types/string.py:26
-    // space = String(" ")
+    // arc4_types/string.py:23
+    // space = arc4.String(" ")
     byte "\x00\x01 "
     swap
-    // arc4_types/string.py:27
-    // world = String("World!")
+    // arc4_types/string.py:24
+    // world = arc4.String("World!")
     byte "\x00\x06World!"
     cover 2
-    // arc4_types/string.py:29
-    // assert String("Hello World!") == (hello + space + world)
+    // arc4_types/string.py:26
+    // assert arc4.String("Hello World!") == (hello + space + world)
     extract 2 0
     swap
     extract 2 0
@@ -98,10 +98,10 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     swap
     ==
     assert
-    // arc4_types/string.py:31
-    // thing = String("hi")
+    // arc4_types/string.py:28
+    // thing = arc4.String("hi")
     byte "\x00\x02hi"
-    // arc4_types/string.py:32
+    // arc4_types/string.py:29
     // thing += thing
     dup
     extract 2 0
@@ -114,13 +114,13 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     extract 6 0
     swap
     concat
-    // arc4_types/string.py:33
-    // assert thing == String("hihi")
+    // arc4_types/string.py:30
+    // assert thing == arc4.String("hihi")
     byte "\x00\x04hihi"
     ==
     assert
-    // arc4_types/string.py:35
-    // value = String("a") + String(Bytes(b"b")) + "cd"
+    // arc4_types/string.py:32
+    // value = arc4.String("a") + arc4.String("b") + "cd"
     byte "\x00\x01a"
     extract 2 0
     byte "\x00\x01b"
@@ -142,7 +142,7 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     extract 6 0
     swap
     concat
-    // arc4_types/string.py:36
+    // arc4_types/string.py:33
     // value += "e"
     extract 2 0
     byte "\x00\x01e"
@@ -154,8 +154,8 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     extract 6 0
     swap
     concat
-    // arc4_types/string.py:37
-    // value += String("f")
+    // arc4_types/string.py:34
+    // value += arc4.String("f")
     extract 2 0
     byte "\x00\x01f"
     extract 2 0
@@ -166,8 +166,8 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     extract 6 0
     swap
     concat
-    // arc4_types/string.py:38
-    // value += String(Bytes(b"g"))
+    // arc4_types/string.py:35
+    // value += arc4.String("g")
     extract 2 0
     byte "\x00\x01g"
     extract 2 0
@@ -178,13 +178,13 @@ test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     extract 6 0
     swap
     concat
-    // arc4_types/string.py:39
-    // assert String("abcdefg") == value
+    // arc4_types/string.py:36
+    // assert arc4.String("abcdefg") == value
     byte "\x00\x07abcdefg"
     swap
     ==
     assert
-    // arc4_types/string.py:40
+    // arc4_types/string.py:37
     // return True
     int 1
     return

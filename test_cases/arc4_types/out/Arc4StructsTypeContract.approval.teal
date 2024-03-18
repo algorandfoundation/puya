@@ -70,33 +70,44 @@ add:
     // def add(v1: Vector, v2: Vector) -> Vector:
     proto 2 3
     // arc4_types/structs.py:48
-    // x=Decimal.encode(v1.x.decode() + v2.x.decode()),
+    // x=add_decimal(v1.x, v2.x),
     frame_dig -2
     extract 0 8
-    btoi
     frame_dig -1
     extract 0 8
-    btoi
-    +
-    itob
+    callsub add_decimal
     // arc4_types/structs.py:49
-    // y=Decimal.encode(v1.y.decode() + v2.y.decode()),
+    // y=add_decimal(v1.y, v2.y),
     frame_dig -2
     extract 8 8
-    btoi
     frame_dig -1
     extract 8 8
-    btoi
-    +
-    itob
+    callsub add_decimal
     // arc4_types/structs.py:47-50
     // return Vector(
-    //     x=Decimal.encode(v1.x.decode() + v2.x.decode()),
-    //     y=Decimal.encode(v1.y.decode() + v2.y.decode()),
+    //     x=add_decimal(v1.x, v2.x),
+    //     y=add_decimal(v1.y, v2.y),
     // )
     concat
     frame_dig -2
     frame_dig -1
+    retsub
+
+
+// test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> bytes:
+add_decimal:
+    // arc4_types/structs.py:67-68
+    // @subroutine
+    // def add_decimal(x: Decimal, y: Decimal) -> Decimal:
+    proto 2 1
+    // arc4_types/structs.py:69
+    // return Decimal.from_bytes(op.itob(op.btoi(x.bytes) + op.btoi(y.bytes)))
+    frame_dig -2
+    btoi
+    frame_dig -1
+    btoi
+    +
+    itob
     retsub
 
 
@@ -107,7 +118,7 @@ check:
     // def check(flags: Flags) -> None:
     proto 1 1
     // arc4_types/structs.py:55
-    // assert flags.a.decode()
+    // assert flags.a.native
     frame_dig -1
     int 0
     getbit
@@ -119,7 +130,7 @@ check:
     getbit
     assert
     // arc4_types/structs.py:56
-    // assert not flags.b.decode()
+    // assert not flags.b.native
     frame_dig -1
     int 1
     getbit
@@ -132,7 +143,7 @@ check:
     !
     assert
     // arc4_types/structs.py:57
-    // assert flags.c.decode()
+    // assert flags.c.native
     frame_dig -1
     int 2
     getbit
@@ -144,7 +155,7 @@ check:
     getbit
     assert
     // arc4_types/structs.py:58
-    // assert not flags.d.decode()
+    // assert not flags.d.native
     frame_dig -1
     int 3
     getbit
@@ -167,16 +178,16 @@ nested_decode:
     // def nested_decode(vector_flags: VectorFlags) -> None:
     proto 1 1
     // arc4_types/structs.py:63
-    // assert vector_flags.vector.x.decode() == 35382882839
+    // assert vector_flags.vector.x.bytes == op.itob(35382882839)
     frame_dig -1
     extract 0 16
     extract 0 8
-    btoi
     int 35382882839
+    itob
     ==
     assert
     // arc4_types/structs.py:64
-    // assert vector_flags.flags.c.decode()
+    // assert vector_flags.flags.c.native
     frame_dig -1
     extract 16 1
     int 2
