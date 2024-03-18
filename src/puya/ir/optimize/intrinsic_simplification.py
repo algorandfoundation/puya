@@ -241,7 +241,10 @@ def _try_fold_intrinsic(
                     ],
                 )
             ) if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
-                if L == 0:
+                # note there is a difference of behaviour between extract with stack args
+                # and with immediates - zero is to the end with immediates,
+                # and zero length with stacks
+                if intrinsic.immediates and L == 0:
                     extracted = byte_const.value[S:]
                 else:
                     extracted = byte_const.value[S : S + L]
