@@ -1645,19 +1645,13 @@ class LogicSignature(ModuleStatement):
         return visitor.visit_logic_signature(self)
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class StateTotals:
-    global_uints: int | None
-    local_uints: int | None
-    global_bytes: int | None
-    local_bytes: int | None
-
-    @property
-    def any_defined(self) -> bool:
-        return any(
-            a is not None
-            for a in [self.global_uints, self.local_uints, self.global_bytes, self.local_bytes]
-        )
+    global_uints: int | None = None
+    local_uints: int | None = None
+    global_bytes: int | None = None
+    local_bytes: int | None = None
+    is_explicit: bool = True
 
 
 @attrs.frozen

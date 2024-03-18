@@ -15,6 +15,7 @@ from puya.awst.nodes import (
     LogicSignature,
     Module,
     ModuleStatement,
+    StateTotals,
     StructureDefinition,
     StructureField,
 )
@@ -22,7 +23,7 @@ from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionContext, ASTConversionModuleContext
 from puya.awst_build.contract import ContractASTConverter
-from puya.awst_build.contract_data import ContractClassOptions, StateTotals
+from puya.awst_build.contract_data import ContractClassOptions
 from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.subroutine import FunctionASTConverter
 from puya.awst_build.utils import (
@@ -550,7 +551,7 @@ def _process_contract_class_options(
 ) -> ContractClassOptions:
     name_override: str | None = None
     scratch_slot_reservations = StableSet[int]()
-    state_totals = StateTotals()
+    state_totals = StateTotals(is_explicit=False)
     for kw_name, kw_expr in cdef.keywords.items():
         with context.log_exceptions(kw_expr):
             match kw_name:
@@ -580,27 +581,28 @@ def _process_contract_class_options(
                             scratch_slot_reservations |= slots
                 case "state_totals":
                     match kw_expr:
+                        case mypy.nodes.StrExpr(value="auto"):
+                            state_totals = StateTotals()
                         case mypy.nodes.CallExpr(arg_names=arg_names, args=args):
                             arg_map = get_arg_mapping(
-                                positional_arg_names=[
-                                    "global_uints",
-                                    "global_bytes",
-                                    "local_uints",
-                                    "local_bytes",
-                                ],
+                                positional_arg_names=[],
                                 args=zip(arg_names, args, strict=True),
                                 location=context.node_location(kw_expr),
                             )
 
                             state_totals = StateTotals(
                                 global_uints=_map_state_total_arg(
-                                    context, arg_map, "global_uints"
+                                    context, arg_map.get("global_uints")
                                 ),
                                 global_bytes=_map_state_total_arg(
-                                    context, arg_map, "global_bytes"
+                                    context, arg_map.get("global_bytes")
                                 ),
-                                local_uints=_map_state_total_arg(context, arg_map, "local_uints"),
-                                local_bytes=_map_state_total_arg(context, arg_map, "local_bytes"),
+                                local_uints=_map_state_total_arg(
+                                    context, arg_map.get("local_uints")
+                                ),
+                                local_bytes=_map_state_total_arg(
+                                    context, arg_map.get("local_bytes")
+                                ),
                             )
                         case _:
                             raise CodeError("Invalid value for state_totals")
@@ -621,20 +623,17 @@ def _process_contract_class_options(
 
 
 def _map_state_total_arg(
-    ctx: ASTConversionModuleContext, arg_map: dict[str, mypy.nodes.Expression], name: str
+    ctx: ASTConversionModuleContext, arg: mypy.nodes.Expression | None
 ) -> int | None:
-    expr = arg_map.pop(name, None)
-    if expr is None:
-        return None
-    match expr:
+    match arg:
         case mypy.nodes.IntExpr(value=int_value):
             return int_value
-        case mypy.nodes.NameExpr(fullname="builtins.None"):
+        case None:
             return None
         case _:
             raise CodeError(
                 "Invalid value for state_total",
-                ctx.node_location(expr),
+                ctx.node_location(arg),
             )
 
 

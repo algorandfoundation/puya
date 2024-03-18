@@ -44,7 +44,7 @@ from puya.models import (
     StateTotals,
 )
 from puya.parse import EMBEDDED_MODULES
-from puya.utils import StableSet, attrs_extend
+from puya.utils import StableSet, attrs_extend, coalesce
 
 logger = structlog.get_logger(__name__)
 
@@ -237,62 +237,47 @@ def _build_logic_sig_ir(
 
 
 def _build_state_totals(
-    state_totals: awst_nodes.StateTotals,
+    declared_totals: awst_nodes.StateTotals,
     *,
     declared_global: Iterable[ContractState],
     declared_local: Iterable[ContractState],
     source_location: puya.parse.SourceLocation,
 ) -> StateTotals:
-    return StateTotals(
-        global_uints=_get_total_state_count_for_type(
-            total_count=state_totals.global_uints,
-            declared_state=declared_global,
-            storage_type=AVMType.uint64,
-            state_name="global_uints",
-            source_location=source_location,
-        ),
-        global_bytes=_get_total_state_count_for_type(
-            total_count=state_totals.global_bytes,
-            declared_state=declared_global,
-            storage_type=AVMType.bytes,
-            state_name="global_byte",
-            source_location=source_location,
-        ),
-        local_uints=_get_total_state_count_for_type(
-            total_count=state_totals.local_uints,
-            declared_state=declared_local,
-            storage_type=AVMType.uint64,
-            state_name="local_uints",
-            source_location=source_location,
-        ),
-        local_bytes=_get_total_state_count_for_type(
-            total_count=state_totals.local_bytes,
-            declared_state=declared_local,
-            storage_type=AVMType.bytes,
-            state_name="local_bytes",
-            source_location=source_location,
-        ),
+    calculated_totals = StateTotals(
+        global_uints=_get_total_state_by_type(declared_global, AVMType.uint64),
+        global_bytes=_get_total_state_by_type(declared_global, AVMType.bytes),
+        local_uints=_get_total_state_by_type(declared_local, AVMType.uint64),
+        local_bytes=_get_total_state_by_type(declared_local, AVMType.bytes),
+    )
+    final_totals = StateTotals(
+        global_uints=coalesce(declared_totals.global_uints, calculated_totals.global_uints),
+        global_bytes=coalesce(declared_totals.global_bytes, calculated_totals.global_bytes),
+        local_uints=coalesce(declared_totals.local_uints, calculated_totals.local_uints),
+        local_bytes=coalesce(declared_totals.local_bytes, calculated_totals.local_bytes),
     )
 
-
-def _get_total_state_count_for_type(
-    *,
-    total_count: int | None,
-    declared_state: Iterable[ContractState],
-    storage_type: typing.Literal[AVMType.uint64, AVMType.bytes],
-    state_name: str,
-    source_location: puya.parse.SourceLocation,
-) -> int:
-    declared_count = sum(1 for s in declared_state if s.storage_type == storage_type)
-    if total_count is None:
-        return declared_count
-    if total_count < declared_count:
+    invalid_fields = sorted(
+        f"{field}: {declared=}, {calculated=}"
+        for (field, declared), calculated in zip(
+            attrs.asdict(final_totals).items(), attrs.astuple(calculated_totals), strict=True
+        )
+        if declared < calculated
+    )
+    if invalid_fields:
         raise CodeError(
-            f"When {state_name} is specified, it must be greater than or equal to "
-            f"the number of explicitly declared state properties",
+            f"State totals declared on the class are less than totals calculated from"
+            f" explicitly declared properties: {', '.join(invalid_fields)}."
+            " Either remove or increase the totals declared on the class",
             source_location,
         )
-    return total_count
+    return final_totals
+
+
+def _get_total_state_by_type(
+    declared_state: Iterable[ContractState],
+    storage_type: typing.Literal[AVMType.uint64, AVMType.bytes],
+) -> int:
+    return sum(1 for s in declared_state if s.storage_type == storage_type)
 
 
 def _build_parameter_list(
@@ -401,8 +386,8 @@ def fold_state_and_special_methods(
     ctx: IRBuildContext, contract: awst_nodes.ContractFragment
 ) -> FoldedContract:
     bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
-    if not contract.state_totals.any_defined:
-        base_with_defined = next((b for b in bases if b.state_totals.any_defined), None)
+    if not contract.state_totals.is_explicit:
+        base_with_defined = next((b for b in bases if b.state_totals.is_explicit), None)
         if base_with_defined:
             ctx.errors.warning(
                 f"Contract {contract.name} extends base contract {base_with_defined.name} "

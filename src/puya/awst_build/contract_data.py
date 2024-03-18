@@ -2,7 +2,7 @@ import enum
 
 import attrs
 
-from puya.awst.nodes import AppStateKind
+from puya.awst.nodes import AppStateKind, StateTotals
 from puya.awst.wtypes import WType
 from puya.parse import SourceLocation
 from puya.utils import StableSet
@@ -22,14 +22,6 @@ class AppStateDeclaration:
     storage_wtype: WType
     decl_type: AppStateDeclType
     source_location: SourceLocation
-
-
-@attrs.define
-class StateTotals:
-    global_uints: int | None = None
-    global_bytes: int | None = None
-    local_uints: int | None = None
-    local_bytes: int | None = None
 
 
 @attrs.define
