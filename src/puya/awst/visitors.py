@@ -133,6 +133,10 @@ class ExpressionVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
+    def visit_string_constant(self, expr: puya.awst.nodes.StringConstant) -> T:
+        ...
+
+    @abstractmethod
     def visit_address_constant(self, expr: puya.awst.nodes.AddressConstant) -> T:
         ...
 

@@ -1,6 +1,6 @@
 # ruff: noqa: PYI034
 import typing
-from collections.abc import Iterator, Reversible
+from collections.abc import Container, Iterator, Reversible
 
 class UInt64:
     """A 64-bit unsigned integer, one of the primary data types on the AVM"""
@@ -229,6 +229,47 @@ class BytesBacked(typing.Protocol):
     @classmethod
     def from_bytes(cls, value: Bytes) -> typing.Self:
         """Construct an instance from the underlying bytes[] (no validation)"""
+
+class String(BytesBacked, Container[String]):
+    """A UTF-8 encoded string.
+
+    In comparison to `arc4.String`, this type does not store the array length prefix, since that
+    information is always available through the `len` AVM op. This makes it more efficient to
+    operate on when doing operations such as concatenation.
+
+    Note that due to the lack of UTF-8 support in the AVM, indexing and length operations are not
+    currently supported.
+    """
+
+    __match_value__: str
+    __match_args__ = ("__match_value__",)
+    @typing.overload
+    def __init__(self) -> None:
+        """Construct an empty `String`"""
+    @typing.overload
+    def __init__(self, value: str, /):
+        """A String can be initialized with a Python `str` literal, or a `str` variable
+        declared at the module level"""
+    def __add__(self, other: String | str) -> String:
+        """Concatenate `String` with another `String` or `str` literal
+        e.g. `String("Hello ") + "World"`."""
+    def __radd__(self, other: String | str) -> String:
+        """Concatenate String with another `String` or `str` literal
+        e.g. `"Hello " + String("World")`."""
+    def __iadd__(self, other: String | str) -> String:
+        """Concatenate `String` with another `String` or `str` literal
+        e.g. `a = String("Hello"); a += "World"`."""
+    def __bool__(self) -> bool:
+        """Returns `True` if the string is not empty"""
+    # mypy suggests due to Liskov below should be other: object
+    # need to consider ramifications here, ignoring it for now
+    def __eq__(self, other: String | str) -> bool:  # type: ignore[override]
+        """Supports using the `==` operator with another `String` or literal `str`"""
+    def __ne__(self, other: String | str) -> bool:  # type: ignore[override]
+        """Supports using the `!=` operator with another `String` or literal `str`"""
+    def __contains__(self, other: String | str) -> bool:  # type: ignore[override]
+        """Test whether another string is a substring of this one.
+        Note this is expensive due to a lack of AVM support."""
 
 class BigUInt(BytesBacked):
     """A variable length (max 512-bit) unsigned integer"""

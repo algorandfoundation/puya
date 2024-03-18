@@ -98,7 +98,11 @@ bytes_wtype: typing.Final = WType(
     stub_name=constants.CLS_BYTES_ALIAS,
     is_valid_literal=is_valid_bytes_literal,
 )
-
+string_wtype: typing.Final = WType(
+    name="string",
+    stub_name=constants.CLS_STRING_ALIAS,
+    is_valid_literal=is_valid_utf8_literal,
+)
 asset_wtype: typing.Final = WType(
     name="asset",
     stub_name=constants.CLS_ASSET_ALIAS,

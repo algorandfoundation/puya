@@ -868,6 +868,10 @@ def test_uint64_stubs(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "stubs" / "uint64.py", AppCallRequest(increase_budget=1))
 
 
+def test_string_stubs(harness: _TestHarness) -> None:
+    harness.deploy(TEST_CASES_DIR / "stubs" / "string.py", AppCallRequest(increase_budget=2))
+
+
 def test_biguint_stubs(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "stubs" / "biguint.py", AppCallRequest(increase_budget=1))
 

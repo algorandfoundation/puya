@@ -540,6 +540,7 @@ class FunctionASTConverter(
                     constants.CLS_UINT64,
                     constants.CLS_BIGUINT,
                     constants.CLS_BYTES,
+                    constants.CLS_STRING,
                     constants.CLS_ACCOUNT,
                 ):
                     case_value_builder_or_literal = inner_literal_expr.accept(self)
@@ -554,6 +555,7 @@ class FunctionASTConverter(
                             constants.CLS_UINT64_ALIAS,
                             constants.CLS_BIGUINT_ALIAS,
                             constants.CLS_BYTES_ALIAS,
+                            constants.CLS_STRING_ALIAS,
                             constants.CLS_ACCOUNT_ALIAS,
                         )
                     )
