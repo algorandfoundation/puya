@@ -845,8 +845,8 @@ def test_arc28(algod_client: AlgodClient, account: algokit_utils.Account) -> Non
         event_data = event[4:]
         assert event_sig == bytes.fromhex("1ccbd925")
         assert event_data == b.to_bytes(length=8) + a.to_bytes(length=8)
-        
-        
+
+
 @pytest.fixture()
 def other_account(algod_client: AlgodClient) -> algokit_utils.Account:
     v = algosdk.account.generate_account()
@@ -874,25 +874,29 @@ def test_tictactoe(
         signer=account,
     )
 
-    def print_board() -> None:
+    def get_game_status() -> tuple[str, str | None]:
         state = client_host.get_global_state(raw=True)
         game = state[b"game"]
         assert isinstance(game, bytes)
         chars = ["X" if b == 1 else "O" if b == 2 else "-" for b in game]
-        print(f"{" ".join(chars[0:3])}\n{" ".join(chars[3:6])}\n{" ".join(chars[6:])}")
+        board = f"{" ".join(chars[0:3])}\n{" ".join(chars[3:6])}\n{" ".join(chars[6:])}"
 
-        winner = state[b"winner"]
-        match winner:
+        match state[b"winner"]:
             case b"\00":
-                print("Game has no winner yet")
+                winner = None
             case b"\01":
-                print("Host (X) is the winner!")
+                winner = "Host"
             case b"\02":
-                print("Challenger (O) is the winner!")
+                winner = "Challenger"
+            case b"\03":
+                winner = "Draw"
+        return board, winner
 
     client_host.create(call_abi_method="new_game", move=(1, 1))
 
-    print_board()
+    game, winner = get_game_status()
+    assert game == "- - -\n- X -\n- - -"
+    assert winner is None
 
     client_challenger = algokit_utils.ApplicationClient(
         algod_client,
@@ -903,13 +907,24 @@ def test_tictactoe(
 
     client_challenger.call(call_abi_method="join_game", move=(0, 0))
 
-    print_board()
+    game, winner = get_game_status()
+    assert game == "O - -\n- X -\n- - -"
+    assert winner is None
 
     client_host.call(call_abi_method="play", move=(0, 1))
-    print_board()
+
+    game, winner = get_game_status()
+    assert game == "O - -\nX X -\n- - -"
+    assert winner is None
 
     client_challenger.call(call_abi_method="play", move=(1, 0))
-    print_board()
+
+    game, winner = get_game_status()
+    assert game == "O O -\nX X -\n- - -"
+    assert winner is None
 
     client_host.call(call_abi_method="play", move=(2, 1))
-    print_board()
+
+    game, winner = get_game_status()
+    assert game == "O O -\nX X X\n- - -"
+    assert winner == "Host"
