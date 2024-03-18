@@ -111,3 +111,9 @@ class Reference(puyapy.arc4.ARC4Client, typing.Protocol):
         u: puyapy.arc4.UInt64,
         v: puyapy.arc4.UInt64,
     ) -> puyapy.arc4.UInt64: ...
+
+    @puyapy.arc4.abimethod
+    def hello_with_puyapy_string(
+        self,
+        name: puyapy.arc4.String,
+    ) -> puyapy.arc4.String: ...

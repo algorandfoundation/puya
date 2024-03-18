@@ -120,6 +120,7 @@ def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str
             | wtypes.application_wtype
             | wtypes.uint64_wtype
             | wtypes.bool_wtype
+            | wtypes.string_wtype
         ):
             return wtype.name
         case wtypes.bytes_wtype:

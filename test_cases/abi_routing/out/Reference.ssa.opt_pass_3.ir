@@ -1,19 +1,19 @@
 contract test_cases.abi_routing.contract.Reference:
     program approval:
         subroutine test_cases.abi_routing.contract.Reference.approval_program() -> uint64:
-            block@0: // L21
+            block@0: // L22
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L22
+            block@1: // on_create_L23
                 test_cases.abi_routing.contract.Reference.__init__()
                 goto block@2
-            block@2: // entrypoint_L22
+            block@2: // entrypoint_L23
                 let tmp%1#0: uint64 = (txn NumAppArgs)
-                goto tmp%1#0 ? block@3 : block@18
-            block@3: // abi_routing_L21
+                goto tmp%1#0 ? block@3 : block@19
+            block@3: // abi_routing_L22
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%2#0 {method "noop_with_uint64(uint64)uint8" => block@4, method "all_the_things(uint64)uint8" => block@5, method "mixed_oca(uint64)uint8" => block@6, method "opt_into_asset(asset)void" => block@7, method "with_transactions(asset,uint64,pay,uint64)void" => block@8, method "compare_assets(asset,asset)void" => block@9, method "get_address()address" => block@10, method "get_asset()uint64" => block@11, method "get_application()uint64" => block@12, method "get_an_int()uint64" => block@13, method "method_with_default_args(asset,asset,account,account,application,application,byte[3],uint64,uint64)void" => block@14, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],asset,pay,uint64,uint64)uint64" => block@15, * => fail // reject transaction}
-            block@4: // noop_with_uint64_route_L31
+                switch tmp%2#0 {method "noop_with_uint64(uint64)uint8" => block@4, method "all_the_things(uint64)uint8" => block@5, method "mixed_oca(uint64)uint8" => block@6, method "opt_into_asset(asset)void" => block@7, method "with_transactions(asset,uint64,pay,uint64)void" => block@8, method "compare_assets(asset,asset)void" => block@9, method "get_address()address" => block@10, method "get_asset()uint64" => block@11, method "get_application()uint64" => block@12, method "get_an_int()uint64" => block@13, method "method_with_default_args(asset,asset,account,account,application,application,byte[3],uint64,uint64)void" => block@14, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],asset,pay,uint64,uint64)uint64" => block@15, method "hello_with_puyapy_string(string)string" => block@16, * => fail // reject transaction}
+            block@4: // noop_with_uint64_route_L32
                 let tmp%3#0: uint64 = (txn OnCompletion)
                 let tmp%4#0: uint64 = (! tmp%3#0)
                 (assert tmp%4#0) // OnCompletion is NoOp
@@ -24,13 +24,13 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
                 (log tmp%8#0)
                 return 1u
-            block@5: // all_the_things_route_L36
+            block@5: // all_the_things_route_L37
                 let tmp%9#0: bytes = (txna ApplicationArgs 1)
                 let tmp%10#0: bytes = test_cases.abi_routing.contract.Reference.full_abi_config(tmp%9#0)
                 let tmp%11#0: bytes = (concat 0x151f7c75 tmp%10#0)
                 (log tmp%11#0)
                 return 1u
-            block@6: // mixed_oca_route_L52
+            block@6: // mixed_oca_route_L53
                 let tmp%12#0: uint64 = (txn OnCompletion)
                 let tmp%13#0: uint64 = (shl 1u tmp%12#0)
                 let tmp%14#0: uint64 = (& tmp%13#0 37u)
@@ -42,7 +42,7 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
                 (log tmp%18#0)
                 return 1u
-            block@7: // opt_into_asset_route_L78
+            block@7: // opt_into_asset_route_L79
                 let tmp%19#0: uint64 = (txn OnCompletion)
                 let tmp%20#0: uint64 = (! tmp%19#0)
                 (assert tmp%20#0) // OnCompletion is NoOp
@@ -53,7 +53,7 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%24#0: uint64 = ((txnas Assets) tmp%23#0)
                 test_cases.abi_routing.contract.Reference.opt_into_asset(tmp%24#0)
                 return 1u
-            block@8: // with_transactions_route_L95
+            block@8: // with_transactions_route_L96
                 let tmp%25#0: uint64 = (txn OnCompletion)
                 let tmp%26#0: uint64 = (! tmp%25#0)
                 (assert tmp%26#0) // OnCompletion is NoOp
@@ -71,7 +71,7 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%38#0: bytes = (txna ApplicationArgs 3)
                 test_cases.abi_routing.contract.Reference.with_transactions(tmp%30#0, tmp%31#0, awst_tmp%33#0, tmp%38#0)
                 return 1u
-            block@9: // compare_assets_route_L108
+            block@9: // compare_assets_route_L109
                 let tmp%39#0: uint64 = (txn OnCompletion)
                 let tmp%40#0: uint64 = (! tmp%39#0)
                 (assert tmp%40#0) // OnCompletion is NoOp
@@ -85,7 +85,7 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%47#0: uint64 = ((txnas Assets) tmp%46#0)
                 test_cases.abi_routing.contract.Reference.compare_assets(tmp%44#0, tmp%47#0)
                 return 1u
-            block@10: // get_address_route_L112
+            block@10: // get_address_route_L113
                 let tmp%48#0: uint64 = (txn OnCompletion)
                 let tmp%49#0: uint64 = (! tmp%48#0)
                 (assert tmp%49#0) // OnCompletion is NoOp
@@ -95,7 +95,7 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%52#0: bytes = (concat 0x151f7c75 tmp%51#0)
                 (log tmp%52#0)
                 return 1u
-            block@11: // get_asset_route_L116
+            block@11: // get_asset_route_L117
                 let tmp%53#0: uint64 = (txn OnCompletion)
                 let tmp%54#0: uint64 = (! tmp%53#0)
                 (assert tmp%54#0) // OnCompletion is NoOp
@@ -105,7 +105,7 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%57#0: bytes = (concat 0x151f7c75 tmp%56#0)
                 (log tmp%57#0)
                 return 1u
-            block@12: // get_application_route_L120
+            block@12: // get_application_route_L121
                 let tmp%58#0: uint64 = (txn OnCompletion)
                 let tmp%59#0: uint64 = (! tmp%58#0)
                 (assert tmp%59#0) // OnCompletion is NoOp
@@ -115,7 +115,7 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%62#0: bytes = (concat 0x151f7c75 tmp%61#0)
                 (log tmp%62#0)
                 return 1u
-            block@13: // get_an_int_route_L124
+            block@13: // get_an_int_route_L125
                 let tmp%63#0: uint64 = (txn OnCompletion)
                 let tmp%64#0: uint64 = (! tmp%63#0)
                 (assert tmp%64#0) // OnCompletion is NoOp
@@ -125,7 +125,7 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%67#0: bytes = (concat 0x151f7c75 tmp%66#0)
                 (log tmp%67#0)
                 return 1u
-            block@14: // method_with_default_args_route_L128
+            block@14: // method_with_default_args_route_L129
                 let tmp%68#0: uint64 = (txn OnCompletion)
                 let tmp%69#0: uint64 = (! tmp%68#0)
                 (assert tmp%69#0) // OnCompletion is NoOp
@@ -154,7 +154,7 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%91#0: bytes = (txna ApplicationArgs 9)
                 test_cases.abi_routing.contract.Reference.method_with_default_args(tmp%73#0, tmp%76#0, tmp%79#0, tmp%82#0, tmp%85#0, tmp%88#0, tmp%89#0, tmp%90#0, tmp%91#0)
                 return 1u
-            block@15: // method_with_more_than_15_args_route_L165
+            block@15: // method_with_more_than_15_args_route_L166
                 let tmp%92#0: uint64 = (txn OnCompletion)
                 let tmp%93#0: uint64 = (! tmp%92#0)
                 (assert tmp%93#0) // OnCompletion is NoOp
@@ -222,20 +222,36 @@ contract test_cases.abi_routing.contract.Reference:
                 let tmp%156#0: bytes = (concat 0x151f7c75 tmp%155#0)
                 (log tmp%156#0)
                 return 1u
-            block@18: // bare_routing_L21
+            block@16: // hello_with_puyapy_string_route_L232
                 let tmp%157#0: uint64 = (txn OnCompletion)
-                goto_nth [block@19, block@19, block@19, block@20, block@19, block@19][tmp%157#0] else fail // reject transaction
-            block@19: // bare_abi_config_L65
-                let tmp%158#0: uint64 = (txn ApplicationID)
-                let tmp%159#0: uint64 = (! tmp%158#0)
-                (assert tmp%159#0) // is creating
+                let tmp%158#0: uint64 = (! tmp%157#0)
+                (assert tmp%158#0) // OnCompletion is NoOp
+                let tmp%159#0: uint64 = (txn ApplicationID)
+                (assert tmp%159#0) // is not creating
+                let tmp%160#0: bytes = (txna ApplicationArgs 1)
+                let tmp%161#0: bytes = ((extract 2 0) tmp%160#0)
+                let tmp%162#0: bytes = test_cases.abi_routing.contract.Reference.hello_with_puyapy_string(tmp%161#0)
+                let length%163#0: uint64 = (len tmp%162#0)
+                let value_as_bytes%164#0: bytes = (itob length%163#0)
+                let value_as_uint16%165#0: bytes = ((extract 6 2) value_as_bytes%164#0)
+                let tmp%166#0: bytes = (concat value_as_uint16%165#0 tmp%162#0)
+                let tmp%167#0: bytes = (concat 0x151f7c75 tmp%166#0)
+                (log tmp%167#0)
+                return 1u
+            block@19: // bare_routing_L22
+                let tmp%168#0: uint64 = (txn OnCompletion)
+                goto_nth [block@20, block@20, block@20, block@21, block@20, block@20][tmp%168#0] else fail // reject transaction
+            block@20: // bare_abi_config_L66
+                let tmp%169#0: uint64 = (txn ApplicationID)
+                let tmp%170#0: uint64 = (! tmp%169#0)
+                (assert tmp%170#0) // is creating
                 test_cases.abi_routing.contract.Reference.bare_abi_config()
                 return 1u
-            block@20: // reject_bare_on_completion_L21
+            block@21: // reject_bare_on_completion_L22
                 fail // reject transaction
         
         subroutine test_cases.abi_routing.contract.Reference.noop_with_uint64(a: bytes) -> bytes:
-            block@0: // L31
+            block@0: // L32
                 let tmp%0#0: uint64 = (btoi a#0)
                 let result#0: uint64 = (+ 1u tmp%0#0)
                 let val_as_bytes%1#0: bytes = (itob result#0)
@@ -243,7 +259,7 @@ contract test_cases.abi_routing.contract.Reference:
                 return tmp%2#0
         
         subroutine test_cases.abi_routing.contract.Reference.full_abi_config(a: bytes) -> bytes:
-            block@0: // L36
+            block@0: // L37
                 let tmp%0#0: uint64 = (btoi a#0)
                 let result#0: uint64 = (+ 1u tmp%0#0)
                 let val_as_bytes%1#0: bytes = (itob result#0)
@@ -251,7 +267,7 @@ contract test_cases.abi_routing.contract.Reference:
                 return tmp%2#0
         
         subroutine test_cases.abi_routing.contract.Reference.mixed_oca(a: bytes) -> bytes:
-            block@0: // L52
+            block@0: // L53
                 let tmp%0#0: uint64 = (btoi a#0)
                 let result#0: uint64 = (+ 1u tmp%0#0)
                 let val_as_bytes%1#0: bytes = (itob result#0)
@@ -259,7 +275,7 @@ contract test_cases.abi_routing.contract.Reference:
                 return tmp%2#0
         
         subroutine test_cases.abi_routing.contract.Reference.opt_into_asset(asset: uint64) -> void:
-            block@0: // L78
+            block@0: // L79
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
                 let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
@@ -279,7 +295,7 @@ contract test_cases.abi_routing.contract.Reference:
                 return 
         
         subroutine test_cases.abi_routing.contract.Reference.with_transactions(asset: uint64, an_int: bytes, pay: uint64, another_int: bytes) -> void:
-            block@0: // L95
+            block@0: // L96
                 let (asa_value%0#0: uint64, asa_exists%1#0: uint64) = (app_global_get_ex 0u "asa")
                 (assert asa_exists%1#0) // check asa exists
                 let tmp%2#0: uint64 = (== asa_value%0#0 asset#0)
@@ -297,30 +313,30 @@ contract test_cases.abi_routing.contract.Reference:
                 return 
         
         subroutine test_cases.abi_routing.contract.Reference.compare_assets(asset_a: uint64, asset_b: uint64) -> void:
-            block@0: // L108
+            block@0: // L109
                 let tmp%0#0: uint64 = (== asset_a#0 asset_b#0)
                 (assert tmp%0#0) // asset a == b
                 return 
         
         subroutine test_cases.abi_routing.contract.Reference.get_address() -> bytes:
-            block@0: // L112
+            block@0: // L113
                 let tmp%0#0: bytes = (global ZeroAddress)
                 return tmp%0#0
         
         subroutine test_cases.abi_routing.contract.Reference.get_asset() -> bytes:
-            block@0: // L116
+            block@0: // L117
                 return 0x00000000000001c8
         
         subroutine test_cases.abi_routing.contract.Reference.get_app() -> bytes:
-            block@0: // L120
+            block@0: // L121
                 return 0x00000000000001c8
         
         subroutine test_cases.abi_routing.contract.Reference.get_a_int() -> bytes:
-            block@0: // L124
+            block@0: // L125
                 return 0x0000000000000003
         
         subroutine test_cases.abi_routing.contract.Reference.method_with_default_args(asset_from_storage: uint64, asset_from_function: uint64, account_from_storage: bytes, account_from_function: bytes, application_from_storage: uint64, application_from_function: uint64, bytes_from_storage: bytes, int_from_storage: bytes, int_from_function: bytes) -> void:
-            block@0: // L128
+            block@0: // L129
                 let tmp%0#0: uint64 = (== asset_from_storage#0 123u)
                 (assert tmp%0#0) // wrong asset from storage
                 let tmp%1#0: uint64 = (== asset_from_function#0 456u)
@@ -353,7 +369,7 @@ contract test_cases.abi_routing.contract.Reference:
                 return 
         
         subroutine test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(a: bytes, b: bytes, c: bytes, d: uint64, asset: uint64, e: bytes, f: bytes, pay: uint64, g: bytes, h: bytes, i: bytes, j: bytes, k: bytes, l: bytes, m: bytes, n: bytes, o: bytes, p: uint64, q: bytes, r: bytes, s: bytes, t: bytes, asset2: uint64, pay2: uint64, u: bytes, v: bytes) -> bytes:
-            block@0: // L165
+            block@0: // L166
                 let tmp%0#0: uint64 = (txn NumAppArgs)
                 let tmp%1#0: uint64 = (== tmp%0#0 16u)
                 (assert tmp%1#0)
@@ -407,13 +423,19 @@ contract test_cases.abi_routing.contract.Reference:
                 let val_as_bytes%44#0: bytes = (itob tmp%43#0)
                 return val_as_bytes%44#0
         
+        subroutine test_cases.abi_routing.contract.Reference.hello_with_puyapy_string(name: bytes) -> bytes:
+            block@0: // L232
+                let tmp%0#0: bytes = (concat "Hello " name#0)
+                let tmp%1#0: bytes = (concat tmp%0#0 "!")
+                return tmp%1#0
+        
         subroutine test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
-            block@0: // L65
+            block@0: // L66
                 (log "Hello World")
                 return 
         
         subroutine test_cases.abi_routing.contract.Reference.__init__() -> void:
-            block@0: // L22
+            block@0: // L23
                 (app_global_put "asa" 123u)
                 (app_global_put "an_int" 2u)
                 let array_data%0#3: bytes = 0x070809
@@ -427,5 +449,5 @@ contract test_cases.abi_routing.contract.Reference:
     
     program clear-state:
         subroutine test_cases.abi_routing.contract.Reference.clear_state_program() -> uint64:
-            block@0: // L21
+            block@0: // L22
                 return 1u

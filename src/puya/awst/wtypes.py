@@ -517,7 +517,7 @@ def has_arc4_equivalent_type(wtype: WType) -> bool:
     """
     Checks if a non-arc4 encoded type has an arc4 equivalent
     """
-    if wtype in (bool_wtype, uint64_wtype, bytes_wtype, biguint_wtype):
+    if wtype in (bool_wtype, uint64_wtype, bytes_wtype, biguint_wtype, string_wtype):
         return True
 
     match wtype:
@@ -535,6 +535,8 @@ def avm_to_arc4_equivalent_type(wtype: WType) -> WType:
         return ARC4UIntN.from_scale(512)
     if wtype is bytes_wtype:
         return arc4_dynamic_bytes
+    if wtype is string_wtype:
+        return arc4_string_wtype
     if isinstance(wtype, WTuple):
         return ARC4Tuple.from_types(types=[avm_to_arc4_equivalent_type(t) for t in wtype.types])
     raise InternalError(f"{wtype} does not have an arc4 equivalent type")
@@ -549,7 +551,7 @@ def arc4_to_avm_equivalent_wtype(arc4_wtype: WType) -> WType:
         case ARC4DynamicArray(element_type=ARC4UIntN(n=8)):
             return bytes_wtype
     if arc4_wtype is arc4_string_wtype:
-        return bytes_wtype
+        return bytes_wtype  # TODO: this should be string_wtype now
     elif arc4_wtype is arc4_bool_wtype:
         return bool_wtype
 
