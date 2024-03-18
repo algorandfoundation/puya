@@ -33,17 +33,17 @@ class Arc4TuplesTypeContract(Contract):
             )
         )
         assert boolean_packing.bytes == Bytes.from_hex("04BD8010")
-        (a, b, c, d, e, f, g, h, i, j, k) = boolean_packing.decode()
+        a, b, c, d, e, f, g, h, i, j, k = boolean_packing.native
         assert boolean_packing[10] == k
-        assert a.decode() == 4, "a is 4"
+        assert a.native == 4, "a is 4"
         assert b and d and e and f and g and i and j, "b,d,e,f,g,i,j are true"
         assert not (c or h), "c and h are false"
-        assert k.decode() == 16, "k is 16"
+        assert k.native == 16, "k is 16"
 
-        assert boolean_packing == TestBooleanPacking.encode(boolean_packing.decode())
+        assert boolean_packing == TestBooleanPacking(boolean_packing.native)
 
         total, concat = self.test_stuff(my_tuple)
-        assert concat.decode() == b"hello world"
+        assert concat.native == "hello world"
         assert total == 258
 
         return True
@@ -53,9 +53,9 @@ class Arc4TuplesTypeContract(Contract):
 
     @subroutine
     def test_stuff(self, test_tuple: TestTuple) -> tuple[UInt64, String]:
-        a, b, c, d, e = test_tuple.decode()
+        a, b, c, d, e = test_tuple.native
 
-        total = a.decode() + b.decode() + e.decode()
-        text = c.decode() + b" " + d.decode()
+        total = a.native + b.native + e.native
+        text = c.native + " " + d.native
 
-        return total, String.encode(text)
+        return total, String(text)

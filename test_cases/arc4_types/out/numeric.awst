@@ -15,36 +15,27 @@ contract Arc4NumericTypesContract
     assert(arc4_decode(reinterpret_cast<puyapy.arc4.UInt32>(SINGLE_EVAL(id=3, source=test_bytes)[:select(len(SINGLE_EVAL(id=3, source=test_bytes)), 4u, 4u < len(SINGLE_EVAL(id=3, source=test_bytes)))]), puyapy.UInt64) == 2147483647u)
     assert(arc4_decode(reinterpret_cast<puyapy.arc4.UInt64>(SINGLE_EVAL(id=4, source=test_bytes)[:select(len(SINGLE_EVAL(id=4, source=test_bytes)), 8u, 8u < len(SINGLE_EVAL(id=4, source=test_bytes)))]), puyapy.UInt64) == 9223372036854775807u)
     decimals: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 145.6853943940arc4u64x10
-    assert(len(reinterpret_cast<puyapy.Bytes>(decimals)) == 8u)
-    assert(arc4_decode(decimals, puyapy.UInt64) == 1456853943940u)
+    assert(reinterpret_cast<puyapy.Bytes>(decimals) == itob(1456853943940u))
     decimals_from_truncated_str: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 145.0000000000arc4u64x10
-    assert(len(reinterpret_cast<puyapy.Bytes>(decimals_from_truncated_str)) == 8u)
-    assert(arc4_decode(decimals_from_truncated_str, puyapy.UInt64) == 1450000000000u)
+    assert(reinterpret_cast<puyapy.Bytes>(decimals_from_truncated_str) == itob(1450000000000u))
     thousand: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1000.0000000000arc4u64x10
     assert(len(reinterpret_cast<puyapy.Bytes>(thousand)) == 8u)
-    assert(arc4_decode(thousand, puyapy.UInt64) == 10000000000000u)
+    assert(reinterpret_cast<puyapy.Bytes>(thousand) == itob(10000000000000u))
     one_decimal: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1.0000000000arc4u64x10
-    assert(len(reinterpret_cast<puyapy.Bytes>(one_decimal)) == 8u)
-    assert(arc4_decode(one_decimal, puyapy.UInt64) == 10000000000u)
+    assert(reinterpret_cast<puyapy.Bytes>(one_decimal) == itob(10000000000u))
     zero_decimal: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 0E-10arc4u64x10
-    assert(len(reinterpret_cast<puyapy.Bytes>(zero_decimal)) == 8u)
-    assert(arc4_decode(zero_decimal, puyapy.UInt64) == 0u)
+    assert(reinterpret_cast<puyapy.Bytes>(zero_decimal) == itob(0u))
     small_decimal: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1.00E-8arc4u64x10
-    assert(len(reinterpret_cast<puyapy.Bytes>(small_decimal)) == 8u)
-    assert(arc4_decode(small_decimal, puyapy.UInt64) == 100u)
+    assert(reinterpret_cast<puyapy.Bytes>(small_decimal) == itob(100u))
     smaller_decimal: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1.0E-9arc4u64x10
-    assert(len(reinterpret_cast<puyapy.Bytes>(smaller_decimal)) == 8u)
-    assert(arc4_decode(smaller_decimal, puyapy.UInt64) == 10u)
+    assert(reinterpret_cast<puyapy.Bytes>(smaller_decimal) == itob(10u))
     smallest_decimal: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1E-10arc4u64x10
-    assert(len(reinterpret_cast<puyapy.Bytes>(smallest_decimal)) == 8u)
-    assert(arc4_decode(smallest_decimal, puyapy.UInt64) == 1u)
+    assert(reinterpret_cast<puyapy.Bytes>(smallest_decimal) == itob(1u))
     sixty_four_decimal: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 1844674407.3709551615arc4u64x10
-    assert(len(reinterpret_cast<puyapy.Bytes>(sixty_four_decimal)) == 8u)
-    assert(arc4_decode(sixty_four_decimal, puyapy.UInt64) == 18446744073709551615u)
+    assert(reinterpret_cast<puyapy.Bytes>(sixty_four_decimal) == itob(18446744073709551615u))
     really_big_int: puyapy.arc4.UInt512 = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095arc4n512
-    assert(len(reinterpret_cast<puyapy.Bytes>(really_big_int)) == 64u)
-    assert(reinterpret_cast<puyapy.BigUInt>(really_big_int) == reinterpret_cast<puyapy.BigUInt>(arc4_encode(arc4_decode(really_big_int, puyapy.BigUInt), puyapy.arc4.UInt512)))
-    really_big_decimal: puyapy.arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]] = arc4_encode(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n, puyapy.arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]])
+    assert(reinterpret_cast<puyapy.BigUInt>(really_big_int) == reinterpret_cast<puyapy.BigUInt>(reinterpret_cast<puyapy.arc4.UInt512>(reinterpret_cast<puyapy.Bytes>(really_big_int))))
+    really_big_decimal: puyapy.arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]] = reinterpret_cast<puyapy.arc4.BigUFixedNxM[typing.Literal[512], typing.Literal[2]]>(reinterpret_cast<puyapy.Bytes>(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095n))
     biguint: puyapy.BigUInt = 1n
     arc4_biguint_const: puyapy.arc4.UInt128 = 1arc4n128
     arc4_biguint_dynamic: puyapy.arc4.UInt128 = arc4_encode(biguint b+ 1n, puyapy.arc4.UInt128)

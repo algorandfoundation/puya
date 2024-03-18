@@ -1,11 +1,11 @@
 import typing as t
 
-from puyapy import Bytes, Contract, UInt64, op, subroutine, uenumerate
+from puyapy import Bytes, Contract, String, UInt64, op, subroutine, uenumerate
 from puyapy.arc4 import (
     Byte,
     DynamicArray,
     StaticArray,
-    String,
+    String as ARC4String,
     UFixedNxM,
     UInt8,
     UInt16,
@@ -25,29 +25,29 @@ class Arc4ArraysContract(Contract):
         dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
         total = UInt64(0)
         for uint8_item in dynamic_uint8_array:
-            total += uint8_item.decode()
+            total += uint8_item.native
 
         assert total == 3, "Total should be sum of dynamic_uint8_array items"
         aliased_dynamic = AliasedDynamicArray(UInt16(1))
         for uint16_item in aliased_dynamic:
-            total += uint16_item.decode()
+            total += uint16_item.native
         assert total == 4, "Total should now include sum of aliased_dynamic items"
-        dynamic_string_array = DynamicArray[String](String("Hello"), String("World"))
+        dynamic_string_array = DynamicArray[ARC4String](ARC4String("Hello"), ARC4String("World"))
         assert dynamic_string_array.length == 2
-        assert dynamic_string_array[0] == String("Hello")
-        result = Bytes(b"")
+        assert dynamic_string_array[0] == ARC4String("Hello")
+        result = String("")
         for index, string_item in uenumerate(dynamic_string_array):
             if index == 0:
-                result = string_item.decode()
+                result = string_item.native
             else:
-                result += b" " + string_item.decode()
+                result += " " + string_item.native
 
-        assert result == b"Hello World"
+        assert result == "Hello World"
 
         static_uint32_array = StaticArray(UInt32(1), UInt32(10), UInt32(255), UInt32(128))
 
         for uint32_item in static_uint32_array:
-            total += uint32_item.decode()
+            total += uint32_item.native
 
         assert total == 4 + 1 + 10 + 255 + 128
 
@@ -55,18 +55,18 @@ class Arc4ArraysContract(Contract):
 
         index = UInt64(0)
 
-        assert (aliased_static[0].decode() + aliased_static[index].decode()) == 202
+        assert (aliased_static[0].native + aliased_static[index].native) == 202
 
-        static_string_array = StaticArray(String("Ping"), String("Pong"))
+        static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
 
-        result = Bytes(b"")
+        result = String("")
         for index, string_item in uenumerate(static_string_array):
             if index == 0:
-                result = string_item.decode()
+                result = string_item.native
             else:
-                result += b" " + string_item.decode()
+                result += " " + string_item.native
 
-        assert result == b"Ping Pong"
+        assert result == "Ping Pong"
 
         self.hash_as_array(Bytes(b"Testing 123"))
 

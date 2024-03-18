@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     Expression,
     IndexExpression,
     Literal,
-    TupleExpression,
     UInt64Constant,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
@@ -23,7 +22,6 @@ from puya.awst_build.eb.base import (
     GenericClassExpressionBuilder,
     TypeClassExpressionBuilder,
 )
-from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError, InternalError
 
@@ -73,13 +71,11 @@ def tuple_constructor(
     location: SourceLocation,
 ) -> ExpressionBuilder:
     match args:
-        case [TupleExpressionBuilder() as teb]:
-            tuple_ex = teb.rvalue()
-            if not isinstance(tuple_ex, TupleExpression):
-                raise CodeError("arc4.Tuple must be instantiated with a tuple", location)
+        case [ExpressionBuilder(value_type=wtypes.WTuple() as tuple_wtype) as eb]:
+            tuple_ex = eb.rvalue()
 
             if wtype is None:
-                wtype = wtypes.ARC4Tuple.from_types(tuple_ex.wtype.types)
+                wtype = wtypes.ARC4Tuple.from_types(tuple_wtype.types)
             else:
                 expected_type = wtypes.WTuple.from_types(wtype.types)
                 if tuple_ex.wtype != expected_type:

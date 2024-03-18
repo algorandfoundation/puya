@@ -45,9 +45,9 @@ class Arc4BoolTypeContract(Contract):
 
     @subroutine
     def test_stuff(self, true: ARC4Bool, false: ARC4Bool) -> None:
-        assert true.decode()
+        assert true.native
 
-        assert not false.decode()
+        assert not false.native
 
-        assert true == ARC4Bool(true.decode())
-        assert false == ARC4Bool(false.decode())
+        assert true == ARC4Bool(true.native)
+        assert false == ARC4Bool(false.native)

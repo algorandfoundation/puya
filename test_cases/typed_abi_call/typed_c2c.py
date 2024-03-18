@@ -61,7 +61,7 @@ class Greeter(ARC4Contract):
             app_id=app,
             fee=0,
         )
-        assert result.decode() == Bytes.from_hex("0F101112DEADBEEF14")
+        assert result.native == Bytes.from_hex("0F101112DEADBEEF14")
 
     @arc4.abimethod()
     def test_void(self, app: Application) -> None:

@@ -9,6 +9,7 @@ from puyapy import (
     OnCompleteAction,
     TransactionType,
     UInt64,
+    String,
 )
 from puyapy._transaction import (
     ApplicationProtocol,
@@ -100,8 +101,8 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         ## asset config
         config_asset: Asset | UInt64 | int = ...,
         total: UInt64 | int = ...,
-        unit_name: Bytes | bytes | str = ...,
-        asset_name: Bytes | bytes | str = ...,
+        unit_name: String | Bytes | bytes | str = ...,
+        asset_name: String | Bytes | bytes | str = ...,
         decimals: UInt64 | int = ...,
         default_frozen: bool = ...,
         url: Bytes | bytes | str = ...,
@@ -136,7 +137,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         ## shared
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ): ...
     def set(
@@ -158,8 +159,8 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         ## asset config
         config_asset: Asset | UInt64 | int = ...,
         total: UInt64 | int = ...,
-        unit_name: Bytes | bytes | str = ...,
-        asset_name: Bytes | bytes | str = ...,
+        unit_name: String | Bytes | bytes | str = ...,
+        asset_name: String | Bytes | bytes | str = ...,
         decimals: UInt64 | int = ...,
         default_frozen: bool = ...,
         url: Bytes | bytes | str = ...,
@@ -194,7 +195,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         ## shared
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None:
         """Updates inner transaction parameter values"""
@@ -210,7 +211,7 @@ class Payment(_InnerTransaction[PaymentInnerTransaction]):
         close_remainder_to: Account | str = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ): ...
     def set(
@@ -221,7 +222,7 @@ class Payment(_InnerTransaction[PaymentInnerTransaction]):
         close_remainder_to: Account | str = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None:
         """Updates inner transaction parameter values"""
@@ -241,7 +242,7 @@ class KeyRegistration(_InnerTransaction[KeyRegistrationInnerTransaction]):
         state_proof_key: Bytes | bytes = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ): ...
     def set(
@@ -256,7 +257,7 @@ class KeyRegistration(_InnerTransaction[KeyRegistrationInnerTransaction]):
         state_proof_key: Bytes | bytes = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None:
         """Updates inner transaction parameter values"""
@@ -269,11 +270,11 @@ class AssetConfig(_InnerTransaction[AssetConfigInnerTransaction]):
         *,
         config_asset: Asset | UInt64 | int = ...,
         total: UInt64 | int = ...,
-        unit_name: Bytes | bytes | str = ...,
-        asset_name: Bytes | bytes | str = ...,
+        unit_name: String | Bytes | bytes | str = ...,
+        asset_name: String | Bytes | bytes | str = ...,
         decimals: UInt64 | int = ...,
         default_frozen: bool = ...,
-        url: Bytes | bytes | str = ...,
+        url: String | Bytes | bytes | str = ...,
         metadata_hash: Bytes | bytes = ...,
         manager: Account | str = ...,
         reserve: Account | str = ...,
@@ -281,7 +282,7 @@ class AssetConfig(_InnerTransaction[AssetConfigInnerTransaction]):
         clawback: Account | str = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None: ...
     def set(
@@ -289,11 +290,11 @@ class AssetConfig(_InnerTransaction[AssetConfigInnerTransaction]):
         *,
         config_asset: Asset | UInt64 | int = ...,
         total: UInt64 | int = ...,
-        unit_name: Bytes | bytes | str = ...,
-        asset_name: Bytes | bytes | str = ...,
+        unit_name: String | Bytes | bytes | str = ...,
+        asset_name: String | Bytes | bytes | str = ...,
         decimals: UInt64 | int = ...,
         default_frozen: bool = ...,
-        url: Bytes | bytes | str = ...,
+        url: String | Bytes | bytes | str = ...,
         metadata_hash: Bytes | bytes = ...,
         manager: Account | str = ...,
         reserve: Account | str = ...,
@@ -301,7 +302,7 @@ class AssetConfig(_InnerTransaction[AssetConfigInnerTransaction]):
         clawback: Account | str = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None:
         """Updates inner transaction parameter values"""
@@ -318,7 +319,7 @@ class AssetTransfer(_InnerTransaction[AssetTransferInnerTransaction]):
         asset_close_to: Account | str = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None: ...
     def set(
@@ -330,7 +331,7 @@ class AssetTransfer(_InnerTransaction[AssetTransferInnerTransaction]):
         asset_close_to: Account | str = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None:
         """Updates transaction parameter values"""
@@ -346,7 +347,7 @@ class AssetFreeze(_InnerTransaction[AssetFreezeInnerTransaction]):
         frozen: bool,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None: ...
     def set(
@@ -357,7 +358,7 @@ class AssetFreeze(_InnerTransaction[AssetFreezeInnerTransaction]):
         frozen: bool = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None:
         """Updates inner transaction parameter values"""
@@ -383,7 +384,7 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
         apps: tuple[Application, ...] = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None: ...
     def set(
@@ -404,7 +405,7 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
         apps: tuple[Application, ...] = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
-        note: Bytes | bytes | str = ...,
+        note: String | Bytes | bytes | str = ...,
         rekey_to: Account | str = ...,
     ) -> None:
         """Updates inner transaction parameter values"""

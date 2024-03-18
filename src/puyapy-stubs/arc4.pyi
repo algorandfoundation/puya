@@ -48,25 +48,34 @@ def baremethod(
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
     """Decorator that indicates a method is an ARC4 bare method"""
 
-_T = typing.TypeVar("_T")
-
 def arc4_signature(signature: typing.LiteralString) -> puyapy.Bytes:
     """Returns the ARC4 encoded method selector for the specified signature"""
 
-class _ABIEncoded(puyapy.BytesBacked, typing.Protocol[_T]):
-    def decode(self) -> _T:
-        """Decode this ABI instance from bytes to AVM stack value"""
-    @classmethod
-    def encode(cls, value: _T) -> typing.Self:
-        """Encode AVM stack value as an ABI bytes"""
+class ARC4Contract(puyapy.Contract):
+    """A contract that conforms to the ARC4 ABI specification, functions decorated with
+    `@abimethod` or `@baremethod` will form the public interface of the contract
+
+    The approval_program will be implemented by the compiler, and route application args
+    according to the ARC4 ABI specification
+
+    The clear_state_program will by default return True, but can be overridden"""
+
+    @typing.final
+    def approval_program(self) -> puyapy.UInt64 | bool: ...
+    def clear_state_program(self) -> puyapy.UInt64 | bool: ...
+
+class _ABIEncoded(puyapy.BytesBacked):
     @classmethod
     def from_log(cls, log: puyapy.Bytes) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
 
-class String(_ABIEncoded[puyapy.Bytes]):
+class String(_ABIEncoded):
     """An ARC4 sequence of bytes containing a UTF8 string"""
 
-    def __init__(self, value: str | puyapy.Bytes) -> None: ...
+    def __init__(self, value: puyapy.String | str = "", /) -> None: ...
+    @property
+    def native(self) -> puyapy.String:
+        """Return the String representation of the UTF8 string after ARC4 decoding"""
     def __add__(self, other: String | str) -> String: ...
     def __iadd__(self, other: String | str) -> String: ...
     def __radd__(self, other: String | str) -> String: ...
@@ -77,107 +86,84 @@ class String(_ABIEncoded[puyapy.Bytes]):
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 _TBitSizeOther = typing.TypeVar("_TBitSizeOther", bound=int)
 
-class UIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.UInt64]):
+class _UIntN(_ABIEncoded, typing.Generic[_TBitSize]):
+    def __init__(self, value: puyapy.BigUInt | puyapy.UInt64 | int) -> None: ...
+
+    # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
+    # TODO: mypy suggests due to Liskov below should be other: object
+    #       need to consider ramifications here, ignoring it for now
+    def __eq__(  # type: ignore[override]
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __ne__(  # type: ignore[override]
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __le__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __lt__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __ge__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __gt__(
+        self,
+        other: UIntN[_TBitSizeOther]
+        | BigUIntN[_TBitSizeOther]
+        | puyapy.UInt64
+        | puyapy.BigUInt
+        | int,
+    ) -> bool: ...
+    def __bool__(self) -> bool:
+        """Returns `True` if not equal to zero"""
+
+class UIntN(_UIntN[_TBitSize]):
     """An ARC4 UInt consisting of the number of bits specified.
 
     Max Size: 64 bits"""
 
-    def __init__(self, value: int | puyapy.UInt64 | puyapy.BigUInt) -> None: ...
+    @property
+    def native(self) -> puyapy.UInt64:
+        """Return the UInt64 representation of the value after ARC4 decoding"""
 
-    # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
-    # TODO: mypy suggests due to Liskov below should be other: object
-    #       need to consider ramifications here, ignoring it for now
-    def __eq__(self, other: UIntN[_TBitSizeOther] | BigUIntN[_TBitSizeOther] | puyapy.UInt64 | puyapy.BigUInt | int) -> bool:  # type: ignore[override]
-        ...
-    def __ne__(self, other: UIntN[_TBitSizeOther] | BigUIntN[_TBitSizeOther] | puyapy.UInt64 | puyapy.BigUInt | int) -> bool:  # type: ignore[override]
-        ...
-    def __le__(
-        self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
-    ) -> bool: ...
-    def __lt__(
-        self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
-    ) -> bool: ...
-    def __ge__(
-        self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
-    ) -> bool: ...
-    def __gt__(
-        self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
-    ) -> bool: ...
-    def __bool__(self) -> bool:
-        """Returns `True` if not equal to zero"""
-
-class BigUIntN(typing.Generic[_TBitSize], _ABIEncoded[puyapy.BigUInt]):
+class BigUIntN(_UIntN[_TBitSize]):
     """An ARC4 UInt consisting of the number of bits specified.
 
     Max size: 512 bits"""
 
-    def __init__(self, value: int | puyapy.UInt64 | puyapy.BigUInt) -> None: ...
-
-    # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
-    # TODO: mypy suggests due to Liskov below should be other: object
-    #       need to consider ramifications here, ignoring it for now
-    def __eq__(self, other: UIntN[_TBitSizeOther] | BigUIntN[_TBitSizeOther] | puyapy.UInt64 | puyapy.BigUInt | int) -> bool:  # type: ignore[override]
-        ...
-    def __ne__(self, other: UIntN[_TBitSizeOther] | BigUIntN[_TBitSizeOther] | puyapy.UInt64 | puyapy.BigUInt | int) -> bool:  # type: ignore[override]
-        ...
-    def __le__(
-        self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
-    ) -> bool: ...
-    def __lt__(
-        self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
-    ) -> bool: ...
-    def __ge__(
-        self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
-    ) -> bool: ...
-    def __gt__(
-        self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
-    ) -> bool: ...
-    def __bool__(self) -> bool:
-        """Returns `True` if not equal to zero"""
+    @property
+    def native(self) -> puyapy.BigUInt:
+        """Return the BigUInt representation of the value after ARC4 decoding"""
 
 _TDecimalPlaces = typing.TypeVar("_TDecimalPlaces", bound=int)
 
-class UFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], _ABIEncoded[puyapy.UInt64]):
+class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
     """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
 
     Max size: 64 bits"""
@@ -190,7 +176,7 @@ class UFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], _ABIEncoded[puyapy.U
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
 
-class BigUFixedNxM(typing.Generic[_TBitSize, _TDecimalPlaces], _ABIEncoded[puyapy.BigUInt]):
+class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
     """An ARC4 UFixed representing a decimal with the number of bits and precision specified.
 
     Max size: 512 bits"""
@@ -227,16 +213,19 @@ UInt256: typing.TypeAlias = BigUIntN[typing.Literal[256]]
 UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
 """An ARC4 UInt512"""
 
-class Bool(_ABIEncoded[bool]):
+class Bool(_ABIEncoded):
     """An ARC4 encoded bool"""
 
     def __init__(self, value: bool) -> None: ...  # noqa: FBT001
+    @property
+    def native(self) -> bool:
+        """Return the bool representation of the value after ARC4 decoding"""
 
 _TArrayItem = typing.TypeVar("_TArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
 
 class StaticArray(
-    puyapy.BytesBacked,
+    _ABIEncoded,
     typing.Generic[_TArrayItem, _TArrayLength],
     Reversible[_TArrayItem],
 ):
@@ -348,7 +337,7 @@ class StaticArray(
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
 
-class DynamicArray(puyapy.BytesBacked, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
+class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     """A dynamically sized ARC4 Array of the specified type"""
 
     def __init__(self, *items: _TArrayItem): ...
@@ -376,40 +365,33 @@ class Address(StaticArray[Byte, typing.Literal[32]]):
     """An alias for an array containing 32 bytes representing an Algorand address"""
 
     def __init__(self, account_or_bytes: puyapy.Bytes | puyapy.Account | bytes): ...
+    @property
+    def native(self) -> puyapy.Account:
+        """Return the Account representation of the address after ARC4 decoding"""
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero address"""
 
-class DynamicBytes(_ABIEncoded[puyapy.Bytes], DynamicArray[Byte]):
+class DynamicBytes(DynamicArray[Byte]):
     """A variable sized array of bytes"""
 
     @typing.overload
     def __init__(self, *values: Byte | UInt8 | int): ...
     @typing.overload
     def __init__(self, value: puyapy.Bytes | bytes, /): ...
-
-class ARC4Contract(puyapy.Contract):
-    """A contract that conforms to the ARC4 ABI specification, functions decorated with
-    `@abimethod` or `@baremethod` will form the public interface of the contract
-
-    The approval_program will be implemented by the compiler, and route application args
-    according to the ARC4 ABI specification
-
-    The clear_state_program will by default return True, but can be overridden"""
-
-    @typing.final
-    def approval_program(self) -> puyapy.UInt64 | bool: ...
-    def clear_state_program(self) -> puyapy.UInt64 | bool: ...
+    @property
+    def native(self) -> puyapy.Bytes:
+        """Return the Bytes representation of the address after ARC4 decoding"""
 
 _TTuple = typing.TypeVarTuple("_TTuple")
 
-class Tuple(
-    typing.Generic[typing.Unpack[_TTuple]],
-    _ABIEncoded[tuple[typing.Unpack[_TTuple]]],
-    tuple[typing.Unpack[_TTuple]],
-):
+class Tuple(_ABIEncoded, tuple[typing.Unpack[_TTuple]]):
     """An ARC4 ABI tuple, containing other ARC4 ABI types"""
 
-    def __init__(self, items: tuple[typing.Unpack[_TTuple]]): ...
+    def __init__(self, items: tuple[typing.Unpack[_TTuple]]):
+        """Construct an ARC4 tuple from a python tuple"""
+    @property
+    def native(self) -> tuple[typing.Unpack[_TTuple]]:
+        """Return the Bytes representation of the address after ARC4 decoding"""
 
 @typing.dataclass_transform(
     eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
@@ -434,6 +416,9 @@ class Struct(metaclass=_StructMeta):
     @classmethod
     def from_bytes(cls, value: puyapy.Bytes) -> typing.Self:
         """Construct an instance from the underlying bytes[] (no validation)"""
+    @classmethod
+    def from_log(cls, log: puyapy.Bytes) -> typing.Self:
+        """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
 

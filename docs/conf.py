@@ -73,7 +73,7 @@ autodoc2_docstring_parser_regexes = [
 autodoc2_hidden_objects = [
     "private",  # single-underscore methods, e.g. _private
     "undoc",
-    "inherited",
+    "dunder",
 ]
 autodoc2_class_inheritance = False
 autodoc2_module_all_regexes = [r"puyapy.*"]

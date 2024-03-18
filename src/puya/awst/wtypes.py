@@ -560,7 +560,7 @@ def arc4_to_avm_equivalent_wtype(arc4_wtype: WType) -> WType:
         case ARC4DynamicArray(element_type=ARC4UIntN(n=8)):
             return bytes_wtype
     if arc4_wtype is arc4_string_wtype:
-        return bytes_wtype  # TODO: this should be string_wtype now
+        return string_wtype
     elif arc4_wtype is arc4_bool_wtype:
         return bool_wtype
 

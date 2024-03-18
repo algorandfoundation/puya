@@ -26,19 +26,21 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
         subroutine test_cases.arc4_types.structs.add(v1: bytes, v2: bytes) -> <bytes, bytes, bytes>:
             block@0: // L45
                 let tmp%0#0: bytes = ((extract 0 8) v1#0)
-                let tmp%1#0: uint64 = (btoi tmp%0#0)
-                let tmp%2#0: bytes = ((extract 0 8) v2#0)
-                let tmp%3#0: uint64 = (btoi tmp%2#0)
-                let tmp%4#0: uint64 = (+ tmp%1#0 tmp%3#0)
-                let val_as_bytes%5#0: bytes = (itob tmp%4#0)
-                let tmp%6#0: bytes = ((extract 8 8) v1#0)
-                let tmp%7#0: uint64 = (btoi tmp%6#0)
-                let tmp%8#0: bytes = ((extract 8 8) v2#0)
-                let tmp%9#0: uint64 = (btoi tmp%8#0)
-                let tmp%10#0: uint64 = (+ tmp%7#0 tmp%9#0)
-                let val_as_bytes%11#0: bytes = (itob tmp%10#0)
-                let encoded_tuple_buffer%13#2: bytes = (concat val_as_bytes%5#0 val_as_bytes%11#0)
-                return encoded_tuple_buffer%13#2 v1#0 v2#0
+                let tmp%1#0: bytes = ((extract 0 8) v2#0)
+                let tmp%2#0: bytes = test_cases.arc4_types.structs.add_decimal(tmp%0#0, tmp%1#0)
+                let tmp%3#0: bytes = ((extract 8 8) v1#0)
+                let tmp%4#0: bytes = ((extract 8 8) v2#0)
+                let tmp%5#0: bytes = test_cases.arc4_types.structs.add_decimal(tmp%3#0, tmp%4#0)
+                let encoded_tuple_buffer%7#2: bytes = (concat tmp%2#0 tmp%5#0)
+                return encoded_tuple_buffer%7#2 v1#0 v2#0
+        
+        subroutine test_cases.arc4_types.structs.add_decimal(x: bytes, y: bytes) -> bytes:
+            block@0: // L67
+                let tmp%0#0: uint64 = (btoi x#0)
+                let tmp%1#0: uint64 = (btoi y#0)
+                let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
+                let tmp%3#0: bytes = (itob tmp%2#0)
+                return tmp%3#0
         
         subroutine test_cases.arc4_types.structs.check(flags: bytes) -> bytes:
             block@0: // L53
@@ -66,8 +68,8 @@ contract test_cases.arc4_types.structs.Arc4StructsTypeContract:
             block@0: // L61
                 let tmp%0#0: bytes = ((extract 0 16) vector_flags#0)
                 let tmp%1#0: bytes = ((extract 0 8) tmp%0#0)
-                let tmp%2#0: uint64 = (btoi tmp%1#0)
-                let tmp%3#0: uint64 = (== tmp%2#0 35382882839u)
+                let tmp%2#0: bytes = (itob 35382882839u)
+                let tmp%3#0: uint64 = (== tmp%1#0 tmp%2#0)
                 (assert tmp%3#0)
                 let tmp%4#0: bytes = ((extract 16 1) vector_flags#0)
                 let is_true%5#0: uint64 = (getbit tmp%4#0 2u)

@@ -223,12 +223,14 @@ class Bytes(Reversible[Bytes]):
         """Bytes can be bitwise inverted e.g. `~Bytes(b"FF)`"""
 
 class BytesBacked(typing.Protocol):
+    """Represents a type that is a single bytes value"""
+
     @property
     def bytes(self) -> Bytes:
-        """Get the underlying bytes[]"""
+        """Get the underlying Bytes"""
     @classmethod
     def from_bytes(cls, value: Bytes) -> typing.Self:
-        """Construct an instance from the underlying bytes[] (no validation)"""
+        """Construct an instance from the underlying Bytes (no validation)"""
 
 class String(BytesBacked, Container[String]):
     """A UTF-8 encoded string.
@@ -243,11 +245,7 @@ class String(BytesBacked, Container[String]):
 
     __match_value__: str
     __match_args__ = ("__match_value__",)
-    @typing.overload
-    def __init__(self) -> None:
-        """Construct an empty `String`"""
-    @typing.overload
-    def __init__(self, value: str, /):
+    def __init__(self, value: str = "", /):
         """A String can be initialized with a Python `str` literal, or a `str` variable
         declared at the module level"""
     def __add__(self, other: String | str) -> String:

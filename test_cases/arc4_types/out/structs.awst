@@ -40,7 +40,7 @@ contract Arc4StructsTypeContract
 
 subroutine add(v1: test_cases.arc4_types.structs.Vector, v2: test_cases.arc4_types.structs.Vector): test_cases.arc4_types.structs.Vector
 {
-  return arc4_encode((arc4_encode(arc4_decode(v1[0u], puyapy.UInt64) + arc4_decode(v2[0u], puyapy.UInt64), puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]), arc4_encode(arc4_decode(v1[1u], puyapy.UInt64) + arc4_decode(v2[1u], puyapy.UInt64), puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]])), test_cases.arc4_types.structs.Vector)
+  return arc4_encode((test_cases.arc4_types.structs::add_decimal(v1[0u], v2[0u]), test_cases.arc4_types.structs::add_decimal(v1[1u], v2[1u])), test_cases.arc4_types.structs.Vector)
 }
 
 subroutine check(flags: test_cases.arc4_types.structs.Flags): None
@@ -53,6 +53,11 @@ subroutine check(flags: test_cases.arc4_types.structs.Flags): None
 
 subroutine nested_decode(vector_flags: test_cases.arc4_types.structs.VectorFlags): None
 {
-  assert(arc4_decode(vector_flags[0u][0u], puyapy.UInt64) == 35382882839u)
+  assert(reinterpret_cast<puyapy.Bytes>(vector_flags[0u][0u]) == itob(35382882839u))
   assert(arc4_decode(vector_flags[1u][2u], bool))
+}
+
+subroutine add_decimal(x: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]], y: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]): puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+{
+  return reinterpret_cast<puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]>(itob(btoi(reinterpret_cast<puyapy.Bytes>(x)) + btoi(reinterpret_cast<puyapy.Bytes>(y))))
 }

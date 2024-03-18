@@ -17,6 +17,7 @@ from puya.awst.nodes import (
     ExpressionStatement,
     Literal,
     Statement,
+    StringConstant,
 )
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
@@ -49,6 +50,8 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
+        if not args:
+            return var_expression(StringConstant(value="", source_location=location))
         if len(args) == 1:
             return var_expression(expect_string_or_bytes(args[0], location))
         raise CodeError("Invalid/unhandled arguments", location)
@@ -73,22 +76,14 @@ def expect_string_or_bytes(
                 ),
                 source_location,
             )
-        case Literal(value=bytes(bytes_literal)):  # TODO: yeet this?
-            return arc4_encode_bytes(
-                BytesConstant(
-                    value=bytes_literal,
-                    encoding=BytesEncoding.utf8,
-                    source_location=source_location,
-                ),
-                source_location,
-            )
         case ExpressionBuilder() as eb:
             rvalue = eb.rvalue()
-            if rvalue.wtype == wtypes.arc4_string_wtype:
-                return rvalue
-            if rvalue.wtype == wtypes.bytes_wtype:
-                return arc4_encode_bytes(rvalue, eb.source_location)
-    raise CodeError("Expected String or Bytes, or a str or bytes literal", expr.source_location)
+            match rvalue.wtype:
+                case wtypes.arc4_string_wtype:
+                    return rvalue
+                case wtypes.string_wtype:
+                    return arc4_encode_bytes(rvalue, eb.source_location)
+    raise CodeError("Expected String, or a str literal", expr.source_location)
 
 
 class StringExpressionBuilder(ARC4EncodedExpressionBuilder):

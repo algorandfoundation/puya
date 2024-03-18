@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import Contract, arc4, log, subroutine
+from puyapy import Contract, arc4, log, op, subroutine
 
 Decimal: typing.TypeAlias = arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
 
@@ -45,20 +45,25 @@ class Arc4StructsTypeContract(Contract):
 @subroutine
 def add(v1: Vector, v2: Vector) -> Vector:
     return Vector(
-        x=Decimal.encode(v1.x.decode() + v2.x.decode()),
-        y=Decimal.encode(v1.y.decode() + v2.y.decode()),
+        x=add_decimal(v1.x, v2.x),
+        y=add_decimal(v1.y, v2.y),
     )
 
 
 @subroutine
 def check(flags: Flags) -> None:
-    assert flags.a.decode()
-    assert not flags.b.decode()
-    assert flags.c.decode()
-    assert not flags.d.decode()
+    assert flags.a.native
+    assert not flags.b.native
+    assert flags.c.native
+    assert not flags.d.native
 
 
 @subroutine
 def nested_decode(vector_flags: VectorFlags) -> None:
-    assert vector_flags.vector.x.decode() == 35382882839
-    assert vector_flags.flags.c.decode()
+    assert vector_flags.vector.x.bytes == op.itob(35382882839)
+    assert vector_flags.flags.c.native
+
+
+@subroutine
+def add_decimal(x: Decimal, y: Decimal) -> Decimal:
+    return Decimal.from_bytes(op.itob(op.btoi(x.bytes) + op.btoi(y.bytes)))

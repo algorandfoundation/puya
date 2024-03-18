@@ -57,8 +57,8 @@ class Auction(ARC4Contract):
 
         # Set global state
         self.asa_amount = axfer.asset_amount
-        self.auction_end = Global.latest_timestamp + length.decode()
-        self.previous_bid = starting_price.decode()
+        self.auction_end = Global.latest_timestamp + length.native
+        self.previous_bid = starting_price.native
 
     @arc4.abimethod
     def opt_in(self) -> None:

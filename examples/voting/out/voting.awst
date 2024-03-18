@@ -18,13 +18,13 @@ contract VotingRoundApp
     ['close_time']: puyapy.UInt64
     ['is_bootstrapped']: bool
     ['voter_count']: puyapy.UInt64
-    ['vote_id']: puyapy.Bytes
+    ['vote_id']: puyapy.String
     ['snapshot_public_key']: puyapy.Bytes
-    ['metadata_ipfs_cid']: puyapy.Bytes
+    ['metadata_ipfs_cid']: puyapy.String
     ['start_time']: puyapy.UInt64
     ['end_time']: puyapy.UInt64
     ['quorum']: puyapy.UInt64
-    ['nft_image_url']: puyapy.Bytes
+    ['nft_image_url']: puyapy.String
     ['nft_asset_id']: puyapy.UInt64
     ['option_counts']: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8]
     ['total_options']: puyapy.UInt64
@@ -40,13 +40,13 @@ contract VotingRoundApp
   {
     assert(start_time < end_time, comment="End time should be after start time")
     assert(end_time >= global<LatestTimestamp>(), comment="End time should be in the future")
-    this.vote_id: puyapy.Bytes = arc4_decode(vote_id, puyapy.Bytes)
+    this.vote_id: puyapy.String = arc4_decode(vote_id, puyapy.String)
     this.snapshot_public_key: puyapy.Bytes = snapshot_public_key
-    this.metadata_ipfs_cid: puyapy.Bytes = arc4_decode(metadata_ipfs_cid, puyapy.Bytes)
+    this.metadata_ipfs_cid: puyapy.String = arc4_decode(metadata_ipfs_cid, puyapy.String)
     this.start_time: puyapy.UInt64 = start_time
     this.end_time: puyapy.UInt64 = end_time
     this.quorum: puyapy.UInt64 = quorum
-    this.nft_image_url: puyapy.Bytes = arc4_decode(nft_image_url, puyapy.Bytes)
+    this.nft_image_url: puyapy.String = arc4_decode(nft_image_url, puyapy.String)
     this::store_option_counts(option_counts.copy())
   }
   
@@ -67,7 +67,7 @@ contract VotingRoundApp
     puyapy::ensure_budget(required_budget=20000u, fee_source=0u)
     assert(!(STATE_EXISTS(this.close_time)), comment="Already closed")
     this.close_time: puyapy.UInt64 = global<LatestTimestamp>()
-    note: puyapy.Bytes = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + this.vote_id + '.","properties":{"metadata":"ipfs://' + this.metadata_ipfs_cid + '","id":"' + this.vote_id + '","quorum":' + examples.voting.voting::itoa(this.quorum) + ',"voterCount":' + examples.voting.voting::itoa(this.voter_count) + ',"tallies":['
+    note: puyapy.String = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + this.vote_id + '.","properties":{"metadata":"ipfs://' + this.metadata_ipfs_cid + '","id":"' + this.vote_id + '","quorum":' + examples.voting.voting::itoa(this.quorum) + ',"voterCount":' + examples.voting.voting::itoa(this.voter_count) + ',"tallies":['
     current_index: puyapy.UInt64 = 0u
     for (question_index, question_options_arc) in enumerate(this.option_counts) {
       if (question_index > 0u) {
@@ -166,12 +166,12 @@ subroutine increment_vote_in_box(index: puyapy.UInt64): None
   box_replace('V', index, itob(current_vote + 1u))
 }
 
-subroutine itoa(i: puyapy.UInt64): puyapy.Bytes
+subroutine itoa(i: puyapy.UInt64): puyapy.String
 {
   digits: puyapy.Bytes = '0123456789'
   radix: puyapy.UInt64 = len(digits)
   if (i < radix) {
-    return digits[i]
+    return reinterpret_cast<puyapy.String>(digits[i])
   }
-  return examples.voting.voting::itoa(i // radix) + digits[i % radix]
+  return examples.voting.voting::itoa(i // radix) + reinterpret_cast<puyapy.String>(digits[i % radix])
 }
