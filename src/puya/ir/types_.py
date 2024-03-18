@@ -47,7 +47,13 @@ def wtype_to_avm_type(
             | wtypes.WGroupTransaction()
         ):
             return AVMType.uint64
-        case wtypes.bytes_wtype | wtypes.biguint_wtype | wtypes.account_wtype | wtypes.ARC4Type():
+        case (
+            wtypes.bytes_wtype
+            | wtypes.biguint_wtype
+            | wtypes.account_wtype
+            | wtypes.ARC4Type()
+            | wtypes.string_wtype
+        ):
             return AVMType.bytes
         case wtypes.void_wtype:
             raise InternalError("Can't translate void WType to AVMType", source_location)

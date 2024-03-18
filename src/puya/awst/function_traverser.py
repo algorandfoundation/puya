@@ -41,6 +41,9 @@ class FunctionTraverser(
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> None:
         pass
 
+    def visit_string_constant(self, expr: awst_nodes.StringConstant) -> None:
+        pass
+
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> None:
         expr.value.accept(self)
 

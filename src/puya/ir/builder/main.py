@@ -233,6 +233,13 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
+    def visit_string_constant(self, expr: awst_nodes.StringConstant) -> BytesConstant:
+        return BytesConstant(
+            value=expr.value.encode("utf8"),
+            encoding=AVMBytesEncoding.utf8,
+            source_location=expr.source_location,
+        )
+
     def visit_address_constant(self, expr: awst_nodes.AddressConstant) -> TExpression:
         return AddressConstant(
             value=expr.value,

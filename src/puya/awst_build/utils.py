@@ -21,6 +21,7 @@ from puya.awst.nodes import (
     IntegerConstant,
     Literal,
     ReinterpretCast,
+    StringConstant,
     UInt64Constant,
 )
 from puya.awst_build import constants
@@ -249,6 +250,8 @@ def convert_literal(
             return BytesConstant(
                 value=str_value.encode("utf8"), encoding=BytesEncoding.utf8, source_location=loc
             )
+        case str(str_value), wtypes.string_wtype:
+            return StringConstant(value=str_value, source_location=loc)
         case str(str_value), wtypes.account_wtype:
             return AddressConstant(value=str_value, source_location=loc)
         case int(int_value), wtypes.asset_wtype | wtypes.application_wtype:

@@ -370,6 +370,15 @@ class BytesConstant(Expression):
 
 
 @attrs.frozen
+class StringConstant(Expression):
+    wtype: WType = attrs.field(default=wtypes.string_wtype, init=False)
+    value: str = attrs.field(validator=[literal_validator(wtypes.string_wtype)])
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_string_constant(self)
+
+
+@attrs.frozen
 class TemplateVar(Expression):
     wtype: WType
     name: str
@@ -1112,7 +1121,9 @@ class NumericComparisonExpression(Expression):
         return visitor.visit_numeric_comparison_expression(self)
 
 
-bytes_comparable = expression_has_wtype(wtypes.bytes_wtype, wtypes.account_wtype)
+bytes_comparable = expression_has_wtype(
+    wtypes.bytes_wtype, wtypes.account_wtype, wtypes.string_wtype
+)
 
 
 @attrs.frozen
@@ -1278,10 +1289,27 @@ class BigUIntBinaryOperation(Expression):
 
 @attrs.frozen
 class BytesBinaryOperation(Expression):
-    left: Expression = attrs.field(validator=[wtype_is_bytes])
+    left: Expression = attrs.field(
+        validator=[expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype)]
+    )
     op: BytesBinaryOperator
-    right: Expression = attrs.field(validator=[wtype_is_bytes])
-    wtype: WType = attrs.field(default=wtypes.bytes_wtype, init=False)
+    right: Expression = attrs.field(
+        validator=[expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype)]
+    )
+    wtype: WType = attrs.field(init=False)
+
+    @right.validator
+    def _check_right(self, _attribute: object, right: Expression) -> None:
+        if right.wtype != self.left.wtype:
+            raise CodeError(
+                f"Bytes operation on differing types,"
+                f" lhs is {self.left.wtype}, rhs is {self.right.wtype}",
+                self.source_location,
+            )
+
+    @wtype.default
+    def _wtype_factory(self) -> wtypes.WType:
+        return self.left.wtype
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_bytes_binary_operation(self)
@@ -1370,9 +1398,22 @@ class BigUIntAugmentedAssignment(Statement):
 
 @attrs.frozen
 class BytesAugmentedAssignment(Statement):
-    target: Lvalue = attrs.field(validator=[wtype_is_bytes])
+    target: Lvalue = attrs.field(
+        validator=[expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype)]
+    )
     op: BytesBinaryOperator
-    value: Expression = attrs.field(validator=[wtype_is_bytes])
+    value: Expression = attrs.field(
+        validator=[expression_has_wtype(wtypes.bytes_wtype, wtypes.string_wtype)]
+    )
+
+    @value.validator
+    def _check_value(self, _attribute: object, value: Expression) -> None:
+        if value.wtype != self.target.wtype:
+            raise CodeError(
+                f"Augmented assignment of differing types,"
+                f" expected {self.target.wtype}, got {value.wtype}",
+                value.source_location,
+            )
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_bytes_augmented_assignment(self)

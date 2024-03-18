@@ -73,7 +73,7 @@ def expect_string_or_bytes(
                 ),
                 source_location,
             )
-        case Literal(value=bytes(bytes_literal)):
+        case Literal(value=bytes(bytes_literal)):  # TODO: yeet this?
             return arc4_encode_bytes(
                 BytesConstant(
                     value=bytes_literal,
@@ -108,7 +108,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
                     )
                 )
             case _:
-                return super().augmented_assignment(op, rhs, location)
+                return super().augmented_assignment(op, rhs, location)  # TODO: bad error message
 
     def binary_op(
         self,
