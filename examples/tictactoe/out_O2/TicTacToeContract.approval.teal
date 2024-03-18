@@ -1,0 +1,533 @@
+#pragma version 10
+
+examples.tictactoe.tictactoe.TicTacToeContract.approval_program:
+    method "new_game((uint64,uint64))(uint8[3][3],uint8)"
+    method "join_game((uint64,uint64))(uint8[3][3],uint8)"
+    method "whose_turn()uint8"
+    method "play((uint64,uint64))(uint8[3][3],uint8)"
+    txna ApplicationArgs 0
+    match main_new_game_route@1 main_join_game_route@2 main_whose_turn_route@3 main_play_route@4
+    err // reject transaction
+
+main_new_game_route@1:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txna ApplicationArgs 1
+    dup
+    extract 0 8
+    swap
+    extract 8 8
+    swap
+    btoi
+    swap
+    btoi
+    callsub new_game
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_join_game_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    dup
+    extract 0 8
+    swap
+    extract 8 8
+    swap
+    btoi
+    swap
+    btoi
+    callsub join_game
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_whose_turn_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub whose_turn
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_play_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    dup
+    extract 0 8
+    swap
+    extract 8 8
+    swap
+    btoi
+    swap
+    btoi
+    callsub play
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint64, move.1: uint64) -> bytes, bytes:
+new_game:
+    proto 2 2
+    int 9
+    bzero
+    byte "game"
+    swap
+    app_global_put
+    byte "host"
+    txn Sender
+    app_global_put
+    byte "challenger"
+    global ZeroAddress
+    app_global_put
+    byte "winner"
+    byte 0x00
+    app_global_put
+    frame_dig -2
+    int 3
+    <
+    dup
+    bz new_game_bool_false@3
+    frame_dig -1
+    int 3
+    <
+    bz new_game_bool_false@3
+    int 1
+    b new_game_bool_merge@4
+
+new_game_bool_false@3:
+    int 0
+
+new_game_bool_merge@4:
+    assert // Move must be in range
+    int 0
+    byte "game"
+    app_global_get_ex
+    assert // check game exists
+    frame_dig -1
+    int 3
+    <
+    assert // Index access is out of bounds
+    frame_dig -1
+    int 3
+    *
+    dup
+    cover 2
+    int 3
+    extract3
+    frame_dig 0
+    assert // Index access is out of bounds
+    frame_dig -2
+    byte 0x01
+    replace3
+    int 0
+    byte "game"
+    app_global_get_ex
+    assert // check game exists
+    cover 2
+    replace3
+    byte "game"
+    swap
+    app_global_put
+    byte "turns"
+    int 0
+    app_global_put
+    int 0
+    byte "game"
+    app_global_get_ex
+    assert // check game exists
+    int 0
+    byte "winner"
+    app_global_get_ex
+    assert // check winner exists
+    uncover 2
+    retsub
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.join_game(move.0: uint64, move.1: uint64) -> bytes, bytes:
+join_game:
+    proto 2 2
+    int 0
+    byte "challenger"
+    app_global_get_ex
+    assert // check challenger exists
+    global ZeroAddress
+    ==
+    assert // Host already has a challenger
+    byte "challenger"
+    txn Sender
+    app_global_put
+    byte 0x02
+    frame_dig -2
+    frame_dig -1
+    callsub make_move
+    int 0
+    byte "game"
+    app_global_get_ex
+    assert // check game exists
+    int 0
+    byte "winner"
+    app_global_get_ex
+    assert // check winner exists
+    retsub
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.make_move(piece: bytes, move.0: uint64, move.1: uint64) -> void:
+make_move:
+    proto 3 0
+    frame_dig -2
+    int 3
+    <
+    dup
+    bz make_move_bool_false@3
+    frame_dig -1
+    int 3
+    <
+    bz make_move_bool_false@3
+    int 1
+    b make_move_bool_merge@4
+
+make_move_bool_false@3:
+    int 0
+
+make_move_bool_merge@4:
+    assert // Move must be in range
+    int 0
+    byte "game"
+    app_global_get_ex
+    assert // check game exists
+    frame_dig -1
+    int 3
+    <
+    assert // Index access is out of bounds
+    frame_dig -1
+    int 3
+    *
+    dup
+    cover 2
+    int 3
+    extract3
+    frame_dig 0
+    assert // Index access is out of bounds
+    frame_dig -2
+    int 1
+    extract3
+    byte 0x00
+    b==
+    assert // Square is already taken
+    int 0
+    byte "game"
+    app_global_get_ex
+    assert // check game exists
+    dig 1
+    int 3
+    extract3
+    frame_dig -2
+    frame_dig -3
+    replace3
+    int 0
+    byte "game"
+    app_global_get_ex
+    assert // check game exists
+    cover 2
+    replace3
+    byte "game"
+    swap
+    app_global_put
+    int 0
+    byte "turns"
+    app_global_get_ex
+    assert // check turns exists
+    int 1
+    +
+    byte "turns"
+    swap
+    app_global_put
+    callsub check_winner
+    int 0
+    byte "turns"
+    app_global_get_ex
+    assert // check turns exists
+    int 9
+    ==
+    bz make_move_after_if_else@7
+    int 0
+    byte "winner"
+    app_global_get_ex
+    assert // check winner exists
+    byte 0x00
+    ==
+    bz make_move_after_if_else@7
+    byte "winner"
+    byte 0x03
+    app_global_put
+
+make_move_after_if_else@7:
+    retsub
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.check_winner() -> void:
+check_winner:
+    proto 0 0
+    int 0
+    dupn 8
+    byte ""
+    dup
+    int 0
+    byte "game"
+    app_global_get_ex
+    assert // check game exists
+    int 0
+
+check_winner_for_header@1:
+    frame_dig 12
+    int 3
+    <
+    bz check_winner_after_for@8
+    frame_dig 12
+    int 3
+    *
+    frame_dig 11
+    swap
+    int 3
+    extract3
+    dup
+    frame_bury 2
+    extract 0 1
+    dup
+    frame_bury 7
+    byte 0x00
+    !=
+    bz check_winner_after_if_else@6
+    frame_dig 2
+    extract 1 1
+    dup
+    frame_bury 0
+    frame_dig 7
+    b==
+    bz check_winner_after_if_else@6
+    frame_dig 2
+    extract 2 1
+    frame_dig 0
+    b==
+    bz check_winner_after_if_else@6
+    byte "winner"
+    frame_dig 7
+    app_global_put
+    retsub
+
+check_winner_after_if_else@6:
+    frame_dig 12
+    int 1
+    +
+    frame_bury 12
+    b check_winner_for_header@1
+
+check_winner_after_for@8:
+    int 0
+    frame_bury 9
+
+check_winner_for_header@9:
+    frame_dig 9
+    int 3
+    <
+    dup
+    frame_bury 10
+    bz check_winner_after_for@17
+    frame_dig 11
+    extract 0 3
+    frame_dig 10
+    assert // Index access is out of bounds
+    frame_dig 9
+    int 1
+    extract3
+    dup
+    frame_bury 3
+    byte 0x00
+    !=
+    bz check_winner_after_if_else@14
+    frame_dig 11
+    extract 3 3
+    frame_dig 9
+    int 1
+    extract3
+    dup
+    frame_bury 1
+    frame_dig 3
+    b==
+    bz check_winner_after_if_else@14
+    frame_dig 11
+    extract 6 3
+    frame_dig 9
+    int 1
+    extract3
+    frame_dig 1
+    b==
+    bz check_winner_after_if_else@14
+    byte "winner"
+    frame_dig 3
+    app_global_put
+    retsub
+
+check_winner_after_if_else@14:
+    frame_dig 9
+    int 1
+    +
+    frame_bury 9
+    b check_winner_for_header@9
+
+check_winner_after_for@17:
+    frame_dig 11
+    extract 3 3
+    extract 1 1
+    dup
+    frame_bury 4
+    byte 0x00
+    !=
+    bz check_winner_after_if_else@26
+    frame_dig 11
+    extract 0 3
+    dup
+    frame_bury 5
+    extract 0 1
+    dup
+    frame_bury 6
+    frame_dig 4
+    b==
+    bz check_winner_else_body@21
+    frame_dig 11
+    extract 6 3
+    extract 2 1
+    frame_dig 4
+    b==
+    bz check_winner_else_body@21
+    byte "winner"
+    frame_dig 6
+    app_global_put
+    b check_winner_after_if_else@26
+
+check_winner_else_body@21:
+    frame_dig 5
+    extract 2 1
+    dup
+    frame_bury 8
+    frame_dig 4
+    b==
+    bz check_winner_after_if_else@26
+    frame_dig 11
+    extract 6 3
+    extract 0 1
+    frame_dig 4
+    b==
+    bz check_winner_after_if_else@26
+    byte "winner"
+    frame_dig 8
+    app_global_put
+
+check_winner_after_if_else@26:
+    retsub
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:
+whose_turn:
+    proto 0 1
+    int 0
+    byte "turns"
+    app_global_get_ex
+    assert // check turns exists
+    int 2
+    %
+    bz whose_turn_ternary_false@2
+    byte 0x01
+    b whose_turn_ternary_merge@3
+
+whose_turn_ternary_false@2:
+    byte 0x02
+
+whose_turn_ternary_merge@3:
+    retsub
+
+
+// examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> bytes, bytes:
+play:
+    proto 2 2
+    int 0
+    byte "winner"
+    app_global_get_ex
+    assert // check winner exists
+    byte 0x00
+    ==
+    assert // Game is already finished
+    int 0
+    byte "turns"
+    app_global_get_ex
+    assert // check turns exists
+    int 2
+    %
+    int 1
+    ==
+    bz play_else_body@2
+    int 0
+    byte "host"
+    app_global_get_ex
+    assert // check host exists
+    txn Sender
+    ==
+    assert // It is the host's turn
+    byte 0x01
+    frame_dig -2
+    frame_dig -1
+    callsub make_move
+    b play_after_if_else@3
+
+play_else_body@2:
+    int 0
+    byte "challenger"
+    app_global_get_ex
+    assert // check challenger exists
+    txn Sender
+    ==
+    assert // It is the challenger's turn
+    byte 0x02
+    frame_dig -2
+    frame_dig -1
+    callsub make_move
+
+play_after_if_else@3:
+    int 0
+    byte "game"
+    app_global_get_ex
+    assert // check game exists
+    int 0
+    byte "winner"
+    app_global_get_ex
+    assert // check winner exists
+    retsub

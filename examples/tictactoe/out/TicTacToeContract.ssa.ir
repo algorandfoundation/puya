@@ -1,0 +1,442 @@
+contract examples.tictactoe.tictactoe.TicTacToeContract:
+    program approval:
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.approval_program() -> uint64:
+            block@0: // L13
+                let tmp%0#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%0#0 {method "new_game((uint64,uint64))(uint8[3][3],uint8)" => block@1, method "join_game((uint64,uint64))(uint8[3][3],uint8)" => block@2, method "whose_turn()uint8" => block@3, method "play((uint64,uint64))(uint8[3][3],uint8)" => block@4, * => block@5}
+            block@1: // new_game_route_L14
+                let tmp%1#0: uint64 = (txn OnCompletion)
+                let tmp%2#0: uint64 = (== tmp%1#0 NoOp)
+                (assert tmp%2#0) // OnCompletion is NoOp
+                let tmp%3#0: bytes = (txna ApplicationArgs 1)
+                let item0%4#0: bytes = (extract3 tmp%3#0 0u 8u)
+                let item1%5#0: bytes = (extract3 tmp%3#0 8u 8u)
+                let (awst_tmp%6#0: bytes, awst_tmp%7#0: bytes) = (item0%4#0, item1%5#0)
+                let tmp%8#0: uint64 = (btoi awst_tmp%6#0)
+                let tmp%9#0: uint64 = (btoi awst_tmp%7#0)
+                let (awst_tmp%10#0: bytes, awst_tmp%11#0: bytes) = examples.tictactoe.tictactoe.TicTacToeContract.new_game(tmp%8#0, tmp%9#0)
+                let current_tail_offset%12#0: uint64 = 10u
+                let encoded_tuple_buffer%13#0: bytes = 0x
+                let encoded_tuple_buffer%13#1: bytes = (concat encoded_tuple_buffer%13#0 awst_tmp%10#0)
+                let encoded_tuple_buffer%13#2: bytes = (concat encoded_tuple_buffer%13#1 awst_tmp%11#0)
+                let tmp%14#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%13#2)
+                (log tmp%14#0)
+                return 1u
+            block@2: // join_game_route_L25
+                let tmp%15#0: uint64 = (txn OnCompletion)
+                let tmp%16#0: uint64 = (== tmp%15#0 NoOp)
+                (assert tmp%16#0) // OnCompletion is NoOp
+                let tmp%17#0: uint64 = (txn ApplicationID)
+                (assert tmp%17#0) // is not creating
+                let tmp%18#0: bytes = (txna ApplicationArgs 1)
+                let item0%19#0: bytes = (extract3 tmp%18#0 0u 8u)
+                let item1%20#0: bytes = (extract3 tmp%18#0 8u 8u)
+                let (awst_tmp%21#0: bytes, awst_tmp%22#0: bytes) = (item0%19#0, item1%20#0)
+                let tmp%23#0: uint64 = (btoi awst_tmp%21#0)
+                let tmp%24#0: uint64 = (btoi awst_tmp%22#0)
+                let (awst_tmp%25#0: bytes, awst_tmp%26#0: bytes) = examples.tictactoe.tictactoe.TicTacToeContract.join_game(tmp%23#0, tmp%24#0)
+                let current_tail_offset%27#0: uint64 = 10u
+                let encoded_tuple_buffer%28#0: bytes = 0x
+                let encoded_tuple_buffer%28#1: bytes = (concat encoded_tuple_buffer%28#0 awst_tmp%25#0)
+                let encoded_tuple_buffer%28#2: bytes = (concat encoded_tuple_buffer%28#1 awst_tmp%26#0)
+                let tmp%29#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%28#2)
+                (log tmp%29#0)
+                return 1u
+            block@3: // whose_turn_route_L32
+                let tmp%30#0: uint64 = (txn OnCompletion)
+                let tmp%31#0: uint64 = (== tmp%30#0 NoOp)
+                (assert tmp%31#0) // OnCompletion is NoOp
+                let tmp%32#0: uint64 = (txn ApplicationID)
+                (assert tmp%32#0) // is not creating
+                let tmp%33#0: bytes = examples.tictactoe.tictactoe.TicTacToeContract.whose_turn()
+                let tmp%34#0: bytes = (concat 0x151f7c75 tmp%33#0)
+                (log tmp%34#0)
+                return 1u
+            block@4: // play_route_L36
+                let tmp%35#0: uint64 = (txn OnCompletion)
+                let tmp%36#0: uint64 = (== tmp%35#0 NoOp)
+                (assert tmp%36#0) // OnCompletion is NoOp
+                let tmp%37#0: uint64 = (txn ApplicationID)
+                (assert tmp%37#0) // is not creating
+                let tmp%38#0: bytes = (txna ApplicationArgs 1)
+                let item0%39#0: bytes = (extract3 tmp%38#0 0u 8u)
+                let item1%40#0: bytes = (extract3 tmp%38#0 8u 8u)
+                let (awst_tmp%41#0: bytes, awst_tmp%42#0: bytes) = (item0%39#0, item1%40#0)
+                let tmp%43#0: uint64 = (btoi awst_tmp%41#0)
+                let tmp%44#0: uint64 = (btoi awst_tmp%42#0)
+                let (awst_tmp%45#0: bytes, awst_tmp%46#0: bytes) = examples.tictactoe.tictactoe.TicTacToeContract.play(tmp%43#0, tmp%44#0)
+                let current_tail_offset%47#0: uint64 = 10u
+                let encoded_tuple_buffer%48#0: bytes = 0x
+                let encoded_tuple_buffer%48#1: bytes = (concat encoded_tuple_buffer%48#0 awst_tmp%45#0)
+                let encoded_tuple_buffer%48#2: bytes = (concat encoded_tuple_buffer%48#1 awst_tmp%46#0)
+                let tmp%49#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%48#2)
+                (log tmp%49#0)
+                return 1u
+            block@5: // switch_case_default_L13
+                goto block@6
+            block@6: // switch_case_next_L13
+                fail // reject transaction
+        
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint64, move.1: uint64) -> <bytes, bytes>:
+            block@0: // L14
+                let new_state_value%0#0: bytes = (bzero 9u)
+                (app_global_put "game" new_state_value%0#0)
+                let new_state_value%1#0: bytes = (txn Sender)
+                (app_global_put "host" new_state_value%1#0)
+                let new_state_value%2#0: bytes = (global ZeroAddress)
+                (app_global_put "challenger" new_state_value%2#0)
+                (app_global_put "winner" 0x00)
+                let tmp%3#0: uint64 = (< move.0#0 3u)
+                goto tmp%3#0 ? block@1 : block@3
+            block@1: // and_contd_L20
+                let tmp%4#0: uint64 = (< move.1#0 3u)
+                goto tmp%4#0 ? block@2 : block@3
+            block@2: // bool_true_L20
+                let and_result%5#0: uint64 = 1u
+                goto block@4
+            block@3: // bool_false_L20
+                let and_result%5#1: uint64 = 0u
+                goto block@4
+            block@4: // bool_merge_L20
+                let and_result%5#2: uint64 = φ(and_result%5#0 <- block@2, and_result%5#1 <- block@3)
+                (assert and_result%5#2) // Move must be in range
+                let (game_value%6#0: bytes, game_exists%7#0: uint64) = (app_global_get_ex 0u "game")
+                (assert game_exists%7#0) // check game exists
+                let array_length%8#0: uint64 = 3u
+                let index_is_in_bounds%9#0: uint64 = (< move.1#0 array_length%8#0)
+                (assert index_is_in_bounds%9#0) // Index access is out of bounds
+                let item_index%10#0: uint64 = (* move.1#0 3u)
+                let tmp%11#0: bytes = (extract3 game_value%6#0 item_index%10#0 3u)
+                let assigned_value%12#0: bytes = 0x01
+                let array_length%13#0: uint64 = 3u
+                let index_is_in_bounds%14#0: uint64 = (< move.0#0 array_length%13#0)
+                (assert index_is_in_bounds%14#0) // Index access is out of bounds
+                let write_offset%15#0: uint64 = (* move.0#0 1u)
+                let updated_target%16#0: bytes = (replace3 tmp%11#0 write_offset%15#0 assigned_value%12#0)
+                let (game_value%17#0: bytes, game_exists%18#0: uint64) = (app_global_get_ex 0u "game")
+                (assert game_exists%18#0) // check game exists
+                let assigned_value%19#0: bytes = updated_target%16#0
+                let array_length%20#0: uint64 = 3u
+                let index_is_in_bounds%21#0: uint64 = (< move.1#0 array_length%20#0)
+                (assert index_is_in_bounds%21#0) // Index access is out of bounds
+                let write_offset%22#0: uint64 = (* move.1#0 3u)
+                let updated_target%23#0: bytes = (replace3 game_value%17#0 write_offset%22#0 assigned_value%19#0)
+                (app_global_put "game" updated_target%23#0)
+                (app_global_put "turns" 0u)
+                let (game_value%24#0: bytes, game_exists%25#0: uint64) = (app_global_get_ex 0u "game")
+                (assert game_exists%25#0) // check game exists
+                let (winner_value%26#0: bytes, winner_exists%27#0: uint64) = (app_global_get_ex 0u "winner")
+                (assert winner_exists%27#0) // check winner exists
+                return game_value%24#0 winner_value%26#0
+        
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game(move.0: uint64, move.1: uint64) -> <bytes, bytes>:
+            block@0: // L25
+                let (challenger_value%0#0: bytes, challenger_exists%1#0: uint64) = (app_global_get_ex 0u "challenger")
+                (assert challenger_exists%1#0) // check challenger exists
+                let tmp%2#0: bytes = (global ZeroAddress)
+                let tmp%3#0: uint64 = (== challenger_value%0#0 tmp%2#0)
+                (assert tmp%3#0) // Host already has a challenger
+                let new_state_value%4#0: bytes = (txn Sender)
+                (app_global_put "challenger" new_state_value%4#0)
+                examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x02, move.0#0, move.1#0)
+                let (game_value%5#0: bytes, game_exists%6#0: uint64) = (app_global_get_ex 0u "game")
+                (assert game_exists%6#0) // check game exists
+                let (winner_value%7#0: bytes, winner_exists%8#0: uint64) = (app_global_get_ex 0u "winner")
+                (assert winner_exists%8#0) // check winner exists
+                return game_value%5#0 winner_value%7#0
+        
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(piece: bytes, move.0: uint64, move.1: uint64) -> void:
+            block@0: // L47
+                let tmp%0#0: uint64 = (< move.0#0 3u)
+                goto tmp%0#0 ? block@1 : block@3
+            block@1: // and_contd_L49
+                let tmp%1#0: uint64 = (< move.1#0 3u)
+                goto tmp%1#0 ? block@2 : block@3
+            block@2: // bool_true_L49
+                let and_result%2#0: uint64 = 1u
+                goto block@4
+            block@3: // bool_false_L49
+                let and_result%2#1: uint64 = 0u
+                goto block@4
+            block@4: // bool_merge_L49
+                let and_result%2#2: uint64 = φ(and_result%2#0 <- block@2, and_result%2#1 <- block@3)
+                (assert and_result%2#2) // Move must be in range
+                let (game_value%3#0: bytes, game_exists%4#0: uint64) = (app_global_get_ex 0u "game")
+                (assert game_exists%4#0) // check game exists
+                let array_length%5#0: uint64 = 3u
+                let index_is_in_bounds%6#0: uint64 = (< move.1#0 array_length%5#0)
+                (assert index_is_in_bounds%6#0) // Index access is out of bounds
+                let item_index%7#0: uint64 = (* move.1#0 3u)
+                let tmp%8#0: bytes = (extract3 game_value%3#0 item_index%7#0 3u)
+                let array_length%9#0: uint64 = 3u
+                let index_is_in_bounds%10#0: uint64 = (< move.0#0 array_length%9#0)
+                (assert index_is_in_bounds%10#0) // Index access is out of bounds
+                let item_index%11#0: uint64 = (* move.0#0 1u)
+                let tmp%12#0: bytes = (extract3 tmp%8#0 item_index%11#0 1u)
+                let tmp%13#0: uint64 = (b== tmp%12#0 0x00)
+                (assert tmp%13#0) // Square is already taken
+                let (game_value%14#0: bytes, game_exists%15#0: uint64) = (app_global_get_ex 0u "game")
+                (assert game_exists%15#0) // check game exists
+                let array_length%16#0: uint64 = 3u
+                let index_is_in_bounds%17#0: uint64 = (< move.1#0 array_length%16#0)
+                (assert index_is_in_bounds%17#0) // Index access is out of bounds
+                let item_index%18#0: uint64 = (* move.1#0 3u)
+                let tmp%19#0: bytes = (extract3 game_value%14#0 item_index%18#0 3u)
+                let assigned_value%20#0: bytes = piece#0
+                let array_length%21#0: uint64 = 3u
+                let index_is_in_bounds%22#0: uint64 = (< move.0#0 array_length%21#0)
+                (assert index_is_in_bounds%22#0) // Index access is out of bounds
+                let write_offset%23#0: uint64 = (* move.0#0 1u)
+                let updated_target%24#0: bytes = (replace3 tmp%19#0 write_offset%23#0 assigned_value%20#0)
+                let (game_value%25#0: bytes, game_exists%26#0: uint64) = (app_global_get_ex 0u "game")
+                (assert game_exists%26#0) // check game exists
+                let assigned_value%27#0: bytes = updated_target%24#0
+                let array_length%28#0: uint64 = 3u
+                let index_is_in_bounds%29#0: uint64 = (< move.1#0 array_length%28#0)
+                (assert index_is_in_bounds%29#0) // Index access is out of bounds
+                let write_offset%30#0: uint64 = (* move.1#0 3u)
+                let updated_target%31#0: bytes = (replace3 game_value%25#0 write_offset%30#0 assigned_value%27#0)
+                (app_global_put "game" updated_target%31#0)
+                let (turns_value%32#0: uint64, turns_exists%33#0: uint64) = (app_global_get_ex 0u "turns")
+                (assert turns_exists%33#0) // check turns exists
+                let new_state_value%34#0: uint64 = (+ turns_value%32#0 1u)
+                (app_global_put "turns" new_state_value%34#0)
+                examples.tictactoe.tictactoe.TicTacToeContract.check_winner()
+                let (turns_value%35#0: uint64, turns_exists%36#0: uint64) = (app_global_get_ex 0u "turns")
+                (assert turns_exists%36#0) // check turns exists
+                let tmp%37#0: uint64 = (== turns_value%35#0 9u)
+                goto tmp%37#0 ? block@5 : block@7
+            block@5: // and_contd_L54
+                let (winner_value%38#0: bytes, winner_exists%39#0: uint64) = (app_global_get_ex 0u "winner")
+                (assert winner_exists%39#0) // check winner exists
+                let tmp%40#0: uint64 = (== winner_value%38#0 0x00)
+                goto tmp%40#0 ? block@6 : block@7
+            block@6: // if_body_L54
+                (app_global_put "winner" 0x03)
+                goto block@7
+            block@7: // after_if_else_L54
+                return 
+        
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.check_winner() -> void:
+            block@0: // L57
+                let (game_value%0#0: bytes, game_exists%1#0: uint64) = (app_global_get_ex 0u "game")
+                (assert game_exists%1#0) // check game exists
+                let copy%2#0: bytes = game_value%0#0
+                let g#0: bytes = copy%2#0
+                let item_index_internal%3#0: uint64 = 0u
+                let reverse_index_internal%4#0: uint64 = 3u
+                goto block@1
+            block@1: // for_header_L60
+                let item_index_internal%3#1: uint64 = φ(item_index_internal%3#0 <- block@0, item_index_internal%3#3 <- block@7)
+                let continue_looping%5#0: uint64 = (< item_index_internal%3#1 3u)
+                goto continue_looping%5#0 ? block@2 : block@8
+            block@2: // for_body_L60
+                let item_index%6#0: uint64 = (* item_index_internal%3#1 3u)
+                let row#0: bytes = (extract3 g#0 item_index%6#0 3u)
+                let item_index%7#0: uint64 = (* 0u 1u)
+                let tmp%8#0: bytes = (extract3 row#0 item_index%7#0 1u)
+                let tmp%9#0: uint64 = (!= tmp%8#0 0x00)
+                goto tmp%9#0 ? block@3 : block@6
+            block@3: // and_contd_L61
+                let item_index%10#0: uint64 = (* 0u 1u)
+                let tmp%11#0: bytes = (extract3 row#0 item_index%10#0 1u)
+                let item_index%12#0: uint64 = (* 1u 1u)
+                let awst_tmp%13#0: bytes = (extract3 row#0 item_index%12#0 1u)
+                let tmp%14#0: uint64 = (b== tmp%11#0 awst_tmp%13#0)
+                goto tmp%14#0 ? block@4 : block@6
+            block@4: // and_contd_L61
+                let item_index%15#0: uint64 = (* 2u 1u)
+                let tmp%16#0: bytes = (extract3 row#0 item_index%15#0 1u)
+                let tmp%17#0: uint64 = (b== awst_tmp%13#0 tmp%16#0)
+                goto tmp%17#0 ? block@5 : block@6
+            block@5: // if_body_L61
+                let item_index%18#0: uint64 = (* 0u 1u)
+                let new_state_value%19#0: bytes = (extract3 row#0 item_index%18#0 1u)
+                (app_global_put "winner" new_state_value%19#0)
+                return 
+            block@6: // after_if_else_L61
+                goto block@7
+            block@7: // for_footer_L60
+                let item_index_internal%3#3: uint64 = (+ item_index_internal%3#1 1u)
+                goto block@1
+            block@8: // after_for_L60
+                (assert 1u) // Step cannot be zero
+                let range_item%20#0: uint64 = 0u
+                goto block@9
+            block@9: // for_header_L64
+                let range_item%20#1: uint64 = φ(range_item%20#0 <- block@8, range_item%20#4 <- block@16)
+                let continue_looping%21#0: uint64 = (< range_item%20#1 3u)
+                goto continue_looping%21#0 ? block@10 : block@17
+            block@10: // for_body_L64
+                let col#0: uint64 = range_item%20#1
+                let item_index%22#0: uint64 = (* 0u 3u)
+                let tmp%23#0: bytes = (extract3 g#0 item_index%22#0 3u)
+                let array_length%24#0: uint64 = 3u
+                let index_is_in_bounds%25#0: uint64 = (< col#0 array_length%24#0)
+                (assert index_is_in_bounds%25#0) // Index access is out of bounds
+                let item_index%26#0: uint64 = (* col#0 1u)
+                let tmp%27#0: bytes = (extract3 tmp%23#0 item_index%26#0 1u)
+                let tmp%28#0: uint64 = (!= tmp%27#0 0x00)
+                goto tmp%28#0 ? block@11 : block@14
+            block@11: // and_contd_L65
+                let item_index%29#0: uint64 = (* 0u 3u)
+                let tmp%30#0: bytes = (extract3 g#0 item_index%29#0 3u)
+                let array_length%31#0: uint64 = 3u
+                let index_is_in_bounds%32#0: uint64 = (< col#0 array_length%31#0)
+                (assert index_is_in_bounds%32#0) // Index access is out of bounds
+                let item_index%33#0: uint64 = (* col#0 1u)
+                let tmp%34#0: bytes = (extract3 tmp%30#0 item_index%33#0 1u)
+                let item_index%35#0: uint64 = (* 1u 3u)
+                let tmp%36#0: bytes = (extract3 g#0 item_index%35#0 3u)
+                let array_length%37#0: uint64 = 3u
+                let index_is_in_bounds%38#0: uint64 = (< col#0 array_length%37#0)
+                (assert index_is_in_bounds%38#0) // Index access is out of bounds
+                let item_index%39#0: uint64 = (* col#0 1u)
+                let awst_tmp%40#0: bytes = (extract3 tmp%36#0 item_index%39#0 1u)
+                let tmp%41#0: uint64 = (b== tmp%34#0 awst_tmp%40#0)
+                goto tmp%41#0 ? block@12 : block@14
+            block@12: // and_contd_L65
+                let item_index%42#0: uint64 = (* 2u 3u)
+                let tmp%43#0: bytes = (extract3 g#0 item_index%42#0 3u)
+                let array_length%44#0: uint64 = 3u
+                let index_is_in_bounds%45#0: uint64 = (< col#0 array_length%44#0)
+                (assert index_is_in_bounds%45#0) // Index access is out of bounds
+                let item_index%46#0: uint64 = (* col#0 1u)
+                let tmp%47#0: bytes = (extract3 tmp%43#0 item_index%46#0 1u)
+                let tmp%48#0: uint64 = (b== awst_tmp%40#0 tmp%47#0)
+                goto tmp%48#0 ? block@13 : block@14
+            block@13: // if_body_L65
+                let item_index%49#0: uint64 = (* 0u 3u)
+                let tmp%50#0: bytes = (extract3 g#0 item_index%49#0 3u)
+                let array_length%51#0: uint64 = 3u
+                let index_is_in_bounds%52#0: uint64 = (< col#0 array_length%51#0)
+                (assert index_is_in_bounds%52#0) // Index access is out of bounds
+                let item_index%53#0: uint64 = (* col#0 1u)
+                let new_state_value%54#0: bytes = (extract3 tmp%50#0 item_index%53#0 1u)
+                (app_global_put "winner" new_state_value%54#0)
+                return 
+            block@14: // after_if_else_L65
+                goto block@15
+            block@15: // for_footer_L64
+                goto block@16
+            block@16: // for_increment_L64
+                let range_item%20#4: uint64 = (+ range_item%20#1 1u)
+                goto block@9
+            block@17: // after_for_L64
+                let item_index%55#0: uint64 = (* 1u 3u)
+                let tmp%56#0: bytes = (extract3 g#0 item_index%55#0 3u)
+                let item_index%57#0: uint64 = (* 1u 1u)
+                let tmp%58#0: bytes = (extract3 tmp%56#0 item_index%57#0 1u)
+                let tmp%59#0: uint64 = (!= tmp%58#0 0x00)
+                goto tmp%59#0 ? block@18 : block@26
+            block@18: // if_body_L68
+                let item_index%60#0: uint64 = (* 0u 3u)
+                let tmp%61#0: bytes = (extract3 g#0 item_index%60#0 3u)
+                let item_index%62#0: uint64 = (* 0u 1u)
+                let tmp%63#0: bytes = (extract3 tmp%61#0 item_index%62#0 1u)
+                let item_index%64#0: uint64 = (* 1u 3u)
+                let tmp%65#0: bytes = (extract3 g#0 item_index%64#0 3u)
+                let item_index%66#0: uint64 = (* 1u 1u)
+                let awst_tmp%67#0: bytes = (extract3 tmp%65#0 item_index%66#0 1u)
+                let tmp%68#0: uint64 = (b== tmp%63#0 awst_tmp%67#0)
+                goto tmp%68#0 ? block@19 : block@21
+            block@19: // and_contd_L70
+                let item_index%69#0: uint64 = (* 2u 3u)
+                let tmp%70#0: bytes = (extract3 g#0 item_index%69#0 3u)
+                let item_index%71#0: uint64 = (* 2u 1u)
+                let tmp%72#0: bytes = (extract3 tmp%70#0 item_index%71#0 1u)
+                let tmp%73#0: uint64 = (b== awst_tmp%67#0 tmp%72#0)
+                goto tmp%73#0 ? block@20 : block@21
+            block@20: // if_body_L70
+                let item_index%74#0: uint64 = (* 0u 3u)
+                let tmp%75#0: bytes = (extract3 g#0 item_index%74#0 3u)
+                let item_index%76#0: uint64 = (* 0u 1u)
+                let new_state_value%77#0: bytes = (extract3 tmp%75#0 item_index%76#0 1u)
+                (app_global_put "winner" new_state_value%77#0)
+                goto block@25
+            block@21: // else_body_L70
+                let item_index%78#0: uint64 = (* 0u 3u)
+                let tmp%79#0: bytes = (extract3 g#0 item_index%78#0 3u)
+                let item_index%80#0: uint64 = (* 2u 1u)
+                let tmp%81#0: bytes = (extract3 tmp%79#0 item_index%80#0 1u)
+                let item_index%82#0: uint64 = (* 1u 3u)
+                let tmp%83#0: bytes = (extract3 g#0 item_index%82#0 3u)
+                let item_index%84#0: uint64 = (* 1u 1u)
+                let awst_tmp%85#0: bytes = (extract3 tmp%83#0 item_index%84#0 1u)
+                let tmp%86#0: uint64 = (b== tmp%81#0 awst_tmp%85#0)
+                goto tmp%86#0 ? block@22 : block@24
+            block@22: // and_contd_L72
+                let item_index%87#0: uint64 = (* 2u 3u)
+                let tmp%88#0: bytes = (extract3 g#0 item_index%87#0 3u)
+                let item_index%89#0: uint64 = (* 0u 1u)
+                let tmp%90#0: bytes = (extract3 tmp%88#0 item_index%89#0 1u)
+                let tmp%91#0: uint64 = (b== awst_tmp%85#0 tmp%90#0)
+                goto tmp%91#0 ? block@23 : block@24
+            block@23: // if_body_L72
+                let item_index%92#0: uint64 = (* 0u 3u)
+                let tmp%93#0: bytes = (extract3 g#0 item_index%92#0 3u)
+                let item_index%94#0: uint64 = (* 2u 1u)
+                let new_state_value%95#0: bytes = (extract3 tmp%93#0 item_index%94#0 1u)
+                (app_global_put "winner" new_state_value%95#0)
+                goto block@24
+            block@24: // after_if_else_L72
+                goto block@25
+            block@25: // after_if_else_L70
+                goto block@26
+            block@26: // after_if_else_L68
+                return 
+        
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:
+            block@0: // L32
+                let (turns_value%0#0: uint64, turns_exists%1#0: uint64) = (app_global_get_ex 0u "turns")
+                (assert turns_exists%1#0) // check turns exists
+                let tmp%2#0: uint64 = (% turns_value%0#0 2u)
+                goto tmp%2#0 ? block@1 : block@2
+            block@1: // ternary_true_L34
+                let ternary_result%3#0: bytes = 0x01
+                goto block@3
+            block@2: // ternary_false_L34
+                let ternary_result%3#1: bytes = 0x02
+                goto block@3
+            block@3: // ternary_merge_L34
+                let ternary_result%3#2: bytes = φ(ternary_result%3#0 <- block@1, ternary_result%3#1 <- block@2)
+                return ternary_result%3#2
+        
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> <bytes, bytes>:
+            block@0: // L36
+                let (winner_value%0#0: bytes, winner_exists%1#0: uint64) = (app_global_get_ex 0u "winner")
+                (assert winner_exists%1#0) // check winner exists
+                let tmp%2#0: uint64 = (== winner_value%0#0 0x00)
+                (assert tmp%2#0) // Game is already finished
+                let (turns_value%3#0: uint64, turns_exists%4#0: uint64) = (app_global_get_ex 0u "turns")
+                (assert turns_exists%4#0) // check turns exists
+                let tmp%5#0: uint64 = (% turns_value%3#0 2u)
+                let tmp%6#0: uint64 = (== tmp%5#0 1u)
+                goto tmp%6#0 ? block@1 : block@2
+            block@1: // if_body_L39
+                let (host_value%7#0: bytes, host_exists%8#0: uint64) = (app_global_get_ex 0u "host")
+                (assert host_exists%8#0) // check host exists
+                let tmp%9#0: bytes = (txn Sender)
+                let tmp%10#0: uint64 = (== host_value%7#0 tmp%9#0)
+                (assert tmp%10#0) // It is the host's turn
+                examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x01, move.0#0, move.1#0)
+                goto block@3
+            block@2: // else_body_L39
+                let (challenger_value%11#0: bytes, challenger_exists%12#0: uint64) = (app_global_get_ex 0u "challenger")
+                (assert challenger_exists%12#0) // check challenger exists
+                let tmp%13#0: bytes = (txn Sender)
+                let tmp%14#0: uint64 = (== challenger_value%11#0 tmp%13#0)
+                (assert tmp%14#0) // It is the challenger's turn
+                examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x02, move.0#0, move.1#0)
+                goto block@3
+            block@3: // after_if_else_L39
+                let (game_value%15#0: bytes, game_exists%16#0: uint64) = (app_global_get_ex 0u "game")
+                (assert game_exists%16#0) // check game exists
+                let (winner_value%17#0: bytes, winner_exists%18#0: uint64) = (app_global_get_ex 0u "winner")
+                (assert winner_exists%18#0) // check winner exists
+                return game_value%15#0 winner_value%17#0
+    
+    program clear-state:
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.clear_state_program() -> uint64:
+            block@0: // L13
+                return 1u
