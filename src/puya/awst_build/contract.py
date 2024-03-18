@@ -96,6 +96,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             docstring=docstring,
             source_location=self._location(class_def),
             reserved_scratch_space=class_options.scratch_slot_reservations,
+            state_totals=class_options.state_totals,
         )
 
     @classmethod

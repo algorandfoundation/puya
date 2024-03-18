@@ -91,6 +91,14 @@ class LogicSignatureMetaData:
 
 
 @attrs.frozen
+class StateTotals:
+    global_uints: int
+    local_uints: int
+    global_bytes: int
+    local_bytes: int
+
+
+@attrs.frozen
 class ContractMetaData:
     description: str | None
     name_override: str | None
@@ -98,6 +106,7 @@ class ContractMetaData:
     class_name: str
     global_state: immutabledict[str, ContractState]
     local_state: immutabledict[str, ContractState]
+    state_totals: StateTotals
     arc4_methods: Sequence[ARC4Method]
 
     @property

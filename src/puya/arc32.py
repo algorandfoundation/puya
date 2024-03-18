@@ -9,7 +9,6 @@ from pathlib import Path
 import structlog
 
 from puya.arc4_util import arc4_to_wtype
-from puya.avm_type import AVMType
 from puya.awst_build import constants
 from puya.errors import InternalError
 from puya.models import (
@@ -20,6 +19,7 @@ from puya.models import (
     CompiledContract,
     ContractState,
     OnCompletionAction,
+    StateTotals,
 )
 from puya.parse import SourceLocation
 from puya.utils import make_path_relative_to_cwd, unique
@@ -45,18 +45,24 @@ def _encode_source(teal_text: str) -> str:
     return base64.b64encode(teal_text.encode()).decode("utf-8")
 
 
-def _encode_state_schema(state: Collection[ContractState]) -> JSONDict:
-    return {
-        "num_byte_slices": sum(1 for s in state if s.storage_type is AVMType.bytes),
-        "num_uints": sum(1 for s in state if s.storage_type is AVMType.uint64),
-    }
-
-
 def _encode_schema_declaration(state: ContractState) -> JSONDict:
     return {
         "type": state.storage_type.name,
         "key": state.key.decode("utf-8"),  # TODO: support not utf8 keys?
         "descr": state.description,
+    }
+
+
+def _encode_state_declaration(state: StateTotals) -> JSONDict:
+    return {
+        "global": {
+            "num_byte_slices": state.global_bytes,
+            "num_uints": state.global_uints,
+        },
+        "local": {
+            "num_byte_slices": state.local_bytes,
+            "num_uints": state.local_uints,
+        },
     }
 
 
@@ -196,10 +202,7 @@ def create_arc32_json(contract: CompiledContract) -> str:
             "approval": _encode_source("\n".join(contract.approval_program)),
             "clear": _encode_source("\n".join(contract.clear_program)),
         },
-        "state": {
-            "global": _encode_state_schema(metadata.global_state.values()),
-            "local": _encode_state_schema(metadata.local_state.values()),
-        },
+        "state": _encode_state_declaration(contract.metadata.state_totals),
         "schema": {
             "global": _encode_schema(metadata.global_state.values()),
             "local": _encode_schema(metadata.local_state.values()),
@@ -245,6 +248,11 @@ def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
             ),
             "",
             f"class {name}(puyapy.arc4.ARC4Client, typing.Protocol):",
+            *(
+                [_indent(["pass"]), ""]
+                if not any(True for m in methods if not m.config.is_bare)
+                else []
+            ),
             *(_abi_method_to_signature(m) for m in methods if not m.config.is_bare),
         )
     )

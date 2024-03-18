@@ -197,3 +197,50 @@ def three() -> Bytes:
 @logicsig # type: ignore[arg-type] ## E: Invalid return type for logicsig method, should be either bool or UInt64.
 def four() -> None:
     pass
+
+## case: state_totals_test
+from puyapy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
+
+
+class BaseContract(
+    arc4.ARC4Contract,
+    state_totals=StateTotals(local_bytes=1, global_uints=3),
+):
+    def __init__(self) -> None:
+        self.local_one = LocalState(UInt64)
+        self.global_one = GlobalState(Bytes)
+
+    @arc4.baremethod(create=True)
+    def create(self) -> None:
+        pass
+
+
+class AnotherContract(BaseContract): ## W: Contract AnotherContract extends base contract BaseContract with explicit state_totals, but does not define its own state_totals. This could result in insufficient reserved state at run time.
+    pass
+
+class AnotherContractAuto(BaseContract, state_totals="auto"):
+    pass
+
+## case: state_totals_too_small_test
+from puyapy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
+
+
+class BaseContract( ## E: State totals declared on the class are less than totals calculated from explicitly declared properties: global_bytes: declared=0, calculated=1, global_uints: declared=0, calculated=2, local_bytes: declared=0, calculated=3, local_uints: declared=0, calculated=4. Either remove or increase the totals declared on the class
+    arc4.ARC4Contract,
+    state_totals=StateTotals(local_uints=0, local_bytes=0, global_uints=0, global_bytes=0),
+):
+    def __init__(self) -> None:
+        self.global_bytes1 = GlobalState(Bytes)
+        self.global_uint1 = GlobalState(UInt64)
+        self.global_uint2 = GlobalState(UInt64)
+        self.local_bytes1 = LocalState(Bytes)
+        self.local_bytes2 = LocalState(Bytes)
+        self.local_bytes3 = LocalState(Bytes)
+        self.local_uint1 = LocalState(UInt64)
+        self.local_uint2 = LocalState(UInt64)
+        self.local_uint3 = LocalState(UInt64)
+        self.local_uint4 = LocalState(UInt64)
+
+    @arc4.baremethod(create=True)
+    def create(self) -> None:
+        pass

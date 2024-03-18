@@ -2,7 +2,7 @@ import enum
 
 import attrs
 
-from puya.awst.nodes import AppStateKind
+from puya.awst.nodes import AppStateKind, StateTotals
 from puya.awst.wtypes import WType
 from puya.parse import SourceLocation
 from puya.utils import StableSet
@@ -28,3 +28,4 @@ class AppStateDeclaration:
 class ContractClassOptions:
     name_override: str | None
     scratch_slot_reservations: StableSet[int]
+    state_totals: StateTotals
