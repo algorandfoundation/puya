@@ -270,6 +270,27 @@ class String(BytesBacked, Container[String]):
     def __contains__(self, other: String | str) -> bool:  # type: ignore[override]
         """Test whether another string is a substring of this one.
         Note this is expensive due to a lack of AVM support."""
+    def startswith(self, prefix: String | str) -> bool:
+        """Check if this string starts with another string.
+
+        The behaviour should mirror `str.startswith`, for example, if `prefix` is the empty string,
+        the result will always be `True`.
+
+        Only a single argument is currently supported.
+        """
+    def endswith(self, suffix: String | str) -> bool:
+        """Check if this string ends with another string.
+
+        The behaviour should mirror `str.endswith`, for example, if `suffix` is the empty string,
+        the result will always be `True`.
+
+        Only a single argument is currently supported.
+        """
+    def join(self, others: tuple[String, ...], /) -> String:  # TODO: support str literals in tuple
+        """Join a sequence of Strings with a common separator.
+
+        The behaviour should mirror `str.join`.
+        """
 
 class BigUInt(BytesBacked):
     """A variable length (max 512-bit) unsigned integer"""

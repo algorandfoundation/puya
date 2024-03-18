@@ -6,25 +6,31 @@ import structlog
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    BoolConstant,
     BytesAugmentedAssignment,
     BytesBinaryOperation,
     BytesBinaryOperator,
     BytesComparisonExpression,
     CallArg,
+    ConditionalExpression,
     EqualityComparison,
     Expression,
     FreeSubroutineTarget,
     Literal,
     ReinterpretCast,
+    SingleEvaluation,
     Statement,
     StringConstant,
     SubroutineCallExpression,
+    TupleItemExpression,
+    UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     ExpressionBuilder,
+    IntermediateExpressionBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
@@ -71,6 +77,12 @@ class StringExpressionBuilder(ValueExpressionBuilder):
         match name:
             case "bytes":
                 return _get_bytes_expr_builder(self.expr)
+            case "startswith":
+                return _StringStartsOrEndsWith(self.expr, location, at_start=True)
+            case "endswith":
+                return _StringStartsOrEndsWith(self.expr, location, at_start=False)
+            case "join":
+                return _StringJoin(self.expr, location)
             case _:
                 raise CodeError(f"Unrecognised member of {self.wtype}: {name}", location)
 
@@ -150,6 +162,98 @@ class StringExpressionBuilder(ValueExpressionBuilder):
             source_location=location,
         )
         return var_expression(is_substring_expr)
+
+
+class _StringStartsOrEndsWith(IntermediateExpressionBuilder):
+    def __init__(self, base: Expression, location: SourceLocation, *, at_start: bool):
+        super().__init__(location)
+        self._base = base
+        self._at_start = at_start
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        if len(args) != 1:
+            raise CodeError(f"Expected 1 argument, got {len(args)}", location)
+        arg = _get_bytes_expr_builder(
+            SingleEvaluation(expect_operand_wtype(args[0], wtypes.string_wtype))
+        )
+        this = _get_bytes_expr_builder(SingleEvaluation(self._base))
+
+        this_length = this.member_access("length", location)
+        assert isinstance(this_length, ExpressionBuilder)
+        arg_length = arg.member_access("length", location)
+        assert isinstance(arg_length, ExpressionBuilder)
+
+        arg_length_gt_this_length = arg_length.compare(
+            this_length, op=BuilderComparisonOp.gt, location=location
+        )
+
+        if self._at_start:
+            extracted = intrinsic_factory.extract3(
+                this.rvalue(),
+                start=UInt64Constant(source_location=location, value=0),
+                length=arg_length.rvalue(),
+            )
+        else:
+            extracted = intrinsic_factory.extract3(
+                this.rvalue(),
+                start=this_length.binary_op(
+                    arg_length, BuilderBinaryOp.sub, location, reverse=False
+                ).rvalue(),
+                length=arg_length.rvalue(),
+            )
+        this_substr = var_expression(extracted)
+
+        cond = ConditionalExpression(
+            condition=arg_length_gt_this_length.rvalue(),
+            true_expr=BoolConstant(location, value=False),
+            false_expr=this_substr.compare(arg, BuilderComparisonOp.eq, location).rvalue(),
+            wtype=wtypes.bool_wtype,
+            source_location=location,
+        )
+        return var_expression(cond)
+
+
+class _StringJoin(IntermediateExpressionBuilder):
+    def __init__(self, base: Expression, location: SourceLocation):
+        super().__init__(location)
+        self._base = base
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        match args:
+            case [
+                ExpressionBuilder(value_type=wtypes.WTuple(types=tuple_item_types)) as eb
+            ] if all(tt == wtypes.string_wtype for tt in tuple_item_types):
+                tuple_arg = SingleEvaluation(eb.rvalue())
+            case _:
+                raise CodeError("Invalid/unhandled arguments", location)
+        sep = _get_bytes_expr_builder(SingleEvaluation(self._base))
+        joined_value: Expression | None = None
+        for idx, _ in enumerate(tuple_item_types):
+            item_expr = TupleItemExpression(tuple_arg, index=idx, source_location=location)
+            bytes_expr = _get_bytes_expr(item_expr)
+            if joined_value is None:
+                joined_value = bytes_expr
+            else:
+                joined_value = intrinsic_factory.concat(
+                    intrinsic_factory.concat(joined_value, sep.rvalue(), location),
+                    bytes_expr,
+                    location,
+                )
+        if joined_value is None:
+            joined_value = StringConstant(value="", source_location=location)
+        return var_expression(joined_value)
 
 
 def _get_bytes_expr(expr: Expression) -> ReinterpretCast:

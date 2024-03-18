@@ -1,4 +1,4 @@
-from puyapy import Contract, String, subroutine
+from puyapy import Contract, String
 
 
 class StringContract(Contract):
@@ -21,6 +21,27 @@ class StringContract(Contract):
 
         assert "brown fox" in String("The quick brown fox jumped over the lazy dog")
         assert String("red fox") not in String("The quick brown fox jumped over the lazy dog")
+
+        alpha = String("abcdefg")
+        assert alpha.startswith("")
+        assert alpha.startswith("a")
+        assert alpha.startswith("ab")
+        assert not alpha.startswith("b")
+        assert alpha.startswith(alpha)
+        assert not alpha.startswith(alpha + "!")
+
+        assert alpha.endswith("")
+        assert alpha.endswith("g")
+        assert alpha.endswith("fg")
+        assert not alpha.endswith("f")
+        assert alpha.endswith(alpha)
+        assert not alpha.endswith("!" + alpha)
+
+        d, e, f = String("d"), String("e"), String("f")
+        assert String(".").join((d, e, f)) == "d.e.f"
+        assert String("").join((d, e, f)) == "def"
+        assert String(".").join((d,)) == "d"
+        assert String("").join((d,)) == "d"
 
         return True
 

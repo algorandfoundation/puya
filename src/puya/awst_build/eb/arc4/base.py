@@ -111,7 +111,7 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
     ) -> Expression:
         tmp_value = SingleEvaluation(value)
         arc4_value = intrinsic_factory.extract(tmp_value, start=4, loc=location)
-        arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, end=4, loc=location)
+        arc4_prefix = intrinsic_factory.extract(tmp_value, start=0, length=4, loc=location)
         arc4_prefix_is_valid = BytesComparisonExpression(
             lhs=arc4_prefix,
             rhs=BytesConstant(
