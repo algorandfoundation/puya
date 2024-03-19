@@ -15,6 +15,7 @@ class StackType(enum.StrEnum):
     box_name = "boxName"
     asset = enum.auto()
     application = enum.auto()
+    state_key = "stateKey"
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}.{self.name}"

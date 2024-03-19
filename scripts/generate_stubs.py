@@ -407,7 +407,9 @@ def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
         StackType.application: [wtypes.application_wtype, *uint64],
         StackType.asset: [wtypes.asset_wtype, *uint64],
         StackType.bytes: bytes_,
+        StackType.bytes_8: bytes_,
         StackType.bytes_32: [*bytes_, *account],
+        StackType.bytes_33: bytes_,
         StackType.bytes_64: bytes_,
         StackType.bytes_80: bytes_,
         StackType.bool: [wtypes.bool_wtype, *uint64],
@@ -416,6 +418,7 @@ def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
         StackType.box_name: bytes_,
         StackType.address: account,
         StackType.bigint: [wtypes.biguint_wtype],
+        StackType.state_key: bytes_,
     }
 
     try:

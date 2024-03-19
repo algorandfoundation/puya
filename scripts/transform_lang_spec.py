@@ -104,6 +104,7 @@ class Operation(typing.TypedDict, total=False):
     DocExtra: str
     ArgEnum: list[str]
     ArgEnumTypes: list[str]
+    ArgModes: list[int]
     ImmediateNote: list[ImmediateNote]
 
     # the following values are not in the original langspec.json
@@ -113,6 +114,7 @@ class Operation(typing.TypedDict, total=False):
     # these values are output by a modified opdoc.go from go-algorand repo
     Cost: str
     ArgEnumDoc: list[str]
+    Modes: int
 
 
 class AlgorandLanguageSpec(typing.TypedDict):
@@ -123,7 +125,9 @@ class AlgorandLanguageSpec(typing.TypedDict):
 class StackType(enum.StrEnum):
     uint64 = enum.auto()
     bytes = "[]byte"
+    bytes_8 = "[8]byte"
     bytes_32 = "[32]byte"
+    bytes_33 = "[33]byte"
     bytes_64 = "[64]byte"
     bytes_80 = "[80]byte"
     bool = enum.auto()
@@ -134,6 +138,13 @@ class StackType(enum.StrEnum):
     box_name = "boxName"
     asset = enum.auto()
     application = enum.auto()
+    state_key = "stateKey"
+
+
+class RunMode(enum.StrEnum):
+    app = enum.auto()
+    sig = enum.auto()
+    any = enum.auto()
 
 
 @attrs.define
@@ -149,6 +160,7 @@ class ArgEnum:
     name: str
     doc: str | None
     stack_type: StackType | None
+    mode: RunMode
 
 
 class ImmediateKind(enum.StrEnum):
@@ -200,6 +212,7 @@ class Op:
     min_avm_version: int
     """AVM version op was introduced"""
     halts: bool
+    mode: RunMode
     """True if this op halts the program"""
     groups: list[str] = attrs.field(factory=list)
     """Groups op belongs to"""
@@ -291,14 +304,6 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
     # patch global enums
     _patch_arg_enum_type(ops["global"], "CurrentApplicationID", "uint64", "application")
 
-    # patch ops that should be bigint but use []byte
-    for op_name in ("bsqrt",):
-        op = ops[op_name]
-        assert op["Args"][0] == "[]byte"
-        op["Args"][0] = "bigint"
-        assert op["Returns"][0] == "[]byte"
-        op["Returns"][0] = "bigint"
-
     # base64_decode has an ArgEnumTypes array when it probably shouldn't
     # as all stack outputs are bytes
     del ops["base64_decode"]["ArgEnumTypes"]
@@ -351,20 +356,37 @@ def create_indexed_enum(op: Operation) -> list[ArgEnum]:
     enum_names = op["ArgEnum"]
     enum_types: list[str] | list[None] = op.get("ArgEnumTypes", [])
     enum_docs = op["ArgEnumDoc"]
+    enum_modes = op["ArgModes"]
 
     if not enum_types:
         enum_types = [None] * len(enum_names)
 
     result = list[ArgEnum]()
-    for enum_name, enum_type, enum_doc in zip(enum_names, enum_types, enum_docs, strict=True):
+    for enum_name, enum_type, enum_doc, enum_mode in zip(
+        enum_names, enum_types, enum_docs, enum_modes, strict=True
+    ):
         stack_type = None if enum_type is None else StackType(enum_type)
         enum_value = ArgEnum(
             name=enum_name,
             doc=enum_doc if enum_doc else None,
             stack_type=stack_type,
+            mode=_map_enum_mode(op["Modes"], enum_mode),
         )
         result.append(enum_value)
     return result
+
+
+def _map_enum_mode(op_mode: int, arg_mode: int = 0) -> RunMode:
+    mode = arg_mode or op_mode
+    match mode:
+        case 1:
+            return RunMode.sig
+        case 2:
+            return RunMode.app
+        case 3:
+            return RunMode.any
+        case _:
+            raise ValueError("Unexpected run mode")
 
 
 def transform_encoding(value: str) -> ImmediateKind:
@@ -517,6 +539,7 @@ def transform_spec(lang_spec: AlgorandLanguageSpec) -> LanguageSpec:
             stack_inputs=transform_stack_args(algorand_op),
             stack_outputs=transform_returns(algorand_op),
             halts=algorand_op.get("Halts", False),
+            mode=_map_enum_mode(algorand_op["Modes"]),
         )
         validate_op(result, op)
         result.ops[op.name] = op
