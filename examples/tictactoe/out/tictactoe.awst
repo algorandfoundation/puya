@@ -1,3 +1,4 @@
+EMPTY = 0
 HOST = 1
 CHALLENGER = 2
 DRAW = 3
@@ -5,31 +6,39 @@ DRAW = 3
 contract TicTacToeContract
 {
   globals {
-    ['game']: puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]]
-    ['host']: puyapy.Account
     ['challenger']: puyapy.Account
     ['winner']: puyapy.arc4.UInt8
+    ['host']: puyapy.Account
+    ['game']: puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]]
     ['turns']: puyapy.UInt64
   }
   
-  abimethod new_game(move: tuple[puyapy.UInt64, puyapy.UInt64]): tuple[puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]], puyapy.arc4.UInt8]
+  constructor()
   {
-    this.game: puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]] = reinterpret_cast<puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]]>(bzero(9u))
-    this.host: puyapy.Account = txn<Sender>()
-    this.challenger: puyapy.Account = global<ZeroAddress>()
-    this.winner: puyapy.arc4.UInt8 = 0arc4u8
-    assert(move[0] < 3u and move[1] < 3u, comment="Move must be in range")
-    this.game[move[1]][move[0]]: puyapy.arc4.UInt8 = 1arc4u8
-    this.turns: puyapy.UInt64 = 0u
-    return (this.game, this.winner)
   }
   
-  abimethod join_game(move: tuple[puyapy.UInt64, puyapy.UInt64]): tuple[puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]], puyapy.arc4.UInt8]
+  abimethod new_game(move: tuple[puyapy.UInt64, puyapy.UInt64]): None
   {
-    assert(this.challenger == global<ZeroAddress>(), comment="Host already has a challenger")
+    if (reinterpret_cast<bool>(txn<ApplicationID>())) {
+      if (STATE_EXISTS(this.challenger)) {
+        assert(STATE_EXISTS(this.winner), comment="Game isn't over")
+      }
+      STATE_DELETE(this.challenger)
+      STATE_DELETE(this.winner)
+    }
+    this.host: puyapy.Account = txn<Sender>()
+    this.game: puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]] = reinterpret_cast<puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]]>(bzero(9u))
+    (column, row): tuple[puyapy.UInt64, puyapy.UInt64] = move
+    assert(column < 3u and row < 3u, comment="Move must be in range")
+    this.game[row][column]: puyapy.arc4.UInt8 = 1arc4u8
+    this.turns: puyapy.UInt64 = 0u
+  }
+  
+  abimethod join_game(move: tuple[puyapy.UInt64, puyapy.UInt64]): None
+  {
+    assert(!(STATE_EXISTS(this.challenger)), comment="Host already has a challenger")
     this.challenger: puyapy.Account = txn<Sender>()
     this::make_move(2arc4u8, move)
-    return (this.game, this.winner)
   }
   
   abimethod whose_turn(): puyapy.arc4.UInt8
@@ -37,54 +46,52 @@ contract TicTacToeContract
     return (reinterpret_cast<bool>(this.turns % 2u)) ? (1arc4u8) : (2arc4u8)
   }
   
-  abimethod play(move: tuple[puyapy.UInt64, puyapy.UInt64]): tuple[puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]], puyapy.arc4.UInt8]
+  abimethod play(move: tuple[puyapy.UInt64, puyapy.UInt64]): None
   {
-    assert(reinterpret_cast<puyapy.Bytes>(this.winner) == hex<"00">, comment="Game is already finished")
-    if (this.turns % 2u == 1u) {
-      assert(this.host == txn<Sender>(), comment="It is the host's turn")
-      this::make_move(1arc4u8, move)
+    assert(!(STATE_EXISTS(this.winner)), comment="Game is already finished")
+    if (reinterpret_cast<bool>(this.turns % 2u)) {
+      assert(txn<Sender>() == this.host, comment="It is the host's turn")
+      player: puyapy.arc4.UInt8 = 1arc4u8
     } else {
-      assert(this.challenger == txn<Sender>(), comment="It is the challenger's turn")
-      this::make_move(2arc4u8, move)
+      assert(txn<Sender>() == STATE_GET(this.challenger, default=global<ZeroAddress>()), comment="It is the challenger's turn")
+      player: puyapy.arc4.UInt8 = 2arc4u8
     }
-    return (this.game, this.winner)
+    this::make_move(player, move)
   }
   
-  subroutine make_move(piece: puyapy.arc4.UInt8, move: tuple[puyapy.UInt64, puyapy.UInt64]): None
+  subroutine make_move(player: puyapy.arc4.UInt8, move: tuple[puyapy.UInt64, puyapy.UInt64]): None
   {
-    assert(move[0] < 3u and move[1] < 3u, comment="Move must be in range")
-    assert(reinterpret_cast<puyapy.BigUInt>(this.game[move[1]][move[0]]) == reinterpret_cast<puyapy.BigUInt>(0arc4u8), comment="Square is already taken")
-    this.game[move[1]][move[0]]: puyapy.arc4.UInt8 = piece
+    (column, row): tuple[puyapy.UInt64, puyapy.UInt64] = move
+    assert(column < 3u and row < 3u, comment="Move must be in range")
+    assert(reinterpret_cast<puyapy.BigUInt>(this.game[row][column]) == reinterpret_cast<puyapy.BigUInt>(0arc4u8), comment="Square is already taken")
+    this.game[row][column]: puyapy.arc4.UInt8 = player
     this.turns += 1u
-    this::check_winner()
-    if (this.turns == 9u and reinterpret_cast<puyapy.Bytes>(this.winner) == hex<"00">) {
-      this.winner: puyapy.arc4.UInt8 = 3arc4u8
+    if (this::did_win(player, column=column, row=row)) {
+      this.winner: puyapy.arc4.UInt8 = player
+    } else {
+      if (this.turns == 9u) {
+        this.winner: puyapy.arc4.UInt8 = 3arc4u8
+      }
     }
   }
   
-  subroutine check_winner(): None
+  subroutine did_win(player: puyapy.arc4.UInt8, column: puyapy.UInt64, row: puyapy.UInt64): bool
   {
     g: puyapy.arc4.StaticArray[puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[3]], typing.Literal[3]] = this.game.copy()
-    for row in g {
-      if (reinterpret_cast<puyapy.Bytes>(row[0u]) != hex<"00"> and reinterpret_cast<puyapy.BigUInt>(row[0u]) == reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=0, source=row[1u])) and reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=0, source=row[1u])) == reinterpret_cast<puyapy.BigUInt>(row[2u])) {
-        this.winner: puyapy.arc4.UInt8 = row[0u]
-        return
+    if (reinterpret_cast<puyapy.BigUInt>(g[row][0u]) == reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=0, source=g[row][1u])) and reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=0, source=g[row][1u])) == reinterpret_cast<puyapy.BigUInt>(g[row][2u])) {
+      return true
+    }
+    if (reinterpret_cast<puyapy.BigUInt>(g[0u][column]) == reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=1, source=g[1u][column])) and reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=1, source=g[1u][column])) == reinterpret_cast<puyapy.BigUInt>(g[2u][column])) {
+      return true
+    }
+    if (reinterpret_cast<puyapy.BigUInt>(player) == reinterpret_cast<puyapy.BigUInt>(g[1u][1u])) {
+      if (reinterpret_cast<puyapy.BigUInt>(g[0u][0u]) == reinterpret_cast<puyapy.BigUInt>(player) and reinterpret_cast<puyapy.BigUInt>(player) == reinterpret_cast<puyapy.BigUInt>(g[2u][2u])) {
+        return true
+      }
+      if (reinterpret_cast<puyapy.BigUInt>(g[0u][2u]) == reinterpret_cast<puyapy.BigUInt>(player) and reinterpret_cast<puyapy.BigUInt>(player) == reinterpret_cast<puyapy.BigUInt>(g[2u][0u])) {
+        return true
       }
     }
-    for col in range(0u, 3u, 1u) {
-      if (reinterpret_cast<puyapy.Bytes>(g[0u][col]) != hex<"00"> and reinterpret_cast<puyapy.BigUInt>(g[0u][col]) == reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=1, source=g[1u][col])) and reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=1, source=g[1u][col])) == reinterpret_cast<puyapy.BigUInt>(g[2u][col])) {
-        this.winner: puyapy.arc4.UInt8 = g[0u][col]
-        return
-      }
-    }
-    if (reinterpret_cast<puyapy.Bytes>(g[1u][1u]) != hex<"00">) {
-      if (reinterpret_cast<puyapy.BigUInt>(g[0u][0u]) == reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=2, source=g[1u][1u])) and reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=2, source=g[1u][1u])) == reinterpret_cast<puyapy.BigUInt>(g[2u][2u])) {
-        this.winner: puyapy.arc4.UInt8 = g[0u][0u]
-      } else {
-        if (reinterpret_cast<puyapy.BigUInt>(g[0u][2u]) == reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=3, source=g[1u][1u])) and reinterpret_cast<puyapy.BigUInt>(SINGLE_EVAL(id=3, source=g[1u][1u])) == reinterpret_cast<puyapy.BigUInt>(g[2u][0u])) {
-          this.winner: puyapy.arc4.UInt8 = g[0u][2u]
-        }
-      }
-    }
+    return false
   }
 }
