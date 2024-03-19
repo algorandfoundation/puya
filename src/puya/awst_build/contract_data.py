@@ -28,4 +28,4 @@ class AppStateDeclaration:
 class ContractClassOptions:
     name_override: str | None
     scratch_slot_reservations: StableSet[int]
-    state_totals: StateTotals
+    state_totals: StateTotals | None

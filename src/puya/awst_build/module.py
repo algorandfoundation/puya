@@ -551,7 +551,7 @@ def _process_contract_class_options(
 ) -> ContractClassOptions:
     name_override: str | None = None
     scratch_slot_reservations = StableSet[int]()
-    state_totals = StateTotals(is_explicit=False)
+    state_totals = None
     for kw_name, kw_expr in cdef.keywords.items():
         with context.log_exceptions(kw_expr):
             match kw_name:
@@ -580,32 +580,22 @@ def _process_contract_class_options(
                         else:
                             scratch_slot_reservations |= slots
                 case "state_totals":
-                    match kw_expr:
-                        case mypy.nodes.StrExpr(value="auto"):
-                            state_totals = StateTotals()
-                        case mypy.nodes.CallExpr(arg_names=arg_names, args=args):
-                            arg_map = get_arg_mapping(
-                                positional_arg_names=[],
-                                args=zip(arg_names, args, strict=True),
-                                location=context.node_location(kw_expr),
-                            )
-
-                            state_totals = StateTotals(
-                                global_uints=_map_state_total_arg(
-                                    context, arg_map.get("global_uints")
-                                ),
-                                global_bytes=_map_state_total_arg(
-                                    context, arg_map.get("global_bytes")
-                                ),
-                                local_uints=_map_state_total_arg(
-                                    context, arg_map.get("local_uints")
-                                ),
-                                local_bytes=_map_state_total_arg(
-                                    context, arg_map.get("local_bytes")
-                                ),
-                            )
-                        case _:
-                            raise CodeError("Invalid value for state_totals")
+                    if not isinstance(kw_expr, mypy.nodes.CallExpr):
+                        context.error("Invalid value for state_totals", kw_expr)
+                    else:
+                        int_args = list[int]()
+                        for arg in kw_expr.args:
+                            arg_value = arg.accept(expr_visitor)
+                            if not isinstance(arg_value, int):
+                                context.error("Invalid argument type, expected int literal", arg)
+                            else:
+                                int_args.append(arg_value)
+                        arg_map = get_arg_mapping(
+                            positional_arg_names=[],
+                            args=zip(kw_expr.arg_names, int_args, strict=True),
+                            location=context.node_location(kw_expr),
+                        )
+                        state_totals = StateTotals(**arg_map)
                 case _:
                     context.error("Unrecognised class keyword", kw_expr)
     for base in cdef.info.bases:
@@ -620,21 +610,6 @@ def _process_contract_class_options(
         scratch_slot_reservations=scratch_slot_reservations,
         state_totals=state_totals,
     )
-
-
-def _map_state_total_arg(
-    ctx: ASTConversionModuleContext, arg: mypy.nodes.Expression | None
-) -> int | None:
-    match arg:
-        case mypy.nodes.IntExpr(value=int_value):
-            return int_value
-        case None:
-            return None
-        case _:
-            raise CodeError(
-                "Invalid value for state_total",
-                ctx.node_location(arg),
-            )
 
 
 def _process_struct(
