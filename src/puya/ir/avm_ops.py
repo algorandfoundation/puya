@@ -150,7 +150,7 @@ class AVMOp(enum.StrEnum):
 
     app_global_del = AVMOpData(
         op_code="app_global_del",
-        signature=OpSignature(args=[StackType.bytes], returns=[]),
+        signature=OpSignature(args=[StackType.state_key], returns=[]),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
@@ -167,7 +167,7 @@ class AVMOp(enum.StrEnum):
 
     app_global_get = AVMOpData(
         op_code="app_global_get",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.any]),
+        signature=OpSignature(args=[StackType.state_key], returns=[StackType.any]),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
@@ -181,7 +181,8 @@ class AVMOp(enum.StrEnum):
     app_global_get_ex = AVMOpData(
         op_code="app_global_get_ex",
         signature=OpSignature(
-            args=[StackType.application, StackType.bytes], returns=[StackType.any, StackType.bool]
+            args=[StackType.application, StackType.state_key],
+            returns=[StackType.any, StackType.bool],
         ),
         immediate_types=(),
         cost=1,
@@ -197,7 +198,7 @@ class AVMOp(enum.StrEnum):
 
     app_global_put = AVMOpData(
         op_code="app_global_put",
-        signature=OpSignature(args=[StackType.bytes, StackType.any], returns=[]),
+        signature=OpSignature(args=[StackType.state_key, StackType.any], returns=[]),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
@@ -208,7 +209,7 @@ class AVMOp(enum.StrEnum):
 
     app_local_del = AVMOpData(
         op_code="app_local_del",
-        signature=OpSignature(args=[StackType.address_or_index, StackType.bytes], returns=[]),
+        signature=OpSignature(args=[StackType.address_or_index, StackType.state_key], returns=[]),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
@@ -226,7 +227,7 @@ class AVMOp(enum.StrEnum):
     app_local_get = AVMOpData(
         op_code="app_local_get",
         signature=OpSignature(
-            args=[StackType.address_or_index, StackType.bytes], returns=[StackType.any]
+            args=[StackType.address_or_index, StackType.state_key], returns=[StackType.any]
         ),
         immediate_types=(),
         cost=1,
@@ -242,7 +243,7 @@ class AVMOp(enum.StrEnum):
     app_local_get_ex = AVMOpData(
         op_code="app_local_get_ex",
         signature=OpSignature(
-            args=[StackType.address_or_index, StackType.application, StackType.bytes],
+            args=[StackType.address_or_index, StackType.application, StackType.state_key],
             returns=[StackType.any, StackType.bool],
         ),
         immediate_types=(),
@@ -261,7 +262,7 @@ class AVMOp(enum.StrEnum):
     app_local_put = AVMOpData(
         op_code="app_local_put",
         signature=OpSignature(
-            args=[StackType.address_or_index, StackType.bytes, StackType.any], returns=[]
+            args=[StackType.address_or_index, StackType.state_key, StackType.any], returns=[]
         ),
         immediate_types=(),
         cost=1,
@@ -2300,7 +2301,9 @@ class AVMOp(enum.StrEnum):
 
     mod_bytes = AVMOpData(
         op_code="b%",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]),
+        signature=OpSignature(
+            args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+        ),
         immediate_types=(),
         cost=20,
         min_avm_version=4,

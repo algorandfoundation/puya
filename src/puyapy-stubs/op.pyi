@@ -152,10 +152,10 @@ def ecdsa_pk_recover(
 def ecdsa_verify(
     v: ECDSA,
     a: Bytes | bytes | Account,
-    b: Bytes | bytes,
-    c: Bytes | bytes,
-    d: Bytes | bytes,
-    e: Bytes | bytes,
+    b: Bytes | bytes | Account,
+    c: Bytes | bytes | Account,
+    d: Bytes | bytes | Account,
+    e: Bytes | bytes | Account,
     /,
 ) -> bool:
     """

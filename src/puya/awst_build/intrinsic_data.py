@@ -441,6 +441,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
                 ArgMapping(
@@ -448,6 +449,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
                 ArgMapping(
@@ -455,6 +457,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
                 ArgMapping(
@@ -462,6 +465,7 @@ STUB_TO_AST_MAPPER = {
                     allowed_types=[
                         wtypes.bytes_wtype,
                         bytes,
+                        wtypes.account_wtype,
                     ],
                 ),
             ],
