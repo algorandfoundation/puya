@@ -244,3 +244,22 @@ class BaseContract( ## W: State totals declared on the class are less than total
     @arc4.baremethod(create=True)
     def create(self) -> None:
         pass
+
+
+## case: state_too_big
+
+from puyapy import Contract, StateTotals
+
+class Contract1(Contract, state_totals=StateTotals(global_uints=50, global_bytes=50)): ## W: Total global state key count of 100 exceeds consensus parameter value 64
+    def approval_program(self) -> bool:
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+class Contract2(Contract, state_totals=StateTotals(local_uints=10, local_bytes=10)): ## W: Total local state key count of 20 exceeds consensus parameter value 16
+    def approval_program(self) -> bool:
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True

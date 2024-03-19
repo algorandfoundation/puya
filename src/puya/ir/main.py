@@ -9,7 +9,7 @@ import attrs
 import structlog
 from immutabledict import immutabledict
 
-import puya.parse
+from puya import algo_constants
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -43,7 +43,7 @@ from puya.models import (
     LogicSignatureMetaData,
     StateTotals,
 )
-from puya.parse import EMBEDDED_MODULES
+from puya.parse import EMBEDDED_MODULES, SourceLocation
 from puya.utils import StableSet, attrs_extend
 
 logger = structlog.get_logger(__name__)
@@ -333,7 +333,7 @@ class FoldedContract:
     arc4_methods: list[ARC4Method] = attrs.field(factory=list)
     declared_totals: awst_nodes.StateTotals | None
 
-    def build_state_totals(self, *, location: puya.parse.SourceLocation) -> StateTotals:
+    def build_state_totals(self, *, location: SourceLocation) -> StateTotals:
         global_by_type = Counter(s.storage_type for s in self.global_state.values())
         local_by_type = Counter(s.storage_type for s in self.local_state.values())
         merged = StateTotals(
@@ -356,6 +356,20 @@ class FoldedContract:
                     f" explicitly declared properties: {', '.join(sorted(insufficient_fields))}.",
                     location=location,
                 )
+        global_total = merged.global_uints + merged.global_bytes
+        local_total = merged.local_uints + merged.local_bytes
+        if global_total > algo_constants.MAX_GLOBAL_STATE_KEYS:
+            logger.warning(
+                f"Total global state key count of {global_total}"
+                f" exceeds consensus parameter value {algo_constants.MAX_GLOBAL_STATE_KEYS}",
+                location=location,
+            )
+        if local_total > algo_constants.MAX_LOCAL_STATE_KEYS:
+            logger.warning(
+                f"Total local state key count of {local_total}"
+                f" exceeds consensus parameter value {algo_constants.MAX_LOCAL_STATE_KEYS}",
+                location=location,
+            )
         return merged
 
 
