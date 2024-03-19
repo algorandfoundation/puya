@@ -874,28 +874,23 @@ def test_tictactoe(
         signer=account,
     )
 
-    def get_game_status() -> tuple[str, str | None]:
-        state = client_host.get_global_state(raw=True)
-        game = state[b"game"]
-        assert isinstance(game, bytes)
-        chars = ["X" if b == 1 else "O" if b == 2 else "-" for b in game]
-        board = f"{" ".join(chars[0:3])}\n{" ".join(chars[3:6])}\n{" ".join(chars[6:])}"
+    client_host.create(call_abi_method="new_game", move=(0, 0))
+    turn_result = client_host.call("whose_turn")
+    assert turn_result.return_value == 2
+    # no one has joined, can start a new game
+    client_host.call(call_abi_method="new_game", move=(1, 1))
 
-        match state[b"winner"]:
-            case b"\00":
-                winner = None
-            case b"\01":
-                winner = "Host"
-            case b"\02":
-                winner = "Challenger"
-            case b"\03":
-                winner = "Draw"
-        return board, winner
+    with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
+        client_host.call(call_abi_method="play", move=(0, 0))
+    assert exc_info.value.line_no is not None
+    assert "It is the challenger's turn" in exc_info.value.lines[exc_info.value.line_no]
 
-    client_host.create(call_abi_method="new_game", move=(1, 1))
-
-    game, winner = get_game_status()
-    assert game == "- - -\n- X -\n- - -"
+    game, winner = _get_tic_tac_toe_game_status(client_host)
+    assert game == [
+        "- - -",
+        "- X -",
+        "- - -",
+    ]
     assert winner is None
 
     client_challenger = algokit_utils.ApplicationClient(
@@ -907,24 +902,79 @@ def test_tictactoe(
 
     client_challenger.call(call_abi_method="join_game", move=(0, 0))
 
-    game, winner = get_game_status()
-    assert game == "O - -\n- X -\n- - -"
+    game, winner = _get_tic_tac_toe_game_status(client_host)
+    assert game == [
+        "O - -",
+        "- X -",
+        "- - -",
+    ]
     assert winner is None
+
+    turn_result = client_challenger.call("whose_turn")
+    assert turn_result.return_value == 1
+
+    with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
+        client_host.call(call_abi_method="new_game", move=(2, 2))
+    assert exc_info.value.line_no is not None
+    assert "Game isn't over" in exc_info.value.lines[exc_info.value.line_no]
 
     client_host.call(call_abi_method="play", move=(0, 1))
 
-    game, winner = get_game_status()
-    assert game == "O - -\nX X -\n- - -"
+    game, winner = _get_tic_tac_toe_game_status(client_host)
+    assert game == [
+        "O - -",
+        "X X -",
+        "- - -",
+    ]
     assert winner is None
 
     client_challenger.call(call_abi_method="play", move=(1, 0))
 
-    game, winner = get_game_status()
-    assert game == "O O -\nX X -\n- - -"
+    game, winner = _get_tic_tac_toe_game_status(client_host)
+    assert game == [
+        "O O -",
+        "X X -",
+        "- - -",
+    ]
     assert winner is None
 
     client_host.call(call_abi_method="play", move=(2, 1))
 
-    game, winner = get_game_status()
-    assert game == "O O -\nX X X\n- - -"
+    game, winner = _get_tic_tac_toe_game_status(client_host)
+    assert game == [
+        "O O -",
+        "X X X",
+        "- - -",
+    ]
     assert winner == "Host"
+
+    client_host.call(call_abi_method="new_game", move=(1, 1))
+    game, winner = _get_tic_tac_toe_game_status(client_host)
+    assert game == [
+        "- - -",
+        "- X -",
+        "- - -",
+    ]
+    assert winner is None
+
+
+def _get_tic_tac_toe_game_status(
+    client_host: algokit_utils.ApplicationClient,
+) -> tuple[list[str], str | None]:
+    state = client_host.get_global_state(raw=True)
+    game = state[b"game"]
+    assert isinstance(game, bytes)
+    chars = ["X" if b == 1 else "O" if b == 2 else "-" for b in game]
+    board = [" ".join(chars[:3]), " ".join(chars[3:6]), " ".join(chars[6:])]
+
+    winner_index = state.get(b"winner")
+    assert isinstance(winner_index, bytes | None)
+    winner = {
+        None: None,
+        b"\01": "Host",
+        b"\02": "Challenger",
+        b"\03": "Draw",
+    }[
+        winner_index  # type: ignore[index]
+    ]
+    return board, winner
