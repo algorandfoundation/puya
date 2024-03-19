@@ -1,5 +1,5 @@
 from puyapy import Bytes, TemplateVar, TransactionType, UInt64, logicsig, subroutine
-from puyapy.op import GTxn
+from puyapy.op import Global, GTxn
 
 
 @logicsig
@@ -13,6 +13,7 @@ def pre_approved_sale() -> bool:
     assert_correct_payment(txn_offset=UInt64(0))
     assert_correct_asset(txn_offset=UInt64(1))
     assert GTxn.sender(UInt64(0)) == GTxn.asset_receiver(UInt64(1))
+    assert Global.group_size == 2
     return True
 
 
@@ -37,4 +38,6 @@ def assert_correct_asset(txn_offset: UInt64) -> None:
         and GTxn.asset_amount(txn_offset) == 1
         and GTxn.sender(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
         and GTxn.xfer_asset(txn_offset).id == TemplateVar[UInt64]("ASSET_ID")
+        and GTxn.asset_close_to(txn_offset) == Global.zero_address
+        and GTxn.rekey_to(txn_offset) == Global.zero_address
     )

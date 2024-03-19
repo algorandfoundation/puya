@@ -3,6 +3,7 @@ logicsig pre_approved_sale
   test_cases.logic_signature.signature::assert_correct_payment(txn_offset=0u)
   test_cases.logic_signature.signature::assert_correct_asset(txn_offset=1u)
   assert(gtxns<Sender>(0u) == gtxns<AssetReceiver>(1u))
+  assert(global<GroupSize>() == 2u)
   return true
 }
 
@@ -18,5 +19,5 @@ subroutine assert_correct_payment(txn_offset: puyapy.UInt64): None
 
 subroutine assert_correct_asset(txn_offset: puyapy.UInt64): None
 {
-  assert(gtxns<TypeEnum>(txn_offset) == axfer and gtxns<AssetAmount>(txn_offset) == 1u and reinterpret_cast<puyapy.Bytes>(gtxns<Sender>(txn_offset)) == TemplateVar[puyapy.Bytes](TMPL_SELLER) and reinterpret_cast<puyapy.UInt64>(gtxns<XferAsset>(txn_offset)) == TemplateVar[puyapy.UInt64](TMPL_ASSET_ID))
+  assert(gtxns<TypeEnum>(txn_offset) == axfer and gtxns<AssetAmount>(txn_offset) == 1u and reinterpret_cast<puyapy.Bytes>(gtxns<Sender>(txn_offset)) == TemplateVar[puyapy.Bytes](TMPL_SELLER) and reinterpret_cast<puyapy.UInt64>(gtxns<XferAsset>(txn_offset)) == TemplateVar[puyapy.UInt64](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn_offset) == global<ZeroAddress>() and gtxns<RekeyTo>(txn_offset) == global<ZeroAddress>())
 }

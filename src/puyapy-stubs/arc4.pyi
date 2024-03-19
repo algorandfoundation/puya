@@ -410,7 +410,7 @@ class Struct(metaclass=_StructMeta):
 class ARC4Client(typing.Protocol): ...
 
 _TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
-_TABIArg = (
+_TABIArg: typing.TypeAlias = (
     puyapy.BytesBacked
     | puyapy.UInt64
     | puyapy.Bytes

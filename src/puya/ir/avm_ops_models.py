@@ -21,6 +21,15 @@ class StackType(enum.StrEnum):
         return f"{type(self).__name__}.{self.name}"
 
 
+class RunMode(enum.StrEnum):
+    app = enum.auto()
+    lsig = enum.auto()
+    any = enum.auto()
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}.{self.name}"
+
+
 class ImmediateKind(enum.StrEnum):
     uint8 = enum.auto()
     arg_enum = enum.auto()
@@ -36,15 +45,22 @@ class OpSignature:
 
 
 @attrs.frozen
-class DynamicSignatures:
+class Variant:
+    signature: OpSignature
+    supported_modes: RunMode
+
+
+@attrs.frozen
+class DynamicVariants:
     immediate_index: int
-    signatures: dict[str, OpSignature]
+    variant_map: dict[str, Variant]
 
 
 @attrs.define(kw_only=True)
 class AVMOpData:
     op_code: str
-    signature: OpSignature | DynamicSignatures
+    variants: Variant | DynamicVariants
     immediate_types: Sequence[ImmediateKind] = attrs.field(default=())
     cost: int | None
     min_avm_version: int
+    supported_modes: RunMode

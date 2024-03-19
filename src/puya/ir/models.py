@@ -7,7 +7,7 @@ import attrs
 from puya.avm_type import AVMType
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.avm_ops_models import OpSignature
+from puya.ir.avm_ops_models import OpSignature, Variant
 from puya.ir.types_ import AVMBytesEncoding, stack_type_to_avm_type
 from puya.ir.visitor import IRVisitor
 from puya.models import ContractMetaData, LogicSignatureMetaData
@@ -317,7 +317,11 @@ class Intrinsic(Op, ValueProvider):
 
     @property
     def op_signature(self) -> OpSignature:
-        return self.op.get_signature(self.immediates)
+        return self.op_variant.signature
+
+    @property
+    def op_variant(self) -> Variant:
+        return self.op.get_variant(self.immediates)
 
     @args.validator
     def _validate_args(self, _attribute: object, args: list[Value]) -> None:

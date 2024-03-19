@@ -7,7 +7,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.nodes import BytesEncoding
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops_models import StackType
 from puya.parse import SourceLocation
 
@@ -58,8 +58,7 @@ def wtype_to_avm_type(
         case wtypes.void_wtype:
             raise InternalError("Can't translate void WType to AVMType", source_location)
         case _:
-            # TODO: make this a CodeError
-            raise InternalError(
+            raise CodeError(
                 f"Unsupported nested/compound type encountered: {wtype}",
                 source_location,
             )
@@ -85,7 +84,13 @@ def stack_type_to_avm_type(stack_type: StackType) -> AVMType:
     match stack_type:
         case StackType.uint64 | StackType.bool | StackType.asset | StackType.application:
             return AVMType.uint64
-        case StackType.bytes | StackType.bigint | StackType.box_name | StackType.address | StackType.state_key:
+        case (
+            StackType.bytes
+            | StackType.bigint
+            | StackType.box_name
+            | StackType.address
+            | StackType.state_key
+        ):
             return AVMType.bytes
         case StackType.any | StackType.address_or_index:
             return AVMType.any

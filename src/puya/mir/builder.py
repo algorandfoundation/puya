@@ -1,7 +1,7 @@
 import attrs
 import structlog
 
-from puya.errors import CodeError, InternalError
+from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import IRVisitor
@@ -147,13 +147,6 @@ class MemoryIRBuilder(IRVisitor[None]):
         )
 
     def visit_intrinsic_op(self, intrinsic: ir.Intrinsic) -> None:
-        if intrinsic.op.min_avm_version > self.context.options.target_avm_version:
-            raise CodeError(
-                f"Opcode {intrinsic.op.code} requires a min avm version of "
-                f"{intrinsic.op.min_avm_version} but the target avm version is"
-                f" {self.context.options.target_avm_version}",
-                intrinsic.source_location,
-            )
         for arg in intrinsic.args:
             arg.accept(self)
         self._add_op(
