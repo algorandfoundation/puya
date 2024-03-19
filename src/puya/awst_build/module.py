@@ -567,7 +567,7 @@ def _process_contract_class_options(
                     else:
                         slot_items = [kw_expr]
                     for item_expr in slot_items:
-                        slots = _map_scratch_space_reservation(context, item_expr)
+                        slots = _map_scratch_space_reservation(context, expr_visitor, item_expr)
                         if not slots:
                             context.error("Slot range is empty", item_expr)
                         elif (min(slots) < 0) or (max(slots) > MAX_SCRATCH_SLOT_NUMBER):
@@ -712,35 +712,17 @@ def _process_arc4_struct(
     ]
 
 
-def _get_int_arg(
-    context: ASTConversionModuleContext, arg_expr: mypy.nodes.Expression, *, error_msg: str
-) -> int:
-    if isinstance(arg_expr, mypy.nodes.UnaryExpr):
-        if arg_expr.op == "-":
-            return -_get_int_arg(context, arg_expr.expr, error_msg=error_msg)
-    elif isinstance(arg_expr, mypy.nodes.IntExpr):
-        return arg_expr.value
-    elif (
-        isinstance(arg_expr, mypy.nodes.NameExpr)
-        and arg_expr.kind == mypy.nodes.GDEF
-        and isinstance(arg_expr.node, mypy.nodes.Var)
-    ):
-        const_value = context.constants.get(arg_expr.fullname)
+def _map_scratch_space_reservation(
+    context: ASTConversionModuleContext,
+    expr_visitor: mypy.visitor.ExpressionVisitor[ConstantValue],
+    expr: mypy.nodes.Expression,
+) -> list[int]:
+    def get_int_arg(arg_expr: mypy.nodes.Expression, *, error_msg: str) -> int:
+        const_value = arg_expr.accept(expr_visitor)
         if isinstance(const_value, int):
             return const_value
-        if const_value is None:
-            raise CodeError(
-                f"not a known constant value: {arg_expr.name}"
-                f" (qualified source name: {arg_expr.fullname})",
-                context.node_location(arg_expr),
-            )
-        # other types: fall through to default error message
-    raise CodeError(error_msg, context.node_location(arg_expr))
+        raise CodeError(error_msg, context.node_location(arg_expr))
 
-
-def _map_scratch_space_reservation(
-    context: ASTConversionModuleContext, expr: mypy.nodes.Expression
-) -> list[int]:
     expr_loc = context.node_location(expr)
     match expr:
         case mypy.nodes.CallExpr(
@@ -751,8 +733,7 @@ def _map_scratch_space_reservation(
             if len(args) > 3:
                 raise CodeError("Expected at most three arguments to urange", expr_loc)
             int_args = [
-                _get_int_arg(
-                    context,
+                get_int_arg(
                     arg_expr,
                     error_msg=(
                         "Unexpected argument for urange:"
@@ -766,8 +747,7 @@ def _map_scratch_space_reservation(
             return list(range(*int_args))
         case _:
             return [
-                _get_int_arg(
-                    context,
+                get_int_arg(
                     expr,
                     error_msg=(
                         "Unexpected value:"
