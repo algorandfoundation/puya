@@ -1651,7 +1651,6 @@ class StateTotals:
     local_uints: int | None = None
     global_bytes: int | None = None
     local_bytes: int | None = None
-    is_explicit: bool = True
 
 
 @attrs.frozen
@@ -1668,7 +1667,7 @@ class ContractFragment(ModuleStatement):
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
     app_state: Mapping[str, AppStateDefinition]
     reserved_scratch_space: StableSet[int]
-    state_totals: StateTotals
+    state_totals: StateTotals | None
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
     symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)

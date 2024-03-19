@@ -1,7 +1,7 @@
 import contextlib
 import itertools
 import typing
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
 
@@ -44,7 +44,7 @@ from puya.models import (
     StateTotals,
 )
 from puya.parse import EMBEDDED_MODULES
-from puya.utils import StableSet, attrs_extend, coalesce
+from puya.utils import StableSet, attrs_extend
 
 logger = structlog.get_logger(__name__)
 
@@ -189,12 +189,7 @@ def _build_ir(ctx: IRBuildContextWithFallback, contract: awst_nodes.ContractFrag
             arc4_methods=folded.arc4_methods,
             global_state=immutabledict(folded.global_state),
             local_state=immutabledict(folded.local_state),
-            state_totals=_build_state_totals(
-                contract.state_totals,
-                declared_local=folded.local_state.values(),
-                declared_global=folded.global_state.values(),
-                source_location=contract.source_location,
-            ),
+            state_totals=folded.build_state_totals(location=contract.source_location),
         ),
     )
     return result
@@ -234,50 +229,6 @@ def _build_logic_sig_ir(
         ),
     )
     return result
-
-
-def _build_state_totals(
-    declared_totals: awst_nodes.StateTotals,
-    *,
-    declared_global: Iterable[ContractState],
-    declared_local: Iterable[ContractState],
-    source_location: puya.parse.SourceLocation,
-) -> StateTotals:
-    calculated_totals = StateTotals(
-        global_uints=_get_total_state_by_type(declared_global, AVMType.uint64),
-        global_bytes=_get_total_state_by_type(declared_global, AVMType.bytes),
-        local_uints=_get_total_state_by_type(declared_local, AVMType.uint64),
-        local_bytes=_get_total_state_by_type(declared_local, AVMType.bytes),
-    )
-    final_totals = StateTotals(
-        global_uints=coalesce(declared_totals.global_uints, calculated_totals.global_uints),
-        global_bytes=coalesce(declared_totals.global_bytes, calculated_totals.global_bytes),
-        local_uints=coalesce(declared_totals.local_uints, calculated_totals.local_uints),
-        local_bytes=coalesce(declared_totals.local_bytes, calculated_totals.local_bytes),
-    )
-
-    invalid_fields = sorted(
-        f"{field}: {declared=}, {calculated=}"
-        for (field, declared), calculated in zip(
-            attrs.asdict(final_totals).items(), attrs.astuple(calculated_totals), strict=True
-        )
-        if declared < calculated
-    )
-    if invalid_fields:
-        raise CodeError(
-            f"State totals declared on the class are less than totals calculated from"
-            f" explicitly declared properties: {', '.join(invalid_fields)}."
-            " Either remove or increase the totals declared on the class",
-            source_location,
-        )
-    return final_totals
-
-
-def _get_total_state_by_type(
-    declared_state: Iterable[ContractState],
-    storage_type: typing.Literal[AVMType.uint64, AVMType.bytes],
-) -> int:
-    return sum(1 for s in declared_state if s.storage_type == storage_type)
 
 
 def _build_parameter_list(
@@ -380,14 +331,40 @@ class FoldedContract:
     global_state: dict[str, ContractState] = attrs.field(factory=dict)
     local_state: dict[str, ContractState] = attrs.field(factory=dict)
     arc4_methods: list[ARC4Method] = attrs.field(factory=list)
+    declared_totals: awst_nodes.StateTotals | None
+
+    def build_state_totals(self, *, location: puya.parse.SourceLocation) -> StateTotals:
+        global_by_type = Counter(s.storage_type for s in self.global_state.values())
+        local_by_type = Counter(s.storage_type for s in self.local_state.values())
+        merged = StateTotals(
+            global_uints=global_by_type[AVMType.uint64],
+            global_bytes=global_by_type[AVMType.bytes],
+            local_uints=local_by_type[AVMType.uint64],
+            local_bytes=local_by_type[AVMType.bytes],
+        )
+        if self.declared_totals is not None:
+            insufficient_fields = []
+            declared_dict = attrs.asdict(self.declared_totals, filter=attrs.filters.include(int))
+            for field, declared in declared_dict.items():
+                calculated = getattr(merged, field)
+                if declared < calculated:
+                    insufficient_fields.append(f"{field}: {declared=}, {calculated=}")
+                merged = attrs.evolve(merged, **{field: declared})
+            if insufficient_fields:
+                logger.warning(
+                    f"State totals declared on the class are less than totals calculated from"
+                    f" explicitly declared properties: {', '.join(sorted(insufficient_fields))}.",
+                    location=location,
+                )
+        return merged
 
 
 def fold_state_and_special_methods(
     ctx: IRBuildContext, contract: awst_nodes.ContractFragment
 ) -> FoldedContract:
     bases = [ctx.resolve_contract_reference(cref) for cref in contract.bases]
-    if not contract.state_totals.is_explicit:
-        base_with_defined = next((b for b in bases if b.state_totals.is_explicit), None)
+    if contract.state_totals is None:
+        base_with_defined = next((b for b in bases if b.state_totals is not None), None)
         if base_with_defined:
             ctx.errors.warning(
                 f"Contract {contract.name} extends base contract {base_with_defined.name} "
@@ -395,7 +372,7 @@ def fold_state_and_special_methods(
                 "This could result in insufficient reserved state at run time.",
                 location=contract.source_location,
             )
-    result = FoldedContract()
+    result = FoldedContract(declared_totals=contract.state_totals)
     maybe_arc4_method_refs = dict[str, tuple[awst_nodes.ContractMethod, ARC4MethodConfig] | None]()
     for c in [contract, *bases]:
         if result.init is None:

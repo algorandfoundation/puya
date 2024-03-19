@@ -218,14 +218,14 @@ class BaseContract(
 class AnotherContract(BaseContract): ## W: Contract AnotherContract extends base contract BaseContract with explicit state_totals, but does not define its own state_totals. This could result in insufficient reserved state at run time.
     pass
 
-class AnotherContractAuto(BaseContract, state_totals="auto"):
+class AnotherContractAuto(BaseContract, state_totals=StateTotals()):
     pass
 
 ## case: state_totals_too_small_test
 from puyapy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
 
 
-class BaseContract( ## E: State totals declared on the class are less than totals calculated from explicitly declared properties: global_bytes: declared=0, calculated=1, global_uints: declared=0, calculated=2, local_bytes: declared=0, calculated=3, local_uints: declared=0, calculated=4. Either remove or increase the totals declared on the class
+class BaseContract( ## W: State totals declared on the class are less than totals calculated from explicitly declared properties: global_bytes: declared=0, calculated=1, global_uints: declared=0, calculated=2, local_bytes: declared=0, calculated=3, local_uints: declared=0, calculated=4.
     arc4.ARC4Contract,
     state_totals=StateTotals(local_uints=0, local_bytes=0, global_uints=0, global_bytes=0),
 ):
