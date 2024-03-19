@@ -9,10 +9,12 @@ from pathlib import Path
 import structlog
 from puya.ir.avm_ops_models import (
     AVMOpData,
-    DynamicSignatures,
+    DynamicVariants,
     ImmediateKind,
     OpSignature,
+    RunMode,
     StackType,
+    Variant,
 )
 from puya.utils import normalise_path_to_str
 
@@ -130,21 +132,24 @@ def generate_op_node(
     immediate_types = tuple(get_immediate_type(im) for im in op.immediate_args)
     op_code = op.name
     cost = op.cost.value
-    signature: DynamicSignatures | OpSignature
+    variant: DynamicVariants | Variant
 
     stack_args = [get_stack_type(arg.stack_type) for arg in op.stack_inputs]
     stack_returns = [get_stack_type(out.stack_type) for out in op.stack_outputs]
     if dynamic_im_index is None:
-        signature = OpSignature(
-            args=stack_args,
-            returns=stack_returns,
+        variant = Variant(
+            signature=OpSignature(
+                args=stack_args,
+                returns=stack_returns,
+            ),
+            supported_modes=_map_run_mode(op.mode),
         )
     else:
         im = op.immediate_args[dynamic_im_index]
         assert im.arg_enum is not None, "💥"
-        signature = DynamicSignatures(
+        variant = DynamicVariants(
             immediate_index=dynamic_im_index,
-            signatures={},
+            variant_map={},
         )
         if im.modifies_stack_input is not None:
             list_index = im.modifies_stack_input
@@ -156,17 +161,21 @@ def generate_op_node(
         for arg_enum in enums[im.arg_enum]:
             assert arg_enum.stack_type is not None, "🤕"
             to_mod[list_index] = get_stack_type(arg_enum.stack_type)
-            signature.signatures[arg_enum.name] = OpSignature(
-                args=list(stack_args),
-                returns=list(stack_returns),
+            variant.variant_map[arg_enum.name] = Variant(
+                signature=OpSignature(
+                    args=list(stack_args),
+                    returns=list(stack_returns),
+                ),
+                supported_modes=_map_run_mode(arg_enum.mode),
             )
 
     data = AVMOpData(
         op_code=op_code,
         immediate_types=immediate_types,
-        signature=signature,
+        variants=variant,
         cost=cost,
         min_avm_version=op.min_avm_version,
+        supported_modes=_map_run_mode(op.mode),
     )
     yield f"{op_name} = {data!r}"
     if op.doc:
@@ -177,6 +186,18 @@ def generate_op_node(
             yield from textwrap.wrap(doc_ln, width=99 - 4)
         yield '"""'
     yield ""
+
+
+def _map_run_mode(mode: langspec.RunMode) -> RunMode:
+    match mode:
+        case langspec.RunMode.app:
+            return RunMode.app
+        case langspec.RunMode.sig:
+            return RunMode.lsig
+        case langspec.RunMode.any:
+            return RunMode.any
+        case _:
+            raise ValueError(f"Unsupported mode {mode}")
 
 
 def get_stack_type(stack_type: langspec.StackType) -> StackType:
@@ -210,17 +231,19 @@ from collections.abc import Sequence
 from puya.errors import InternalError
 from puya.ir.avm_ops_models import (
     AVMOpData,
-    DynamicSignatures,
+    DynamicVariants,
     ImmediateKind,
     OpSignature,
+    RunMode,
     StackType,
+    Variant
 )
 
 
 class AVMOp(enum.StrEnum):
     code: str
     immediate_types: Sequence[ImmediateKind]
-    _signature: OpSignature | DynamicSignatures
+    _variants: Variant | DynamicVariants
     cost: int | None
     min_avm_version: int
 
@@ -234,18 +257,18 @@ class AVMOp(enum.StrEnum):
         obj._value_ = op_code
         obj.code = op_code
         obj.immediate_types = tuple(data.immediate_types)
-        obj._signature = data.signature  # noqa: SLF001
+        obj._variants = data.variants  # noqa: SLF001
         obj.cost = data.cost
         obj.min_avm_version = data.min_avm_version
         return obj
 
-    def get_signature(self, immediates: Sequence[str | int]) -> OpSignature:
-        if isinstance(self._signature, OpSignature):
-            return self._signature
-        im = immediates[self._signature.immediate_index]
+    def get_variant(self, immediates: Sequence[str | int]) -> Variant:
+        if isinstance(self._variants, Variant):
+            return self._variants
+        im = immediates[self._variants.immediate_index]
         assert isinstance(im, str)
         try:
-            return self._signature.signatures[im]
+            return self._variants.variant_map[im]
         except KeyError as ex:
             raise InternalError(f"Unknown immediate for {{self.code}}: {{im}}") from ex
     """

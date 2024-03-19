@@ -5,17 +5,19 @@ from collections.abc import Sequence
 from puya.errors import InternalError
 from puya.ir.avm_ops_models import (
     AVMOpData,
-    DynamicSignatures,
+    DynamicVariants,
     ImmediateKind,
     OpSignature,
+    RunMode,
     StackType,
+    Variant,
 )
 
 
 class AVMOp(enum.StrEnum):
     code: str
     immediate_types: Sequence[ImmediateKind]
-    _signature: OpSignature | DynamicSignatures
+    _variants: Variant | DynamicVariants
     cost: int | None
     min_avm_version: int
 
@@ -29,67 +31,116 @@ class AVMOp(enum.StrEnum):
         obj._value_ = op_code
         obj.code = op_code
         obj.immediate_types = tuple(data.immediate_types)
-        obj._signature = data.signature  # noqa: SLF001
+        obj._variants = data.variants  # noqa: SLF001
         obj.cost = data.cost
         obj.min_avm_version = data.min_avm_version
         return obj
 
-    def get_signature(self, immediates: Sequence[str | int]) -> OpSignature:
-        if isinstance(self._signature, OpSignature):
-            return self._signature
-        im = immediates[self._signature.immediate_index]
+    def get_variant(self, immediates: Sequence[str | int]) -> Variant:
+        if isinstance(self._variants, Variant):
+            return self._variants
+        im = immediates[self._variants.immediate_index]
         assert isinstance(im, str)
         try:
-            return self._signature.signatures[im]
+            return self._variants.variant_map[im]
         except KeyError as ex:
             raise InternalError(f"Unknown immediate for {self.code}: {im}") from ex
 
     acct_params_get = AVMOpData(
         op_code="acct_params_get",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "AcctBalance": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+            variant_map={
+                "AcctBalance": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctMinBalance": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctMinBalance": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctAuthAddr": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.address, StackType.bool]
+                "AcctAuthAddr": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.address, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctTotalNumUint": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctTotalNumUint": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctTotalNumByteSlice": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctTotalNumByteSlice": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctTotalExtraAppPages": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctTotalExtraAppPages": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctTotalAppsCreated": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctTotalAppsCreated": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctTotalAppsOptedIn": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctTotalAppsOptedIn": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctTotalAssetsCreated": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctTotalAssetsCreated": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctTotalAssets": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctTotalAssets": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctTotalBoxes": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctTotalBoxes": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AcctTotalBoxBytes": OpSignature(
-                    args=[StackType.address_or_index], returns=[StackType.uint64, StackType.bool]
+                "AcctTotalBoxBytes": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=6,
+        supported_modes=RunMode.app,
     )
     """
     X is field F from account A. Y is 1 if A owns positive algos, else 0
@@ -97,12 +148,16 @@ class AVMOp(enum.StrEnum):
 
     add = AVMOpData(
         op_code="+",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A plus B. Fail on overflow.
@@ -113,12 +168,16 @@ class AVMOp(enum.StrEnum):
 
     add_bytes = AVMOpData(
         op_code="b+",
-        signature=OpSignature(
-            args=[StackType.bigint, StackType.bigint], returns=[StackType.bytes]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=10,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A plus B. A and B are interpreted as big-endian unsigned integers
@@ -126,12 +185,17 @@ class AVMOp(enum.StrEnum):
 
     addw = AVMOpData(
         op_code="addw",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64, StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64],
+                returns=[StackType.uint64, StackType.uint64],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.any,
     )
     """
     A plus B as a 128-bit result. X is the carry-bit, Y is the low-order 64 bits.
@@ -139,10 +203,16 @@ class AVMOp(enum.StrEnum):
 
     and_ = AVMOpData(
         op_code="&&",
-        signature=OpSignature(args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A is not zero and B is not zero => {0 or 1}
@@ -150,10 +220,14 @@ class AVMOp(enum.StrEnum):
 
     app_global_del = AVMOpData(
         op_code="app_global_del",
-        signature=OpSignature(args=[StackType.state_key], returns=[]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.state_key], returns=[]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     delete key A from the global state of the current application
@@ -167,10 +241,14 @@ class AVMOp(enum.StrEnum):
 
     app_global_get = AVMOpData(
         op_code="app_global_get",
-        signature=OpSignature(args=[StackType.state_key], returns=[StackType.any]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.state_key], returns=[StackType.any]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     global state of the key A in the current application
@@ -180,13 +258,17 @@ class AVMOp(enum.StrEnum):
 
     app_global_get_ex = AVMOpData(
         op_code="app_global_get_ex",
-        signature=OpSignature(
-            args=[StackType.application, StackType.state_key],
-            returns=[StackType.any, StackType.bool],
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.application, StackType.state_key],
+                returns=[StackType.any, StackType.bool],
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     X is the global state of application A, key B. Y is 1 if key existed, else 0
@@ -198,10 +280,14 @@ class AVMOp(enum.StrEnum):
 
     app_global_put = AVMOpData(
         op_code="app_global_put",
-        signature=OpSignature(args=[StackType.state_key, StackType.any], returns=[]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.state_key, StackType.any], returns=[]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     write B to key A in the global state of the current application
@@ -209,10 +295,16 @@ class AVMOp(enum.StrEnum):
 
     app_local_del = AVMOpData(
         op_code="app_local_del",
-        signature=OpSignature(args=[StackType.address_or_index, StackType.state_key], returns=[]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.address_or_index, StackType.state_key], returns=[]
+            ),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     delete key B from account A's local state of the current application
@@ -226,12 +318,16 @@ class AVMOp(enum.StrEnum):
 
     app_local_get = AVMOpData(
         op_code="app_local_get",
-        signature=OpSignature(
-            args=[StackType.address_or_index, StackType.state_key], returns=[StackType.any]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.address_or_index, StackType.state_key], returns=[StackType.any]
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     local state of the key B in the current application in account A
@@ -242,13 +338,17 @@ class AVMOp(enum.StrEnum):
 
     app_local_get_ex = AVMOpData(
         op_code="app_local_get_ex",
-        signature=OpSignature(
-            args=[StackType.address_or_index, StackType.application, StackType.state_key],
-            returns=[StackType.any, StackType.bool],
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.address_or_index, StackType.application, StackType.state_key],
+                returns=[StackType.any, StackType.bool],
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     X is the local state of application B, key C in account A. Y is 1 if key existed, else 0
@@ -261,12 +361,16 @@ class AVMOp(enum.StrEnum):
 
     app_local_put = AVMOpData(
         op_code="app_local_put",
-        signature=OpSignature(
-            args=[StackType.address_or_index, StackType.state_key, StackType.any], returns=[]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.address_or_index, StackType.state_key, StackType.any], returns=[]
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     write C to key B in account A's local state of the current application
@@ -276,12 +380,16 @@ class AVMOp(enum.StrEnum):
 
     app_opted_in = AVMOpData(
         op_code="app_opted_in",
-        signature=OpSignature(
-            args=[StackType.address_or_index, StackType.application], returns=[StackType.bool]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.address_or_index, StackType.application], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     1 if account A is opted in to application B, else 0
@@ -292,41 +400,69 @@ class AVMOp(enum.StrEnum):
 
     app_params_get = AVMOpData(
         op_code="app_params_get",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "AppApprovalProgram": OpSignature(
-                    args=[StackType.application], returns=[StackType.bytes, StackType.bool]
+            variant_map={
+                "AppApprovalProgram": Variant(
+                    signature=OpSignature(
+                        args=[StackType.application], returns=[StackType.bytes, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AppClearStateProgram": OpSignature(
-                    args=[StackType.application], returns=[StackType.bytes, StackType.bool]
+                "AppClearStateProgram": Variant(
+                    signature=OpSignature(
+                        args=[StackType.application], returns=[StackType.bytes, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AppGlobalNumUint": OpSignature(
-                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                "AppGlobalNumUint": Variant(
+                    signature=OpSignature(
+                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AppGlobalNumByteSlice": OpSignature(
-                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                "AppGlobalNumByteSlice": Variant(
+                    signature=OpSignature(
+                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AppLocalNumUint": OpSignature(
-                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                "AppLocalNumUint": Variant(
+                    signature=OpSignature(
+                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AppLocalNumByteSlice": OpSignature(
-                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                "AppLocalNumByteSlice": Variant(
+                    signature=OpSignature(
+                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AppExtraProgramPages": OpSignature(
-                    args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                "AppExtraProgramPages": Variant(
+                    signature=OpSignature(
+                        args=[StackType.application], returns=[StackType.uint64, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AppCreator": OpSignature(
-                    args=[StackType.application], returns=[StackType.address, StackType.bool]
+                "AppCreator": Variant(
+                    signature=OpSignature(
+                        args=[StackType.application], returns=[StackType.address, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AppAddress": OpSignature(
-                    args=[StackType.application], returns=[StackType.address, StackType.bool]
+                "AppAddress": Variant(
+                    signature=OpSignature(
+                        args=[StackType.application], returns=[StackType.address, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.app,
     )
     """
     X is field F from app A. Y is 1 if A exists, else 0
@@ -337,10 +473,13 @@ class AVMOp(enum.StrEnum):
 
     arg = AVMOpData(
         op_code="arg",
-        signature=OpSignature(args=[], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[], returns=[StackType.bytes]), supported_modes=RunMode.lsig
+        ),
         immediate_types=(ImmediateKind.uint8,),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.lsig,
     )
     """
     Nth LogicSig argument
@@ -348,10 +487,13 @@ class AVMOp(enum.StrEnum):
 
     arg_0 = AVMOpData(
         op_code="arg_0",
-        signature=OpSignature(args=[], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[], returns=[StackType.bytes]), supported_modes=RunMode.lsig
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.lsig,
     )
     """
     LogicSig argument 0
@@ -359,10 +501,13 @@ class AVMOp(enum.StrEnum):
 
     arg_1 = AVMOpData(
         op_code="arg_1",
-        signature=OpSignature(args=[], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[], returns=[StackType.bytes]), supported_modes=RunMode.lsig
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.lsig,
     )
     """
     LogicSig argument 1
@@ -370,10 +515,13 @@ class AVMOp(enum.StrEnum):
 
     arg_2 = AVMOpData(
         op_code="arg_2",
-        signature=OpSignature(args=[], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[], returns=[StackType.bytes]), supported_modes=RunMode.lsig
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.lsig,
     )
     """
     LogicSig argument 2
@@ -381,10 +529,13 @@ class AVMOp(enum.StrEnum):
 
     arg_3 = AVMOpData(
         op_code="arg_3",
-        signature=OpSignature(args=[], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[], returns=[StackType.bytes]), supported_modes=RunMode.lsig
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.lsig,
     )
     """
     LogicSig argument 3
@@ -392,10 +543,14 @@ class AVMOp(enum.StrEnum):
 
     args = AVMOpData(
         op_code="args",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+            supported_modes=RunMode.lsig,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.lsig,
     )
     """
     Ath LogicSig argument
@@ -403,10 +558,13 @@ class AVMOp(enum.StrEnum):
 
     assert_ = AVMOpData(
         op_code="assert",
-        signature=OpSignature(args=[StackType.uint64], returns=[]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[]), supported_modes=RunMode.any
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=3,
+        supported_modes=RunMode.any,
     )
     """
     immediately fail unless A is a non-zero number
@@ -414,22 +572,29 @@ class AVMOp(enum.StrEnum):
 
     asset_holding_get = AVMOpData(
         op_code="asset_holding_get",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "AssetBalance": OpSignature(
-                    args=[StackType.address_or_index, StackType.asset],
-                    returns=[StackType.uint64, StackType.bool],
+            variant_map={
+                "AssetBalance": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index, StackType.asset],
+                        returns=[StackType.uint64, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetFrozen": OpSignature(
-                    args=[StackType.address_or_index, StackType.asset],
-                    returns=[StackType.bool, StackType.bool],
+                "AssetFrozen": Variant(
+                    signature=OpSignature(
+                        args=[StackType.address_or_index, StackType.asset],
+                        returns=[StackType.bool, StackType.bool],
+                    ),
+                    supported_modes=RunMode.app,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     X is field F from account A's holding of asset B. Y is 1 if A is opted into B, else 0
@@ -441,50 +606,87 @@ class AVMOp(enum.StrEnum):
 
     asset_params_get = AVMOpData(
         op_code="asset_params_get",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "AssetTotal": OpSignature(
-                    args=[StackType.asset], returns=[StackType.uint64, StackType.bool]
+            variant_map={
+                "AssetTotal": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.uint64, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetDecimals": OpSignature(
-                    args=[StackType.asset], returns=[StackType.uint64, StackType.bool]
+                "AssetDecimals": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.uint64, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetDefaultFrozen": OpSignature(
-                    args=[StackType.asset], returns=[StackType.bool, StackType.bool]
+                "AssetDefaultFrozen": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.bool, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetUnitName": OpSignature(
-                    args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                "AssetUnitName": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetName": OpSignature(
-                    args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                "AssetName": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetURL": OpSignature(
-                    args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                "AssetURL": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetMetadataHash": OpSignature(
-                    args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                "AssetMetadataHash": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.bytes, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetManager": OpSignature(
-                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                "AssetManager": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetReserve": OpSignature(
-                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                "AssetReserve": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetFreeze": OpSignature(
-                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                "AssetFreeze": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetClawback": OpSignature(
-                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                "AssetClawback": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "AssetCreator": OpSignature(
-                    args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                "AssetCreator": Variant(
+                    signature=OpSignature(
+                        args=[StackType.asset], returns=[StackType.address, StackType.bool]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     X is field F from asset A. Y is 1 if A exists, else 0
@@ -495,10 +697,14 @@ class AVMOp(enum.StrEnum):
 
     balance = AVMOpData(
         op_code="balance",
-        signature=OpSignature(args=[StackType.address_or_index], returns=[StackType.uint64]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.address_or_index], returns=[StackType.uint64]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.app,
     )
     """
     balance for account A, in microalgos. The balance is observed after the effects of previous
@@ -511,10 +717,14 @@ class AVMOp(enum.StrEnum):
 
     base64_decode = AVMOpData(
         op_code="base64_decode",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=7,
+        supported_modes=RunMode.any,
     )
     """
     decode A which was base64-encoded using _encoding_ E. Fail if A is not base64 encoded with
@@ -538,10 +748,14 @@ class AVMOp(enum.StrEnum):
 
     bitlen = AVMOpData(
         op_code="bitlen",
-        signature=OpSignature(args=[StackType.any], returns=[StackType.uint64]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.any], returns=[StackType.uint64]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     The highest set bit in A. If A is a byte-array, it is interpreted as a big-endian unsigned
@@ -552,12 +766,16 @@ class AVMOp(enum.StrEnum):
 
     bitwise_and = AVMOpData(
         op_code="&",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A bitwise-and B
@@ -565,10 +783,16 @@ class AVMOp(enum.StrEnum):
 
     bitwise_and_bytes = AVMOpData(
         op_code="b&",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=6,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A bitwise-and B. A and B are zero-left extended to the greater of their lengths
@@ -576,10 +800,14 @@ class AVMOp(enum.StrEnum):
 
     bitwise_not = AVMOpData(
         op_code="~",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     bitwise invert value A
@@ -587,10 +815,14 @@ class AVMOp(enum.StrEnum):
 
     bitwise_not_bytes = AVMOpData(
         op_code="b~",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=4,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A with all bits inverted
@@ -598,12 +830,16 @@ class AVMOp(enum.StrEnum):
 
     bitwise_or = AVMOpData(
         op_code="|",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A bitwise-or B
@@ -611,10 +847,16 @@ class AVMOp(enum.StrEnum):
 
     bitwise_or_bytes = AVMOpData(
         op_code="b|",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=6,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A bitwise-or B. A and B are zero-left extended to the greater of their lengths
@@ -622,12 +864,16 @@ class AVMOp(enum.StrEnum):
 
     bitwise_xor = AVMOpData(
         op_code="^",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A bitwise-xor B
@@ -635,10 +881,16 @@ class AVMOp(enum.StrEnum):
 
     bitwise_xor_bytes = AVMOpData(
         op_code="b^",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=6,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A bitwise-xor B. A and B are zero-left extended to the greater of their lengths
@@ -646,16 +898,23 @@ class AVMOp(enum.StrEnum):
 
     block = AVMOpData(
         op_code="block",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "BlkSeed": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "BlkTimestamp": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+            variant_map={
+                "BlkSeed": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "BlkTimestamp": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=7,
+        supported_modes=RunMode.any,
     )
     """
     field F of block A. Fail unless A falls between txn.LastValid-1002 and txn.FirstValid
@@ -664,12 +923,16 @@ class AVMOp(enum.StrEnum):
 
     box_create = AVMOpData(
         op_code="box_create",
-        signature=OpSignature(
-            args=[StackType.box_name, StackType.uint64], returns=[StackType.bool]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.box_name, StackType.uint64], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=8,
+        supported_modes=RunMode.app,
     )
     """
     create a box named A, of length B. Fail if the name A is empty or B exceeds 32,768. Returns 0
@@ -681,10 +944,14 @@ class AVMOp(enum.StrEnum):
 
     box_del = AVMOpData(
         op_code="box_del",
-        signature=OpSignature(args=[StackType.box_name], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.box_name], returns=[StackType.bool]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=8,
+        supported_modes=RunMode.app,
     )
     """
     delete box named A if it exists. Return 1 if A existed, 0 otherwise
@@ -692,13 +959,17 @@ class AVMOp(enum.StrEnum):
 
     box_extract = AVMOpData(
         op_code="box_extract",
-        signature=OpSignature(
-            args=[StackType.box_name, StackType.uint64, StackType.uint64],
-            returns=[StackType.bytes],
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.box_name, StackType.uint64, StackType.uint64],
+                returns=[StackType.bytes],
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=8,
+        supported_modes=RunMode.app,
     )
     """
     read C bytes from box A, starting at offset B. Fail if A does not exist, or the byte range is
@@ -707,12 +978,16 @@ class AVMOp(enum.StrEnum):
 
     box_get = AVMOpData(
         op_code="box_get",
-        signature=OpSignature(
-            args=[StackType.box_name], returns=[StackType.bytes, StackType.bool]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.box_name], returns=[StackType.bytes, StackType.bool]
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=8,
+        supported_modes=RunMode.app,
     )
     """
     X is the contents of box A if A exists, else ''. Y is 1 if A exists, else 0.
@@ -722,12 +997,16 @@ class AVMOp(enum.StrEnum):
 
     box_len = AVMOpData(
         op_code="box_len",
-        signature=OpSignature(
-            args=[StackType.box_name], returns=[StackType.uint64, StackType.bool]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.box_name], returns=[StackType.uint64, StackType.bool]
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=8,
+        supported_modes=RunMode.app,
     )
     """
     X is the length of box A if A exists, else 0. Y is 1 if A exists, else 0.
@@ -735,10 +1014,14 @@ class AVMOp(enum.StrEnum):
 
     box_put = AVMOpData(
         op_code="box_put",
-        signature=OpSignature(args=[StackType.box_name, StackType.bytes], returns=[]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.box_name, StackType.bytes], returns=[]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=8,
+        supported_modes=RunMode.app,
     )
     """
     replaces the contents of box A with byte-array B. Fails if A exists and len(B) != len(box A).
@@ -749,12 +1032,16 @@ class AVMOp(enum.StrEnum):
 
     box_replace = AVMOpData(
         op_code="box_replace",
-        signature=OpSignature(
-            args=[StackType.box_name, StackType.uint64, StackType.bytes], returns=[]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.box_name, StackType.uint64, StackType.bytes], returns=[]
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=8,
+        supported_modes=RunMode.app,
     )
     """
     write byte-array C into box A, starting at offset B. Fail if A does not exist, or the byte
@@ -763,10 +1050,14 @@ class AVMOp(enum.StrEnum):
 
     box_resize = AVMOpData(
         op_code="box_resize",
-        signature=OpSignature(args=[StackType.box_name, StackType.uint64], returns=[]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.box_name, StackType.uint64], returns=[]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=10,
+        supported_modes=RunMode.app,
     )
     """
     change the size of box named A to be of length B, adding zero bytes to end or removing bytes
@@ -776,13 +1067,17 @@ class AVMOp(enum.StrEnum):
 
     box_splice = AVMOpData(
         op_code="box_splice",
-        signature=OpSignature(
-            args=[StackType.box_name, StackType.uint64, StackType.uint64, StackType.bytes],
-            returns=[],
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.box_name, StackType.uint64, StackType.uint64, StackType.bytes],
+                returns=[],
+            ),
+            supported_modes=RunMode.app,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=10,
+        supported_modes=RunMode.app,
     )
     """
     set box A to contain its previous bytes up to index B, followed by D, followed by the original
@@ -794,10 +1089,14 @@ class AVMOp(enum.StrEnum):
 
     bsqrt = AVMOpData(
         op_code="bsqrt",
-        signature=OpSignature(args=[StackType.bigint], returns=[StackType.bigint]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bigint], returns=[StackType.bigint]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=40,
         min_avm_version=6,
+        supported_modes=RunMode.any,
     )
     """
     The largest integer I such that I^2 <= A. A and I are interpreted as big-endian unsigned
@@ -806,10 +1105,14 @@ class AVMOp(enum.StrEnum):
 
     btoi = AVMOpData(
         op_code="btoi",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.uint64]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.uint64]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     converts big-endian byte array A to uint64. Fails if len(A) > 8. Padded by leading 0s if len(A)
@@ -820,10 +1123,14 @@ class AVMOp(enum.StrEnum):
 
     bzero = AVMOpData(
         op_code="bzero",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     zero filled byte-array of length A
@@ -831,10 +1138,16 @@ class AVMOp(enum.StrEnum):
 
     concat = AVMOpData(
         op_code="concat",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.any,
     )
     """
     join A and B
@@ -844,12 +1157,16 @@ class AVMOp(enum.StrEnum):
 
     div_floor = AVMOpData(
         op_code="/",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A divided by B (truncated division). Fail if B == 0.
@@ -859,12 +1176,16 @@ class AVMOp(enum.StrEnum):
 
     div_floor_bytes = AVMOpData(
         op_code="b/",
-        signature=OpSignature(
-            args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=20,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A divided by B (truncated division). A and B are interpreted as big-endian unsigned integers.
@@ -873,13 +1194,17 @@ class AVMOp(enum.StrEnum):
 
     divmodw = AVMOpData(
         op_code="divmodw",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64, StackType.uint64, StackType.uint64],
-            returns=[StackType.uint64, StackType.uint64, StackType.uint64, StackType.uint64],
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64, StackType.uint64, StackType.uint64],
+                returns=[StackType.uint64, StackType.uint64, StackType.uint64, StackType.uint64],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=20,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     W,X = (A,B / C,D); Y,Z = (A,B modulo C,D)
@@ -890,12 +1215,17 @@ class AVMOp(enum.StrEnum):
 
     divw = AVMOpData(
         op_code="divw",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64, StackType.uint64],
+                returns=[StackType.uint64],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=6,
+        supported_modes=RunMode.any,
     )
     """
     A,B / C. Fail if C == 0 or if result overflows.
@@ -906,10 +1236,16 @@ class AVMOp(enum.StrEnum):
 
     ec_add = AVMOpData(
         op_code="ec_add",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=10,
+        supported_modes=RunMode.any,
     )
     """
     for curve points A and B, return the curve point A + B
@@ -940,10 +1276,14 @@ class AVMOp(enum.StrEnum):
 
     ec_map_to = AVMOpData(
         op_code="ec_map_to",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=10,
+        supported_modes=RunMode.any,
     )
     """
     maps field element A to group G
@@ -959,10 +1299,16 @@ class AVMOp(enum.StrEnum):
 
     ec_multi_scalar_mul = AVMOpData(
         op_code="ec_multi_scalar_mul",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=10,
+        supported_modes=RunMode.any,
     )
     """
     for curve points A and scalars B, return curve point B0A0 + B1A1 + B2A2 + ... + BnAn
@@ -977,10 +1323,16 @@ class AVMOp(enum.StrEnum):
 
     ec_pairing_check = AVMOpData(
         op_code="ec_pairing_check",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=10,
+        supported_modes=RunMode.any,
     )
     """
     1 if the product of the pairing of each point in A with its respective point in B is equal to
@@ -996,10 +1348,16 @@ class AVMOp(enum.StrEnum):
 
     ec_scalar_mul = AVMOpData(
         op_code="ec_scalar_mul",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=10,
+        supported_modes=RunMode.any,
     )
     """
     for curve point A and scalar B, return the curve point BA, the point A multiplied by the scalar
@@ -1011,10 +1369,14 @@ class AVMOp(enum.StrEnum):
 
     ec_subgroup_check = AVMOpData(
         op_code="ec_subgroup_check",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bool]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=10,
+        supported_modes=RunMode.any,
     )
     """
     1 if A is in the main prime-order subgroup of G (including the point at infinity) else 0.
@@ -1023,10 +1385,16 @@ class AVMOp(enum.StrEnum):
 
     ecdsa_pk_decompress = AVMOpData(
         op_code="ecdsa_pk_decompress",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes, StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes], returns=[StackType.bytes, StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     decompress pubkey A into components X, Y
@@ -1037,13 +1405,17 @@ class AVMOp(enum.StrEnum):
 
     ecdsa_pk_recover = AVMOpData(
         op_code="ecdsa_pk_recover",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.uint64, StackType.bytes, StackType.bytes],
-            returns=[StackType.bytes, StackType.bytes],
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.uint64, StackType.bytes, StackType.bytes],
+                returns=[StackType.bytes, StackType.bytes],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=2000,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     for (data A, recovery id B, signature C, D) recover a public key
@@ -1055,19 +1427,23 @@ class AVMOp(enum.StrEnum):
 
     ecdsa_verify = AVMOpData(
         op_code="ecdsa_verify",
-        signature=OpSignature(
-            args=[
-                StackType.bytes,
-                StackType.bytes,
-                StackType.bytes,
-                StackType.bytes,
-                StackType.bytes,
-            ],
-            returns=[StackType.bool],
+        variants=Variant(
+            signature=OpSignature(
+                args=[
+                    StackType.bytes,
+                    StackType.bytes,
+                    StackType.bytes,
+                    StackType.bytes,
+                    StackType.bytes,
+                ],
+                returns=[StackType.bool],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     for (data A, signature B, C and pubkey D, E) verify the signature of the data against the
@@ -1081,12 +1457,16 @@ class AVMOp(enum.StrEnum):
 
     ed25519verify = AVMOpData(
         op_code="ed25519verify",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.bytes, StackType.bytes], returns=[StackType.bool]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes, StackType.bytes], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1900,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     for (data A, signature B, pubkey C) verify the signature of ("ProgData" || program_hash ||
@@ -1099,12 +1479,16 @@ class AVMOp(enum.StrEnum):
 
     ed25519verify_bare = AVMOpData(
         op_code="ed25519verify_bare",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.bytes, StackType.bytes], returns=[StackType.bool]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes, StackType.bytes], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1900,
         min_avm_version=7,
+        supported_modes=RunMode.any,
     )
     """
     for (data A, signature B, pubkey C) verify the signature of the data against the pubkey => {0
@@ -1113,10 +1497,14 @@ class AVMOp(enum.StrEnum):
 
     eq = AVMOpData(
         op_code="==",
-        signature=OpSignature(args=[StackType.any, StackType.any], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.any, StackType.any], returns=[StackType.bool]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A is equal to B => {0 or 1}
@@ -1124,10 +1512,16 @@ class AVMOp(enum.StrEnum):
 
     eq_bytes = AVMOpData(
         op_code="b==",
-        signature=OpSignature(args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     1 if A is equal to B, else 0. A and B are interpreted as big-endian unsigned integers
@@ -1135,12 +1529,16 @@ class AVMOp(enum.StrEnum):
 
     exp = AVMOpData(
         op_code="exp",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A raised to the Bth power. Fail if A == B == 0 and on overflow
@@ -1148,12 +1546,17 @@ class AVMOp(enum.StrEnum):
 
     expw = AVMOpData(
         op_code="expw",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64, StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64],
+                returns=[StackType.uint64, StackType.uint64],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=10,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A raised to the Bth power as a 128-bit result in two uint64s. X is the high 64 bits, Y is the
@@ -1162,10 +1565,14 @@ class AVMOp(enum.StrEnum):
 
     extract = AVMOpData(
         op_code="extract",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.uint8, ImmediateKind.uint8),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     A range of bytes from A starting at S up to but not including S+L. If L is 0, then extract to
@@ -1174,12 +1581,17 @@ class AVMOp(enum.StrEnum):
 
     extract3 = AVMOpData(
         op_code="extract3",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.uint64, StackType.uint64],
+                returns=[StackType.bytes],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     A range of bytes from A starting at B up to but not including B+C. If B+C is larger than the
@@ -1190,12 +1602,16 @@ class AVMOp(enum.StrEnum):
 
     extract_uint16 = AVMOpData(
         op_code="extract_uint16",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     A uint16 formed from a range of big-endian bytes from A starting at B up to but not including
@@ -1204,12 +1620,16 @@ class AVMOp(enum.StrEnum):
 
     extract_uint32 = AVMOpData(
         op_code="extract_uint32",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     A uint32 formed from a range of big-endian bytes from A starting at B up to but not including
@@ -1218,12 +1638,16 @@ class AVMOp(enum.StrEnum):
 
     extract_uint64 = AVMOpData(
         op_code="extract_uint64",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     A uint64 formed from a range of big-endian bytes from A starting at B up to but not including
@@ -1232,10 +1656,14 @@ class AVMOp(enum.StrEnum):
 
     gaid = AVMOpData(
         op_code="gaid",
-        signature=OpSignature(args=[], returns=[StackType.application]),
+        variants=Variant(
+            signature=OpSignature(args=[], returns=[StackType.application]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(ImmediateKind.uint8,),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.app,
     )
     """
     ID of the asset or application created in the Tth transaction of the current group
@@ -1246,10 +1674,14 @@ class AVMOp(enum.StrEnum):
 
     gaids = AVMOpData(
         op_code="gaids",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.application]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.application]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.app,
     )
     """
     ID of the asset or application created in the Ath transaction of the current group
@@ -1260,10 +1692,16 @@ class AVMOp(enum.StrEnum):
 
     getbit = AVMOpData(
         op_code="getbit",
-        signature=OpSignature(args=[StackType.any, StackType.uint64], returns=[StackType.uint64]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.any, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=3,
+        supported_modes=RunMode.any,
     )
     """
     Bth bit of (byte-array or integer) A. If B is greater than or equal to the bit length of the
@@ -1274,12 +1712,16 @@ class AVMOp(enum.StrEnum):
 
     getbyte = AVMOpData(
         op_code="getbyte",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=3,
+        supported_modes=RunMode.any,
     )
     """
     Bth byte of A, as an integer. If B is greater than or equal to the array length, the program
@@ -1288,82 +1730,287 @@ class AVMOp(enum.StrEnum):
 
     gitxn = AVMOpData(
         op_code="gitxn",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=1,
-            signatures={
-                "Sender": OpSignature(args=[], returns=[StackType.address]),
-                "Fee": OpSignature(args=[], returns=[StackType.uint64]),
-                "FirstValid": OpSignature(args=[], returns=[StackType.uint64]),
-                "FirstValidTime": OpSignature(args=[], returns=[StackType.uint64]),
-                "LastValid": OpSignature(args=[], returns=[StackType.uint64]),
-                "Note": OpSignature(args=[], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[], returns=[StackType.bytes]),
-                "Receiver": OpSignature(args=[], returns=[StackType.address]),
-                "Amount": OpSignature(args=[], returns=[StackType.uint64]),
-                "CloseRemainderTo": OpSignature(args=[], returns=[StackType.address]),
-                "VotePK": OpSignature(args=[], returns=[StackType.bytes]),
-                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes]),
-                "VoteFirst": OpSignature(args=[], returns=[StackType.uint64]),
-                "VoteLast": OpSignature(args=[], returns=[StackType.uint64]),
-                "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
-                "Type": OpSignature(args=[], returns=[StackType.bytes]),
-                "TypeEnum": OpSignature(args=[], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "AssetAmount": OpSignature(args=[], returns=[StackType.uint64]),
-                "AssetSender": OpSignature(args=[], returns=[StackType.address]),
-                "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
-                "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
-                "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(args=[], returns=[StackType.application]),
-                "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
-                "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumAppArgs": OpSignature(args=[], returns=[StackType.uint64]),
-                "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "NumAccounts": OpSignature(args=[], returns=[StackType.uint64]),
-                "ApprovalProgram": OpSignature(args=[], returns=[StackType.bytes]),
-                "ClearStateProgram": OpSignature(args=[], returns=[StackType.bytes]),
-                "RekeyTo": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "ConfigAssetTotal": OpSignature(args=[], returns=[StackType.uint64]),
-                "ConfigAssetDecimals": OpSignature(args=[], returns=[StackType.uint64]),
-                "ConfigAssetDefaultFrozen": OpSignature(args=[], returns=[StackType.bool]),
-                "ConfigAssetUnitName": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetName": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetURL": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetManager": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetClawback": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "FreezeAssetAccount": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAssetFrozen": OpSignature(args=[], returns=[StackType.bool]),
-                "Assets": OpSignature(args=[], returns=[StackType.uint64]),
-                "NumAssets": OpSignature(args=[], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[], returns=[StackType.uint64]),
-                "NumApplications": OpSignature(args=[], returns=[StackType.uint64]),
-                "GlobalNumUint": OpSignature(args=[], returns=[StackType.uint64]),
-                "GlobalNumByteSlice": OpSignature(args=[], returns=[StackType.uint64]),
-                "LocalNumUint": OpSignature(args=[], returns=[StackType.uint64]),
-                "LocalNumByteSlice": OpSignature(args=[], returns=[StackType.uint64]),
-                "ExtraProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
-                "Nonparticipation": OpSignature(args=[], returns=[StackType.bool]),
-                "Logs": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumLogs": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[], returns=[StackType.asset]),
-                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.application]),
-                "LastLog": OpSignature(args=[], returns=[StackType.bytes]),
-                "StateProofPK": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumApprovalProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
-                "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumClearStateProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
+            variant_map={
+                "Sender": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Fee": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "FirstValid": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "FirstValidTime": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LastValid": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Note": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Lease": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Receiver": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Amount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "CloseRemainderTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "VotePK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "SelectionPK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteFirst": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteLast": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteKeyDilution": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Type": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "TypeEnum": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "XferAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetAmount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetSender": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetReceiver": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetCloseTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "GroupIndex": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "TxID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.any,
+                ),
+                "OnCompletion": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAppArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAccounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgram": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgram": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "RekeyTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetTotal": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDecimals": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDefaultFrozen": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetUnitName": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetName": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetURL": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetMetadataHash": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetManager": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetReserve": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetFreeze": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetClawback": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetAccount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetFrozen": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAssets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApplications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumUint": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumByteSlice": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumUint": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumByteSlice": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ExtraProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Nonparticipation": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "NumLogs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedAssetID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.app,
+                ),
+                "LastLog": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "StateProofPK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.uint8, ImmediateKind.arg_enum),
         cost=1,
         min_avm_version=6,
+        supported_modes=RunMode.app,
     )
     """
     field F of the Tth transaction in the last inner group submitted
@@ -1371,21 +2018,43 @@ class AVMOp(enum.StrEnum):
 
     gitxna = AVMOpData(
         op_code="gitxna",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=1,
-            signatures={
-                "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
-                "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "Assets": OpSignature(args=[], returns=[StackType.asset]),
-                "Applications": OpSignature(args=[], returns=[StackType.application]),
-                "Logs": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.uint8, ImmediateKind.arg_enum, ImmediateKind.uint8),
         cost=1,
         min_avm_version=6,
+        supported_modes=RunMode.app,
     )
     """
     Ith value of the array field F from the Tth transaction in the last inner group submitted
@@ -1393,27 +2062,45 @@ class AVMOp(enum.StrEnum):
 
     gitxnas = AVMOpData(
         op_code="gitxnas",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=1,
-            signatures={
-                "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
-                "Applications": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.application]
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Accounts": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "ClearStateProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Assets": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64], returns=[StackType.application]
+                    ),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.uint8, ImmediateKind.arg_enum),
         cost=1,
         min_avm_version=6,
+        supported_modes=RunMode.app,
     )
     """
     Ath value of the array field F from the Tth transaction in the last inner group submitted
@@ -1421,10 +2108,13 @@ class AVMOp(enum.StrEnum):
 
     gload = AVMOpData(
         op_code="gload",
-        signature=OpSignature(args=[], returns=[StackType.any]),
+        variants=Variant(
+            signature=OpSignature(args=[], returns=[StackType.any]), supported_modes=RunMode.app
+        ),
         immediate_types=(ImmediateKind.uint8, ImmediateKind.uint8),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.app,
     )
     """
     Ith scratch space value of the Tth transaction in the current group
@@ -1434,10 +2124,14 @@ class AVMOp(enum.StrEnum):
 
     gloads = AVMOpData(
         op_code="gloads",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.any]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.any]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(ImmediateKind.uint8,),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.app,
     )
     """
     Ith scratch space value of the Ath transaction in the current group
@@ -1447,10 +2141,16 @@ class AVMOp(enum.StrEnum):
 
     gloadss = AVMOpData(
         op_code="gloadss",
-        signature=OpSignature(args=[StackType.uint64, StackType.uint64], returns=[StackType.any]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.any]
+            ),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=6,
+        supported_modes=RunMode.app,
     )
     """
     Bth scratch space value of the Ath transaction in the current group
@@ -1458,32 +2158,87 @@ class AVMOp(enum.StrEnum):
 
     global_ = AVMOpData(
         op_code="global",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "MinTxnFee": OpSignature(args=[], returns=[StackType.uint64]),
-                "MinBalance": OpSignature(args=[], returns=[StackType.uint64]),
-                "MaxTxnLife": OpSignature(args=[], returns=[StackType.uint64]),
-                "ZeroAddress": OpSignature(args=[], returns=[StackType.address]),
-                "GroupSize": OpSignature(args=[], returns=[StackType.uint64]),
-                "LogicSigVersion": OpSignature(args=[], returns=[StackType.uint64]),
-                "Round": OpSignature(args=[], returns=[StackType.uint64]),
-                "LatestTimestamp": OpSignature(args=[], returns=[StackType.uint64]),
-                "CurrentApplicationID": OpSignature(args=[], returns=[StackType.application]),
-                "CreatorAddress": OpSignature(args=[], returns=[StackType.address]),
-                "CurrentApplicationAddress": OpSignature(args=[], returns=[StackType.address]),
-                "GroupID": OpSignature(args=[], returns=[StackType.bytes]),
-                "OpcodeBudget": OpSignature(args=[], returns=[StackType.uint64]),
-                "CallerApplicationID": OpSignature(args=[], returns=[StackType.uint64]),
-                "CallerApplicationAddress": OpSignature(args=[], returns=[StackType.address]),
-                "AssetCreateMinBalance": OpSignature(args=[], returns=[StackType.uint64]),
-                "AssetOptInMinBalance": OpSignature(args=[], returns=[StackType.uint64]),
-                "GenesisHash": OpSignature(args=[], returns=[StackType.bytes]),
+            variant_map={
+                "MinTxnFee": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "MinBalance": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "MaxTxnLife": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ZeroAddress": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "GroupSize": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LogicSigVersion": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Round": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.app,
+                ),
+                "LatestTimestamp": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.app,
+                ),
+                "CurrentApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatorAddress": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.app,
+                ),
+                "CurrentApplicationAddress": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.app,
+                ),
+                "GroupID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "OpcodeBudget": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "CallerApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.app,
+                ),
+                "CallerApplicationAddress": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.app,
+                ),
+                "AssetCreateMinBalance": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetOptInMinBalance": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GenesisHash": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     global field F
@@ -1491,10 +2246,16 @@ class AVMOp(enum.StrEnum):
 
     gt = AVMOpData(
         op_code=">",
-        signature=OpSignature(args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A greater than B => {0 or 1}
@@ -1502,10 +2263,16 @@ class AVMOp(enum.StrEnum):
 
     gt_bytes = AVMOpData(
         op_code="b>",
-        signature=OpSignature(args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     1 if A is greater than B, else 0. A and B are interpreted as big-endian unsigned integers
@@ -1513,10 +2280,16 @@ class AVMOp(enum.StrEnum):
 
     gte = AVMOpData(
         op_code=">=",
-        signature=OpSignature(args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A greater than or equal to B => {0 or 1}
@@ -1524,10 +2297,16 @@ class AVMOp(enum.StrEnum):
 
     gte_bytes = AVMOpData(
         op_code="b>=",
-        signature=OpSignature(args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     1 if A is greater than or equal to B, else 0. A and B are interpreted as big-endian unsigned
@@ -1536,82 +2315,287 @@ class AVMOp(enum.StrEnum):
 
     gtxn = AVMOpData(
         op_code="gtxn",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=1,
-            signatures={
-                "Sender": OpSignature(args=[], returns=[StackType.address]),
-                "Fee": OpSignature(args=[], returns=[StackType.uint64]),
-                "FirstValid": OpSignature(args=[], returns=[StackType.uint64]),
-                "FirstValidTime": OpSignature(args=[], returns=[StackType.uint64]),
-                "LastValid": OpSignature(args=[], returns=[StackType.uint64]),
-                "Note": OpSignature(args=[], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[], returns=[StackType.bytes]),
-                "Receiver": OpSignature(args=[], returns=[StackType.address]),
-                "Amount": OpSignature(args=[], returns=[StackType.uint64]),
-                "CloseRemainderTo": OpSignature(args=[], returns=[StackType.address]),
-                "VotePK": OpSignature(args=[], returns=[StackType.bytes]),
-                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes]),
-                "VoteFirst": OpSignature(args=[], returns=[StackType.uint64]),
-                "VoteLast": OpSignature(args=[], returns=[StackType.uint64]),
-                "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
-                "Type": OpSignature(args=[], returns=[StackType.bytes]),
-                "TypeEnum": OpSignature(args=[], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "AssetAmount": OpSignature(args=[], returns=[StackType.uint64]),
-                "AssetSender": OpSignature(args=[], returns=[StackType.address]),
-                "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
-                "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
-                "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(args=[], returns=[StackType.application]),
-                "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
-                "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumAppArgs": OpSignature(args=[], returns=[StackType.uint64]),
-                "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "NumAccounts": OpSignature(args=[], returns=[StackType.uint64]),
-                "ApprovalProgram": OpSignature(args=[], returns=[StackType.bytes]),
-                "ClearStateProgram": OpSignature(args=[], returns=[StackType.bytes]),
-                "RekeyTo": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "ConfigAssetTotal": OpSignature(args=[], returns=[StackType.uint64]),
-                "ConfigAssetDecimals": OpSignature(args=[], returns=[StackType.uint64]),
-                "ConfigAssetDefaultFrozen": OpSignature(args=[], returns=[StackType.bool]),
-                "ConfigAssetUnitName": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetName": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetURL": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetManager": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetClawback": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "FreezeAssetAccount": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAssetFrozen": OpSignature(args=[], returns=[StackType.bool]),
-                "Assets": OpSignature(args=[], returns=[StackType.uint64]),
-                "NumAssets": OpSignature(args=[], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[], returns=[StackType.uint64]),
-                "NumApplications": OpSignature(args=[], returns=[StackType.uint64]),
-                "GlobalNumUint": OpSignature(args=[], returns=[StackType.uint64]),
-                "GlobalNumByteSlice": OpSignature(args=[], returns=[StackType.uint64]),
-                "LocalNumUint": OpSignature(args=[], returns=[StackType.uint64]),
-                "LocalNumByteSlice": OpSignature(args=[], returns=[StackType.uint64]),
-                "ExtraProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
-                "Nonparticipation": OpSignature(args=[], returns=[StackType.bool]),
-                "Logs": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumLogs": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[], returns=[StackType.asset]),
-                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.application]),
-                "LastLog": OpSignature(args=[], returns=[StackType.bytes]),
-                "StateProofPK": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumApprovalProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
-                "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumClearStateProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
+            variant_map={
+                "Sender": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Fee": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "FirstValid": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "FirstValidTime": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LastValid": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Note": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Lease": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Receiver": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Amount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "CloseRemainderTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "VotePK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "SelectionPK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteFirst": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteLast": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteKeyDilution": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Type": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "TypeEnum": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "XferAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetAmount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetSender": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetReceiver": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetCloseTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "GroupIndex": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "TxID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.any,
+                ),
+                "OnCompletion": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAppArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAccounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgram": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgram": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "RekeyTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetTotal": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDecimals": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDefaultFrozen": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetUnitName": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetName": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetURL": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetMetadataHash": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetManager": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetReserve": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetFreeze": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetClawback": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetAccount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetFrozen": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAssets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApplications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumUint": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumByteSlice": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumUint": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumByteSlice": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ExtraProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Nonparticipation": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "NumLogs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedAssetID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.app,
+                ),
+                "LastLog": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "StateProofPK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.uint8, ImmediateKind.arg_enum),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     field F of the Tth transaction in the current group
@@ -1622,21 +2606,43 @@ class AVMOp(enum.StrEnum):
 
     gtxna = AVMOpData(
         op_code="gtxna",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=1,
-            signatures={
-                "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
-                "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "Assets": OpSignature(args=[], returns=[StackType.asset]),
-                "Applications": OpSignature(args=[], returns=[StackType.application]),
-                "Logs": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.uint8, ImmediateKind.arg_enum, ImmediateKind.uint8),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.any,
     )
     """
     Ith value of the array field F from the Tth transaction in the current group
@@ -1646,27 +2652,45 @@ class AVMOp(enum.StrEnum):
 
     gtxnas = AVMOpData(
         op_code="gtxnas",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=1,
-            signatures={
-                "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
-                "Applications": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.application]
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Accounts": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "ClearStateProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Assets": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64], returns=[StackType.application]
+                    ),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.uint8, ImmediateKind.arg_enum),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     Ath value of the array field F from the Tth transaction in the current group
@@ -1674,130 +2698,291 @@ class AVMOp(enum.StrEnum):
 
     gtxns = AVMOpData(
         op_code="gtxns",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "Sender": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Fee": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "FirstValid": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "FirstValidTime": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "LastValid": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "Note": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "Receiver": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Amount": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "CloseRemainderTo": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address]
+            variant_map={
+                "Sender": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "VotePK": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "SelectionPK": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "VoteFirst": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "VoteLast": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "VoteKeyDilution": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                "Fee": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "Type": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "TypeEnum": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
-                "AssetAmount": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "AssetSender": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "AssetReceiver": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "AssetCloseTo": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "GroupIndex": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.application]
+                "FirstValid": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "OnCompletion": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "NumAppArgs": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "NumAccounts": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "ApprovalProgram": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ClearStateProgram": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "FirstValidTime": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "RekeyTo": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
-                "ConfigAssetTotal": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                "LastValid": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "ConfigAssetDecimals": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                "Note": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "ConfigAssetDefaultFrozen": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bool]
+                "Lease": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "ConfigAssetUnitName": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Receiver": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "ConfigAssetName": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ConfigAssetURL": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ConfigAssetMetadataHash": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Amount": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "ConfigAssetManager": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address]
+                "CloseRemainderTo": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "ConfigAssetReserve": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address]
+                "VotePK": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "ConfigAssetFreeze": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address]
+                "SelectionPK": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "ConfigAssetClawback": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address]
+                "VoteFirst": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "FreezeAsset": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
-                "FreezeAssetAccount": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.address]
+                "VoteLast": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "FreezeAssetFrozen": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bool]
+                "VoteKeyDilution": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "NumAssets": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "NumApplications": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                "Type": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "GlobalNumUint": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "GlobalNumByteSlice": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                "TypeEnum": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "LocalNumUint": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "LocalNumByteSlice": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                "XferAsset": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
                 ),
-                "ExtraProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                "AssetAmount": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "Nonparticipation": OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
-                "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "NumLogs": OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
-                "CreatedApplicationID": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.application]
+                "AssetSender": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "LastLog": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "StateProofPK": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "AssetReceiver": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "NumApprovalProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                "AssetCloseTo": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "ClearStateProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "GroupIndex": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
-                "NumClearStateProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.uint64]
+                "TxID": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationID": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64], returns=[StackType.application]
+                    ),
+                    supported_modes=RunMode.any,
+                ),
+                "OnCompletion": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAppArgs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAccounts": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgram": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgram": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "RekeyTo": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAsset": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetTotal": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDecimals": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDefaultFrozen": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetUnitName": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetName": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetURL": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetMetadataHash": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetManager": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetReserve": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetFreeze": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetClawback": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAsset": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetAccount": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetFrozen": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAssets": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApplications": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumUint": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumByteSlice": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumUint": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumByteSlice": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ExtraProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Nonparticipation": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "NumLogs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedAssetID": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedApplicationID": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64], returns=[StackType.application]
+                    ),
+                    supported_modes=RunMode.app,
+                ),
+                "LastLog": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "StateProofPK": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=3,
+        supported_modes=RunMode.any,
     )
     """
     field F of the Ath transaction in the current group
@@ -1809,27 +2994,45 @@ class AVMOp(enum.StrEnum):
 
     gtxnsa = AVMOpData(
         op_code="gtxnsa",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
-                "Applications": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.application]
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Accounts": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "ClearStateProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Assets": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64], returns=[StackType.application]
+                    ),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum, ImmediateKind.uint8),
         cost=1,
         min_avm_version=3,
+        supported_modes=RunMode.any,
     )
     """
     Ith value of the array field F from the Ath transaction in the current group
@@ -1839,35 +3042,57 @@ class AVMOp(enum.StrEnum):
 
     gtxnsas = AVMOpData(
         op_code="gtxnsas",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "ApplicationArgs": OpSignature(
-                    args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                    ),
+                    supported_modes=RunMode.any,
                 ),
-                "Accounts": OpSignature(
-                    args=[StackType.uint64, StackType.uint64], returns=[StackType.address]
+                "Accounts": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64, StackType.uint64], returns=[StackType.address]
+                    ),
+                    supported_modes=RunMode.any,
                 ),
-                "Assets": OpSignature(
-                    args=[StackType.uint64, StackType.uint64], returns=[StackType.asset]
+                "Assets": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64, StackType.uint64], returns=[StackType.asset]
+                    ),
+                    supported_modes=RunMode.any,
                 ),
-                "Applications": OpSignature(
-                    args=[StackType.uint64, StackType.uint64], returns=[StackType.application]
+                "Applications": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64, StackType.uint64], returns=[StackType.application]
+                    ),
+                    supported_modes=RunMode.any,
                 ),
-                "Logs": OpSignature(
-                    args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                "Logs": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                    ),
+                    supported_modes=RunMode.app,
                 ),
-                "ApprovalProgramPages": OpSignature(
-                    args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                    ),
+                    supported_modes=RunMode.any,
                 ),
-                "ClearStateProgramPages": OpSignature(
-                    args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+                    ),
+                    supported_modes=RunMode.any,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     Bth value of the array field F from the Ath transaction in the current group
@@ -1875,10 +3100,14 @@ class AVMOp(enum.StrEnum):
 
     itob = AVMOpData(
         op_code="itob",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     converts uint64 A to big-endian byte array, always of length 8
@@ -1886,82 +3115,287 @@ class AVMOp(enum.StrEnum):
 
     itxn = AVMOpData(
         op_code="itxn",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "Sender": OpSignature(args=[], returns=[StackType.address]),
-                "Fee": OpSignature(args=[], returns=[StackType.uint64]),
-                "FirstValid": OpSignature(args=[], returns=[StackType.uint64]),
-                "FirstValidTime": OpSignature(args=[], returns=[StackType.uint64]),
-                "LastValid": OpSignature(args=[], returns=[StackType.uint64]),
-                "Note": OpSignature(args=[], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[], returns=[StackType.bytes]),
-                "Receiver": OpSignature(args=[], returns=[StackType.address]),
-                "Amount": OpSignature(args=[], returns=[StackType.uint64]),
-                "CloseRemainderTo": OpSignature(args=[], returns=[StackType.address]),
-                "VotePK": OpSignature(args=[], returns=[StackType.bytes]),
-                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes]),
-                "VoteFirst": OpSignature(args=[], returns=[StackType.uint64]),
-                "VoteLast": OpSignature(args=[], returns=[StackType.uint64]),
-                "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
-                "Type": OpSignature(args=[], returns=[StackType.bytes]),
-                "TypeEnum": OpSignature(args=[], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "AssetAmount": OpSignature(args=[], returns=[StackType.uint64]),
-                "AssetSender": OpSignature(args=[], returns=[StackType.address]),
-                "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
-                "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
-                "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(args=[], returns=[StackType.application]),
-                "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
-                "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumAppArgs": OpSignature(args=[], returns=[StackType.uint64]),
-                "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "NumAccounts": OpSignature(args=[], returns=[StackType.uint64]),
-                "ApprovalProgram": OpSignature(args=[], returns=[StackType.bytes]),
-                "ClearStateProgram": OpSignature(args=[], returns=[StackType.bytes]),
-                "RekeyTo": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "ConfigAssetTotal": OpSignature(args=[], returns=[StackType.uint64]),
-                "ConfigAssetDecimals": OpSignature(args=[], returns=[StackType.uint64]),
-                "ConfigAssetDefaultFrozen": OpSignature(args=[], returns=[StackType.bool]),
-                "ConfigAssetUnitName": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetName": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetURL": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetManager": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetClawback": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "FreezeAssetAccount": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAssetFrozen": OpSignature(args=[], returns=[StackType.bool]),
-                "Assets": OpSignature(args=[], returns=[StackType.uint64]),
-                "NumAssets": OpSignature(args=[], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[], returns=[StackType.uint64]),
-                "NumApplications": OpSignature(args=[], returns=[StackType.uint64]),
-                "GlobalNumUint": OpSignature(args=[], returns=[StackType.uint64]),
-                "GlobalNumByteSlice": OpSignature(args=[], returns=[StackType.uint64]),
-                "LocalNumUint": OpSignature(args=[], returns=[StackType.uint64]),
-                "LocalNumByteSlice": OpSignature(args=[], returns=[StackType.uint64]),
-                "ExtraProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
-                "Nonparticipation": OpSignature(args=[], returns=[StackType.bool]),
-                "Logs": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumLogs": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[], returns=[StackType.asset]),
-                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.application]),
-                "LastLog": OpSignature(args=[], returns=[StackType.bytes]),
-                "StateProofPK": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumApprovalProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
-                "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumClearStateProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
+            variant_map={
+                "Sender": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Fee": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "FirstValid": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "FirstValidTime": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LastValid": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Note": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Lease": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Receiver": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Amount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "CloseRemainderTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "VotePK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "SelectionPK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteFirst": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteLast": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteKeyDilution": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Type": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "TypeEnum": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "XferAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetAmount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetSender": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetReceiver": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetCloseTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "GroupIndex": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "TxID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.any,
+                ),
+                "OnCompletion": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAppArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAccounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgram": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgram": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "RekeyTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetTotal": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDecimals": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDefaultFrozen": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetUnitName": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetName": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetURL": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetMetadataHash": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetManager": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetReserve": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetFreeze": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetClawback": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetAccount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetFrozen": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAssets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApplications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumUint": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumByteSlice": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumUint": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumByteSlice": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ExtraProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Nonparticipation": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "NumLogs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedAssetID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.app,
+                ),
+                "LastLog": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "StateProofPK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.app,
     )
     """
     field F of the last inner transaction
@@ -1969,10 +3403,11 @@ class AVMOp(enum.StrEnum):
 
     itxn_begin = AVMOpData(
         op_code="itxn_begin",
-        signature=OpSignature(args=[], returns=[]),
+        variants=Variant(signature=OpSignature(args=[], returns=[]), supported_modes=RunMode.app),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.app,
     )
     """
     begin preparation of a new inner transaction in a new transaction group
@@ -1985,65 +3420,219 @@ class AVMOp(enum.StrEnum):
 
     itxn_field = AVMOpData(
         op_code="itxn_field",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "Sender": OpSignature(args=[StackType.address], returns=[]),
-                "Fee": OpSignature(args=[StackType.uint64], returns=[]),
-                "Note": OpSignature(args=[StackType.bytes], returns=[]),
-                "Receiver": OpSignature(args=[StackType.address], returns=[]),
-                "Amount": OpSignature(args=[StackType.uint64], returns=[]),
-                "CloseRemainderTo": OpSignature(args=[StackType.address], returns=[]),
-                "VotePK": OpSignature(args=[StackType.bytes], returns=[]),
-                "SelectionPK": OpSignature(args=[StackType.bytes], returns=[]),
-                "VoteFirst": OpSignature(args=[StackType.uint64], returns=[]),
-                "VoteLast": OpSignature(args=[StackType.uint64], returns=[]),
-                "VoteKeyDilution": OpSignature(args=[StackType.uint64], returns=[]),
-                "Type": OpSignature(args=[StackType.bytes], returns=[]),
-                "TypeEnum": OpSignature(args=[StackType.uint64], returns=[]),
-                "XferAsset": OpSignature(args=[StackType.asset], returns=[]),
-                "AssetAmount": OpSignature(args=[StackType.uint64], returns=[]),
-                "AssetSender": OpSignature(args=[StackType.address], returns=[]),
-                "AssetReceiver": OpSignature(args=[StackType.address], returns=[]),
-                "AssetCloseTo": OpSignature(args=[StackType.address], returns=[]),
-                "ApplicationID": OpSignature(args=[StackType.application], returns=[]),
-                "OnCompletion": OpSignature(args=[StackType.uint64], returns=[]),
-                "ApplicationArgs": OpSignature(args=[StackType.bytes], returns=[]),
-                "Accounts": OpSignature(args=[StackType.address], returns=[]),
-                "ApprovalProgram": OpSignature(args=[StackType.bytes], returns=[]),
-                "ClearStateProgram": OpSignature(args=[StackType.bytes], returns=[]),
-                "RekeyTo": OpSignature(args=[StackType.address], returns=[]),
-                "ConfigAsset": OpSignature(args=[StackType.asset], returns=[]),
-                "ConfigAssetTotal": OpSignature(args=[StackType.uint64], returns=[]),
-                "ConfigAssetDecimals": OpSignature(args=[StackType.uint64], returns=[]),
-                "ConfigAssetDefaultFrozen": OpSignature(args=[StackType.bool], returns=[]),
-                "ConfigAssetUnitName": OpSignature(args=[StackType.bytes], returns=[]),
-                "ConfigAssetName": OpSignature(args=[StackType.bytes], returns=[]),
-                "ConfigAssetURL": OpSignature(args=[StackType.bytes], returns=[]),
-                "ConfigAssetMetadataHash": OpSignature(args=[StackType.bytes], returns=[]),
-                "ConfigAssetManager": OpSignature(args=[StackType.address], returns=[]),
-                "ConfigAssetReserve": OpSignature(args=[StackType.address], returns=[]),
-                "ConfigAssetFreeze": OpSignature(args=[StackType.address], returns=[]),
-                "ConfigAssetClawback": OpSignature(args=[StackType.address], returns=[]),
-                "FreezeAsset": OpSignature(args=[StackType.asset], returns=[]),
-                "FreezeAssetAccount": OpSignature(args=[StackType.address], returns=[]),
-                "FreezeAssetFrozen": OpSignature(args=[StackType.bool], returns=[]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[]),
-                "Applications": OpSignature(args=[StackType.uint64], returns=[]),
-                "GlobalNumUint": OpSignature(args=[StackType.uint64], returns=[]),
-                "GlobalNumByteSlice": OpSignature(args=[StackType.uint64], returns=[]),
-                "LocalNumUint": OpSignature(args=[StackType.uint64], returns=[]),
-                "LocalNumByteSlice": OpSignature(args=[StackType.uint64], returns=[]),
-                "ExtraProgramPages": OpSignature(args=[StackType.uint64], returns=[]),
-                "Nonparticipation": OpSignature(args=[StackType.bool], returns=[]),
-                "StateProofPK": OpSignature(args=[StackType.bytes], returns=[]),
-                "ApprovalProgramPages": OpSignature(args=[StackType.bytes], returns=[]),
-                "ClearStateProgramPages": OpSignature(args=[StackType.bytes], returns=[]),
+            variant_map={
+                "Sender": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "Fee": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "Note": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "Receiver": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "Amount": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "CloseRemainderTo": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "VotePK": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "SelectionPK": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteFirst": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteLast": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteKeyDilution": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "Type": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "TypeEnum": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "XferAsset": Variant(
+                    signature=OpSignature(args=[StackType.asset], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetAmount": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetSender": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetReceiver": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetCloseTo": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationID": Variant(
+                    signature=OpSignature(args=[StackType.application], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "OnCompletion": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgram": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgram": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "RekeyTo": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAsset": Variant(
+                    signature=OpSignature(args=[StackType.asset], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetTotal": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDecimals": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDefaultFrozen": Variant(
+                    signature=OpSignature(args=[StackType.bool], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetUnitName": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetName": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetURL": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetMetadataHash": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetManager": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetReserve": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetFreeze": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetClawback": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAsset": Variant(
+                    signature=OpSignature(args=[StackType.asset], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetAccount": Variant(
+                    signature=OpSignature(args=[StackType.address], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetFrozen": Variant(
+                    signature=OpSignature(args=[StackType.bool], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumUint": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumByteSlice": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumUint": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumByteSlice": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ExtraProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "Nonparticipation": Variant(
+                    signature=OpSignature(args=[StackType.bool], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "StateProofPK": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.bytes], returns=[]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.app,
     )
     """
     set field F of the current inner transaction to A
@@ -2057,10 +3646,11 @@ class AVMOp(enum.StrEnum):
 
     itxn_next = AVMOpData(
         op_code="itxn_next",
-        signature=OpSignature(args=[], returns=[]),
+        variants=Variant(signature=OpSignature(args=[], returns=[]), supported_modes=RunMode.app),
         immediate_types=(),
         cost=1,
         min_avm_version=6,
+        supported_modes=RunMode.app,
     )
     """
     begin preparation of a new inner transaction in the same transaction group
@@ -2070,10 +3660,11 @@ class AVMOp(enum.StrEnum):
 
     itxn_submit = AVMOpData(
         op_code="itxn_submit",
-        signature=OpSignature(args=[], returns=[]),
+        variants=Variant(signature=OpSignature(args=[], returns=[]), supported_modes=RunMode.app),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.app,
     )
     """
     execute the current inner transaction group. Fail if executing this group would exceed the
@@ -2085,21 +3676,43 @@ class AVMOp(enum.StrEnum):
 
     itxna = AVMOpData(
         op_code="itxna",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
-                "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "Assets": OpSignature(args=[], returns=[StackType.asset]),
-                "Applications": OpSignature(args=[], returns=[StackType.application]),
-                "Logs": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum, ImmediateKind.uint8),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.app,
     )
     """
     Ith value of the array field F of the last inner transaction
@@ -2107,27 +3720,45 @@ class AVMOp(enum.StrEnum):
 
     itxnas = AVMOpData(
         op_code="itxnas",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
-                "Applications": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.application]
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Accounts": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "ClearStateProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Assets": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64], returns=[StackType.application]
+                    ),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=6,
+        supported_modes=RunMode.app,
     )
     """
     Ath value of the array field F of the last inner transaction
@@ -2135,23 +3766,33 @@ class AVMOp(enum.StrEnum):
 
     json_ref = AVMOpData(
         op_code="json_ref",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "JSONString": OpSignature(
-                    args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+            variant_map={
+                "JSONString": Variant(
+                    signature=OpSignature(
+                        args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                    ),
+                    supported_modes=RunMode.any,
                 ),
-                "JSONUint64": OpSignature(
-                    args=[StackType.bytes, StackType.bytes], returns=[StackType.uint64]
+                "JSONUint64": Variant(
+                    signature=OpSignature(
+                        args=[StackType.bytes, StackType.bytes], returns=[StackType.uint64]
+                    ),
+                    supported_modes=RunMode.any,
                 ),
-                "JSONObject": OpSignature(
-                    args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                "JSONObject": Variant(
+                    signature=OpSignature(
+                        args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+                    ),
+                    supported_modes=RunMode.any,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=None,
         min_avm_version=7,
+        supported_modes=RunMode.any,
     )
     """
     key B's value, of type R, from a [valid](jsonspec.md) utf-8 encoded json object A
@@ -2167,10 +3808,14 @@ class AVMOp(enum.StrEnum):
 
     keccak256 = AVMOpData(
         op_code="keccak256",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=130,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     Keccak256 hash of value A, yields [32]byte
@@ -2178,10 +3823,14 @@ class AVMOp(enum.StrEnum):
 
     len_ = AVMOpData(
         op_code="len",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.uint64]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.uint64]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     yields length of byte value A
@@ -2189,10 +3838,13 @@ class AVMOp(enum.StrEnum):
 
     load = AVMOpData(
         op_code="load",
-        signature=OpSignature(args=[], returns=[StackType.any]),
+        variants=Variant(
+            signature=OpSignature(args=[], returns=[StackType.any]), supported_modes=RunMode.any
+        ),
         immediate_types=(ImmediateKind.uint8,),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     Ith scratch space value. All scratch spaces are 0 at program start.
@@ -2200,10 +3852,14 @@ class AVMOp(enum.StrEnum):
 
     loads = AVMOpData(
         op_code="loads",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.any]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.any]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     Ath scratch space value.  All scratch spaces are 0 at program start.
@@ -2211,10 +3867,13 @@ class AVMOp(enum.StrEnum):
 
     log = AVMOpData(
         op_code="log",
-        signature=OpSignature(args=[StackType.bytes], returns=[]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[]), supported_modes=RunMode.app
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.app,
     )
     """
     write A to log state of the current application
@@ -2225,10 +3884,16 @@ class AVMOp(enum.StrEnum):
 
     lt = AVMOpData(
         op_code="<",
-        signature=OpSignature(args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A less than B => {0 or 1}
@@ -2236,10 +3901,16 @@ class AVMOp(enum.StrEnum):
 
     lt_bytes = AVMOpData(
         op_code="b<",
-        signature=OpSignature(args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     1 if A is less than B, else 0. A and B are interpreted as big-endian unsigned integers
@@ -2247,10 +3918,16 @@ class AVMOp(enum.StrEnum):
 
     lte = AVMOpData(
         op_code="<=",
-        signature=OpSignature(args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A less than or equal to B => {0 or 1}
@@ -2258,10 +3935,16 @@ class AVMOp(enum.StrEnum):
 
     lte_bytes = AVMOpData(
         op_code="b<=",
-        signature=OpSignature(args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     1 if A is less than or equal to B, else 0. A and B are interpreted as big-endian unsigned
@@ -2270,10 +3953,14 @@ class AVMOp(enum.StrEnum):
 
     min_balance = AVMOpData(
         op_code="min_balance",
-        signature=OpSignature(args=[StackType.address_or_index], returns=[StackType.uint64]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.address_or_index], returns=[StackType.uint64]),
+            supported_modes=RunMode.app,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=3,
+        supported_modes=RunMode.app,
     )
     """
     minimum required balance for account A, in microalgos. Required balance is affected by ASA,
@@ -2288,12 +3975,16 @@ class AVMOp(enum.StrEnum):
 
     mod = AVMOpData(
         op_code="%",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A modulo B. Fail if B == 0.
@@ -2301,12 +3992,16 @@ class AVMOp(enum.StrEnum):
 
     mod_bytes = AVMOpData(
         op_code="b%",
-        signature=OpSignature(
-            args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=20,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A modulo B. A and B are interpreted as big-endian unsigned integers. Fail if B is zero.
@@ -2314,12 +4009,16 @@ class AVMOp(enum.StrEnum):
 
     mul = AVMOpData(
         op_code="*",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A times B. Fail on overflow.
@@ -2330,12 +4029,16 @@ class AVMOp(enum.StrEnum):
 
     mul_bytes = AVMOpData(
         op_code="b*",
-        signature=OpSignature(
-            args=[StackType.bigint, StackType.bigint], returns=[StackType.bytes]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=20,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A times B. A and B are interpreted as big-endian unsigned integers.
@@ -2343,12 +4046,17 @@ class AVMOp(enum.StrEnum):
 
     mulw = AVMOpData(
         op_code="mulw",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64, StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64],
+                returns=[StackType.uint64, StackType.uint64],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A times B as a 128-bit result in two uint64s. X is the high 64 bits, Y is the low
@@ -2356,10 +4064,14 @@ class AVMOp(enum.StrEnum):
 
     neq = AVMOpData(
         op_code="!=",
-        signature=OpSignature(args=[StackType.any, StackType.any], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.any, StackType.any], returns=[StackType.bool]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A is not equal to B => {0 or 1}
@@ -2367,10 +4079,16 @@ class AVMOp(enum.StrEnum):
 
     neq_bytes = AVMOpData(
         op_code="b!=",
-        signature=OpSignature(args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     0 if A is equal to B, else 1. A and B are interpreted as big-endian unsigned integers
@@ -2378,10 +4096,14 @@ class AVMOp(enum.StrEnum):
 
     not_ = AVMOpData(
         op_code="!",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A == 0 yields 1; else 0
@@ -2389,10 +4111,16 @@ class AVMOp(enum.StrEnum):
 
     or_ = AVMOpData(
         op_code="||",
-        signature=OpSignature(args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.bool]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A is not zero or B is not zero => {0 or 1}
@@ -2400,10 +4128,16 @@ class AVMOp(enum.StrEnum):
 
     replace2 = AVMOpData(
         op_code="replace2",
-        signature=OpSignature(args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes], returns=[StackType.bytes]
+            ),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.uint8,),
         cost=1,
         min_avm_version=7,
+        supported_modes=RunMode.any,
     )
     """
     Copy of A with the bytes starting at S replaced by the bytes of B. Fails if S+len(B) exceeds
@@ -2414,12 +4148,17 @@ class AVMOp(enum.StrEnum):
 
     replace3 = AVMOpData(
         op_code="replace3",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.uint64, StackType.bytes], returns=[StackType.bytes]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.uint64, StackType.bytes],
+                returns=[StackType.bytes],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=7,
+        supported_modes=RunMode.any,
     )
     """
     Copy of A with the bytes starting at B replaced by the bytes of C. Fails if B+len(C) exceeds
@@ -2430,12 +4169,16 @@ class AVMOp(enum.StrEnum):
 
     select = AVMOpData(
         op_code="select",
-        signature=OpSignature(
-            args=[StackType.any, StackType.any, StackType.uint64], returns=[StackType.any]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.any, StackType.any, StackType.uint64], returns=[StackType.any]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=3,
+        supported_modes=RunMode.any,
     )
     """
     selects one of two values based on top-of-stack: B if C != 0, else A
@@ -2443,12 +4186,16 @@ class AVMOp(enum.StrEnum):
 
     setbit = AVMOpData(
         op_code="setbit",
-        signature=OpSignature(
-            args=[StackType.any, StackType.uint64, StackType.uint64], returns=[StackType.any]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.any, StackType.uint64, StackType.uint64], returns=[StackType.any]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=3,
+        supported_modes=RunMode.any,
     )
     """
     Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or
@@ -2462,12 +4209,17 @@ class AVMOp(enum.StrEnum):
 
     setbyte = AVMOpData(
         op_code="setbyte",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.uint64, StackType.uint64],
+                returns=[StackType.bytes],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=3,
+        supported_modes=RunMode.any,
     )
     """
     Copy of A with the Bth byte set to small integer (between 0..255) C. If B is greater than or
@@ -2476,10 +4228,14 @@ class AVMOp(enum.StrEnum):
 
     sha256 = AVMOpData(
         op_code="sha256",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=35,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     SHA256 hash of value A, yields [32]byte
@@ -2487,10 +4243,14 @@ class AVMOp(enum.StrEnum):
 
     sha3_256 = AVMOpData(
         op_code="sha3_256",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=130,
         min_avm_version=7,
+        supported_modes=RunMode.any,
     )
     """
     SHA3_256 hash of value A, yields [32]byte
@@ -2498,10 +4258,14 @@ class AVMOp(enum.StrEnum):
 
     sha512_256 = AVMOpData(
         op_code="sha512_256",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=45,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     SHA512_256 hash of value A, yields [32]byte
@@ -2509,12 +4273,16 @@ class AVMOp(enum.StrEnum):
 
     shl = AVMOpData(
         op_code="shl",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A times 2^B, modulo 2^64
@@ -2522,12 +4290,16 @@ class AVMOp(enum.StrEnum):
 
     shr = AVMOpData(
         op_code="shr",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A divided by 2^B
@@ -2535,10 +4307,14 @@ class AVMOp(enum.StrEnum):
 
     sqrt = AVMOpData(
         op_code="sqrt",
-        signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=4,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     The largest integer I such that I^2 <= A
@@ -2546,10 +4322,13 @@ class AVMOp(enum.StrEnum):
 
     store = AVMOpData(
         op_code="store",
-        signature=OpSignature(args=[StackType.any], returns=[]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.any], returns=[]), supported_modes=RunMode.any
+        ),
         immediate_types=(ImmediateKind.uint8,),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     store A to the Ith scratch space
@@ -2557,10 +4336,14 @@ class AVMOp(enum.StrEnum):
 
     stores = AVMOpData(
         op_code="stores",
-        signature=OpSignature(args=[StackType.uint64, StackType.any], returns=[]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.uint64, StackType.any], returns=[]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     store B to the Ath scratch space
@@ -2568,12 +4351,16 @@ class AVMOp(enum.StrEnum):
 
     sub = AVMOpData(
         op_code="-",
-        signature=OpSignature(
-            args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.uint64, StackType.uint64], returns=[StackType.uint64]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     A minus B. Fail if B > A.
@@ -2581,12 +4368,16 @@ class AVMOp(enum.StrEnum):
 
     sub_bytes = AVMOpData(
         op_code="b-",
-        signature=OpSignature(
-            args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=10,
         min_avm_version=4,
+        supported_modes=RunMode.any,
     )
     """
     A minus B. A and B are interpreted as big-endian unsigned integers. Fail on underflow.
@@ -2594,10 +4385,14 @@ class AVMOp(enum.StrEnum):
 
     substring = AVMOpData(
         op_code="substring",
-        signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+        variants=Variant(
+            signature=OpSignature(args=[StackType.bytes], returns=[StackType.bytes]),
+            supported_modes=RunMode.any,
+        ),
         immediate_types=(ImmediateKind.uint8, ImmediateKind.uint8),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.any,
     )
     """
     A range of bytes from A starting at S up to but not including E. If E < S, or either is larger
@@ -2606,12 +4401,17 @@ class AVMOp(enum.StrEnum):
 
     substring3 = AVMOpData(
         op_code="substring3",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.uint64, StackType.uint64], returns=[StackType.bytes]
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.uint64, StackType.uint64],
+                returns=[StackType.bytes],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.any,
     )
     """
     A range of bytes from A starting at B up to but not including C. If C < B, or either is larger
@@ -2620,82 +4420,287 @@ class AVMOp(enum.StrEnum):
 
     txn = AVMOpData(
         op_code="txn",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "Sender": OpSignature(args=[], returns=[StackType.address]),
-                "Fee": OpSignature(args=[], returns=[StackType.uint64]),
-                "FirstValid": OpSignature(args=[], returns=[StackType.uint64]),
-                "FirstValidTime": OpSignature(args=[], returns=[StackType.uint64]),
-                "LastValid": OpSignature(args=[], returns=[StackType.uint64]),
-                "Note": OpSignature(args=[], returns=[StackType.bytes]),
-                "Lease": OpSignature(args=[], returns=[StackType.bytes]),
-                "Receiver": OpSignature(args=[], returns=[StackType.address]),
-                "Amount": OpSignature(args=[], returns=[StackType.uint64]),
-                "CloseRemainderTo": OpSignature(args=[], returns=[StackType.address]),
-                "VotePK": OpSignature(args=[], returns=[StackType.bytes]),
-                "SelectionPK": OpSignature(args=[], returns=[StackType.bytes]),
-                "VoteFirst": OpSignature(args=[], returns=[StackType.uint64]),
-                "VoteLast": OpSignature(args=[], returns=[StackType.uint64]),
-                "VoteKeyDilution": OpSignature(args=[], returns=[StackType.uint64]),
-                "Type": OpSignature(args=[], returns=[StackType.bytes]),
-                "TypeEnum": OpSignature(args=[], returns=[StackType.uint64]),
-                "XferAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "AssetAmount": OpSignature(args=[], returns=[StackType.uint64]),
-                "AssetSender": OpSignature(args=[], returns=[StackType.address]),
-                "AssetReceiver": OpSignature(args=[], returns=[StackType.address]),
-                "AssetCloseTo": OpSignature(args=[], returns=[StackType.address]),
-                "GroupIndex": OpSignature(args=[], returns=[StackType.uint64]),
-                "TxID": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApplicationID": OpSignature(args=[], returns=[StackType.application]),
-                "OnCompletion": OpSignature(args=[], returns=[StackType.uint64]),
-                "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumAppArgs": OpSignature(args=[], returns=[StackType.uint64]),
-                "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "NumAccounts": OpSignature(args=[], returns=[StackType.uint64]),
-                "ApprovalProgram": OpSignature(args=[], returns=[StackType.bytes]),
-                "ClearStateProgram": OpSignature(args=[], returns=[StackType.bytes]),
-                "RekeyTo": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "ConfigAssetTotal": OpSignature(args=[], returns=[StackType.uint64]),
-                "ConfigAssetDecimals": OpSignature(args=[], returns=[StackType.uint64]),
-                "ConfigAssetDefaultFrozen": OpSignature(args=[], returns=[StackType.bool]),
-                "ConfigAssetUnitName": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetName": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetURL": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetMetadataHash": OpSignature(args=[], returns=[StackType.bytes]),
-                "ConfigAssetManager": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetReserve": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetFreeze": OpSignature(args=[], returns=[StackType.address]),
-                "ConfigAssetClawback": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAsset": OpSignature(args=[], returns=[StackType.asset]),
-                "FreezeAssetAccount": OpSignature(args=[], returns=[StackType.address]),
-                "FreezeAssetFrozen": OpSignature(args=[], returns=[StackType.bool]),
-                "Assets": OpSignature(args=[], returns=[StackType.uint64]),
-                "NumAssets": OpSignature(args=[], returns=[StackType.uint64]),
-                "Applications": OpSignature(args=[], returns=[StackType.uint64]),
-                "NumApplications": OpSignature(args=[], returns=[StackType.uint64]),
-                "GlobalNumUint": OpSignature(args=[], returns=[StackType.uint64]),
-                "GlobalNumByteSlice": OpSignature(args=[], returns=[StackType.uint64]),
-                "LocalNumUint": OpSignature(args=[], returns=[StackType.uint64]),
-                "LocalNumByteSlice": OpSignature(args=[], returns=[StackType.uint64]),
-                "ExtraProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
-                "Nonparticipation": OpSignature(args=[], returns=[StackType.bool]),
-                "Logs": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumLogs": OpSignature(args=[], returns=[StackType.uint64]),
-                "CreatedAssetID": OpSignature(args=[], returns=[StackType.asset]),
-                "CreatedApplicationID": OpSignature(args=[], returns=[StackType.application]),
-                "LastLog": OpSignature(args=[], returns=[StackType.bytes]),
-                "StateProofPK": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumApprovalProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
-                "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "NumClearStateProgramPages": OpSignature(args=[], returns=[StackType.uint64]),
+            variant_map={
+                "Sender": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Fee": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "FirstValid": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "FirstValidTime": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LastValid": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Note": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Lease": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Receiver": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Amount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "CloseRemainderTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "VotePK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "SelectionPK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteFirst": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteLast": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "VoteKeyDilution": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Type": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "TypeEnum": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "XferAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetAmount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetSender": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetReceiver": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "AssetCloseTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "GroupIndex": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "TxID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.any,
+                ),
+                "OnCompletion": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAppArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAccounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgram": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgram": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "RekeyTo": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetTotal": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDecimals": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetDefaultFrozen": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetUnitName": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetName": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetURL": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetMetadataHash": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetManager": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetReserve": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetFreeze": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "ConfigAssetClawback": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAsset": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetAccount": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "FreezeAssetFrozen": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumAssets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApplications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumUint": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "GlobalNumByteSlice": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumUint": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "LocalNumByteSlice": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ExtraProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "Nonparticipation": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bool]),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "NumLogs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedAssetID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.app,
+                ),
+                "CreatedApplicationID": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.app,
+                ),
+                "LastLog": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "StateProofPK": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "NumClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.uint64]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=1,
+        supported_modes=RunMode.any,
     )
     """
     field F of current transaction
@@ -2703,21 +4708,43 @@ class AVMOp(enum.StrEnum):
 
     txna = AVMOpData(
         op_code="txna",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "ApplicationArgs": OpSignature(args=[], returns=[StackType.bytes]),
-                "Accounts": OpSignature(args=[], returns=[StackType.address]),
-                "Assets": OpSignature(args=[], returns=[StackType.asset]),
-                "Applications": OpSignature(args=[], returns=[StackType.application]),
-                "Logs": OpSignature(args=[], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
-                "ClearStateProgramPages": OpSignature(args=[], returns=[StackType.bytes]),
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "Accounts": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
+                ),
+                "Assets": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.application]),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum, ImmediateKind.uint8),
         cost=1,
         min_avm_version=2,
+        supported_modes=RunMode.any,
     )
     """
     Ith value of the array field F of the current transaction
@@ -2727,27 +4754,45 @@ class AVMOp(enum.StrEnum):
 
     txnas = AVMOpData(
         op_code="txnas",
-        signature=DynamicSignatures(
+        variants=DynamicVariants(
             immediate_index=0,
-            signatures={
-                "ApplicationArgs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "Accounts": OpSignature(args=[StackType.uint64], returns=[StackType.address]),
-                "Assets": OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
-                "Applications": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.application]
+            variant_map={
+                "ApplicationArgs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
-                "Logs": OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
-                "ApprovalProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Accounts": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.address]),
+                    supported_modes=RunMode.any,
                 ),
-                "ClearStateProgramPages": OpSignature(
-                    args=[StackType.uint64], returns=[StackType.bytes]
+                "Assets": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.asset]),
+                    supported_modes=RunMode.any,
+                ),
+                "Applications": Variant(
+                    signature=OpSignature(
+                        args=[StackType.uint64], returns=[StackType.application]
+                    ),
+                    supported_modes=RunMode.any,
+                ),
+                "Logs": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.app,
+                ),
+                "ApprovalProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
+                ),
+                "ClearStateProgramPages": Variant(
+                    signature=OpSignature(args=[StackType.uint64], returns=[StackType.bytes]),
+                    supported_modes=RunMode.any,
                 ),
             },
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=1,
         min_avm_version=5,
+        supported_modes=RunMode.any,
     )
     """
     Ath value of the array field F of the current transaction
@@ -2755,13 +4800,17 @@ class AVMOp(enum.StrEnum):
 
     vrf_verify = AVMOpData(
         op_code="vrf_verify",
-        signature=OpSignature(
-            args=[StackType.bytes, StackType.bytes, StackType.bytes],
-            returns=[StackType.bytes, StackType.bool],
+        variants=Variant(
+            signature=OpSignature(
+                args=[StackType.bytes, StackType.bytes, StackType.bytes],
+                returns=[StackType.bytes, StackType.bool],
+            ),
+            supported_modes=RunMode.any,
         ),
         immediate_types=(ImmediateKind.arg_enum,),
         cost=5700,
         min_avm_version=7,
+        supported_modes=RunMode.any,
     )
     """
     Verify the proof B of message A against pubkey C. Returns vrf output and verification flag.
