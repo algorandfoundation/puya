@@ -95,7 +95,7 @@ class ASTConversionModuleContext(ASTConversionContext):
     def error(self, msg: str, location: mypy.nodes.Context | SourceLocation) -> None:
         logger.error(msg, location=self._maybe_convert_location(location))
 
-    def note(self, msg: str, location: mypy.nodes.Context | SourceLocation) -> None:
+    def info(self, msg: str, location: mypy.nodes.Context | SourceLocation) -> None:
         logger.info(msg, location=self._maybe_convert_location(location))
 
     def warning(self, msg: str, location: mypy.nodes.Context | SourceLocation) -> None:
