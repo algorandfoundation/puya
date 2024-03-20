@@ -271,7 +271,7 @@ class ReturnStatement(Statement):
 
 def _validate_literal(value: object, wtype: WType, source_location: SourceLocation) -> None:
     if not wtype.is_valid_literal(value):
-        raise CodeError(f"Invalid {wtype} value: {value}", source_location)
+        raise CodeError(f"Invalid {wtype} value: {value!r}", source_location)
 
 
 def literal_validator(wtype: WType) -> t.Callable[[Node, object, t.Any], None]:
