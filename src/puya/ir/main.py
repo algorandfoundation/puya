@@ -384,7 +384,7 @@ def fold_state_and_special_methods(
     if contract.state_totals is None:
         base_with_defined = next((b for b in bases if b.state_totals is not None), None)
         if base_with_defined:
-            ctx.errors.warning(
+            logger.warning(
                 f"Contract {contract.name} extends base contract {base_with_defined.name} "
                 "with explicit state_totals, but does not define its own state_totals. "
                 "This could result in insufficient reserved state at run time.",

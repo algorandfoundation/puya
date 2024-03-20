@@ -5,6 +5,7 @@ from collections.abc import Iterator, Sequence
 import attrs
 import mypy.nodes
 import mypy.types
+import structlog
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -19,6 +20,8 @@ from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, PuyaError, log_exceptions
 from puya.parse import SourceLocation
 from puya.utils import attrs_extend
+
+logger = structlog.get_logger(__name__)
 
 
 @attrs.frozen(kw_only=True)
@@ -90,19 +93,19 @@ class ASTConversionModuleContext(ASTConversionContext):
         return location
 
     def error(self, msg: str, location: mypy.nodes.Context | SourceLocation) -> None:
-        self.errors.error(msg, self._maybe_convert_location(location))
+        logger.error(msg, location=self._maybe_convert_location(location))
 
     def note(self, msg: str, location: mypy.nodes.Context | SourceLocation) -> None:
-        self.errors.note(msg, self._maybe_convert_location(location))
+        logger.info(msg, location=self._maybe_convert_location(location))
 
     def warning(self, msg: str, location: mypy.nodes.Context | SourceLocation) -> None:
-        self.errors.warning(msg, self._maybe_convert_location(location))
+        logger.warning(msg, location=self._maybe_convert_location(location))
 
     @contextlib.contextmanager
     def log_exceptions(
         self, fallback_location: mypy.nodes.Context | SourceLocation
     ) -> Iterator[None]:
-        with log_exceptions(self.errors, self._maybe_convert_location(fallback_location)):
+        with log_exceptions(self._maybe_convert_location(fallback_location)):
             yield
 
     def type_to_wtype(

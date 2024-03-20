@@ -2,10 +2,13 @@ from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
+import structlog
 
 from puya.errors import Errors
 from puya.options import PuyaOptions
 from puya.parse import ParseResult, SourceLocation
+
+logger = structlog.get_logger(__name__)
 
 
 @attrs.frozen
@@ -45,7 +48,7 @@ class CompileContext:
             start_column = location.column
             end_column = location.end_column
             if not src_content:
-                self.errors.warning(f"Could not locate source: {location}", None)
+                logger.warning(f"Could not locate source: {location}", location=None)
             elif start_line == end_line and start_column is not None and end_column is not None:
                 src_content[0] = src_content[0][start_column:end_column]
             else:

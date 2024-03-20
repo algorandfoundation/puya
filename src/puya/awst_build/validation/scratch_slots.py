@@ -1,20 +1,23 @@
 from collections.abc import Iterator
 
+import structlog
+
 from puya.awst import nodes as awst_nodes
 from puya.awst_build.validation.awst_traverser import AWSTTraverser
-from puya.context import CompileContext
 from puya.parse import SourceLocation
 from puya.utils import StableSet
+
+logger = structlog.get_logger(__name__)
 
 
 class ScratchSlotReservationValidator(AWSTTraverser):
     @classmethod
-    def validate(cls, context: CompileContext, module: awst_nodes.Module) -> None:
+    def validate(cls, module: awst_nodes.Module) -> None:
         for module_statement in module.body:
             validator = cls()
             module_statement.accept(validator)
             for slot, loc in validator.invalid_slot_usages:
-                context.errors.error(
+                logger.error(
                     f"Scratch slot {slot} has not been reserved.",
                     location=loc,
                 )

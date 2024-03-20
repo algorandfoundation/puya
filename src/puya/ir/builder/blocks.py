@@ -4,7 +4,7 @@ from collections.abc import Iterator, Sequence
 import attrs
 import structlog
 
-from puya.errors import Errors, InternalError
+from puya.errors import InternalError
 from puya.ir.models import (
     Assignment,
     BasicBlock,
@@ -31,10 +31,8 @@ class BlocksBuilder:
     def __init__(
         self,
         parameters: Sequence[Register],
-        errors: Errors,
         default_source_location: SourceLocation,
     ) -> None:
-        self._errors = errors
         self._default_source_location = default_source_location
         self._loop_targets_stack: list[_LoopTargets] = []
         blocks = [BasicBlock(id=0, source_location=default_source_location)]
@@ -87,10 +85,10 @@ class BlocksBuilder:
     ) -> BasicBlock | None:
         curr = self.active_block
         if curr.terminated:
-            self._errors.error(
+            logger.error(
                 "Unreachable code",
                 # function kinda sucks as a fallback, but it'll do for now
-                source_location or self._default_source_location,
+                location=source_location or self._default_source_location,
             )
             return None
         return curr

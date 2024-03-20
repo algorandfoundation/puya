@@ -1,21 +1,20 @@
+import structlog
+
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
 from puya.awst_build.validation.awst_traverser import AWSTTraverser
-from puya.context import CompileContext
+
+logger = structlog.get_logger(__name__)
 
 
 class ARC4CopyValidator(AWSTTraverser):
     @classmethod
-    def validate(cls, context: CompileContext, module: awst_nodes.Module) -> None:
-        validator = cls(context)
+    def validate(cls, module: awst_nodes.Module) -> None:
+        validator = cls()
         for module_statement in module.body:
             module_statement.accept(validator)
-
-    def __init__(self, context: CompileContext) -> None:
-        super().__init__()
-        self._context = context
 
     def visit_assignment_statement(self, statement: awst_nodes.AssignmentStatement) -> None:
         super().visit_assignment_statement(statement)
@@ -35,10 +34,10 @@ class ARC4CopyValidator(AWSTTraverser):
                     ):
                         return
 
-                self._context.errors.error(
+                logger.error(
                     f"{expr.wtype} must be copied using .copy() when assigning to a new local"
                     " or being passed to a subroutine.",
-                    expr.source_location,
+                    location=expr.source_location,
                 )
 
     def visit_assignment_expression(self, expr: awst_nodes.AssignmentExpression) -> None:

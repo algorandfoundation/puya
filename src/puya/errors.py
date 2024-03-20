@@ -1,11 +1,8 @@
 import contextlib
 import enum
-import logging
 import sys
 import traceback
-import typing
-import typing as t
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 
 import attrs
@@ -103,51 +100,8 @@ def _get_pretty_source(file_source: Sequence[str], location: SourceLocation) -> 
     ]
 
 
-class Errors:
-    def __init__(self, read_source: Callable[[str], Sequence[str] | None]) -> None:
-        self.num_errors = 0
-        self.num_warnings = 0
-        self.read_source = read_source
-
-    def _report(self, log_level: int, msg: str, location: SourceLocation | None) -> None:
-        kwargs: dict[str, typing.Any] = {}
-        if location:
-            kwargs["location"] = location
-            if log_level == logging.ERROR:
-                file_source = self.read_source(location.file)
-                if file_source and location.line <= len(file_source):
-                    kwargs["related_lines"] = _get_pretty_source(file_source, location)
-        logger.log(log_level, msg, **kwargs)
-
-    def exit_if_errors(self) -> None:
-        if self.num_errors:
-            sys.exit(ErrorExitCode.code)
-
-    def error(self, msg: str, location: SourceLocation | None) -> None:
-        self._report(logging.ERROR, msg, location)
-        self.num_errors += 1
-
-    def warning(self, msg: str, location: SourceLocation | None) -> None:
-        self._report(logging.WARNING, msg, location)
-        self.num_warnings += 1
-
-    def note(self, msg: str, location: SourceLocation | None) -> None:
-        self._report(logging.INFO, msg, location)
-
-    def fatal(
-        self,
-        msg: str,
-        location: SourceLocation | None,
-        *,
-        exit_code: ErrorExitCode = ErrorExitCode.internal,
-    ) -> None:
-        self._report(logging.ERROR, msg, location)
-        _crash_report(location, exit_code)
-
-
-def _crash_report(location: SourceLocation | None, exit_code: ErrorExitCode) -> t.Never:
+def _crash_report() -> None:
     # Adapted from report_internal_error in mypy
-    err = sys.exc_info()[1]
     tb = traceback.extract_stack()[:-4]
     # Excise all the traceback from the test runner
     for i, x in enumerate(tb):
@@ -158,21 +112,19 @@ def _crash_report(location: SourceLocation | None, exit_code: ErrorExitCode) -> 
     tb2 = traceback.extract_tb(tb_type)[1:]
     output = ["Traceback (most recent call last):"]
     output.extend(s.rstrip("\n") for s in traceback.format_list(tb + tb2))
-    if location:
-        output.append(f"{location.file}:{location.line}: {type(err).__name__}: {err}")
-    print("\n".join(output), file=sys.stderr)  # noqa: T201
-    raise SystemExit(exit_code.value)
-
+    logger.critical("\n".join(output))
+    raise SystemExit(ErrorExitCode.internal)
 
 @contextlib.contextmanager
-def log_exceptions(
-    errors: Errors, fallback_location: SourceLocation | None = None
-) -> Iterator[None]:
+def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[None]:
     try:
         yield
     except CodeError as ex:
-        errors.error(str(ex), location=ex.location or fallback_location)
+        logger.error(ex.msg, location=ex.location or fallback_location)  # noqa: TRY400
     except InternalError as ex:
-        errors.fatal(f"FATAL {ex!s}", location=ex.location or fallback_location)
+        logger.critical(ex.msg, location=ex.location or fallback_location)
+        sys.exit(ErrorExitCode.internal)
     except Exception as ex:
-        errors.fatal(f"UNEXPECTED {ex!s}", location=fallback_location)
+        _crash_report()
+        logger.critical(f"{type(ex).__name__}: {ex}", location=fallback_location)
+        sys.exit(ErrorExitCode.internal)
