@@ -765,8 +765,8 @@ class FunctionIRBuilder(
         condition_value = self.visit_and_materialise_single(statement.condition)
         if isinstance(condition_value, UInt64Constant):
             if condition_value.value:
-                self.context.errors.warning(
-                    "assertion is always true, ignoring", statement.source_location
+                logger.warning(
+                    "assertion is always true, ignoring", location=statement.source_location
                 )
             else:
                 self.context.block_builder.terminate(

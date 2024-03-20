@@ -1,13 +1,16 @@
 import contextlib
 from collections.abc import Iterator, Sequence
 
+import structlog
+
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
 from puya.awst_build.validation.awst_traverser import AWSTTraverser
-from puya.context import CompileContext
 from puya.parse import SourceLocation
+
+logger = structlog.get_logger(__name__)
 
 
 class InnerTransactionsValidator(AWSTTraverser):
@@ -22,14 +25,13 @@ class InnerTransactionsValidator(AWSTTraverser):
     """
 
     @classmethod
-    def validate(cls, context: CompileContext, module: awst_nodes.Module) -> None:
+    def validate(cls, module: awst_nodes.Module) -> None:
         for module_statement in module.body:
-            validator = cls(context)
+            validator = cls()
             module_statement.accept(validator)
 
-    def __init__(self, context: CompileContext):
+    def __init__(self) -> None:
         super().__init__()
-        self.context = context
         self._current_itxn_var_stack = list[list[str]]()
 
     @property
@@ -89,17 +91,17 @@ class InnerTransactionsValidator(AWSTTraverser):
             case awst_nodes.VarExpression(
                 name=var_name, wtype=wtype
             ) if wtypes.is_inner_transaction_params_type(wtype):
-                self.context.errors.error(
+                logger.error(
                     f"{value.wtype} must be copied using .copy() when "
                     f"assigning to a new local: {var_name}",
-                    value.source_location,
+                    location=value.source_location,
                 )
             case awst_nodes.Expression(wtype=wtype) if wtypes.is_inner_transaction_params_type(
                 wtype
             ):
-                self.context.errors.error(
+                logger.error(
                     f"{value.wtype} cannot be aliased",
-                    value.source_location,
+                    location=value.source_location,
                 )
 
     def _check_itxn_params_not_submitted_in_loop(self, expr: awst_nodes.Expression) -> None:
@@ -108,9 +110,9 @@ class InnerTransactionsValidator(AWSTTraverser):
             and isinstance(expr, awst_nodes.VarExpression)
             and expr.name in self._current_loop_itxn_vars
         ):
-            self.context.errors.error(
+            logger.error(
                 f"'{expr.name}' cannot be modified after submission while in a loop ",
-                expr.source_location,
+                location=expr.source_location,
             )
 
     def _check_inner_transaction_assignment(self, stmt: awst_nodes.AssignmentStatement) -> None:
@@ -125,22 +127,22 @@ class InnerTransactionsValidator(AWSTTraverser):
                         pass
                     case _:
                         return
-                self.context.errors.error(
+                logger.error(
                     f"Inner Transactions cannot be part of an unpacked tuple: {stmt.value.wtype}",
-                    stmt.value.source_location,
+                    location=stmt.value.source_location,
                 )
             case awst_nodes.Expression(wtype=wtype) if wtypes.is_inner_transaction_type(wtype):
-                self.context.errors.error(
+                logger.error(
                     f"{stmt.value.wtype} cannot be reassigned",
-                    stmt.value.source_location,
+                    location=stmt.value.source_location,
                 )
 
     def visit_assignment_expression(self, expr: awst_nodes.AssignmentExpression) -> None:
         super().visit_assignment_expression(expr)
         if _is_itxn_wtype(expr.wtype):
-            self.context.errors.error(
+            logger.error(
                 f"{expr.wtype} cannot be used in assignment expressions",
-                expr.source_location,
+                location=expr.source_location,
             )
 
     def visit_subroutine_call_expression(self, expr: awst_nodes.SubroutineCallExpression) -> None:
@@ -148,9 +150,9 @@ class InnerTransactionsValidator(AWSTTraverser):
         for arg in expr.args:
             arg_wtype = arg.value.wtype
             if _is_itxn_wtype(arg_wtype) or wtypes.is_inner_transaction_tuple_type(arg_wtype):
-                self.context.errors.error(
+                logger.error(
                     f"{arg.value.wtype} cannot be passed to a subroutine",
-                    expr.source_location,
+                    location=expr.source_location,
                 )
 
     def _check_method_types(
@@ -161,12 +163,12 @@ class InnerTransactionsValidator(AWSTTraverser):
     ) -> None:
         for arg in args:
             if _is_itxn_wtype(arg.wtype):
-                self.context.errors.error(
+                logger.error(
                     f"{arg.wtype} cannot be used as a subroutine argument type: {arg.name}",
                     location=arg.source_location,
                 )
         if _is_itxn_wtype(return_type):
-            self.context.errors.error(
+            logger.error(
                 f"{return_type} cannot be used as a subroutine return type",
                 location=return_loc,
             )

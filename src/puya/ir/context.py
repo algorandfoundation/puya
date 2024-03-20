@@ -134,14 +134,14 @@ class IRBuildContext(CompileContext):
         )
 
 
-@attrs.define
+@attrs.define(kw_only=True)
 class IRBuildContextWithFallback(IRBuildContext):
     default_fallback: SourceLocation
 
     @contextlib.contextmanager
     def log_exceptions(self, fallback_location: SourceLocation | None = None) -> Iterator[None]:
         fallback_location = fallback_location or self.default_fallback
-        with log_exceptions(self.errors, fallback_location):
+        with log_exceptions(fallback_location):
             yield
 
 
@@ -161,9 +161,7 @@ class IRFunctionBuildContext(IRBuildContextWithFallback):
 
     @block_builder.default
     def _block_builder_factory(self) -> BlocksBuilder:
-        return BlocksBuilder(
-            self.subroutine.parameters, self.errors, self.function.source_location
-        )
+        return BlocksBuilder(self.subroutine.parameters, self.function.source_location)
 
     def next_tmp_name(self, description: str) -> str:
         return f"{description}{TMP_VAR_INDICATOR}{next(self._tmp_counter)}"

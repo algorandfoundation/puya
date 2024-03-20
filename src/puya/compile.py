@@ -154,10 +154,10 @@ def module_irs_to_teal(
                 name = artifact_ir.metadata.name
                 artifact_ir_base_path = out_dir / name
                 if existing := artifacts_by_output_base.get(artifact_ir_base_path):
-                    context.errors.error(
+                    logger.error(
                         f"Duplicate contract name {name}", location=artifact_ir.source_location
                     )
-                    context.errors.note(
+                    logger.info(
                         f"Contract name {name} first seen here", location=existing.source_location
                     )
                 else:

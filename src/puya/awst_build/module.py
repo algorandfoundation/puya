@@ -92,6 +92,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         )
         validate_awst(self.context, result)
         self._error_count += self.context.errors.num_errors - errors_start
+        validate_awst(result)
         return result
 
     # Supported Statements
