@@ -292,14 +292,14 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 )
             case mypy.nodes.IMPLICITLY_ABSTRACT:
                 # TODO: should we have a placeholder item instead? need to handle via super() if so
-                self.context.note(
+                self.context.info(
                     f"Skipping (implicitly) abstract method {func_def.name}",
                     func_loc,
                 )
                 return None
             case mypy.nodes.IS_ABSTRACT:
                 # TODO: should we have a placeholder item instead? need to handle via super() if so
-                self.context.note(
+                self.context.info(
                     f"Skipping abstract method {func_def.name}",
                     func_loc,
                 )
@@ -493,7 +493,7 @@ def _gather_app_state_recursive(
         for redefined_member in combined_app_state.keys() & base_app_state.keys():
             member_redef = combined_app_state[redefined_member]
             member_orig = base_app_state[redefined_member]
-            context.note(
+            context.info(
                 f"Previous definition of {redefined_member} was here",
                 member_orig.source_location,
             )

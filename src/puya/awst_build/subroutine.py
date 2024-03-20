@@ -873,14 +873,14 @@ class FunctionASTConverter(
             case mypy.nodes.RevealExpr(expr=mypy.nodes.Expression() as inner_expr):
                 result = inner_expr.accept(self)
                 if isinstance(result, Literal):
-                    self.context.note(f"puyapy node is literal of {result.value!r}", call)
+                    self.context.info(f"puyapy node is literal of {result.value!r}", call)
                 else:
                     try:
                         the_value = result.rvalue()
                     except PuyaError:
-                        self.context.note(f"puyapy node is {result!r}", call)
+                        self.context.info(f"puyapy node is {result!r}", call)
                     else:
-                        self.context.note(f'puyapy type is "{the_value.wtype.name}"', call)
+                        self.context.info(f'puyapy type is "{the_value.wtype.name}"', call)
                 return result
             case _:
                 raise CodeError(
