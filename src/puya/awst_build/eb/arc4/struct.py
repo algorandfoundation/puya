@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import typing
 
-import structlog
-
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
@@ -32,7 +31,7 @@ if typing.TYPE_CHECKING:
     )
     from puya.parse import SourceLocation
 
-logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):

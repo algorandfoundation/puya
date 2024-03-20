@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import contextlib
 import logging
 import os.path
 import sys
 import typing
+from contextvars import ContextVar
 from enum import IntEnum
 from io import StringIO
 from pathlib import Path
@@ -12,10 +14,9 @@ import attrs
 import structlog
 
 if typing.TYPE_CHECKING:
-    from puya.parse import SourceLocation
+    from collections.abc import Iterable, Iterator
 
-UNEXPECTED_SEVERITY = set[str]()
-logger = structlog.get_logger(__name__)
+    from puya.parse import SourceLocation
 
 
 class LogLevel(IntEnum):
@@ -23,9 +24,7 @@ class LogLevel(IntEnum):
     debug = logging.DEBUG
     info = logging.INFO
     warning = logging.WARNING
-    warn = logging.WARNING
     error = logging.ERROR
-    fatal = logging.FATAL
     critical = logging.CRITICAL
 
     def __str__(self) -> str:
@@ -39,19 +38,42 @@ class LogLevel(IntEnum):
             raise ValueError from err
 
 
-def mypy_severity_to_loglevel(severity: str) -> int:
-    match severity:
-        case "error":
-            return logging.ERROR
-        case "warning":
-            return logging.WARNING
-        case "note":
-            return logging.INFO
-        case _:
-            if severity not in UNEXPECTED_SEVERITY:
-                logger.warning(f"Unexpected severity '{severity}', treating as error")
-                UNEXPECTED_SEVERITY.add(severity)
-            return logging.ERROR
+@attrs.frozen
+class Log:
+    level: LogLevel
+    message: str
+    location: SourceLocation | None
+
+    @property
+    def file(self) -> str | None:
+        return None if self.location is None else self.location.file
+
+    @property
+    def line(self) -> int | None:
+        return None if self.location is None else self.location.line
+
+
+@attrs.define
+class LoggingContext:
+    logs: list[Log] = attrs.field(factory=list)
+
+    @property
+    def _errors(self) -> Iterable[LogLevel]:
+        return (log.level for log in self.logs if log.level in (LogLevel.error, LogLevel.critical))
+
+    @property
+    def num_errors(self) -> int:
+        return len(list(self._errors))
+
+    def exit_if_errors(self) -> None:
+        error = max(self._errors, default=LogLevel.notset)
+        if error == LogLevel.critical:
+            sys.exit(2)
+        elif error == LogLevel.error:
+            sys.exit(1)
+
+
+_current_ctx: ContextVar[LoggingContext] = ContextVar("current_ctx")
 
 
 class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
@@ -211,3 +233,107 @@ def configure_logging(
         logger_factory=structlog.PrintLoggerFactory(),
         cache_logger_on_first_use=cache_logger,
     )
+
+
+_DEBUG = LogLevel.debug
+_INFO = LogLevel.info
+_WARNING = LogLevel.warning
+_ERROR = LogLevel.error
+_CRITICAL = LogLevel.critical
+
+
+class _Logger:
+    def __init__(self, name: str, initial_values: dict[str, typing.Any]):
+        self._logger = structlog.get_logger(name, **initial_values)
+
+    def debug(
+        self,
+        event: object,
+        *args: typing.Any,
+        location: SourceLocation | None = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        self.log(_DEBUG, event, *args, location=location, **kwargs)
+
+    def info(
+        self,
+        event: object,
+        *args: typing.Any,
+        location: SourceLocation | None = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        self.log(_INFO, event, *args, location=location, **kwargs)
+
+    def warning(
+        self,
+        event: object,
+        *args: typing.Any,
+        location: SourceLocation | None = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        self.log(_WARNING, event, *args, location=location, **kwargs)
+
+    def error(
+        self,
+        event: object,
+        *args: typing.Any,
+        location: SourceLocation | None = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        self.log(_ERROR, event, *args, location=location, **kwargs)
+
+    def exception(
+        self,
+        event: object,
+        *args: typing.Any,
+        location: SourceLocation | None = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        kwargs.setdefault("exc_info", True)
+        self.log(_CRITICAL, event, *args, location=location, **kwargs)
+
+    def critical(
+        self,
+        event: object,
+        *args: typing.Any,
+        location: SourceLocation | None = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        self.log(_CRITICAL, event, *args, location=location, **kwargs)
+
+    def log(
+        self,
+        level: LogLevel,
+        event: object,
+        *args: typing.Any,
+        location: SourceLocation | None = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        self._logger.log(level, event, *args, location=location, **kwargs)
+        try:
+            ctx = _current_ctx.get()
+        except LookupError:
+            return
+        if isinstance(event, str) and args:
+            message = event % args
+        else:
+            message = str(event)
+        ctx.logs.append(Log(level, message, location))
+
+
+def get_num_errors() -> int:
+    return _current_ctx.get().num_errors
+
+
+def get_logger(name: str, **initial_values: typing.Any) -> _Logger:
+    return _Logger(name, initial_values)
+
+
+@contextlib.contextmanager
+def logging_context() -> Iterator[LoggingContext]:
+    ctx = LoggingContext()
+    restore = _current_ctx.set(ctx)
+    try:
+        yield ctx
+    finally:
+        _current_ctx.reset(restore)

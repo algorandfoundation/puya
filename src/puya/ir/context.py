@@ -140,8 +140,7 @@ class IRBuildContextWithFallback(IRBuildContext):
 
     @contextlib.contextmanager
     def log_exceptions(self, fallback_location: SourceLocation | None = None) -> Iterator[None]:
-        fallback_location = fallback_location or self.default_fallback
-        with log_exceptions(fallback_location):
+        with log_exceptions(fallback_location or self.default_fallback):
             yield
 
 

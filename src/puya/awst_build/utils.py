@@ -6,9 +6,9 @@ from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 import mypy.build
 import mypy.nodes
 import mypy.types
-import structlog
 from mypy.types import get_proper_type, is_named_instance
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AddressConstant,
@@ -32,7 +32,7 @@ from puya.awst_build.exceptions import UnsupportedASTError
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def refers_to_fullname(ref_expr: mypy.nodes.RefExpr, *fullnames: str) -> bool:

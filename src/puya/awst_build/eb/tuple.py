@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 
-import structlog
-
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BinaryBooleanOperator,
@@ -29,7 +28,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puya.utils import clamp
 
-logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class TupleTypeExpressionBuilder(TypeClassExpressionBuilder):

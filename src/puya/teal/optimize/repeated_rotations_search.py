@@ -4,12 +4,12 @@ import typing
 from collections.abc import Sequence
 
 import attrs
-import structlog
 
+from puya import log
 from puya.teal import models
 
 TealOpSequence = tuple[models.TealOpN, ...]
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class InvalidOpSequenceError(Exception):

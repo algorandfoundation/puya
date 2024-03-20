@@ -1,15 +1,15 @@
 from pathlib import Path
 
 import attrs
-import structlog
 
+from puya import log
 from puya.context import CompileContext
 from puya.ir import models as ir
 from puya.mir import annotaters, models
 from puya.mir.context import ProgramCodeGenContext
 from puya.utils import attrs_extend
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 # virtual stack ops can generate a lot of noise, so only turn on at highest debug level
 VIRTUAL_STACK_DEBUG_LEVEL = 2
 

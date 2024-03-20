@@ -1,15 +1,15 @@
 from collections.abc import Iterable, Iterator, Sequence, Set
 
 import attrs
-import structlog
 
+from puya import log
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models, visitor
 from puya.ir.ssa import TrivialPhiRemover
 from puya.utils import StableSet
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 PURE_AVM_OPS = frozenset(

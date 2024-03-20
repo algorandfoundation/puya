@@ -7,8 +7,8 @@ import typing
 import attrs
 import mypy.nodes
 import mypy.types
-import structlog
 
+from puya import log
 from puya.arc4_util import arc4_to_wtype, split_tuple_types, wtype_to_arc4
 from puya.awst import (
     nodes as awst_nodes,
@@ -27,7 +27,7 @@ if typing.TYPE_CHECKING:
     from puya.awst_build.context import ASTConversionModuleContext
     from puya.parse import SourceLocation
 
-logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
 
 

@@ -1,13 +1,13 @@
 import sys
 from pathlib import Path
 
+from puya import log
 from puya.compile import compile_to_teal
-from puya.logging_config import LogLevel, configure_logging
 from puya.options import PuyaOptions
 
 
 def main(example: str) -> None:
-    configure_logging(min_log_level=LogLevel.warn)
+    log.configure_logging(min_log_level=log.LogLevel.warning)
     options = PuyaOptions()
 
     options.paths = [Path(example).resolve()]

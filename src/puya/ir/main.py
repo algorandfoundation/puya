@@ -6,10 +6,9 @@ from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
 
 import attrs
-import structlog
 from immutabledict import immutabledict
 
-from puya import algo_constants
+from puya import algo_constants, log
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -47,7 +46,7 @@ from puya.models import (
 from puya.parse import EMBEDDED_MODULES, SourceLocation
 from puya.utils import StableSet, attrs_extend
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 CalleesLookup: typing.TypeAlias = defaultdict[awst_nodes.Function, set[awst_nodes.Function]]

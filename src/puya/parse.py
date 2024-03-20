@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import os
 import re
 import sys
 import typing
-from collections.abc import Sequence
 from pathlib import Path
 
 import attrs
@@ -15,14 +16,17 @@ import mypy.modulefinder
 import mypy.nodes
 import mypy.options
 import mypy.util
-import structlog
 
-from puya.logging_config import mypy_severity_to_loglevel
+from puya import log
 from puya.utils import make_path_relative_to_cwd
 
-logger = structlog.get_logger(__name__)
+if typing.TYPE_CHECKING:
+    from collections.abc import Sequence
+
+logger = log.get_logger(__name__)
 _SRC_ROOT = Path(__file__).parent
 TYPESHED_PATH = _SRC_ROOT / "_typeshed"
+_UNEXPECTED_SEVERITY = set[str]()
 
 
 @attrs.frozen
@@ -158,7 +162,7 @@ class SourceLocation:
                 result += f"-{self.end_column}"
         return result
 
-    def __add__(self, other: "SourceLocation | None") -> "SourceLocation":
+    def __add__(self, other: SourceLocation | None) -> SourceLocation:
         from puya.errors import InternalError
 
         if other is None:
@@ -410,3 +414,19 @@ def parse_docstring(docstring_raw: str | None) -> MethodDocumentation:
             else None
         ),
     )
+
+
+def mypy_severity_to_loglevel(severity: str) -> log.LogLevel:
+    match severity:
+        case "error":
+            return log.LogLevel.error
+        case "warning":
+            return log.LogLevel.warning
+        case "note":
+            return log.LogLevel.info
+        case _:
+            if severity not in _UNEXPECTED_SEVERITY:
+                logger = log.get_logger(__name__)
+                logger.warning(f"Unexpected severity '{severity}', treating as error")
+                _UNEXPECTED_SEVERITY.add(severity)
+            return log.LogLevel.error

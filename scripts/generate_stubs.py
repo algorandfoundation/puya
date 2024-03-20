@@ -10,7 +10,7 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import attrs
-import structlog
+from puya import log
 from puya.awst import wtypes
 from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
 from puya.awst_build.utils import snake_case
@@ -25,7 +25,7 @@ from scripts.transform_lang_spec import (
     StackValue,
 )
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 INDENT = " " * 4
 VCS_ROOT = Path(__file__).parent.parent
 

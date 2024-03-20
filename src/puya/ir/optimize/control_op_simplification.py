@@ -1,6 +1,6 @@
 import attrs
-import structlog
 
+from puya import log
 from puya.avm_type import AVMType
 from puya.context import CompileContext
 from puya.errors import InternalError
@@ -11,7 +11,7 @@ from puya.ir.optimize._utils import get_definition
 from puya.ir.ssa import TrivialPhiRemover
 from puya.utils import unique
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 # the ratio of default cases to all cases when a match of constant values

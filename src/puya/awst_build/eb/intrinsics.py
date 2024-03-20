@@ -3,8 +3,8 @@ from __future__ import annotations
 import typing
 
 import mypy.nodes
-import structlog
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     BigUIntConstant,
@@ -33,7 +33,7 @@ if typing.TYPE_CHECKING:
 
     from puya.parse import SourceLocation
 
-logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class Arc4SignatureBuilder(IntermediateExpressionBuilder):

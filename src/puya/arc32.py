@@ -6,8 +6,7 @@ import typing
 from collections.abc import Collection, Iterable, Mapping, Sequence
 from pathlib import Path
 
-import structlog
-
+from puya import log
 from puya.arc4_util import arc4_to_wtype
 from puya.awst_build import constants
 from puya.errors import InternalError
@@ -38,7 +37,7 @@ JSONDict: typing.TypeAlias = Mapping[str, "JSONValue"]
 _AUTO_GENERATED_COMMENT = "# This file is auto-generated, do not modify"
 _INDENT = " " * 4
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def _encode_source(teal_text: str) -> str:

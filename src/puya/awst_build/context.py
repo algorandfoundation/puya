@@ -5,8 +5,8 @@ from collections.abc import Iterator, Sequence
 import attrs
 import mypy.nodes
 import mypy.types
-import structlog
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
@@ -21,7 +21,7 @@ from puya.errors import CodeError, InternalError, PuyaError, log_exceptions
 from puya.parse import SourceLocation
 from puya.utils import attrs_extend
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen(kw_only=True)

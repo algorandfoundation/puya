@@ -1,5 +1,4 @@
-import structlog
-
+from puya import log
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -19,7 +18,7 @@ from puya.ir.types_ import wtype_to_avm_type
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def handle_if_else(context: IRFunctionBuildContext, stmt: awst_nodes.IfElse) -> None:

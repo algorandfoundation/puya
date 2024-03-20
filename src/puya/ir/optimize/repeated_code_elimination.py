@@ -3,8 +3,8 @@ import operator
 import typing
 
 import attrs
-import structlog
 
+from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
@@ -12,7 +12,7 @@ from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen

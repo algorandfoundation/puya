@@ -1,6 +1,5 @@
 import functools
 import os
-import sys
 import typing
 from collections.abc import Sequence
 from pathlib import Path
@@ -13,12 +12,15 @@ import mypy.modulefinder
 import mypy.nodes
 import mypy.options
 import mypy.util
-import structlog
 
+from puya import log
 from puya.arc32 import create_arc32_json, write_arc32_client
 from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
-from puya.errors import ErrorExitCode, Errors, InternalError, ParseError, log_exceptions
+from puya.errors import (
+    InternalError,
+    ParseError,
+)
 from puya.ir.main import build_module_irs, optimize_and_destructure_ir
 from puya.ir.models import (
     Contract as ContractIR,
@@ -37,27 +39,23 @@ from puya.parse import (
 from puya.teal.main import mir_to_teal
 from puya.utils import determine_out_dir, make_path_relative_to_cwd
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def compile_to_teal(puya_options: PuyaOptions) -> None:
     """Drive the actual core compilation step."""
-    logger.debug(puya_options)
-    try:
+    with log.logging_context() as log_ctx:
+        logger.debug(puya_options)
         context = parse_with_mypy(puya_options)
-    except ParseError as ex:
-        _log_parse_errors(ex)
-        sys.exit(ErrorExitCode.code)
-
-    with log_exceptions(context.errors):
+        log_ctx.exit_if_errors()
         awst = transform_ast(context)
-        context.errors.exit_if_errors()
+        log_ctx.exit_if_errors()
         module_irs = build_module_irs(context, awst)
-        context.errors.exit_if_errors()
+        log_ctx.exit_if_errors()
         compiled_contracts_by_source_path = module_irs_to_teal(context, module_irs)
-        context.errors.exit_if_errors()
+        log_ctx.exit_if_errors()
         write_artifacts(context, compiled_contracts_by_source_path)
-    context.errors.exit_if_errors()
+    log_ctx.exit_if_errors()
 
 
 def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
@@ -85,7 +83,6 @@ def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
     context = CompileContext(
         options=puya_options,
         parse_result=parse_result,
-        errors=Errors(read_source),
         read_source=read_source,
     )
 

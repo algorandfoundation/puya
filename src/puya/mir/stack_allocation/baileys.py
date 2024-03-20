@@ -2,13 +2,13 @@ import itertools
 from collections.abc import Iterable, Sequence, Set
 
 import attrs
-import structlog
 
+from puya import log
 from puya.errors import InternalError
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.define(eq=False, repr=False)

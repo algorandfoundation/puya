@@ -4,7 +4,7 @@ from pathlib import Path
 
 from puya.algo_constants import MAINNET_TEAL_LANGUAGE_VERSION, SUPPORTED_TEAL_LANGUAGE_VERSIONS
 from puya.compile import compile_to_teal
-from puya.logging_config import LogLevel, configure_logging
+from puya.log import LogLevel, configure_logging
 from puya.options import LocalsCoalescingStrategy, PuyaOptions
 
 

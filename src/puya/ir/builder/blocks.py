@@ -2,8 +2,8 @@ import contextlib
 from collections.abc import Iterator, Sequence
 
 import attrs
-import structlog
 
+from puya import log
 from puya.errors import InternalError
 from puya.ir.models import (
     Assignment,
@@ -18,7 +18,7 @@ from puya.ir.models import (
 from puya.ir.ssa import BraunSSA
 from puya.parse import SourceLocation
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen(kw_only=True)

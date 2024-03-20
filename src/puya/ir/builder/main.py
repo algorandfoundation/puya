@@ -1,9 +1,8 @@
 import typing
 from collections.abc import Sequence
 
-import structlog
-
 import puya.awst.visitors
+from puya import log
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -57,7 +56,7 @@ from puya.parse import SourceLocation
 TExpression: typing.TypeAlias = ValueProvider | None
 TStatement: typing.TypeAlias = None
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class FunctionIRBuilder(

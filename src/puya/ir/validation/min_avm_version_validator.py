@@ -1,12 +1,11 @@
 import typing
 
-import structlog
-
+from puya import log
 from puya.context import CompileContext
 from puya.ir.models import Contract, Intrinsic, LogicSignature, ModuleArtifact
 from puya.ir.visitor import IRTraverser
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class MinAvmVersionValidator(IRTraverser):

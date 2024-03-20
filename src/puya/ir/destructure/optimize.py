@@ -3,14 +3,14 @@ import itertools
 from copy import deepcopy
 
 import attrs
-import structlog
 
+from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.optimize.collapse_blocks import BlockReferenceReplacer
 from puya.utils import unique
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def post_ssa_optimizer(

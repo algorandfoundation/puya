@@ -8,7 +8,8 @@ from pathlib import Path
 
 import attrs
 
-from puya.options import PuyaOptions
+if typing.TYPE_CHECKING:
+    from puya.options import PuyaOptions
 
 T_A = typing.TypeVar("T_A", bound=attrs.AttrsInstance)
 
@@ -144,7 +145,7 @@ class StableSet(MutableSet[T]):
         return type(self).__name__ + "(" + ", ".join(map(repr, self._data)) + ")"
 
 
-def determine_out_dir(contract_path: Path, options: PuyaOptions) -> Path:
+def determine_out_dir(contract_path: Path, options: "PuyaOptions") -> Path:
     if not options.out_dir:
         out_dir = contract_path
     else:

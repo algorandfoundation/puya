@@ -1,14 +1,14 @@
 from collections.abc import Sequence
 
 import attrs
-import structlog
 
+from puya import log
 from puya.avm_type import AVMType
 from puya.errors import CodeError, InternalError
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def get_lazy_fstack(subroutine: mir.MemorySubroutine) -> list[mir.StoreVirtual]:

@@ -1,8 +1,7 @@
 import typing
 from collections.abc import Sequence
 
-import structlog
-
+from puya import log
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -30,7 +29,7 @@ from puya.ir.models import (
 )
 from puya.parse import SourceLocation
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.ForInLoop) -> None:

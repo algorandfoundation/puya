@@ -1,12 +1,11 @@
 from copy import deepcopy
 
-import structlog.typing
-
+from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def convert_to_cssa(sub: models.Subroutine) -> None:

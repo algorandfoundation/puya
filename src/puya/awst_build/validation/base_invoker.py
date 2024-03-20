@@ -1,7 +1,6 @@
 import typing
 
-import structlog
-
+from puya import log
 from puya.awst import nodes as awst_nodes
 from puya.awst.nodes import (
     BaseClassSubroutineTarget,
@@ -11,7 +10,7 @@ from puya.awst.nodes import (
 )
 from puya.awst_build.validation.awst_traverser import AWSTTraverser
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class BaseInvokerValidator(AWSTTraverser):

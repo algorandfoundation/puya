@@ -2,8 +2,8 @@ from collections.abc import Sequence
 
 import mypy.nodes
 import mypy.types
-import structlog
 
+from puya import log
 from puya.awst.nodes import (
     BaseClassSubroutineTarget,
     CallArg,
@@ -19,7 +19,7 @@ from puya.awst_build.utils import qualified_class_name, require_expression_build
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
-logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
