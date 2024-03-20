@@ -1,15 +1,15 @@
 from collections.abc import Sequence
 
 import attrs
-import structlog
 
+from puya import log
 from puya.avm_type import AVMType
 from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.parse import SourceLocation
 
-logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class BraunSSA:

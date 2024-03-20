@@ -1,13 +1,13 @@
 import itertools
 
 import attrs
-import structlog
 
+from puya import log
 from puya.mir import models as mir
 from puya.mir.context import SubroutineCodeGenContext
 from puya.mir.stack import Stack
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 # Note: implementation of the koopmans algorithm part of http://www.euroforth.org/ef06/shannon-bailey06.pdf
 # see also https://users.ece.cmu.edu/~koopman/stack_compiler/stack_co.html#appendix

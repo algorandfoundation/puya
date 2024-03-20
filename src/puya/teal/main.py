@@ -1,5 +1,4 @@
-import structlog
-
+from puya import log
 from puya.context import CompileContext
 from puya.mir import models as mir
 from puya.mir.stack import Stack
@@ -7,7 +6,7 @@ from puya.teal import models as teal_models
 from puya.teal.optimize.main import optimize_teal_program
 from puya.teal.output import emit_teal
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def mir_to_teal(context: CompileContext, program_mir: mir.Program) -> list[str]:

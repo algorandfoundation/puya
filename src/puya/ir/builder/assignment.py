@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 
-import structlog
-
+from puya import log
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -22,7 +21,7 @@ from puya.ir.types_ import (
 )
 from puya.parse import SourceLocation
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def handle_assignment_expr(

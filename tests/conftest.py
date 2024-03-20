@@ -8,14 +8,14 @@ from algokit_utils import (
 from algosdk import transaction
 from algosdk.atomic_transaction_composer import AtomicTransactionComposer, TransactionWithSigner
 from algosdk.v2client.algod import AlgodClient
-from puya.logging_config import LogLevel, configure_logging
+from puya import log
 
 
 @pytest.fixture(autouse=True, scope="session")
 def _setup_logging() -> None:
     # configure logging for tests
     # note cache_logger should be False if calling configure_logging more than once
-    configure_logging(min_log_level=LogLevel.info, cache_logger=False)
+    log.configure_logging(min_log_level=log.LogLevel.info, cache_logger=False)
 
 
 @pytest.fixture(scope="session")

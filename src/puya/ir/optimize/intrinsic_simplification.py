@@ -5,9 +5,8 @@ from collections.abc import Callable
 from itertools import zip_longest
 
 import attrs
-import structlog
 
-from puya import algo_constants
+from puya import algo_constants, log
 from puya.avm_type import AVMType
 from puya.context import CompileContext
 from puya.ir import models
@@ -18,7 +17,7 @@ from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor_mutator import IRMutator
 from puya.utils import biguint_bytes_eval
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def intrinsic_simplifier(_context: CompileContext, subroutine: models.Subroutine) -> bool:

@@ -6,11 +6,11 @@ from collections.abc import Iterator, Sequence
 from pathlib import Path
 
 import attrs
-import structlog
 
+from puya import log
 from puya.parse import SourceLocation
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 _VALID_SEVERITY = ("error", "note", "warning")
 
 
@@ -22,7 +22,7 @@ class ErrorExitCode(enum.IntEnum):
 class PuyaError(Exception):
     def __init__(self, msg: str, location: SourceLocation | None = None):
         super().__init__(msg)
-        self._msg = msg
+        self.msg = msg
         self.location = location
 
 
@@ -113,7 +113,6 @@ def _crash_report() -> None:
     output = ["Traceback (most recent call last):"]
     output.extend(s.rstrip("\n") for s in traceback.format_list(tb + tb2))
     logger.critical("\n".join(output))
-    raise SystemExit(ErrorExitCode.internal)
 
 @contextlib.contextmanager
 def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[None]:

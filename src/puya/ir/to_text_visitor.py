@@ -3,15 +3,14 @@ import typing
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 
-import structlog
-
+from puya import log
 from puya.avm_type import AVMType
 from puya.ir import models
 from puya.ir.utils import format_bytes
 from puya.ir.visitor import IRVisitor
 from puya.utils import make_path_relative_to_cwd
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class ToTextVisitor(IRVisitor[str]):

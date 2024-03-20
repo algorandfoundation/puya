@@ -6,7 +6,7 @@ import textwrap
 from collections.abc import Iterable, Iterator
 from pathlib import Path
 
-import structlog
+from puya import log
 from puya.ir.avm_ops_models import (
     AVMOpData,
     DynamicVariants,
@@ -20,7 +20,7 @@ from puya.utils import normalise_path_to_str
 
 from scripts import transform_lang_spec as langspec
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 VCS_ROOT = Path(__file__).parent.parent
 
 SUPPORTED_IMMEDIATE_KINDS = (langspec.ImmediateKind.uint8, langspec.ImmediateKind.arg_enum)

@@ -3,8 +3,8 @@ from copy import deepcopy
 from pathlib import Path
 
 import attrs
-import structlog
 
+from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.optimize.assignments import copy_propagation
@@ -22,7 +22,7 @@ from puya.ir.to_text_visitor import output_artifact_ir_to_path
 
 MAX_PASSES = 100
 SubroutineOptimizerCallable = Callable[[CompileContext, models.Subroutine], bool]
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.define(kw_only=True)

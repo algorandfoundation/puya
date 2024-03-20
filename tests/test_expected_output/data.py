@@ -1,28 +1,27 @@
 from __future__ import annotations
 
 import difflib
-import enum
 import tempfile
 import typing as t
 from pathlib import Path
 
 import attrs
 import pytest
-import structlog.testing
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst_build.main import transform_ast
 from puya.compile import parse_with_mypy
-from puya.errors import Errors, ParseError, PuyaError, log_exceptions
+from puya.errors import ParseError, PuyaError, log_exceptions
+from puya.log import Log, LogLevel, logging_context
 from puya.options import PuyaOptions
 from puya.utils import coalesce
 
 from tests.utils import awst_to_teal, narrow_sources
 
 if t.TYPE_CHECKING:
+    from collections.abc import Sequence
+
     import _pytest._code.code
     from puya.awst.nodes import Module
-    from puya.context import CompileContext
-    from puya.parse import SourceLocation
 
 THIS_DIR = Path(__file__).parent
 REPO_DIR = THIS_DIR.parent.parent
@@ -34,50 +33,28 @@ EXPECTED_OUTPUTS = {"awst"}
 LINE_CONTINUATION = "\\"
 LineNum: t.TypeAlias = int
 
-
-class OutputType(enum.StrEnum):
-    error = enum.auto()
-    warning = enum.auto()
-    note = enum.auto()
-
-
-OUTPUT_PREFIX_TO_TYPE = {
-    "E:": OutputType.error,
-    "W:": OutputType.warning,
-    "N:": OutputType.note,
+PREFIX_TO_LEVEL = {
+    "E:": LogLevel.error,
+    "W:": LogLevel.warning,
+    "N:": LogLevel.info,
 }
-LOG_LEVEL_TO_OUTPUT_TYPE = {
-    "error": OutputType.error,
-    "warning": OutputType.warning,
-    "info": OutputType.note,
+_MYPY_SEVERITY_TO_LEVEL = {
+    "error": LogLevel.error,
+    "warning": LogLevel.warning,
+    "note": LogLevel.info,
 }
-OUTPUT_TYPE_TO_PREFIX = {v: k for k, v in OUTPUT_PREFIX_TO_TYPE.items()}
-OUTPUT_TYPE_PREFIX_LENGTH = len(next(iter(OUTPUT_PREFIX_TO_TYPE)))
-assert all(len(k) == OUTPUT_TYPE_PREFIX_LENGTH for k in OUTPUT_PREFIX_TO_TYPE)
+LEVEL_TO_PREFIX = {v: k for k, v in PREFIX_TO_LEVEL.items()}
+OUTPUT_TYPE_PREFIX_LENGTH = len(next(iter(PREFIX_TO_LEVEL)))
+assert all(len(k) == OUTPUT_TYPE_PREFIX_LENGTH for k in PREFIX_TO_LEVEL)
 
 
 @attrs.define(frozen=True)
 class TestCaseOutput:
-    output_type: OutputType
+    level: LogLevel
     output: str
 
     def as_comment(self) -> str:
-        return f"{OUTPUT_TYPE_TO_PREFIX[self.output_type]} {self.output}"
-
-
-@attrs.define
-class LogItem:
-    location: SourceLocation | None
-    output_type: OutputType | None
-    message: str
-
-    @property
-    def file(self) -> str | None:
-        return None if self.location is None else self.location.file
-
-    @property
-    def line(self) -> int | None:
-        return None if self.location is None else self.location.line
+        return f"{LEVEL_TO_PREFIX[self.level]} {self.output}"
 
 
 OutputMapping: t.TypeAlias = dict[LineNum, list[TestCaseOutput]]
@@ -144,10 +121,10 @@ def get_python_expected_output(line: str) -> tuple[str, list[TestCaseOutput]]:
     outputs = list[TestCaseOutput]()
     for comment in comments:
         prefix = comment[:OUTPUT_TYPE_PREFIX_LENGTH]
-        output_type = OUTPUT_PREFIX_TO_TYPE.get(prefix)
-        if output_type is not None:
+        level = PREFIX_TO_LEVEL.get(prefix)
+        if level is not None:
             output = comment[len(prefix) :].rstrip(LINE_CONTINUATION).strip()
-            outputs.append(TestCaseOutput(output_type=output_type, output=output))
+            outputs.append(TestCaseOutput(level=level, output=output))
         else:
             python += f" {CASE_COMMENT} {comment}"
     return python.rstrip(), outputs
@@ -280,26 +257,17 @@ def get_test_lines_to_match_output(
     return expected
 
 
-def event_dict_to_log_item(event_dict: t.MutableMapping[str, t.Any]) -> LogItem:
-    log_level = event_dict.get("log_level", None)
-    return LogItem(
-        location=event_dict.get("location"),
-        output_type=LOG_LEVEL_TO_OUTPUT_TYPE.get(log_level),
-        message=event_dict["event"].strip(),
-    )
-
-
 def find_parse_errors_and_mark_as_failed(
     cases: list[TestCase], ex: ParseError
 ) -> t.Iterable[TestCase]:
     outputs = dict[Path, OutputMapping]()
     for error in ex.errors:
         if error.severity and error.location:
-            output_type = LOG_LEVEL_TO_OUTPUT_TYPE.get(error.severity)
-            if output_type:
+            log_level = _MYPY_SEVERITY_TO_LEVEL.get(error.severity)
+            if log_level:
                 path = Path(error.location.file)
                 line = error.location.line
-                test_case_output = TestCaseOutput(output_type=output_type, output=error.message)
+                test_case_output = TestCaseOutput(level=log_level, output=error.message)
 
                 path_outputs = outputs.setdefault(path, {})
                 path_outputs.setdefault(line, []).append(test_case_output)
@@ -316,7 +284,7 @@ def find_parse_errors_and_mark_as_failed(
                     o
                     for line, outputs in file_outputs.items()
                     for o in outputs
-                    if o.output_type == OutputType.error
+                    if o.level == LogLevel.error
                 )
 
         if has_error:
@@ -345,10 +313,14 @@ def get_python_module_name(root_dir: Path, src_dir: Path) -> str:
 
 
 def compile_and_update_cases(cases: list[TestCase]) -> None:
-    with structlog.testing.capture_logs() as logs, tempfile.TemporaryDirectory() as root_dir_str:
+    with (
+        logging_context() as awst_log_ctx,
+        tempfile.TemporaryDirectory() as root_dir_str,
+    ):
         root_dir = Path(root_dir_str).resolve()
         srcs = list[Path]()
         case_path = dict[TestCase, Path]()
+        # prepare temp directory for each case
         for case in cases:
             case_dir = root_dir
             file, *other_files = case.files
@@ -368,44 +340,35 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
 
         context = parse_with_mypy(PuyaOptions(paths=srcs))
         awst = transform_ast(context)
-        awst_log_items = [event_dict_to_log_item(log) for log in logs]
+        # lower each case further if possible and process
         for case in cases:
-            if not case_has_awst_errors(awst_log_items, case):
-                # attempt to lower awst for each case individually
-                # to get logs from lower layers
-                try_lower_case_to_teal(context, awst, case_path[case])
-
-        all_log_items = [event_dict_to_log_item(log) for log in logs]
-        for case in cases:
+            if case_has_awst_errors(awst_log_ctx.logs, case):
+                case_logs = []
+            else:
+                # attempt to lower awst for each case individually to get logs from lower layers
+                # enter new logging context so prior AWST errors are not seen
+                with logging_context() as case_log_ctx, log_exceptions():
+                    case_context = attrs.evolve(
+                        context,
+                        parse_result=narrow_sources(context.parse_result, case_path[case]),
+                    )
+                    awst_to_teal(case_log_ctx, case_context, awst)
+                case_logs = case_log_ctx.logs
             try:
-                process_test_case(case, all_log_items, awst)
+                process_test_case(case, awst_log_ctx.logs + case_logs, awst)
             except TestCaseOutputDifferenceError as ex:
                 case.failure = ex
 
 
-def case_has_awst_errors(captured_logs: list[LogItem], case: TestCase) -> bool:
+def case_has_awst_errors(captured_logs: list[Log], case: TestCase) -> bool:
     for file in case.files:
         path = file.src_path
         assert path is not None
         abs_path = str(path.resolve())
         path_records = [record for record in captured_logs if record.file == abs_path]
-        if any(r.output_type == OutputType.error and r.line is not None for r in path_records):
+        if any(r.level == LogLevel.error and r.line is not None for r in path_records):
             return True
     return False
-
-
-def try_lower_case_to_teal(
-    context: CompileContext, awst: dict[str, Module], src_path: Path
-) -> None:
-    # reset errors as some awst modules will have errors, but we want to continue anyway
-    case_context = attrs.evolve(
-        context,
-        errors=Errors(context.errors.read_source),
-        parse_result=narrow_sources(context.parse_result, src_path),
-    )
-    # log any errors that occur during lowering
-    with log_exceptions(case_context.errors):
-        awst_to_teal(case_context, awst)
 
 
 def get_python_file_name(name: str) -> str:
@@ -416,8 +379,8 @@ def get_python_file_name(name: str) -> str:
     return python_name
 
 
-def exempted(path: Path, case: TestCase, record: LogItem) -> bool:
-    output_type = record.output_type
+def exempted(path: Path, case: TestCase, record: Log) -> bool:
+    output_type = record.level
     if output_type is None:
         return True
     if record.location is None:
@@ -426,7 +389,7 @@ def exempted(path: Path, case: TestCase, record: LogItem) -> bool:
         return True
     case_file = next(f for f in case.files if f.src_path == path)
     line_output = case_file.expected_output.get(record.location.line, [])
-    received = TestCaseOutput(output_type=output_type, output=record.message)
+    received = TestCaseOutput(level=output_type, output=record.message)
     exempted = received in line_output
     if exempted:
         return exempted
@@ -442,7 +405,7 @@ def map_error_tuple_to_dict(errors: set[tuple[int, TestCaseOutput]]) -> OutputMa
 
 def process_test_case(
     case: TestCase,
-    captured_logs: list[LogItem],
+    captured_logs: Sequence[Log],
     awst: dict[str, Module],
 ) -> None:
     if case.failure:
@@ -464,12 +427,12 @@ def process_test_case(
             (
                 record.line,
                 TestCaseOutput(
-                    output_type=record.output_type,
-                    output=record.message,
+                    level=record.level,
+                    output=record.message.strip(),
                 ),
             )
             for record in path_records
-            if record.output_type is not None and record.line is not None
+            if record.line is not None
         }
         file_missing_output = expected_output - seen_output
         file_unexpected_output = seen_output - expected_output

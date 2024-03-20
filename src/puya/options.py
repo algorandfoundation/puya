@@ -6,7 +6,7 @@ import typing
 import attrs
 
 from puya.algo_constants import MAINNET_TEAL_LANGUAGE_VERSION
-from puya.logging_config import LogLevel
+from puya.log import LogLevel
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence

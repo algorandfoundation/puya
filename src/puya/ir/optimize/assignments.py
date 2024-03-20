@@ -1,12 +1,11 @@
-import structlog
-
+from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 from puya.ir.optimize._utils import bfs_block_order
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) -> bool:

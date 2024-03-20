@@ -1,11 +1,11 @@
 import attrs
-import structlog
 
+from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.visitor_mutator import IRMutator
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.define

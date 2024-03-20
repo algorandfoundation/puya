@@ -3,8 +3,7 @@ from __future__ import annotations
 import typing
 from abc import ABC
 
-import structlog
-
+from puya import log
 from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -67,7 +66,7 @@ if typing.TYPE_CHECKING:
 
     from puya.parse import SourceLocation
 
-logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class DynamicArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):

@@ -3,8 +3,8 @@ from collections.abc import Iterator, Mapping
 import mypy.nodes
 import mypy.types
 import mypy.visitor
-import structlog
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
@@ -37,7 +37,7 @@ ALLOWABLE_OCA = frozenset(
     [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
 )
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class ContractASTConverter(BaseMyPyStatementVisitor[None]):

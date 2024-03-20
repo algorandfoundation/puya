@@ -5,8 +5,8 @@ import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
-import structlog
 
+from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -38,7 +38,7 @@ from puya.awst_build.validation.main import validate_awst
 from puya.errors import CodeError, InternalError
 from puya.utils import StableSet, coalesce
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 DeferredModuleStatement: t.TypeAlias = Callable[[ASTConversionModuleContext], ModuleStatement]
@@ -61,14 +61,14 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         self._mypy_module = module
 
         # pre-parse
-        errors_start = self.context.errors.num_errors
+        errors_start = log.get_num_errors()
         pre_parse_result = list[tuple[mypy.nodes.Context, StatementResult]]()
         for node in self._mypy_module.defs:
             with self.context.log_exceptions(fallback_location=node):
                 items = node.accept(self)
                 pre_parse_result.append((node, items))
         self._pre_parse_result = pre_parse_result
-        self._error_count = self.context.errors.num_errors - errors_start
+        self._error_count = log.get_num_errors() - errors_start
 
     @property
     def has_errors(self) -> bool:
@@ -76,7 +76,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
 
     def convert(self) -> Module:
         statements = []
-        errors_start = self.context.errors.num_errors
+        errors_start = log.get_num_errors()
         for node, items in self._pre_parse_result:
             with self.context.log_exceptions(fallback_location=node):
                 for stmt_or_deferred in items:
@@ -90,9 +90,8 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             source_file_path=module.path,
             body=statements,
         )
-        validate_awst(self.context, result)
-        self._error_count += self.context.errors.num_errors - errors_start
         validate_awst(result)
+        self._error_count += log.get_num_errors() - errors_start
         return result
 
     # Supported Statements

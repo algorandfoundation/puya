@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import typing
 
-import structlog
-
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import BoolConstant, Expression, Literal
 from puya.awst_build import intrinsic_factory
@@ -14,7 +13,7 @@ if typing.TYPE_CHECKING:
     from puya.awst_build.eb.base import ExpressionBuilder
     from puya.parse import SourceLocation
 
-logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 def bool_eval_to_constant(

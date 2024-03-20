@@ -1,13 +1,12 @@
 from collections.abc import Iterator
 
-import structlog
-
+from puya import log
 from puya.awst import nodes as awst_nodes
 from puya.awst_build.validation.awst_traverser import AWSTTraverser
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 class ScratchSlotReservationValidator(AWSTTraverser):

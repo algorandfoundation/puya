@@ -7,8 +7,8 @@ from functools import reduce
 import attrs
 import mypy.nodes
 import mypy.types
-import structlog
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     TXN_FIELDS,
@@ -54,7 +54,7 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 _APP_TRANSACTION_FIELDS = {
     get_field_python_name(f): f
     for f in TXN_FIELDS

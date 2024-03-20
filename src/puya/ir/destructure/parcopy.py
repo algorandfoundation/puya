@@ -4,13 +4,13 @@ from collections.abc import Callable, Iterable
 from copy import deepcopy
 
 import attrs
-import structlog.typing
 
+from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.context import TMP_VAR_INDICATOR
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 _T = typing.TypeVar("_T")
 

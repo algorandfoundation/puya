@@ -2,13 +2,12 @@ from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
-import structlog
 
-from puya.errors import Errors
+from puya import log
 from puya.options import PuyaOptions
 from puya.parse import ParseResult, SourceLocation
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen
@@ -20,11 +19,10 @@ class SourceMeta:
 _EmptyMeta = SourceMeta(None, None)
 
 
-@attrs.define
+@attrs.define(kw_only=True)
 class CompileContext:
     options: PuyaOptions
     parse_result: ParseResult
-    errors: Errors
     read_source: Callable[[str], Sequence[str] | None]
 
     @cached_property

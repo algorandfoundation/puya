@@ -7,8 +7,8 @@ import attrs
 import mypy.nodes
 import mypy.patterns
 import mypy.types
-import structlog
 
+from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
@@ -98,7 +98,7 @@ from puya.models import ARC4MethodConfig
 from puya.parse import SourceLocation
 from puya.utils import invert_ordered_binary_op, lazy_setdefault
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen

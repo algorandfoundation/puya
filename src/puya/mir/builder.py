@@ -1,6 +1,6 @@
 import attrs
-import structlog
 
+from puya import log
 from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.types_ import AVMBytesEncoding
@@ -9,7 +9,7 @@ from puya.mir import models
 from puya.mir.context import ProgramCodeGenContext
 from puya.utils import biguint_bytes_eval
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.define

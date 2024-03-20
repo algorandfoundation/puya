@@ -4,8 +4,8 @@ from collections.abc import Iterable
 from copy import deepcopy
 
 import attrs
-import structlog.typing
 
+from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.visitor_mem_replacer import MemoryReplacer
@@ -13,7 +13,7 @@ from puya.ir.vla import VariableLifetimeAnalysis
 from puya.options import LocalsCoalescingStrategy
 from puya.utils import StableSet
 
-logger: structlog.typing.FilteringBoundLogger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 
 
 @attrs.define

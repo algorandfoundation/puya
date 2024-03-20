@@ -5,12 +5,11 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 
 import attrs
-import structlog
 from immutabledict import immutabledict
 
+from puya import log
 from puya.arc32 import OCA_ARC32_MAPPING, write_arc32_client
 from puya.errors import PuyaError
-from puya.logging_config import LogLevel, configure_logging
 from puya.models import (
     ARC4Method,
     ARC4MethodArg,
@@ -20,14 +19,14 @@ from puya.models import (
     OnCompletionAction,
 )
 
-logger = structlog.get_logger(__name__)
+logger = log.get_logger(__name__)
 ARC32_OCA_MAPPING = {v: k for k, v in OCA_ARC32_MAPPING.items()}
 
 
 @attrs.define(kw_only=True)
 class PuyaGenOptions:
     paths: Sequence[Path] = attrs.field(default=(), repr=lambda p: str(list(map(str, p))))
-    log_level: LogLevel = LogLevel.info
+    log_level: log.LogLevel = log.LogLevel.info
 
 
 def main() -> None:
@@ -40,7 +39,7 @@ def main() -> None:
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")
     options = PuyaGenOptions()
     parser.parse_args(namespace=options)
-    configure_logging(min_log_level=options.log_level)
+    log.configure_logging(min_log_level=options.log_level)
     output_stubs(options.paths)
 
 
