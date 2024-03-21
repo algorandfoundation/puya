@@ -15,10 +15,7 @@ from puya import log
 from puya.arc32 import create_arc32_json, write_arc32_client
 from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
-from puya.errors import (
-    InternalError,
-    ParseError,
-)
+from puya.errors import InternalError, log_exceptions
 from puya.ir.main import build_module_irs, optimize_and_destructure_ir
 from puya.ir.models import (
     Contract as ContractIR,
@@ -31,7 +28,6 @@ from puya.options import PuyaOptions
 from puya.parse import (
     TYPESHED_PATH,
     ParseSource,
-    SourceLocation,
     parse_and_typecheck,
 )
 from puya.teal.main import mir_to_teal
@@ -42,7 +38,7 @@ logger = log.get_logger(__name__)
 
 def compile_to_teal(puya_options: PuyaOptions) -> None:
     """Drive the actual core compilation step."""
-    with log.logging_context() as log_ctx:
+    with log.logging_context() as log_ctx, log_exceptions():
         logger.debug(puya_options)
         context = parse_with_mypy(puya_options)
         log_ctx.exit_if_errors()
@@ -59,16 +55,7 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
 def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
     mypy_options = get_mypy_options()
     # this generates the ASTs from the build sources, and all imported modules (recursively)
-    try:
-        parse_result = parse_and_typecheck(puya_options.paths, mypy_options)
-    except mypy.errors.CompileError as ex:
-        parse_errors = list[str]()
-        parse_errors.extend(ex.messages)
-        if not parse_errors:
-            for a in ex.args:
-                lines = a.splitlines()
-                parse_errors.extend(lines)
-        raise ParseError(parse_errors) from ex
+    parse_result = parse_and_typecheck(puya_options.paths, mypy_options)
 
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
@@ -257,24 +244,3 @@ def write_logic_sig_files(base_path: Path, compiled_logic_sig: CompiledLogicSign
     output_text = "\n".join(compiled_logic_sig.program)
     logger.info(f"Writing {make_path_relative_to_cwd(output_path)}")
     output_path.write_text(output_text, encoding="utf-8")
-
-
-def _log_parse_error(errors: list[str], location: SourceLocation | None) -> None:
-    if not errors:
-        return
-    message, *related_lines = errors
-    logger.error(message, related_lines=related_lines, location=location)
-
-
-def _log_parse_errors(ex: ParseError) -> None:
-    location: SourceLocation | None = None
-    related_errors = list[str]()
-    for error in ex.errors:
-        if not error.location:
-            # collate related error messages and log together
-            related_errors.append(error.message)
-        else:
-            _log_parse_error(related_errors, location)
-            related_errors = [error.message]
-            location = error.location
-    _log_parse_error(related_errors, location)

@@ -10,7 +10,7 @@ import pytest
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst_build.main import transform_ast
 from puya.compile import parse_with_mypy
-from puya.errors import ParseError, PuyaError, log_exceptions
+from puya.errors import PuyaError, log_exceptions
 from puya.log import Log, LogLevel, logging_context
 from puya.options import PuyaOptions
 from puya.utils import coalesce
@@ -37,11 +37,6 @@ PREFIX_TO_LEVEL = {
     "E:": LogLevel.error,
     "W:": LogLevel.warning,
     "N:": LogLevel.info,
-}
-_MYPY_SEVERITY_TO_LEVEL = {
-    "error": LogLevel.error,
-    "warning": LogLevel.warning,
-    "note": LogLevel.info,
 }
 LEVEL_TO_PREFIX = {v: k for k, v in PREFIX_TO_LEVEL.items()}
 OUTPUT_TYPE_PREFIX_LENGTH = len(next(iter(PREFIX_TO_LEVEL)))
@@ -257,56 +252,6 @@ def get_test_lines_to_match_output(
     return expected
 
 
-def find_parse_errors_and_mark_as_failed(
-    cases: list[TestCase], ex: ParseError
-) -> t.Iterable[TestCase]:
-    outputs = dict[Path, OutputMapping]()
-    for error in ex.errors:
-        if error.severity and error.location:
-            log_level = _MYPY_SEVERITY_TO_LEVEL.get(error.severity)
-            if log_level:
-                path = Path(error.location.file)
-                line = error.location.line
-                test_case_output = TestCaseOutput(level=log_level, output=error.message)
-
-                path_outputs = outputs.setdefault(path, {})
-                path_outputs.setdefault(line, []).append(test_case_output)
-
-    for case in cases:
-        has_error = False
-        case_outputs = dict[Path, OutputMapping]()
-        for case_file in case.files:
-            assert case_file.src_path
-            file_outputs = outputs.get(case_file.src_path)
-            if file_outputs:
-                case_outputs[case_file.src_path] = file_outputs
-                has_error = has_error or any(
-                    o
-                    for line, outputs in file_outputs.items()
-                    for o in outputs
-                    if o.level == LogLevel.error
-                )
-
-        if has_error:
-            case.failure = TestCaseOutputDifferenceError(unexpected_output=case_outputs)
-            yield case
-
-
-def run_compiler_and_handle_parse_errors(cases: list[TestCase]) -> None:
-    try:
-        compile_and_update_cases(cases)
-    except ParseError as ex:
-        # try and filter out cases that fail to parse or type check
-        # if there is more than 1 parse failure this will still fail as mypy doesn't
-        # continue after a parse failure
-        failed_cases = set(find_parse_errors_and_mark_as_failed(cases, ex))
-        if not failed_cases:
-            # prevent infinite looping if failed cases can't be identified
-            raise
-        retry_cases = [c for c in cases if c not in failed_cases]
-        return run_compiler_and_handle_parse_errors(retry_cases)
-
-
 def get_python_module_name(root_dir: Path, src_dir: Path) -> str:
     relative = src_dir.relative_to(root_dir)
     return ".".join(relative.with_suffix("").parts)
@@ -352,10 +297,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                     )
                     awst_to_teal(case_log_ctx, case_context, awst)
                 case_logs = case_log_ctx.logs
-            try:
-                process_test_case(case, awst_log_ctx.logs + case_logs, awst)
-            except TestCaseOutputDifferenceError as ex:
-                case.failure = ex
+            process_test_case(case, awst_log_ctx.logs + case_logs, awst)
 
 
 def case_has_awst_errors(captured_logs: list[Log], case: TestCase) -> bool:
@@ -407,7 +349,7 @@ def process_test_case(
     awst: dict[str, Module],
 ) -> None:
     if case.failure:
-        raise case.failure
+        return
     missing_output = dict[Path, OutputMapping]()
     unexpected_output = dict[Path, OutputMapping]()
     unexpected_awst = dict[Path, list[str]]()
@@ -448,7 +390,7 @@ def process_test_case(
                 unexpected_awst[path] = observed_awst
 
     if missing_output or unexpected_output or unexpected_awst:
-        raise TestCaseOutputDifferenceError(
+        case.failure = TestCaseOutputDifferenceError(
             missing_output=missing_output,
             unexpected_output=unexpected_output,
             unexpected_awst=unexpected_awst,
@@ -569,8 +511,8 @@ class TestFile(pytest.File):
         # running multiple cases at once is a lot faster due to less mypy overhead
         # however a ParseError in a single case will effect all cases which is not ideal
         try:
-            run_compiler_and_handle_parse_errors(self.cases)
-        except (SystemExit, PuyaError, ParseError) as ex:
+            compile_and_update_cases(self.cases)
+        except PuyaError as ex:
             pytest.fail(f"Unhandled compiler error: {ex}", pytrace=False)
         except BaseException as ex:
             # unexpected error, fail immediately
