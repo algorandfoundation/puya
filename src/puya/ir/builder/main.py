@@ -364,14 +364,8 @@ class FunctionIRBuilder(
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> TExpression:
         items = []
         for item in expr.items:
-            try:
-                # TODO: don't rely on a pure function's side effects (raising) for validation
-                wtype_to_avm_type(item)
-            except InternalError:
-                raise CodeError(
-                    "Nested tuples or other compound types are not supported yet",
-                    item.source_location,
-                ) from None
+            # TODO: don't rely on a pure function's side effects (raising) for validation
+            wtype_to_avm_type(item)
             items.append(self.visit_and_materialise_single(item))
         return ValueTuple(
             source_location=expr.source_location,
