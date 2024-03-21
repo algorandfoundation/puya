@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import operator
 import os
 import re
 import shutil
@@ -32,7 +33,7 @@ def get_root_and_relative_path(path: Path) -> tuple[Path, Path]:
     for root in CONTRACT_ROOT_DIRS:
         if path.is_relative_to(root):
             return root, path.relative_to(root)
-    raise Exception(f"{path} is not relative to a known example")
+    raise RuntimeError(f"{path} is not relative to a known example")
 
 
 def get_unique_name(path: Path) -> str:
@@ -105,6 +106,7 @@ class CompilationResult:
     rel_path: str
     ok: bool
     teal_files: list[Path]
+    stdout: str
 
 
 def get_program_size(path: Path) -> int:
@@ -112,7 +114,7 @@ def get_program_size(path: Path) -> int:
         program = algokit_utils.Program(replace_templates(path.read_text("utf-8")), ALGOD_CLIENT)
         return len(program.raw_binary)
     except Exception as e:
-        raise Exception(f"Error compiling teal application: {path}") from e
+        raise RuntimeError(f"Error compiling teal application: {path}") from e
 
 
 def replace_templates(
@@ -184,10 +186,12 @@ def checked_compile(
 
         log_txt = "\n".join(_stabilise_logs(result.stdout))
         log_path.write_text(log_txt, encoding="utf8")
+    ok = result.returncode == 0
     return CompilationResult(
         rel_path=rel_path,
-        ok=result.returncode == 0,
+        ok=ok,
         teal_files=[root / p for p in teal_files_written],
+        stdout=result.stdout if not ok else "",  # don't thunk stdout if no errors
     )
 
 
@@ -251,7 +255,7 @@ def main(options: CompileAllOptions) -> None:
         ]
 
     modified_teal = defaultdict[int, list[Path]](list)
-    failures = list[str]()
+    failures = list[tuple[str, str]]()
     with ProcessPoolExecutor() as executor:
         args = [(case, level) for case in to_compile for level in range(3)]
         for compilation_result, level in executor.map(_compile_for_level, args):
@@ -262,12 +266,13 @@ def main(options: CompileAllOptions) -> None:
                 print(f"✅  {case_name}")
             else:
                 print(f"💥 {case_name}", file=sys.stderr)
-                failures.append(case_name)
+                failures.append((case_name, compilation_result.stdout))
 
     if failures:
         print("Compilation failures:")
-        for name in sorted(failures):
-            print(" - " + name)
+        for name, stdout in sorted(failures, key=operator.itemgetter(0)):
+            print(f" ~~~ {name} ~~~ ")
+            print("\n".join(ln for ln in stdout.splitlines() if not ln.startswith("debug: ")))
     if options.update_sizes:
         print("Updating sizes.txt")
         program_sizes = ProgramSizes()
@@ -276,6 +281,7 @@ def main(options: CompileAllOptions) -> None:
             existing = ProgramSizes.read_file(SIZE_TALLY_PATH)
             program_sizes = existing.update(program_sizes)
         SIZE_TALLY_PATH.write_text(str(program_sizes))
+    sys.exit(len(failures))
 
 
 if __name__ == "__main__":
