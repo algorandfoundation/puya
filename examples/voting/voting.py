@@ -127,13 +127,12 @@ class VotingRoundApp(ARC4Contract):
         )
 
         current_index = UInt64(0)
-        for question_index, question_options_arc in uenumerate(self.option_counts):
+        for question_index, question_options in uenumerate(self.option_counts):
             if question_index > 0:
                 note += ","
-            question_options = question_options_arc.native
             if question_options > 0:
                 note += "["
-                for option_index in urange(question_options):
+                for option_index in urange(question_options.native):
                     if option_index > 0:
                         note += ","
                     votes_for_option = get_vote_from_box(current_index)

@@ -69,14 +69,13 @@ contract VotingRoundApp
     this.close_time: puyapy.UInt64 = global<LatestTimestamp>()
     note: puyapy.String = '{"standard":"arc69","description":"This is a voting result NFT for voting round with ID ' + this.vote_id + '.","properties":{"metadata":"ipfs://' + this.metadata_ipfs_cid + '","id":"' + this.vote_id + '","quorum":' + examples.voting.voting::itoa(this.quorum) + ',"voterCount":' + examples.voting.voting::itoa(this.voter_count) + ',"tallies":['
     current_index: puyapy.UInt64 = 0u
-    for (question_index, question_options_arc) in enumerate(this.option_counts) {
+    for (question_index, question_options) in enumerate(this.option_counts) {
       if (question_index > 0u) {
         note += ','
       }
-      question_options: puyapy.UInt64 = arc4_decode(question_options_arc, puyapy.UInt64)
-      if (question_options > 0u) {
+      if (reinterpret_cast<puyapy.BigUInt>(question_options) > reinterpret_cast<puyapy.BigUInt>(0arc4u8)) {
         note += '['
-        for option_index in range(0u, question_options, 1u) {
+        for option_index in range(0u, arc4_decode(question_options, puyapy.UInt64), 1u) {
           if (option_index > 0u) {
             note += ','
           }
