@@ -12,8 +12,8 @@ class LocalState(typing.Generic[_TState]):
         type_: type[_TState],
         /,
         *,
-        key: bytes | typing.LiteralString | None = None,
-        description: typing.LiteralString | None = None,
+        key: bytes | str | None = None,
+        description: str | None = None,
     ) -> None:
         """Declare the local state key and it's associated type
 
@@ -86,8 +86,8 @@ class GlobalState(typing.Generic[_TState]):
         type_: type[_TState],
         /,
         *,
-        key: bytes | typing.LiteralString | None = None,
-        description: typing.LiteralString | None = None,
+        key: bytes | str | None = None,
+        description: str | None = None,
     ) -> None:
         """Declare the global state key and its type without initializing its value"""
     @typing.overload
@@ -95,8 +95,8 @@ class GlobalState(typing.Generic[_TState]):
         self,
         initial_value: _TState,
         /,
-        key: typing.LiteralString | bytes | None = None,
-        description: typing.LiteralString | None = None,
+        key: str | bytes | None = None,
+        description: str | None = None,
     ) -> None:
         """Declare the global state key and initialize its value"""
     @property

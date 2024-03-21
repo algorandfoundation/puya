@@ -1,5 +1,4 @@
 import abc
-import typing
 
 from puyapy import UInt64, urange
 
@@ -36,7 +35,7 @@ class Contract(abc.ABC):
     def __init_subclass__(
         cls,
         *,
-        name: typing.LiteralString = ...,
+        name: str = ...,
         scratch_slots: urange | tuple[int | urange, ...] | list[int | urange] = ...,
         state_totals: StateTotals = ...,
     ):

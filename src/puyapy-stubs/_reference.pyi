@@ -1,5 +1,3 @@
-import typing
-
 from puyapy import Bytes, BytesBacked, UInt64
 
 class Account(BytesBacked):
@@ -10,13 +8,13 @@ class Account(BytesBacked):
 
     __match_value__: str
     __match_args__ = ("__match_value__",)
-    def __init__(self, address: typing.LiteralString, /):
+    def __init__(self, address: str, /):
         """`address` should be a 58 character base32 string,
         ie a base32 string-encoded 32 bytes public key + 4 bytes checksum
         """
-    def __eq__(self, other: Account | typing.LiteralString) -> bool:  # type: ignore[override]
+    def __eq__(self, other: Account | str) -> bool:  # type: ignore[override]
         """Account equality is determined by the address of another `Account` or `str`"""
-    def __ne__(self, other: Account | typing.LiteralString) -> bool:  # type: ignore[override]
+    def __ne__(self, other: Account | str) -> bool:  # type: ignore[override]
         """Account equality is determined by the address of another `Account` or `str`"""
     # truthiness
     def __bool__(self) -> bool:

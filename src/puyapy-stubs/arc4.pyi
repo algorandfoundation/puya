@@ -48,7 +48,7 @@ def baremethod(
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
     """Decorator that indicates a method is an ARC4 bare method"""
 
-def arc4_signature(signature: typing.LiteralString) -> puyapy.Bytes:
+def arc4_signature(signature: str, /) -> puyapy.Bytes:
     """Returns the ARC4 encoded method selector for the specified signature"""
 
 class ARC4Contract(puyapy.Contract):
@@ -143,7 +143,7 @@ class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
 
     Max size: 64 bits"""
 
-    def __init__(self, value: typing.LiteralString, /):
+    def __init__(self, value: str, /):
         """
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
@@ -156,7 +156,7 @@ class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
 
     Max size: 512 bits"""
 
-    def __init__(self, value: typing.LiteralString, /):
+    def __init__(self, value: str, /):
         """
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
