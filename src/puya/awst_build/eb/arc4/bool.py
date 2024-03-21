@@ -5,10 +5,7 @@ import typing
 import structlog
 
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    ARC4Encode,
-    Literal,
-)
+from puya.awst.nodes import ARC4Encode, BoolConstant, Expression, Literal
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
@@ -43,18 +40,21 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         match args:
+            case []:
+                native_bool: Expression = BoolConstant(value=False, source_location=location)
             case [val]:
-                return var_expression(
-                    ARC4Encode(
-                        value=expect_operand_wtype(val, wtypes.bool_wtype),
-                        source_location=location,
-                        wtype=self.produces(),
-                    )
-                )
+                native_bool = expect_operand_wtype(val, wtypes.bool_wtype)
             case _:
                 raise CodeError(
                     f"arc4.Bool expects exactly one parameter of type {wtypes.bool_wtype}"
                 )
+        return var_expression(
+            ARC4Encode(
+                value=native_bool,
+                source_location=location,
+                wtype=self.produces(),
+            )
+        )
 
 
 class ARC4BoolExpressionBuilder(ARC4EncodedExpressionBuilder):
