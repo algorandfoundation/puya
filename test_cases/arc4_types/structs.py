@@ -5,7 +5,7 @@ from puyapy import Contract, arc4, log, op, subroutine
 Decimal: typing.TypeAlias = arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
 
 
-class Vector(arc4.Struct):
+class Vector(arc4.Struct, kw_only=True):
     x: Decimal
     y: Decimal
 
@@ -25,7 +25,7 @@ class VectorFlags(arc4.Struct):
 class Arc4StructsTypeContract(Contract):
     def approval_program(self) -> bool:
         coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
-        coord_2 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
+        coord_2 = Vector(y=Decimal("150.382884930"), x=Decimal("35.382882839"))
         coord_3 = add(coord_1.copy(), coord_2.copy())
         for val in (coord_3.x, coord_3.y):
             log(val.bytes)
