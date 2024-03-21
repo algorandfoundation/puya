@@ -38,6 +38,7 @@ logger = structlog.get_logger(__name__)
 def extract_docstring(
     class_or_func_or_module: mypy.nodes.ClassDef | mypy.nodes.FuncDef | mypy.nodes.MypyFile,
 ) -> str | None:
+    # TODO: mypy now provides this under .docstring
     # extract docstring if specified
     docstring: str | None = None
     match class_or_func_or_module:

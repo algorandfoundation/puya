@@ -230,7 +230,7 @@ def _get_documented_overload(o: mypy.nodes.OverloadedFuncDef) -> mypy.nodes.Func
             case _:
                 raise Exception("Only function overloads supported")
 
-        docstring = _get_docstring(func_def)
+        docstring = func_def.docstring
 
         # this is good enough until a more complex case arises
         if docstring and (
@@ -238,24 +238,6 @@ def _get_documented_overload(o: mypy.nodes.OverloadedFuncDef) -> mypy.nodes.Func
         ):
             best_overload = func_def
     return best_overload
-
-
-def _get_docstring(func_def: mypy.nodes.FuncDef) -> str | None:
-    match func_def:
-        case mypy.nodes.FuncDef(docstring=str() as docstring):
-            return docstring
-        case mypy.nodes.FuncDef(
-            body=mypy.nodes.Block(
-                body=[
-                    mypy.nodes.ExpressionStmt(
-                        expr=mypy.nodes.StrExpr(value=docstring),
-                    )
-                ]
-            )
-        ):
-            return docstring
-        case _:
-            return None
 
 
 @attrs.define

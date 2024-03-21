@@ -229,7 +229,7 @@ class BytesBacked(typing.Protocol):
     def bytes(self) -> Bytes:
         """Get the underlying Bytes"""
     @classmethod
-    def from_bytes(cls, value: Bytes) -> typing.Self:
+    def from_bytes(cls, value: Bytes, /) -> typing.Self:
         """Construct an instance from the underlying Bytes (no validation)"""
 
 class String(BytesBacked, Container[String]):

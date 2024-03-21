@@ -148,15 +148,15 @@ class ApplicationProtocol(typing.Protocol):
     def num_clear_state_program_pages(self) -> UInt64:
         """Number of Clear State Program pages"""
     # TODO: make the following sequences instead?
-    def app_args(self, index: UInt64 | int) -> Bytes:
+    def app_args(self, index: UInt64 | int, /) -> Bytes:
         """Arguments passed to the application in the ApplicationCall transaction"""
-    def accounts(self, index: UInt64 | int) -> Account:
+    def accounts(self, index: UInt64 | int, /) -> Account:
         """Accounts listed in the ApplicationCall transaction"""
-    def assets(self, index: UInt64 | int) -> Asset:
+    def assets(self, index: UInt64 | int, /) -> Asset:
         """Foreign Assets listed in the ApplicationCall transaction"""
-    def apps(self, index: UInt64 | int) -> Application:
+    def apps(self, index: UInt64 | int, /) -> Application:
         """Foreign Apps listed in the ApplicationCall transaction"""
-    def approval_program_pages(self, index: UInt64 | int) -> Bytes:
+    def approval_program_pages(self, index: UInt64 | int, /) -> Bytes:
         """Approval Program as an array of pages"""
-    def clear_state_program_pages(self, index: UInt64 | int) -> Bytes:
+    def clear_state_program_pages(self, index: UInt64 | int, /) -> Bytes:
         """Clear State Program as an array of pages"""

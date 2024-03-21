@@ -66,7 +66,7 @@ class ARC4Contract(puyapy.Contract):
 
 class _ABIEncoded(puyapy.BytesBacked, typing.Protocol):
     @classmethod
-    def from_log(cls, log: puyapy.Bytes) -> typing.Self:
+    def from_log(cls, log: puyapy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
 
 class String(_ABIEncoded):
@@ -86,7 +86,7 @@ class String(_ABIEncoded):
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 
 class _UIntN(_ABIEncoded, typing.Protocol):
-    def __init__(self, value: puyapy.BigUInt | puyapy.UInt64 | int) -> None: ...
+    def __init__(self, value: puyapy.BigUInt | puyapy.UInt64 | int, /) -> None: ...
 
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
     # TODO: mypy suggests due to Liskov below should be other: object
@@ -143,7 +143,7 @@ class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
 
     Max size: 64 bits"""
 
-    def __init__(self, value: typing.LiteralString):
+    def __init__(self, value: typing.LiteralString, /):
         """
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
@@ -156,7 +156,7 @@ class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
 
     Max size: 512 bits"""
 
-    def __init__(self, value: typing.LiteralString):
+    def __init__(self, value: typing.LiteralString, /):
         """
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
@@ -209,10 +209,13 @@ class StaticArray(
     @typing.overload
     def __init__(self) -> None: ...
     @typing.overload
-    def __init__(self: StaticArray[_TArrayItem, typing.Literal[1]], item0: _TArrayItem): ...
+    def __init__(self: StaticArray[_TArrayItem, typing.Literal[1]], item0: _TArrayItem, /): ...
     @typing.overload
     def __init__(
-        self: StaticArray[_TArrayItem, typing.Literal[2]], item0: _TArrayItem, item1: _TArrayItem
+        self: StaticArray[_TArrayItem, typing.Literal[2]],
+        item0: _TArrayItem,
+        item1: _TArrayItem,
+        /,
     ): ...
     @typing.overload
     def __init__(
@@ -220,6 +223,7 @@ class StaticArray(
         item0: _TArrayItem,
         item1: _TArrayItem,
         item2: _TArrayItem,
+        /,
     ): ...
     @typing.overload
     def __init__(
@@ -228,6 +232,7 @@ class StaticArray(
         item1: _TArrayItem,
         item2: _TArrayItem,
         item3: _TArrayItem,
+        /,
     ): ...
     @typing.overload
     def __init__(
@@ -237,6 +242,7 @@ class StaticArray(
         item2: _TArrayItem,
         item3: _TArrayItem,
         item4: _TArrayItem,
+        /,
     ): ...
     @typing.overload
     def __init__(
@@ -247,6 +253,7 @@ class StaticArray(
         item3: _TArrayItem,
         item4: _TArrayItem,
         item5: _TArrayItem,
+        /,
     ): ...
     @typing.overload
     def __init__(
@@ -258,6 +265,7 @@ class StaticArray(
         item4: _TArrayItem,
         item5: _TArrayItem,
         item6: _TArrayItem,
+        /,
     ): ...
     @typing.overload
     def __init__(
@@ -270,6 +278,7 @@ class StaticArray(
         item5: _TArrayItem,
         item6: _TArrayItem,
         item7: _TArrayItem,
+        /,
     ): ...
     @typing.overload
     def __init__(
@@ -283,6 +292,7 @@ class StaticArray(
         item6: _TArrayItem,
         item7: _TArrayItem,
         item8: _TArrayItem,
+        /,
     ): ...
     @typing.overload
     def __init__(
@@ -297,6 +307,7 @@ class StaticArray(
         item7: _TArrayItem,
         item8: _TArrayItem,
         item9: _TArrayItem,
+        /,
     ): ...
     @typing.overload
     def __init__(self, *items: _TArrayItem): ...
@@ -324,9 +335,9 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
     def length(self) -> puyapy.UInt64:
         """Returns the current length of the array"""
     def __getitem__(self, index: puyapy.UInt64 | int | slice) -> _TArrayItem: ...
-    def append(self, item: _TArrayItem) -> None:
+    def append(self, item: _TArrayItem, /) -> None:
         """Append items to this array"""
-    def extend(self, other: Iterable[_TArrayItem]) -> None:
+    def extend(self, other: Iterable[_TArrayItem], /) -> None:
         """Extend this array with the contents of another array"""
     def __setitem__(self, index: puyapy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
     def __add__(self, other: Iterable[_TArrayItem]) -> DynamicArray[_TArrayItem]: ...
@@ -339,7 +350,7 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
 class Address(StaticArray[Byte, typing.Literal[32]]):
     """An alias for an array containing 32 bytes representing an Algorand address"""
 
-    def __init__(self, account_or_bytes: puyapy.Bytes | puyapy.Account | bytes): ...
+    def __init__(self, account_or_bytes: puyapy.Bytes | puyapy.Account | bytes, /): ...
     @property
     def native(self) -> puyapy.Account:
         """Return the Account representation of the address after ARC4 decoding"""
@@ -362,7 +373,7 @@ _TTuple = typing.TypeVarTuple("_TTuple")
 class Tuple(_ABIEncoded, tuple[typing.Unpack[_TTuple]]):
     """An ARC4 ABI tuple, containing other ARC4 ABI types"""
 
-    def __init__(self, items: tuple[typing.Unpack[_TTuple]]):
+    def __init__(self, items: tuple[typing.Unpack[_TTuple]], /):
         """Construct an ARC4 tuple from a python tuple"""
     @property
     def native(self) -> tuple[typing.Unpack[_TTuple]]:
@@ -388,10 +399,10 @@ class Struct(metaclass=_StructMeta):
     def bytes(self) -> puyapy.Bytes:
         """Get the underlying bytes[]"""
     @classmethod
-    def from_bytes(cls, value: puyapy.Bytes) -> typing.Self:
+    def from_bytes(cls, value: puyapy.Bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes[] (no validation)"""
     @classmethod
-    def from_log(cls, log: puyapy.Bytes) -> typing.Self:
+    def from_log(cls, log: puyapy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
@@ -495,11 +506,14 @@ assert result == "Hello, Algo"
 result, txn = abi_call[arc4.String]("hello", "There", app=...)
 assert result == "Hello, There"
 ```
-
-
 """
 
-def emit(event: str | Struct, *args: _TABIArg) -> None:
+@typing.overload
+def emit(event: Struct, /) -> None: ...
+@typing.overload
+def emit(event: str, /, *args: _TABIArg) -> None: ...
+@typing.overload
+def emit(event: str | Struct, /, *args: _TABIArg) -> None:
     """Emit an ARC-28 event for the provided event signature or name, and provided args.
 
     :param event: Either an ARC4 Struct, an event name, or event signature.

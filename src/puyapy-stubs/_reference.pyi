@@ -10,7 +10,7 @@ class Account(BytesBacked):
 
     __match_value__: str
     __match_args__ = ("__match_value__",)
-    def __init__(self, address: typing.LiteralString):
+    def __init__(self, address: typing.LiteralString, /):
         """`address` should be a 58 character base32 string,
         ie a base32 string-encoded 32 bytes public key + 4 bytes checksum
         """
@@ -117,7 +117,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
-    def is_opted_in(self, aseet_or_app: Asset | Application) -> bool:
+    def is_opted_in(self, asset_or_app: Asset | Application, /) -> bool:
         """Returns true if this account is opted in to the specified Asset or Application.
 
         ```{note}
@@ -128,7 +128,7 @@ class Account(BytesBacked):
 class Asset:
     """An Asset on the Algorand network."""
 
-    def __init__(self, asset_id: UInt64 | int):
+    def __init__(self, asset_id: UInt64 | int, /):
         """Initialized with the id of an asset"""
     @property
     def id(self) -> UInt64:
@@ -236,14 +236,14 @@ class Asset:
         Asset must be an available resource
         ```
         """
-    def balance(self, account: Account) -> UInt64:
+    def balance(self, account: Account, /) -> UInt64:
         """Amount of the asset unit held by this account
 
         ```{note}
         Asset and supplied Account must be an available resource
         ```
         """
-    def frozen(self, account: Account) -> bool:
+    def frozen(self, account: Account, /) -> bool:
         """Is the asset frozen or not
 
         ```{note}
@@ -254,7 +254,7 @@ class Asset:
 class Application:
     """An Application on the Algorand network."""
 
-    def __init__(self, application_id: UInt64 | int):
+    def __init__(self, application_id: UInt64 | int, /):
         """Initialized with the id of an application"""
     @property
     def id(self) -> UInt64:
