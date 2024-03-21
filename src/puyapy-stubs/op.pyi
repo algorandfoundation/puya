@@ -134,12 +134,7 @@ def ecdsa_pk_decompress(v: ECDSA, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
     """
 
 def ecdsa_pk_recover(
-    v: ECDSA,
-    a: Bytes | bytes | Account,
-    b: UInt64 | int,
-    c: Bytes | bytes | Account,
-    d: Bytes | bytes | Account,
-    /,
+    v: ECDSA, a: Bytes | bytes, b: UInt64 | int, c: Bytes | bytes, d: Bytes | bytes, /
 ) -> tuple[Bytes, Bytes]:
     """
     for (data A, recovery id B, signature C, D) recover a public key
@@ -151,11 +146,11 @@ def ecdsa_pk_recover(
 
 def ecdsa_verify(
     v: ECDSA,
-    a: Bytes | bytes | Account,
-    b: Bytes | bytes | Account,
-    c: Bytes | bytes | Account,
-    d: Bytes | bytes | Account,
-    e: Bytes | bytes | Account,
+    a: Bytes | bytes,
+    b: Bytes | bytes,
+    c: Bytes | bytes,
+    d: Bytes | bytes,
+    e: Bytes | bytes,
     /,
 ) -> bool:
     """
@@ -166,7 +161,7 @@ def ecdsa_verify(
     Native TEAL opcode: [`ecdsa_verify`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ecdsa_verify)
     """
 
-def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes | Account, /) -> bool:
+def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
     """
     for (data A, signature B, pubkey C) verify the signature of ("ProgData" || program_hash || data) against the pubkey => {0 or 1}
     The 32 byte public key is the last element on the stack, preceded by the 64 byte signature at the second-to-last element on the stack, preceded by the data which was signed at the third-to-last element on the stack.
@@ -174,7 +169,7 @@ def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes | Account
     Native TEAL opcode: [`ed25519verify`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ed25519verify)
     """
 
-def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes | Account, /) -> bool:
+def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
     """
     for (data A, signature B, pubkey C) verify the signature of the data against the pubkey => {0 or 1}
 
@@ -387,7 +382,7 @@ def substring(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     """
 
 def vrf_verify(
-    s: VrfVerify, a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes | Account, /
+    s: VrfVerify, a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /
 ) -> tuple[Bytes, bool]:
     """
     Verify the proof B of message A against pubkey C. Returns vrf output and verification flag.
@@ -2643,16 +2638,16 @@ class ITxnCreate:
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
     @staticmethod
-    def set_vote_pk(a: Bytes | bytes | Account, /) -> None:
+    def set_vote_pk(a: Bytes | bytes, /) -> None:
         """
-        :param Bytes | bytes | Account a: 32 byte address
+        :param Bytes | bytes a: 32 byte address
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
     @staticmethod
-    def set_selection_pk(a: Bytes | bytes | Account, /) -> None:
+    def set_selection_pk(a: Bytes | bytes, /) -> None:
         """
-        :param Bytes | bytes | Account a: 32 byte address
+        :param Bytes | bytes a: 32 byte address
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
@@ -2825,9 +2820,9 @@ class ITxnCreate:
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
     @staticmethod
-    def set_config_asset_metadata_hash(a: Bytes | bytes | Account, /) -> None:
+    def set_config_asset_metadata_hash(a: Bytes | bytes, /) -> None:
         """
-        :param Bytes | bytes | Account a: 32 byte commitment to unspecified asset metadata
+        :param Bytes | bytes a: 32 byte commitment to unspecified asset metadata
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
