@@ -2,7 +2,7 @@ import contextlib
 import enum
 import sys
 import traceback
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 from pathlib import Path
 
 import attrs
@@ -79,27 +79,6 @@ class TodoError(CodeError):
         super().__init__(msg or "TODO: support this thing", location=location)
 
 
-def _get_pretty_source(file_source: Sequence[str], location: SourceLocation) -> list[str]:
-    source_line = file_source[location.line - 1]
-    column = location.column
-    end_column = len(source_line)
-    if (location.end_line is None or location.end_line == location.line) and location.end_column:
-        end_column = location.end_column
-    source_line_expanded = source_line.expandtabs()
-
-    # Shifts column after tab expansion
-    column = len(source_line[:column].expandtabs())
-    end_column = len(source_line[:end_column].expandtabs())
-
-    marker = "^"
-    if end_column > column:
-        marker += "~" * (end_column - column - 1)
-    return [
-        source_line_expanded,
-        " " * column + marker,
-    ]
-
-
 def _crash_report() -> None:
     # Adapted from report_internal_error in mypy
     tb = traceback.extract_stack()[:-4]
@@ -113,6 +92,7 @@ def _crash_report() -> None:
     output = ["Traceback (most recent call last):"]
     output.extend(s.rstrip("\n") for s in traceback.format_list(tb + tb2))
     logger.critical("\n".join(output))
+
 
 @contextlib.contextmanager
 def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[None]:

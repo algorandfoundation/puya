@@ -14,7 +14,7 @@ import attrs
 import structlog
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
 
     from puya.parse import SourceLocation
 
@@ -253,7 +253,7 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        self.log(_DEBUG, event, *args, location=location, **kwargs)
+        self._report(_DEBUG, event, *args, location=location, **kwargs)
 
     def info(
         self,
@@ -262,7 +262,7 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        self.log(_INFO, event, *args, location=location, **kwargs)
+        self._report(_INFO, event, *args, location=location, **kwargs)
 
     def warning(
         self,
@@ -271,7 +271,7 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        self.log(_WARNING, event, *args, location=location, **kwargs)
+        self._report(_WARNING, event, *args, location=location, **kwargs)
 
     def error(
         self,
@@ -280,7 +280,8 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        self.log(_ERROR, event, *args, location=location, **kwargs)
+        _add_source_context(kwargs, location)
+        self._report(_ERROR, event, *args, location=location, **kwargs)
 
     def exception(
         self,
@@ -289,8 +290,9 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
+        _add_source_context(kwargs, location)
         kwargs.setdefault("exc_info", True)
-        self.log(_CRITICAL, event, *args, location=location, **kwargs)
+        self._report(_CRITICAL, event, *args, location=location, **kwargs)
 
     def critical(
         self,
@@ -299,9 +301,20 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        self.log(_CRITICAL, event, *args, location=location, **kwargs)
+        _add_source_context(kwargs, location)
+        self._report(_CRITICAL, event, *args, location=location, **kwargs)
 
     def log(
+        self,
+        level: LogLevel,
+        event: object,
+        *args: typing.Any,
+        location: SourceLocation | None = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        self._report(level, event, *args, location=location, **kwargs)
+
+    def _report(
         self,
         level: LogLevel,
         event: object,
@@ -319,6 +332,47 @@ class _Logger:
         else:
             message = str(event)
         ctx.logs.append(Log(level, message, location))
+
+
+def _add_source_context(kwargs: dict[str, typing.Any], location: SourceLocation | None) -> None:
+    if not location:
+        return
+
+    from puya.parse import read_source
+
+    file_source = read_source(location.file)
+    if file_source and location.line <= len(file_source):
+        kwargs["related_lines"] = _get_pretty_source(file_source, location)
+
+
+def _get_pretty_source(file_source: Sequence[str], location: SourceLocation) -> Sequence[str]:
+    start_line_idx = location.line - 1
+    end_line_idx = (location.end_line or location.line) - 1
+    # find first line that isn't a comment
+    for source_line_idx in range(start_line_idx, end_line_idx + 1):
+        if not file_source[source_line_idx].lstrip().startswith("#"):
+            break
+    else:
+        source_line_idx = start_line_idx
+    # source line is followed by additional lines, don't bother annotating columns
+    if source_line_idx != end_line_idx:
+        return file_source[start_line_idx : end_line_idx + 1]
+    source_line = file_source[source_line_idx]
+    column = location.column
+    end_column = len(source_line)
+    if (location.end_line is None or location.end_line == location.line) and location.end_column:
+        end_column = location.end_column
+    # Shifts column after tab expansion
+    column = len(source_line[:column].expandtabs())
+    end_column = len(source_line[:end_column].expandtabs())
+
+    lines_before_source = file_source[start_line_idx:source_line_idx]
+
+    return [
+        *lines_before_source,
+        source_line.expandtabs(),
+        " " * column + f"^{'~' * max(end_column - column - 1, 0)}",
+    ]
 
 
 def get_num_errors() -> int:

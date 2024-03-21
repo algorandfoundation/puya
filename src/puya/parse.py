@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import os
 import re
 import sys
@@ -27,6 +28,7 @@ logger = log.get_logger(__name__)
 _SRC_ROOT = Path(__file__).parent
 TYPESHED_PATH = _SRC_ROOT / "_typeshed"
 _UNEXPECTED_SEVERITY = set[str]()
+_MYPY_FSCACHE = mypy.fscache.FileSystemCache()
 
 
 @attrs.frozen
@@ -235,19 +237,23 @@ def get_parse_sources(
     return sources
 
 
+@functools.cache
+def read_source(path: str) -> Sequence[str] | None:
+    return mypy.util.read_py_file(path, _MYPY_FSCACHE.read)
+
+
 def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Options) -> ParseResult:
     from puya.errors import InternalError
 
-    mypy_fscache = mypy.fscache.FileSystemCache()
     # ensure we have the absolute, canonical paths to the files
     resolved_input_paths = {p.resolve() for p in paths}
     # creates a list of BuildSource objects from the contract Paths
     mypy_build_sources = mypy.find_sources.create_source_list(
         paths=[str(p) for p in resolved_input_paths],
         options=mypy_options,
-        fscache=mypy_fscache,
+        fscache=_MYPY_FSCACHE,
     )
-    sources = get_parse_sources(paths, mypy_fscache, mypy_options)
+    sources = get_parse_sources(paths, _MYPY_FSCACHE, mypy_options)
 
     # insert embedded lib, after source list that is returned has been constructed,
     # so we don't try to output it
@@ -262,7 +268,7 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
             for module in _MYPY_EMBEDDED_MODULES.values()
         ]
     )
-    result = _mypy_build(mypy_build_sources, mypy_options, mypy_fscache)
+    result = _mypy_build(mypy_build_sources, mypy_options, _MYPY_FSCACHE)
     missing_module_names = {s.module_name for s in sources} - result.manager.modules.keys()
     if missing_module_names:
         # Note: this shouldn't happen, provided we've successfully disabled the mypy cache
@@ -295,7 +301,7 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
                 # nothing and is only in the graph as a reference
                 pass
             else:
-                _check_encoding(mypy_fscache, module_path)
+                _check_encoding(_MYPY_FSCACHE, module_path)
                 ordered_modules.append(module)
 
     return ParseResult(

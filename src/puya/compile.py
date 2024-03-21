@@ -1,7 +1,5 @@
-import functools
 import os
 import typing
-from collections.abc import Sequence
 from pathlib import Path
 
 import mypy.build
@@ -76,14 +74,9 @@ def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
     # We don't want to crash when that happens.
     parse_result.manager.errors.set_file("<puya>", module=None, scope=None, options=mypy_options)
 
-    @functools.cache
-    def read_source(p: str) -> Sequence[str] | None:
-        return mypy.util.read_py_file(p, parse_result.manager.fscache.read)
-
     context = CompileContext(
         options=puya_options,
         parse_result=parse_result,
-        read_source=read_source,
     )
 
     return context
