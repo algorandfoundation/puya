@@ -1,17 +1,21 @@
+from __future__ import annotations
+
 import contextlib
 import enum
 import sys
 import traceback
-from collections.abc import Iterator
-from pathlib import Path
+import typing
 
-import attrs
+import mypy.errors
 
 from puya import log
-from puya.parse import SourceLocation
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
-_VALID_SEVERITY = ("error", "note", "warning")
 
 
 class ErrorExitCode(enum.IntEnum):
@@ -24,44 +28,6 @@ class PuyaError(Exception):
         super().__init__(msg)
         self.msg = msg
         self.location = location
-
-
-@attrs.frozen(kw_only=True)
-class MyPyErrorData:
-    message: str
-    severity: str | None = None
-    location: SourceLocation | None = None
-
-    @classmethod
-    def parse(cls, error_str: str) -> "MyPyErrorData":
-        error_parts = error_str.split(":", maxsplit=3)
-        if len(error_parts) == 4:  # parse error that might contain file and line details
-            file_str, line_str, severity, message = error_parts
-            severity = severity.strip()
-            if Path(file_str).exists() and severity in _VALID_SEVERITY:
-                try:
-                    line = int(line_str)
-                except ValueError:
-                    pass
-                else:
-                    location = SourceLocation(file=file_str, line=line)
-                    return cls(message=message[1:], severity=severity, location=location)
-            error_parts = error_str.split(":", maxsplit=1)
-        if len(error_parts) == 2:  # otherwise attempt to parse severity and message
-            severity, message = error_parts
-            severity = severity.strip()
-            if severity in _VALID_SEVERITY:
-                return cls(message=message[1:], severity=severity)
-        # fallback to just the error message
-        return cls(message=error_str)
-
-
-class ParseError(Exception):
-    """Encapsulate parse/type errors from MyPy"""
-
-    def __init__(self, errors: list[str]):
-        super().__init__("\n".join(errors))
-        self.errors = list(map(MyPyErrorData.parse, errors))
 
 
 class InternalError(PuyaError):
@@ -100,6 +66,9 @@ def log_exceptions(fallback_location: SourceLocation | None = None) -> Iterator[
         yield
     except CodeError as ex:
         logger.error(ex.msg, location=ex.location or fallback_location)  # noqa: TRY400
+    except mypy.errors.CompileError:
+        # errors related to this should have already been logged
+        sys.exit(ErrorExitCode.code)
     except InternalError as ex:
         logger.critical(ex.msg, location=ex.location or fallback_location)
         sys.exit(ErrorExitCode.internal)
