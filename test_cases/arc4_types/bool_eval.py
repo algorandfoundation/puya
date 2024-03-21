@@ -67,6 +67,8 @@ class Arc4BoolEvalContract(Contract):
 
         assert arc4.Tuple((arc4.Bool(False),))
 
+        assert arc4.Bool() == arc4.Bool(False)
+
         return True
 
     def clear_state_program(self) -> bool:

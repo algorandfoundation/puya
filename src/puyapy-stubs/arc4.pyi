@@ -216,7 +216,7 @@ UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
 class Bool(_ABIEncoded):
     """An ARC4 encoded bool"""
 
-    def __init__(self, value: bool) -> None: ...  # noqa: FBT001
+    def __init__(self, value: bool = False, /) -> None: ...  # noqa: FBT001
     @property
     def native(self) -> bool:
         """Return the bool representation of the value after ARC4 decoding"""
