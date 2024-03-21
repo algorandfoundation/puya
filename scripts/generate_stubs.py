@@ -408,7 +408,7 @@ def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
         StackType.asset: [wtypes.asset_wtype, *uint64],
         StackType.bytes: bytes_,
         StackType.bytes_8: bytes_,
-        StackType.bytes_32: [*bytes_, *account],
+        StackType.bytes_32: bytes_,
         StackType.bytes_33: bytes_,
         StackType.bytes_64: bytes_,
         StackType.bytes_80: bytes_,
