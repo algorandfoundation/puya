@@ -35,6 +35,7 @@ from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_artifact_ir_to_path
 from puya.ir.types_ import wtype_to_avm_type, wtype_to_avm_types
 from puya.ir.utils import format_tuple_index
+from puya.ir.validation.main import validate_module_artifact
 from puya.models import (
     ARC4Method,
     ARC4MethodConfig,
@@ -94,7 +95,6 @@ def build_module_irs(
             with ctx.log_exceptions():
                 logic_sig_ir = _build_logic_sig_ir(ctx, logic_signature)
                 artifacts.append(logic_sig_ir)
-
     return result
 
 
@@ -118,6 +118,10 @@ def optimize_and_destructure_ir(
         output_artifact_ir_to_path(
             artifact_ir, artifact_ir_base_path.with_suffix(".destructured.ir")
         )
+    # re-run validation post everything, in case we've accidentally inserted something,
+    # and in particular post subroutine removal, because some things that are "linked"
+    # are not necessarily used from the current artifact
+    validate_module_artifact(context, artifact_ir)
     return artifact_ir
 
 
