@@ -93,7 +93,6 @@ def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
 
 
 def get_mypy_options() -> mypy.options.Options:
-    # TODO: build configuration interface to these options
     mypy_opts = mypy.options.Options()
     # improve mypy parsing performance by using a cut-down typeshed
     mypy_opts.custom_typeshed_dir = str(TYPESHED_PATH)
@@ -101,6 +100,7 @@ def get_mypy_options() -> mypy.options.Options:
 
     mypy_opts.export_types = True
     mypy_opts.preserve_asts = True
+    mypy_opts.include_docstrings = True
     # next two options disable caching entirely.
     # slows things down but prevents intermittent failures.
     mypy_opts.incremental = False
