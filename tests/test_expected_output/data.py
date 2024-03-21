@@ -313,10 +313,7 @@ def get_python_module_name(root_dir: Path, src_dir: Path) -> str:
 
 
 def compile_and_update_cases(cases: list[TestCase]) -> None:
-    with (
-        logging_context() as awst_log_ctx,
-        tempfile.TemporaryDirectory() as root_dir_str,
-    ):
+    with tempfile.TemporaryDirectory() as root_dir_str, logging_context() as awst_log_ctx:
         root_dir = Path(root_dir_str).resolve()
         srcs = list[Path]()
         case_path = dict[TestCase, Path]()
@@ -337,7 +334,6 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 srcs.append(tmp_src)
                 file.src_path = tmp_src
                 file.module_name = get_python_module_name(root_dir, tmp_src)
-
         context = parse_with_mypy(PuyaOptions(paths=srcs))
         awst = transform_ast(context)
         # lower each case further if possible and process
@@ -345,8 +341,10 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
             if case_has_awst_errors(awst_log_ctx.logs, case):
                 case_logs = []
             else:
-                # attempt to lower awst for each case individually to get logs from lower layers
-                # enter new logging context so prior AWST errors are not seen
+                # lower awst for each case individually to order to get any output
+                # from lower layers
+                # this needs a new logging context so AWST errors from other cases
+                # are not seen
                 with logging_context() as case_log_ctx, log_exceptions():
                     case_context = attrs.evolve(
                         context,

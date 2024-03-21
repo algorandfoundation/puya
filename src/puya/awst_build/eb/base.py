@@ -121,6 +121,12 @@ class ExpressionBuilder(abc.ABC):
     def value_type(self) -> wtypes.WType | None:
         return None
 
+    @property
+    def _type_description(self) -> str:
+        if self.value_type is None:
+            return type(self).__name__
+        return self.value_type.stub_name
+
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
@@ -158,19 +164,21 @@ class ExpressionBuilder(abc.ABC):
                 f" so operations such as {op.value}= are not supported",
                 location,
             )
-        raise CodeError(f"{self.value_type} does not support augmented assignment", location)
+        raise CodeError(
+            f"{self._type_description} does not support augmented assignment", location
+        )
 
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
         """Handle self[index]"""
-        raise CodeError(f"{type(self).__name__} does not support indexing", location)
+        raise CodeError(f"{self._type_description} does not support indexing", location)
 
     def index_multiple(
         self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
         """Handle self[index]"""
-        raise CodeError(f"{type(self).__name__} does not support multiple indexing", location)
+        raise CodeError(f"{self._type_description} does not support multiple indexing", location)
 
     def slice_index(
         self,
@@ -180,7 +188,7 @@ class ExpressionBuilder(abc.ABC):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         """Handle self[begin_index:end_index:stride]"""
-        raise CodeError(f"{type(self).__name__} does not support slicing", location)
+        raise CodeError(f"{self._type_description} does not support slicing", location)
 
     def call(
         self,
@@ -190,28 +198,38 @@ class ExpressionBuilder(abc.ABC):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         """Handle self(args...)"""
-        raise CodeError(f"{type(self).__name__} does not support calling", location)
+        raise CodeError(f"{self._type_description} does not support calling", location)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         """Handle self.name"""
-        raise CodeError(f"{type(self).__name__} does not support member access {name}", location)
+        raise CodeError(
+            f"{self._type_description} does not support member access {name}", location
+        )
 
     def iterate(self) -> Iteration:
         """Produce target of ForInLoop"""
-        raise CodeError(f"{type(self).__name__} does not support iteration", self.source_location)
+        raise CodeError(
+            f"{self._type_description} does not support iteration", self.source_location
+        )
 
 
 class IntermediateExpressionBuilder(ExpressionBuilder):
     """Never valid as an assignment source OR target"""
 
     def rvalue(self) -> Expression:
-        raise CodeError(f"{type(self).__name__} is not valid as an rvalue", self.source_location)
+        raise CodeError(
+            f"{self._type_description} is not valid as an rvalue", self.source_location
+        )
 
     def lvalue(self) -> Lvalue:
-        raise CodeError(f"{type(self).__name__} is not valid as an lvalue", self.source_location)
+        raise CodeError(
+            f"{self._type_description} is not valid as an lvalue", self.source_location
+        )
 
     def delete(self, location: SourceLocation) -> Statement:
-        raise CodeError(f"{type(self).__name__} is not valid as del target", self.source_location)
+        raise CodeError(
+            f"{self._type_description} is not valid as del target", self.source_location
+        )
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return self._not_a_value(location)
@@ -231,7 +249,7 @@ class IntermediateExpressionBuilder(ExpressionBuilder):
         return self._not_a_value(location)
 
     def _not_a_value(self, location: SourceLocation) -> typing.Never:
-        raise CodeError(f"{type(self).__name__} is not a value", location)
+        raise CodeError(f"{self._type_description} is not a value", location)
 
 
 class StateProxyMemberBuilder(IntermediateExpressionBuilder):
@@ -394,7 +412,7 @@ class ValueExpressionBuilder(ExpressionBuilder):
 
     def iterate(self) -> Iteration:
         """Produce target of ForInLoop"""
-        raise CodeError(f"{type(self).__name__} does not support iteration", self.source_location)
+        raise CodeError(f"{self.wtype} does not support iteration", self.source_location)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         # TODO: this should be abstract, we always want to consider this for types
