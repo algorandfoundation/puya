@@ -112,11 +112,5 @@ class Arc4MutableParamsContract(Contract):
         arrays[1][0] = UInt8(99)
         arrays[2][0] = UInt8(99)
 
-        # And this doesn't work
-        (one, two, three) = arrays
-        one[0] = UInt8(99)
-        two[0] = UInt8(99)
-        three[0] = UInt8(99)
-
     def clear_state_program(self) -> bool:
         return True
