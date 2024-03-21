@@ -66,23 +66,13 @@ class IntrinsicSimplifier(IRMutator):
                         # this would make it a ControlOp, so the block would
                         # need to be restructured
                         pass
-                elif isinstance(cond, models.Register):
-                    assert_cond_defn = get_definition(self.subroutine, cond)
-                    match assert_cond_defn:
-                        case models.Assignment(
-                            source=models.Intrinsic(
-                                args=[
-                                    models.Value(atype=AVMType.uint64) as a,
-                                    models.Value(atype=AVMType.uint64) as b,
-                                ]
-                            ) as assert_cond_op
-                        ):
-                            assert_cond_defn_simplified = _try_simplify_uint64_binary_op(
-                                assert_cond_op, a, b, bool_context=True
-                            )
-                            if isinstance(assert_cond_defn_simplified, models.Value):
-                                self.modified += 1
-                                return attrs.evolve(intrinsic, args=[assert_cond_defn_simplified])
+                else:
+                    assert_cond_maybe_simplified = _try_simplify_bool_condition(
+                        self.subroutine, cond
+                    )
+                    if assert_cond_maybe_simplified is not None:
+                        self.modified += 1
+                        return attrs.evolve(intrinsic, args=[assert_cond_maybe_simplified])
 
             case _:
                 simplified = _try_convert_stack_args_to_immediates(intrinsic)
@@ -92,24 +82,35 @@ class IntrinsicSimplifier(IRMutator):
         return intrinsic
 
     def visit_conditional_branch(self, branch: models.ConditionalBranch) -> models.ControlOp:
-        if isinstance(branch.condition, models.Register):
-            branch_cond_defn = get_definition(self.subroutine, branch.condition)
-            match branch_cond_defn:
-                case models.Assignment(
-                    source=models.Intrinsic(
-                        args=[
-                            models.Value(atype=AVMType.uint64) as a,
-                            models.Value(atype=AVMType.uint64) as b,
-                        ]
-                    ) as assert_cond_op
-                ):
-                    branch_cond_simplified = _try_simplify_uint64_binary_op(
-                        assert_cond_op, a, b, bool_context=True
-                    )
-                    if isinstance(branch_cond_simplified, models.Value):
-                        self.modified += 1
-                        return attrs.evolve(branch, condition=branch_cond_simplified)
+        branch_cond_maybe_simplified = _try_simplify_bool_condition(
+            self.subroutine, branch.condition
+        )
+        if branch_cond_maybe_simplified is not None:
+            self.modified += 1
+            return attrs.evolve(branch, condition=branch_cond_maybe_simplified)
         return branch
+
+
+def _try_simplify_bool_condition(
+    subroutine: models.Subroutine, cond: models.Value
+) -> models.Value | None:
+    if isinstance(cond, models.Register):
+        cond_defn = get_definition(subroutine, cond)
+        match cond_defn:
+            case models.Assignment(
+                source=models.Intrinsic(
+                    args=[
+                        models.Value(atype=AVMType.uint64) as a,
+                        models.Value(atype=AVMType.uint64) as b,
+                    ]
+                ) as cond_op
+            ):
+                cond_maybe_simplified = _try_simplify_uint64_binary_op(
+                    cond_op, a, b, bool_context=True
+                )
+                if isinstance(cond_maybe_simplified, models.Value):
+                    return cond_maybe_simplified
+    return None
 
 
 def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | None:
@@ -517,7 +518,6 @@ def _try_simplify_uint64_binary_op(
             c = a
         elif 0 in (a_const, b_const) and op in (AVMOp.mul, AVMOp.and_):
             c = 0
-        # TODO: expand bool_context detection? currently just for assert
         # 0 != b <-> b
         #   OR
         # 0 < b <-> b
