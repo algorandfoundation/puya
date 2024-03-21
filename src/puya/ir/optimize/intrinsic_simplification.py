@@ -201,6 +201,9 @@ def _try_fold_intrinsic(
         selector_const = _get_int_constant(selector)
         if selector_const is not None:
             return true if selector_const else false
+        maybe_simplified_select_cond = _try_simplify_bool_condition(subroutine, selector)
+        if maybe_simplified_select_cond is not None:
+            return attrs.evolve(intrinsic, args=[false, true, maybe_simplified_select_cond])
     elif intrinsic.op is AVMOp.getbit:
         match intrinsic.args:
             case [
