@@ -91,6 +91,26 @@ class IntrinsicSimplifier(IRMutator):
                     return simplified
         return intrinsic
 
+    def visit_conditional_branch(self, branch: models.ConditionalBranch) -> models.ControlOp:
+        if isinstance(branch.condition, models.Register):
+            branch_cond_defn = get_definition(self.subroutine, branch.condition)
+            match branch_cond_defn:
+                case models.Assignment(
+                    source=models.Intrinsic(
+                        args=[
+                            models.Value(atype=AVMType.uint64) as a,
+                            models.Value(atype=AVMType.uint64) as b,
+                        ]
+                    ) as assert_cond_op
+                ):
+                    branch_cond_simplified = _try_simplify_uint64_binary_op(
+                        assert_cond_op, a, b, bool_context=True
+                    )
+                    if isinstance(branch_cond_simplified, models.Value):
+                        self.modified += 1
+                        return attrs.evolve(branch, condition=branch_cond_simplified)
+        return branch
+
 
 def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | None:
     match intrinsic:
