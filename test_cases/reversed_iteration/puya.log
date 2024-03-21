@@ -626,12 +626,14 @@ debug: Simplified (< 0u 0u) to 0u
 debug: Simplified (- 0u 0u) to 0u
 debug: Simplified (* 1u iteration_count_minus_one%6#0) to iteration_count_minus_one%6#0
 debug: Simplified (+ 0u range_delta%7#0) to range_delta%7#0
+debug: Simplified (>= start%9#0 0u) to 1u
 debug: Simplified (* reverse_index_internal%15#2 1u) to reverse_index_internal%15#2
 debug: Simplified (concat 0x 0x00) to 0x00
 debug: Simplified (< 0u 4u) to 1u
 debug: Simplified (- 4u 0u) to 4u
 debug: Simplified (* 1u iteration_count_minus_one%25#0) to iteration_count_minus_one%25#0
 debug: Simplified (+ 0u range_delta%26#0) to range_delta%26#0
+debug: Simplified (>= start%28#0 0u) to 1u
 debug: Simplified (* index#0 1u) to index#0
 debug: Simplified (< 4u 8u) to 1u
 debug: Simplified (- 8u 4u) to 4u
@@ -700,11 +702,11 @@ debug: Replacing redundant declaration let tmp%91#0: uint64 = (len awst_tmp%89#0
 debug: Replacing redundant declaration let tmp%92#0: uint64 = (len awst_tmp%89#0) with copy of existing registers [Register(atype=uint64, name='tmp%90', version=0, source_location=reversed_iteration/contract.py:37:41-60)]
 debug: Replacing redundant declaration let base_length%96#0: uint64 = (len awst_tmp%89#0) with copy of existing registers [Register(atype=uint64, name='tmp%90', version=0, source_location=reversed_iteration/contract.py:37:41-60)]
 debug: Found equivalence set: iteration_count_minus_one%6#0, range_delta%7#0, start%9#0
-debug: Replacing {range_delta%7#0, start%9#0} with iteration_count_minus_one%6#0 made 2 modifications
+debug: Replacing {range_delta%7#0, start%9#0} with iteration_count_minus_one%6#0 made 1 modifications
 debug: Found equivalence set: reverse_index_internal%15#2, item_index%17#0
 debug: Replacing {item_index%17#0} with reverse_index_internal%15#2 made 1 modifications
 debug: Found equivalence set: iteration_count_minus_one%25#0, range_delta%26#0, start%28#0
-debug: Replacing {range_delta%26#0, start%28#0} with iteration_count_minus_one%25#0 made 2 modifications
+debug: Replacing {range_delta%26#0, start%28#0} with iteration_count_minus_one%25#0 made 1 modifications
 debug: Found equivalence set: value_as_uint16%62#0, array_data%59#1
 debug: Replacing {array_data%59#1} with value_as_uint16%62#0 made 1 modifications
 debug: Found equivalence set: index#0, write_offset%36#0
@@ -741,9 +743,11 @@ debug: Simplified (+ 6u 3u) to 9u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable should_loop%0#0
 debug: Removing unused variable range_length%1#0
+debug: Removing unused variable continue_looping%11#0
 debug: Removing unused variable array_data%18#1
 debug: Removing unused variable should_loop%19#0
 debug: Removing unused variable range_length%20#0
+debug: Removing unused variable continue_looping%31#0
 debug: Removing unused variable should_loop%40#0
 debug: Removing unused variable range_length%41#0
 debug: Removing unused variable value_as_uint16%62#0
@@ -754,11 +758,17 @@ debug: Optimizer: Simplify Control Ops
 debug: simplifying conditional branch with a constant into a goto
 debug: simplified terminator of block@0: // L7 from goto 0u ? block@1 : block@6 to goto block@6
 debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@1: // for_preamble_L8 from goto 1u ? block@3 : block@6 to goto block@3
+debug: simplifying conditional branch with a constant into a goto
 debug: simplified terminator of block@10: // after_for_L11 from goto 1u ? block@11 : block@16 to goto block@11
 debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@11: // for_preamble_L15 from goto 1u ? block@13 : block@16 to goto block@13
+debug: simplifying conditional branch with a constant into a goto
 debug: simplified terminator of block@16: // after_for_L15 from goto 1u ? block@17 : block@24 to goto block@17
+debug: Replacing trivial Phi node: let test_array#3: bytes = φ(test_array#2 <- block@13) (test_array#3) with test_array#2
+debug: Deleting Phi assignment: let test_array#3: bytes = φ(test_array#2 <- block@13)
+debug: Replacing trivial Phi node: let test_array#3: bytes = φ(test_array#2 <- block@13) (test_array#3) with test_array#2
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@11: // for_preamble_L15 with block@10: // after_for_L11 in block@16: // after_for_L15
 debug: Replaced predecessor block@11: // for_preamble_L15 with block@10: // after_for_L11 in block@13: // for_body_L15
 debug: Merged linear block@11: // for_preamble_L15 into block@10: // after_for_L11
 debug: Replaced predecessor block@17: // for_preamble_L20 with block@16: // after_for_L15 in block@18: // for_header_L20
@@ -885,7 +895,6 @@ debug: Optimizing subroutine test_cases.reversed_iteration.contract.MyContract.a
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (>= 3u 0u) to 1u
 debug: Simplified (concat 0x00060009000c "/x00/x01a") to 0x00060009000c000161
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable iteration_count_minus_one%46#0
@@ -914,13 +923,8 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x00060009000c000161 "/x00/x01b") to 0x00060009000c000161000162
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable continue_looping%31#0
 debug: Removing unused variable array_data%59#4
 debug: Optimizer: Simplify Control Ops
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@10: // after_for_L11 from goto 1u ? block@13 : block@16 to goto block@13
-debug: Replacing trivial Phi node: let test_array#3: bytes = φ(test_array#2 <- block@13) (test_array#3) with test_array#2
-debug: Deleting Phi assignment: let test_array#3: bytes = φ(test_array#2 <- block@13)
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Not removing empty block block@20: // if_body_L23 because it's used by phi nodes

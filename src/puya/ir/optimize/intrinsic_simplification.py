@@ -55,15 +55,35 @@ class IntrinsicSimplifier(IRMutator):
         # in either case, the result has to be either an Op or None (ie delete),
         # so we don't invoke _try_fold_intrinsic here
         match intrinsic:
-            case Intrinsic(op=AVMOp.assert_, args=[models.UInt64Constant(value=value)]):
-                if value:
-                    self.modified += 1
-                    return None
-                else:
-                    # an assert 0 could be simplified to an err, but
-                    # this would make it a ControlOp, so the block would
-                    # need to be restructured
-                    pass
+            case Intrinsic(op=AVMOp.assert_, args=[cond]):
+                if isinstance(cond, models.UInt64Constant):
+                    value = cond.value
+                    if value:
+                        self.modified += 1
+                        return None
+                    else:
+                        # an assert 0 could be simplified to an err, but
+                        # this would make it a ControlOp, so the block would
+                        # need to be restructured
+                        pass
+                elif isinstance(cond, models.Register):
+                    assert_cond_defn = get_definition(self.subroutine, cond)
+                    match assert_cond_defn:
+                        case models.Assignment(
+                            source=models.Intrinsic(
+                                args=[
+                                    models.Value(atype=AVMType.uint64) as a,
+                                    models.Value(atype=AVMType.uint64) as b,
+                                ]
+                            ) as assert_cond_op
+                        ):
+                            assert_cond_defn_simplified = _try_simplify_uint64_binary_op(
+                                assert_cond_op, a, b, bool_context=True
+                            )
+                            if isinstance(assert_cond_defn_simplified, models.Value):
+                                self.modified += 1
+                                return attrs.evolve(intrinsic, args=[assert_cond_defn_simplified])
+
             case _:
                 simplified = _try_convert_stack_args_to_immediates(intrinsic)
                 if simplified is not None:
@@ -433,7 +453,7 @@ def _try_simplify_bytes_unary_op(
 
 
 def _try_simplify_uint64_binary_op(
-    intrinsic: models.Intrinsic, a: models.Value, b: models.Value
+    intrinsic: models.Intrinsic, a: models.Value, b: models.Value, *, bool_context: bool = False
 ) -> models.ValueProvider | None:
     op = intrinsic.op
     c: models.Value | int | None = None
@@ -461,13 +481,12 @@ def _try_simplify_uint64_binary_op(
         # a == 0 <-> !a
         elif b_const == 0 and op == AVMOp.eq:
             return attrs.evolve(intrinsic, op=AVMOp.not_, args=[a])
-        # TODO: can we somehow do the below only in a boolean context?
-        # # 0 != b <-> b
-        # elif a_const == 0 and op == AVMOp.neq:
-        #     c = b
-        # # a != 0 <-> a
-        # elif b_const == 0 and op == AVMOp.neq:
-        #     c = a
+        # a >= 0 <-> 1
+        elif b_const == 0 and op == AVMOp.gte:  # noqa: SIM114
+            c = 1
+        # 0 <= b <-> 1
+        elif a_const == 0 and op == AVMOp.lte:
+            c = 1
         elif a_const == 1 and op == AVMOp.mul:
             c = b
         elif b_const == 1 and op == AVMOp.mul:
@@ -478,6 +497,17 @@ def _try_simplify_uint64_binary_op(
             c = a
         elif 0 in (a_const, b_const) and op in (AVMOp.mul, AVMOp.and_):
             c = 0
+        # TODO: expand bool_context detection? currently just for assert
+        # 0 != b <-> b
+        #   OR
+        # 0 < b <-> b
+        elif bool_context and a_const == 0 and op in (AVMOp.neq, AVMOp.lt):
+            c = b
+        # a != 0 <-> a
+        #   OR
+        # a > 0 <-> a
+        elif bool_context and b_const == 0 and op in (AVMOp.neq, AVMOp.gt):
+            c = a
         elif a_const is not None and b_const is not None:
             match op:
                 case AVMOp.add:
