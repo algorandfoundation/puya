@@ -28,7 +28,6 @@ from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.subroutine import FunctionASTConverter
 from puya.awst_build.utils import (
     extract_bytes_literal_from_mypy,
-    extract_docstring,
     fold_binary_expr,
     fold_unary_expr,
     get_arg_mapping,
@@ -60,7 +59,6 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         super().__init__(context=context.for_module(module))
 
         self._mypy_module = module
-        self._docstring = extract_docstring(module)
 
         # pre-parse
         errors_start = self.context.errors.num_errors
@@ -90,7 +88,6 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         result = Module(
             name=module.name,
             source_file_path=module.path,
-            docstring=self._docstring,
             body=statements,
         )
         validate_awst(self.context, result)
@@ -481,7 +478,11 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     # Unsupported Statements
 
     def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> StatementResult:
-        return self._unsupported(stmt)
+        if isinstance(stmt.expr, mypy.nodes.StrExpr):
+            # ignore any doc-strings at module level
+            return []
+        else:
+            return self._unsupported(stmt)
 
     def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> StatementResult:
         return self._unsupported(stmt)
@@ -617,10 +618,14 @@ def _process_struct(
 ) -> StatementResult:
     field_types = dict[str, wtypes.WType]()
     field_decls = list[StructureField]()
-    docstring = extract_docstring(cdef)
+    docstring = cdef.docstring
     has_error = False
     for stmt in cdef.defs.body:
         match stmt:
+            case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
+                # ignore class docstring, already extracted
+                # TODO: should we capture field "docstrings"?
+                pass
             case mypy.nodes.AssignmentStmt(
                 lvalues=[mypy.nodes.NameExpr(name=field_name)],
                 rvalue=mypy.nodes.TempNode(),
@@ -662,11 +667,15 @@ def _process_arc4_struct(
 ) -> StatementResult:
     field_types = dict[str, wtypes.WType]()
     field_decls = list[StructureField]()
-    docstring = extract_docstring(cdef)
+    docstring = cdef.docstring
 
     has_error = False
     for stmt in cdef.defs.body:
         match stmt:
+            case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
+                # ignore class docstring, already extracted
+                # TODO: should we capture field "docstrings"?
+                pass
             case mypy.nodes.AssignmentStmt(
                 lvalues=[mypy.nodes.NameExpr(name=field_name)],
                 rvalue=mypy.nodes.TempNode(),

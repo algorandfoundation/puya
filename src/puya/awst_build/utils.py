@@ -35,32 +35,6 @@ from puya.parse import SourceLocation
 logger = structlog.get_logger(__name__)
 
 
-def extract_docstring(
-    class_or_func_or_module: mypy.nodes.ClassDef | mypy.nodes.FuncDef | mypy.nodes.MypyFile,
-) -> str | None:
-    # TODO: mypy now provides this under .docstring
-    # extract docstring if specified
-    docstring: str | None = None
-    match class_or_func_or_module:
-        case mypy.nodes.FuncDef() as func:
-            mypy_body = func.body.body
-        case mypy.nodes.ClassDef() as klass:
-            mypy_body = klass.defs.body
-        case mypy.nodes.MypyFile() as module:
-            mypy_body = module.defs
-        case _:
-            raise TypeError(
-                "Don't know how to extract docstring"
-                f" from type {type(class_or_func_or_module).__name__}"
-            )
-    match mypy_body:
-        case [mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr(value=docstring)), *_]:
-            # TODO: maybe we actually want to pass here and just ignore/warn about any
-            #       further ExpressionStmt(StrExpr())
-            del mypy_body[0]
-    return docstring
-
-
 def refers_to_fullname(ref_expr: mypy.nodes.RefExpr, *fullnames: str) -> bool:
     """Is node a name or member expression with the given full name?"""
     if isinstance(ref_expr.node, mypy.nodes.TypeAlias):

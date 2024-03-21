@@ -3,6 +3,7 @@ from collections.abc import Iterator, Mapping
 import mypy.nodes
 import mypy.types
 import mypy.visitor
+import structlog
 
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -24,7 +25,6 @@ from puya.awst_build.contract_data import (
 )
 from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puya.awst_build.utils import (
-    extract_docstring,
     get_decorators_by_fullname,
     iterate_user_bases,
     qualified_class_name,
@@ -36,6 +36,8 @@ from puya.parse import SourceLocation
 ALLOWABLE_OCA = frozenset(
     [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
 )
+
+logger = structlog.get_logger(__name__)
 
 
 class ContractASTConverter(BaseMyPyStatementVisitor[None]):
@@ -49,7 +51,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self.class_def = class_def
         self.cref = qualified_class_name(class_def.info)
         self._is_arc4 = class_def.info.has_base(constants.ARC4_CONTRACT_BASE)
-        docstring = extract_docstring(class_def)
         self._is_abstract = class_def.info.is_abstract  # TODO: is this sufficient?
         self._approval_program: ContractMethod | None = None
         self._clear_program: ContractMethod | None = None
@@ -93,7 +94,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             clear_program=self._clear_program,
             subroutines=self._subroutines,
             app_state=collected_app_state_definitions,
-            docstring=docstring,
+            docstring=class_def.docstring,
             source_location=self._location(class_def),
             reserved_scratch_space=class_options.scratch_slot_reservations,
             state_totals=class_options.state_totals,
@@ -330,7 +331,12 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._unsupported("operator assignment", stmt)
 
     def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> None:
-        self._unsupported("expression statement", stmt)
+        if isinstance(stmt.expr, mypy.nodes.StrExpr):
+            # ignore class docstring, already extracted
+            # TODO: should we capture field "docstrings"?
+            pass
+        else:
+            self._unsupported("expression statement", stmt)
 
     def visit_if_stmt(self, stmt: mypy.nodes.IfStmt) -> None:
         self._unsupported("if", stmt)
