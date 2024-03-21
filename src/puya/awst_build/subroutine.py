@@ -85,7 +85,6 @@ from puya.awst_build.utils import (
     bool_eval,
     expect_operand_wtype,
     extract_bytes_literal_from_mypy,
-    extract_docstring,
     fold_binary_expr,
     fold_unary_expr,
     get_aliased_instance,
@@ -178,8 +177,6 @@ class FunctionASTConverter(
             arg_name = arg.variable.name
             args.append(SubroutineArgument(self._location(arg), arg_name, wtype))
             self._symtable[arg_name] = wtype
-        # extract docstring if specified
-        docstring = extract_docstring(func_def)
         # translate body
         translated_body = self.visit_block(func_def.body)
         # build result
@@ -192,7 +189,7 @@ class FunctionASTConverter(
                 args=args,
                 return_type=self._return_type,
                 body=translated_body,
-                docstring=docstring,
+                docstring=func_def.docstring,
             )
         else:
             self.result = ContractMethod(
@@ -203,7 +200,7 @@ class FunctionASTConverter(
                 args=args,
                 return_type=self._return_type,
                 body=translated_body,
-                docstring=docstring,
+                docstring=func_def.docstring,
                 abimethod_config=self.contract_method_info.arc4_method_config,
             )
 
@@ -270,16 +267,15 @@ class FunctionASTConverter(
     _enter_bool_context = partialmethod(_set_bool_context, is_bool_context=True)
     _leave_bool_context = partialmethod(_set_bool_context, is_bool_context=False)
 
-    def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> ExpressionStatement:
-        self._precondition(
-            stmt.line == stmt.expr.line
-            and stmt.end_line == stmt.expr.end_line
-            and stmt.column == stmt.expr.column
-            and stmt.end_column == stmt.expr.end_column,
-            "statement express location should match expression location",
-            stmt,
-        )
+    def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> ExpressionStatement | None:
         stmt_loc = self._location(stmt)
+        if isinstance(stmt.expr, mypy.nodes.StrExpr):
+            if stmt.expr.value != self.func_def.docstring:
+                logger.warning(
+                    "String literal is not assigned and is not part of docstring",
+                    location=stmt_loc,
+                )
+            return None
         if isinstance(stmt.expr, mypy.nodes.TupleExpr) and len(stmt.expr.items) == 1:
             raise CodeError(
                 "Tuple being constructed without assignment,"

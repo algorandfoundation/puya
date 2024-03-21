@@ -1769,7 +1769,6 @@ class StructureDefinition(ModuleStatement):
 class Module:
     name: str
     source_file_path: str
-    docstring: str | None
     body: Sequence[ModuleStatement] = attrs.field(converter=tuple[ModuleStatement, ...])
 
     @cached_property
