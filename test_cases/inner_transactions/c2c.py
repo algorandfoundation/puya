@@ -28,4 +28,4 @@ class Greeter(ARC4Contract):
             app_args=(arc4.arc4_signature("hello(string)string"), name),
         ).submit()
         greeting = arc4.String.from_log(hello_call.last_log)
-        log(b"HelloWorld returned: ", greeting.native)
+        log("HelloWorld returned: ", greeting.native)
