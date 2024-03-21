@@ -114,3 +114,14 @@ def extract3(
         stack_args=[value, start, length],
         source_location=loc or value.source_location,
     )
+
+
+def zero_address(
+    loc: SourceLocation, *, as_type: wtypes.WType = wtypes.account_wtype
+) -> IntrinsicCall:
+    return IntrinsicCall(
+        wtype=as_type,
+        op_code="global",
+        immediates=["ZeroAddress"],
+        source_location=loc,
+    )

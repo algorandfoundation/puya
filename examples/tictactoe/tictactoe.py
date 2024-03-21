@@ -1,7 +1,7 @@
 # ruff: noqa: PT018
 import typing
 
-from puyapy import Account, Global, GlobalState, Txn, UInt64, arc4, op, subroutine
+from puyapy import Account, GlobalState, Txn, UInt64, arc4, op, subroutine
 
 Row: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[3]]
 Game: typing.TypeAlias = arc4.StaticArray[Row, typing.Literal[3]]
@@ -51,9 +51,7 @@ class TicTacToeContract(arc4.ARC4Contract):
             assert Txn.sender == self.host, "It is the host's turn"
             player = arc4.UInt8(HOST)
         else:
-            assert Txn.sender == self.challenger.get(
-                Global.zero_address
-            ), "It is the challenger's turn"
+            assert Txn.sender == self.challenger.get(Account()), "It is the challenger's turn"
             player = arc4.UInt8(CHALLENGER)
         self.make_move(player, move)
 

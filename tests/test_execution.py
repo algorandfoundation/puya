@@ -1276,3 +1276,43 @@ def test_inheritance_direct_method_invocation(harness: _TestHarness) -> None:
         "ChildContract.method called",
         "GrandParentContract.method called",
     ]
+
+
+def test_account_from_bytes_validation(harness: _TestHarness) -> None:
+    def test() -> None:
+        from puyapy import Account, Contract, Txn
+
+        class Baddie(Contract):
+            def approval_program(self) -> bool:
+                b = Txn.sender.bytes + b"!"
+                x = Account(b)
+                assert x.bytes.length > 0, "shouldn't get here"
+                return True
+
+            def clear_state_program(self) -> bool:
+                return True
+
+    with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
+        harness.deploy_from_closure(test)
+    assert exc_info.value.line_no is not None
+    assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]
+
+
+def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
+    def test() -> None:
+        from puyapy import Contract, Txn, arc4
+
+        class Baddie(Contract):
+            def approval_program(self) -> bool:
+                b = Txn.sender.bytes + b"!"
+                x = arc4.Address(b)
+                assert x.bytes.length > 0, "shouldn't get here"
+                return True
+
+            def clear_state_program(self) -> bool:
+                return True
+
+    with pytest.raises(algokit_utils.logic_error.LogicError) as exc_info:
+        harness.deploy_from_closure(test)
+    assert exc_info.value.line_no is not None
+    assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]

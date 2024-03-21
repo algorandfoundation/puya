@@ -2,8 +2,12 @@ contract AddressConstantContract
 {
   approval_program(): bool
   {
+    some_address: puyapy.Account = global<ZeroAddress>()
+    assert(some_address == global<ZeroAddress>())
     some_address: puyapy.Account = Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA")
+    assert(some_address != global<ZeroAddress>())
     some_address: puyapy.Account = reinterpret_cast<puyapy.Account>(reinterpret_cast<puyapy.Bytes>(some_address))
+    some_address: puyapy.Account = reinterpret_cast<puyapy.Account>(checked_maybe((SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(some_address)), 32u == len(SINGLE_EVAL(id=0, source=reinterpret_cast<puyapy.Bytes>(some_address))))))
     sender: puyapy.Account = txn<Sender>()
     sender_bytes: puyapy.Bytes = reinterpret_cast<puyapy.Bytes>(sender)
     log(sender_bytes)

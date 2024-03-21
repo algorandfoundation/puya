@@ -30,13 +30,13 @@ class ConstantProductAMM(ARC4Contract):
         # so if we have multiple create methods, this can contain common code.
 
         # The asset id of asset A
-        self.asset_a = Asset(0)
+        self.asset_a = Asset()
         # The asset id of asset B
-        self.asset_b = Asset(0)
+        self.asset_b = Asset()
         # The current governor of this contract, allowed to do admin type actions
         self.governor = Txn.sender
         # The asset id of the Pool Token, used to track share of pool the holder may recover
-        self.pool_token = Asset(0)
+        self.pool_token = Asset()
         # The ratio between assets (A*Scale/B)
         self.ratio = UInt64(0)
 
