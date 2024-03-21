@@ -25,7 +25,6 @@ from puya.ir.models import (
     LogicSignature,
     ModuleArtifact,
 )
-from puya.ir_validation.main import validate_module_artifact
 from puya.mir.main import program_ir_to_mir
 from puya.models import CompilationArtifact, CompiledContract, CompiledLogicSignature
 from puya.options import PuyaOptions
@@ -167,7 +166,6 @@ def module_irs_to_teal(
                 artifact_ir = optimize_and_destructure_ir(
                     context, artifact_ir, artifact_ir_base_path
                 )
-                validate_module_artifact(context, artifact_ir)
 
                 match artifact_ir:
                     case ContractIR() as contract:
