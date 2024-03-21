@@ -64,7 +64,7 @@ class ARC4Contract(puyapy.Contract):
     def approval_program(self) -> puyapy.UInt64 | bool: ...
     def clear_state_program(self) -> puyapy.UInt64 | bool: ...
 
-class _ABIEncoded(puyapy.BytesBacked):
+class _ABIEncoded(puyapy.BytesBacked, typing.Protocol):
     @classmethod
     def from_log(cls, log: puyapy.Bytes) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
@@ -84,9 +84,8 @@ class String(_ABIEncoded):
         """Returns `True` if length is not zero"""
 
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
-_TBitSizeOther = typing.TypeVar("_TBitSizeOther", bound=int)
 
-class _UIntN(_ABIEncoded, typing.Generic[_TBitSize]):
+class _UIntN(_ABIEncoded, typing.Protocol):
     def __init__(self, value: puyapy.BigUInt | puyapy.UInt64 | int) -> None: ...
 
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
@@ -94,56 +93,32 @@ class _UIntN(_ABIEncoded, typing.Generic[_TBitSize]):
     #       need to consider ramifications here, ignoring it for now
     def __eq__(  # type: ignore[override]
         self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
     ) -> bool: ...
     def __ne__(  # type: ignore[override]
         self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
     ) -> bool: ...
     def __le__(
         self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
     ) -> bool: ...
     def __lt__(
         self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
     ) -> bool: ...
     def __ge__(
         self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
     ) -> bool: ...
     def __gt__(
         self,
-        other: UIntN[_TBitSizeOther]
-        | BigUIntN[_TBitSizeOther]
-        | puyapy.UInt64
-        | puyapy.BigUInt
-        | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
     ) -> bool: ...
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
 
-class UIntN(_UIntN[_TBitSize]):
+class UIntN(_UIntN, typing.Generic[_TBitSize]):
     """An ARC4 UInt consisting of the number of bits specified.
 
     Max Size: 64 bits"""
@@ -152,7 +127,7 @@ class UIntN(_UIntN[_TBitSize]):
     def native(self) -> puyapy.UInt64:
         """Return the UInt64 representation of the value after ARC4 decoding"""
 
-class BigUIntN(_UIntN[_TBitSize]):
+class BigUIntN(_UIntN, typing.Generic[_TBitSize]):
     """An ARC4 UInt consisting of the number of bits specified.
 
     Max size: 512 bits"""
@@ -216,7 +191,7 @@ UInt512: typing.TypeAlias = BigUIntN[typing.Literal[512]]
 class Bool(_ABIEncoded):
     """An ARC4 encoded bool"""
 
-    def __init__(self, value: bool = False, /) -> None: ...  # noqa: FBT001
+    def __init__(self, value: bool = False, /) -> None: ...  # noqa: FBT001, FBT002
     @property
     def native(self) -> bool:
         """Return the bool representation of the value after ARC4 decoding"""
@@ -404,7 +379,6 @@ class _StructMeta(type):
         namespace: dict[str, object],
         *,
         kw_only: bool = False,
-        # **kwargs: typing.Any,
     ) -> _StructMeta: ...
 
 class Struct(metaclass=_StructMeta):

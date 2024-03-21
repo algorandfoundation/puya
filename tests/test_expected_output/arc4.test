@@ -1,3 +1,7 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
 ## case: test_emit_errors
 
 from puyapy import arc4, subroutine
@@ -70,3 +74,33 @@ def invalid_signature5() -> None:
 @subroutine
 def invalid_signature6() -> None:
     arc4.emit("Event(string,uint8)(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: Invalid signature, trailing text after args '(string,uint64)'
+
+
+## case: test_bad_uint_sizes
+
+import typing
+
+from puyapy import arc4, subroutine
+
+A: typing.TypeAlias = arc4.UIntN[typing.Literal[72]]
+B: typing.TypeAlias = arc4.BigUIntN[typing.Literal[64]]
+
+C: typing.TypeAlias = arc4.UFixedNxM[typing.Literal[72], typing.Literal[10]]
+D: typing.TypeAlias = arc4.BigUFixedNxM[typing.Literal[64], typing.Literal[10]]
+
+
+@subroutine
+def testA(x: A) -> None: ## E: UIntN scale must be >=8 and <=64 bits, and be a multiple of 8
+    assert x
+
+@subroutine
+def testB(x: B) -> None: ## E: BigUIntN scale must be >64 and <=512 bits, and be a multiple of 8
+    assert x
+
+@subroutine
+def testC(x: C) -> None: ## E: UFixedNxM scale must be >=8 and <=64 bits, and be a multiple of 8
+    assert x
+
+@subroutine
+def testD(x: D) -> None: ## E: BigUFixedNxM scale must be >64 and <=512 bits, and be a multiple of 8
+    assert x

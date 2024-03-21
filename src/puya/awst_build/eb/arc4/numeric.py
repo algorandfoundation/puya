@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import typing
 
 import structlog
@@ -90,21 +91,39 @@ class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
         self.wtype = wtypes.arc4_byte_type
 
 
-class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
+class _UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
         n = get_integer_literal_value(index, "UIntN scale")
-        if n % 8 or not (8 <= n <= 512):
-            raise CodeError(
-                "UIntN scale must be between 8 and 512 bits, and be a multiple of 8",
-                location,
-            )
+        self.check_bitsize(n, location)
         self.wtype = wtypes.ARC4UIntN.from_scale(n)
         return self
 
+    @abc.abstractmethod
+    def check_bitsize(self, n: int, location: SourceLocation) -> None:
+        ...
 
-class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
+
+class UIntNClassExpressionBuilder(_UIntNClassExpressionBuilder):
+    def check_bitsize(self, n: int, location: SourceLocation) -> None:
+        if n % 8 or not (8 <= n <= 64):
+            raise CodeError(
+                "UIntN scale must be >=8 and <=64 bits, and be a multiple of 8",
+                location,
+            )
+
+
+class BigUIntNClassExpressionBuilder(_UIntNClassExpressionBuilder):
+    def check_bitsize(self, n: int, location: SourceLocation) -> None:
+        if n % 8 or not (64 < n <= 512):
+            raise CodeError(
+                "BigUIntN scale must be >64 and <=512 bits, and be a multiple of 8",
+                location,
+            )
+
+
+class _UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     def index_multiple(
         self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
@@ -115,15 +134,33 @@ class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
         n = get_integer_literal_value(scale_expr, "UFixedNxM scale")
         m = get_integer_literal_value(precision_expr, "UFixedNxM precision")
 
-        if n % 8 or not (8 <= n <= 512):
-            raise CodeError(
-                "UFixedNxM scale must be between 8 and 512 bits, and be a multiple of 8",
-                location,
-            )
+        self.check_bitsize(n, location)
         if not (1 <= m < 160):
             raise CodeError("UFixedNxM precision must be between 1 and 160.")
         self.wtype = wtypes.ARC4UFixedNxM.from_scale_and_precision(n=n, m=m)
         return self
+
+    @abc.abstractmethod
+    def check_bitsize(self, n: int, location: SourceLocation) -> None:
+        ...
+
+
+class UFixedNxMClassExpressionBuilder(_UFixedNxMClassExpressionBuilder):
+    def check_bitsize(self, n: int, location: SourceLocation) -> None:
+        if n % 8 or not (8 <= n <= 64):
+            raise CodeError(
+                "UFixedNxM scale must be >=8 and <=64 bits, and be a multiple of 8",
+                location,
+            )
+
+
+class BigUFixedNxMClassExpressionBuilder(_UFixedNxMClassExpressionBuilder):
+    def check_bitsize(self, n: int, location: SourceLocation) -> None:
+        if n % 8 or not (64 < n <= 512):
+            raise CodeError(
+                "BigUFixedNxM scale must be >64 and <=512 bits, and be a multiple of 8",
+                location,
+            )
 
 
 class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
