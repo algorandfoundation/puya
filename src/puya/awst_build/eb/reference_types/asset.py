@@ -42,14 +42,15 @@ class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         match args:
+            case []:
+                uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
+            case [Literal(value=int(int_value), source_location=loc)]:
+                uint64_expr = UInt64Constant(value=int_value, source_location=loc)
             case [ExpressionBuilder() as eb]:
                 uint64_expr = expect_operand_wtype(eb, wtypes.uint64_wtype)
-                return AssetExpressionBuilder(uint64_expr)
-            case [Literal(value=int(int_value), source_location=loc)]:
-                const = UInt64Constant(value=int_value, source_location=loc)
-                return AssetExpressionBuilder(const)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
+        return AssetExpressionBuilder(uint64_expr)
 
 
 ASSET_HOLDING_FIELD_MAPPING: typing.Final = {

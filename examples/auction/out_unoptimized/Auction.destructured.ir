@@ -1,16 +1,16 @@
 contract examples.auction.contract.Auction:
     program approval:
         subroutine examples.auction.contract.Auction.approval_program() -> uint64:
-            block@0: // L15
+            block@0: // L16
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L16
+            block@1: // on_create_L17
                 examples.auction.contract.Auction.__init__()
                 goto block@2
-            block@2: // entrypoint_L16
+            block@2: // entrypoint_L17
                 let tmp%1#0: uint64 = (txn NumAppArgs)
                 goto tmp%1#0 ? block@3 : block@12
-            block@3: // abi_routing_L15
+            block@3: // abi_routing_L16
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@10}
             block@4: // opt_into_asset_route_L25
@@ -83,21 +83,21 @@ contract examples.auction.contract.Auction:
                 let tmp%40#0: uint64 = ((txnas Assets) tmp%39#0)
                 examples.auction.contract.Auction.claim_asset(tmp%40#0)
                 return 1u
-            block@10: // switch_case_default_L15
+            block@10: // switch_case_default_L16
                 goto block@11
-            block@11: // switch_case_next_L15
+            block@11: // switch_case_next_L16
                 goto block@15
-            block@12: // bare_routing_L15
+            block@12: // bare_routing_L16
                 let tmp%41#0: uint64 = (txn OnCompletion)
                 switch tmp%41#0 {0u => block@13, * => block@14}
-            block@13: // create_L15
+            block@13: // create_L16
                 let tmp%42#0: uint64 = (txn ApplicationID)
                 let tmp%43#0: uint64 = (! tmp%42#0)
                 (assert tmp%43#0) // is creating
                 return 1u
-            block@14: // reject_bare_on_completion_L15
+            block@14: // reject_bare_on_completion_L16
                 fail // reject transaction
-            block@15: // after_if_else_L15
+            block@15: // after_if_else_L16
                 fail // reject transaction
         
         subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
@@ -249,7 +249,7 @@ contract examples.auction.contract.Auction:
                 return 
         
         subroutine examples.auction.contract.Auction.__init__() -> void:
-            block@0: // L16
+            block@0: // L17
                 (app_global_put "auction_end" 0u)
                 (app_global_put "previous_bid" 0u)
                 (app_global_put "asa_amount" 0u)

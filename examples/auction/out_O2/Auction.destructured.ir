@@ -1,16 +1,16 @@
 contract examples.auction.contract.Auction:
     program approval:
         subroutine examples.auction.contract.Auction.approval_program() -> uint64:
-            block@0: // L15
+            block@0: // L16
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
-            block@1: // on_create_L16
+            block@1: // on_create_L17
                 examples.auction.contract.Auction.__init__()
                 goto block@2
-            block@2: // entrypoint_L16
+            block@2: // entrypoint_L17
                 let tmp%1#0: uint64 = (txn NumAppArgs)
                 goto tmp%1#0 ? block@3 : block@12
-            block@3: // abi_routing_L15
+            block@3: // abi_routing_L16
                 let tmp%2#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%2#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => fail // reject transaction}
             block@4: // opt_into_asset_route_L25
@@ -79,7 +79,7 @@ contract examples.auction.contract.Auction:
                 let tmp%40#0: uint64 = ((txnas Assets) tmp%39#0)
                 examples.auction.contract.Auction.claim_asset(tmp%40#0)
                 return 1u
-            block@12: // bare_routing_L15
+            block@12: // bare_routing_L16
                 let tmp%41#0: uint64 = (txn OnCompletion)
                 let not%tmp%41#0: uint64 = (! tmp%41#0)
                 (assert not%tmp%41#0) // reject transaction
@@ -211,7 +211,7 @@ contract examples.auction.contract.Auction:
                 return 
         
         subroutine examples.auction.contract.Auction.__init__() -> void:
-            block@0: // L16
+            block@0: // L17
                 (app_global_put "auction_end" 0u)
                 (app_global_put "previous_bid" 0u)
                 (app_global_put "asa_amount" 0u)

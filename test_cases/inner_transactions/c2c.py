@@ -5,7 +5,7 @@ from test_cases.inner_transactions.programs import HELLO_WORLD_APPROVAL_HEX, HEL
 
 class Greeter(ARC4Contract):
     def __init__(self) -> None:
-        self.hello_app = Application(0)
+        self.hello_app = Application()
 
     @arc4.abimethod()
     def bootstrap(self) -> UInt64:

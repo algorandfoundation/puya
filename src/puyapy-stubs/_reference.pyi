@@ -8,9 +8,13 @@ class Account(BytesBacked):
 
     __match_value__: str
     __match_args__ = ("__match_value__",)
-    def __init__(self, address: str, /):
-        """`address` should be a 58 character base32 string,
-        ie a base32 string-encoded 32 bytes public key + 4 bytes checksum
+    def __init__(self, value: str | Bytes = ..., /):
+        """
+        If `value` is a string, it should be a 58 character base32 string,
+        ie a base32 string-encoded 32 bytes public key + 4 bytes checksum.
+        If `value` is a Bytes, it's length checked to be 32 bytes - to avoid this
+        check, use `Address.from_bytes(...)` instead.
+        Defaults to the zero-address.
         """
     def __eq__(self, other: Account | str) -> bool:  # type: ignore[override]
         """Account equality is determined by the address of another `Account` or `str`"""
@@ -18,7 +22,7 @@ class Account(BytesBacked):
         """Account equality is determined by the address of another `Account` or `str`"""
     # truthiness
     def __bool__(self) -> bool:
-        """Returns `True` if not equal to the zero address"""
+        """Returns `True` if not equal to the zero-address"""
     @property
     def balance(self) -> UInt64:
         """Account balance in microalgos
@@ -126,8 +130,8 @@ class Account(BytesBacked):
 class Asset:
     """An Asset on the Algorand network."""
 
-    def __init__(self, asset_id: UInt64 | int, /):
-        """Initialized with the id of an asset"""
+    def __init__(self, asset_id: UInt64 | int = 0, /):
+        """Initialized with the id of an asset. Defaults to zero (an invalid ID)."""
     @property
     def id(self) -> UInt64:
         """Returns the id of the Asset"""
@@ -252,8 +256,8 @@ class Asset:
 class Application:
     """An Application on the Algorand network."""
 
-    def __init__(self, application_id: UInt64 | int, /):
-        """Initialized with the id of an application"""
+    def __init__(self, application_id: UInt64 | int = 0, /):
+        """Initialized with the id of an application. Default to zero (an invalid ID)."""
     @property
     def id(self) -> UInt64:
         """Returns the id of the application"""

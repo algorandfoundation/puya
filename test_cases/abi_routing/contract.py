@@ -112,7 +112,7 @@ class Reference(ARC4Contract):
 
     @arc4.abimethod(readonly=True)
     def get_address(self) -> arc4.Address:
-        return arc4.Address.from_bytes(op.Global.zero_address.bytes)
+        return arc4.Address()
 
     @arc4.abimethod(readonly=True)
     def get_asset(self) -> arc4.UInt64:

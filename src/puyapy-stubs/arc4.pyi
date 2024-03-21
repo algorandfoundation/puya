@@ -350,7 +350,14 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
 class Address(StaticArray[Byte, typing.Literal[32]]):
     """An alias for an array containing 32 bytes representing an Algorand address"""
 
-    def __init__(self, account_or_bytes: puyapy.Bytes | puyapy.Account | bytes, /): ...
+    def __init__(self, value: puyapy.Account | str | puyapy.Bytes = ..., /):
+        """
+        If `value` is a string, it should be a 58 character base32 string,
+        ie a base32 string-encoded 32 bytes public key + 4 bytes checksum.
+        If `value` is a Bytes, it's length checked to be 32 bytes - to avoid this
+        check, use `Address.from_bytes(...)` instead.
+        Defaults to the zero-address.
+        """
     @property
     def native(self) -> puyapy.Account:
         """Return the Account representation of the address after ARC4 decoding"""

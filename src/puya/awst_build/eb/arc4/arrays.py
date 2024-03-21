@@ -5,14 +5,15 @@ from abc import ABC
 
 import structlog
 
+from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    AddressConstant,
     ARC4ArrayEncode,
     ArrayConcat,
     ArrayExtend,
     ArrayPop,
     BytesComparisonExpression,
-    BytesConstant,
     CheckedMaybe,
     EqualityComparison,
     Expression,
@@ -211,7 +212,7 @@ def static_array_constructor(
 
 
 class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
-    def __init__(self, location: SourceLocation, wtype: wtypes.ARC4StaticArray | None = None):
+    def __init__(self, location: SourceLocation, wtype: wtypes.ARC4StaticArray):
         super().__init__(location)
         self.wtype = wtype
 
@@ -235,8 +236,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
 
 class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
-        super().__init__(location=location)
-        self.wtype = wtypes.arc4_address_type
+        super().__init__(location=location, wtype=wtypes.arc4_address_type)
 
     def call(
         self,
@@ -246,15 +246,20 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         match args:
-            case (ExpressionBuilder() as eb,) if eb.rvalue().wtype == wtypes.account_wtype:
+            case []:
+                const_op = intrinsic_factory.zero_address(location, as_type=self.wtype)
+                return var_expression(const_op)
+            case [ExpressionBuilder(value_type=wtypes.account_wtype) as eb]:
                 address_bytes: Expression = get_bytes_expr(eb.rvalue())
-            case (Literal(value=bytes(bytes_literal), source_location=bytes_location),):
-                if len(bytes_literal) != 32:
+            case [Literal(value=str(addr_value))]:
+                if not wtypes.valid_address(addr_value):
                     raise CodeError(
-                        "Address literals must be exactly 32 bytes", location=bytes_location
+                        f"Invalid address value. Address literals should be"
+                        f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
+                        location,
                     )
-                address_bytes = BytesConstant(value=bytes_literal, source_location=bytes_location)
-            case (ExpressionBuilder() as eb,) if eb.rvalue().wtype == wtypes.bytes_wtype:
+                address_bytes = AddressConstant(value=addr_value, source_location=location)
+            case [ExpressionBuilder(value_type=wtypes.bytes_wtype) as eb]:
                 value = eb.rvalue()
                 address_bytes_temp = SingleEvaluation(value)
                 is_correct_length = NumericComparisonExpression(
@@ -272,7 +277,7 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
             case _:
                 raise CodeError(
                     "Address constructor expects a single argument of type"
-                    f" {wtypes.account_wtype} or {wtypes.bytes_wtype}",
+                    f" {wtypes.account_wtype} or {wtypes.bytes_wtype}, or a string literal",
                     location=location,
                 )
         assert self.wtype, "wtype should not be None"
@@ -560,12 +565,7 @@ class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
             cmp_with_zero_expr = BytesComparisonExpression(
                 lhs=get_bytes_expr(self.expr),
                 operator=EqualityComparison.eq if negate else EqualityComparison.ne,
-                rhs=IntrinsicCall(
-                    wtype=wtypes.bytes_wtype,
-                    op_code="global",
-                    immediates=["ZeroAddress"],
-                    source_location=location,
-                ),
+                rhs=intrinsic_factory.zero_address(location, as_type=wtypes.bytes_wtype),
                 source_location=location,
             )
 

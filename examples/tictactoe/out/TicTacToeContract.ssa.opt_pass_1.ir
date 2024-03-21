@@ -112,19 +112,19 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 return 
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: bytes, move.0: uint64, move.1: uint64) -> void:
-            block@0: // L60
+            block@0: // L58
                 let tmp%0#0: uint64 = (< move.0#0 3u)
                 goto tmp%0#0 ? block@1 : block@3
-            block@1: // and_contd_L63
+            block@1: // and_contd_L61
                 let tmp%1#0: uint64 = (< move.1#0 3u)
                 goto tmp%1#0 ? block@2 : block@3
-            block@2: // bool_true_L63
+            block@2: // bool_true_L61
                 let and_result%2#0: uint64 = 1u
                 goto block@4
-            block@3: // bool_false_L63
+            block@3: // bool_false_L61
                 let and_result%2#1: uint64 = 0u
                 goto block@4
-            block@4: // bool_merge_L63
+            block@4: // bool_merge_L61
                 let and_result%2#2: uint64 = φ(and_result%2#0 <- block@2, and_result%2#1 <- block@3)
                 (assert and_result%2#2) // Move must be in range
                 let (game_value%3#0: bytes, game_exists%4#0: uint64) = (app_global_get_ex 0u "game")
@@ -151,22 +151,22 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 (app_global_put "turns" new_state_value%34#0)
                 let tmp%35#0: uint64 = examples.tictactoe.tictactoe.TicTacToeContract.did_win(player#0, move.0#0, move.1#0)
                 goto tmp%35#0 ? block@5 : block@6
-            block@5: // if_body_L67
+            block@5: // if_body_L65
                 (app_global_put "winner" player#0)
                 goto block@9
-            block@6: // else_body_L67
+            block@6: // else_body_L65
                 let (turns_value%36#0: uint64, turns_exists%37#0: uint64) = (app_global_get_ex 0u "turns")
                 (assert turns_exists%37#0) // check turns exists
                 let tmp%38#0: uint64 = (== turns_value%36#0 9u)
                 goto tmp%38#0 ? block@7 : block@9
-            block@7: // if_body_L69
+            block@7: // if_body_L67
                 (app_global_put "winner" 0x03)
                 goto block@9
-            block@9: // after_if_else_L67
+            block@9: // after_if_else_L65
                 return 
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: bytes, column: uint64, row: uint64) -> uint64:
-            block@0: // L72
+            block@0: // L70
                 let (g#0: bytes, game_exists%1#0: uint64) = (app_global_get_ex 0u "game")
                 (assert game_exists%1#0) // check game exists
                 let index_is_in_bounds%4#0: uint64 = (< row#0 3u)
@@ -179,14 +179,14 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let awst_tmp%14#0: bytes = (extract3 tmp%6#0 item_index%13#0 1u)
                 let tmp%15#0: uint64 = (b== tmp%8#0 awst_tmp%14#0)
                 goto tmp%15#0 ? block@1 : block@3
-            block@1: // and_contd_L76
+            block@1: // and_contd_L74
                 let item_index%20#0: uint64 = 2u
                 let tmp%21#0: bytes = (extract3 tmp%6#0 item_index%20#0 1u)
                 let tmp%22#0: uint64 = (b== awst_tmp%14#0 tmp%21#0)
                 goto tmp%22#0 ? block@2 : block@3
-            block@2: // if_body_L76
+            block@2: // if_body_L74
                 return 1u
-            block@3: // after_if_else_L76
+            block@3: // after_if_else_L74
                 let item_index%23#0: uint64 = 0u
                 let tmp%24#0: bytes = (extract3 g#0 item_index%23#0 3u)
                 let index_is_in_bounds%26#0: uint64 = (< column#0 3u)
@@ -197,54 +197,54 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let awst_tmp%34#0: bytes = (extract3 tmp%30#0 column#0 1u)
                 let tmp%35#0: uint64 = (b== tmp%28#0 awst_tmp%34#0)
                 goto tmp%35#0 ? block@4 : block@6
-            block@4: // and_contd_L79
+            block@4: // and_contd_L77
                 let item_index%36#0: uint64 = 6u
                 let tmp%37#0: bytes = (extract3 g#0 item_index%36#0 3u)
                 let tmp%41#0: bytes = (extract3 tmp%37#0 column#0 1u)
                 let tmp%42#0: uint64 = (b== awst_tmp%34#0 tmp%41#0)
                 goto tmp%42#0 ? block@5 : block@6
-            block@5: // if_body_L79
+            block@5: // if_body_L77
                 return 1u
-            block@6: // after_if_else_L79
+            block@6: // after_if_else_L77
                 let item_index%43#0: uint64 = 3u
                 let tmp%44#0: bytes = (extract3 g#0 item_index%43#0 3u)
                 let item_index%45#0: uint64 = 1u
                 let tmp%46#0: bytes = (extract3 tmp%44#0 item_index%45#0 1u)
                 let tmp%47#0: uint64 = (b== player#0 tmp%46#0)
                 goto tmp%47#0 ? block@7 : block@14
-            block@7: // if_body_L82
+            block@7: // if_body_L80
                 let item_index%48#0: uint64 = 0u
                 let tmp%49#0: bytes = (extract3 g#0 item_index%48#0 3u)
                 let item_index%50#0: uint64 = 0u
                 let tmp%51#0: bytes = (extract3 tmp%49#0 item_index%50#0 1u)
                 let tmp%52#0: uint64 = (b== tmp%51#0 player#0)
                 goto tmp%52#0 ? block@8 : block@10
-            block@8: // and_contd_L84
+            block@8: // and_contd_L82
                 let item_index%53#0: uint64 = 6u
                 let tmp%54#0: bytes = (extract3 g#0 item_index%53#0 3u)
                 let item_index%55#0: uint64 = 2u
                 let tmp%56#0: bytes = (extract3 tmp%54#0 item_index%55#0 1u)
                 let tmp%57#0: uint64 = (b== player#0 tmp%56#0)
                 goto tmp%57#0 ? block@9 : block@10
-            block@9: // if_body_L84
+            block@9: // if_body_L82
                 return 1u
-            block@10: // after_if_else_L84
+            block@10: // after_if_else_L82
                 let item_index%58#0: uint64 = 0u
                 let tmp%59#0: bytes = (extract3 g#0 item_index%58#0 3u)
                 let item_index%60#0: uint64 = 2u
                 let tmp%61#0: bytes = (extract3 tmp%59#0 item_index%60#0 1u)
                 let tmp%62#0: uint64 = (b== tmp%61#0 player#0)
                 goto tmp%62#0 ? block@11 : block@14
-            block@11: // and_contd_L86
+            block@11: // and_contd_L84
                 let item_index%63#0: uint64 = 6u
                 let tmp%64#0: bytes = (extract3 g#0 item_index%63#0 3u)
                 let item_index%65#0: uint64 = 0u
                 let tmp%66#0: bytes = (extract3 tmp%64#0 item_index%65#0 1u)
                 let tmp%67#0: uint64 = (b== player#0 tmp%66#0)
                 goto tmp%67#0 ? block@12 : block@14
-            block@12: // if_body_L86
+            block@12: // if_body_L84
                 return 1u
-            block@14: // after_if_else_L82
+            block@14: // after_if_else_L80
                 return 0u
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:

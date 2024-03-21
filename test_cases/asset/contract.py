@@ -15,7 +15,7 @@ from puyapy.op import (
 
 class Reference(Contract):
     def __init__(self) -> None:
-        self.asa = Asset(0)
+        self.asa = Asset()
 
     def approval_program(self) -> bool:
         if Txn.num_app_args == 1:

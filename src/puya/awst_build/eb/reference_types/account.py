@@ -9,12 +9,19 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AddressConstant,
     BytesComparisonExpression,
+    CheckedMaybe,
     EqualityComparison,
     Expression,
     IntrinsicCall,
     Literal,
+    NumericComparison,
+    NumericComparisonExpression,
+    ReinterpretCast,
+    SingleEvaluation,
     TupleItemExpression,
+    UInt64Constant,
 )
+from puya.awst_build import intrinsic_factory
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
@@ -46,20 +53,39 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         match args:
+            case []:
+                const_op = intrinsic_factory.zero_address(location)
+                return var_expression(const_op)
             case [Literal(value=str(addr_value), source_location=loc)]:
                 if not wtypes.valid_address(addr_value):
                     raise CodeError(
-                        f"Invalid address value. Address literals should be "
-                        f"{ENCODED_ADDRESS_LENGTH} characters and not include base32 "
-                        " padding",
+                        f"Invalid address value. Address literals should be"
+                        f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
                         location,
                     )
                 # TODO: replace loc with location
                 const = AddressConstant(value=addr_value, source_location=loc)
                 return var_expression(const)
             case [ExpressionBuilder() as eb]:
-                account_expr = expect_operand_wtype(eb, wtypes.account_wtype)
-                return AccountExpressionBuilder(account_expr)
+                value = expect_operand_wtype(eb, wtypes.bytes_wtype)
+                address_bytes_temp = SingleEvaluation(value)
+                is_correct_length = NumericComparisonExpression(
+                    operator=NumericComparison.eq,
+                    source_location=location,
+                    lhs=UInt64Constant(value=32, source_location=location),
+                    rhs=intrinsic_factory.bytes_len(address_bytes_temp, location),
+                )
+                address_bytes = CheckedMaybe.from_tuple_items(
+                    expr=address_bytes_temp,
+                    check=is_correct_length,
+                    source_location=location,
+                    comment="Address length is 32 bytes",
+                )
+                return var_expression(
+                    ReinterpretCast(
+                        expr=address_bytes, wtype=self.produces(), source_location=location
+                    )
+                )
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
 
@@ -138,12 +164,7 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
             source_location=location,
             lhs=self.expr,
             operator=EqualityComparison.eq if negate else EqualityComparison.ne,
-            rhs=IntrinsicCall(
-                source_location=location,
-                wtype=self.wtype,
-                op_code="global",
-                immediates=["ZeroAddress"],
-            ),
+            rhs=intrinsic_factory.zero_address(location),
         )
 
         return var_expression(cmp_with_zero_expr)

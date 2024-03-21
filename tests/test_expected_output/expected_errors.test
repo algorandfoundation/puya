@@ -40,12 +40,16 @@ class ContractWithUnreachableCode(Contract):
 
 ## case: test_invalid_address_literal
 
-from puyapy import arc4, Contract
+from puyapy import arc4, Account, Bytes, Contract
 
 
 class ContractWithInvalidAddressLiteral(Contract):
     def approval_program(self) -> bool:
-        some_address = arc4.Address(b"") ## E: Address literals must be exactly 32 bytes
+        some_address = arc4.Address("ABC") ## E: Invalid address value. Address literals should be 58 characters and not include base32 padding
+        return True
+
+    def clear_state_program(self) -> bool:
+        some_address = Account("ABC") ## E: Invalid address value. Address literals should be 58 characters and not include base32 padding
         return True
 
 ## case: test_undefined_variable

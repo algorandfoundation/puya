@@ -1,7 +1,7 @@
 import typing as t
 
 from puyapy import Contract, arc4
-from puyapy.op import Global, Txn
+from puyapy.op import Txn
 
 
 class MyStruct(arc4.Struct):
@@ -16,7 +16,7 @@ class Arc4BoolEvalContract(Contract):
         assert not arc4.String("")
         assert arc4.String(".")
 
-        assert not arc4.Address(Global.zero_address)
+        assert not arc4.Address()
         assert arc4.Address(Txn.sender)
 
         assert not arc4.UInt8(0)
