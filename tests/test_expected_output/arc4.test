@@ -114,3 +114,42 @@ class NotOkay(arc4.ARC4Contract):
     def not_okay(self) -> None:
         t = arc4.Tuple((arc4.UInt64(1), arc4.UInt8(1)))
         t[0] = arc4.UInt64(2)  # type: ignore ## E: expression is not valid as assignment target (algopy.arc4.Tuple[algopy.arc4.UInt64, algopy.arc4.UInt8] is immutable)
+
+
+## case: arc4_copy
+
+import typing
+from algopy import arc4, GlobalState, subroutine
+
+IntArray: typing.TypeAlias = arc4.DynamicArray[arc4.UInt64]
+
+
+class Arc4CopyContract(arc4.ARC4Contract):
+    def __init__(self) -> None:
+        self.global_a = IntArray()
+        self.global_b = GlobalState(IntArray())
+
+    @subroutine
+    def method_a(self, a: IntArray) -> None:
+        a.append(arc4.UInt64(5))
+
+    @arc4.abimethod
+    def test(self) -> None:
+        # Local does not need copy
+        local_array = IntArray()
+        self.method_a(local_array)
+
+        # State vars should require copy
+
+        self.method_a(self.global_a) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine from state
+        self.method_a(self.global_b.value) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine from state
+
+        # Require copy when building a tuple
+
+        my_tuple = (local_array, local_array) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a tuple expression
+
+        # Don't allow destructuring of arc4 containers from tuples
+
+        destructured_a, destructured_b = my_tuple ## E: Tuple cannot be destructured as it contains an item of type algopy.arc4.DynamicArray[algopy.arc4.UInt64] which requires copying. Use index access instead
+        destructured_a = my_tuple[0] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+        destructured_b = my_tuple[1] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
