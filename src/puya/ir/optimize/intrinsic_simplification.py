@@ -1,3 +1,4 @@
+import base64
 import operator
 import typing
 from collections.abc import Callable
@@ -6,6 +7,7 @@ from itertools import zip_longest
 import attrs
 import structlog
 
+from puya import algo_constants
 from puya.avm_type import AVMType
 from puya.context import CompileContext
 from puya.ir import models
@@ -336,6 +338,15 @@ def _choose_encoding(a: AVMBytesEncoding, b: AVMBytesEncoding) -> AVMBytesEncodi
     return AVMBytesEncoding.base16
 
 
+def _decode_address(address: str) -> bytes:
+    """check if address is a valid address with checksum"""
+    # Pad address so it's a valid b32 string
+    padded_address = address + (6 * "=")
+    address_bytes = base64.b32decode(padded_address)
+    public_key_hash = address_bytes[: algo_constants.PUBLIC_KEY_HASH_LENGTH]
+    return public_key_hash
+
+
 def _get_byte_constant(
     subroutine: models.Subroutine, byte_arg: models.Value
 ) -> models.BytesConstant | None:
@@ -343,9 +354,15 @@ def _get_byte_constant(
         return byte_arg
     if isinstance(byte_arg, models.BigUIntConstant):
         return models.BytesConstant(
-            source_location=byte_arg.source_location,
             value=biguint_bytes_eval(byte_arg.value),
             encoding=AVMBytesEncoding.base16,
+            source_location=byte_arg.source_location,
+        )
+    if isinstance(byte_arg, models.AddressConstant):
+        return models.BytesConstant(
+            value=_decode_address(byte_arg.value),
+            encoding=AVMBytesEncoding.base32,
+            source_location=byte_arg.source_location,
         )
     if isinstance(byte_arg, models.Register):
         byte_arg_defn = get_definition(subroutine, byte_arg)
@@ -366,6 +383,12 @@ def _get_byte_constant(
                         source_location=byte_arg_defn.source_location,
                         value=b"\x00" * bzero_arg,
                         encoding=AVMBytesEncoding.base16,
+                    )
+                case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
+                    return models.BytesConstant(
+                        value=_decode_address(algo_constants.ZERO_ADDRESS),
+                        encoding=AVMBytesEncoding.base32,
+                        source_location=byte_arg.source_location,
                     )
     return None
 
