@@ -9,6 +9,7 @@ class BigUIntContract(Contract):
         return True
 
     def clear_state_program(self) -> bool:
+        assert BigUInt() == 0
         return True
 
 

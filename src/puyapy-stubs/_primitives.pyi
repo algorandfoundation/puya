@@ -298,7 +298,7 @@ class BigUInt(BytesBacked):
     # TODO: consider how to handle cases where sizes exceeds 512, which can happen on + or *,
     #       but the result is no longer usable with any further ops.
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
-    def __init__(self, value: UInt64 | int, /) -> None:
+    def __init__(self, value: UInt64 | int = 0, /) -> None:
         """A BigUInt can be initialized with a UInt64, a Python int literal, or an int variable
         declared at the module level"""
     # TODO: mypy suggests due to Liskov below should be other: object
