@@ -80,7 +80,6 @@ from puya.awst_build.eb.unsigned_builtins import (
     ReversedFunctionExpressionBuilder,
 )
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.exceptions import UnsupportedASTError
 from puya.awst_build.utils import (
     bool_eval,
     expect_operand_wtype,
@@ -168,7 +167,7 @@ class FunctionASTConverter(
         args = list[SubroutineArgument]()
         for arg, arg_type in zip(mypy_args, mypy_arg_types, strict=True):
             if arg.kind.is_star():
-                raise UnsupportedASTError(func_loc, details="variadic functions are not supported")
+                raise CodeError("variadic functions are not supported", self._location(arg))
             if arg.initializer is not None:
                 self._error(
                     "default function argument values are not supported yet", arg.initializer
@@ -574,9 +573,6 @@ class FunctionASTConverter(
 
     def visit_function(self, fdef: mypy.nodes.FuncDef, _: mypy.nodes.Decorator | None) -> None:
         self._error("nested functions are not supported", fdef)
-
-    def visit_nonlocal_decl(self, stmt: mypy.nodes.NonlocalDecl) -> None:
-        self._error("nested functions are not supported", stmt)
 
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> None:
         self._error("classes nested inside functions are not supported", cdef)

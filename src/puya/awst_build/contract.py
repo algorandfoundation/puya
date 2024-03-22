@@ -318,17 +318,17 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> None:
         self._error("nested classes are not supported", location=cdef)
 
-    def _unsupported(self, kind: str, stmt: mypy.nodes.Statement) -> None:
+    def _unsupported_stmt(self, kind: str, stmt: mypy.nodes.Statement) -> None:
         self._error(f"{kind} statements are not supported in the class body", location=stmt)
 
     def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> None:
         # just pass on state forward-declarations, these will be picked up by gather state
         # everything else (ie any _actual_ assignments) is unsupported
         if not isinstance(stmt.rvalue, mypy.nodes.TempNode):
-            self._unsupported("assignment", stmt)
+            self._unsupported_stmt("assignment", stmt)
 
     def visit_operator_assignment_stmt(self, stmt: mypy.nodes.OperatorAssignmentStmt) -> None:
-        self._unsupported("operator assignment", stmt)
+        self._unsupported_stmt("operator assignment", stmt)
 
     def visit_expression_stmt(self, stmt: mypy.nodes.ExpressionStmt) -> None:
         if isinstance(stmt.expr, mypy.nodes.StrExpr):
@@ -336,34 +336,31 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             # TODO: should we capture field "docstrings"?
             pass
         else:
-            self._unsupported("expression statement", stmt)
+            self._unsupported_stmt("expression statement", stmt)
 
     def visit_if_stmt(self, stmt: mypy.nodes.IfStmt) -> None:
-        self._unsupported("if", stmt)
+        self._unsupported_stmt("if", stmt)
 
     def visit_while_stmt(self, stmt: mypy.nodes.WhileStmt) -> None:
-        self._unsupported("while", stmt)
+        self._unsupported_stmt("while", stmt)
 
     def visit_for_stmt(self, stmt: mypy.nodes.ForStmt) -> None:
-        self._unsupported("for", stmt)
+        self._unsupported_stmt("for", stmt)
 
     def visit_break_stmt(self, stmt: mypy.nodes.BreakStmt) -> None:
-        self._unsupported("break", stmt)
+        self._unsupported_stmt("break", stmt)
 
     def visit_continue_stmt(self, stmt: mypy.nodes.ContinueStmt) -> None:
-        self._unsupported("continue", stmt)
+        self._unsupported_stmt("continue", stmt)
 
     def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> None:
-        self._unsupported("assert", stmt)
+        self._unsupported_stmt("assert", stmt)
 
     def visit_del_stmt(self, stmt: mypy.nodes.DelStmt) -> None:
-        self._unsupported("del", stmt)
+        self._unsupported_stmt("del", stmt)
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> None:
-        self._unsupported("match", stmt)
-
-    def visit_nonlocal_decl(self, stmt: mypy.nodes.NonlocalDecl) -> None:
-        self._unsupported("nonlocal", stmt)
+        self._unsupported_stmt("match", stmt)
 
 
 def _gather_app_state(
