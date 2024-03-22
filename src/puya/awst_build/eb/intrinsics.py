@@ -14,7 +14,6 @@ from puya.awst.nodes import (
     IntrinsicCall,
     Literal,
     MethodConstant,
-    Node,
     UInt64Constant,
 )
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
@@ -216,15 +215,16 @@ def _find_op_mapping(
     return best_mapping
 
 
-def _code_error(arg: Node, arg_mapping: ArgMapping, callee: str) -> typing.Never:
-    # TODO: better error
+def _code_error(arg: Expression | Literal, arg_mapping: ArgMapping, callee: str) -> typing.Never:
     raise CodeError(
-        f"Invalid argument {arg} for argument {arg_mapping.arg_name} when calling {callee}",
+        f"Invalid argument type"
+        f' "{arg.wtype if isinstance(arg, Expression) else type(arg.value).__name__}"'
+        f' for argument "{arg_mapping.arg_name}" when calling {callee}',
         location=arg.source_location,
     )
 
 
-def _check_stack_type(arg_mapping: ArgMapping, node: Node, callee: str) -> None:
+def _check_stack_type(arg_mapping: ArgMapping, node: Expression, callee: str) -> None:
     valid: bool
     match node:
         case Expression(wtype=wtype):
