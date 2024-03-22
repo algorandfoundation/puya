@@ -5,6 +5,7 @@ import logging
 import os.path
 import sys
 import typing
+from collections import Counter
 from contextvars import ContextVar
 from enum import IntEnum
 from io import StringIO
@@ -14,7 +15,7 @@ import attrs
 import structlog
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
+    from collections.abc import Iterator, Mapping, Sequence
 
     from puya.parse import SourceLocation
 
@@ -57,19 +58,19 @@ class Log:
 class LoggingContext:
     logs: list[Log] = attrs.field(factory=list)
 
-    @property
-    def _errors(self) -> Iterable[LogLevel]:
-        return (log.level for log in self.logs if log.level in (LogLevel.error, LogLevel.critical))
+    def _log_level_counts(self) -> Mapping[LogLevel, int]:
+        return Counter(log.level for log in self.logs)
 
     @property
     def num_errors(self) -> int:
-        return len(list(self._errors))
+        level_counts = self._log_level_counts()
+        return sum(count for level, count in level_counts.items() if level >= LogLevel.error)
 
     def exit_if_errors(self) -> None:
-        error = max(self._errors, default=LogLevel.notset)
-        if error == LogLevel.critical:
+        level_counts = self._log_level_counts()
+        if level_counts[LogLevel.critical]:
             sys.exit(2)
-        elif error == LogLevel.error:
+        elif level_counts[LogLevel.error]:
             sys.exit(1)
 
 
@@ -235,13 +236,6 @@ def configure_logging(
     )
 
 
-_DEBUG = LogLevel.debug
-_INFO = LogLevel.info
-_WARNING = LogLevel.warning
-_ERROR = LogLevel.error
-_CRITICAL = LogLevel.critical
-
-
 class _Logger:
     def __init__(self, name: str, initial_values: dict[str, typing.Any]):
         self._logger = structlog.get_logger(name, **initial_values)
@@ -253,7 +247,7 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        self._report(_DEBUG, event, *args, location=location, **kwargs)
+        self._report(LogLevel.debug, event, *args, location=location, **kwargs)
 
     def info(
         self,
@@ -262,7 +256,7 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        self._report(_INFO, event, *args, location=location, **kwargs)
+        self._report(LogLevel.info, event, *args, location=location, **kwargs)
 
     def warning(
         self,
@@ -271,7 +265,7 @@ class _Logger:
         location: SourceLocation | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        self._report(_WARNING, event, *args, location=location, **kwargs)
+        self._report(LogLevel.warning, event, *args, location=location, **kwargs)
 
     def error(
         self,
@@ -281,7 +275,7 @@ class _Logger:
         **kwargs: typing.Any,
     ) -> None:
         _add_source_context(kwargs, location)
-        self._report(_ERROR, event, *args, location=location, **kwargs)
+        self._report(LogLevel.error, event, *args, location=location, **kwargs)
 
     def exception(
         self,
@@ -292,7 +286,7 @@ class _Logger:
     ) -> None:
         _add_source_context(kwargs, location)
         kwargs.setdefault("exc_info", True)
-        self._report(_CRITICAL, event, *args, location=location, **kwargs)
+        self._report(LogLevel.critical, event, *args, location=location, **kwargs)
 
     def critical(
         self,
@@ -302,7 +296,7 @@ class _Logger:
         **kwargs: typing.Any,
     ) -> None:
         _add_source_context(kwargs, location)
-        self._report(_CRITICAL, event, *args, location=location, **kwargs)
+        self._report(LogLevel.critical, event, *args, location=location, **kwargs)
 
     def log(
         self,
