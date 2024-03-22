@@ -56,15 +56,14 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             case []:
                 const_op = intrinsic_factory.zero_address(location)
                 return var_expression(const_op)
-            case [Literal(value=str(addr_value), source_location=loc)]:
+            case [Literal(value=str(addr_value))]:
                 if not wtypes.valid_address(addr_value):
                     raise CodeError(
                         f"Invalid address value. Address literals should be"
                         f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
                         location,
                     )
-                # TODO: replace loc with location
-                const = AddressConstant(value=addr_value, source_location=loc)
+                const = AddressConstant(value=addr_value, source_location=location)
                 return var_expression(const)
             case [ExpressionBuilder() as eb]:
                 value = expect_operand_wtype(eb, wtypes.bytes_wtype)
