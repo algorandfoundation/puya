@@ -8,6 +8,7 @@ import structlog
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
+    ConstantValue,
     Expression,
     Literal,
     NumericComparison,
@@ -36,12 +37,12 @@ if typing.TYPE_CHECKING:
 logger: structlog.types.FilteringBoundLogger = structlog.get_logger(__name__)
 
 
-class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder):
+class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
     def __init__(self, location: SourceLocation):
         super().__init__(location)
         self.wtype: wtypes.ARC4UIntN | wtypes.ARC4UFixedNxM | None = None
 
-    def produces(self) -> wtypes.WType:
+    def produces(self) -> wtypes.ARC4Type:
         if self.wtype is None:
             raise InternalError(
                 "Cannot resolve wtype of generic EB until the index method is called with the "
@@ -56,14 +57,13 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        if not self.wtype:
-            raise InternalError(
-                "Cannot resolve wtype of generic EB until the index method is called with"
-                " the generic type parameter."
-            )
+        wtype = self.produces()
         match args:
+            case []:
+                zero_literal = Literal(value=self.zero_literal(), source_location=location)
+                return var_expression(convert_arc4_literal(zero_literal, wtype, location))
             case [Literal() as lit]:
-                return var_expression(convert_arc4_literal(lit, self.wtype, location))
+                return var_expression(convert_arc4_literal(lit, wtype, location))
             case [ExpressionBuilder(value_type=wtypes.WType() as value_type) as eb]:
                 value = eb.rvalue()
                 if value_type not in (
@@ -72,11 +72,11 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder):
                     wtypes.biguint_wtype,
                 ):
                     raise CodeError(
-                        f"{self.wtype} constructor expects an int literal or a "
+                        f"{wtype} constructor expects an int literal or a "
                         "uint64 expression or a biguint expression"
                     )
                 return var_expression(
-                    ARC4Encode(value=value, source_location=location, wtype=self.wtype)
+                    ARC4Encode(value=value, source_location=location, wtype=wtype)
                 )
             case _:
                 raise CodeError(
@@ -84,11 +84,18 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder):
                     location,
                 )
 
+    @abc.abstractmethod
+    def zero_literal(self) -> ConstantValue:
+        ...
+
 
 class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(location)
         self.wtype = wtypes.arc4_byte_type
+
+    def zero_literal(self) -> ConstantValue:
+        return 0
 
 
 class _UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
@@ -103,6 +110,9 @@ class _UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
     @abc.abstractmethod
     def check_bitsize(self, n: int, location: SourceLocation) -> None:
         ...
+
+    def zero_literal(self) -> ConstantValue:
+        return 0
 
 
 class UIntNClassExpressionBuilder(_UIntNClassExpressionBuilder):
@@ -143,6 +153,9 @@ class _UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     @abc.abstractmethod
     def check_bitsize(self, n: int, location: SourceLocation) -> None:
         ...
+
+    def zero_literal(self) -> ConstantValue:
+        return "0.0"
 
 
 class UFixedNxMClassExpressionBuilder(_UFixedNxMClassExpressionBuilder):

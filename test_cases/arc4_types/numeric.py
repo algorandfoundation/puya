@@ -5,11 +5,13 @@ from puyapy import BigUInt, Bytes, Contract, UInt64, op
 from puyapy.arc4 import (
     BigUFixedNxM,
     BigUIntN,
+    Byte,
     UFixedNxM,
     UInt8,
     UInt16,
     UInt32,
     UInt64 as ARC4UInt64,
+    UInt512,
     UIntN,
 )
 
@@ -96,4 +98,10 @@ class Arc4NumericTypesContract(Contract):
         return True
 
     def clear_state_program(self) -> bool:
+        assert BigUInt.from_bytes(Decimal().bytes) == 0
+        assert BigUInt.from_bytes(BigUFixedNxM[t.Literal[512], t.Literal[5]]().bytes) == 0
+        assert Byte() == 0
+        assert ARC4UInt64() == 0
+        assert UInt512() == 0
+
         return True
