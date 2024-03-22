@@ -8,6 +8,7 @@ class BooleanBinaryOps(Contract):
         return True
 
     def clear_state_program(self) -> bool:
+        assert bool() == False  # noqa: E712, UP018
         return True
 
 
