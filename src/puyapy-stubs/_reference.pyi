@@ -257,7 +257,7 @@ class Application:
     """An Application on the Algorand network."""
 
     def __init__(self, application_id: UInt64 | int = 0, /):
-        """Initialized with the id of an application. Default to zero (an invalid ID)."""
+        """Initialized with the id of an application. Defaults to zero (an invalid ID)."""
     @property
     def id(self) -> UInt64:
         """Returns the id of the application"""

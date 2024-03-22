@@ -383,7 +383,6 @@ def _choose_encoding(a: AVMBytesEncoding, b: AVMBytesEncoding) -> AVMBytesEncodi
 
 
 def _decode_address(address: str) -> bytes:
-    """check if address is a valid address with checksum"""
     # Pad address so it's a valid b32 string
     padded_address = address + (6 * "=")
     address_bytes = base64.b32decode(padded_address)
