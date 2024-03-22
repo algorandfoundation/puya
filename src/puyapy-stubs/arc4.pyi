@@ -402,12 +402,12 @@ class _StructMeta(type):
 class Struct(metaclass=_StructMeta):
     """Base class for ARC4 Struct types"""
 
+    @classmethod
+    def from_bytes(cls, value: puyapy.Bytes | bytes, /) -> typing.Self:
+        """Construct an instance from the underlying bytes[] (no validation)"""
     @property
     def bytes(self) -> puyapy.Bytes:
         """Get the underlying bytes[]"""
-    @classmethod
-    def from_bytes(cls, value: puyapy.Bytes, /) -> typing.Self:
-        """Construct an instance from the underlying bytes[] (no validation)"""
     @classmethod
     def from_log(cls, log: puyapy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
