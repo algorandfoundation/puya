@@ -55,12 +55,13 @@ class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         match args:
-            case [Literal(value=int(int_value), source_location=loc)]:
-                # TODO: replace loc with location
-                const = UInt64Constant(value=int_value, source_location=loc)
-                return var_expression(const)
+            case []:
+                const = UInt64Constant(value=0, source_location=location)
+            case [Literal(value=int(int_value))]:
+                const = UInt64Constant(value=int_value, source_location=location)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
+        return var_expression(const)
 
 
 class UInt64ExpressionBuilder(ValueExpressionBuilder):

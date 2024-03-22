@@ -76,4 +76,5 @@ class Uint64Contract(Contract):
         return UInt64(1)
 
     def clear_state_program(self) -> bool:
+        assert UInt64() == 0
         return True
