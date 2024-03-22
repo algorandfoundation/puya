@@ -92,10 +92,7 @@ class BaseMyPyStatementVisitor(
     def visit_decorator(self, dec: mypy.nodes.Decorator) -> _TStatement:
         self.check_fatal_decorators(dec.decorators)
         if mypy.checker.is_property(dec):
-            raise UnsupportedASTError(
-                self._location(dec),
-                details="property decorator/descriptor not supported currently",
-            )
+            self._unsupported_node(dec, "property decorator/descriptor not supported currently")
         return self._do_function(dec.func, dec)
 
     @typing.final
@@ -104,9 +101,7 @@ class BaseMyPyStatementVisitor(
         # the actual function, or it could be a @property with a setter and/or a deleter,
         # in which case o.impl will be None
         if mypy.checker.is_property(o):
-            raise UnsupportedASTError(
-                self._location(o), details="property decorator/descriptor not supported currently"
-            )
+            self._unsupported_node(o, "property decorator/descriptor not supported currently")
         if o.impl:
             self.context.warning(
                 "@typing.overload() should not be required, "
@@ -132,17 +127,11 @@ class BaseMyPyStatementVisitor(
             not fdef.is_mypy_only, "function is defined in TYPE_CHECKING block", fdef
         )  # we shouldn't get here
         if fdef.is_generator:
-            raise UnsupportedASTError(
-                self._location(fdef), details="generator functions are not supported"
-            )
+            self._unsupported_node(fdef, "generator functions are not supported")
         if fdef.is_coroutine or fdef.is_awaitable_coroutine or fdef.is_async_generator:
-            raise UnsupportedASTError(
-                self._location(fdef), details="async functions are not supported"
-            )
+            self._unsupported_node(fdef, "async functions are not supported")
         if fdef.dataclass_transform_spec is not None:
-            raise UnsupportedASTError(
-                self._location(fdef), details="data class transforms (PEP-681) are not supported "
-            )
+            self._unsupported_node(fdef, "data class transforms (PEP-681) are not supported ")
         return self.visit_function(fdef, decorator)
 
     @abc.abstractmethod
@@ -154,31 +143,29 @@ class BaseMyPyStatementVisitor(
         ...
 
     # ~~~ unsupported scope modifiers ~~~ #
-    def visit_global_decl(self, stmt: mypy.nodes.GlobalDecl) -> _TStatement:
-        raise UnsupportedASTError(
-            self._location(stmt), details="global variables must be immutable"
-        )
+    def visit_global_decl(self, stmt: mypy.nodes.GlobalDecl) -> typing.Never:
+        self._unsupported_node(stmt, "global variables must be immutable")
 
     # TODO: do we reject nonlocal here too? are nested functions in/out?
 
+    def visit_nonlocal_decl(self, o: mypy.nodes.NonlocalDecl) -> typing.Never:
+        self._unsupported_node(o, "nested functions are not supported")
+
     # ~~~ raising and handling exceptions unsupported ~~~ #
-    def visit_raise_stmt(self, stmt: mypy.nodes.RaiseStmt) -> _TStatement:
-        raise UnsupportedASTError(
-            self._location(stmt),
-            details="exception raising and exception handling not supported",
+    def visit_raise_stmt(self, stmt: mypy.nodes.RaiseStmt) -> typing.Never:
+        self._unsupported_node(stmt, "exception raising and exception handling not supported")
+
+    def visit_try_stmt(self, stmt: mypy.nodes.TryStmt) -> typing.Never:
+        self._unsupported_node(stmt, "exception raising and exception handling not supported")
+
+    def visit_with_stmt(self, stmt: mypy.nodes.WithStmt) -> typing.Never:
+        self._unsupported_node(
+            stmt,
+            "context managers are redundant due to a lack of exception support",
         )
 
-    def visit_try_stmt(self, stmt: mypy.nodes.TryStmt) -> _TStatement:
-        raise UnsupportedASTError(
-            self._location(stmt),
-            details="exception raising and exception handling not supported",
-        )
-
-    def visit_with_stmt(self, stmt: mypy.nodes.WithStmt) -> _TStatement:
-        raise UnsupportedASTError(
-            self._location(stmt),
-            details="context managers are redundant due to a lack of exception support",
-        )
+    def _unsupported_node(self, node: mypy.nodes.Context, details: str) -> typing.Never:
+        raise UnsupportedASTError(node, self._location(node), details=details)
 
 
 class BaseMyPyVisitor(
@@ -198,48 +185,40 @@ class BaseMyPyVisitor(
         )
 
     # ~~~ unsupported data structures (yet?) ~~~ #
-    def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> _TExpression:
-        raise UnsupportedASTError(self._location(expr), details="dictionaries are not supported")
+    def visit_dict_expr(self, expr: mypy.nodes.DictExpr) -> typing.Never:
+        self._unsupported_node(expr, "dictionaries are not supported")
 
     def visit_dictionary_comprehension(
         self, expr: mypy.nodes.DictionaryComprehension
-    ) -> _TExpression:
-        raise UnsupportedASTError(self._location(expr), details="dictionaries are not supported")
+    ) -> typing.Never:
+        self._unsupported_node(expr, "dictionaries are not supported")
 
-    def visit_set_expr(self, expr: mypy.nodes.SetExpr) -> _TExpression:
-        raise UnsupportedASTError(self._location(expr), details="sets are not supported")
+    def visit_set_expr(self, expr: mypy.nodes.SetExpr) -> typing.Never:
+        self._unsupported_node(expr, "sets are not supported")
 
-    def visit_set_comprehension(self, expr: mypy.nodes.SetComprehension) -> _TExpression:
-        raise UnsupportedASTError(self._location(expr), details="sets are not supported")
+    def visit_set_comprehension(self, expr: mypy.nodes.SetComprehension) -> typing.Never:
+        self._unsupported_node(expr, "sets are not supported")
 
     # ~~~ math we don't support (yet?) ~~~ #
-    def visit_float_expr(self, expr: mypy.nodes.FloatExpr) -> _TExpression:
-        raise UnsupportedASTError(
-            self._location(expr), details="floating point math is not supported"
-        )
+    def visit_float_expr(self, expr: mypy.nodes.FloatExpr) -> typing.Never:
+        self._unsupported_node(expr, "floating point math is not supported")
 
-    def visit_complex_expr(self, expr: mypy.nodes.ComplexExpr) -> _TExpression:
-        raise UnsupportedASTError(self._location(expr), details="complex math is not supported")
+    def visit_complex_expr(self, expr: mypy.nodes.ComplexExpr) -> typing.Never:
+        self._unsupported_node(expr, "complex math is not supported")
 
     # ~~~ generator functions unsupported ~~~ #
-    def visit_generator_expr(self, expr: mypy.nodes.GeneratorExpr) -> _TExpression:
-        raise UnsupportedASTError(
-            self._location(expr), details="generator functions are not supported"
-        )
+    def visit_generator_expr(self, expr: mypy.nodes.GeneratorExpr) -> typing.Never:
+        self._unsupported_node(expr, "generator functions are not supported")
 
-    def visit_yield_expr(self, expr: mypy.nodes.YieldExpr) -> _TExpression:
-        raise UnsupportedASTError(
-            self._location(expr), details="generator functions are not supported"
-        )
+    def visit_yield_expr(self, expr: mypy.nodes.YieldExpr) -> typing.Never:
+        self._unsupported_node(expr, "generator functions are not supported")
 
-    def visit_yield_from_expr(self, o: mypy.nodes.YieldFromExpr) -> _TExpression:
-        raise UnsupportedASTError(
-            self._location(o), details="generator functions are not supported"
-        )
+    def visit_yield_from_expr(self, o: mypy.nodes.YieldFromExpr) -> typing.Never:
+        self._unsupported_node(o, "generator functions are not supported")
 
     # ~~~ async/await functions unsupported ~~~ #
-    def visit_await_expr(self, o: mypy.nodes.AwaitExpr) -> _TExpression:
-        raise UnsupportedASTError(self._location(o), details="async/await is not supported")
+    def visit_await_expr(self, o: mypy.nodes.AwaitExpr) -> typing.Never:
+        self._unsupported_node(o, "async/await is not supported")
 
     # ~~~ analysis-only expressions, should never show up ~~~ #
     def visit_temp_node(self, expr: mypy.nodes.TempNode) -> _TExpression:
@@ -306,3 +285,6 @@ class BaseMyPyVisitor(
     def visit_reveal_expr(self, expr: mypy.nodes.RevealExpr) -> _TExpression:
         # NOTE: only appears as CallExpr.analyzed
         return self.__analysis_only(expr)
+
+    def _unsupported_node(self, node: mypy.nodes.Context, details: str) -> typing.Never:
+        raise UnsupportedASTError(node, self._location(node), details=details)

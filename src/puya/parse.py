@@ -78,7 +78,6 @@ class SourceLocation:
     end_line: int | None = None
     column: int | None = None
     end_column: int | None = None
-    mypy_src_node: str | None = None
 
     @classmethod
     def from_mypy(cls, file: str, node: mypy.nodes.Context) -> typing.Self:
@@ -89,28 +88,29 @@ class SourceLocation:
             case mypy.nodes.FuncDef(body=body) | mypy.nodes.Decorator(
                 func=mypy.nodes.FuncDef(body=body)
             ):
+                # end_line of a function node includes the entire body
+                # try to get just the signature
+                end_line = node.line
+                # no body means the end_line is ok to use
                 if body is None:
-                    # TODO: we can probably improve this, but for now just pass through unmodified.
-                    #       It'll only be for functions with empty bodies anyway
-                    end_line = node.end_line
+                    end_line = max(end_line, node.end_line or node.line)
+                # if there is a body, attempt to use the first line before the body as the end
                 else:
-                    end_line = body.line - 1
+                    end_line = max(end_line, body.line - 1)
                 return cls(
                     file=file,
                     line=node.line,
                     end_line=end_line,
-                    mypy_src_node=type(node).__name__,
                 )
             case mypy.nodes.ClassDef(decorators=class_decorators, defs=class_body):
                 line = node.line
                 for dec in class_decorators:
                     line = min(dec.line, line)
-                end_line = class_body.line - 1
+                end_line = max(line, class_body.line - 1)
                 return cls(
                     file=file,
                     line=line,
                     end_line=end_line,
-                    mypy_src_node=type(node).__name__,
                 )
             case (
                 mypy.nodes.WhileStmt(body=compound_body) | mypy.nodes.ForStmt(body=compound_body)
@@ -119,7 +119,6 @@ class SourceLocation:
                     file=file,
                     line=node.line,
                     end_line=compound_body.line - 1,
-                    mypy_src_node=type(node).__name__,
                 )
             case (mypy.nodes.IfStmt(body=[*bodies], else_body=else_body)):
                 body_start: int | None = None
@@ -140,7 +139,6 @@ class SourceLocation:
                     file=file,
                     line=node.line,
                     end_line=end_line2,
-                    mypy_src_node=type(node).__name__,
                 )
         return cls(
             file=file,
@@ -150,7 +148,6 @@ class SourceLocation:
             end_column=(
                 node.end_column if (node.end_column is not None and node.end_column >= 0) else None
             ),
-            mypy_src_node=type(node).__name__,
         )
 
     def __str__(self) -> str:

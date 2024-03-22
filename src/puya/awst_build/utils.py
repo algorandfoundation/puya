@@ -28,7 +28,6 @@ from puya.awst_build import constants
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.base import ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.exceptions import UnsupportedASTError
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -98,9 +97,7 @@ def fold_unary_expr(location: SourceLocation, op: str, expr: ConstantValue) -> C
     # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
     # so we have to suppress the error and do a typing.cast instead
     if not isinstance(result, ConstantValue):  # type: ignore[arg-type,misc]
-        raise UnsupportedASTError(
-            location, details=f"unsupported result type of {type(result).__name__}"
-        )
+        raise CodeError(f"unsupported result type of {type(result).__name__}", location)
     return typing.cast(ConstantValue, result)
 
 
@@ -148,9 +145,7 @@ def fold_binary_expr(
     # for some reason mypy doesn't support type-aliases to unions in isinstance checks,
     # so we have to suppress the error and do a typing.cast instead
     if not isinstance(result, ConstantValue):  # type: ignore[arg-type,misc]
-        raise UnsupportedASTError(
-            location, details=f"unsupported result type of {type(result).__name__}"
-        )
+        raise CodeError(f"unsupported result type of {type(result).__name__}", location)
     return typing.cast(ConstantValue, result)
 
 

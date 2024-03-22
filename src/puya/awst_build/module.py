@@ -167,13 +167,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             case None:
                 pass
             case mypy.nodes.TypedDictExpr():
-                raise UnsupportedASTError(
-                    self._location(cdef), details="TypedDict classes are not supported"
-                )
+                self._unsupported(cdef, "TypedDict classes are not supported")
             case mypy.nodes.NamedTupleExpr():
-                raise UnsupportedASTError(
-                    self._location(cdef), details="NamedTuple classes are not supported"
-                )
+                self._unsupported(cdef, "NamedTuple classes are not supported")
             case _ as unrecognised_analysis_expression:
                 self.context.warning(
                     "Analyzed class expression of type"
@@ -473,7 +469,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         details: str = "not supported at module level",
         ex: Exception | None = None,
     ) -> t.Never:
-        raise UnsupportedASTError(self._location(node), details=details) from ex
+        raise UnsupportedASTError(node, self._location(node), details=details) from ex
 
     # Unsupported Statements
 
@@ -509,11 +505,6 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     # mypy should have caught these errors already
     def visit_return_stmt(self, stmt: mypy.nodes.ReturnStmt) -> StatementResult:
         raise InternalError("encountered return statement at module level", self._location(stmt))
-
-    def visit_nonlocal_decl(self, stmt: mypy.nodes.NonlocalDecl) -> StatementResult:
-        raise InternalError(
-            "encountered nonlocal declaration at module level", self._location(stmt)
-        )
 
     # Unsupported Expressions
 
