@@ -363,6 +363,12 @@ class Address(StaticArray[Byte, typing.Literal[32]]):
         """Return the Account representation of the address after ARC4 decoding"""
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero address"""
+    def __eq__(self, other: Address | puyapy.Account | str) -> bool:  # type: ignore[override]
+        """Address equality is determined by the address of another
+        `arc4.Address`, `Account` or `str`"""
+    def __ne__(self, other: Address | puyapy.Account | str) -> bool:  # type: ignore[override]
+        """Address equality is determined by the address of another
+        `arc4.Address`, `Account` or `str`"""
 
 class DynamicBytes(DynamicArray[Byte]):
     """A variable sized array of bytes"""
