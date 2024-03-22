@@ -12,6 +12,7 @@ from puya.awst.nodes import (
     BigUIntBinaryOperation,
     BigUIntBinaryOperator,
     BigUIntConstant,
+    Expression,
     Literal,
     NumericComparison,
     NumericComparisonExpression,
@@ -52,15 +53,15 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         match args:
+            case []:
+                value: Expression = BigUIntConstant(value=0, source_location=location)
+            case [Literal(value=int(int_value))]:
+                value = BigUIntConstant(value=int_value, source_location=location)
             case [ExpressionBuilder() as eb]:
-                itob_call = uint64_to_biguint(eb, location)
-                return var_expression(itob_call)
-            case [Literal(value=int(int_value), source_location=loc)]:
-                # TODO: replace with loc with location
-                const = BigUIntConstant(value=int_value, source_location=loc)
-                return var_expression(const)
+                value = uint64_to_biguint(eb, location)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
+        return var_expression(value)
 
 
 class BigUIntExpressionBuilder(ValueExpressionBuilder):
