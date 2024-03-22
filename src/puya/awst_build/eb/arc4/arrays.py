@@ -570,3 +570,23 @@ class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
             )
 
             return var_expression(cmp_with_zero_expr)
+
+    def compare(
+        self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
+    ) -> ExpressionBuilder:
+        if self.wtype.alias != "address":
+            return super().compare(other, op=op, location=location)
+        match other:
+            case Literal(value=str(str_value), source_location=literal_loc):
+                rhs = get_bytes_expr(AddressConstant(value=str_value, source_location=literal_loc))
+            case ExpressionBuilder(value_type=wtypes.account_wtype):
+                rhs = get_bytes_expr(other.rvalue())
+            case _:
+                return super().compare(other, op=op, location=location)
+        cmp_expr = BytesComparisonExpression(
+            source_location=location,
+            lhs=get_bytes_expr(self.expr),
+            operator=EqualityComparison(op.value),
+            rhs=rhs,
+        )
+        return var_expression(cmp_expr)

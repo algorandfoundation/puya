@@ -1,34 +1,35 @@
 #pragma version 10
 
 test_cases.arc4_types.reference_types.Arc4RefTypesContract.approval_program:
-    // arc4_types/reference_types.py:9-11
+    // arc4_types/reference_types.py:6-8
+    // # When creating an address from an account no need to check the length as we assume the
+    // # Account is valid
+    // sender_address = arc4.Address(op.Txn.sender)
+    txn Sender
+    // arc4_types/reference_types.py:9
+    // assert sender_address == op.Txn.sender
+    dupn 2
+    ==
+    assert
+    // arc4_types/reference_types.py:10-12
     // # When creating an address from bytes, we check the length is 32 as we don't know the
     // # source of the bytes
     // checked_address = arc4.Address(op.Txn.sender.bytes)
     txn Sender
-    // arc4_types/reference_types.py:6-11
-    // # When creating an address from an account no need to check the length as we assume the
-    // # Account is valid
-    // sender_address = arc4.Address(op.Txn.sender)
-    // # When creating an address from bytes, we check the length is 32 as we don't know the
-    // # source of the bytes
-    // checked_address = arc4.Address(op.Txn.sender.bytes)
-    dupn 3
-    // arc4_types/reference_types.py:9-11
-    // # When creating an address from bytes, we check the length is 32 as we don't know the
-    // # source of the bytes
-    // checked_address = arc4.Address(op.Txn.sender.bytes)
+    dup
+    cover 2
+    dup
     len
     int 32
     ==
     assert // Address length is 32 bytes
-    // arc4_types/reference_types.py:12-14
+    // arc4_types/reference_types.py:13-15
     // # When using from_bytes, no validation is performed as per all implementations of
     // # from_bytes
     // unchecked_address = arc4.Address.from_bytes(op.Txn.sender.bytes)
     txn Sender
     cover 2
-    // arc4_types/reference_types.py:15
+    // arc4_types/reference_types.py:16
     // assert sender_address == checked_address and checked_address == unchecked_address
     ==
     bz main_bool_false@3
@@ -42,10 +43,10 @@ main_bool_false@3:
     int 0
 
 main_bool_merge@4:
-    // arc4_types/reference_types.py:15
+    // arc4_types/reference_types.py:16
     // assert sender_address == checked_address and checked_address == unchecked_address
     assert
-    // arc4_types/reference_types.py:17
+    // arc4_types/reference_types.py:19
     // return True
     int 1
     return
