@@ -86,7 +86,7 @@ class String(_ABIEncoded):
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 
 class _UIntN(_ABIEncoded, typing.Protocol):
-    def __init__(self, value: puyapy.BigUInt | puyapy.UInt64 | int, /) -> None: ...
+    def __init__(self, value: puyapy.BigUInt | puyapy.UInt64 | int = 0, /) -> None: ...
 
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
     # TODO: mypy suggests due to Liskov below should be other: object
@@ -143,7 +143,7 @@ class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
 
     Max size: 64 bits"""
 
-    def __init__(self, value: str, /):
+    def __init__(self, value: str = "0.0", /):
         """
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
@@ -156,7 +156,7 @@ class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
 
     Max size: 512 bits"""
 
-    def __init__(self, value: str, /):
+    def __init__(self, value: str = "0.0", /):
         """
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
