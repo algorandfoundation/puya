@@ -51,7 +51,9 @@ class TicTacToeContract(arc4.ARC4Contract):
             assert Txn.sender == self.host, "It is the host's turn"
             player = arc4.UInt8(HOST)
         else:
-            assert Txn.sender == self.challenger.get(Account()), "It is the challenger's turn"
+            assert Txn.sender == self.challenger.get(
+                default=Account()
+            ), "It is the challenger's turn"
             player = arc4.UInt8(CHALLENGER)
         self.make_move(player, move)
 
