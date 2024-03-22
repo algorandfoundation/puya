@@ -9,11 +9,14 @@ lg-structure
 lg-control
 lg-types
 lg-arc4
-lg-boxes
+lg-avm-compatibility
 lg-errors
+lg-imports-and-inheritance
+lg-logs-and-events
 lg-ops
+lg-pyteal-migration
 lg-reference-types
-lg-state
+lg-storage
 lg-subroutines
 lg-transactions
 ```
