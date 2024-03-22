@@ -8,16 +8,16 @@ contract test_cases.application.contract.Reference:
                 test_cases.application.contract.Reference.__init__()
                 goto block@2
             block@2: // entrypoint_L14
-                let tmp%1#0: uint64 = (txn NumAppArgs)
-                let tmp%2#0: uint64 = (== tmp%1#0 1u)
-                goto tmp%2#0 ? block@3 : block@7
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: uint64 = (== tmp%0#0 1u)
+                goto tmp%1#0 ? block@3 : block@7
             block@3: // if_body_L27
-                let tmp%3#0: bytes = (txna ApplicationArgs 0)
-                let tmp%4#0: uint64 = (== tmp%3#0 "validate")
-                goto tmp%4#0 ? block@4 : block@5
+                let tmp%2#0: bytes = (txna ApplicationArgs 0)
+                let tmp%3#0: uint64 = (== tmp%2#0 "validate")
+                goto tmp%3#0 ? block@4 : block@5
             block@4: // if_body_L28
-                let tmp%5#0: uint64 = (global CurrentApplicationID)
-                test_cases.application.contract.Reference.validate_asset(tmp%5#0)
+                let tmp%4#0: uint64 = (global CurrentApplicationID)
+                test_cases.application.contract.Reference.validate_asset(tmp%4#0)
                 goto block@6
             block@5: // else_body_L28
                 fail // Expected validate
@@ -32,43 +32,43 @@ contract test_cases.application.contract.Reference:
                 let tmp%1#0: uint64 = (app_opted_in tmp%0#0 app#0)
                 let tmp%2#0: uint64 = (! tmp%1#0)
                 (assert tmp%2#0) // app opted in
-                let (value%3#0: bytes, check%4#0: uint64) = ((app_params_get AppCreator) app#0)
+                let (value%0#0: bytes, check%0#0: uint64) = ((app_params_get AppCreator) app#0)
+                (assert check%0#0) // application exists
+                let tmp%3#0: bytes = (global CreatorAddress)
+                let tmp%4#0: uint64 = (== value%0#0 tmp%3#0)
+                (assert tmp%4#0) // expected creator
+                let (value%1#0: uint64, check%1#0: uint64) = ((app_params_get AppGlobalNumUint) app#0)
+                (assert check%1#0) // application exists
+                let tmp%5#0: uint64 = (== value%1#0 1u)
+                (assert tmp%5#0) // expected global_num_uint
+                let (value%2#0: uint64, check%2#0: uint64) = ((app_params_get AppGlobalNumByteSlice) app#0)
+                (assert check%2#0) // application exists
+                let tmp%6#0: uint64 = (== value%2#0 2u)
+                (assert tmp%6#0) // expected global_num_bytes
+                let (value%3#0: uint64, check%3#0: uint64) = ((app_params_get AppLocalNumUint) app#0)
+                (assert check%3#0) // application exists
+                let tmp%7#0: uint64 = (== value%3#0 3u)
+                (assert tmp%7#0) // expected local_num_uint
+                let (value%4#0: uint64, check%4#0: uint64) = ((app_params_get AppLocalNumByteSlice) app#0)
                 (assert check%4#0) // application exists
-                let tmp%5#0: bytes = (global CreatorAddress)
-                let tmp%6#0: uint64 = (== value%3#0 tmp%5#0)
-                (assert tmp%6#0) // expected creator
-                let (value%7#0: uint64, check%8#0: uint64) = ((app_params_get AppGlobalNumUint) app#0)
-                (assert check%8#0) // application exists
-                let tmp%9#0: uint64 = (== value%7#0 1u)
-                (assert tmp%9#0) // expected global_num_uint
-                let (value%10#0: uint64, check%11#0: uint64) = ((app_params_get AppGlobalNumByteSlice) app#0)
-                (assert check%11#0) // application exists
-                let tmp%12#0: uint64 = (== value%10#0 2u)
-                (assert tmp%12#0) // expected global_num_bytes
-                let (value%13#0: uint64, check%14#0: uint64) = ((app_params_get AppLocalNumUint) app#0)
-                (assert check%14#0) // application exists
-                let tmp%15#0: uint64 = (== value%13#0 3u)
-                (assert tmp%15#0) // expected local_num_uint
-                let (value%16#0: uint64, check%17#0: uint64) = ((app_params_get AppLocalNumByteSlice) app#0)
-                (assert check%17#0) // application exists
-                let tmp%18#0: uint64 = (== value%16#0 4u)
-                (assert tmp%18#0) // expected local_num_bytes
-                let (value%19#0: bytes, check%20#0: uint64) = ((app_params_get AppApprovalProgram) app#0)
-                (assert check%20#0) // application exists
-                let tmp%21#0: uint64 = (len value%19#0)
-                (assert tmp%21#0) // expected approval_program
-                let (value%22#0: bytes, check%23#0: uint64) = ((app_params_get AppClearStateProgram) app#0)
-                (assert check%23#0) // application exists
-                let tmp%24#0: uint64 = (len value%22#0)
-                (assert tmp%24#0) // expected clear_state_program
-                let tmp%25#0: uint64 = (global CurrentApplicationID)
-                let tmp%26#0: uint64 = (== app#0 tmp%25#0)
-                (assert tmp%26#0) // expected current_application_id
-                let (value%27#0: bytes, check%28#0: uint64) = ((app_params_get AppAddress) app#0)
-                (assert check%28#0) // application exists
-                let tmp%29#0: bytes = (global CurrentApplicationAddress)
-                let tmp%30#0: uint64 = (== value%27#0 tmp%29#0)
-                (assert tmp%30#0) // expected current_application_address
+                let tmp%8#0: uint64 = (== value%4#0 4u)
+                (assert tmp%8#0) // expected local_num_bytes
+                let (value%5#0: bytes, check%5#0: uint64) = ((app_params_get AppApprovalProgram) app#0)
+                (assert check%5#0) // application exists
+                let tmp%9#0: uint64 = (len value%5#0)
+                (assert tmp%9#0) // expected approval_program
+                let (value%6#0: bytes, check%6#0: uint64) = ((app_params_get AppClearStateProgram) app#0)
+                (assert check%6#0) // application exists
+                let tmp%10#0: uint64 = (len value%6#0)
+                (assert tmp%10#0) // expected clear_state_program
+                let tmp%11#0: uint64 = (global CurrentApplicationID)
+                let tmp%12#0: uint64 = (== app#0 tmp%11#0)
+                (assert tmp%12#0) // expected current_application_id
+                let (value%7#0: bytes, check%7#0: uint64) = ((app_params_get AppAddress) app#0)
+                (assert check%7#0) // application exists
+                let tmp%13#0: bytes = (global CurrentApplicationAddress)
+                let tmp%14#0: uint64 = (== value%7#0 tmp%13#0)
+                (assert tmp%14#0) // expected current_application_address
                 return 
         
         subroutine test_cases.application.contract.Reference.__init__() -> void:

@@ -8,11 +8,11 @@ contract test_cases.inner_transactions.contract.MyContract:
                 test_cases.inner_transactions.contract.MyContract.__init__()
                 goto block@2
             block@2: // entrypoint_L23
-                let tmp%1#0: uint64 = (txn NumAppArgs)
-                goto tmp%1#0 ? block@3 : block@10
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                goto tmp%0#0 ? block@3 : block@10
             block@3: // if_body_L27
-                let awst_tmp%2#0: bytes = (txna ApplicationArgs 0)
-                switch awst_tmp%2#0 {"test1" => block@4, "test2" => block@5, "test3" => block@6, "test4" => block@7, * => block@8}
+                let awst_tmp%0#0: bytes = (txna ApplicationArgs 0)
+                switch awst_tmp%0#0 {"test1" => block@4, "test2" => block@5, "test3" => block@6, "test4" => block@7, * => block@8}
             block@4: // switch_case_0_L30
                 test_cases.inner_transactions.contract.MyContract.test1()
                 goto block@9
@@ -39,8 +39,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let asset_params%%TypeEnum_length#0: uint64 = 1u
                 let asset_params%%param_ConfigAssetTotal_idx_0#0: uint64 = 1000u
                 let asset_params%%ConfigAssetTotal_length#0: uint64 = 1u
-                let (name_value%0#0: bytes, name_exists%1#0: uint64) = (app_global_get_ex 0u "name")
-                (assert name_exists%1#0) // check name exists
+                let (name_value%0#0: bytes, name_exists%0#0: uint64) = (app_global_get_ex 0u "name")
+                (assert name_exists%0#0) // check name exists
                 let asset_params%%param_ConfigAssetName_idx_0#0: bytes = name_value%0#0
                 let asset_params%%ConfigAssetName_length#0: uint64 = 1u
                 let asset_params%%param_ConfigAssetUnitName_idx_0#0: bytes = "unit"
@@ -171,9 +171,9 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let asset1_txn%%StateProofPK#0: bytes = (itxn StateProofPK)
                 let asset1_txn%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
                 let asset1_txn%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
-                let (name_value%2#0: bytes, name_exists%3#0: uint64) = (app_global_get_ex 0u "name")
-                (assert name_exists%3#0) // check name exists
-                let asset_params%%param_ConfigAssetName_idx_0#1: bytes = name_value%2#0
+                let (name_value%1#0: bytes, name_exists%1#0: uint64) = (app_global_get_ex 0u "name")
+                (assert name_exists%1#0) // check name exists
+                let asset_params%%param_ConfigAssetName_idx_0#1: bytes = name_value%1#0
                 let asset_params%%ConfigAssetName_length#1: uint64 = 1u
                 itxn_begin
                 ((itxn_field Fee) asset_params%%param_Fee_idx_0#0)
@@ -249,18 +249,18 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let asset2_txn%%StateProofPK#0: bytes = (itxn StateProofPK)
                 let asset2_txn%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
                 let asset2_txn%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
-                let tmp%4#0: uint64 = (== asset1_txn%%ConfigAssetName#0 "AST1")
-                (assert tmp%4#0) // asset1_txn is correct
-                let tmp%5#0: uint64 = (== asset2_txn%%ConfigAssetName#0 "AST2")
-                (assert tmp%5#0) // asset2_txn is correct
-                let (value%6#0: bytes, check%7#0: uint64) = ((asset_params_get AssetName) asset1_txn%%CreatedAssetID#0)
-                (assert check%7#0) // asset exists
-                let tmp%8#0: uint64 = (== value%6#0 "AST1")
-                (assert tmp%8#0) // created asset 1 is correct
-                let (value%9#0: bytes, check%10#0: uint64) = ((asset_params_get AssetName) asset2_txn%%CreatedAssetID#0)
-                (assert check%10#0) // asset exists
-                let tmp%11#0: uint64 = (== value%9#0 "AST2")
-                (assert tmp%11#0) // created asset 2 is correct
+                let tmp%0#0: uint64 = (== asset1_txn%%ConfigAssetName#0 "AST1")
+                (assert tmp%0#0) // asset1_txn is correct
+                let tmp%1#0: uint64 = (== asset2_txn%%ConfigAssetName#0 "AST2")
+                (assert tmp%1#0) // asset2_txn is correct
+                let (value%0#0: bytes, check%0#0: uint64) = ((asset_params_get AssetName) asset1_txn%%CreatedAssetID#0)
+                (assert check%0#0) // asset exists
+                let tmp%2#0: uint64 = (== value%0#0 "AST1")
+                (assert tmp%2#0) // created asset 1 is correct
+                let (value%1#0: bytes, check%1#0: uint64) = ((asset_params_get AssetName) asset2_txn%%CreatedAssetID#0)
+                (assert check%1#0) // asset exists
+                let tmp%3#0: uint64 = (== value%1#0 "AST2")
+                (assert tmp%3#0) // created asset 2 is correct
                 let app_create_params%%param_TypeEnum_idx_0#0: uint64 = appl
                 let app_create_params%%TypeEnum_length#0: uint64 = 1u
                 let app_create_params%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
@@ -461,15 +461,15 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let asset3_txn%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
                 let asset3_txn%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
                 (assert app_create_txn%%CreatedApplicationID#0) // created app
-                let tmp%12#0: uint64 = (== asset3_txn%%ConfigAssetName#0 "AST3")
-                (assert tmp%12#0) // asset3_txn is correct
+                let tmp%4#0: uint64 = (== asset3_txn%%ConfigAssetName#0 "AST3")
+                (assert tmp%4#0) // asset3_txn is correct
                 let app_create_params%%param_Note_idx_0#0: bytes = "3rd"
                 let app_create_params%%Note_length#1: uint64 = 1u
                 let asset_params%%param_Note_idx_0#0: bytes = "3rd"
                 let asset_params%%Note_length#1: uint64 = 1u
                 itxn_begin
-                let is_Note_count_gte_1%15#0: uint64 = (>= app_create_params%%Note_length#1 1u)
-                goto is_Note_count_gte_1%15#0 ? block@5 : block@6
+                let is_Note_count_gte_1%0#0: uint64 = (>= app_create_params%%Note_length#1 1u)
+                goto is_Note_count_gte_1%0#0 ? block@5 : block@6
             block@5: // set_Note_0_to_0_L86
                 ((itxn_field Note) app_create_params%%param_Note_idx_0#0)
                 goto block@6
@@ -481,8 +481,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto block@7
             block@7: // next_txn_L86
                 itxn_next
-                let is_Note_count_gte_1%16#0: uint64 = (>= asset_params%%Note_length#1 1u)
-                goto is_Note_count_gte_1%16#0 ? block@8 : block@9
+                let is_Note_count_gte_1%1#0: uint64 = (>= asset_params%%Note_length#1 1u)
+                goto is_Note_count_gte_1%1#0 ? block@8 : block@9
             block@8: // set_Note_0_to_0_L86
                 ((itxn_field Note) asset_params%%param_Note_idx_0#0)
                 goto block@9
@@ -499,128 +499,128 @@ contract test_cases.inner_transactions.contract.MyContract:
             block@10: // next_txn_L86
                 itxn_submit
                 let %%inner_txn_submit_id#3: uint64 = 4u
-                let submit_result_0%13%%Sender#0: bytes = (gitxn 0 Sender)
-                let submit_result_0%13%%Fee#0: uint64 = (gitxn 0 Fee)
-                let submit_result_0%13%%FirstValid#0: uint64 = (gitxn 0 FirstValid)
-                let submit_result_0%13%%FirstValidTime#0: uint64 = (gitxn 0 FirstValidTime)
-                let submit_result_0%13%%LastValid#0: uint64 = (gitxn 0 LastValid)
-                let submit_result_0%13%%Note#0: bytes = (gitxn 0 Note)
-                let submit_result_0%13%%Lease#0: bytes = (gitxn 0 Lease)
-                let submit_result_0%13%%Receiver#0: bytes = (gitxn 0 Receiver)
-                let submit_result_0%13%%Amount#0: uint64 = (gitxn 0 Amount)
-                let submit_result_0%13%%CloseRemainderTo#0: bytes = (gitxn 0 CloseRemainderTo)
-                let submit_result_0%13%%VotePK#0: bytes = (gitxn 0 VotePK)
-                let submit_result_0%13%%SelectionPK#0: bytes = (gitxn 0 SelectionPK)
-                let submit_result_0%13%%VoteFirst#0: uint64 = (gitxn 0 VoteFirst)
-                let submit_result_0%13%%VoteLast#0: uint64 = (gitxn 0 VoteLast)
-                let submit_result_0%13%%VoteKeyDilution#0: uint64 = (gitxn 0 VoteKeyDilution)
-                let submit_result_0%13%%Type#0: bytes = (gitxn 0 Type)
-                let submit_result_0%13%%TypeEnum#0: uint64 = (gitxn 0 TypeEnum)
-                let submit_result_0%13%%XferAsset#0: uint64 = (gitxn 0 XferAsset)
-                let submit_result_0%13%%AssetAmount#0: uint64 = (gitxn 0 AssetAmount)
-                let submit_result_0%13%%AssetSender#0: bytes = (gitxn 0 AssetSender)
-                let submit_result_0%13%%AssetReceiver#0: bytes = (gitxn 0 AssetReceiver)
-                let submit_result_0%13%%AssetCloseTo#0: bytes = (gitxn 0 AssetCloseTo)
-                let submit_result_0%13%%GroupIndex#0: uint64 = (gitxn 0 GroupIndex)
-                let submit_result_0%13%%TxID#0: bytes = (gitxn 0 TxID)
-                let submit_result_0%13%%ApplicationID#0: uint64 = (gitxn 0 ApplicationID)
-                let submit_result_0%13%%OnCompletion#0: uint64 = (gitxn 0 OnCompletion)
-                let submit_result_0%13%%NumAppArgs#0: uint64 = (gitxn 0 NumAppArgs)
-                let submit_result_0%13%%NumAccounts#0: uint64 = (gitxn 0 NumAccounts)
-                let submit_result_0%13%%ApprovalProgram#0: bytes = (gitxn 0 ApprovalProgram)
-                let submit_result_0%13%%ClearStateProgram#0: bytes = (gitxn 0 ClearStateProgram)
-                let submit_result_0%13%%RekeyTo#0: bytes = (gitxn 0 RekeyTo)
-                let submit_result_0%13%%ConfigAsset#0: uint64 = (gitxn 0 ConfigAsset)
-                let submit_result_0%13%%ConfigAssetTotal#0: uint64 = (gitxn 0 ConfigAssetTotal)
-                let submit_result_0%13%%ConfigAssetDecimals#0: uint64 = (gitxn 0 ConfigAssetDecimals)
-                let submit_result_0%13%%ConfigAssetDefaultFrozen#0: uint64 = (gitxn 0 ConfigAssetDefaultFrozen)
-                let submit_result_0%13%%ConfigAssetUnitName#0: bytes = (gitxn 0 ConfigAssetUnitName)
-                let submit_result_0%13%%ConfigAssetName#0: bytes = (gitxn 0 ConfigAssetName)
-                let submit_result_0%13%%ConfigAssetURL#0: bytes = (gitxn 0 ConfigAssetURL)
-                let submit_result_0%13%%ConfigAssetMetadataHash#0: bytes = (gitxn 0 ConfigAssetMetadataHash)
-                let submit_result_0%13%%ConfigAssetManager#0: bytes = (gitxn 0 ConfigAssetManager)
-                let submit_result_0%13%%ConfigAssetReserve#0: bytes = (gitxn 0 ConfigAssetReserve)
-                let submit_result_0%13%%ConfigAssetFreeze#0: bytes = (gitxn 0 ConfigAssetFreeze)
-                let submit_result_0%13%%ConfigAssetClawback#0: bytes = (gitxn 0 ConfigAssetClawback)
-                let submit_result_0%13%%FreezeAsset#0: uint64 = (gitxn 0 FreezeAsset)
-                let submit_result_0%13%%FreezeAssetAccount#0: bytes = (gitxn 0 FreezeAssetAccount)
-                let submit_result_0%13%%FreezeAssetFrozen#0: uint64 = (gitxn 0 FreezeAssetFrozen)
-                let submit_result_0%13%%NumAssets#0: uint64 = (gitxn 0 NumAssets)
-                let submit_result_0%13%%NumApplications#0: uint64 = (gitxn 0 NumApplications)
-                let submit_result_0%13%%GlobalNumUint#0: uint64 = (gitxn 0 GlobalNumUint)
-                let submit_result_0%13%%GlobalNumByteSlice#0: uint64 = (gitxn 0 GlobalNumByteSlice)
-                let submit_result_0%13%%LocalNumUint#0: uint64 = (gitxn 0 LocalNumUint)
-                let submit_result_0%13%%LocalNumByteSlice#0: uint64 = (gitxn 0 LocalNumByteSlice)
-                let submit_result_0%13%%ExtraProgramPages#0: uint64 = (gitxn 0 ExtraProgramPages)
-                let submit_result_0%13%%Nonparticipation#0: uint64 = (gitxn 0 Nonparticipation)
-                let submit_result_0%13%%NumLogs#0: uint64 = (gitxn 0 NumLogs)
-                let submit_result_0%13%%CreatedAssetID#0: uint64 = (gitxn 0 CreatedAssetID)
-                let submit_result_0%13%%CreatedApplicationID#0: uint64 = (gitxn 0 CreatedApplicationID)
-                let submit_result_0%13%%LastLog#0: bytes = (gitxn 0 LastLog)
-                let submit_result_0%13%%StateProofPK#0: bytes = (gitxn 0 StateProofPK)
-                let submit_result_0%13%%NumApprovalProgramPages#0: uint64 = (gitxn 0 NumApprovalProgramPages)
-                let submit_result_0%13%%NumClearStateProgramPages#0: uint64 = (gitxn 0 NumClearStateProgramPages)
-                let submit_result_1%14%%Sender#0: bytes = (itxn Sender)
-                let submit_result_1%14%%Fee#0: uint64 = (itxn Fee)
-                let submit_result_1%14%%FirstValid#0: uint64 = (itxn FirstValid)
-                let submit_result_1%14%%FirstValidTime#0: uint64 = (itxn FirstValidTime)
-                let submit_result_1%14%%LastValid#0: uint64 = (itxn LastValid)
-                let submit_result_1%14%%Note#0: bytes = (itxn Note)
-                let submit_result_1%14%%Lease#0: bytes = (itxn Lease)
-                let submit_result_1%14%%Receiver#0: bytes = (itxn Receiver)
-                let submit_result_1%14%%Amount#0: uint64 = (itxn Amount)
-                let submit_result_1%14%%CloseRemainderTo#0: bytes = (itxn CloseRemainderTo)
-                let submit_result_1%14%%VotePK#0: bytes = (itxn VotePK)
-                let submit_result_1%14%%SelectionPK#0: bytes = (itxn SelectionPK)
-                let submit_result_1%14%%VoteFirst#0: uint64 = (itxn VoteFirst)
-                let submit_result_1%14%%VoteLast#0: uint64 = (itxn VoteLast)
-                let submit_result_1%14%%VoteKeyDilution#0: uint64 = (itxn VoteKeyDilution)
-                let submit_result_1%14%%Type#0: bytes = (itxn Type)
-                let submit_result_1%14%%TypeEnum#0: uint64 = (itxn TypeEnum)
-                let submit_result_1%14%%XferAsset#0: uint64 = (itxn XferAsset)
-                let submit_result_1%14%%AssetAmount#0: uint64 = (itxn AssetAmount)
-                let submit_result_1%14%%AssetSender#0: bytes = (itxn AssetSender)
-                let submit_result_1%14%%AssetReceiver#0: bytes = (itxn AssetReceiver)
-                let submit_result_1%14%%AssetCloseTo#0: bytes = (itxn AssetCloseTo)
-                let submit_result_1%14%%GroupIndex#0: uint64 = (itxn GroupIndex)
-                let submit_result_1%14%%TxID#0: bytes = (itxn TxID)
-                let submit_result_1%14%%ApplicationID#0: uint64 = (itxn ApplicationID)
-                let submit_result_1%14%%OnCompletion#0: uint64 = (itxn OnCompletion)
-                let submit_result_1%14%%NumAppArgs#0: uint64 = (itxn NumAppArgs)
-                let submit_result_1%14%%NumAccounts#0: uint64 = (itxn NumAccounts)
-                let submit_result_1%14%%ApprovalProgram#0: bytes = (itxn ApprovalProgram)
-                let submit_result_1%14%%ClearStateProgram#0: bytes = (itxn ClearStateProgram)
-                let submit_result_1%14%%RekeyTo#0: bytes = (itxn RekeyTo)
-                let submit_result_1%14%%ConfigAsset#0: uint64 = (itxn ConfigAsset)
-                let submit_result_1%14%%ConfigAssetTotal#0: uint64 = (itxn ConfigAssetTotal)
-                let submit_result_1%14%%ConfigAssetDecimals#0: uint64 = (itxn ConfigAssetDecimals)
-                let submit_result_1%14%%ConfigAssetDefaultFrozen#0: uint64 = (itxn ConfigAssetDefaultFrozen)
-                let submit_result_1%14%%ConfigAssetUnitName#0: bytes = (itxn ConfigAssetUnitName)
-                let submit_result_1%14%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
-                let submit_result_1%14%%ConfigAssetURL#0: bytes = (itxn ConfigAssetURL)
-                let submit_result_1%14%%ConfigAssetMetadataHash#0: bytes = (itxn ConfigAssetMetadataHash)
-                let submit_result_1%14%%ConfigAssetManager#0: bytes = (itxn ConfigAssetManager)
-                let submit_result_1%14%%ConfigAssetReserve#0: bytes = (itxn ConfigAssetReserve)
-                let submit_result_1%14%%ConfigAssetFreeze#0: bytes = (itxn ConfigAssetFreeze)
-                let submit_result_1%14%%ConfigAssetClawback#0: bytes = (itxn ConfigAssetClawback)
-                let submit_result_1%14%%FreezeAsset#0: uint64 = (itxn FreezeAsset)
-                let submit_result_1%14%%FreezeAssetAccount#0: bytes = (itxn FreezeAssetAccount)
-                let submit_result_1%14%%FreezeAssetFrozen#0: uint64 = (itxn FreezeAssetFrozen)
-                let submit_result_1%14%%NumAssets#0: uint64 = (itxn NumAssets)
-                let submit_result_1%14%%NumApplications#0: uint64 = (itxn NumApplications)
-                let submit_result_1%14%%GlobalNumUint#0: uint64 = (itxn GlobalNumUint)
-                let submit_result_1%14%%GlobalNumByteSlice#0: uint64 = (itxn GlobalNumByteSlice)
-                let submit_result_1%14%%LocalNumUint#0: uint64 = (itxn LocalNumUint)
-                let submit_result_1%14%%LocalNumByteSlice#0: uint64 = (itxn LocalNumByteSlice)
-                let submit_result_1%14%%ExtraProgramPages#0: uint64 = (itxn ExtraProgramPages)
-                let submit_result_1%14%%Nonparticipation#0: uint64 = (itxn Nonparticipation)
-                let submit_result_1%14%%NumLogs#0: uint64 = (itxn NumLogs)
-                let submit_result_1%14%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
-                let submit_result_1%14%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
-                let submit_result_1%14%%LastLog#0: bytes = (itxn LastLog)
-                let submit_result_1%14%%StateProofPK#0: bytes = (itxn StateProofPK)
-                let submit_result_1%14%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
-                let submit_result_1%14%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
+                let submit_result_0%0%%Sender#0: bytes = (gitxn 0 Sender)
+                let submit_result_0%0%%Fee#0: uint64 = (gitxn 0 Fee)
+                let submit_result_0%0%%FirstValid#0: uint64 = (gitxn 0 FirstValid)
+                let submit_result_0%0%%FirstValidTime#0: uint64 = (gitxn 0 FirstValidTime)
+                let submit_result_0%0%%LastValid#0: uint64 = (gitxn 0 LastValid)
+                let submit_result_0%0%%Note#0: bytes = (gitxn 0 Note)
+                let submit_result_0%0%%Lease#0: bytes = (gitxn 0 Lease)
+                let submit_result_0%0%%Receiver#0: bytes = (gitxn 0 Receiver)
+                let submit_result_0%0%%Amount#0: uint64 = (gitxn 0 Amount)
+                let submit_result_0%0%%CloseRemainderTo#0: bytes = (gitxn 0 CloseRemainderTo)
+                let submit_result_0%0%%VotePK#0: bytes = (gitxn 0 VotePK)
+                let submit_result_0%0%%SelectionPK#0: bytes = (gitxn 0 SelectionPK)
+                let submit_result_0%0%%VoteFirst#0: uint64 = (gitxn 0 VoteFirst)
+                let submit_result_0%0%%VoteLast#0: uint64 = (gitxn 0 VoteLast)
+                let submit_result_0%0%%VoteKeyDilution#0: uint64 = (gitxn 0 VoteKeyDilution)
+                let submit_result_0%0%%Type#0: bytes = (gitxn 0 Type)
+                let submit_result_0%0%%TypeEnum#0: uint64 = (gitxn 0 TypeEnum)
+                let submit_result_0%0%%XferAsset#0: uint64 = (gitxn 0 XferAsset)
+                let submit_result_0%0%%AssetAmount#0: uint64 = (gitxn 0 AssetAmount)
+                let submit_result_0%0%%AssetSender#0: bytes = (gitxn 0 AssetSender)
+                let submit_result_0%0%%AssetReceiver#0: bytes = (gitxn 0 AssetReceiver)
+                let submit_result_0%0%%AssetCloseTo#0: bytes = (gitxn 0 AssetCloseTo)
+                let submit_result_0%0%%GroupIndex#0: uint64 = (gitxn 0 GroupIndex)
+                let submit_result_0%0%%TxID#0: bytes = (gitxn 0 TxID)
+                let submit_result_0%0%%ApplicationID#0: uint64 = (gitxn 0 ApplicationID)
+                let submit_result_0%0%%OnCompletion#0: uint64 = (gitxn 0 OnCompletion)
+                let submit_result_0%0%%NumAppArgs#0: uint64 = (gitxn 0 NumAppArgs)
+                let submit_result_0%0%%NumAccounts#0: uint64 = (gitxn 0 NumAccounts)
+                let submit_result_0%0%%ApprovalProgram#0: bytes = (gitxn 0 ApprovalProgram)
+                let submit_result_0%0%%ClearStateProgram#0: bytes = (gitxn 0 ClearStateProgram)
+                let submit_result_0%0%%RekeyTo#0: bytes = (gitxn 0 RekeyTo)
+                let submit_result_0%0%%ConfigAsset#0: uint64 = (gitxn 0 ConfigAsset)
+                let submit_result_0%0%%ConfigAssetTotal#0: uint64 = (gitxn 0 ConfigAssetTotal)
+                let submit_result_0%0%%ConfigAssetDecimals#0: uint64 = (gitxn 0 ConfigAssetDecimals)
+                let submit_result_0%0%%ConfigAssetDefaultFrozen#0: uint64 = (gitxn 0 ConfigAssetDefaultFrozen)
+                let submit_result_0%0%%ConfigAssetUnitName#0: bytes = (gitxn 0 ConfigAssetUnitName)
+                let submit_result_0%0%%ConfigAssetName#0: bytes = (gitxn 0 ConfigAssetName)
+                let submit_result_0%0%%ConfigAssetURL#0: bytes = (gitxn 0 ConfigAssetURL)
+                let submit_result_0%0%%ConfigAssetMetadataHash#0: bytes = (gitxn 0 ConfigAssetMetadataHash)
+                let submit_result_0%0%%ConfigAssetManager#0: bytes = (gitxn 0 ConfigAssetManager)
+                let submit_result_0%0%%ConfigAssetReserve#0: bytes = (gitxn 0 ConfigAssetReserve)
+                let submit_result_0%0%%ConfigAssetFreeze#0: bytes = (gitxn 0 ConfigAssetFreeze)
+                let submit_result_0%0%%ConfigAssetClawback#0: bytes = (gitxn 0 ConfigAssetClawback)
+                let submit_result_0%0%%FreezeAsset#0: uint64 = (gitxn 0 FreezeAsset)
+                let submit_result_0%0%%FreezeAssetAccount#0: bytes = (gitxn 0 FreezeAssetAccount)
+                let submit_result_0%0%%FreezeAssetFrozen#0: uint64 = (gitxn 0 FreezeAssetFrozen)
+                let submit_result_0%0%%NumAssets#0: uint64 = (gitxn 0 NumAssets)
+                let submit_result_0%0%%NumApplications#0: uint64 = (gitxn 0 NumApplications)
+                let submit_result_0%0%%GlobalNumUint#0: uint64 = (gitxn 0 GlobalNumUint)
+                let submit_result_0%0%%GlobalNumByteSlice#0: uint64 = (gitxn 0 GlobalNumByteSlice)
+                let submit_result_0%0%%LocalNumUint#0: uint64 = (gitxn 0 LocalNumUint)
+                let submit_result_0%0%%LocalNumByteSlice#0: uint64 = (gitxn 0 LocalNumByteSlice)
+                let submit_result_0%0%%ExtraProgramPages#0: uint64 = (gitxn 0 ExtraProgramPages)
+                let submit_result_0%0%%Nonparticipation#0: uint64 = (gitxn 0 Nonparticipation)
+                let submit_result_0%0%%NumLogs#0: uint64 = (gitxn 0 NumLogs)
+                let submit_result_0%0%%CreatedAssetID#0: uint64 = (gitxn 0 CreatedAssetID)
+                let submit_result_0%0%%CreatedApplicationID#0: uint64 = (gitxn 0 CreatedApplicationID)
+                let submit_result_0%0%%LastLog#0: bytes = (gitxn 0 LastLog)
+                let submit_result_0%0%%StateProofPK#0: bytes = (gitxn 0 StateProofPK)
+                let submit_result_0%0%%NumApprovalProgramPages#0: uint64 = (gitxn 0 NumApprovalProgramPages)
+                let submit_result_0%0%%NumClearStateProgramPages#0: uint64 = (gitxn 0 NumClearStateProgramPages)
+                let submit_result_1%0%%Sender#0: bytes = (itxn Sender)
+                let submit_result_1%0%%Fee#0: uint64 = (itxn Fee)
+                let submit_result_1%0%%FirstValid#0: uint64 = (itxn FirstValid)
+                let submit_result_1%0%%FirstValidTime#0: uint64 = (itxn FirstValidTime)
+                let submit_result_1%0%%LastValid#0: uint64 = (itxn LastValid)
+                let submit_result_1%0%%Note#0: bytes = (itxn Note)
+                let submit_result_1%0%%Lease#0: bytes = (itxn Lease)
+                let submit_result_1%0%%Receiver#0: bytes = (itxn Receiver)
+                let submit_result_1%0%%Amount#0: uint64 = (itxn Amount)
+                let submit_result_1%0%%CloseRemainderTo#0: bytes = (itxn CloseRemainderTo)
+                let submit_result_1%0%%VotePK#0: bytes = (itxn VotePK)
+                let submit_result_1%0%%SelectionPK#0: bytes = (itxn SelectionPK)
+                let submit_result_1%0%%VoteFirst#0: uint64 = (itxn VoteFirst)
+                let submit_result_1%0%%VoteLast#0: uint64 = (itxn VoteLast)
+                let submit_result_1%0%%VoteKeyDilution#0: uint64 = (itxn VoteKeyDilution)
+                let submit_result_1%0%%Type#0: bytes = (itxn Type)
+                let submit_result_1%0%%TypeEnum#0: uint64 = (itxn TypeEnum)
+                let submit_result_1%0%%XferAsset#0: uint64 = (itxn XferAsset)
+                let submit_result_1%0%%AssetAmount#0: uint64 = (itxn AssetAmount)
+                let submit_result_1%0%%AssetSender#0: bytes = (itxn AssetSender)
+                let submit_result_1%0%%AssetReceiver#0: bytes = (itxn AssetReceiver)
+                let submit_result_1%0%%AssetCloseTo#0: bytes = (itxn AssetCloseTo)
+                let submit_result_1%0%%GroupIndex#0: uint64 = (itxn GroupIndex)
+                let submit_result_1%0%%TxID#0: bytes = (itxn TxID)
+                let submit_result_1%0%%ApplicationID#0: uint64 = (itxn ApplicationID)
+                let submit_result_1%0%%OnCompletion#0: uint64 = (itxn OnCompletion)
+                let submit_result_1%0%%NumAppArgs#0: uint64 = (itxn NumAppArgs)
+                let submit_result_1%0%%NumAccounts#0: uint64 = (itxn NumAccounts)
+                let submit_result_1%0%%ApprovalProgram#0: bytes = (itxn ApprovalProgram)
+                let submit_result_1%0%%ClearStateProgram#0: bytes = (itxn ClearStateProgram)
+                let submit_result_1%0%%RekeyTo#0: bytes = (itxn RekeyTo)
+                let submit_result_1%0%%ConfigAsset#0: uint64 = (itxn ConfigAsset)
+                let submit_result_1%0%%ConfigAssetTotal#0: uint64 = (itxn ConfigAssetTotal)
+                let submit_result_1%0%%ConfigAssetDecimals#0: uint64 = (itxn ConfigAssetDecimals)
+                let submit_result_1%0%%ConfigAssetDefaultFrozen#0: uint64 = (itxn ConfigAssetDefaultFrozen)
+                let submit_result_1%0%%ConfigAssetUnitName#0: bytes = (itxn ConfigAssetUnitName)
+                let submit_result_1%0%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
+                let submit_result_1%0%%ConfigAssetURL#0: bytes = (itxn ConfigAssetURL)
+                let submit_result_1%0%%ConfigAssetMetadataHash#0: bytes = (itxn ConfigAssetMetadataHash)
+                let submit_result_1%0%%ConfigAssetManager#0: bytes = (itxn ConfigAssetManager)
+                let submit_result_1%0%%ConfigAssetReserve#0: bytes = (itxn ConfigAssetReserve)
+                let submit_result_1%0%%ConfigAssetFreeze#0: bytes = (itxn ConfigAssetFreeze)
+                let submit_result_1%0%%ConfigAssetClawback#0: bytes = (itxn ConfigAssetClawback)
+                let submit_result_1%0%%FreezeAsset#0: uint64 = (itxn FreezeAsset)
+                let submit_result_1%0%%FreezeAssetAccount#0: bytes = (itxn FreezeAssetAccount)
+                let submit_result_1%0%%FreezeAssetFrozen#0: uint64 = (itxn FreezeAssetFrozen)
+                let submit_result_1%0%%NumAssets#0: uint64 = (itxn NumAssets)
+                let submit_result_1%0%%NumApplications#0: uint64 = (itxn NumApplications)
+                let submit_result_1%0%%GlobalNumUint#0: uint64 = (itxn GlobalNumUint)
+                let submit_result_1%0%%GlobalNumByteSlice#0: uint64 = (itxn GlobalNumByteSlice)
+                let submit_result_1%0%%LocalNumUint#0: uint64 = (itxn LocalNumUint)
+                let submit_result_1%0%%LocalNumByteSlice#0: uint64 = (itxn LocalNumByteSlice)
+                let submit_result_1%0%%ExtraProgramPages#0: uint64 = (itxn ExtraProgramPages)
+                let submit_result_1%0%%Nonparticipation#0: uint64 = (itxn Nonparticipation)
+                let submit_result_1%0%%NumLogs#0: uint64 = (itxn NumLogs)
+                let submit_result_1%0%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
+                let submit_result_1%0%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
+                let submit_result_1%0%%LastLog#0: bytes = (itxn LastLog)
+                let submit_result_1%0%%StateProofPK#0: bytes = (itxn StateProofPK)
+                let submit_result_1%0%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
+                let submit_result_1%0%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
                 return 
         
         subroutine test_cases.inner_transactions.contract.MyContract.test2() -> void:
@@ -762,8 +762,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let create_app_params%%param_ApprovalProgramPages_idx_0#4: bytes = φ(create_app_params%%param_ApprovalProgramPages_idx_0#0 <- block@1, create_app_params%%param_ApprovalProgramPages_idx_0#1 <- block@2)
                 let create_app_params%%param_TypeEnum_idx_0#4: uint64 = φ(create_app_params%%param_TypeEnum_idx_0#0 <- block@1, create_app_params%%param_TypeEnum_idx_0#1 <- block@2)
                 itxn_begin
-                let is_Note_count_gte_1%1#0: uint64 = (>= create_app_params%%Note_length#2 1u)
-                goto is_Note_count_gte_1%1#0 ? block@4 : block@5
+                let is_Note_count_gte_1%0#0: uint64 = (>= create_app_params%%Note_length#2 1u)
+                goto is_Note_count_gte_1%0#0 ? block@4 : block@5
             block@4: // set_Note_0_to_0_L107
                 ((itxn_field Note) create_app_params%%param_Note_idx_0#1)
                 goto block@5
@@ -771,8 +771,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field Fee) create_app_params%%param_Fee_idx_0#3)
                 ((itxn_field ApplicationArgs) create_app_params%%param_ApplicationArgs_idx_0#3)
                 ((itxn_field ApplicationArgs) create_app_params%%param_ApplicationArgs_idx_1#3)
-                let is_ApplicationArgs_count_gte_3%2#0: uint64 = (>= create_app_params%%ApplicationArgs_length#3 3u)
-                goto is_ApplicationArgs_count_gte_3%2#0 ? block@6 : block@7
+                let is_ApplicationArgs_count_gte_3%0#0: uint64 = (>= create_app_params%%ApplicationArgs_length#3 3u)
+                goto is_ApplicationArgs_count_gte_3%0#0 ? block@6 : block@7
             block@6: // set_ApplicationArgs_2_to_2_L107
                 ((itxn_field ApplicationArgs) create_app_params%%param_ApplicationArgs_idx_2#2)
                 goto block@7
@@ -845,84 +845,84 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let create_app_txn%%StateProofPK#0: bytes = (itxn StateProofPK)
                 let create_app_txn%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
                 let create_app_txn%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
-                let submit_id_is_1%3#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%3#0) // 'create_app_txn' can still be accessed
-                let tmp%4#0: bytes = ((itxnas ApplicationArgs) 0u)
-                let tmp%5#0: uint64 = (== tmp%4#0 "1")
-                (assert tmp%5#0) // correct args used 1
-                let submit_id_is_1%6#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%6#0) // 'create_app_txn' can still be accessed
-                let tmp%7#0: bytes = ((itxnas ApplicationArgs) 1u)
-                let tmp%8#0: uint64 = (== tmp%7#0 "2")
-                (assert tmp%8#0) // correct args used 2
-                let tmp%9#0: uint64 = (txn NumAppArgs)
-                let tmp%10#0: uint64 = (> tmp%9#0 1u)
-                goto tmp%10#0 ? block@9 : block@11
+                let submit_id_is_1%0#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%0#0) // 'create_app_txn' can still be accessed
+                let tmp%1#0: bytes = ((itxnas ApplicationArgs) 0u)
+                let tmp%2#0: uint64 = (== tmp%1#0 "1")
+                (assert tmp%2#0) // correct args used 1
+                let submit_id_is_1%1#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%1#0) // 'create_app_txn' can still be accessed
+                let tmp%3#0: bytes = ((itxnas ApplicationArgs) 1u)
+                let tmp%4#0: uint64 = (== tmp%3#0 "2")
+                (assert tmp%4#0) // correct args used 2
+                let tmp%5#0: uint64 = (txn NumAppArgs)
+                let tmp%6#0: uint64 = (> tmp%5#0 1u)
+                goto tmp%6#0 ? block@9 : block@11
             block@9: // if_body_L111
                 itxn_begin
-                let inner_txn_params%11%%param_TypeEnum_idx_0#0: uint64 = appl
-                let inner_txn_params%11%%TypeEnum_length#0: uint64 = 1u
-                let inner_txn_params%11%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
-                let inner_txn_params%11%%ApprovalProgramPages_length#0: uint64 = 1u
-                let inner_txn_params%11%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
-                let inner_txn_params%11%%ClearStateProgramPages_length#0: uint64 = 1u
-                let inner_txn_params%11%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
-                let inner_txn_params%11%%OnCompletion_length#0: uint64 = 1u
-                let inner_txn_params%11%%param_ApplicationArgs_idx_0#0: bytes = "42"
-                let inner_txn_params%11%%ApplicationArgs_length#0: uint64 = 1u
-                let inner_txn_params%11%%param_Fee_idx_0#0: uint64 = 0u
-                let inner_txn_params%11%%Fee_length#0: uint64 = 1u
-                let inner_txn_params%11%%Sender_length#0: uint64 = 0u
-                let inner_txn_params%11%%Note_length#0: uint64 = 0u
-                let inner_txn_params%11%%Receiver_length#0: uint64 = 0u
-                let inner_txn_params%11%%Amount_length#0: uint64 = 0u
-                let inner_txn_params%11%%CloseRemainderTo_length#0: uint64 = 0u
-                let inner_txn_params%11%%VotePK_length#0: uint64 = 0u
-                let inner_txn_params%11%%SelectionPK_length#0: uint64 = 0u
-                let inner_txn_params%11%%VoteFirst_length#0: uint64 = 0u
-                let inner_txn_params%11%%VoteLast_length#0: uint64 = 0u
-                let inner_txn_params%11%%VoteKeyDilution_length#0: uint64 = 0u
-                let inner_txn_params%11%%Type_length#0: uint64 = 0u
-                let inner_txn_params%11%%XferAsset_length#0: uint64 = 0u
-                let inner_txn_params%11%%AssetAmount_length#0: uint64 = 0u
-                let inner_txn_params%11%%AssetSender_length#0: uint64 = 0u
-                let inner_txn_params%11%%AssetReceiver_length#0: uint64 = 0u
-                let inner_txn_params%11%%AssetCloseTo_length#0: uint64 = 0u
-                let inner_txn_params%11%%ApplicationID_length#0: uint64 = 0u
-                let inner_txn_params%11%%ApprovalProgram_length#0: uint64 = 0u
-                let inner_txn_params%11%%ClearStateProgram_length#0: uint64 = 0u
-                let inner_txn_params%11%%RekeyTo_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAsset_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetTotal_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetDecimals_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetUnitName_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetName_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetURL_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetMetadataHash_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetManager_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetReserve_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetFreeze_length#0: uint64 = 0u
-                let inner_txn_params%11%%ConfigAssetClawback_length#0: uint64 = 0u
-                let inner_txn_params%11%%FreezeAsset_length#0: uint64 = 0u
-                let inner_txn_params%11%%FreezeAssetAccount_length#0: uint64 = 0u
-                let inner_txn_params%11%%FreezeAssetFrozen_length#0: uint64 = 0u
-                let inner_txn_params%11%%GlobalNumUint_length#0: uint64 = 0u
-                let inner_txn_params%11%%GlobalNumByteSlice_length#0: uint64 = 0u
-                let inner_txn_params%11%%LocalNumUint_length#0: uint64 = 0u
-                let inner_txn_params%11%%LocalNumByteSlice_length#0: uint64 = 0u
-                let inner_txn_params%11%%ExtraProgramPages_length#0: uint64 = 0u
-                let inner_txn_params%11%%Nonparticipation_length#0: uint64 = 0u
-                let inner_txn_params%11%%StateProofPK_length#0: uint64 = 0u
-                let inner_txn_params%11%%Accounts_length#0: uint64 = 0u
-                let inner_txn_params%11%%Assets_length#0: uint64 = 0u
-                let inner_txn_params%11%%Applications_length#0: uint64 = 0u
-                ((itxn_field Fee) inner_txn_params%11%%param_Fee_idx_0#0)
-                ((itxn_field ApplicationArgs) inner_txn_params%11%%param_ApplicationArgs_idx_0#0)
-                ((itxn_field OnCompletion) inner_txn_params%11%%param_OnCompletion_idx_0#0)
-                ((itxn_field ClearStateProgramPages) inner_txn_params%11%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) inner_txn_params%11%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field TypeEnum) inner_txn_params%11%%param_TypeEnum_idx_0#0)
+                let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
+                let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
+                let inner_txn_params%0%%ApprovalProgramPages_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
+                let inner_txn_params%0%%ClearStateProgramPages_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
+                let inner_txn_params%0%%OnCompletion_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = "42"
+                let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
+                let inner_txn_params%0%%Fee_length#0: uint64 = 1u
+                let inner_txn_params%0%%Sender_length#0: uint64 = 0u
+                let inner_txn_params%0%%Note_length#0: uint64 = 0u
+                let inner_txn_params%0%%Receiver_length#0: uint64 = 0u
+                let inner_txn_params%0%%Amount_length#0: uint64 = 0u
+                let inner_txn_params%0%%CloseRemainderTo_length#0: uint64 = 0u
+                let inner_txn_params%0%%VotePK_length#0: uint64 = 0u
+                let inner_txn_params%0%%SelectionPK_length#0: uint64 = 0u
+                let inner_txn_params%0%%VoteFirst_length#0: uint64 = 0u
+                let inner_txn_params%0%%VoteLast_length#0: uint64 = 0u
+                let inner_txn_params%0%%VoteKeyDilution_length#0: uint64 = 0u
+                let inner_txn_params%0%%Type_length#0: uint64 = 0u
+                let inner_txn_params%0%%XferAsset_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetAmount_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetSender_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 0u
+                let inner_txn_params%0%%AssetCloseTo_length#0: uint64 = 0u
+                let inner_txn_params%0%%ApplicationID_length#0: uint64 = 0u
+                let inner_txn_params%0%%ApprovalProgram_length#0: uint64 = 0u
+                let inner_txn_params%0%%ClearStateProgram_length#0: uint64 = 0u
+                let inner_txn_params%0%%RekeyTo_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAsset_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetTotal_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetDecimals_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetDefaultFrozen_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetUnitName_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetName_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetURL_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetMetadataHash_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetManager_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetReserve_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetFreeze_length#0: uint64 = 0u
+                let inner_txn_params%0%%ConfigAssetClawback_length#0: uint64 = 0u
+                let inner_txn_params%0%%FreezeAsset_length#0: uint64 = 0u
+                let inner_txn_params%0%%FreezeAssetAccount_length#0: uint64 = 0u
+                let inner_txn_params%0%%FreezeAssetFrozen_length#0: uint64 = 0u
+                let inner_txn_params%0%%GlobalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%0%%GlobalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%0%%LocalNumUint_length#0: uint64 = 0u
+                let inner_txn_params%0%%LocalNumByteSlice_length#0: uint64 = 0u
+                let inner_txn_params%0%%ExtraProgramPages_length#0: uint64 = 0u
+                let inner_txn_params%0%%Nonparticipation_length#0: uint64 = 0u
+                let inner_txn_params%0%%StateProofPK_length#0: uint64 = 0u
+                let inner_txn_params%0%%Accounts_length#0: uint64 = 0u
+                let inner_txn_params%0%%Assets_length#0: uint64 = 0u
+                let inner_txn_params%0%%Applications_length#0: uint64 = 0u
+                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
+                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field OnCompletion) inner_txn_params%0%%param_OnCompletion_idx_0#0)
+                ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
+                ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
                 goto block@10
             block@10: // next_txn_L112
                 itxn_submit
@@ -988,19 +988,19 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let create_app_txn2%%StateProofPK#0: bytes = (itxn StateProofPK)
                 let create_app_txn2%%NumApprovalProgramPages#0: uint64 = (itxn NumApprovalProgramPages)
                 let create_app_txn2%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
-                let submit_id_is_2%12#0: uint64 = (== %%inner_txn_submit_id#1 2u)
-                (assert submit_id_is_2%12#0) // 'create_app_txn2' can still be accessed
-                let tmp%13#0: bytes = ((itxnas ApplicationArgs) 0u)
-                let tmp%14#0: uint64 = (== tmp%13#0 "42")
-                (assert tmp%14#0) // correct args used 2
+                let submit_id_is_2%0#0: uint64 = (== %%inner_txn_submit_id#1 2u)
+                (assert submit_id_is_2%0#0) // 'create_app_txn2' can still be accessed
+                let tmp%7#0: bytes = ((itxnas ApplicationArgs) 0u)
+                let tmp%8#0: uint64 = (== tmp%7#0 "42")
+                (assert tmp%8#0) // correct args used 2
                 goto block@11
             block@11: // after_if_else_L111
                 let %%inner_txn_submit_id#2: uint64 = φ(%%inner_txn_submit_id#0 <- block@8, %%inner_txn_submit_id#1 <- block@10)
-                let submit_id_is_1%15#0: uint64 = (== %%inner_txn_submit_id#2 1u)
-                (assert submit_id_is_1%15#0) // 'create_app_txn' can still be accessed
-                let tmp%16#0: bytes = ((itxnas ApplicationArgs) 0u)
-                let tmp%17#0: uint64 = (== tmp%16#0 "1")
-                (assert tmp%17#0) // this will error on access if create_app_txn2 was submitted
+                let submit_id_is_1%2#0: uint64 = (== %%inner_txn_submit_id#2 1u)
+                (assert submit_id_is_1%2#0) // 'create_app_txn' can still be accessed
+                let tmp%9#0: bytes = ((itxnas ApplicationArgs) 0u)
+                let tmp%10#0: uint64 = (== tmp%9#0 "1")
+                (assert tmp%10#0) // this will error on access if create_app_txn2 was submitted
                 return 
         
         subroutine test_cases.inner_transactions.contract.MyContract.test3() -> void:
@@ -3071,84 +3071,84 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app16%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
                 let submit_id_is_1%0#0: uint64 = (== %%inner_txn_submit_id#0 1u)
                 (assert submit_id_is_1%0#0) // 'app1' can still be accessed
-                let tmp%1#0: bytes = ((gitxnas 0 Logs) 0u)
-                let tmp%2#0: uint64 = (== tmp%1#0 "1")
-                (assert tmp%2#0)
-                let submit_id_is_1%3#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%3#0) // 'app2' can still be accessed
-                let tmp%4#0: bytes = ((gitxnas 1 Logs) 0u)
-                let tmp%5#0: uint64 = (== tmp%4#0 "2")
+                let tmp%0#0: bytes = ((gitxnas 0 Logs) 0u)
+                let tmp%1#0: uint64 = (== tmp%0#0 "1")
+                (assert tmp%1#0)
+                let submit_id_is_1%1#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%1#0) // 'app2' can still be accessed
+                let tmp%2#0: bytes = ((gitxnas 1 Logs) 0u)
+                let tmp%3#0: uint64 = (== tmp%2#0 "2")
+                (assert tmp%3#0)
+                let submit_id_is_1%2#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%2#0) // 'app3' can still be accessed
+                let tmp%4#0: bytes = ((gitxnas 2 Logs) 0u)
+                let tmp%5#0: uint64 = (== tmp%4#0 "3")
                 (assert tmp%5#0)
-                let submit_id_is_1%6#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%6#0) // 'app3' can still be accessed
-                let tmp%7#0: bytes = ((gitxnas 2 Logs) 0u)
-                let tmp%8#0: uint64 = (== tmp%7#0 "3")
-                (assert tmp%8#0)
-                let submit_id_is_1%9#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%9#0) // 'app4' can still be accessed
-                let tmp%10#0: bytes = ((gitxnas 3 Logs) 0u)
-                let tmp%11#0: uint64 = (== tmp%10#0 "4")
+                let submit_id_is_1%3#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%3#0) // 'app4' can still be accessed
+                let tmp%6#0: bytes = ((gitxnas 3 Logs) 0u)
+                let tmp%7#0: uint64 = (== tmp%6#0 "4")
+                (assert tmp%7#0)
+                let submit_id_is_1%4#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%4#0) // 'app5' can still be accessed
+                let tmp%8#0: bytes = ((gitxnas 4 Logs) 0u)
+                let tmp%9#0: uint64 = (== tmp%8#0 "5")
+                (assert tmp%9#0)
+                let submit_id_is_1%5#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%5#0) // 'app6' can still be accessed
+                let tmp%10#0: bytes = ((gitxnas 5 Logs) 0u)
+                let tmp%11#0: uint64 = (== tmp%10#0 "6")
                 (assert tmp%11#0)
-                let submit_id_is_1%12#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%12#0) // 'app5' can still be accessed
-                let tmp%13#0: bytes = ((gitxnas 4 Logs) 0u)
-                let tmp%14#0: uint64 = (== tmp%13#0 "5")
-                (assert tmp%14#0)
-                let submit_id_is_1%15#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%15#0) // 'app6' can still be accessed
-                let tmp%16#0: bytes = ((gitxnas 5 Logs) 0u)
-                let tmp%17#0: uint64 = (== tmp%16#0 "6")
+                let submit_id_is_1%6#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%6#0) // 'app7' can still be accessed
+                let tmp%12#0: bytes = ((gitxnas 6 Logs) 0u)
+                let tmp%13#0: uint64 = (== tmp%12#0 "7")
+                (assert tmp%13#0)
+                let submit_id_is_1%7#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%7#0) // 'app8' can still be accessed
+                let tmp%14#0: bytes = ((gitxnas 7 Logs) 0u)
+                let tmp%15#0: uint64 = (== tmp%14#0 "8")
+                (assert tmp%15#0)
+                let submit_id_is_1%8#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%8#0) // 'app9' can still be accessed
+                let tmp%16#0: bytes = ((gitxnas 8 Logs) 0u)
+                let tmp%17#0: uint64 = (== tmp%16#0 "9")
                 (assert tmp%17#0)
-                let submit_id_is_1%18#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%18#0) // 'app7' can still be accessed
-                let tmp%19#0: bytes = ((gitxnas 6 Logs) 0u)
-                let tmp%20#0: uint64 = (== tmp%19#0 "7")
-                (assert tmp%20#0)
-                let submit_id_is_1%21#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%21#0) // 'app8' can still be accessed
-                let tmp%22#0: bytes = ((gitxnas 7 Logs) 0u)
-                let tmp%23#0: uint64 = (== tmp%22#0 "8")
+                let submit_id_is_1%9#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%9#0) // 'app10' can still be accessed
+                let tmp%18#0: bytes = ((gitxnas 9 Logs) 0u)
+                let tmp%19#0: uint64 = (== tmp%18#0 "10")
+                (assert tmp%19#0)
+                let submit_id_is_1%10#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%10#0) // 'app11' can still be accessed
+                let tmp%20#0: bytes = ((gitxnas 10 Logs) 0u)
+                let tmp%21#0: uint64 = (== tmp%20#0 "11")
+                (assert tmp%21#0)
+                let submit_id_is_1%11#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%11#0) // 'app12' can still be accessed
+                let tmp%22#0: bytes = ((gitxnas 11 Logs) 0u)
+                let tmp%23#0: uint64 = (== tmp%22#0 "12")
                 (assert tmp%23#0)
-                let submit_id_is_1%24#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%24#0) // 'app9' can still be accessed
-                let tmp%25#0: bytes = ((gitxnas 8 Logs) 0u)
-                let tmp%26#0: uint64 = (== tmp%25#0 "9")
-                (assert tmp%26#0)
-                let submit_id_is_1%27#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%27#0) // 'app10' can still be accessed
-                let tmp%28#0: bytes = ((gitxnas 9 Logs) 0u)
-                let tmp%29#0: uint64 = (== tmp%28#0 "10")
+                let submit_id_is_1%12#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%12#0) // 'app13' can still be accessed
+                let tmp%24#0: bytes = ((gitxnas 12 Logs) 0u)
+                let tmp%25#0: uint64 = (== tmp%24#0 "13")
+                (assert tmp%25#0)
+                let submit_id_is_1%13#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%13#0) // 'app14' can still be accessed
+                let tmp%26#0: bytes = ((gitxnas 13 Logs) 0u)
+                let tmp%27#0: uint64 = (== tmp%26#0 "14")
+                (assert tmp%27#0)
+                let submit_id_is_1%14#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%14#0) // 'app15' can still be accessed
+                let tmp%28#0: bytes = ((gitxnas 14 Logs) 0u)
+                let tmp%29#0: uint64 = (== tmp%28#0 "15")
                 (assert tmp%29#0)
-                let submit_id_is_1%30#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%30#0) // 'app11' can still be accessed
-                let tmp%31#0: bytes = ((gitxnas 10 Logs) 0u)
-                let tmp%32#0: uint64 = (== tmp%31#0 "11")
-                (assert tmp%32#0)
-                let submit_id_is_1%33#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%33#0) // 'app12' can still be accessed
-                let tmp%34#0: bytes = ((gitxnas 11 Logs) 0u)
-                let tmp%35#0: uint64 = (== tmp%34#0 "12")
-                (assert tmp%35#0)
-                let submit_id_is_1%36#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%36#0) // 'app13' can still be accessed
-                let tmp%37#0: bytes = ((gitxnas 12 Logs) 0u)
-                let tmp%38#0: uint64 = (== tmp%37#0 "13")
-                (assert tmp%38#0)
-                let submit_id_is_1%39#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%39#0) // 'app14' can still be accessed
-                let tmp%40#0: bytes = ((gitxnas 13 Logs) 0u)
-                let tmp%41#0: uint64 = (== tmp%40#0 "14")
-                (assert tmp%41#0)
-                let submit_id_is_1%42#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%42#0) // 'app15' can still be accessed
-                let tmp%43#0: bytes = ((gitxnas 14 Logs) 0u)
-                let tmp%44#0: uint64 = (== tmp%43#0 "15")
-                (assert tmp%44#0)
-                let submit_id_is_1%45#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%45#0) // 'app16' can still be accessed
-                let tmp%46#0: bytes = ((itxnas Logs) 0u)
-                let tmp%47#0: uint64 = (== tmp%46#0 "16")
-                (assert tmp%47#0)
+                let submit_id_is_1%15#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%15#0) // 'app16' can still be accessed
+                let tmp%30#0: bytes = ((itxnas Logs) 0u)
+                let tmp%31#0: uint64 = (== tmp%30#0 "16")
+                (assert tmp%31#0)
                 return 
         
         subroutine test_cases.inner_transactions.contract.MyContract.test4() -> void:
@@ -3298,43 +3298,43 @@ contract test_cases.inner_transactions.contract.MyContract:
                 (assert tmp%1#0) // extra_pages == 3
                 let tmp%2#0: uint64 = (== app_1%%NumApprovalProgramPages#0 2u)
                 (assert tmp%2#0) // approval_pages == 2
-                let submit_id_is_1%3#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%3#0) // 'app_1' can still be accessed
-                let tmp%4#0: bytes = ((itxnas ApprovalProgramPages) 0u)
-                let tmp%5#0: bytes = (concat approval_1#0 approval_2#0)
-                let awst_tmp%6#0: bytes = approval_2#0
-                let tmp%7#0: uint64 = (len awst_tmp%6#0)
-                let tmp%8#0: uint64 = (len awst_tmp%6#0)
-                let tmp%9#0: uint64 = (len awst_tmp%6#0)
-                let tmp%10#0: uint64 = (< 3u tmp%9#0)
-                let tmp%11#0: uint64 = (select tmp%8#0 3u tmp%10#0)
-                let tmp%12#0: uint64 = (- tmp%7#0 tmp%11#0)
-                let tmp%13#0: bytes = (substring3 awst_tmp%6#0 0u tmp%12#0)
-                let tmp%14#0: bytes = (concat tmp%5#0 tmp%13#0)
-                let tmp%15#0: uint64 = (== tmp%4#0 tmp%14#0)
-                (assert tmp%15#0) // expected approval page 0
-                let submit_id_is_1%16#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%16#0) // 'app_1' can still be accessed
-                let tmp%17#0: bytes = ((itxnas ApprovalProgramPages) 1u)
-                let awst_tmp%18#0: bytes = approval_2#0
-                let tmp%19#0: uint64 = (len awst_tmp%18#0)
-                let tmp%20#0: uint64 = (len awst_tmp%18#0)
-                let tmp%21#0: uint64 = (len awst_tmp%18#0)
-                let tmp%22#0: uint64 = (< 3u tmp%21#0)
-                let tmp%23#0: uint64 = (select tmp%20#0 3u tmp%22#0)
-                let tmp%24#0: uint64 = (- tmp%19#0 tmp%23#0)
-                let base_length%25#0: uint64 = (len awst_tmp%18#0)
-                let tmp%26#0: bytes = (substring3 awst_tmp%18#0 tmp%24#0 base_length%25#0)
-                let tmp%27#0: bytes = (concat tmp%26#0 approval_2#0)
-                let tmp%28#0: uint64 = (== tmp%17#0 tmp%27#0)
-                (assert tmp%28#0) // expected approval page 1
-                let tmp%29#0: uint64 = (== app_1%%NumClearStateProgramPages#0 1u)
-                (assert tmp%29#0) // clear_state_pages == 1
-                let submit_id_is_1%30#0: uint64 = (== %%inner_txn_submit_id#0 1u)
-                (assert submit_id_is_1%30#0) // 'app_1' can still be accessed
-                let tmp%31#0: bytes = ((itxnas ClearStateProgramPages) 0u)
-                let tmp%32#0: uint64 = (== tmp%31#0 0x098101)
-                (assert tmp%32#0) // expected clear_state_pages
+                let submit_id_is_1%0#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%0#0) // 'app_1' can still be accessed
+                let tmp%3#0: bytes = ((itxnas ApprovalProgramPages) 0u)
+                let tmp%4#0: bytes = (concat approval_1#0 approval_2#0)
+                let awst_tmp%0#0: bytes = approval_2#0
+                let tmp%5#0: uint64 = (len awst_tmp%0#0)
+                let tmp%6#0: uint64 = (len awst_tmp%0#0)
+                let tmp%7#0: uint64 = (len awst_tmp%0#0)
+                let tmp%8#0: uint64 = (< 3u tmp%7#0)
+                let tmp%9#0: uint64 = (select tmp%6#0 3u tmp%8#0)
+                let tmp%10#0: uint64 = (- tmp%5#0 tmp%9#0)
+                let tmp%11#0: bytes = (substring3 awst_tmp%0#0 0u tmp%10#0)
+                let tmp%12#0: bytes = (concat tmp%4#0 tmp%11#0)
+                let tmp%13#0: uint64 = (== tmp%3#0 tmp%12#0)
+                (assert tmp%13#0) // expected approval page 0
+                let submit_id_is_1%1#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%1#0) // 'app_1' can still be accessed
+                let tmp%14#0: bytes = ((itxnas ApprovalProgramPages) 1u)
+                let awst_tmp%1#0: bytes = approval_2#0
+                let tmp%15#0: uint64 = (len awst_tmp%1#0)
+                let tmp%16#0: uint64 = (len awst_tmp%1#0)
+                let tmp%17#0: uint64 = (len awst_tmp%1#0)
+                let tmp%18#0: uint64 = (< 3u tmp%17#0)
+                let tmp%19#0: uint64 = (select tmp%16#0 3u tmp%18#0)
+                let tmp%20#0: uint64 = (- tmp%15#0 tmp%19#0)
+                let base_length%0#0: uint64 = (len awst_tmp%1#0)
+                let tmp%21#0: bytes = (substring3 awst_tmp%1#0 tmp%20#0 base_length%0#0)
+                let tmp%22#0: bytes = (concat tmp%21#0 approval_2#0)
+                let tmp%23#0: uint64 = (== tmp%14#0 tmp%22#0)
+                (assert tmp%23#0) // expected approval page 1
+                let tmp%24#0: uint64 = (== app_1%%NumClearStateProgramPages#0 1u)
+                (assert tmp%24#0) // clear_state_pages == 1
+                let submit_id_is_1%2#0: uint64 = (== %%inner_txn_submit_id#0 1u)
+                (assert submit_id_is_1%2#0) // 'app_1' can still be accessed
+                let tmp%25#0: bytes = ((itxnas ClearStateProgramPages) 0u)
+                let tmp%26#0: uint64 = (== tmp%25#0 0x098101)
+                (assert tmp%26#0) // expected clear_state_pages
                 return 
         
         subroutine test_cases.inner_transactions.contract.MyContract.__init__() -> void:

@@ -152,7 +152,7 @@ class IRFunctionBuildContext(IRBuildContextWithFallback):
     subroutine: Subroutine
     visitor: "FunctionIRBuilder"
     block_builder: BlocksBuilder = attrs.field()
-    _tmp_counter: Iterator[int] = attrs.field(factory=itertools.count)
+    _tmp_counters: dict[str, Iterator[int]] = attrs.field(factory=dict)
 
     @property
     def ssa(self) -> BraunSSA:
@@ -163,4 +163,5 @@ class IRFunctionBuildContext(IRBuildContextWithFallback):
         return BlocksBuilder(self.subroutine.parameters, self.function.source_location)
 
     def next_tmp_name(self, description: str) -> str:
-        return f"{description}{TMP_VAR_INDICATOR}{next(self._tmp_counter)}"
+        counter_value = next(self._tmp_counters.setdefault(description, itertools.count()))
+        return f"{description}{TMP_VAR_INDICATOR}{counter_value}"

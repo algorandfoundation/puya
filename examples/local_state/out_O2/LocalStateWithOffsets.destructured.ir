@@ -8,68 +8,68 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
                 return 1u
             block@2: // after_if_else_L19
                 let tmp%2#0: uint64 = (txn OnCompletion)
-                let contains%3#0: uint64 = (! tmp%2#0)
-                let is_equal%4#0: uint64 = (== tmp%2#0 OptIn)
-                let tmp%5#0: uint64 = (|| contains%3#0 is_equal%4#0)
-                goto tmp%5#0 ? block@4 : block@3
+                let contains%0#0: uint64 = (! tmp%2#0)
+                let is_equal%0#0: uint64 = (== tmp%2#0 OptIn)
+                let tmp%3#0: uint64 = (|| contains%0#0 is_equal%0#0)
+                goto tmp%3#0 ? block@4 : block@3
             block@3: // if_body_L21
                 return 0u
             block@4: // after_if_else_L21
-                let tmp%6#0: uint64 = (txn NumAppArgs)
-                let tmp%7#0: uint64 = (< tmp%6#0 1u)
-                goto tmp%7#0 ? block@3 : block@6
+                let tmp%4#0: uint64 = (txn NumAppArgs)
+                let tmp%5#0: uint64 = (< tmp%4#0 1u)
+                goto tmp%5#0 ? block@3 : block@6
             block@6: // after_if_else_L23
-                let tmp%8#0: bytes = (txna ApplicationArgs 0)
-                let offset#0: uint64 = (btoi tmp%8#0)
+                let tmp%6#0: bytes = (txna ApplicationArgs 0)
+                let offset#0: uint64 = (btoi tmp%6#0)
                 let method#0: bytes = (txna ApplicationArgs 1)
-                let tmp%9#0: uint64 = (txn NumAppArgs)
-                let tmp%10#0: uint64 = (== tmp%9#0 2u)
-                goto tmp%10#0 ? block@7 : block@17
+                let tmp%7#0: uint64 = (txn NumAppArgs)
+                let tmp%8#0: uint64 = (== tmp%7#0 2u)
+                goto tmp%8#0 ? block@7 : block@17
             block@7: // if_body_L28
-                let tmp%11#0: uint64 = (== method#0 "get_guaranteed_data")
-                goto tmp%11#0 ? block@8 : block@9
+                let tmp%9#0: uint64 = (== method#0 "get_guaranteed_data")
+                goto tmp%9#0 ? block@8 : block@9
             block@8: // if_body_L29
-                let tmp%12#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(offset#0)
-                (log tmp%12#0)
+                let tmp%10#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(offset#0)
+                (log tmp%10#0)
                 goto block@1
             block@9: // else_body_L29
-                let tmp%13#0: uint64 = (== method#0 "get_data_or_assert")
-                goto tmp%13#0 ? block@10 : block@11
+                let tmp%11#0: uint64 = (== method#0 "get_data_or_assert")
+                goto tmp%11#0 ? block@10 : block@11
             block@10: // if_body_L31
-                let tmp%14#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(offset#0)
-                (log tmp%14#0)
+                let tmp%12#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(offset#0)
+                (log tmp%12#0)
                 goto block@1
             block@11: // else_body_L31
-                let tmp%15#0: uint64 = (== method#0 "delete_data")
-                goto tmp%15#0 ? block@12 : block@3
+                let tmp%13#0: uint64 = (== method#0 "delete_data")
+                goto tmp%13#0 ? block@12 : block@3
             block@12: // if_body_L33
                 examples.local_state.local_state_with_offsets.LocalStateContract.delete_data(offset#0)
                 (log "Deleted")
                 goto block@1
             block@17: // else_body_L28
-                let tmp%16#0: uint64 = (txn NumAppArgs)
-                let tmp%17#0: uint64 = (== tmp%16#0 3u)
-                goto tmp%17#0 ? block@18 : block@3
+                let tmp%14#0: uint64 = (txn NumAppArgs)
+                let tmp%15#0: uint64 = (== tmp%14#0 3u)
+                goto tmp%15#0 ? block@18 : block@3
             block@18: // if_body_L39
-                let tmp%18#0: uint64 = (== method#0 "set_data")
-                goto tmp%18#0 ? block@19 : block@20
+                let tmp%16#0: uint64 = (== method#0 "set_data")
+                goto tmp%16#0 ? block@19 : block@20
             block@19: // if_body_L40
-                let tmp%19#0: bytes = (txna ApplicationArgs 2)
-                examples.local_state.local_state_with_offsets.LocalStateContract.set_data(offset#0, tmp%19#0)
+                let tmp%17#0: bytes = (txna ApplicationArgs 2)
+                examples.local_state.local_state_with_offsets.LocalStateContract.set_data(offset#0, tmp%17#0)
                 goto block@1
             block@20: // else_body_L40
-                let tmp%20#0: uint64 = (== method#0 "get_data_with_default")
-                goto tmp%20#0 ? block@21 : block@3
+                let tmp%18#0: uint64 = (== method#0 "get_data_with_default")
+                goto tmp%18#0 ? block@21 : block@3
             block@21: // if_body_L42
-                let tmp%21#0: bytes = (txna ApplicationArgs 2)
-                let tmp%22#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(offset#0, tmp%21#0)
-                (log tmp%22#0)
+                let tmp%19#0: bytes = (txna ApplicationArgs 2)
+                let tmp%20#0: bytes = examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(offset#0, tmp%19#0)
+                (log tmp%20#0)
                 goto block@1
         
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_guaranteed_data(for_account: uint64) -> bytes:
             block@0: // L53
-                let (local_value%0#0: bytes, local_exists%1#0: uint64) = (app_local_get_ex for_account#0 0u "local")
-                (assert local_exists%1#0) // check local exists for account
+                let (local_value%0#0: bytes, local_exists%0#0: uint64) = (app_local_get_ex for_account#0 0u "local")
+                (assert local_exists%0#0) // check local exists for account
                 return local_value%0#0
         
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_or_assert(for_account: uint64) -> bytes:
@@ -91,8 +91,8 @@ contract examples.local_state.local_state_with_offsets.LocalStateContract:
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.get_data_with_default(for_account: uint64, default: bytes) -> bytes:
             block@0: // L57
                 let (local_get_ex%0#0: any, local_get_ex%1#0: uint64) = (app_local_get_ex for_account#0 0u "local")
-                let tmp%2#0: any = (select default#0 local_get_ex%0#0 local_get_ex%1#0)
-                return tmp%2#0
+                let tmp%0#0: any = (select default#0 local_get_ex%0#0 local_get_ex%1#0)
+                return tmp%0#0
     
     program clear-state:
         subroutine examples.local_state.local_state_with_offsets.LocalStateContract.clear_state_program() -> uint64:
