@@ -8,41 +8,41 @@ contract test_cases.simplish.contract.Simplish:
                 test_cases.simplish.base_class.CallCounter.__init__()
                 goto block@2
             block@2: // entrypoint_L7
-                let tmp%1#0: uint64 = (txn ApplicationID)
-                let tmp%2#0: uint64 = (! tmp%1#0)
-                goto tmp%1#0 ? block@4 : block@3
+                let tmp%0#0: uint64 = (txn ApplicationID)
+                let tmp%1#0: uint64 = (! tmp%0#0)
+                goto tmp%0#0 ? block@4 : block@3
             block@3: // if_body_L31
                 return 1u
             block@4: // after_if_else_L31
                 let oca#0: uint64 = (txn OnCompletion)
                 let sender#0: bytes = (txn Sender)
-                let contains%3#0: uint64 = (== oca#0 UpdateApplication)
-                let is_equal%4#0: uint64 = (== oca#0 DeleteApplication)
-                let tmp%5#0: uint64 = (|| contains%3#0 is_equal%4#0)
-                goto tmp%5#0 ? block@5 : block@8
+                let contains%0#0: uint64 = (== oca#0 UpdateApplication)
+                let is_equal%0#0: uint64 = (== oca#0 DeleteApplication)
+                let tmp%2#0: uint64 = (|| contains%0#0 is_equal%0#0)
+                goto tmp%2#0 ? block@5 : block@8
             block@5: // if_body_L35
-                goto is_equal%4#0 ? block@6 : block@7
+                goto is_equal%0#0 ? block@6 : block@7
             block@6: // if_body_L39
-                let (counter_value%7#0: uint64, counter_exists%8#0: uint64) = (app_global_get_ex 0u "counter")
-                (assert counter_exists%8#0) // check counter exists
-                let tmp%9#0: bytes = test_cases.simplish.contract.itoa(counter_value%7#0)
-                let tmp%10#0: bytes = (concat "I was used " tmp%9#0)
-                let tmp%11#0: bytes = (concat tmp%10#0 " time(s) before I died")
-                (log tmp%11#0)
+                let (counter_value%0#0: uint64, counter_exists%0#0: uint64) = (app_global_get_ex 0u "counter")
+                (assert counter_exists%0#0) // check counter exists
+                let tmp%4#0: bytes = test_cases.simplish.contract.itoa(counter_value%0#0)
+                let tmp%5#0: bytes = (concat "I was used " tmp%4#0)
+                let tmp%6#0: bytes = (concat tmp%5#0 " time(s) before I died")
+                (log tmp%6#0)
                 goto block@7
             block@7: // after_if_else_L39
-                let tmp%12#0: bytes = (global CreatorAddress)
-                let tmp%13#0: uint64 = (== tmp%12#0 sender#0)
-                return tmp%13#0
+                let tmp%7#0: bytes = (global CreatorAddress)
+                let tmp%8#0: uint64 = (== tmp%7#0 sender#0)
+                return tmp%8#0
             block@8: // after_if_else_L35
-                let tmp%14#0: uint64 = (== oca#0 OptIn)
-                goto tmp%14#0 ? block@9 : block@12
+                let tmp%9#0: uint64 = (== oca#0 OptIn)
+                goto tmp%9#0 ? block@9 : block@12
             block@9: // if_body_L43
-                let tmp%15#0: uint64 = (txn NumAppArgs)
-                goto tmp%15#0 ? block@10 : block@11
+                let tmp%10#0: uint64 = (txn NumAppArgs)
+                goto tmp%10#0 ? block@10 : block@11
             block@10: // if_body_L44
-                let tmp%17#0: bytes = (txna ApplicationArgs 0)
-                test_cases.simplish.base_class.CallCounter.set_sender_nickname(tmp%17#0)
+                let tmp%12#0: bytes = (txna ApplicationArgs 0)
+                test_cases.simplish.base_class.CallCounter.set_sender_nickname(tmp%12#0)
                 goto block@11
             block@11: // after_if_else_L44
                 return 1u
@@ -58,9 +58,9 @@ contract test_cases.simplish.contract.Simplish:
                 let (msg#0: bytes, result#0: uint64) = test_cases.simplish.contract.Simplish.call(method_name#0, num_app_args#0)
                 goto block@23
             block@16: // else_body_L50
-                let tmp%22#0: uint64 = (txn NumAssets)
-                let tmp%23#0: uint64 = (== tmp%22#0 1u)
-                goto tmp%23#0 ? block@17 : block@21
+                let tmp%15#0: uint64 = (txn NumAssets)
+                let tmp%16#0: uint64 = (== tmp%15#0 1u)
+                goto tmp%16#0 ? block@17 : block@21
             block@17: // if_body_L53
                 let (asset_balance#0: uint64, asset_exists#0: uint64) = ((asset_holding_get AssetBalance) sender#0 0u)
                 goto asset_exists#0 ? block@19 : block@18
@@ -68,8 +68,8 @@ contract test_cases.simplish.contract.Simplish:
                 let msg#1: bytes = "You do not have any of the asset"
                 goto block@20
             block@19: // else_body_L55
-                let tmp%26#0: bytes = test_cases.simplish.contract.itoa(asset_balance#0)
-                let msg#2: bytes = (concat "You have asset balance: " tmp%26#0)
+                let tmp%17#0: bytes = test_cases.simplish.contract.itoa(asset_balance#0)
+                let msg#2: bytes = (concat "You have asset balance: " tmp%17#0)
                 goto block@20
             block@20: // after_if_else_L55
                 let msg#6: bytes = φ(msg#1 <- block@18, msg#2 <- block@19)
@@ -96,17 +96,17 @@ contract test_cases.simplish.contract.Simplish:
                 let tmp%0#0: uint64 = (< i#0 radix#0)
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L122
-                let index_plus_1%1#0: uint64 = (+ i#0 1u)
-                let tmp%2#0: bytes = (substring3 "0123456789" i#0 index_plus_1%1#0)
-                return tmp%2#0
+                let index_plus_1%0#0: uint64 = (+ i#0 1u)
+                let tmp%1#0: bytes = (substring3 "0123456789" i#0 index_plus_1%0#0)
+                return tmp%1#0
             block@2: // after_if_else_L122
-                let tmp%3#0: uint64 = (/ i#0 radix#0)
-                let tmp%4#0: bytes = test_cases.simplish.contract.itoa(tmp%3#0)
-                let tmp%5#0: uint64 = (% i#0 radix#0)
-                let index_plus_1%6#0: uint64 = (+ tmp%5#0 1u)
-                let tmp%7#0: bytes = (substring3 "0123456789" tmp%5#0 index_plus_1%6#0)
-                let tmp%8#0: bytes = (concat tmp%4#0 tmp%7#0)
-                return tmp%8#0
+                let tmp%2#0: uint64 = (/ i#0 radix#0)
+                let tmp%3#0: bytes = test_cases.simplish.contract.itoa(tmp%2#0)
+                let tmp%4#0: uint64 = (% i#0 radix#0)
+                let index_plus_1%1#0: uint64 = (+ tmp%4#0 1u)
+                let tmp%5#0: bytes = (substring3 "0123456789" tmp%4#0 index_plus_1%1#0)
+                let tmp%6#0: bytes = (concat tmp%3#0 tmp%5#0)
+                return tmp%6#0
         
         subroutine test_cases.simplish.base_class.CallCounter.set_sender_nickname(nickname: bytes) -> void:
             block@0: // L15
@@ -187,10 +187,10 @@ contract test_cases.simplish.contract.Simplish:
         
         subroutine test_cases.simplish.base_class.CallCounter.increment_counter() -> void:
             block@0: // L11
-                let (counter_value%0#0: uint64, counter_exists%1#0: uint64) = (app_global_get_ex 0u "counter")
-                (assert counter_exists%1#0) // check counter exists
-                let new_state_value%2#0: uint64 = (+ counter_value%0#0 1u)
-                (app_global_put "counter" new_state_value%2#0)
+                let (counter_value%0#0: uint64, counter_exists%0#0: uint64) = (app_global_get_ex 0u "counter")
+                (assert counter_exists%0#0) // check counter exists
+                let new_state_value%0#0: uint64 = (+ counter_value%0#0 1u)
+                (app_global_put "counter" new_state_value%0#0)
                 return 
         
         subroutine test_cases.simplish.base_class.CallCounter.__init__() -> void:
