@@ -1,23 +1,23 @@
-from puyapy import Bytes, Contract, String, arc4
+from puyapy import Contract, String, arc4
+
+HELLO_WORLD = b"Hello World!"
 
 
 class Arc4StringTypesContract(Contract):
     def approval_program(self) -> bool:
-        some_bytes = Bytes(b"Hello World!")
-
-        some_bytes_as_string = arc4.String(String.from_bytes(some_bytes))
+        some_bytes_as_string = arc4.String(String.from_bytes(HELLO_WORLD))
 
         some_bytes_as_bytes_again = some_bytes_as_string.native.bytes
 
         assert (
-            some_bytes != some_bytes_as_string.bytes
+            some_bytes_as_string.bytes != HELLO_WORLD
         ), "Original bytes should not match encoded bytes"
 
         assert (
-            some_bytes == some_bytes_as_string.bytes[2:]
+            some_bytes_as_string.bytes[2:] == HELLO_WORLD
         ), "Original bytes should match encoded if we strip the length header"
 
-        assert some_bytes == some_bytes_as_bytes_again
+        assert some_bytes_as_bytes_again == HELLO_WORLD
 
         hello = arc4.String("Hello")
         space = arc4.String(" ")

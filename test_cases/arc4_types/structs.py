@@ -33,6 +33,7 @@ class Arc4StructsTypeContract(Contract):
         flags = Flags(a=arc4.Bool(True), b=arc4.Bool(False), c=arc4.Bool(True), d=arc4.Bool(False))
         check(flags.copy())
         log(flags.bytes)
+        assert Vector.from_bytes(coord_1.bytes).bytes == coord_1.bytes
 
         nested_decode(VectorFlags(coord_1.copy(), flags.copy()))
 
