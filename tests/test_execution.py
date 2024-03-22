@@ -1316,3 +1316,24 @@ def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
         harness.deploy_from_closure(test)
     assert exc_info.value.line_no is not None
     assert "// Address length is 32 bytes" in exc_info.value.lines[exc_info.value.line_no]
+
+
+@pytest.mark.xfail(reason="Known issue, see https://github.com/algorandfoundation/puya/issues/145")
+def test_nested_bool_context(harness: _TestHarness) -> None:
+    def test() -> None:
+        from puyapy import Bytes, Contract, UInt64, op
+
+        class Baddie(Contract):
+            def approval_program(self) -> bool:
+                empty = Bytes()
+                one = UInt64(1)
+                return bool(op.bitlen(empty or one))
+
+            def clear_state_program(self) -> bool:
+                return True
+
+    # expected error message here is just an example, update test once a better one is available
+    import puya.errors
+
+    with pytest.raises(puya.errors.CodeError, match="Invalid use of a type union"):
+        harness.deploy_from_closure(test)
