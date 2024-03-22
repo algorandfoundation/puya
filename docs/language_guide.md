@@ -1,5 +1,19 @@
-# PuyaPy Language Guide
+# Algorand Python language guide
 
-```{note}
-A more comprehensive guide is coming soon!
+```{toctree}
+---
+maxdepth: 4
+---
+
+lg-structure
+lg-control
+lg-types
+lg-arc4
+lg-boxes
+lg-errors
+lg-ops
+lg-reference-types
+lg-state
+lg-subroutines
+lg-transactions
 ```

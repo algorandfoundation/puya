@@ -1,12 +1,12 @@
 # Transactions
 
 PuyaPy provides types for accessing fields of other transactions in a group, as well as
-creating and submitting inner transactions.
+creating and submitting inner transactions from your smart contract.
 
 The following types are available:
 
 | Group Transactions                                                   | Inner Transaction Field sets                     | Inner Transaction                                                              |
-|----------------------------------------------------------------------|--------------------------------------------------|--------------------------------------------------------------------------------|
+| -------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ |
 | [PaymentTransaction](algopy.gtxn.PaymentTransaction)                 | [Payment](algopy.itxn.Payment)                   | [PaymentInnerTransaction](algopy.itxn.PaymentInnerTransaction)                 |
 | [KeyRegistrationTransaction](algopy.gtxn.KeyRegistrationTransaction) | [KeyRegistration](algopy.itxn.KeyRegistration)   | [KeyRegistrationInnerTransaction](algopy.itxn.KeyRegistrationInnerTransaction) |
 | [AssetConfigTransaction](algopy.gtxn.AssetConfigTransaction)         | [AssetConfig](algopy.itxn.AssetConfig)           | [AssetConfigInnerTransaction](algopy.itxn.AssetConfigInnerTransaction)         |
@@ -14,7 +14,6 @@ The following types are available:
 | [AssetFreezeTransaction](algopy.gtxn.AssetFreezeTransaction)         | [AssetFreeze](algopy.itxn.AssetFreeze)           | [AssetFreezeInnerTransaction](algopy.itxn.AssetFreezeInnerTransaction)         |
 | [ApplicationCallTransaction](algopy.gtxn.ApplicationCallTransaction) | [ApplicationCall](algopy.itxn.ApplicationCall)   | [ApplicationCallInnerTransaction](algopy.itxn.ApplicationCallInnerTransaction) |
 | [Transaction](algopy.gtxn.Transaction)                               | [InnerTransaction](algopy.itxn.InnerTransaction) | [InnerTransactionResult](algopy.itxn.InnerTransactionResult)                   |
-
 
 ## Group Transactions
 
@@ -39,7 +38,7 @@ class MyContract(algopy.ARC4Contract):
 
 ### Group Index
 
-Group transactions can also be created using the group index of the transaction. 
+Group transactions can also be created using the group index of the transaction.
 If instantiating one of the type specific transactions they will be checked to ensure the transaction is of the expected type.
 [Transaction](algopy.gtxn.Transaction) is not checked for a specific type and provides access to all transaction fields
 
@@ -59,7 +58,6 @@ def process_payment(group_index: algopy.UInt64) -> None:
 
 Inner transactions are defined using the parameter types, and can then be submitted individually by calling the
 `.submit()` method, or as a group by calling `submit_inner_txn()`
-
 
 ### Examples
 
@@ -169,6 +167,7 @@ def example(receivers: tuple[Account, Account, Account]) -> None:
             fee=0,
         ).submit()
 ```
+
 ### Limitations
 
 Inner transactions are powerful, but currently do have some restrictions in how they are used.
