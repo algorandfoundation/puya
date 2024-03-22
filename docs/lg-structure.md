@@ -28,3 +28,46 @@ class ABIContract(puyapy.ARC4Contract):
     """This contract can be created, but otherwise does nothing"""
     pass
 ```
+
+## Switching based on on-complete and contract creation
+
+A common pattern is to perform different logic depending on the on-complete action passed to the contract call or whether the contract is being created or not. This is [handled for you when creating ARC-4 contracts](./lg-arc4.md), but if you are creating a contract by hand then following is an example of how you could potentially split based on on-complete and creation:
+
+```python
+from puyapy import Contract, OnCompleteAction, Txn, log, subroutine
+
+
+class ManualRouting(Contract):
+    def approval_program(self) -> bool:
+        if not Txn.application_id:
+            self.create()
+        else:
+            match Txn.on_completion:
+                case OnCompleteAction.UpdateApplication:
+                    self.update()
+                case OnCompleteAction.DeleteApplication:
+                    self.delete()
+                case _:
+                    self.other()
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
+
+    @subroutine
+    def create(self) -> None:
+        log("creating")
+
+    @subroutine
+    def update(self) -> None:
+        log("updating")
+
+    @subroutine
+    def delete(self) -> None:
+        log("deleting")
+
+    @subroutine
+    def other(self) -> None:
+        log("other", Txn.on_completion, Txn.num_app_args)
+
+```

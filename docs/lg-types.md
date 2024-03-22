@@ -134,6 +134,7 @@ The String type is a powerful tool for manipulating and storing UTF-8 string dat
 -   Startswith: `startswith()`
 -   Endswith: `endswith()`
 -   Join: `join()`
+-   Getting underlying `Bytes`: `myString.bytes`
 
 Here are some examples of how to use `String`:
 
@@ -168,6 +169,7 @@ The BigUInt type is a powerful tool for manipulating and storing large unsigned 
 -   Floor Division: `//`, `//=`
 -   Modulo: `%`, `%=`
 -   Bitwise operations: `&`, `^`, `|`
+-   Getting underlying `Bytes`: `myBigUint.bytes`
 
 Here are some examples of how to use `BigUInt`:
 
