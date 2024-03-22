@@ -34,6 +34,7 @@ from puya.ir.models import (
     ValueTuple,
 )
 from puya.ir.types_ import AVMBytesEncoding
+from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
 
@@ -1180,7 +1181,18 @@ def handle_arc4_assign(
                 ),
                 source_location=source_location,
             )
+        case awst_nodes.TupleItemExpression(
+            base=awst_nodes.VarExpression(wtype=wtypes.WTuple(types=items_types)) as base_expr,
+            index=index_value,
+        ) if not items_types[index_value].immutable:
+            (result,) = assign(
+                context=context,
+                names=[(format_tuple_index(base_expr.name, index_value), source_location)],
+                source=value,
+                source_location=source_location,
+            )
 
+            return result
         case _:
             raise CodeError("Not a valid assignment target", source_location)
 
