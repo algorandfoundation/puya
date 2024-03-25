@@ -14,6 +14,7 @@ import algokit_utils
 import algosdk.transaction
 import attrs
 import prettytable
+import puya.errors
 import pytest
 from algokit_utils import (
     Account,
@@ -1333,7 +1334,50 @@ def test_nested_bool_context(harness: _TestHarness) -> None:
                 return True
 
     # expected error message here is just an example, update test once a better one is available
-    import puya.errors
-
     with pytest.raises(puya.errors.CodeError, match="Invalid use of a type union"):
+        harness.deploy_from_closure(test)
+
+
+def test_mutable_ref_param_reassignment_fails(harness: _TestHarness) -> None:
+    def test() -> None:
+        from puyapy import arc4
+
+        class Baddie(arc4.ARC4Contract):
+            @arc4.abimethod
+            def okay(self, arr: arc4.DynamicBytes) -> None:
+                arr = arc4.DynamicBytes.from_bytes(arr.bytes)
+                self.not_okay(arr)
+
+            @arc4.abimethod()
+            def not_okay(self, arr2: arc4.DynamicBytes) -> None:
+                arr2 = arc4.DynamicBytes.from_bytes(arr2.bytes)
+                arr2.append(arc4.Byte(1))
+
+    with pytest.raises(
+        puya.errors.CodeError,
+        match="Cannot reassign mutable parameter 'arr2' which is being passed by reference",
+    ):
+        harness.deploy_from_closure(test)
+
+
+def test_mutable_ref_param_reassignment_in_tuple_fails(harness: _TestHarness) -> None:
+    def test() -> None:
+        from puyapy import arc4
+
+        class Baddie(arc4.ARC4Contract):
+            @arc4.abimethod
+            def okay(self, arr: arc4.DynamicBytes) -> None:
+                arr = arc4.DynamicBytes.from_bytes(arr.bytes)
+                self.not_okay(arr)
+
+            @arc4.abimethod()
+            def not_okay(self, arr2: arc4.DynamicBytes) -> None:
+                (arr2, foo) = (arc4.DynamicBytes.from_bytes(arr2.bytes), arc4.UInt64(1))
+                arr2.append(arc4.Byte(1))
+                assert foo
+
+    with pytest.raises(
+        puya.errors.CodeError,
+        match="Cannot reassign mutable parameter 'arr2' which is being passed by reference",
+    ):
         harness.deploy_from_closure(test)
