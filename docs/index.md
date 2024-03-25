@@ -1,14 +1,13 @@
-# Algorand Python & PuyaPy: <br/> An optimising Python to TEAL compiler
+# Algorand Python
 
-Algorand Python is a semantically and syntactically compatible, typed Python language that works 
+Algorand Python is a semantically and syntactically compatible, typed Python language that works
 with standard Python tooling and allows you to develop smart contracts (apps) and smart signatures
 (logic signatures) for deployment on the Algorand Virtual Machine (AVM).
 
-This is done by compiling Algorand Python using the PuyaPy compiler, which takes the Python code
-and outputs valid TEAL code with execution semantics that match the given Python code.
+Algorand Python can be deployed to Algorand by using the PuyaPy compiler, which takes Algorand Python and outputs [ARC-32](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0032.md) application spec files which, [when deployed](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients), will result in optimised AVM bytecode execution semantics that match the given Python code.
 
 Algorand Python is a statically-typed subset of valid Python syntax. Importantly, that subset has
-identical semantics when comparing Python behaviour and behaviour of the executed TEAL.
+matching semantics when comparing Python behaviour and behaviour of the executed AVM bytecode.
 
 ## Compiler installation
 
@@ -21,7 +20,7 @@ pipx install puya
 ```
 
 Alternatively, it can be installed per project. For example, if you're using [poetry](https://python-poetry.org),
-you can install it as a dev-dependency like so: 
+you can install it as a dev-dependency like so:
 
 ```shell
 poetry add -G dev puya
@@ -40,14 +39,14 @@ puyapy examples/hello_world
 
 ## Compiler usage
 
-To check that you can run the `puyapy` command successfully after installation, you can run the 
+To check that you can run the `puyapy` command successfully after installation, you can run the
 help command:
 
     puyapy -h
 
 To compile a contract or contracts, just supply the path(s) - either to the .py files themselves,
-or the containing directories. In the case of containing directories, any (non-abstract) contracts 
-discovered therein will be compiled, allowing you to compile multiple contracts at once. You can 
+or the containing directories. In the case of containing directories, any (non-abstract) contracts
+discovered therein will be compiled, allowing you to compile multiple contracts at once. You can
 also supply more than one path at a time to the compiler.
 
 e.g. either `puyapy my_project/` or `puyapy my_project/contract.py` will work to compile a single contract.
