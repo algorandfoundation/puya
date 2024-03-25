@@ -175,7 +175,7 @@ class ExpressionBuilder(abc.ABC):
         raise CodeError(f"{self._type_description} does not support indexing", location)
 
     def index_multiple(
-        self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
         """Handle self[index]"""
         raise CodeError(f"{self._type_description} does not support multiple indexing", location)
@@ -342,7 +342,7 @@ class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
 
     @abc.abstractmethod
     def index_multiple(
-        self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> TypeClassExpressionBuilder:
         ...
 

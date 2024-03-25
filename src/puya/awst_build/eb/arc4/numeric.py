@@ -134,12 +134,12 @@ class BigUIntNClassExpressionBuilder(_UIntNClassExpressionBuilder):
 
 class _UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     def index_multiple(
-        self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
         try:
-            scale_expr, precision_expr = index
+            scale_expr, precision_expr = indexes
         except ValueError as ex:
-            raise CodeError(f"Expected two type arguments, got {len(index)}", location) from ex
+            raise CodeError(f"Expected two type arguments, got {len(indexes)}", location) from ex
         n = get_integer_literal_value(scale_expr, "UFixedNxM scale")
         m = get_integer_literal_value(precision_expr, "UFixedNxM precision")
 

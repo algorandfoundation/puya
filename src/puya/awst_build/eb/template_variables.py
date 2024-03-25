@@ -17,9 +17,9 @@ from puya.parse import SourceLocation
 
 class GenericTemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
     def index_multiple(
-        self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
-        match index:
+        match indexes:
             case [TypeClassExpressionBuilder() as eb]:
                 wtype = eb.produces()
             case _:

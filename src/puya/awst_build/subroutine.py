@@ -1031,7 +1031,7 @@ class FunctionASTConverter(
                 )
             case mypy.nodes.TupleExpr(items=items):
                 args = [item.accept(self) for item in items]
-                return base_expr.index_multiple(index=args, location=expr_location)
+                return base_expr.index_multiple(indexes=args, location=expr_location)
 
         index_expr_or_literal = expr.index.accept(self)
         return base_expr.index(index=index_expr_or_literal, location=expr_location)

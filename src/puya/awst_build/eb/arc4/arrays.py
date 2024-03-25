@@ -71,9 +71,9 @@ logger = log.get_logger(__name__)
 
 class DynamicArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
     def index_multiple(
-        self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> TypeClassExpressionBuilder:
-        match index:
+        match indexes:
             case [TypeClassExpressionBuilder() as eb]:
                 element_wtype = eb.produces()
                 wtype = wtypes.ARC4DynamicArray.from_element_type(element_wtype)
@@ -144,9 +144,9 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
 
 class StaticArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
     def index_multiple(
-        self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> TypeClassExpressionBuilder:
-        match index:
+        match indexes:
             case [TypeClassExpressionBuilder() as item_type, array_size]:
                 array_size_ = get_integer_literal_value(array_size, "Array size")
                 element_wtype = item_type.produces()
@@ -285,7 +285,7 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
         )
 
     def index_multiple(
-        self, index: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
         raise CodeError(
             "Address does not support type arguments",
