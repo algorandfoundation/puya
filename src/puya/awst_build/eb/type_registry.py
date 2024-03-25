@@ -20,6 +20,7 @@ from puya.awst_build.eb import (
     string,
     struct,
     template_variables,
+    throwaway,
     transaction,
     tuple as tuple_,
     uint64,
@@ -141,6 +142,7 @@ WTYPE_TO_BUILDER: dict[
     wtypes.WGroupTransaction: transaction.GroupTransactionExpressionBuilder,
     wtypes.WInnerTransaction: transaction.InnerTransactionExpressionBuilder,
     wtypes.WInnerTransactionFields: transaction.InnerTxnParamsExpressionBuilder,
+    wtypes.throwaway_type: throwaway.ThrowawayExpressionBuilder,
 }
 
 
@@ -157,5 +159,8 @@ def var_expression(expr: Expression) -> ExpressionBuilder:
     try:
         builder = WTYPE_TO_BUILDER[expr.wtype]
     except KeyError:
-        builder = WTYPE_TO_BUILDER[type(expr.wtype)]
+        try:
+            builder = WTYPE_TO_BUILDER[type(expr.wtype)]
+        except KeyError as ex:
+            raise InternalError(f"Unhandled wtype: {expr.wtype}", expr.source_location) from ex
     return builder(expr)

@@ -1,0 +1,23 @@
+contract Throwaway
+{
+  approval_program(): bool
+  {
+    tup: tuple[puyapy.UInt64, puyapy.Account, puyapy.Bytes] = test_cases.throwaway.contract::get_tuple()
+    (args, sender, _): tuple[puyapy.UInt64, puyapy.Account, typing.Any] = tup
+    (_, _, approval): tuple[typing.Any, typing.Any, puyapy.Bytes] = tup
+    assert(sender == global<CreatorAddress>())
+    assert(args == 0u)
+    assert(reinterpret_cast<bool>(len(approval)))
+    return true
+  }
+  
+  clear_state_program(): bool
+  {
+    return true
+  }
+}
+
+subroutine get_tuple(): tuple[puyapy.UInt64, puyapy.Account, puyapy.Bytes]
+{
+  return (txn<NumAppArgs>(), txn<Sender>(), txn<ApprovalProgram>())
+}

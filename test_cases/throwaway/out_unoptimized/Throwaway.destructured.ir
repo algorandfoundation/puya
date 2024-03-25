@@ -1,0 +1,28 @@
+contract test_cases.throwaway.contract.Throwaway:
+    program approval:
+        subroutine test_cases.throwaway.contract.Throwaway.approval_program() -> uint64:
+            block@0: // L5
+                let (tup.0#0: uint64, tup.1#0: bytes, tup.2#0: bytes) = test_cases.throwaway.contract.get_tuple()
+                let args#0: uint64 = tup.0#0
+                let sender#0: bytes = tup.1#0
+                let approval#0: bytes = tup.2#0
+                let tmp%0#0: bytes = (global CreatorAddress)
+                let tmp%1#0: uint64 = (== sender#0 tmp%0#0)
+                (assert tmp%1#0)
+                let tmp%2#0: uint64 = (== args#0 0u)
+                (assert tmp%2#0)
+                let tmp%3#0: uint64 = (len approval#0)
+                (assert tmp%3#0)
+                return 1u
+        
+        subroutine test_cases.throwaway.contract.get_tuple() -> <uint64, bytes, bytes>:
+            block@0: // L18
+                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%1#0: bytes = (txn Sender)
+                let tmp%2#0: bytes = (txn ApprovalProgram)
+                return tmp%0#0 tmp%1#0 tmp%2#0
+    
+    program clear-state:
+        subroutine test_cases.throwaway.contract.Throwaway.clear_state_program() -> uint64:
+            block@0: // L14
+                return 1u

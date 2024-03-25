@@ -1,0 +1,50 @@
+#pragma version 10
+
+test_cases.throwaway.contract.Throwaway.approval_program:
+    // throwaway/contract.py:6
+    // tup = get_tuple()
+    callsub get_tuple
+    cover 2
+    swap
+    // throwaway/contract.py:7
+    // args, sender, _ = tup
+    cover 2
+    // throwaway/contract.py:8
+    // _, _, approval = tup
+    swap
+    cover 2
+    // throwaway/contract.py:9
+    // assert sender == Global.creator_address
+    global CreatorAddress
+    ==
+    assert
+    // throwaway/contract.py:10
+    // assert args == 0
+    int 0
+    ==
+    assert
+    // throwaway/contract.py:11
+    // assert approval
+    len
+    assert
+    // throwaway/contract.py:12
+    // return True
+    int 1
+    return
+
+
+// test_cases.throwaway.contract.get_tuple() -> uint64, bytes, bytes:
+get_tuple:
+    // throwaway/contract.py:18-19
+    // @subroutine
+    // def get_tuple() -> tuple[UInt64, Account, Bytes]:
+    proto 0 3
+    // throwaway/contract.py:20
+    // return Txn.num_app_args, Txn.sender, Txn.approval_program
+    txn NumAppArgs
+    txn Sender
+    txn ApprovalProgram
+    uncover 2
+    uncover 2
+    uncover 2
+    retsub

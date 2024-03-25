@@ -1,0 +1,48 @@
+// Op                     //                                           Op Description                      Stack (out)                                  X stack                                 Source code                                                    Source line
+
+#pragma version 10
+
+// test_cases.throwaway.contract.Throwaway.approval_program() -> uint64:
+main_block@0:
+    callsub get_tuple     //                                                                               {get_tuple}.0,{get_tuple}.1,{get_tuple}.2                                            get_tuple()                                                    throwaway/contract.py:6
+    cover 2               //                                           store tup.2#0 to l-stack (no copy)  tup.2#0,{get_tuple}.0,{get_tuple}.1                                                  tup = get_tuple()                                              throwaway/contract.py:6
+    //                    virtual: store tup.1#0 to l-stack (no copy)  tup.2#0,tup.1#0,{get_tuple}.0                                                    tup = get_tuple()                       throwaway/contract.py:6
+    //                    virtual: store tup.0#0 to l-stack (no copy)  tup.2#0,tup.0#0,tup.1#0                                                          tup = get_tuple()                       throwaway/contract.py:6
+    global CreatorAddress //                                                                               tup.2#0,tup.0#0,tup.1#0,{global}                                                     Global.creator_address                                         throwaway/contract.py:9
+    //                    virtual: store tmp%0#0 to l-stack (no copy)  tup.2#0,tup.0#0,tup.1#0,tmp%0#0                                                  Global.creator_address                  throwaway/contract.py:9
+    //                    virtual: load tup.1#0 from l-stack (no copy) tup.2#0,tup.0#0,tmp%0#0,tup.1#0                                                  sender == Global.creator_address        throwaway/contract.py:9
+    //                    virtual: load tmp%0#0 from l-stack (no copy) tup.2#0,tup.0#0,tup.1#0,tmp%0#0                                                  sender == Global.creator_address        throwaway/contract.py:9
+    ==                    //                                                                               tup.2#0,tup.0#0,{==}                                                                 sender == Global.creator_address                               throwaway/contract.py:9
+    //                    virtual: store tmp%1#0 to l-stack (no copy)  tup.2#0,tup.0#0,tmp%1#0                                                          sender == Global.creator_address        throwaway/contract.py:9
+    //                    virtual: load tmp%1#0 from l-stack (no copy) tup.2#0,tup.0#0,tmp%1#0                                                          assert sender == Global.creator_address throwaway/contract.py:9
+    assert                //                                                                               tup.2#0,tup.0#0                                                                      assert sender == Global.creator_address                        throwaway/contract.py:9
+    //                    virtual: load tup.0#0 from l-stack (no copy) tup.2#0,tup.0#0                                                                  args == 0                               throwaway/contract.py:10
+    !                     //                                                                               tup.2#0,{!}                                                                          args == 0                                                      throwaway/contract.py:10
+    //                    virtual: store tmp%2#0 to l-stack (no copy)  tup.2#0,tmp%2#0                                                                  args == 0                               throwaway/contract.py:10
+    //                    virtual: load tmp%2#0 from l-stack (no copy) tup.2#0,tmp%2#0                                                                  assert args == 0                        throwaway/contract.py:10
+    assert                //                                                                               tup.2#0                                                                              assert args == 0                                               throwaway/contract.py:10
+    //                    virtual: load tup.2#0 from l-stack (no copy) tup.2#0                                                                          approval                                throwaway/contract.py:11
+    len                   //                                                                               {len}                                                                                approval                                                       throwaway/contract.py:11
+    //                    virtual: store tmp%3#0 to l-stack (no copy)  tmp%3#0                                                                          approval                                throwaway/contract.py:11
+    //                    virtual: load tmp%3#0 from l-stack (no copy) tmp%3#0                                                                          assert approval                         throwaway/contract.py:11
+    assert                //                                                                                                                                                                    assert approval                                                throwaway/contract.py:11
+    int 1                 //                                                                               1                                                                                    True                                                           throwaway/contract.py:12
+    return                //                                                                                                                                                                    return True                                                    throwaway/contract.py:12
+
+
+// test_cases.throwaway.contract.get_tuple() -> uint64, bytes, bytes:
+get_tuple:
+    proto 0 3             //                                                                                                                                                                    @subroutine\ndef get_tuple() -> tuple[UInt64, Account, Bytes]: throwaway/contract.py:18-19
+
+get_tuple_block@0:
+    txn NumAppArgs        //                                                                               {txn}                                                                                Txn.num_app_args                                               throwaway/contract.py:20
+    //                    virtual: store tmp%0#0 to l-stack (no copy)  tmp%0#0                                                                          Txn.num_app_args                        throwaway/contract.py:20
+    txn Sender            //                                                                               tmp%0#0,{txn}                                                                        Txn.sender                                                     throwaway/contract.py:20
+    //                    virtual: store tmp%1#0 to l-stack (no copy)  tmp%0#0,tmp%1#0                                                                  Txn.sender                              throwaway/contract.py:20
+    txn ApprovalProgram   //                                                                               tmp%0#0,tmp%1#0,{txn}                                                                Txn.approval_program                                           throwaway/contract.py:20
+    //                    virtual: store tmp%2#0 to l-stack (no copy)  tmp%0#0,tmp%1#0,tmp%2#0                                                          Txn.approval_program                    throwaway/contract.py:20
+    uncover 2             //                                           load tmp%0#0 from l-stack (no copy) tmp%1#0,tmp%2#0,tmp%0#0                                                              return Txn.num_app_args, Txn.sender, Txn.approval_program      throwaway/contract.py:20
+    uncover 2             //                                           load tmp%1#0 from l-stack (no copy) tmp%2#0,tmp%0#0,tmp%1#0                                                              return Txn.num_app_args, Txn.sender, Txn.approval_program      throwaway/contract.py:20
+    uncover 2             //                                           load tmp%2#0 from l-stack (no copy) tmp%0#0,tmp%1#0,tmp%2#0                                                              return Txn.num_app_args, Txn.sender, Txn.approval_program      throwaway/contract.py:20
+    retsub                //                                                                               tmp%0#0,tmp%1#0,tmp%2#0                                                              return Txn.num_app_args, Txn.sender, Txn.approval_program      throwaway/contract.py:20
+
