@@ -276,12 +276,18 @@ class ARC4Tuple(ARC4Type):
         types = tuple(types)
         if not types:
             raise ValueError("arc4.Tuple needs types")
+        immutable = True
         for typ in types:
             if not is_arc4_encoded_type(typ):
                 raise ValueError(f"Invalid type for arc4.Tuple: {typ}")
+            # this seems counterintuitive, but is necessary.
+            # despite the overall collection remaining stable, since ARC4 types
+            # are encoded as a single value, if items within the tuple can be mutated,
+            # then the overall value is also mutable
+            immutable = immutable and typ.immutable
         name = f"arc4.tuple<{','.join([t.name for t in types])}>"
         python_name = f"{constants.CLS_ARC4_TUPLE}[{', '.join(map(str, types))}]"
-        return cls(name=name, stub_name=python_name, types=types)
+        return cls(name=name, stub_name=python_name, types=types, immutable=immutable)
 
 
 @typing.final
