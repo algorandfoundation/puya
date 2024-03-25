@@ -4,7 +4,7 @@ Like in any programming language, types and data structures are a crucial progra
 
 Algorand Python lets you create variables in a number of contexts:
 
--   [Module constants](#module-constants-and-local-variables) for compile-time constant values
+-   [Module constants](./lg-modules.md#module-constants) for compile-time constant values
 -   Class variables to hold [global and local state](./lg-state.md)
 -   [Local variables](#module-constants-and-local-variables) within a subroutine to hold intermediate results
 -   [Subroutine parameters](./lg-structure.md#subroutines) to allow values to be passed around between calls
@@ -14,29 +14,6 @@ There three sets of datatypes available to assign variables as:
 1. **AVM primitive (stack) types** - types that directly align to types that are [available to the Algorand Virtual Machine](https://developer.algorand.org/docs/get-details/dapps/avm/teal/specification/#stack-types)
 2. **ARC-4 types** - types that conform to the [ARC-4 spec](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md)
 3. **Reference types** - types that represent reference types, e.g. accounts, assets, etc.
-
-## Module constants and local variables
-
-Module constants are compile-time constant, and can contain `int` literals. Local variables use normal Python variable syntax.
-
-Example:
-
-```python
-from puyapy import UInt64, subroutine
-
-SCALE = 100000
-SCALED_PI = 314159
-
-@subroutine
-def circle_area(radius: UInt64) -> UInt64:
-    scaled_result = SCALED_PI * radius**2
-    result = scaled_result // SCALE
-    return result
-
-@subroutine
-def circle_area_100() -> UInt64:
-    return circle_area(UInt64(100))
-```
 
 ## AVM primitive types
 
