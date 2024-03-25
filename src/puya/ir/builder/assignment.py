@@ -44,6 +44,12 @@ def handle_assignment(
 ) -> Sequence[Value]:
     match target:
         case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
+            if var_name in (p.name for p in context.subroutine.parameters if p.implicit_return):
+                raise CodeError(
+                    f"Cannot reassign mutable parameter {var_name!r}"
+                    " which is being passed by reference",
+                    assignment_location,
+                )
             return assign(
                 context,
                 source=value,
