@@ -1,25 +1,208 @@
 # ARC-4: Application Binary Interface
 
+[ARC4](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md) defines a set of encodings and behaviors for authoring and interacting with an Algorand Smart Contract. It is not the only way to author a smart contract, but adhering to it will make it easier for other clients and users to interop with your contract.
+
+To author an arc4 contract you should extend the `ARC4Contract` base class.
+
+```python
+from puyapy import ARC4Contract
+
+class HelloWorldContract(ARC4Contract):
+    ...
+```
+
 ## ARC-32
 
-## Router
+[ARC32](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0032.md) extends the concepts in ARC4 to include an Application Specification which more holistically describes a smart contract and its associated state.
+
+To output an ARC32 Application Specification file from the compiler, use the `--output-arc32` flag.
+
+```shell
+puyapy path/to/contract --output-arc32
+```
 
 ## Methods
 
-## Static types
+Individual methods on a smart contract should be annotated with an `abimethod` decorator. This decorator is used to indicate a method which should be externally callable. The decorator itself includes properties to restrict when the method should be callable, for instance only when the application is being created or only when the OnComplete action is OptIn.
+
+A method that should not be externally available should be annotated with a `subroutine` decorator.
+
+```python
+from puyapy import ARC4Contract, subroutine, arc4
+
+
+class HelloWorldContract(ARC4Contract):
+    @arc4.abimethod(create=False, allow_actions=["NoOp", "OptIn"], name="external_name")
+    def hello(self, name: arc4.String) -> arc4.String:
+        return self.internal_method() + name
+
+    @subroutine
+    def internal_method(self) -> arc4.String:
+        return arc4.String("Hello, ")
+```
+
+## Router
+
+Algorand Smart Contracts only have two possible programs that are invoked when making an ApplicationCall Transaction (`appl`). The "clear state" program which is called when using an OnComplete action of `ClearState` or the "approval" program which is called for all other OnComplete actions.
+
+Routing is required to dispatch calls handled by the approval program to the relevant ABI methods. When extending `ARC4Contract`, the routing code is automatically generated for you by the PuyaPy compiler.  
+
+## Types
+
+ARC4 defines a number of [data types](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md#types) which can be used in an ARC4 compatible contract and details how these types should be encoded in binary.
+
+Algorand Python exposes these through a number of types which can be imported from the `puyapy.arc4` module. These types represent binary encoded values following the rules prescribed in the ARC which can mean operations performed directly on these types are not as efficient as ones performed on natively supported types (such as `puyapy.UInt64` or `puyapy.Bytes`)
+
+Where supported, the native equivalent of an ARC4 type can be obtained via the `.native` property. It is possible to use native types in an ABI method and the router will automatically encode and decode these types to their ARC4 equivalent.
 
 ### Booleans
 
+**Type:** `puyapy.arc4.Bool`
+**Encoding:** A single byte where the most significant bit is `1` for `True` and `0` for `False`
+**Native equivalent:** `builtins.bool`
+
 ### Unsigned ints
+
+**Types:** `puyapy.arc4.UIntN` (<= 64 bits) `puyapy.arc4.BigUIntN` (> 64 bits)
+**Encoding:** A big endian byte array of N bits
+**Native equivalent:** `puyapy.UInt64` or `puya.py.BigUInt`
+
+Common bit sizes have also been aliased under `puyapy.arc4.UInt8`, `puyapy.arc4.UInt16` etc. A uint of any size between 8 and 512 bits (in intervals of 8bits) can be created using a generic parameter. It can be helpful to define your own alias for this type. 
+
+```python
+import typing as t
+from puyapy import arc4
+
+UInt40: t.TypeAlias = arc4.UIntN[t.Literal[40]]
+```
+
+### Unsigned fixed point decimals
+
+**Types:** `puyapy.arc4.UFixedNxM` (<= 64 bits) `puyapy.arc4.BigUFixedNxM` (> 64 bits)
+**Encoding:** A big endian byte array of N bits where `encoded_value = value / (10^M)`
+**Native equivalent:** _none_
+
+```python
+import typing as t
+from puyapy import arc4
+
+Decimal: t.TypeAlias = arc4.UFixedNxM[t.Literal[64], t.Literal[10]]
+```
 
 ### Bytes and strings
 
+**Types:** `puyapy.arc4.DynamicBytes` and `puyapy.arc4.String` 
+**Encoding:** A variable length byte array prefixed with a 16-bit big endian header indicating the length of the data
+**Native equivalent:** `puyapy.Bytes` and `puyapy.String`
+
+Strings are assumed to be utf-8 encoded and the length of a string is the total number of bytes, _not the total number of characters_. 
+
 ### Static arrays
 
-### Static tuples
+**Type:** `puyapy.arc4.StaticArray`
+**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
+**Native equivalent:** _none_
+
+An ARC4 StaticArray is an array of a fixed size. The item type is specified by the first generic parameter and the size is specified by the second. 
+
+```python
+import typing as t
+from puyapy import arc4
+
+FourBytes: t.TypeAlias = arc4.StaticArray[arc4.Byte, t.Literal[4]]
+```
+
+### Dynamic arrays
+
+**Type:** `puyapy.arc4.DynamicArray`
+**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
+**Native equivalent:** _none_
+
+An ARC4 DynamicArray is an array of a variable size. The item type is specified by the first generic parameter. Items can be added and removed via `.pop`, `.append`, and `.extend`. 
+
+The current length of the array is encoded in a 16-bit prefix similar to the `arc4.DynamicBytes` and `arc4.String` types
+
+```python
+import typing as t
+from puyapy import arc4
+
+UInt64Array: t.TypeAlias = arc4.DynamicArray[arc4.UInt64]
+```
+
+### Tuples
+
+**Type:** `puyapy.arc4.Tuple`
+**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
+**Native equivalent:** `builtins.tuple`
+
+ARC4 Tuples are immutable statically sized arrays of mixed item types. Item types can be specified via generic parameters or inferred from constructor parameters.
+
+### Structs
+
+**Type:** `puyapy.arc4.Struct`
+**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
+**Native equivalent:** _none_
+
+ARC4 Structs are mutable named tuples. Items can be accessed and mutated via names instead of indexes.
+
+```python
+import typing
+
+from puyapy import arc4
+
+Decimal: typing.TypeAlias = arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+
+class Vector(arc4.Struct, kw_only=True):
+    x: Decimal
+    y: Decimal
+```
+
+### ARC4 Container Packing
+
+ARC4 encoding rules are detailed explicitly in the [ARC](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md#encoding-rules). A summary is included here.
+
+Containers are composed of a head and tail portion. 
+ - For dynamic arrays, the head is prefixed with the length of the array encoded as a 16-bit number. This prefix is not included in offset calculation
+ - For fixed sized items (eg. Bool, UIntN, or a StaticArray of UIntN), the item is included in the head
+ - Consecutive Bool items are compressed into the minimum number of whole bytes possible by using a single bit to represent each Bool
+ - For variable sized items (eg. DynamicArray, String etc), a pointer is included to the head and the data is added to the tail. This pointer represents the offset from the start of the head to the start of the item data in the tail.
+
 
 ### Reference types
 
-## Dynamic types
+**Types:** `puyapy.Account`, `puyapy.Application`, `puyapy.Asset`, `puyapy.gtxn.PaymentTransaction`, `puyapy.gtxn.KeyRegistrationTransaction`, `puyapy.gtxn.AssetConfigTransaction`, `puyapy.gtxn.AssetTransferTransaction`, `puyapy.gtxn.AssetFreezeTransaction`, `puyapy.gtxn.ApplicationCallTransaction` 
+
+The ARC4 specification allows for using a number of [reference types](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md#reference-types) in an ABI method signature where this reference type refers to...
+ - another transaction in the group
+ - an account in the accounts array (`apat` property of the transaction)
+ - an asset in the foreign assets array (`apas` property of the transaction)
+ - an application in the foreign apps array (`apfa` property of the transaction)
+
+These types can only be used as parameters, and not as return types.
+
+```python
+from puyapy import (
+    Account,
+    Application,
+    ARC4Contract,
+    Asset,
+    arc4,
+    gtxn,
+)
+
+class Reference(ARC4Contract):
+    @arc4.abimethod
+    def with_transactions(
+        self,
+        asset: Asset,
+        pay: gtxn.PaymentTransaction,
+        account: Account,
+        app: Application,
+        axfr: gtxn.AssetTransferTransaction        
+    ) -> None:
+        ...
+
+```
+
 
 ## Typed clients
