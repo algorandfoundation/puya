@@ -297,6 +297,12 @@ class ARC4ArrayExpressionBuilder(ValueExpressionBuilder, ABC):
     wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray
 
     def iterate(self) -> Iteration:
+        if not self.wtype.element_type.immutable:
+            logger.error(
+                "Cannot directly iterate an ARC4 array of mutable objects,"
+                " construct a for-loop over the indexes via urange(<array>.length) instead",
+                location=self.source_location,
+            )
         return self.rvalue()
 
     def index(

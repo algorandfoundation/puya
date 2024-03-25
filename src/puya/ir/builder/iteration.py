@@ -139,6 +139,13 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_items=reverse_items,
             )
         case awst_nodes.Expression(
+            wtype=wtypes.ARC4Array(element_type=wtypes.WType(immutable=False))
+        ):
+            raise InternalError(
+                "Attempted iteration of an ARC4 array of mutable objects",
+                sequence.source_location,
+            )
+        case awst_nodes.Expression(
             wtype=wtypes.ARC4DynamicArray() as dynamic_array_wtype
         ) as arc4_dynamic_array_expression:
             iterator = arc4.build_for_in_dynamic_array(

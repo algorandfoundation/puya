@@ -1,3 +1,7 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
 ## case: test_typing_interactions
 
 import typing
@@ -66,3 +70,36 @@ class ContractWithUndefinedVariable(Contract):
 
     def clear_state_program(self) -> bool:
         return True
+
+
+
+## case: test_arc4_mutable_iteration
+
+from algopy import *
+
+@subroutine
+def okay1() -> None:
+    arr = arc4.DynamicBytes()
+    for b in arr:
+        assert b
+
+@subroutine
+def baddie1() -> None:
+    arr_of_arr = arc4.DynamicArray[arc4.DynamicBytes]()
+    for arr in arr_of_arr: ## E: Cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
+        arr.append(arc4.Byte(1))
+
+
+@subroutine
+def okay2() -> None:
+    arr_of_tup = arc4.DynamicArray[arc4.Tuple[arc4.UInt64, arc4.UInt64]]()
+    for tup in arr_of_tup:
+        assert tup[0] == tup[1]
+
+
+@subroutine
+def baddie2() -> None:
+    arr_of_tup_with_arr = arc4.DynamicArray[arc4.Tuple[arc4.DynamicBytes, arc4.UInt64]]()
+    for tup in arr_of_tup_with_arr: ## E: Cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
+        tup[0].append(arc4.Byte(1))
+
