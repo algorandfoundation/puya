@@ -7,7 +7,7 @@ Algorand Python lets you create variables in a number of contexts:
 -   [Module constants](#module-constants-and-local-variables) for compile-time constant values
 -   Class variables to hold [global and local state](./lg-state.md)
 -   [Local variables](#module-constants-and-local-variables) within a subroutine to hold intermediate results
--   [Subroutine parameters](./lg-subroutines.md) to allow values to be passed around between calls
+-   [Subroutine parameters](./lg-structure.md#subroutines) to allow values to be passed around between calls
 
 There three sets of datatypes available to assign variables as:
 
@@ -75,6 +75,8 @@ if (num2 < 300):
 ```
 
 [See a full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/uint64.py).
+
+### bool
 
 ### Bytes
 
@@ -185,13 +187,23 @@ bitwise_and = big_num & 0xFF
 bitwise_or = big_num | 0x0F
 bitwise_xor = big_num ^ 0x0F
 ```
+## Reference types
+
+### Account
+
+### Asset
+
+### Application
+
+## None
+not supported as a value, only as an indicator of "void" returning function
+
+## tuples
+
+## TemplateVar
 
 ## ARC-4 types
 
 ARC-4 data types are a first class concept in Algorand Python. They can be passed into ARC-4 methods (which will translate to the relevant ARC-4 method signature), passed into subroutines, or instantiated into local variables. A limited set of operations are exposed on some ARC-4 types, but often it may make sense to convert the ARC-4 value to a native AVM type, in which case you can use the `native` property to retrieve the value. Most of the ARC-4 types also allow for mutation e.g. you can edit values in arrays by index.
 
 Please see the [reference documentation](./api-puyapy.arc4.md) for the different classes that can be used to represent ARC-4 values or the [ARC-4 documentation](./lg-arc4.md) for more information.
-
-## Python built-in types
-
-Note that Python builtin types such as `int` and `str` cannot be used as variables at this stage for semantic compatibility reasons, however you can define module level constants of this type, and integer literals are permitted in expressions. This may change in a future version of Algorand Python, but for now semantic compatibility and type explictness are favoured.

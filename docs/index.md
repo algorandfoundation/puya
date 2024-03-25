@@ -1,29 +1,30 @@
-# Algorand Python & PuyaPy: Python to TEAL compiler
+# Algorand Python & PuyaPy: <br/> An optimising Python to TEAL compiler
 
-Algorand Python is a semantically and syntactically compatible, typed Python language that works with standard Python tooling and allows you to express smart contracts (apps) and smart signatures (logic signatures) for deployment on the Algorand Virtual Machine (AVM).
+Algorand Python is a semantically and syntactically compatible, typed Python language that works 
+with standard Python tooling and allows you to develop smart contracts (apps) and smart signatures
+(logic signatures) for deployment on the Algorand Virtual Machine (AVM).
 
-This is done by compiling Algorand Python using the Puya compiler, which takes Algorand Python and outputs valid, optimised TEAL code with execution semantics that match the given Python code.
+This is done by compiling Algorand Python using the PuyaPy compiler, which takes the Python code
+and outputs valid TEAL code with execution semantics that match the given Python code.
 
-[Project background and guiding principles](principles.md).
-
-PuyaPy supports a statically-typed subset of valid Python syntax. Importantly, that subset has
+Algorand Python is a statically-typed subset of valid Python syntax. Importantly, that subset has
 identical semantics when comparing Python behaviour and behaviour of the executed TEAL.
-For example, `foo = spam() or eggs()` will only execute `eggs()` if `bool(spam())` is `False`.
 
 ## Compiler installation
 
-The minimum supported Python version for running PuyaPy itself is 3.12.
+The minimum supported Python version for running the PuyaPy compiler is 3.12.
 
-You can install the developer preview of PuyaPy from PyPI into your project virtualenv:
+You can install PuyaPy globally using [pipx](https://pipx.pypa.io/stable/):
 
 ```shell
-pip install puya
+pipx install puya
 ```
 
-Alternatively, if you're using poetry for dependency and virutalenv management, you can add it that way with:
+Alternatively, it can be installed per project. For example, if you're using [poetry](https://python-poetry.org),
+you can install it as a dev-dependency like so: 
 
 ```shell
-poetry add puya
+poetry add -G dev puya
 ```
 
 Or if you just want to play with some examples, you can clone the repo and have a poke around:
@@ -33,28 +34,29 @@ git clone https://github.com/algorandfoundation/puya.git
 cd puya
 poetry install
 poetry shell
+# compile the "Hello World" example
+puyapy examples/hello_world
 ```
-
-Note that with this method you'll need to activate the virtual environment created by poetry
-before using the puyapy command in each new shell that you open - you can do this by running
-`poetry shell` in the `puya` directory.
 
 ## Compiler usage
 
-To check that you can run the `puyapy` command successfully after that, you can run the help command:
+To check that you can run the `puyapy` command successfully after installation, you can run the 
+help command:
 
-`puyapy -h`
+    puyapy -h
 
 To compile a contract or contracts, just supply the path(s) - either to the .py files themselves,
-or the containing directories. In the case of containing directories, any contracts discovered
-therein will be compiled, allowing you to compile multiple contracts at once. You can also supply
-more than one path at a time to the compiler.
+or the containing directories. In the case of containing directories, any (non-abstract) contracts 
+discovered therein will be compiled, allowing you to compile multiple contracts at once. You can 
+also supply more than one path at a time to the compiler.
 
-e.g. `puyapy my_project/` or `puyapy my_project/contract.py` will work to compile a single contract.
+e.g. either `puyapy my_project/` or `puyapy my_project/contract.py` will work to compile a single contract.
 
-## Language fundamentals
+! TODO: make and link a page with all compiler CLI options
 
-For more in depth details see our [Language Guide](language_guide.md).
+## Programming with Algorand Python
+
+To get started developing with Python on Algorand, please take a look at our [Language Guide](language-guide.md).
 
 ```{toctree}
 ---
@@ -63,7 +65,7 @@ caption: Contents
 hidden: true
 ---
 
-language_guide
+language-guide
 principles
 api
 ```

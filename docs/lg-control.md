@@ -23,10 +23,10 @@ Ternary conditions work the same as Python. The condition must be an expression 
 
 ```python
 value1 = UInt64(5)
-value2 = String(">6" if value1 > 6 else "<=6")
+value2 = String(">6") if value1 > 6 else String("<=6")
 ```
 
-# While loops
+## While loops
 
 While loops work the same as Python. The condition must be an expression that evaluates to bool, which can include a [String or Uint64](./lg-types.md) among others.
 
@@ -37,9 +37,11 @@ while condition:
     # block of code to execute if condition is True
 ```
 
+TODO: while-else not supported
+
 [See full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/unssa/contract.py#L32-L83).
 
-# For Loops
+## For Loops
 
 For loops are used to iterate over sequences, ranges and [ARC-4 arrays](./lg-arc4.md). They work the same as Python.
 
@@ -64,9 +66,11 @@ assert test_array.bytes == Bytes.from_hex("03020100")
 
 [See full](https://github.com/algorandfoundation/puya/blob/main/test_cases/reversed_iteration/contract.py) [examples](https://github.com/algorandfoundation/puya/blob/main/test_cases/nested_loops/contract.py).
 
+TODO: for-else not supported
+
 ## Match Statements
 
-Match statements work the same as Python and work for all [Algorand Python types](./lg-types.md).
+Match statements work the same as Python and work for [...]
 
 ```python
 match value:
@@ -79,3 +83,5 @@ match value:
 ```
 
 [See full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/match/contract.py).
+
+TODO: captures not supported, patterns not supported, etc, only basic "case/switch" functionality

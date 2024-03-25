@@ -29,7 +29,11 @@ class ABIContract(puyapy.ARC4Contract):
     pass
 ```
 
-## Switching based on on-complete and contract creation
+## Contract classes
+
+TODO: concrete vs abstract, link to inheritance for code-reuse
+
+### Switching based on on-complete and contract creation
 
 A common pattern is to perform different logic depending on the on-complete action passed to the contract call or whether the contract is being created or not. This is [handled for you when creating ARC-4 contracts](./lg-arc4.md), but if you are creating a contract by hand then following is an example of how you could potentially split based on on-complete and creation:
 
@@ -71,3 +75,13 @@ class ManualRouting(Contract):
         log("other", Txn.on_completion, Txn.num_app_args)
 
 ```
+## Subroutines
+
+TODO: no *args, **kwargs support
+
+## Modules & sub-modules
+
+- multiple contracts per module
+- modules with no contracts
+- importing other modules
+- link to lg-modules.md for more details about supported module level code

@@ -1,4 +1,4 @@
-# ARC-4
+# ARC-4: Application Binary Interface
 
 ## ARC-32
 
@@ -21,3 +21,5 @@
 ### Reference types
 
 ## Dynamic types
+
+## Typed clients
