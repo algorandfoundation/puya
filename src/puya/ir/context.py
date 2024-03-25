@@ -1,6 +1,7 @@
 import contextlib
 import itertools
 import typing
+from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
 
 import attrs
@@ -152,7 +153,9 @@ class IRFunctionBuildContext(IRBuildContextWithFallback):
     subroutine: Subroutine
     visitor: "FunctionIRBuilder"
     block_builder: BlocksBuilder = attrs.field()
-    _tmp_counters: dict[str, Iterator[int]] = attrs.field(factory=dict)
+    _tmp_counters: defaultdict[str, Iterator[int]] = attrs.field(
+        factory=lambda: defaultdict(itertools.count)
+    )
 
     @property
     def ssa(self) -> BraunSSA:
@@ -163,5 +166,5 @@ class IRFunctionBuildContext(IRBuildContextWithFallback):
         return BlocksBuilder(self.subroutine.parameters, self.function.source_location)
 
     def next_tmp_name(self, description: str) -> str:
-        counter_value = next(self._tmp_counters.setdefault(description, itertools.count()))
+        counter_value = next(self._tmp_counters[description])
         return f"{description}{TMP_VAR_INDICATOR}{counter_value}"
