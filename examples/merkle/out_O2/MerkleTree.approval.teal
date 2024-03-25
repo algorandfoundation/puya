@@ -59,59 +59,59 @@ verify:
     frame_dig -2
     frame_dig -1
     callsub compute_root_hash
-    frame_bury -1
     frame_bury -2
     ==
     retsub
 
 
-// examples.merkle.contract.MerkleTree.compute_root_hash(proof: bytes, leaf: bytes) -> bytes, bytes, bytes:
+// examples.merkle.contract.compute_root_hash(proof: bytes, leaf: bytes) -> bytes, bytes:
 compute_root_hash:
-    proto 2 3
+    proto 2 2
+    byte ""
     frame_dig -2
     int 0
     extract_uint16
-    frame_dig -2
-    extract 2 0
-    int 0
     frame_dig -1
+    int 0
 
 compute_root_hash_for_header@1:
-    frame_dig 2
-    frame_dig 0
+    frame_dig 3
+    frame_dig 1
     <
-    bz compute_root_hash_after_for@4
-    frame_dig 2
     dup
+    frame_bury 0
+    bz compute_root_hash_after_for@5
+    frame_dig 0
+    assert // Index access is out of bounds
+    frame_dig -2
+    extract 2 0
+    frame_dig 3
+    dup
+    cover 2
     int 32
     *
-    frame_dig 1
-    swap
     int 32
     extract3
-    frame_dig 3
+    frame_dig 2
     swap
     callsub hash_pair
-    popn 2
-    frame_bury 3
+    frame_bury 2
     int 1
     +
-    frame_bury 2
+    frame_bury 3
     b compute_root_hash_for_header@1
 
-compute_root_hash_after_for@4:
-    frame_dig 3
+compute_root_hash_after_for@5:
+    frame_dig 2
     frame_dig -2
-    frame_dig -1
-    frame_bury 2
     frame_bury 1
     frame_bury 0
     retsub
 
 
-// examples.merkle.contract.MerkleTree.hash_pair(a: bytes, b: bytes) -> bytes, bytes, bytes:
+// examples.merkle.contract.hash_pair(a: bytes, b: bytes) -> bytes:
 hash_pair:
-    proto 2 3
+    proto 2 1
     frame_dig -2
     frame_dig -1
     b<
@@ -128,6 +128,4 @@ hash_pair_ternary_false@2:
 
 hash_pair_ternary_merge@3:
     sha256
-    frame_dig -2
-    frame_dig -1
     retsub
