@@ -104,3 +104,13 @@ def testC(x: C) -> None: ## E: UFixedNxM scale must be >=8 and <=64 bits, and be
 @subroutine
 def testD(x: D) -> None: ## E: BigUFixedNxM scale must be >64 and <=512 bits, and be a multiple of 8
     assert x
+
+
+## case: test_arc4_tuple_immutable
+from algopy import arc4
+
+class NotOkay(arc4.ARC4Contract):
+    @arc4.abimethod
+    def not_okay(self) -> None:
+        t = arc4.Tuple((arc4.UInt64(1), arc4.UInt8(1)))
+        t[0] = arc4.UInt64(2)  # type: ignore ## E: expression is not valid as assignment target (algopy.arc4.Tuple[algopy.arc4.UInt64, algopy.arc4.UInt8] is immutable)
