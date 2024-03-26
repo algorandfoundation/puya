@@ -34,6 +34,8 @@ class Arc4StringTypesContract(Contract):
         value += arc4.String("f")
         value += arc4.String("g")
         assert arc4.String("abcdefg") == value
+
+        assert arc4.String().native == ""
         return True
 
     def clear_state_program(self) -> bool:

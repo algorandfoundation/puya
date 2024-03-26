@@ -50,7 +50,9 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         if not args:
-            return var_expression(StringConstant(value="", source_location=location))
+            return var_expression(
+                arc4_encode_bytes(StringConstant(value="", source_location=location), location)
+            )
         if len(args) == 1:
             return var_expression(expect_string_or_bytes(args[0], location))
         raise CodeError("Invalid/unhandled arguments", location)
