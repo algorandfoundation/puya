@@ -8,7 +8,7 @@ class StateProxyContract(ARC4Contract):
         self.global1 = GlobalState(UInt64, key="g1", description="g1 description")
         self.global2 = GlobalState(UInt64(0), key=b"g2", description="g2 description")
 
-    @arc4.abimethod(allow_actions=["OptIn"], create=True)
+    @arc4.abimethod(allow_actions=["OptIn"], create="require")
     def create(self) -> None:
         self.global1.value = UInt64(1)
         self.local1[Txn.sender] = UInt64(2)

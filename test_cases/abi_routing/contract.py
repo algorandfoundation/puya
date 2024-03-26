@@ -56,7 +56,7 @@ class Reference(ARC4Contract):
             "CloseOut",
             "DeleteApplication",
         ],
-        create=False,
+        create="disallow",
         readonly=True,
     )
     def mixed_oca(self, a: arc4.UInt64) -> arc4.UInt8:
@@ -71,7 +71,7 @@ class Reference(ARC4Contract):
             "UpdateApplication",
             "DeleteApplication",
         ],
-        create=True,
+        create="require",
     )
     def bare_abi_config(self) -> None:
         log(b"Hello World")

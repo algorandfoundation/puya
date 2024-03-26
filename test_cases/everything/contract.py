@@ -38,7 +38,7 @@ class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     def __init__(self) -> None:
         self.name = LocalState(String)
 
-    @abimethod(create=True)
+    @abimethod(create="require")
     def create(self) -> None:
         self._check_ban_list()
         self.remember_creator()
