@@ -51,9 +51,19 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
             block@12: // after_for_L32
                 let tmp%14#0: uint64 = (== total#5 20u)
                 (assert tmp%14#0) // Total should now include sum of dynamic_bytes3 items
+                let concatenated%0#0: bytes = 0x0304616263
+                let len_%0#0: uint64 = (len concatenated%0#0)
+                let len_bytes%0#0: bytes = (itob len_%0#0)
+                let len_16_bit%0#0: bytes = ((extract 6 0) len_bytes%0#0)
+                let dynamic_bytes3#2: bytes = (concat len_16_bit%0#0 concatenated%0#0)
+                let tmp%15#0: uint64 = (== dynamic_bytes3#2 "\x00\x05\x03\x04abc")
+                (assert tmp%15#0)
+                let tmp%16#0: bytes = ((extract 2 0) dynamic_bytes3#2)
+                let tmp%17#0: uint64 = (== tmp%16#0 "\x03\x04abc")
+                (assert tmp%17#0)
                 return 1u
     
     program clear-state:
         subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program() -> uint64:
-            block@0: // L38
+            block@0: // L43
                 return 1u
