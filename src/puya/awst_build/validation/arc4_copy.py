@@ -42,16 +42,6 @@ class ARC4CopyValidator(AWSTTraverser):
         return False
 
     @staticmethod
-    def _is_state_expression(expr: awst_nodes.Expression) -> bool:
-        """
-        Returns True if expr represents a state expression
-        """
-        match expr:
-            case (awst_nodes.AppStateExpression() | awst_nodes.AppAccountStateExpression()):
-                return True
-        return False
-
-    @staticmethod
     def _is_arc4_mutable(wtype: wtypes.WType) -> bool:
         """
         Returns True if expr represents an arc4 type that is mutable
