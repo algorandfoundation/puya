@@ -4,16 +4,13 @@ Algorand Python is a semantically and syntactically compatible, typed Python lan
 with standard Python tooling and allows you to develop smart contracts (apps) and smart signatures
 (logic signatures) for deployment on the Algorand Virtual Machine (AVM).
 
-Algorand Python can be deployed to Algorand by using the PuyaPy compiler, which takes Algorand Python and outputs [ARC-32](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0032.md) application spec files which, [when deployed](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients), will result in optimised AVM bytecode execution semantics that match the given Python code.
-
-Algorand Python is a statically-typed subset of valid Python syntax. Importantly, that subset has
-matching semantics when comparing Python behaviour and behaviour of the executed AVM bytecode.
+Algorand Python can be deployed to Algorand by using the PuyaPy optimising compiler, which takes Algorand Python and outputs [ARC-32](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0032.md) application spec files (among other formats) which, [when deployed](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients), will result in AVM bytecode execution semantics that match the given Python code.
 
 ## Compiler installation
 
 The minimum supported Python version for running the PuyaPy compiler is 3.12.
 
-You can install PuyaPy globally using [pipx](https://pipx.pypa.io/stable/):
+You can install the PuyaPy compiler globally using [pipx](https://pipx.pypa.io/stable/):
 
 ```shell
 pipx install puya
