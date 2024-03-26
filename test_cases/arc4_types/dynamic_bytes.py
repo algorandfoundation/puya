@@ -25,14 +25,19 @@ class Arc4DynamicBytesContract(Contract):
         for uint8_item in dynamic_bytes2:
             total += uint8_item.native
 
-        dynamic_bytes3 = DynamicBytes(dynamic_bytes2.native)
-        assert dynamic_bytes3.native == b"\x03\x04"
-        assert dynamic_bytes3.bytes == b"\x00\x02\x03\x04"
-
         for uint8_item in dynamic_bytes2:
             total += uint8_item.native
 
         assert total == 20, "Total should now include sum of dynamic_bytes3 items"
+
+        dynamic_bytes3 = DynamicBytes(dynamic_bytes2.native)
+        assert dynamic_bytes3.native == b"\x03\x04"
+        assert dynamic_bytes3.bytes == b"\x00\x02\x03\x04"
+
+        dynamic_bytes3.extend(DynamicBytes(b"abc"))
+        assert dynamic_bytes3.bytes == b"\x00\x05\x03\x04abc"
+        assert dynamic_bytes3.native == b"\x03\x04abc"
+
         return True
 
     def clear_state_program(self) -> bool:
