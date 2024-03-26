@@ -1,6 +1,129 @@
 # CHANGELOG
 
 
+## v0.7.0 (2024-03-26)
+
+### Feature
+
+* separate stubs into their own wheel (#154) ([`9c58ae5`](https://github.com/algorandfoundation/puya/commit/9c58ae5c317a84441132400802f59fff8312c622))
+
+* Allow mutable tuple items to be updated ([`8ea6ed5`](https://github.com/algorandfoundation/puya/commit/8ea6ed5f6580e8df4beede02d3ce3cac5869fd4a))
+
+* warn if a Contract class is implicitly abstract ([`4d6317f`](https://github.com/algorandfoundation/puya/commit/4d6317f10e7e814908ceea2bfa81a78038037975))
+
+* compare `arc4.Address` against `Account` ([`3888220`](https://github.com/algorandfoundation/puya/commit/3888220c6e40a69a2b115db3e46b864915e32183))
+
+* empty constructor for arc4 numeric types, defaults to zero ([`c514753`](https://github.com/algorandfoundation/puya/commit/c514753ee24ad11b67853f81a0cd108a08ab2741))
+
+* allow bytes literal with `BytesBacked.from_bytes` ([`d47be8c`](https://github.com/algorandfoundation/puya/commit/d47be8c8b48b765cb23bb1e5467b0d72b9699309))
+
+* empty constructor for BigUInt() defaults to zero ([`c02079b`](https://github.com/algorandfoundation/puya/commit/c02079b5d84af851ed2fdab2d649eb26a41d2619))
+
+* empty constructor for UInt64() defaults to zero ([`6f79b8a`](https://github.com/algorandfoundation/puya/commit/6f79b8a2c71223b11895ae7dafd8696afc004a92))
+
+* simplify more conditions when we&#39;re in a `select` context ([`7403e7b`](https://github.com/algorandfoundation/puya/commit/7403e7b4fa664f41ccacad8f0500f98d90c19e1d))
+
+* simplify more conditions when we&#39;re in a ConditionalBranch context ([`80f0167`](https://github.com/algorandfoundation/puya/commit/80f0167ed04fc1f2c6af28df26d7ea11fad5f1b7))
+
+* simplify more conditions when we&#39;re in an assert context ([`7f89b6c`](https://github.com/algorandfoundation/puya/commit/7f89b6c706e73a7e87f01e9c762ec57a922e8060))
+
+* allow bytes optimizations to handle `addr` constants, and also `global ZeroAddress` ops ([`a508274`](https://github.com/algorandfoundation/puya/commit/a5082740f8be9a573c4d5ef45b11a08c4e855dc8))
+
+* Allow empty constructors to default to &#34;zero&#34; values for Account, Asset, Application, and arc4.Address ([`3ad9c18`](https://github.com/algorandfoundation/puya/commit/3ad9c18f6732e11323159fe143a4b1f7eb006818))
+
+* Add a validation step to confirm ops used in an app or lsig are available for those respecitve modes ([`8600d4e`](https://github.com/algorandfoundation/puya/commit/8600d4e2dd45dc3e798c31beb58775ba8a14b4cd))
+
+* add empty `arc4.Bool` constructor to mimic `bool()` ([`6175b59`](https://github.com/algorandfoundation/puya/commit/6175b594d3de06a0b00aef41e9dd9c7dea82d9c0))
+
+* remove `encode()` from ARC4 types, an ensure constructors take appropriate values. Ensure all ARC4 types have `from_log` classmethod. Remove `decode()` method and instead have a `native` property that returns decoded values where appropriate ([`146748e`](https://github.com/algorandfoundation/puya/commit/146748e1c09d5493dbd33acc74bfd4684734ad02))
+
+* Allow arc4 types to be used in native tuples in ABI methods ([`0948d83`](https://github.com/algorandfoundation/puya/commit/0948d83f7051b73f0ca84a62ff4718f0a174a2ec))
+
+* add class options for declaring storage values used in ARC32 specifications (#123) ([`5721f4a`](https://github.com/algorandfoundation/puya/commit/5721f4a5e31c58c1a2d9614bc0ff8eaf6c928474))
+
+* allow primitive String type to be used in arc4 methods ([`23fa701`](https://github.com/algorandfoundation/puya/commit/23fa7016997b24a14828fb69e5cb52c211e93fd5))
+
+* add startswith, endswith, and join to String ([`262c679`](https://github.com/algorandfoundation/puya/commit/262c679c208cf2202d65e6b628598e95063a5f12))
+
+* add primitive UTF-8 String type ([`14d35c6`](https://github.com/algorandfoundation/puya/commit/14d35c6a699b6aa54eae1824b9fed3ecd4d91c5b))
+
+* add support for emitting ARC-28 events ([`aa4a651`](https://github.com/algorandfoundation/puya/commit/aa4a6516f2a144545824df7ce31c48ecb1ba13f4))
+
+* allow TEAL optimizer to handle dup/dupn ops when removing stack shuffling of constants, and collapse any repeated elements with a dup/dupn ([`b48db43`](https://github.com/algorandfoundation/puya/commit/b48db43b5be917b534f40f7d37ec8c1ce6e34891))
+
+* added `puyapy.arc4.call_abi` for typed contract to contract calls (#112) ([`3d42df3`](https://github.com/algorandfoundation/puya/commit/3d42df36a29a3867081a79784ce554f6d66b085b))
+
+* add optimization to propagate constants found in Phi nodes resolving to the same constant value ([`1b2e504`](https://github.com/algorandfoundation/puya/commit/1b2e504a8a874323b9519fe94f1f41da54277ed4))
+
+* add is_opted_in method to Account type (#126) ([`e21dc55`](https://github.com/algorandfoundation/puya/commit/e21dc55779fbd18e432a5e57b9e4535be64a8820))
+
+* allow `gtxn.Transaction` as an ABI argument (#127) ([`e31eda8`](https://github.com/algorandfoundation/puya/commit/e31eda8c072bee1efa203427857c39257e2cbd56))
+
+* add asset and application reference types to op module (#124) ([`47741ab`](https://github.com/algorandfoundation/puya/commit/47741ab127aacee6bad6d377053df345cae0f9fb))
+
+* Template variables ([`9d93fee`](https://github.com/algorandfoundation/puya/commit/9d93fee8a089cc894c025d376c51514c789d5a1a))
+
+* pop/popn collapse optimisation ([`0b90505`](https://github.com/algorandfoundation/puya/commit/0b905050313c7eaf88df7af0496f2dcb344e2774))
+
+* Allow slicing Bytes with UInt64. Code generation has also been improved for slicing, and a potential double-evaluation has been fixed. ([`0f9dd79`](https://github.com/algorandfoundation/puya/commit/0f9dd7973283c0268ad94dc30505fe7a0f213e7c))
+
+* implement ordering comparisons for arc4.UIntN and arc4.BigUIntN types ([`f83a397`](https://github.com/algorandfoundation/puya/commit/f83a397caaf938a15be60a1df7307115faa986dc))
+
+* implement missing optimisations for self comparisons ([`24ead20`](https://github.com/algorandfoundation/puya/commit/24ead203c508971fc61d516dfda3a309e355245d))
+
+* improved constant folding, particularly with ARC4 operations ([`17216c4`](https://github.com/algorandfoundation/puya/commit/17216c433a071fb04a5f8bc372de5fbc65544ea7))
+
+* optimisation of extract_uint16/32/64 with constants ([`bf00f0d`](https://github.com/algorandfoundation/puya/commit/bf00f0d40c49ff906aedf2c8f9adfd069659e08e))
+
+* allow optimisation to concat bytes with different encodings ([`e3c6253`](https://github.com/algorandfoundation/puya/commit/e3c6253553f39ea9aa4629a6d859494c274bde29))
+
+* allow itob of a constant to flow through further optimisations ([`ea2ce28`](https://github.com/algorandfoundation/puya/commit/ea2ce28c061cbbb12c2537cf5ea4449d4dcdcca8))
+
+* implement boolean evaluation of ARC4 types ([`aaa32ad`](https://github.com/algorandfoundation/puya/commit/aaa32adafb4b3b355845095162bb34db23e3c637))
+
+* Local/GlobalState custom keys &amp; descriptions ([`e9d5084`](https://github.com/algorandfoundation/puya/commit/e9d5084c472c4ffffc015d530f049627e2f878f1))
+
+* add version option to CLI ([`44b5e7f`](https://github.com/algorandfoundation/puya/commit/44b5e7fb2d83d91a6f2462e4b5b71aeaed7df3fe))
+
+### Fix
+
+* Improve coverage of arc4_copy validator ([`b482ebe`](https://github.com/algorandfoundation/puya/commit/b482ebe12a07389e609b92d5ba57184b44130466))
+
+* arc4.String() gets incorrectly inferred as native String wtype ([`4b12156`](https://github.com/algorandfoundation/puya/commit/4b12156a311cd37b133df192a21bc4da27cf7e4f))
+
+* ensure all `index_multiple` methods have the same signature ([`0c93a47`](https://github.com/algorandfoundation/puya/commit/0c93a47a6f155f3fee42249d0e4a1077557d490c))
+
+* treat ARC4 Tuples with mutable elements as mutable overall ([`7f7a4b6`](https://github.com/algorandfoundation/puya/commit/7f7a4b620ddd52f8fc58bf55e06171345fb875d3))
+
+* fix source location for function signatures ([`14b9eb3`](https://github.com/algorandfoundation/puya/commit/14b9eb31a369f993596a46d053a9db1b57586e0b))
+
+* use repr for literal validation errors ([`2d0feee`](https://github.com/algorandfoundation/puya/commit/2d0feee21828813eb3a67e19a24f2bf635972477))
+
+* add some missing positional-only indicators to stubs, and relax typing.LiteralString to str, it&#39;s not really applicable for our use case ([`f5031a5`](https://github.com/algorandfoundation/puya/commit/f5031a5e88a72b397cbf2cc6ef82c46e3a61e630))
+
+* don&#39;t implicitly map [32]byte to Account in stubs ([`668c2e0`](https://github.com/algorandfoundation/puya/commit/668c2e09afde4a5d372155921de1fa979cefe0c3))
+
+* consistent usage of positional-only arguments in stubs ([`547d62c`](https://github.com/algorandfoundation/puya/commit/547d62c4d1f0f507d3dfda90a84affec94d44f50))
+
+* produce error with incorrect arc4 numeric class usage based on bit-sizes ([`4cb6bbc`](https://github.com/algorandfoundation/puya/commit/4cb6bbc214f8dc1f402a8e2e196fe2115beab49a))
+
+* check for state exceeding known consensus parameters and warn (not an error in case the consensus parameters update before a new compiler release) ([`d65b350`](https://github.com/algorandfoundation/puya/commit/d65b3506886e984e5d607319f2a69d712a19ed61))
+
+* allow references to module constants in StateTotals args ([`550fbd3`](https://github.com/algorandfoundation/puya/commit/550fbd3a62d3929b2126baf8fdc66962269895b1))
+
+* Fix optimizer bug where differing behaviour of extract with &amp; without immediates when length is zero was not accounted for ([`6a8db34`](https://github.com/algorandfoundation/puya/commit/6a8db34e9776502f4ce677ad7d5e470b23d619e6))
+
+* handle tuple return types in method signatures ([`6d31a69`](https://github.com/algorandfoundation/puya/commit/6d31a696afc54ce09fa85ba0b540f4561abd012f))
+
+* don&#39;t inline control ops of Switch or GotoNth nodes if it would result in additional copies in destructured SSA (#130) ([`189847d`](https://github.com/algorandfoundation/puya/commit/189847d0abe26cf9402231957b7fc5fc29026731))
+
+* check for errors between each stage of compiler pipeline ([`b860e5a`](https://github.com/algorandfoundation/puya/commit/b860e5a5520e50c5b92dbe8c023a163046ad401c))
+
+* no longer eliminate expressions outside of dominators in RCE optimization (#119) ([`b6bfc0a`](https://github.com/algorandfoundation/puya/commit/b6bfc0abcb745be02780086dc6182894e1c30bc4))
+
+* Address unexpected Python behaviour in slicing, where end &gt; start would panic instead of returning an empty byte slice ([`52c1666`](https://github.com/algorandfoundation/puya/commit/52c16660985d1a6c46bbd688b0d0a930eb1f7f17))
+
+
 ## v0.6.0 (2024-02-20)
 
 ### Feature
