@@ -1,10 +1,8 @@
 # Algorand Python
 
-Algorand Python is a semantically and syntactically compatible, typed Python language that works
-with standard Python tooling and allows you to develop smart contracts (apps) and smart signatures
-(logic signatures) for deployment on the Algorand Virtual Machine (AVM).
+Algorand Python is a partial implementation of the Python programming language that runs on the AVM. It includes a statically typed framework for development of Algorand smart contracts and logic signatures, with Pythonic interfaces to underlying AVM functionality that works with standard Python tooling.
 
-Algorand Python can be deployed to Algorand by using the PuyaPy optimising compiler, which takes Algorand Python and outputs [ARC-32](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0032.md) application spec files (among other formats) which, [when deployed](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients), will result in AVM bytecode execution semantics that match the given Python code.
+Algorand Python is compiled for execution on the AVM by PuyaPy, an optimising compiler that ensures the resulting AVM bytecode execution semantics that match the given Python code. PuyaPy produces output that is directly compatible with [AlgoKit typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to make deployment and calling easy.
 
 ## Compiler installation
 
@@ -52,7 +50,7 @@ e.g. either `puyapy my_project/` or `puyapy my_project/contract.py` will work to
 
 ## Programming with Algorand Python
 
-To get started developing with Python on Algorand, please take a look at our [Language Guide](language-guide.md).
+To get started developing with Algorand Python, please take a look at the [Language Guide](language-guide.md).
 
 ```{toctree}
 ---
