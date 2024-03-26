@@ -13,7 +13,7 @@ def main() -> None:
         prog="puyapy",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--version", action="version", version=f"%(prog)s {version('puya')}")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {version('puyapy')}")
     parser.add_argument(
         "-O",
         "--optimization-level",

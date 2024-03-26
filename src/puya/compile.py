@@ -1,4 +1,6 @@
 import os
+import sys
+import sysconfig
 import typing
 from pathlib import Path
 
@@ -10,12 +12,13 @@ import mypy.modulefinder
 import mypy.nodes
 import mypy.options
 import mypy.util
+from packaging import version
 
 from puya import log
 from puya.arc32 import create_arc32_json, write_arc32_client
 from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
-from puya.errors import InternalError, log_exceptions
+from puya.errors import CodeError, InternalError, log_exceptions
 from puya.ir.main import build_module_irs, optimize_and_destructure_ir
 from puya.ir.models import (
     Contract as ContractIR,
@@ -27,11 +30,15 @@ from puya.models import CompilationArtifact, CompiledContract, CompiledLogicSign
 from puya.options import PuyaOptions
 from puya.parse import (
     TYPESHED_PATH,
+    VENDORED_STUBS_PATH,
     ParseSource,
     parse_and_typecheck,
 )
 from puya.teal.main import mir_to_teal
 from puya.utils import determine_out_dir, make_path_relative_to_cwd
+
+MIN_SUPPORTED_ALGOPY_VERSION = version.parse("1.0.0")
+MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse(f"{MIN_SUPPORTED_ALGOPY_VERSION.major + 1}.0.0")
 
 logger = log.get_logger(__name__)
 
@@ -54,9 +61,9 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
 
 def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
     mypy_options = get_mypy_options()
+
     # this generates the ASTs from the build sources, and all imported modules (recursively)
     parse_result = parse_and_typecheck(puya_options.paths, mypy_options)
-
     # Sometimes when we call back into mypy, there might be errors.
     # We don't want to crash when that happens.
     parse_result.manager.errors.set_file("<puya>", module=None, scope=None, options=mypy_options)
@@ -71,9 +78,15 @@ def parse_with_mypy(puya_options: PuyaOptions) -> CompileContext:
 
 def get_mypy_options() -> mypy.options.Options:
     mypy_opts = mypy.options.Options()
+
     # improve mypy parsing performance by using a cut-down typeshed
     mypy_opts.custom_typeshed_dir = str(TYPESHED_PATH)
     mypy_opts.abs_custom_typeshed_dir = str(TYPESHED_PATH.resolve())
+
+    # set python_executable so packages in .venv's can be found
+    mypy_opts.python_executable = _get_python_exe()
+    # ensure stubs are always on the path
+    mypy_opts.mypy_path = [str(VENDORED_STUBS_PATH)]
 
     mypy_opts.export_types = True
     mypy_opts.preserve_asts = True
@@ -156,6 +169,65 @@ def module_irs_to_teal(
 
                 result.setdefault(src, []).append(compiled)
     return result
+
+
+def _get_python_exe() -> str | None:
+    # look for VIRTUAL_ENV as we want the venv puyapy is being run against (i.e. the project),
+    # and not the venv of puya itself (which is what sys.prefix points to)
+    venv = os.getenv("VIRTUAL_ENV")
+    site_packages = None
+    if not venv:
+        python_exe = None
+        logger.info("No current activated python virtual environment")
+    else:
+        logger.info(f"Found activated python virtual environment: {venv}")
+
+        venv_paths = sysconfig.get_paths(vars={"base": venv})
+
+        python_exe = Path(venv_paths["scripts"]) / Path(sys.executable).name
+        logger.debug(f"Using python executable: {python_exe}")
+        if not python_exe.exists():
+            logger.warning(
+                "Found an activated virtual environment, but could not find the expected"
+                f" python interpreter: {python_exe}"
+            )
+        # use glob here, as we don't want to limit the python version
+        discovered_site_packages = list(
+            Path(venv).glob(str(Path("[Ll]ib") / "**" / "site-packages"))
+        )
+        try:
+            (site_packages,) = discovered_site_packages
+        except ValueError:
+            logger.warning(
+                "Found an activated virtual environment, but could not find the expected"
+                f" site-packages: {venv=}, {discovered_site_packages=}"
+            )
+        else:
+            logger.debug(f"Using python site-packages: {site_packages}")
+    _check_algopy_version(site_packages)
+    return str(python_exe) if python_exe else None
+
+
+def _check_algopy_version(site_packages: Path | None) -> None:
+    from importlib import metadata
+
+    if site_packages:
+        pkgs = metadata.Distribution.discover(name="algorand-python", path=[str(site_packages)])
+    else:
+        pkgs = metadata.Distribution.discover(name="algorand-python")
+    try:
+        (algopy,) = pkgs
+    except ValueError:
+        logger.warning("Could not determine algopy version")
+        return
+    algopy_version = version.parse(algopy.version)
+    logger.debug(f"Found algopy: {algopy_version}")
+
+    if not (MIN_SUPPORTED_ALGOPY_VERSION <= algopy_version < MAX_SUPPORTED_ALGOPY_VERSION_EX):
+        raise CodeError(
+            f"algopy version {algopy_version} is outside the supported range:"
+            f" >={MIN_SUPPORTED_ALGOPY_VERSION}, <{MAX_SUPPORTED_ALGOPY_VERSION_EX}"
+        )
 
 
 def _contract_ir_to_teal(

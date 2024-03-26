@@ -19,7 +19,7 @@ SCRIPTS_DIR = Path(__file__).parent
 VCS_ROOT = SCRIPTS_DIR.parent
 SRC_DIR = VCS_ROOT / "src"
 DOCS_DIR = VCS_ROOT / "docs"
-STUBS_DIR = SRC_DIR / "algopy-stubs"
+STUBS_DIR = VCS_ROOT / "stubs" / "algopy-stubs"
 STUBS_DOC_DIR = DOCS_DIR / "algopy-stubs"
 
 

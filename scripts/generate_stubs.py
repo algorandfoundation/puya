@@ -1047,7 +1047,7 @@ def output_stub(
     for class_op in class_ops:
         stub.extend(build_stub_class(class_op))
 
-    stub_out_path = VCS_ROOT / "src" / "algopy-stubs" / f"{STUB_NAMESPACE}.pyi"
+    stub_out_path = VCS_ROOT / "stubs" / "algopy-stubs" / f"{STUB_NAMESPACE}.pyi"
     stub_out_path.write_text("\n".join(stub), encoding="utf-8")
     subprocess.run(["black", str(stub_out_path)], check=True, cwd=VCS_ROOT)
 

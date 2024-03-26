@@ -137,6 +137,9 @@ def _stabilise_logs(stdout: str) -> list[str]:
                 "debug: Skipping stdlib stub ",
                 "debug: Building AWST for ",
                 "debug: Discovered user module ",
+                # ignore platform specific paths
+                "debug: Using python executable: ",
+                "debug: Using python site-packages: ",
             )
         )
     ]

@@ -27,6 +27,7 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 _SRC_ROOT = Path(__file__).parent
 TYPESHED_PATH = _SRC_ROOT / "_typeshed"
+VENDORED_STUBS_PATH = _SRC_ROOT / "_vendor" / "stubs"
 _MYPY_FSCACHE = mypy.fscache.FileSystemCache()
 _MYPY_SEVERITY_TO_LOG_LEVEL = {
     "error": log.LogLevel.error,
@@ -380,7 +381,9 @@ def _log_mypy_messages(messages: list[str]) -> None:
     related_messages = list[str]()
     for message_str in messages:
         message = _parse_log_message(message_str)
-        if not message.location:
+        if not first_message:
+            first_message = message
+        elif not message.location:
             # collate related error messages and log together
             related_messages.append(message.message)
         else:
@@ -390,57 +393,45 @@ def _log_mypy_messages(messages: list[str]) -> None:
     _log_mypy_message(first_message, related_messages)
 
 
+_MYPY_LOG_MESSAGE = re.compile(
+    r"""^
+    (?P<filename>([A-Z]:\\)?[^:]*)(:(?P<line>\d+))?
+    :\s(?P<severity>error|warning|note)
+    :\s(?P<msg>.*)$""",
+    re.VERBOSE,
+)
+
+
 def _parse_log_message(log_message: str) -> log.Log:
-    if re.match(r"^[A-Z]:\\", log_message, flags=re.RegexFlag.IGNORECASE):
-        log = _try_parse_windows_log_message(log_message)
-    else:
-        log = _try_parse_posix_log_message(log_message)
-    return log or _parse_log_severity_message(log_message)
+    match = _MYPY_LOG_MESSAGE.match(log_message)
+    if match:
+        matches = match.groupdict()
+        return _try_parse_log_parts(
+            matches.get("filename"),
+            matches.get("line") or "",
+            matches.get("severity") or "error",
+            matches["msg"],
+        )
+    return log.Log(
+        level=log.LogLevel.error,
+        message=log_message,
+        location=None,
+    )
 
 
-def _try_parse_windows_log_message(log_message: str) -> log.Log | None:
-    try:
-        drive, path, line, severity, msg = log_message.split(":", maxsplit=4)
-    except ValueError:
-        return None
-    return _try_parse_log_parts(f"{drive}:{path}", line, severity, msg)
-
-
-def _try_parse_posix_log_message(log_message: str) -> log.Log | None:
-    try:
-        path, line, severity, msg = log_message.split(":", maxsplit=3)
-    except ValueError:
-        return None
-    return _try_parse_log_parts(path, line, severity, msg)
-
-
-def _try_parse_log_parts(path: str, line_str: str, severity: str, msg: str) -> log.Log | None:
-    path = path.strip()
-    if not Path(path).exists():
-        return None
-    try:
-        line = int(line_str.strip())
-    except ValueError:
-        return None
-    try:
-        level = _MYPY_SEVERITY_TO_LOG_LEVEL[severity.strip()]
-    except KeyError:
-        return None
-    return log.Log(message=msg[1:], level=level, location=SourceLocation(file=path, line=line))
-
-
-def _parse_log_severity_message(log_message: str) -> log.Log:
-    msg = log_message
-    try:
-        severity, msg = log_message.split(":", maxsplit=1)
-    except ValueError:
-        level = log.LogLevel.error
-    else:
+def _try_parse_log_parts(
+    path_str: str | None, line_str: str, severity_str: str, msg: str
+) -> log.Log:
+    if path_str:
         try:
-            level = _MYPY_SEVERITY_TO_LOG_LEVEL[severity]
-        except KeyError:
-            level = log.LogLevel.error
-    return log.Log(message=msg, level=level, location=None)
+            line = int(line_str)
+        except ValueError:
+            line = 1
+        location: SourceLocation | None = SourceLocation(file=path_str, line=line)
+    else:
+        location = None
+    level = _MYPY_SEVERITY_TO_LOG_LEVEL[severity_str]
+    return log.Log(message=msg, level=level, location=location)
 
 
 @attrs.define

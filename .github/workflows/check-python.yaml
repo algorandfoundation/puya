@@ -9,13 +9,13 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install poetry
         run: pipx install poetry
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "poetry"
@@ -28,26 +28,38 @@ jobs:
             set -o pipefail
             poetry run pre-commit run --all-files && git diff --exit-code
 
+      - name: Check generated code
+        run: |
+            set -o pipefail
+            poetry run poe gen && git diff --exit-code
+
       - name: Check documentation
         run: |
             set -o pipefail
             poetry run poe docs
 
-      - name: Check generated code
+      - name: Check wheels can be built
         run: |
-            set -o pipefail
-            poetry run poe gen && git diff --exit-code
+          set -o pipefail
+          
+          # build stubs
+          pushd stubs
+          poetry build --format wheel
+          popd
+          
+          # build compiler
+          poetry build --format wheel
   tests:
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install poetry
         run: pipx install poetry
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "poetry"
@@ -76,13 +88,13 @@ jobs:
     runs-on: "windows-latest"
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install poetry
         run: pipx install poetry
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "poetry"
@@ -103,13 +115,13 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install poetry
         run: pipx install poetry
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "poetry"

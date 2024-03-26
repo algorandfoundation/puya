@@ -27,6 +27,9 @@ UNSTABLE_LOG_PREFIXES = {
         "Skipping typeshed stub ",
         "Skipping stdlib stub ",
         "Discovered user module ",
+        # ignore platform specific paths
+        "Using python executable: ",
+        "Using python site-packages: ",
     ),
 }
 
