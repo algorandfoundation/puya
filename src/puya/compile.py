@@ -193,7 +193,7 @@ def _get_python_exe() -> str | None:
             )
         # use glob here, as we don't want to limit the python version
         discovered_site_packages = list(
-            Path(venv).glob(str(Path("[lL]ib") / "[Pp]ython*" / "site-packages"))
+            Path(venv).glob(str(Path("[Ll]ib") / "**" / "site-packages"))
         )
         try:
             (site_packages,) = discovered_site_packages
