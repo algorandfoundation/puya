@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## v0.7.1 (2024-03-26)
+
+### Fix
+
+* prevent mypy error when stubs and puyapy are in the same venv ([`91f6765`](https://github.com/algorandfoundation/puya/commit/91f67651d26268da21094f7ac5c0890fdf1038a8))
+
+
 ## v0.7.0 (2024-03-26)
 
 ### Feature
