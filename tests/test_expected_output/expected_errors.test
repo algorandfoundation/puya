@@ -103,3 +103,35 @@ def baddie2() -> None:
     for tup in arr_of_tup_with_arr: ## E: Cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
         tup[0].append(arc4.Byte(1))
 
+
+
+## case: test_mutable_ref_param_reassignment_fails
+from algopy import arc4
+
+class Baddie(arc4.ARC4Contract):
+    @arc4.abimethod
+    def okay(self, arr: arc4.DynamicBytes) -> None:
+        # this is allowed because nothing calls okay except for the router
+        arr = arc4.DynamicBytes.from_bytes(arr.bytes)
+        self.not_okay(arr)
+
+    @arc4.abimethod()
+    def not_okay(self, arr2: arc4.DynamicBytes) -> None:
+        arr2 = arc4.DynamicBytes.from_bytes(arr2.bytes) ## E: Cannot reassign mutable parameter 'arr2' which is being passed by reference
+        arr2.append(arc4.Byte(1))
+
+## case: test_mutable_ref_param_reassignment_in_tuple_fails
+from algopy import arc4
+
+class Baddie(arc4.ARC4Contract):
+    @arc4.abimethod
+    def okay(self, arr: arc4.DynamicBytes) -> None:
+        arr = arc4.DynamicBytes.from_bytes(arr.bytes)
+        self.not_okay(arr)
+
+    @arc4.abimethod()
+    def not_okay(self, arr2: arc4.DynamicBytes) -> None:
+        (arr2, foo) = (arc4.DynamicBytes.from_bytes(arr2.bytes), arc4.UInt64(1)) ## E: Cannot reassign mutable parameter 'arr2' which is being passed by reference
+        arr2.append(arc4.Byte(1))
+        assert foo
+
