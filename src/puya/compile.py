@@ -191,15 +191,16 @@ def _get_python_exe() -> str | None:
                 "Found an activated virtual environment, but could not find the expected"
                 f" python interpreter: {python_exe}"
             )
+        # use glob here, as we don't want to limit the python version
+        discovered_site_packages = list(
+            Path(venv).glob(str(Path("[lL]ib") / "[Pp]ython*" / "site-packages"))
+        )
         try:
-            # use glob here, as we don't want to limit the python version
-            (site_packages,) = Path(venv).glob(
-                str(Path("[lL]ib") / "[Pp]ython*" / "site-packages")
-            )
+            (site_packages,) = discovered_site_packages
         except ValueError:
             logger.warning(
                 "Found an activated virtual environment, but could not find the expected"
-                f" site-packages: {site_packages}"
+                f" site-packages: {venv=}, {discovered_site_packages=}"
             )
         else:
             logger.debug(f"Using python site-packages: {site_packages}")
