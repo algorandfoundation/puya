@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import Account, Application, ARC4Contract, Asset, Bytes, Txn, arc4, log
+from algopy import Account, Application, ARC4Contract, Asset, Bytes, Txn, arc4, log
 
 
 class Logger(ARC4Contract):

@@ -3,16 +3,16 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class Arc4DynamicStringArrayContract(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod
+class Arc4DynamicStringArrayContract(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod
     def xyz(
         self,
-    ) -> puyapy.arc4.DynamicArray[puyapy.arc4.String]: ...
+    ) -> algopy.arc4.DynamicArray[algopy.arc4.String]: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def xyz_raw(
         self,
-    ) -> puyapy.arc4.DynamicArray[puyapy.arc4.String]: ...
+    ) -> algopy.arc4.DynamicArray[algopy.arc4.String]: ...

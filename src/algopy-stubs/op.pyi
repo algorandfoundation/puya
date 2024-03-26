@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import Account, Application, Asset, BigUInt, Bytes, UInt64
+from algopy import Account, Application, Asset, BigUInt, Bytes, UInt64
 
 class Base64(str):
     """Available values for the `base64` enum"""

@@ -1,4 +1,4 @@
-from puyapy import Bytes, GlobalState, LocalState, StateTotals, UInt64, arc4
+from algopy import Bytes, GlobalState, LocalState, StateTotals, UInt64, arc4
 
 GLOBAL_UINTS = 3
 

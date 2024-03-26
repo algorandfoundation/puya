@@ -1,6 +1,6 @@
 from abc import ABC
 
-from puyapy import Contract, UInt64, arc4, op, subroutine
+from algopy import Contract, UInt64, arc4, op, subroutine
 
 
 class MyBase(Contract, ABC):

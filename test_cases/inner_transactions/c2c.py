@@ -1,4 +1,4 @@
-from puyapy import Application, ARC4Contract, Bytes, UInt64, arc4, itxn, log
+from algopy import Application, ARC4Contract, Bytes, UInt64, arc4, itxn, log
 
 from test_cases.inner_transactions.programs import HELLO_WORLD_APPROVAL_HEX, HELLO_WORLD_CLEAR
 

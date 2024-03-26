@@ -1,11 +1,11 @@
-from puyapy import (
+from algopy import (
     Asset,
     Contract,
     TransactionType,
     UInt64,
     subroutine,
 )
-from puyapy.op import (
+from algopy.op import (
     Global,
     ITxnCreate,
     Txn,

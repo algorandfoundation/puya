@@ -608,8 +608,8 @@ class FunctionASTConverter(
         fullname = get_unaliased_fullname(expr)
         if fullname.startswith("builtins."):
             return self._visit_ref_expr_of_builtins(fullname, expr_loc)
-        if fullname.startswith(constants.PUYAPY_PREFIX):
-            return self._visit_ref_expr_of_puyapy(fullname, expr_loc, expr.node)
+        if fullname.startswith(constants.ALGOPY_PREFIX):
+            return self._visit_ref_expr_of_algopy(fullname, expr_loc, expr.node)
         match expr:
             case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ):
                 if typ.has_base(constants.CONTRACT_BASE):
@@ -748,20 +748,20 @@ class FunctionASTConverter(
                     location,
                 )
             case "range":
-                raise CodeError("range() is not supported - use puyapy.urange() instead", location)
+                raise CodeError("range() is not supported - use algopy.urange() instead", location)
             case "enumerate":
                 raise CodeError(
-                    "enumerate() is not supported - use puyapy.uenumerate() instead", location
+                    "enumerate() is not supported - use algopy.uenumerate() instead", location
                 )
             case "reversed":
                 return ReversedFunctionExpressionBuilder(location=location)
             case _:
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
 
-    def _visit_ref_expr_of_puyapy(
+    def _visit_ref_expr_of_algopy(
         self, fullname: str, location: SourceLocation, node: mypy.nodes.SymbolNode | None
     ) -> ExpressionBuilder:
-        if fullname.startswith(constants.PUYAPY_OP_PREFIX):
+        if fullname.startswith(constants.ALGOPY_OP_PREFIX):
             if isinstance(node, mypy.nodes.TypeAlias):
                 t = mypy.types.get_proper_type(node.target)
                 if isinstance(t, mypy.types.Instance):
@@ -774,7 +774,7 @@ class FunctionASTConverter(
                 case mypy.nodes.FuncDef() as func_def:
                     return IntrinsicFunctionExpressionBuilder(func_def, location=location)
                 case _:
-                    raise InternalError(f"Unhandled puyapy name: {fullname}", location)
+                    raise InternalError(f"Unhandled algopy name: {fullname}", location)
         if (
             fullname in (constants.CLS_LOCAL_STATE, constants.CLS_GLOBAL_STATE)
             and self.contract_method_info is None
@@ -796,8 +796,8 @@ class FunctionASTConverter(
                 fullname = instance.type.fullname
                 if fullname.startswith("builtins."):
                     return self._visit_ref_expr_of_builtins(fullname, location)
-                if fullname.startswith(constants.PUYAPY_PREFIX):
-                    return self._visit_ref_expr_of_puyapy(fullname, location, None)
+                if fullname.startswith(constants.ALGOPY_PREFIX):
+                    return self._visit_ref_expr_of_algopy(fullname, location, None)
                 raise InternalError("Cannot handle instance of this type: " + fullname)
             case mypy.types.LiteralType(value=literal_value):
                 if isinstance(literal_value, float):
@@ -869,14 +869,14 @@ class FunctionASTConverter(
             case mypy.nodes.RevealExpr(expr=mypy.nodes.Expression() as inner_expr):
                 result = inner_expr.accept(self)
                 if isinstance(result, Literal):
-                    self.context.info(f"puyapy node is literal of {result.value!r}", call)
+                    self.context.info(f"algopy node is literal of {result.value!r}", call)
                 else:
                     try:
                         the_value = result.rvalue()
                     except PuyaError:
-                        self.context.info(f"puyapy node is {result!r}", call)
+                        self.context.info(f"algopy node is {result!r}", call)
                     else:
-                        self.context.info(f'puyapy type is "{the_value.wtype.name}"', call)
+                        self.context.info(f'algopy type is "{the_value.wtype.name}"', call)
                 return result
             case _:
                 raise CodeError(

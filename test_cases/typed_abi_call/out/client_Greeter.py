@@ -3,37 +3,37 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class Greeter(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod
+class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod
     def test_method_selector_kinds(
         self,
-        app: puyapy.Application,
+        app: algopy.Application,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def test_arg_conversion(
         self,
-        app: puyapy.Application,
+        app: algopy.Application,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def test_15plus_args(
         self,
-        app: puyapy.Application,
+        app: algopy.Application,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def test_void(
         self,
-        app: puyapy.Application,
+        app: algopy.Application,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def test_ref_types(
         self,
-        app: puyapy.Application,
-        asset: puyapy.Asset,
+        app: algopy.Application,
+        asset: algopy.Asset,
     ) -> None: ...

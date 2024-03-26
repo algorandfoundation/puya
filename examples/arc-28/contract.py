@@ -1,4 +1,4 @@
-from puyapy import ARC4Contract, arc4
+from algopy import ARC4Contract, arc4
 
 
 class Swapped(arc4.Struct):

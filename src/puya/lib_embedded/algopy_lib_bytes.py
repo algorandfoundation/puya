@@ -1,4 +1,4 @@
-from puyapy import Bytes, UInt64, op, subroutine
+from algopy import Bytes, UInt64, op, subroutine
 
 
 @subroutine

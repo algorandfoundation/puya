@@ -1,5 +1,5 @@
-from puyapy import ARC4Contract, Txn
-from puyapy.arc4 import Bool, DynamicArray, String, Tuple, UInt256, abimethod
+from algopy import ARC4Contract, Txn
+from algopy.arc4 import Bool, DynamicArray, String, Tuple, UInt256, abimethod
 
 
 class Contract(ARC4Contract):

@@ -1,6 +1,6 @@
 # WARNING: This code is provided for example only. Do NOT deploy to mainnet.
 
-from puyapy import (
+from algopy import (
     Account,
     ARC4Contract,
     Asset,

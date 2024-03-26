@@ -1,7 +1,7 @@
 import typing as t
 
-from puyapy import Contract, arc4
-from puyapy.op import Txn
+from algopy import Contract, arc4
+from algopy.op import Txn
 
 
 class MyStruct(arc4.Struct):

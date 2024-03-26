@@ -1,4 +1,4 @@
-from puyapy import (
+from algopy import (
     Bytes,
     OnCompleteAction,
     TransactionType,

@@ -1,5 +1,5 @@
-from puyapy import UInt64 as MyUInt64
-from puyapy.op import Txn
+from algopy import UInt64 as MyUInt64
+from algopy.op import Txn
 
 from . import pkg_1
 

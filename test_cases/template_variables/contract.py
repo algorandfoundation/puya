@@ -1,5 +1,5 @@
-from puyapy import BigUInt, Bytes, TemplateVar, UInt64, arc4
-from puyapy.arc4 import UInt512
+from algopy import BigUInt, Bytes, TemplateVar, UInt64, arc4
+from algopy.arc4 import UInt512
 
 
 class TemplateVariablesContract(arc4.ARC4Contract):

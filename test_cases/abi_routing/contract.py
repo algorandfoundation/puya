@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import (
+from algopy import (
     Account,
     Application,
     ARC4Contract,
@@ -230,5 +230,5 @@ class Reference(ARC4Contract):
         )
 
     @arc4.abimethod
-    def hello_with_puyapy_string(self, name: String) -> String:
+    def hello_with_algopy_string(self, name: String) -> String:
         return "Hello " + name + "!"

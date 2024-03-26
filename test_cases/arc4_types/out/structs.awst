@@ -1,13 +1,13 @@
 struct Vector {
-  x: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
-  y: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+  x: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+  y: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
 }
 
 struct Flags {
-  a: puyapy.arc4.Bool
-  b: puyapy.arc4.Bool
-  c: puyapy.arc4.Bool
-  d: puyapy.arc4.Bool
+  a: algopy.arc4.Bool
+  b: algopy.arc4.Bool
+  c: algopy.arc4.Bool
+  d: algopy.arc4.Bool
 }
 
 struct VectorFlags {
@@ -23,12 +23,12 @@ contract Arc4StructsTypeContract
     coord_2: test_cases.arc4_types.structs.Vector = arc4_encode((35.382882839arc4u64x9, 150.382884930arc4u64x9), test_cases.arc4_types.structs.Vector)
     coord_3: test_cases.arc4_types.structs.Vector = test_cases.arc4_types.structs::add(coord_1.copy(), coord_2.copy())
     for val in (coord_3[0u], coord_3[1u]) {
-      log(reinterpret_cast<puyapy.Bytes>(val))
+      log(reinterpret_cast<algopy.Bytes>(val))
     }
-    flags: test_cases.arc4_types.structs.Flags = arc4_encode((arc4_encode(true, puyapy.arc4.Bool), arc4_encode(false, puyapy.arc4.Bool), arc4_encode(true, puyapy.arc4.Bool), arc4_encode(false, puyapy.arc4.Bool)), test_cases.arc4_types.structs.Flags)
+    flags: test_cases.arc4_types.structs.Flags = arc4_encode((arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool)), test_cases.arc4_types.structs.Flags)
     test_cases.arc4_types.structs::check(flags.copy())
-    log(reinterpret_cast<puyapy.Bytes>(flags))
-    assert(reinterpret_cast<puyapy.Bytes>(reinterpret_cast<test_cases.arc4_types.structs.Vector>(reinterpret_cast<puyapy.Bytes>(coord_1))) == reinterpret_cast<puyapy.Bytes>(coord_1))
+    log(reinterpret_cast<algopy.Bytes>(flags))
+    assert(reinterpret_cast<algopy.Bytes>(reinterpret_cast<test_cases.arc4_types.structs.Vector>(reinterpret_cast<algopy.Bytes>(coord_1))) == reinterpret_cast<algopy.Bytes>(coord_1))
     test_cases.arc4_types.structs::nested_decode(arc4_encode((coord_1.copy(), flags.copy()), test_cases.arc4_types.structs.VectorFlags))
     return true
   }
@@ -54,11 +54,11 @@ subroutine check(flags: test_cases.arc4_types.structs.Flags): None
 
 subroutine nested_decode(vector_flags: test_cases.arc4_types.structs.VectorFlags): None
 {
-  assert(reinterpret_cast<puyapy.Bytes>(vector_flags[0u][0u]) == itob(35382882839u))
+  assert(reinterpret_cast<algopy.Bytes>(vector_flags[0u][0u]) == itob(35382882839u))
   assert(arc4_decode(vector_flags[1u][2u], bool))
 }
 
-subroutine add_decimal(x: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]], y: puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]): puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
+subroutine add_decimal(x: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]], y: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]): algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
 {
-  return reinterpret_cast<puyapy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]>(itob(btoi(reinterpret_cast<puyapy.Bytes>(x)) + btoi(reinterpret_cast<puyapy.Bytes>(y))))
+  return reinterpret_cast<algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]>(itob(btoi(reinterpret_cast<algopy.Bytes>(x)) + btoi(reinterpret_cast<algopy.Bytes>(y))))
 }

@@ -490,8 +490,8 @@ def test_arc4_routing(
 
     app_client.call("method_with_default_args")
 
-    hello_result = app_client.call("hello_with_puyapy_string", name="PuyaPy")
-    assert hello_result.return_value == "Hello PuyaPy!"
+    hello_result = app_client.call("hello_with_algopy_string", name="Algopy")
+    assert hello_result.return_value == "Hello Algopy!"
 
 
 def test_arc4_routing_with_many_params(

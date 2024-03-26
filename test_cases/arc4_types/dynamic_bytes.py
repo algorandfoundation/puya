@@ -1,5 +1,5 @@
-from puyapy import Contract, UInt64
-from puyapy.arc4 import (
+from algopy import Contract, UInt64
+from algopy.arc4 import (
     Byte,
     DynamicBytes,
     UInt8,

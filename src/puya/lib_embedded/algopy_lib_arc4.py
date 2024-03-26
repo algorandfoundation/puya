@@ -1,10 +1,10 @@
-from puyapy import (
+from algopy import (
     Bytes,
     UInt64,
     subroutine,
     urange,
 )
-from puyapy.op import (
+from algopy.op import (
     btoi,
     bzero,
     extract,

@@ -1,14 +1,14 @@
 contract MyContract
 {
   globals {
-    ['case_one']: puyapy.UInt64
-    ['case_two']: puyapy.UInt64
+    ['case_one']: algopy.UInt64
+    ['case_two']: algopy.UInt64
   }
   
   approval_program(): bool
   {
-    this.case_one: puyapy.UInt64 = 1u
-    this.case_two: puyapy.UInt64 = 2u
+    this.case_one: algopy.UInt64 = 1u
+    this.case_two: algopy.UInt64 = 2u
     this::match_uint64()
     this::match_biguint()
     this::match_bytes()
@@ -25,14 +25,14 @@ contract MyContract
   
   subroutine match_uint64(): None
   {
-    n: puyapy.UInt64 = txn<NumAppArgs>()
+    n: algopy.UInt64 = txn<NumAppArgs>()
     switch (n) {
       case 0u: {
-        hello: puyapy.Bytes = 'Hello'
+        hello: algopy.Bytes = 'Hello'
         log(hello)
       }
       case 10u: {
-        hello: puyapy.Bytes = 'Hello There'
+        hello: algopy.Bytes = 'Hello There'
         log(hello)
       }
     }
@@ -40,14 +40,14 @@ contract MyContract
   
   subroutine match_bytes(): None
   {
-    n: puyapy.Bytes = txna<ApplicationArgs, 0>()
+    n: algopy.Bytes = txna<ApplicationArgs, 0>()
     switch (n) {
       case '': {
-        hello: puyapy.Bytes = 'Hello bytes'
+        hello: algopy.Bytes = 'Hello bytes'
         log(hello)
       }
       case '10': {
-        hello: puyapy.Bytes = 'Hello There bytes'
+        hello: algopy.Bytes = 'Hello There bytes'
         log(hello)
       }
     }
@@ -55,14 +55,14 @@ contract MyContract
   
   subroutine match_biguint(): None
   {
-    n: puyapy.BigUInt = itob(txn<NumAppArgs>()) b* 10n
+    n: algopy.BigUInt = itob(txn<NumAppArgs>()) b* 10n
     switch (n) {
       case 0n: {
-        hello: puyapy.Bytes = 'Hello biguint'
+        hello: algopy.Bytes = 'Hello biguint'
         log(hello)
       }
       case 10n: {
-        hello: puyapy.Bytes = 'Hello There biguint'
+        hello: algopy.Bytes = 'Hello There biguint'
         log(hello)
       }
     }
@@ -70,14 +70,14 @@ contract MyContract
   
   subroutine match_address(): None
   {
-    n: puyapy.Account = txn<Sender>()
+    n: algopy.Account = txn<Sender>()
     switch (n) {
       case Address("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ"): {
-        hello: puyapy.Bytes = 'Hello address'
+        hello: algopy.Bytes = 'Hello address'
         log(hello)
       }
       case Address("VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"): {
-        hello: puyapy.Bytes = 'Hello There address'
+        hello: algopy.Bytes = 'Hello There address'
         log(hello)
       }
     }
@@ -85,18 +85,18 @@ contract MyContract
   
   subroutine match_attributes(): None
   {
-    n: puyapy.UInt64 = txn<NumAppArgs>()
+    n: algopy.UInt64 = txn<NumAppArgs>()
     switch (n) {
       case this.case_one: {
-        hello: puyapy.Bytes = 'Hello one'
+        hello: algopy.Bytes = 'Hello one'
         log(hello)
       }
       case this.case_two: {
-        hello: puyapy.Bytes = 'Hello two'
+        hello: algopy.Bytes = 'Hello two'
         log(hello)
       }
       case _: {
-        hello: puyapy.Bytes = 'Hello default'
+        hello: algopy.Bytes = 'Hello default'
         log(hello)
       }
     }
@@ -107,11 +107,11 @@ contract MyContract
     n: bool = txn<NumAppArgs>() > 0u
     switch (n) {
       case true: {
-        hello: puyapy.Bytes = 'Hello True'
+        hello: algopy.Bytes = 'Hello True'
         log(hello)
       }
       case false: {
-        hello: puyapy.Bytes = 'Hello False'
+        hello: algopy.Bytes = 'Hello False'
         log(hello)
       }
     }

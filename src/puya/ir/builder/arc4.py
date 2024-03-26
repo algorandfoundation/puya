@@ -1215,7 +1215,7 @@ def _arc4_replace_array_item(
                 source=invoke_puya_lib_subroutine(
                     context,
                     method_name="dynamic_array_replace_variable_size",
-                    module_name="puyapy_lib_arc4",
+                    module_name="algopy_lib_arc4",
                     source_location=source_location,
                     args=[
                         base,
@@ -1233,7 +1233,7 @@ def _arc4_replace_array_item(
                 source=invoke_puya_lib_subroutine(
                     context,
                     method_name="static_array_replace_variable_size",
-                    module_name="puyapy_lib_arc4",
+                    module_name="algopy_lib_arc4",
                     source_location=source_location,
                     args=[
                         base,
@@ -1472,7 +1472,7 @@ def concat_values(
                     context,
                     method_name=method_name,
                     source_location=source_location,
-                    module_name="puyapy_lib_arc4",
+                    module_name="algopy_lib_arc4",
                     args=[l_value, r_data, r_length, *additional_args],
                 ),
             )
@@ -1506,7 +1506,7 @@ def concat_values(
                 source=invoke_puya_lib_subroutine(
                     context,
                     method_name=method_name,
-                    module_name="puyapy_lib_arc4",
+                    module_name="algopy_lib_arc4",
                     source_location=source_location,
                     args=[l_value, r_data, r_length, *additional_args],
                 ),
@@ -1565,7 +1565,7 @@ def pop_arc4_array(
             method_name=method_name,
             args=args,
             source_location=source_location,
-            module_name="puyapy_lib_arc4",
+            module_name="algopy_lib_arc4",
         ),
     )
 

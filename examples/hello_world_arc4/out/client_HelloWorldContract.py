@@ -3,12 +3,12 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class HelloWorldContract(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod
+class HelloWorldContract(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod
     def hello(
         self,
-        name: puyapy.arc4.String,
-    ) -> puyapy.arc4.String: ...
+        name: algopy.arc4.String,
+    ) -> algopy.arc4.String: ...

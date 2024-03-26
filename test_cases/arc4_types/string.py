@@ -1,4 +1,4 @@
-from puyapy import Contract, String, arc4
+from algopy import Contract, String, arc4
 
 HELLO_WORLD = b"Hello World!"
 

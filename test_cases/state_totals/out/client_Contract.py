@@ -3,8 +3,8 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class Contract(puyapy.arc4.ARC4Client, typing.Protocol):
+class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     pass

@@ -131,7 +131,7 @@ def _stabilise_logs(stdout: str) -> list[str]:
         for line in stdout.splitlines()
         if not line.startswith(
             (
-                "debug: Skipping puyapy stub ",
+                "debug: Skipping algopy stub ",
                 "debug: Skipping typeshed stub ",
                 "warning: Skipping stub: ",
                 "debug: Skipping stdlib stub ",

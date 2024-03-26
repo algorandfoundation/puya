@@ -1,39 +1,39 @@
 contract Reference
 {
   globals {
-    ['asa']: puyapy.Asset
-    ['an_int']: puyapy.UInt64
-    ['some_bytes']: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[3]]
-    ['creator']: puyapy.Account
-    ['app']: puyapy.Application
+    ['asa']: algopy.Asset
+    ['an_int']: algopy.UInt64
+    ['some_bytes']: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]]
+    ['creator']: algopy.Account
+    ['app']: algopy.Application
   }
   
   constructor()
   {
-    this.asa: puyapy.Asset = reinterpret_cast<puyapy.Asset>(123u)
-    this.an_int: puyapy.UInt64 = 2u
-    this.some_bytes: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[3]] = arc4_array_encode([7arc4u8, 8arc4u8, 9arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[3]])
-    this.creator: puyapy.Account = txn<Sender>()
-    this.app: puyapy.Application = reinterpret_cast<puyapy.Application>(123u)
+    this.asa: algopy.Asset = reinterpret_cast<algopy.Asset>(123u)
+    this.an_int: algopy.UInt64 = 2u
+    this.some_bytes: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]] = arc4_array_encode([7arc4u8, 8arc4u8, 9arc4u8], algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]])
+    this.creator: algopy.Account = txn<Sender>()
+    this.app: algopy.Application = reinterpret_cast<algopy.Application>(123u)
     assert(reinterpret_cast<bool>(len(Method("get(uint64,byte[])byte[]"))), comment="has method selector")
   }
   
-  abimethod noop_with_uint64(a: puyapy.arc4.UInt64): puyapy.arc4.UInt8
+  abimethod noop_with_uint64(a: algopy.arc4.UInt64): algopy.arc4.UInt8
   {
-    result: puyapy.UInt64 = 1u + arc4_decode(a, puyapy.UInt64)
-    return arc4_encode(result, puyapy.arc4.UInt8)
+    result: algopy.UInt64 = 1u + arc4_decode(a, algopy.UInt64)
+    return arc4_encode(result, algopy.arc4.UInt8)
   }
   
-  abimethod[name_override=all_the_things] full_abi_config(a: puyapy.arc4.UInt64): puyapy.arc4.UInt8
+  abimethod[name_override=all_the_things] full_abi_config(a: algopy.arc4.UInt64): algopy.arc4.UInt8
   {
-    result: puyapy.UInt64 = 1u + arc4_decode(a, puyapy.UInt64)
-    return arc4_encode(result, puyapy.arc4.UInt8)
+    result: algopy.UInt64 = 1u + arc4_decode(a, algopy.UInt64)
+    return arc4_encode(result, algopy.arc4.UInt8)
   }
   
-  abimethod mixed_oca(a: puyapy.arc4.UInt64): puyapy.arc4.UInt8
+  abimethod mixed_oca(a: algopy.arc4.UInt64): algopy.arc4.UInt8
   {
-    result: puyapy.UInt64 = 1u + arc4_decode(a, puyapy.UInt64)
-    return arc4_encode(result, puyapy.arc4.UInt8)
+    result: algopy.UInt64 = 1u + arc4_decode(a, algopy.UInt64)
+    return arc4_encode(result, algopy.arc4.UInt8)
   }
   
   abimethod bare_abi_config(): None
@@ -41,11 +41,11 @@ contract Reference
     log('Hello World')
   }
   
-  abimethod opt_into_asset(asset: puyapy.Asset): None
+  abimethod opt_into_asset(asset: algopy.Asset): None
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
     assert(!(reinterpret_cast<bool>(this.asa)), comment="ASA already opted in")
-    this.asa: puyapy.Asset = asset
+    this.asa: algopy.Asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)
     itxn_field<Fee>(0u)
@@ -54,66 +54,66 @@ contract Reference
     itxn_submit()
   }
   
-  abimethod with_transactions(asset: puyapy.Asset, an_int: puyapy.arc4.UInt64, pay: puyapy.gtxn.PaymentTransaction, another_int: puyapy.arc4.UInt64): None
+  abimethod with_transactions(asset: algopy.Asset, an_int: algopy.arc4.UInt64, pay: algopy.gtxn.PaymentTransaction, another_int: algopy.arc4.UInt64): None
   {
     assert(this.asa == asset, comment="is correct asset")
-    assert(arc4_decode(an_int, puyapy.UInt64) == 1u, comment="is correct int")
+    assert(arc4_decode(an_int, algopy.UInt64) == 1u, comment="is correct int")
     assert(gtxns<Receiver>(pay) == global<CurrentApplicationAddress>(), comment="is payment to app")
-    assert(arc4_decode(another_int, puyapy.UInt64) == 2u, comment="is correct int")
+    assert(arc4_decode(another_int, algopy.UInt64) == 2u, comment="is correct int")
   }
   
-  abimethod compare_assets(asset_a: puyapy.Asset, asset_b: puyapy.Asset): None
+  abimethod compare_assets(asset_a: algopy.Asset, asset_b: algopy.Asset): None
   {
     assert(asset_a == asset_b, comment="asset a == b")
   }
   
-  abimethod get_address(): puyapy.arc4.Address
+  abimethod get_address(): algopy.arc4.Address
   {
     return global<ZeroAddress>()
   }
   
-  abimethod get_asset(): puyapy.arc4.UInt64
+  abimethod get_asset(): algopy.arc4.UInt64
   {
     return 456arc4u64
   }
   
-  abimethod[name_override=get_application] get_app(): puyapy.arc4.UInt64
+  abimethod[name_override=get_application] get_app(): algopy.arc4.UInt64
   {
     return 456arc4u64
   }
   
-  abimethod[name_override=get_an_int] get_a_int(): puyapy.arc4.UInt64
+  abimethod[name_override=get_an_int] get_a_int(): algopy.arc4.UInt64
   {
     return 3arc4u64
   }
   
-  abimethod method_with_default_args(asset_from_storage: puyapy.Asset, asset_from_function: puyapy.Asset, account_from_storage: puyapy.Account, account_from_function: puyapy.Account, application_from_storage: puyapy.Application, application_from_function: puyapy.Application, bytes_from_storage: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[3]], int_from_storage: puyapy.arc4.UInt64, int_from_function: puyapy.arc4.UInt64): None
+  abimethod method_with_default_args(asset_from_storage: algopy.Asset, asset_from_function: algopy.Asset, account_from_storage: algopy.Account, account_from_function: algopy.Account, application_from_storage: algopy.Application, application_from_function: algopy.Application, bytes_from_storage: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]], int_from_storage: algopy.arc4.UInt64, int_from_function: algopy.arc4.UInt64): None
   {
-    assert(asset_from_storage == reinterpret_cast<puyapy.Asset>(123u), comment="wrong asset from storage")
-    assert(asset_from_function == reinterpret_cast<puyapy.Asset>(456u), comment="wrong asset from function")
+    assert(asset_from_storage == reinterpret_cast<algopy.Asset>(123u), comment="wrong asset from storage")
+    assert(asset_from_function == reinterpret_cast<algopy.Asset>(456u), comment="wrong asset from function")
     assert(account_from_storage == global<CreatorAddress>(), comment="wrong account from storage")
     assert(account_from_function == global<ZeroAddress>(), comment="wrong account from function")
-    assert(application_from_storage == reinterpret_cast<puyapy.Application>(123u), comment="wrong application from storage")
-    assert(application_from_function == reinterpret_cast<puyapy.Application>(456u), comment="wrong application from function")
-    assert(reinterpret_cast<puyapy.BigUInt>(bytes_from_storage[0u]) == reinterpret_cast<puyapy.BigUInt>(7arc4u8), comment="wrong 0th byte from storage")
-    assert(reinterpret_cast<puyapy.BigUInt>(bytes_from_storage[1u]) == reinterpret_cast<puyapy.BigUInt>(8arc4u8), comment="wrong 1st byte from storage")
-    assert(reinterpret_cast<puyapy.BigUInt>(bytes_from_storage[2u]) == reinterpret_cast<puyapy.BigUInt>(9arc4u8), comment="wrong 2nd byte from storage")
-    assert(arc4_decode(int_from_storage, puyapy.UInt64) == 2u, comment="wrong int from storage")
-    assert(arc4_decode(int_from_function, puyapy.UInt64) == 3u, comment="wrong int from function")
+    assert(application_from_storage == reinterpret_cast<algopy.Application>(123u), comment="wrong application from storage")
+    assert(application_from_function == reinterpret_cast<algopy.Application>(456u), comment="wrong application from function")
+    assert(reinterpret_cast<algopy.BigUInt>(bytes_from_storage[0u]) == reinterpret_cast<algopy.BigUInt>(7arc4u8), comment="wrong 0th byte from storage")
+    assert(reinterpret_cast<algopy.BigUInt>(bytes_from_storage[1u]) == reinterpret_cast<algopy.BigUInt>(8arc4u8), comment="wrong 1st byte from storage")
+    assert(reinterpret_cast<algopy.BigUInt>(bytes_from_storage[2u]) == reinterpret_cast<algopy.BigUInt>(9arc4u8), comment="wrong 2nd byte from storage")
+    assert(arc4_decode(int_from_storage, algopy.UInt64) == 2u, comment="wrong int from storage")
+    assert(arc4_decode(int_from_function, algopy.UInt64) == 3u, comment="wrong int from function")
   }
   
-  abimethod method_with_more_than_15_args(a: puyapy.arc4.UInt64, b: puyapy.arc4.UInt64, c: puyapy.arc4.UInt64, d: puyapy.UInt64, asset: puyapy.Asset, e: puyapy.arc4.UInt64, f: puyapy.arc4.UInt64, pay: puyapy.gtxn.PaymentTransaction, g: puyapy.arc4.UInt64, h: puyapy.arc4.UInt64, i: puyapy.arc4.UInt64, j: puyapy.arc4.UInt64, k: puyapy.arc4.UInt64, l: puyapy.arc4.UInt64, m: puyapy.arc4.UInt64, n: puyapy.arc4.UInt64, o: puyapy.arc4.UInt64, p: puyapy.UInt64, q: puyapy.arc4.UInt64, r: puyapy.arc4.UInt64, s: puyapy.Bytes, t: puyapy.Bytes, asset2: puyapy.Asset, pay2: puyapy.gtxn.PaymentTransaction, u: puyapy.arc4.UInt64, v: puyapy.arc4.UInt64): puyapy.arc4.UInt64
+  abimethod method_with_more_than_15_args(a: algopy.arc4.UInt64, b: algopy.arc4.UInt64, c: algopy.arc4.UInt64, d: algopy.UInt64, asset: algopy.Asset, e: algopy.arc4.UInt64, f: algopy.arc4.UInt64, pay: algopy.gtxn.PaymentTransaction, g: algopy.arc4.UInt64, h: algopy.arc4.UInt64, i: algopy.arc4.UInt64, j: algopy.arc4.UInt64, k: algopy.arc4.UInt64, l: algopy.arc4.UInt64, m: algopy.arc4.UInt64, n: algopy.arc4.UInt64, o: algopy.arc4.UInt64, p: algopy.UInt64, q: algopy.arc4.UInt64, r: algopy.arc4.UInt64, s: algopy.Bytes, t: algopy.Bytes, asset2: algopy.Asset, pay2: algopy.gtxn.PaymentTransaction, u: algopy.arc4.UInt64, v: algopy.arc4.UInt64): algopy.arc4.UInt64
   {
     assert(txn<NumAppArgs>() == 16u)
     assert(gtxns<Amount>(pay) == 100000u)
     assert(gtxns<Amount>(pay2) == 200000u)
-    assert(reinterpret_cast<bool>(reinterpret_cast<puyapy.UInt64>(asset)))
-    assert(reinterpret_cast<bool>(reinterpret_cast<puyapy.UInt64>(asset2)))
+    assert(reinterpret_cast<bool>(reinterpret_cast<algopy.UInt64>(asset)))
+    assert(reinterpret_cast<bool>(reinterpret_cast<algopy.UInt64>(asset2)))
     log(s + t)
-    return arc4_encode(arc4_decode(a, puyapy.UInt64) + arc4_decode(b, puyapy.UInt64) + arc4_decode(c, puyapy.UInt64) + d + arc4_decode(e, puyapy.UInt64) + arc4_decode(f, puyapy.UInt64) + arc4_decode(g, puyapy.UInt64) + arc4_decode(h, puyapy.UInt64) + arc4_decode(i, puyapy.UInt64) + arc4_decode(j, puyapy.UInt64) + arc4_decode(k, puyapy.UInt64) + arc4_decode(l, puyapy.UInt64) + arc4_decode(m, puyapy.UInt64) + arc4_decode(n, puyapy.UInt64) + arc4_decode(o, puyapy.UInt64) + p + arc4_decode(q, puyapy.UInt64) + arc4_decode(r, puyapy.UInt64) + arc4_decode(u, puyapy.UInt64) + arc4_decode(v, puyapy.UInt64), puyapy.arc4.UInt64)
+    return arc4_encode(arc4_decode(a, algopy.UInt64) + arc4_decode(b, algopy.UInt64) + arc4_decode(c, algopy.UInt64) + d + arc4_decode(e, algopy.UInt64) + arc4_decode(f, algopy.UInt64) + arc4_decode(g, algopy.UInt64) + arc4_decode(h, algopy.UInt64) + arc4_decode(i, algopy.UInt64) + arc4_decode(j, algopy.UInt64) + arc4_decode(k, algopy.UInt64) + arc4_decode(l, algopy.UInt64) + arc4_decode(m, algopy.UInt64) + arc4_decode(n, algopy.UInt64) + arc4_decode(o, algopy.UInt64) + p + arc4_decode(q, algopy.UInt64) + arc4_decode(r, algopy.UInt64) + arc4_decode(u, algopy.UInt64) + arc4_decode(v, algopy.UInt64), algopy.arc4.UInt64)
   }
   
-  abimethod hello_with_puyapy_string(name: puyapy.String): puyapy.String
+  abimethod hello_with_algopy_string(name: algopy.String): algopy.String
   {
     return 'Hello ' + name + '!'
   }

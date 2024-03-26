@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import (
+from algopy import (
     BigUInt,
     arc4,
     op,

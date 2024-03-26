@@ -597,7 +597,7 @@ def test_calculator(harness: _TestHarness) -> None:
 
 def test_subroutine_parameter_overwrite(harness: _TestHarness) -> None:
     def test() -> None:
-        from puyapy import Bytes, Contract, log, op, subroutine
+        from algopy import Bytes, Contract, log, op, subroutine
 
         class Exclaimer(Contract):
             def approval_program(self) -> bool:
@@ -884,7 +884,7 @@ def test_biguint_stubs(harness: _TestHarness) -> None:
 
 def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
     def test() -> None:
-        from puyapy import BigUInt, Contract, log, op
+        from algopy import BigUInt, Contract, log, op
 
         class BigUIntByteTests(Contract):
             def approval_program(self) -> bool:
@@ -1161,7 +1161,7 @@ def test_reversed_iteration(harness: _TestHarness) -> None:
 
 def test_ignored_value(harness: _TestHarness) -> None:
     def test() -> None:
-        from puyapy import Contract, subroutine
+        from algopy import Contract, subroutine
 
         class Silly(Contract):
             def approval_program(self) -> bool:
@@ -1280,7 +1280,7 @@ def test_inheritance_direct_method_invocation(harness: _TestHarness) -> None:
 
 def test_account_from_bytes_validation(harness: _TestHarness) -> None:
     def test() -> None:
-        from puyapy import Account, Contract, Txn
+        from algopy import Account, Contract, Txn
 
         class Baddie(Contract):
             def approval_program(self) -> bool:
@@ -1300,7 +1300,7 @@ def test_account_from_bytes_validation(harness: _TestHarness) -> None:
 
 def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
     def test() -> None:
-        from puyapy import Contract, Txn, arc4
+        from algopy import Contract, Txn, arc4
 
         class Baddie(Contract):
             def approval_program(self) -> bool:
@@ -1321,7 +1321,7 @@ def test_arc4_address_from_bytes_validation(harness: _TestHarness) -> None:
 @pytest.mark.xfail(reason="Known issue, see https://github.com/algorandfoundation/puya/issues/145")
 def test_nested_bool_context(harness: _TestHarness) -> None:
     def test() -> None:
-        from puyapy import Bytes, Contract, UInt64, op
+        from algopy import Bytes, Contract, UInt64, op
 
         class Baddie(Contract):
             def approval_program(self) -> bool:

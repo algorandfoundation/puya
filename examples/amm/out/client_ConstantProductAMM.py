@@ -3,47 +3,47 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class ConstantProductAMM(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod
+class ConstantProductAMM(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod
     def set_governor(
         self,
-        new_governor: puyapy.Account,
+        new_governor: algopy.Account,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def bootstrap(
         self,
-        seed: puyapy.gtxn.PaymentTransaction,
-        a_asset: puyapy.Asset,
-        b_asset: puyapy.Asset,
-    ) -> puyapy.arc4.UInt64: ...
+        seed: algopy.gtxn.PaymentTransaction,
+        a_asset: algopy.Asset,
+        b_asset: algopy.Asset,
+    ) -> algopy.arc4.UInt64: ...
 
-    @puyapy.arc4.abimethod(default_args={'pool_asset': 'pool_token', 'a_asset': 'asset_a', 'b_asset': 'asset_b'})
+    @algopy.arc4.abimethod(default_args={'pool_asset': 'pool_token', 'a_asset': 'asset_a', 'b_asset': 'asset_b'})
     def mint(
         self,
-        a_xfer: puyapy.gtxn.AssetTransferTransaction,
-        b_xfer: puyapy.gtxn.AssetTransferTransaction,
-        pool_asset: puyapy.Asset,
-        a_asset: puyapy.Asset,
-        b_asset: puyapy.Asset,
+        a_xfer: algopy.gtxn.AssetTransferTransaction,
+        b_xfer: algopy.gtxn.AssetTransferTransaction,
+        pool_asset: algopy.Asset,
+        a_asset: algopy.Asset,
+        b_asset: algopy.Asset,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod(default_args={'pool_asset': 'pool_token', 'a_asset': 'asset_a', 'b_asset': 'asset_b'})
+    @algopy.arc4.abimethod(default_args={'pool_asset': 'pool_token', 'a_asset': 'asset_a', 'b_asset': 'asset_b'})
     def burn(
         self,
-        pool_xfer: puyapy.gtxn.AssetTransferTransaction,
-        pool_asset: puyapy.Asset,
-        a_asset: puyapy.Asset,
-        b_asset: puyapy.Asset,
+        pool_xfer: algopy.gtxn.AssetTransferTransaction,
+        pool_asset: algopy.Asset,
+        a_asset: algopy.Asset,
+        b_asset: algopy.Asset,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod(default_args={'a_asset': 'asset_a', 'b_asset': 'asset_b'})
+    @algopy.arc4.abimethod(default_args={'a_asset': 'asset_a', 'b_asset': 'asset_b'})
     def swap(
         self,
-        swap_xfer: puyapy.gtxn.AssetTransferTransaction,
-        a_asset: puyapy.Asset,
-        b_asset: puyapy.Asset,
+        swap_xfer: algopy.gtxn.AssetTransferTransaction,
+        a_asset: algopy.Asset,
+        b_asset: algopy.Asset,
     ) -> None: ...

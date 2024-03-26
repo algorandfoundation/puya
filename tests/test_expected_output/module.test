@@ -5,13 +5,13 @@ FLOAT = 0.1 ## E: Unsupported construct FloatExpr: floating point math is not su
 another_float = 1 / 2 ## E: unsupported result type of float
 
 ## case: no_subroutine_hint
-from puyapy import UInt64
+from algopy import UInt64
 
-def one() -> UInt64: ## E: free functions must be annotated with @puyapy.subroutine
+def one() -> UInt64: ## E: free functions must be annotated with @algopy.subroutine
     return UInt64(1)
 
 ## case: unsupported_decorator
-from puyapy import UInt64, arc4, subroutine
+from algopy import UInt64, arc4, subroutine
 
 @arc4.abimethod ## E: free functions cannot be ARC4 ABI methods
 @subroutine
@@ -19,7 +19,7 @@ def one() -> UInt64:
     return UInt64(1)
 
 ## case: literals_only
-from puyapy import UInt64
+from algopy import UInt64
 
 LITERAL = 123
 STR_LITERAL = "a string"
@@ -30,21 +30,21 @@ MULTIPLIED_STR = "a" * 64
 NOT_A_LITERAL = UInt64(1) ## E: Unsupported construct CallExpr: not supported at module level
 
 ## case: no_typed_dict
-from puyapy import UInt64
+from algopy import UInt64
 import typing
 
 class NotAllowed(typing.TypedDict): ## E: Unsupported construct ClassDef: TypedDict classes are not supported
     an_int: UInt64
 
 ## case: no_named_tuple
-from puyapy import UInt64
+from algopy import UInt64
 import typing
 
 class NotAllowed(typing.NamedTuple): ## E: Unsupported construct ClassDef: NamedTuple classes are not supported
     an_int: UInt64
 
 ## case: unsupported_class
-from puyapy import Contract, UInt64
+from algopy import Contract, UInt64
 
 class AllowedContract(Contract):
 
@@ -54,7 +54,7 @@ class AllowedContract(Contract):
     def clear_state_program(self) -> UInt64:
         return UInt64(1)
 
-class NotAllowed: ## E: not a subclass of puyapy.Contract or a direct subclass of puyapy.Struct
+class NotAllowed: ## E: not a subclass of algopy.Contract or a direct subclass of algopy.Struct
     pass
 
 ## case: all_ignored
@@ -69,7 +69,7 @@ FOO = [1] ## E: Unsupported construct ListExpr: not supported at module level
 
 ## case: type_alias_allowed
 import typing
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 IntAlias: typing.TypeAlias = UInt64
 
@@ -150,7 +150,7 @@ THREE = ONE + pkg.two.TWO
 ## case: imported_contract_test
 ## path: my_contract.py
 import abc
-from puyapy import Contract, UInt64, subroutine
+from algopy import Contract, UInt64, subroutine
 
 class MyContractBase(Contract, abc.ABC):
 
@@ -166,7 +166,7 @@ class MyContractBase(Contract, abc.ABC):
 
 
 ## path: main.py
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 from my_contract import MyContractBase
 
 class MyContract(MyContractBase):
@@ -177,10 +177,10 @@ class MyContract(MyContractBase):
 
 
 ## case: bad_logic_sig_decorators
-from puyapy import Bytes, UInt64, logicsig, subroutine
+from algopy import Bytes, UInt64, logicsig, subroutine
 
 @logicsig
-@subroutine ## E: Unsupported logicsig decorator "puyapy._hints.subroutine"
+@subroutine ## E: Unsupported logicsig decorator "algopy._hints.subroutine"
 def one() -> UInt64:
     return UInt64(1)
 
@@ -199,7 +199,7 @@ def four() -> None:
     pass
 
 ## case: state_totals_test
-from puyapy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
+from algopy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
 
 
 class BaseContract(
@@ -222,7 +222,7 @@ class AnotherContractAuto(BaseContract, state_totals=StateTotals()):
     pass
 
 ## case: state_totals_too_small_test
-from puyapy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
+from algopy import Bytes, GlobalState, LocalState, UInt64, arc4, StateTotals
 
 
 class BaseContract( ## W: State totals declared on the class are less than totals calculated from explicitly declared properties: global_bytes: declared=0, calculated=1, global_uints: declared=0, calculated=2, local_bytes: declared=0, calculated=3, local_uints: declared=0, calculated=4.
@@ -248,7 +248,7 @@ class BaseContract( ## W: State totals declared on the class are less than total
 
 ## case: state_too_big
 
-from puyapy import Contract, StateTotals
+from algopy import Contract, StateTotals
 
 class Contract1(Contract, state_totals=StateTotals(global_uints=50, global_bytes=50)): ## W: Total global state key count of 100 exceeds consensus parameter value 64
     def approval_program(self) -> bool:
@@ -266,7 +266,7 @@ class Contract2(Contract, state_totals=StateTotals(local_uints=10, local_bytes=1
 
 
 ## case: implicitly_abstract_warning
-from puyapy import Contract
+from algopy import Contract
 
 class IForgotToImplementClearState(Contract): ## W: Class implicitly_abstract_warning.IForgotToImplementClearState is implicitly abstract
     def approval_program(self) -> bool:

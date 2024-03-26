@@ -1,4 +1,4 @@
-import puyapy as algo
+import algopy as algo
 
 from test_cases.simple import pkg_a, subs
 

@@ -237,7 +237,7 @@ def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
             "# fmt: off",  # disable formatting"
             "import typing",
             "",
-            "import puyapy",
+            "import algopy",
             "",
             *itertools.chain(
                 *(
@@ -246,7 +246,7 @@ def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
                 )
             ),
             "",
-            f"class {name}(puyapy.arc4.ARC4Client, typing.Protocol):",
+            f"class {name}(algopy.arc4.ARC4Client, typing.Protocol):",
             *(
                 [_indent(["pass"]), ""]
                 if not any(True for m in methods if not m.config.is_bare)
@@ -259,9 +259,9 @@ def _create_arc32_stub(name: str, methods: Sequence[ARC4Method]) -> str:
 
 def _abi_struct_to_class(s: ARC32StructDef) -> Iterable[str]:
     return (
-        f"class {s.name}(puyapy.arc4.Struct):",
+        f"class {s.name}(algopy.arc4.Struct):",
         _indent(
-            f"{name}: {_arc4_type_to_puyapy_cls(elem_type)}" for name, elem_type in s.elements
+            f"{name}: {_arc4_type_to_algopy_cls(elem_type)}" for name, elem_type in s.elements
         ),
     )
 
@@ -271,7 +271,7 @@ def _abi_method_to_signature(m: ARC4Method) -> str:
     try:
         output_struct = structs["output"]
     except KeyError:
-        return_type = _arc4_type_to_puyapy_cls(m.returns.type_)
+        return_type = _arc4_type_to_algopy_cls(m.returns.type_)
     else:
         return_type = output_struct.name
 
@@ -292,11 +292,11 @@ def _abi_method_to_signature(m: ARC4Method) -> str:
 
 
 def _abi_arg(arg: ARC4MethodArg, struct: ARC32StructDef | None) -> str:
-    python_type = struct.name if struct else _arc4_type_to_puyapy_cls(arg.type_)
+    python_type = struct.name if struct else _arc4_type_to_algopy_cls(arg.type_)
     return f"{arg.name}: {python_type},"
 
 
-def _arc4_type_to_puyapy_cls(typ: str) -> str:
+def _arc4_type_to_algopy_cls(typ: str) -> str:
     return arc4_to_wtype(typ).stub_name
 
 

@@ -1,4 +1,4 @@
-from puyapy import BigUInt, Contract, subroutine
+from algopy import BigUInt, Contract, subroutine
 
 
 class BiguintBinaryOps(Contract):

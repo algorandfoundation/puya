@@ -1,7 +1,7 @@
 import typing
 
-from puyapy import Contract, subroutine
-from puyapy.arc4 import (
+from algopy import Contract, subroutine
+from algopy.arc4 import (
     Bool,
     StaticArray,
     String,

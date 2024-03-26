@@ -23,14 +23,14 @@ def transform_ast(compile_context: CompileContext) -> dict[str, Module]:
         if module.is_stub:
             if module_name in ("abc", "typing", "collections.abc"):
                 logger.debug(f"Skipping stdlib stub {module_rel_path}")
-            elif module_name.startswith("puyapy"):
-                logger.debug(f"Skipping puyapy stub {module_rel_path}")
+            elif module_name.startswith("algopy"):
+                logger.debug(f"Skipping algopy stub {module_rel_path}")
             elif Path(module.path).is_relative_to(TYPESHED_PATH):
                 logger.debug(f"Skipping typeshed stub {module_rel_path}")
             else:
                 logger.warning(f"Skipping stub: {module_rel_path}")
         elif module_name in EMBEDDED_MODULES:
-            logger.debug(f"Building AWST for embedded puyapy lib at {module_rel_path}")
+            logger.debug(f"Building AWST for embedded algopy lib at {module_rel_path}")
             result[module_name] = ModuleASTConverter(ctx, module).convert()
         else:
             logger.debug(f"Discovered user module {module_name} at {module_rel_path}")

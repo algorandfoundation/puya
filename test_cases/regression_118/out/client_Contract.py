@@ -3,12 +3,12 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class Contract(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod
+class Contract(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod
     def verify(
         self,
-        values: puyapy.arc4.DynamicArray[puyapy.arc4.UInt256],
-    ) -> puyapy.arc4.Tuple[puyapy.arc4.Bool, puyapy.arc4.String]: ...
+        values: algopy.arc4.DynamicArray[algopy.arc4.UInt256],
+    ) -> algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.String]: ...

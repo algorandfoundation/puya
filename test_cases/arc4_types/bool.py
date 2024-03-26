@@ -1,7 +1,7 @@
 import typing as t
 
-from puyapy import Bytes, Contract, subroutine
-from puyapy.arc4 import (
+from algopy import Bytes, Contract, subroutine
+from algopy.arc4 import (
     Bool as ARC4Bool,
     DynamicArray,
     StaticArray,

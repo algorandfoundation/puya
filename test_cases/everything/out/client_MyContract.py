@@ -3,34 +3,34 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class MyContract(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod(create=True)
+class MyContract(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod(create=True)
     def create(
         self,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod(allow_actions=['NoOp', 'OptIn'])
+    @algopy.arc4.abimethod(allow_actions=['NoOp', 'OptIn'])
     def register(
         self,
-        name: puyapy.arc4.String,
+        name: algopy.arc4.String,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def say_hello(
         self,
-    ) -> puyapy.arc4.String: ...
+    ) -> algopy.arc4.String: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def calculate(
         self,
-        a: puyapy.arc4.UInt64,
-        b: puyapy.arc4.UInt64,
-    ) -> puyapy.arc4.UInt64: ...
+        a: algopy.arc4.UInt64,
+        b: algopy.arc4.UInt64,
+    ) -> algopy.arc4.UInt64: ...
 
-    @puyapy.arc4.abimethod(allow_actions=['CloseOut'])
+    @algopy.arc4.abimethod(allow_actions=['CloseOut'])
     def close_out(
         self,
     ) -> None: ...

@@ -3,21 +3,21 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class TestContract(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod(create=True)
+class TestContract(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod(create=True)
     def create(
         self,
-        bool_param: puyapy.arc4.Bool,
-        uint64_param: puyapy.arc4.UInt64,
-        bytes_param: puyapy.arc4.DynamicBytes,
-        tuple_param: puyapy.arc4.Tuple[puyapy.arc4.Bool, puyapy.arc4.UInt64, puyapy.arc4.DynamicBytes],
-    ) -> puyapy.arc4.Tuple[puyapy.arc4.Bool, puyapy.arc4.UInt64, puyapy.arc4.DynamicBytes]: ...
+        bool_param: algopy.arc4.Bool,
+        uint64_param: algopy.arc4.UInt64,
+        bytes_param: algopy.arc4.DynamicBytes,
+        tuple_param: algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.UInt64, algopy.arc4.DynamicBytes],
+    ) -> algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.UInt64, algopy.arc4.DynamicBytes]: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def tuple_of_arc4(
         self,
-        args: puyapy.arc4.Tuple[puyapy.arc4.UInt8, puyapy.arc4.Address],
-    ) -> puyapy.arc4.Tuple[puyapy.arc4.UInt8, puyapy.arc4.Address]: ...
+        args: algopy.arc4.Tuple[algopy.arc4.UInt8, algopy.arc4.Address],
+    ) -> algopy.arc4.Tuple[algopy.arc4.UInt8, algopy.arc4.Address]: ...

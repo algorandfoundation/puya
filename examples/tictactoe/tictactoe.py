@@ -1,7 +1,7 @@
 # ruff: noqa: PT018
 import typing
 
-from puyapy import Account, GlobalState, Txn, UInt64, arc4, op, subroutine
+from algopy import Account, GlobalState, Txn, UInt64, arc4, op, subroutine
 
 Row: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[3]]
 Game: typing.TypeAlias = arc4.StaticArray[Row, typing.Literal[3]]

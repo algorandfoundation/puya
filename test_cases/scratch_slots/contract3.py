@@ -1,4 +1,4 @@
-from puyapy import Contract, urange
+from algopy import Contract, urange
 
 
 class MyOtherContract(Contract, scratch_slots=urange(0, -1, -1)):

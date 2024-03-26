@@ -33,7 +33,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="puya-gen",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description="Output puyapy contract client for typed ARC4 ABI calls from an "
+        description="Output algopy contract client for typed ARC4 ABI calls from an "
         "ARC32 application.json spec",
     )
     parser.add_argument("paths", type=Path, nargs="+", metavar="PATH")

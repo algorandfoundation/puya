@@ -1,7 +1,7 @@
 import typing
 from collections.abc import Callable
 
-from puyapy import UInt64
+from algopy import UInt64
 
 class LogicSig:
     """A logic signature"""

@@ -1,4 +1,4 @@
-from puyapy import Bytes, BytesBacked, UInt64
+from algopy import Bytes, BytesBacked, UInt64
 
 class OpUpFeeSource(UInt64):
     """Defines the source of fees for the OpUp utility."""

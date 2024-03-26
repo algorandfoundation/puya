@@ -1,4 +1,4 @@
-from puyapy import (
+from algopy import (
     Account,
     ARC4Contract,
     LocalState,
@@ -7,7 +7,7 @@ from puyapy import (
     op,
     subroutine,
 )
-from puyapy.arc4 import (
+from algopy.arc4 import (
     String,
     UInt64 as arc4_UInt64,
     abimethod,

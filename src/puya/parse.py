@@ -54,9 +54,9 @@ class EmbeddedSource:
 _MYPY_EMBEDDED_MODULES = {
     es.mypy_module_name: es
     for es in (
-        EmbeddedSource.from_path("_puyapy_.py", module_override="puyapy"),
-        EmbeddedSource.from_path("puyapy_lib_arc4.py"),
-        EmbeddedSource.from_path("puyapy_lib_bytes.py"),
+        EmbeddedSource.from_path("_algopy_.py", module_override="algopy"),
+        EmbeddedSource.from_path("algopy_lib_arc4.py"),
+        EmbeddedSource.from_path("algopy_lib_bytes.py"),
     )
 }
 
@@ -262,7 +262,7 @@ def parse_and_typecheck(paths: Sequence[Path], mypy_options: mypy.options.Option
         [
             mypy.build.BuildSource(
                 # present a 'tidy' path to the user
-                path=str(Path("<puya>") / f"{module.puya_module_name}.py"),
+                path=str(Path("<algopy>") / f"{module.puya_module_name}.py"),
                 module=module.mypy_module_name,
                 text=module.path.read_text("utf8"),
             )

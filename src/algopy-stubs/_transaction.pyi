@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import Account, Application, Asset, Bytes, OnCompleteAction, TransactionType, UInt64
+from algopy import Account, Application, Asset, Bytes, OnCompleteAction, TransactionType, UInt64
 
 class TransactionBaseProtocol(typing.Protocol):
     @property

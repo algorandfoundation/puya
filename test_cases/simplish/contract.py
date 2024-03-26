@@ -1,11 +1,11 @@
-from puyapy import (
+from algopy import (
     Bytes,
     OnCompleteAction,
     UInt64,
     log,
     subroutine,
 )
-from puyapy.op import (
+from algopy.op import (
     AppGlobal,
     AssetHoldingGet,
     Base64,

@@ -1,7 +1,7 @@
 import typing
 
-from puyapy import UInt64
-from puyapy._transaction import (
+from algopy import UInt64
+from algopy._transaction import (
     ApplicationProtocol,
     AssetConfigProtocol,
     AssetFreezeProtocol,

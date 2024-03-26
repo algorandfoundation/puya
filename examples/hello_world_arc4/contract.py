@@ -1,4 +1,4 @@
-from puyapy import ARC4Contract, arc4
+from algopy import ARC4Contract, arc4
 
 # Note: this contract is also used in the Puya AlgoKit template. So any breaking changes
 # that require fixing this contract should also be made there

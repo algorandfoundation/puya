@@ -1,4 +1,4 @@
-```{autodoc2-object} puyapy.op
+```{autodoc2-object} algopy
     
 render_plugin = "myst"
 ```

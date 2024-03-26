@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, Txn, UInt64, log, op, subroutine
+from algopy import Bytes, Contract, Txn, UInt64, log, op, subroutine
 
 ADD = 1
 SUB = 2

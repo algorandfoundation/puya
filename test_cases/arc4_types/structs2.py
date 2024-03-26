@@ -1,4 +1,4 @@
-from puyapy import Contract, arc4, log
+from algopy import Contract, arc4, log
 
 from test_cases.arc4_types.structs import Flags
 
