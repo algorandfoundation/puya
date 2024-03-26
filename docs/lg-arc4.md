@@ -5,7 +5,7 @@
 To author an arc4 contract you should extend the `ARC4Contract` base class.
 
 ```python
-from puyapy import ARC4Contract
+from algopy import ARC4Contract
 
 class HelloWorldContract(ARC4Contract):
     ...
@@ -28,7 +28,7 @@ Individual methods on a smart contract should be annotated with an `abimethod` d
 A method that should not be externally available should be annotated with a `subroutine` decorator.
 
 ```python
-from puyapy import ARC4Contract, subroutine, arc4
+from algopy import ARC4Contract, subroutine, arc4
 
 
 class HelloWorldContract(ARC4Contract):
@@ -51,55 +51,55 @@ Routing is required to dispatch calls handled by the approval program to the rel
 
 ARC4 defines a number of [data types](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md#types) which can be used in an ARC4 compatible contract and details how these types should be encoded in binary.
 
-Algorand Python exposes these through a number of types which can be imported from the `puyapy.arc4` module. These types represent binary encoded values following the rules prescribed in the ARC which can mean operations performed directly on these types are not as efficient as ones performed on natively supported types (such as `puyapy.UInt64` or `puyapy.Bytes`)
+Algorand Python exposes these through a number of types which can be imported from the `algopy.arc4` module. These types represent binary encoded values following the rules prescribed in the ARC which can mean operations performed directly on these types are not as efficient as ones performed on natively supported types (such as `algopy.UInt64` or `algopy.Bytes`)
 
 Where supported, the native equivalent of an ARC4 type can be obtained via the `.native` property. It is possible to use native types in an ABI method and the router will automatically encode and decode these types to their ARC4 equivalent.
 
 ### Booleans
 
-**Type:** `puyapy.arc4.Bool`
+**Type:** `algopy.arc4.Bool`
 **Encoding:** A single byte where the most significant bit is `1` for `True` and `0` for `False`
 **Native equivalent:** `builtins.bool`
 
 ### Unsigned ints
 
-**Types:** `puyapy.arc4.UIntN` (<= 64 bits) `puyapy.arc4.BigUIntN` (> 64 bits)
+**Types:** `algopy.arc4.UIntN` (<= 64 bits) `algopy.arc4.BigUIntN` (> 64 bits)
 **Encoding:** A big endian byte array of N bits
-**Native equivalent:** `puyapy.UInt64` or `puya.py.BigUInt`
+**Native equivalent:** `algopy.UInt64` or `puya.py.BigUInt`
 
-Common bit sizes have also been aliased under `puyapy.arc4.UInt8`, `puyapy.arc4.UInt16` etc. A uint of any size between 8 and 512 bits (in intervals of 8bits) can be created using a generic parameter. It can be helpful to define your own alias for this type. 
+Common bit sizes have also been aliased under `algopy.arc4.UInt8`, `algopy.arc4.UInt16` etc. A uint of any size between 8 and 512 bits (in intervals of 8bits) can be created using a generic parameter. It can be helpful to define your own alias for this type. 
 
 ```python
 import typing as t
-from puyapy import arc4
+from algopy import arc4
 
 UInt40: t.TypeAlias = arc4.UIntN[t.Literal[40]]
 ```
 
 ### Unsigned fixed point decimals
 
-**Types:** `puyapy.arc4.UFixedNxM` (<= 64 bits) `puyapy.arc4.BigUFixedNxM` (> 64 bits)
+**Types:** `algopy.arc4.UFixedNxM` (<= 64 bits) `algopy.arc4.BigUFixedNxM` (> 64 bits)
 **Encoding:** A big endian byte array of N bits where `encoded_value = value / (10^M)`
 **Native equivalent:** _none_
 
 ```python
 import typing as t
-from puyapy import arc4
+from algopy import arc4
 
 Decimal: t.TypeAlias = arc4.UFixedNxM[t.Literal[64], t.Literal[10]]
 ```
 
 ### Bytes and strings
 
-**Types:** `puyapy.arc4.DynamicBytes` and `puyapy.arc4.String` 
+**Types:** `algopy.arc4.DynamicBytes` and `algopy.arc4.String` 
 **Encoding:** A variable length byte array prefixed with a 16-bit big endian header indicating the length of the data
-**Native equivalent:** `puyapy.Bytes` and `puyapy.String`
+**Native equivalent:** `algopy.Bytes` and `algopy.String`
 
 Strings are assumed to be utf-8 encoded and the length of a string is the total number of bytes, _not the total number of characters_. 
 
 ### Static arrays
 
-**Type:** `puyapy.arc4.StaticArray`
+**Type:** `algopy.arc4.StaticArray`
 **Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
 **Native equivalent:** _none_
 
@@ -107,14 +107,14 @@ An ARC4 StaticArray is an array of a fixed size. The item type is specified by t
 
 ```python
 import typing as t
-from puyapy import arc4
+from algopy import arc4
 
 FourBytes: t.TypeAlias = arc4.StaticArray[arc4.Byte, t.Literal[4]]
 ```
 
 ### Dynamic arrays
 
-**Type:** `puyapy.arc4.DynamicArray`
+**Type:** `algopy.arc4.DynamicArray`
 **Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
 **Native equivalent:** _none_
 
@@ -124,14 +124,14 @@ The current length of the array is encoded in a 16-bit prefix similar to the `ar
 
 ```python
 import typing as t
-from puyapy import arc4
+from algopy import arc4
 
 UInt64Array: t.TypeAlias = arc4.DynamicArray[arc4.UInt64]
 ```
 
 ### Tuples
 
-**Type:** `puyapy.arc4.Tuple`
+**Type:** `algopy.arc4.Tuple`
 **Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
 **Native equivalent:** `builtins.tuple`
 
@@ -139,7 +139,7 @@ ARC4 Tuples are immutable statically sized arrays of mixed item types. Item type
 
 ### Structs
 
-**Type:** `puyapy.arc4.Struct`
+**Type:** `algopy.arc4.Struct`
 **Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
 **Native equivalent:** _none_
 
@@ -148,7 +148,7 @@ ARC4 Structs are mutable named tuples. Items can be accessed and mutated via nam
 ```python
 import typing
 
-from puyapy import arc4
+from algopy import arc4
 
 Decimal: typing.TypeAlias = arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]
 
@@ -170,7 +170,7 @@ Containers are composed of a head and tail portion.
 
 ### Reference types
 
-**Types:** `puyapy.Account`, `puyapy.Application`, `puyapy.Asset`, `puyapy.gtxn.PaymentTransaction`, `puyapy.gtxn.KeyRegistrationTransaction`, `puyapy.gtxn.AssetConfigTransaction`, `puyapy.gtxn.AssetTransferTransaction`, `puyapy.gtxn.AssetFreezeTransaction`, `puyapy.gtxn.ApplicationCallTransaction` 
+**Types:** `algopy.Account`, `algopy.Application`, `algopy.Asset`, `algopy.gtxn.PaymentTransaction`, `algopy.gtxn.KeyRegistrationTransaction`, `algopy.gtxn.AssetConfigTransaction`, `algopy.gtxn.AssetTransferTransaction`, `algopy.gtxn.AssetFreezeTransaction`, `algopy.gtxn.ApplicationCallTransaction` 
 
 The ARC4 specification allows for using a number of [reference types](https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0004.md#reference-types) in an ABI method signature where this reference type refers to...
  - another transaction in the group
@@ -181,7 +181,7 @@ The ARC4 specification allows for using a number of [reference types](https://gi
 These types can only be used as parameters, and not as return types.
 
 ```python
-from puyapy import (
+from algopy import (
     Account,
     Application,
     ARC4Contract,

@@ -2,14 +2,14 @@
 
 An Algorand Python smart contract is defined within a single class. You can extend other contracts (through inheritance), and also define standalone functions and reference them. This also works across different Python packages - in other words, you can have a Python library with common functions and re-use that library across multiple projects!
 
-All contracts must inherit from the base class `puyapy.Contract` - either directly or indirectly, which can include inheriting from `puyapy.ARC4Contract`. For a non-ARC4 contract, a contract class must implement an `approval_program` and a `clear_state_program` method. For ARC4 contracts, these methods will be implemented for you, although you can optionally provide a `clear_state_program` (the default implementation just always approves).
+All contracts must inherit from the base class `algopy.Contract` - either directly or indirectly, which can include inheriting from `algopy.ARC4Contract`. For a non-ARC4 contract, a contract class must implement an `approval_program` and a `clear_state_program` method. For ARC4 contracts, these methods will be implemented for you, although you can optionally provide a `clear_state_program` (the default implementation just always approves).
 
 As an example, this is a valid contract that always approves:
 
 ```python
-import puyapy
+import algopy
 
-class Contract(puyapy.Contract):
+class Contract(algopy.Contract):
     def approval_program(self) -> bool:
         return True
 
@@ -17,14 +17,14 @@ class Contract(puyapy.Contract):
         return True
 ```
 
-The return value of these methods can be either a `bool` that indicates whether the transaction should approve or not, or a `puyapy.UInt64` value, where `UInt64(0)` indicates that the transaction should be rejected and any other value indicates that it should be approved.
+The return value of these methods can be either a `bool` that indicates whether the transaction should approve or not, or a `algopy.UInt64` value, where `UInt64(0)` indicates that the transaction should be rejected and any other value indicates that it should be approved.
 
 And here is a valid ARC4 contract:
 
 ```python
-import puyapy
+import algopy
 
-class ABIContract(puyapy.ARC4Contract):
+class ABIContract(algopy.ARC4Contract):
     """This contract can be created, but otherwise does nothing"""
     pass
 ```
@@ -38,7 +38,7 @@ TODO: concrete vs abstract, link to inheritance for code-reuse
 A common pattern is to perform different logic depending on the on-complete action passed to the contract call or whether the contract is being created or not. This is [handled for you when creating ARC-4 contracts](./lg-arc4.md), but if you are creating a contract by hand then following is an example of how you could potentially split based on on-complete and creation:
 
 ```python
-from puyapy import Contract, OnCompleteAction, Txn, log, subroutine
+from algopy import Contract, OnCompleteAction, Txn, log, subroutine
 
 
 class ManualRouting(Contract):

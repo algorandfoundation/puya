@@ -1,4 +1,4 @@
-# Algorand Python language guide
+# Language Guide
 
     !TODO: @achidlow
     - Syntax & semantics

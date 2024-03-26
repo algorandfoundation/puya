@@ -8,7 +8,7 @@ These can be referenced within stuff and things
 Example:
 
 ```python
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 SCALE = 100000
 SCALED_PI = 314159

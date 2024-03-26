@@ -17,11 +17,11 @@ There three sets of datatypes available to assign variables as:
 
 ## AVM primitive types
 
-The primitive types of the AVM, `uint64` and `bytes[]` are represented by `puyapy.UInt64` and
-`puyapy.Bytes` types respectively. Additionally, there are some special types defined in Algorand Python:
+The primitive types of the AVM, `uint64` and `bytes[]` are represented by `algopy.UInt64` and
+`algopy.Bytes` types respectively. Additionally, there are some special types defined in Algorand Python:
 
--   `puyapy.String` - A convenient wrapper over `bytes[]` allow for UTF-8 string representation
--   `puyapy.BigUInt` - Allowing AVM supported wide-math (up to 512 bits)
+-   `algopy.String` - A convenient wrapper over `bytes[]` allow for UTF-8 string representation
+-   `algopy.BigUInt` - Allowing AVM supported wide-math (up to 512 bits)
 
 ### UInt64
 
@@ -183,4 +183,4 @@ not supported as a value, only as an indicator of "void" returning function
 
 ARC-4 data types are a first class concept in Algorand Python. They can be passed into ARC-4 methods (which will translate to the relevant ARC-4 method signature), passed into subroutines, or instantiated into local variables. A limited set of operations are exposed on some ARC-4 types, but often it may make sense to convert the ARC-4 value to a native AVM type, in which case you can use the `native` property to retrieve the value. Most of the ARC-4 types also allow for mutation e.g. you can edit values in arrays by index.
 
-Please see the [reference documentation](./api-puyapy.arc4.md) for the different classes that can be used to represent ARC-4 values or the [ARC-4 documentation](./lg-arc4.md) for more information.
+Please see the [reference documentation](./api-algopy.arc4.md) for the different classes that can be used to represent ARC-4 values or the [ARC-4 documentation](./lg-arc4.md) for more information.

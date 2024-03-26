@@ -1,4 +1,4 @@
-# PuyaPy Principles
+# Principles
 ## Background
 
 **Smart contracts** on the Algorand blockchain run on the Algorand Virtual Machine ([AVM](https://developer.algorand.org/docs/get-details/dapps/avm/)).
