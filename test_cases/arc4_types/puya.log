@@ -495,9 +495,15 @@ debug: Added item_index_internal%2#0 to Phi node: let item_index_internal%2#1: u
 debug: Added item_index_internal%2#2 to Phi node: let item_index_internal%2#1: uint64 = φ(item_index_internal%2#0 <- block@8, item_index_internal%2#2 <- block@11) in block@11: // for_footer_L32
 debug: Added total#3 to Phi node: let total#5: uint64 = φ(total#3 <- block@8) in block@8: // after_for_L25
 debug: Added total#6 to Phi node: let total#5: uint64 = φ(total#3 <- block@8, total#6 <- block@11) in block@11: // for_footer_L32
+debug: Created Phi assignment: let dynamic_bytes3#1: bytes = undefined while trying to resolve 'dynamic_bytes3' in block@9: // for_header_L32
+debug: Added dynamic_bytes3#0 to Phi node: let dynamic_bytes3#1: bytes = φ(dynamic_bytes3#0 <- block@8) in block@8: // after_for_L25
+debug: Added dynamic_bytes3#1 to Phi node: let dynamic_bytes3#1: bytes = φ(dynamic_bytes3#0 <- block@8, dynamic_bytes3#1 <- block@11) in block@11: // for_footer_L32
+debug: Replacing trivial Phi node: let dynamic_bytes3#1: bytes = φ(dynamic_bytes3#0 <- block@8, dynamic_bytes3#1 <- block@11) (dynamic_bytes3#1) with dynamic_bytes3#0
+debug: Deleting Phi assignment: let dynamic_bytes3#1: bytes = φ(dynamic_bytes3#0 <- block@8, dynamic_bytes3#1 <- block@11)
+debug: Replaced trivial Phi node: let dynamic_bytes3#1: bytes = φ(dynamic_bytes3#0 <- block@8, dynamic_bytes3#1 <- block@11) (dynamic_bytes3#1) with dynamic_bytes3#0 in current definition for 3 blocks
 debug: Terminated block@12: // after_for_L32
-debug: Sealing block@0: // L38
-debug: Terminated block@0: // L38
+debug: Sealing block@0: // L43
+debug: Terminated block@0: // L43
 debug: Sealing block@0: // L5
 debug: Terminated block@0: // L5
 debug: Sealing block@0: // L13
@@ -2779,6 +2785,8 @@ debug: Replacing {array_data%0#3} with dynamic_bytes#0 made 1 modifications
 debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: Found equivalence set: array_length%1#0, reverse_index_internal%1#0
 debug: Found equivalence set: array_length%2#0, reverse_index_internal%2#0
+debug: Found equivalence set: concat_result%0#0, dynamic_bytes3#2
+debug: Replacing {concat_result%0#0} with dynamic_bytes3#2 made 1 modifications
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x0003 0x02) to 0x000302
 debug: Simplified (* item_index_internal%0#1 1u) to item_index_internal%0#1
@@ -2788,9 +2796,8 @@ debug: Simplified (extract_uint16 0x00020304 0u) to 2u
 debug: Simplified ((extract 2 0) 0x00020304) to 0x0304
 debug: Simplified (* item_index_internal%1#1 1u) to item_index_internal%1#1
 debug: Simplified ((extract 2 0) 0x00020304) to 0x0304
-debug: Simplified (extract_uint16 0x00020304 0u) to 2u
-debug: Simplified ((extract 2 0) 0x00020304) to 0x0304
 debug: Simplified (* item_index_internal%2#1 1u) to item_index_internal%2#1
+debug: Simplified ((extract 2 0) 0x0003616263) to 0x616263
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_data%0#0
 debug: Removing unused variable dynamic_bytes2#0
@@ -2806,10 +2813,14 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let array_value%0#0: bytes = ((extract 2 0) dynamic_bytes#0) with copy of existing registers [Register(atype=bytes, name='tmp%0', version=0, source_location=arc4_types/dynamic_bytes.py:13:15-35)]
+debug: Replacing redundant declaration let array_value%2#0: bytes = ((extract 2 0) dynamic_bytes3#0) with copy of existing registers [Register(atype=bytes, name='tmp%10', version=0, source_location=arc4_types/dynamic_bytes.py:29:15-36)]
+debug: Replacing redundant declaration let expr_value_trimmed%0#0: bytes = ((extract 2 0) dynamic_bytes3#0) with copy of existing registers [Register(atype=bytes, name='tmp%10', version=0, source_location=arc4_types/dynamic_bytes.py:29:15-36)]
 debug: Found equivalence set: tmp%0#0, array_value%0#0
 debug: Replacing {array_value%0#0} with tmp%0#0 made 1 modifications
 debug: Found equivalence set: item_index_internal%0#1, item_index%0#0
 debug: Replacing {item_index%0#0} with item_index_internal%0#1 made 1 modifications
+debug: Found equivalence set: tmp%10#0, array_value%2#0, expr_value_trimmed%0#0
+debug: Replacing {array_value%2#0, expr_value_trimmed%0#0} with tmp%10#0 made 2 modifications
 debug: Found equivalence set: item_index_internal%1#1, item_index%1#0
 debug: Replacing {item_index%1#0} with item_index_internal%1#1 made 1 modifications
 debug: Found equivalence set: item_index_internal%2#1, item_index%2#0
@@ -2841,8 +2852,7 @@ debug: Removing unused variable tmp%7#0
 debug: Removing unused variable array_length%1#0
 debug: Removing unused variable array_value%1#0
 debug: Removing unused variable tmp%9#0
-debug: Removing unused variable array_length%2#0
-debug: Removing unused variable array_value%2#0
+debug: Removing unused variable expr_value_trimmed%1#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
@@ -2923,6 +2933,7 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== 0x020301 "/x02/x03/x01") to 1u
 debug: Simplified ((extract 2 0) 0x00020304) to 0x0304
 debug: Simplified (== 0x00020304 "/x00/x02/x03/x04") to 1u
+debug: Simplified (extract_uint16 0x00020304 0u) to 2u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#0
 debug: Removing unused variable tmp%2#0
@@ -2950,10 +2961,12 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== 0x0304 "/x03/x04") to 1u
+debug: Simplified (concat 0x0304 0x616263) to 0x0304616263
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%1#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable tmp%12#0
+debug: Removing unused variable array_length%2#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
@@ -2975,8 +2988,10 @@ debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicByte
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (len 0x0304616263) to 5u
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%11#0
+debug: Removing unused variable concatenated%0#0
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
@@ -2998,6 +3013,128 @@ debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicByte
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified ((extract 6 0) len_bytes%0#0) to 0x0005
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable len_%0#0
+debug: Removing unused variable len_bytes%0#0
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to arc4_types/out/Arc4DynamicBytesContract.ssa.opt_pass_8.ir
+debug: Begin optimization pass 9/100
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x0005 0x0304616263) to 0x00050304616263
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable len_16_bit%0#0
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to arc4_types/out/Arc4DynamicBytesContract.ssa.opt_pass_9.ir
+debug: Begin optimization pass 10/100
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (== 0x00050304616263 "/x00/x05/x03/x04abc") to 1u
+debug: Simplified ((extract 2 0) 0x00050304616263) to 0x0304616263
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable dynamic_bytes3#2
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to arc4_types/out/Arc4DynamicBytesContract.ssa.opt_pass_10.ir
+debug: Begin optimization pass 11/100
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (== 0x0304616263 "/x03/x04abc") to 1u
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%15#0
+debug: Removing unused variable tmp%16#0
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to arc4_types/out/Arc4DynamicBytesContract.ssa.opt_pass_11.ir
+debug: Begin optimization pass 12/100
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%17#0
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Output IR to arc4_types/out/Arc4DynamicBytesContract.ssa.opt_pass_12.ir
+debug: Begin optimization pass 13/100
+debug: Optimizing subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
@@ -3014,7 +3151,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: No optimizations performed in pass 8, ending loop
+debug: No optimizations performed in pass 13, ending loop
 debug: Removing Phis from test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program
 debug: Removing Phis from test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program
 debug: Coalescing local variables in test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program using strategy RootOperandGrouping
