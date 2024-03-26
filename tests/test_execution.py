@@ -1336,3 +1336,25 @@ def test_nested_bool_context(harness: _TestHarness) -> None:
     # expected error message here is just an example, update test once a better one is available
     with pytest.raises(puya.errors.CodeError, match="Invalid use of a type union"):
         harness.deploy_from_closure(test)
+
+
+@pytest.mark.xfail(
+    reason="Known issue, see https://github.com/algorandfoundation/puya/issues/152",
+    raises=puya.errors.CodeError,
+)
+def test_arc4_tuple_element_mutation(harness: _TestHarness) -> None:
+    def test() -> None:
+        from algopy import Contract, arc4
+
+        class MyContract(Contract):
+            def approval_program(self) -> bool:
+                t = arc4.Tuple((arc4.UInt64(1), arc4.DynamicBytes(b"abc")))
+                assert t[1].bytes[2:] == b"abc", "initial value"
+                t[1].extend(arc4.DynamicBytes(b"def"))
+                assert t[1].bytes[2:] == b"abcdef", "updated value"
+                return True
+
+            def clear_state_program(self) -> bool:
+                return True
+
+    harness.deploy_from_closure(test)
