@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, GlobalState, UInt64
+from algopy import Bytes, Contract, GlobalState, UInt64
 
 
 class AppStateContract(Contract):

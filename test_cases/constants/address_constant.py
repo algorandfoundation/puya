@@ -1,4 +1,4 @@
-from puyapy import Account, Contract, log, op
+from algopy import Account, Contract, log, op
 
 
 class AddressConstantContract(Contract):

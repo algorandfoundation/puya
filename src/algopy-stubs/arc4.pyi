@@ -1,7 +1,7 @@
 import typing
 from collections.abc import Callable, Iterable, Mapping, Reversible, Sequence
 
-import puyapy
+import algopy
 
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
@@ -15,7 +15,7 @@ AllowedOnCompletes: typing.TypeAlias = Sequence[
         "UpdateApplication",
         "DeleteApplication",
     ]
-    | puyapy.OnCompleteAction
+    | algopy.OnCompleteAction
 ]
 """Allowed completion types for ABI methods: 
 NoOp, OptIn, CloseOut, UpdateApplication and DeleteApplication"""
@@ -48,10 +48,10 @@ def baremethod(
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
     """Decorator that indicates a method is an ARC4 bare method"""
 
-def arc4_signature(signature: str, /) -> puyapy.Bytes:
+def arc4_signature(signature: str, /) -> algopy.Bytes:
     """Returns the ARC4 encoded method selector for the specified signature"""
 
-class ARC4Contract(puyapy.Contract):
+class ARC4Contract(algopy.Contract):
     """A contract that conforms to the ARC4 ABI specification, functions decorated with
     `@abimethod` or `@baremethod` will form the public interface of the contract
 
@@ -61,20 +61,20 @@ class ARC4Contract(puyapy.Contract):
     The clear_state_program will by default return True, but can be overridden"""
 
     @typing.final
-    def approval_program(self) -> puyapy.UInt64 | bool: ...
-    def clear_state_program(self) -> puyapy.UInt64 | bool: ...
+    def approval_program(self) -> algopy.UInt64 | bool: ...
+    def clear_state_program(self) -> algopy.UInt64 | bool: ...
 
-class _ABIEncoded(puyapy.BytesBacked, typing.Protocol):
+class _ABIEncoded(algopy.BytesBacked, typing.Protocol):
     @classmethod
-    def from_log(cls, log: puyapy.Bytes, /) -> typing.Self:
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
 
 class String(_ABIEncoded):
     """An ARC4 sequence of bytes containing a UTF8 string"""
 
-    def __init__(self, value: puyapy.String | str = "", /) -> None: ...
+    def __init__(self, value: algopy.String | str = "", /) -> None: ...
     @property
-    def native(self) -> puyapy.String:
+    def native(self) -> algopy.String:
         """Return the String representation of the UTF8 string after ARC4 decoding"""
     def __add__(self, other: String | str) -> String: ...
     def __iadd__(self, other: String | str) -> String: ...
@@ -86,34 +86,34 @@ class String(_ABIEncoded):
 _TBitSize = typing.TypeVar("_TBitSize", bound=int)
 
 class _UIntN(_ABIEncoded, typing.Protocol):
-    def __init__(self, value: puyapy.BigUInt | puyapy.UInt64 | int = 0, /) -> None: ...
+    def __init__(self, value: algopy.BigUInt | algopy.UInt64 | int = 0, /) -> None: ...
 
     # ~~~ https://docs.python.org/3/reference/datamodel.html#basic-customization ~~~
     # TODO: mypy suggests due to Liskov below should be other: object
     #       need to consider ramifications here, ignoring it for now
     def __eq__(  # type: ignore[override]
         self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
     ) -> bool: ...
     def __ne__(  # type: ignore[override]
         self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
     ) -> bool: ...
     def __le__(
         self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
     ) -> bool: ...
     def __lt__(
         self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
     ) -> bool: ...
     def __ge__(
         self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
     ) -> bool: ...
     def __gt__(
         self,
-        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | puyapy.UInt64 | puyapy.BigUInt | int,
+        other: UIntN[_TBitSize] | BigUIntN[_TBitSize] | algopy.UInt64 | algopy.BigUInt | int,
     ) -> bool: ...
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
@@ -124,7 +124,7 @@ class UIntN(_UIntN, typing.Generic[_TBitSize]):
     Max Size: 64 bits"""
 
     @property
-    def native(self) -> puyapy.UInt64:
+    def native(self) -> algopy.UInt64:
         """Return the UInt64 representation of the value after ARC4 decoding"""
 
 class BigUIntN(_UIntN, typing.Generic[_TBitSize]):
@@ -133,7 +133,7 @@ class BigUIntN(_UIntN, typing.Generic[_TBitSize]):
     Max size: 512 bits"""
 
     @property
-    def native(self) -> puyapy.BigUInt:
+    def native(self) -> algopy.BigUInt:
         """Return the BigUInt representation of the value after ARC4 decoding"""
 
 _TDecimalPlaces = typing.TypeVar("_TDecimalPlaces", bound=int)
@@ -316,10 +316,10 @@ class StaticArray(
     def __reversed__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array, in reverse order"""
     @property
-    def length(self) -> puyapy.UInt64:
+    def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
-    def __getitem__(self, index: puyapy.UInt64 | int | slice) -> _TArrayItem: ...
-    def __setitem__(self, index: puyapy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
+    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem: ...
+    def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
 
@@ -332,14 +332,14 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
     def __reversed__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array, in reverse order"""
     @property
-    def length(self) -> puyapy.UInt64:
+    def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
-    def __getitem__(self, index: puyapy.UInt64 | int | slice) -> _TArrayItem: ...
+    def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem: ...
     def append(self, item: _TArrayItem, /) -> None:
         """Append items to this array"""
     def extend(self, other: Iterable[_TArrayItem], /) -> None:
         """Extend this array with the contents of another array"""
-    def __setitem__(self, index: puyapy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
+    def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
     def __add__(self, other: Iterable[_TArrayItem]) -> DynamicArray[_TArrayItem]: ...
     def pop(self) -> _TArrayItem: ...
     def copy(self) -> typing.Self:
@@ -350,7 +350,7 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
 class Address(StaticArray[Byte, typing.Literal[32]]):
     """An alias for an array containing 32 bytes representing an Algorand address"""
 
-    def __init__(self, value: puyapy.Account | str | puyapy.Bytes = ..., /):
+    def __init__(self, value: algopy.Account | str | algopy.Bytes = ..., /):
         """
         If `value` is a string, it should be a 58 character base32 string,
         ie a base32 string-encoded 32 bytes public key + 4 bytes checksum.
@@ -359,14 +359,14 @@ class Address(StaticArray[Byte, typing.Literal[32]]):
         Defaults to the zero-address.
         """
     @property
-    def native(self) -> puyapy.Account:
+    def native(self) -> algopy.Account:
         """Return the Account representation of the address after ARC4 decoding"""
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero address"""
-    def __eq__(self, other: Address | puyapy.Account | str) -> bool:  # type: ignore[override]
+    def __eq__(self, other: Address | algopy.Account | str) -> bool:  # type: ignore[override]
         """Address equality is determined by the address of another
         `arc4.Address`, `Account` or `str`"""
-    def __ne__(self, other: Address | puyapy.Account | str) -> bool:  # type: ignore[override]
+    def __ne__(self, other: Address | algopy.Account | str) -> bool:  # type: ignore[override]
         """Address equality is determined by the address of another
         `arc4.Address`, `Account` or `str`"""
 
@@ -376,9 +376,9 @@ class DynamicBytes(DynamicArray[Byte]):
     @typing.overload
     def __init__(self, *values: Byte | UInt8 | int): ...
     @typing.overload
-    def __init__(self, value: puyapy.Bytes | bytes, /): ...
+    def __init__(self, value: algopy.Bytes | bytes, /): ...
     @property
-    def native(self) -> puyapy.Bytes:
+    def native(self) -> algopy.Bytes:
         """Return the Bytes representation of the address after ARC4 decoding"""
 
 _TTuple = typing.TypeVarTuple("_TTuple")
@@ -409,13 +409,13 @@ class Struct(metaclass=_StructMeta):
     """Base class for ARC4 Struct types"""
 
     @classmethod
-    def from_bytes(cls, value: puyapy.Bytes | bytes, /) -> typing.Self:
+    def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes[] (no validation)"""
     @property
-    def bytes(self) -> puyapy.Bytes:
+    def bytes(self) -> algopy.Bytes:
         """Get the underlying bytes[]"""
     @classmethod
-    def from_log(cls, log: puyapy.Bytes, /) -> typing.Self:
+    def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
@@ -424,12 +424,12 @@ class ARC4Client(typing.Protocol): ...
 
 _TABIResult_co = typing.TypeVar("_TABIResult_co", covariant=True)
 _TABIArg: typing.TypeAlias = (
-    puyapy.BytesBacked
-    | puyapy.UInt64
-    | puyapy.Bytes
-    | puyapy.Asset
-    | puyapy.Account
-    | puyapy.Application
+    algopy.BytesBacked
+    | algopy.UInt64
+    | algopy.Bytes
+    | algopy.Asset
+    | algopy.Account
+    | algopy.Application
     | int
     | bool
     | bytes
@@ -442,20 +442,20 @@ class _ABICallWithReturnProtocol(typing.Protocol[_TABIResult_co]):
         method: str,
         /,
         *args: _TABIArg,
-        app_id: puyapy.Application | puyapy.UInt64 | int = ...,
-        on_completion: puyapy.OnCompleteAction = ...,
-        approval_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
-        clear_state_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
+        app_id: algopy.Application | algopy.UInt64 | int = ...,
+        on_completion: algopy.OnCompleteAction = ...,
+        approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
         global_num_uint: UInt64 | int = ...,
         global_num_bytes: UInt64 | int = ...,
         local_num_uint: UInt64 | int = ...,
         local_num_bytes: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        fee: puyapy.UInt64 | int = ...,
-        sender: puyapy.Account | str = ...,
-        note: puyapy.Bytes | bytes | str = ...,
-        rekey_to: puyapy.Account | str = ...,
-    ) -> tuple[_TABIResult_co, puyapy.itxn.ApplicationCallInnerTransaction]: ...
+        fee: algopy.UInt64 | int = ...,
+        sender: algopy.Account | str = ...,
+        note: algopy.Bytes | bytes | str = ...,
+        rekey_to: algopy.Account | str = ...,
+    ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
 
 class _ABICallProtocolType(typing.Protocol):
     @typing.overload
@@ -464,40 +464,40 @@ class _ABICallProtocolType(typing.Protocol):
         method: Callable[..., None] | str,
         /,
         *args: _TABIArg,
-        app_id: puyapy.Application | puyapy.UInt64 | int = ...,
-        on_completion: puyapy.OnCompleteAction = ...,
-        approval_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
-        clear_state_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
+        app_id: algopy.Application | algopy.UInt64 | int = ...,
+        on_completion: algopy.OnCompleteAction = ...,
+        approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
         global_num_uint: UInt64 | int = ...,
         global_num_bytes: UInt64 | int = ...,
         local_num_uint: UInt64 | int = ...,
         local_num_bytes: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        fee: puyapy.UInt64 | int = ...,
-        sender: puyapy.Account | str = ...,
-        note: puyapy.Bytes | bytes | str = ...,
-        rekey_to: puyapy.Account | str = ...,
-    ) -> puyapy.itxn.ApplicationCallInnerTransaction: ...
+        fee: algopy.UInt64 | int = ...,
+        sender: algopy.Account | str = ...,
+        note: algopy.Bytes | bytes | str = ...,
+        rekey_to: algopy.Account | str = ...,
+    ) -> algopy.itxn.ApplicationCallInnerTransaction: ...
     @typing.overload
     def __call__(  # type: ignore[misc]
         self,
         method: Callable[..., _TABIResult_co],
         /,
         *args: _TABIArg,
-        app_id: puyapy.Application | puyapy.UInt64 | int = ...,
-        on_completion: puyapy.OnCompleteAction = ...,
-        approval_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
-        clear_state_program: puyapy.Bytes | bytes | tuple[puyapy.Bytes, ...] = ...,
+        app_id: algopy.Application | algopy.UInt64 | int = ...,
+        on_completion: algopy.OnCompleteAction = ...,
+        approval_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
+        clear_state_program: algopy.Bytes | bytes | tuple[algopy.Bytes, ...] = ...,
         global_num_uint: UInt64 | int = ...,
         global_num_bytes: UInt64 | int = ...,
         local_num_uint: UInt64 | int = ...,
         local_num_bytes: UInt64 | int = ...,
         extra_program_pages: UInt64 | int = ...,
-        fee: puyapy.UInt64 | int = ...,
-        sender: puyapy.Account | str = ...,
-        note: puyapy.Bytes | bytes | str = ...,
-        rekey_to: puyapy.Account | str = ...,
-    ) -> tuple[_TABIResult_co, puyapy.itxn.ApplicationCallInnerTransaction]: ...
+        fee: algopy.UInt64 | int = ...,
+        sender: algopy.Account | str = ...,
+        note: algopy.Bytes | bytes | str = ...,
+        rekey_to: algopy.Account | str = ...,
+    ) -> tuple[_TABIResult_co, algopy.itxn.ApplicationCallInnerTransaction]: ...
     def __getitem__(
         self, _: type[_TABIResult_co]
     ) -> _ABICallWithReturnProtocol[_TABIResult_co]: ...
@@ -507,7 +507,7 @@ abi_call: _ABICallProtocolType = ...
 
 Examples:
 ```
-# can reference another puyapy contract method
+# can reference another algopy contract method
 result, txn = abi_call(HelloWorldContract.hello, arc4.String("World"), app=...)
 assert result == "Hello, World"
 
@@ -539,7 +539,7 @@ def emit(event: str | Struct, /, *args: _TABIArg) -> None:
 
     Example:
     ```
-    from puyapy import ARC4Contract, arc4
+    from algopy import ARC4Contract, arc4
 
 
     class Swapped(arc4.Struct):

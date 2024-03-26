@@ -6,45 +6,45 @@ FACTOR = 995
 contract ConstantProductAMM
 {
   globals {
-    ['asset_a']: puyapy.Asset
-    ['asset_b']: puyapy.Asset
-    ['governor']: puyapy.Account
-    ['pool_token']: puyapy.Asset
-    ['ratio']: puyapy.UInt64
+    ['asset_a']: algopy.Asset
+    ['asset_b']: algopy.Asset
+    ['governor']: algopy.Account
+    ['pool_token']: algopy.Asset
+    ['ratio']: algopy.UInt64
   }
   
   constructor()
   {
-    this.asset_a: puyapy.Asset = reinterpret_cast<puyapy.Asset>(0u)
-    this.asset_b: puyapy.Asset = reinterpret_cast<puyapy.Asset>(0u)
-    this.governor: puyapy.Account = txn<Sender>()
-    this.pool_token: puyapy.Asset = reinterpret_cast<puyapy.Asset>(0u)
-    this.ratio: puyapy.UInt64 = 0u
+    this.asset_a: algopy.Asset = reinterpret_cast<algopy.Asset>(0u)
+    this.asset_b: algopy.Asset = reinterpret_cast<algopy.Asset>(0u)
+    this.governor: algopy.Account = txn<Sender>()
+    this.pool_token: algopy.Asset = reinterpret_cast<algopy.Asset>(0u)
+    this.ratio: algopy.UInt64 = 0u
   }
   
-  abimethod set_governor(new_governor: puyapy.Account): None
+  abimethod set_governor(new_governor: algopy.Account): None
   {
     this::_check_is_governor()
-    this.governor: puyapy.Account = new_governor
+    this.governor: algopy.Account = new_governor
   }
   
-  abimethod bootstrap(seed: puyapy.gtxn.PaymentTransaction, a_asset: puyapy.Asset, b_asset: puyapy.Asset): puyapy.arc4.UInt64
+  abimethod bootstrap(seed: algopy.gtxn.PaymentTransaction, a_asset: algopy.Asset, b_asset: algopy.Asset): algopy.arc4.UInt64
   {
     assert(!(reinterpret_cast<bool>(this.pool_token)), comment="application has already been bootstrapped")
     this::_check_is_governor()
     assert(global<GroupSize>() == 2u, comment="group size not 2")
     assert(gtxns<Receiver>(seed) == global<CurrentApplicationAddress>(), comment="receiver not app address")
     assert(gtxns<Amount>(seed) >= 300000u, comment="amount minimum not met")
-    assert(reinterpret_cast<puyapy.UInt64>(a_asset) < reinterpret_cast<puyapy.UInt64>(b_asset), comment="asset a must be less than asset b")
-    this.asset_a: puyapy.Asset = a_asset
-    this.asset_b: puyapy.Asset = b_asset
-    this.pool_token: puyapy.Asset = this::_create_pool_token()
+    assert(reinterpret_cast<algopy.UInt64>(a_asset) < reinterpret_cast<algopy.UInt64>(b_asset), comment="asset a must be less than asset b")
+    this.asset_a: algopy.Asset = a_asset
+    this.asset_b: algopy.Asset = b_asset
+    this.pool_token: algopy.Asset = this::_create_pool_token()
     this::_do_opt_in(this.asset_a)
     this::_do_opt_in(this.asset_b)
-    return arc4_encode(reinterpret_cast<puyapy.UInt64>(this.pool_token), puyapy.arc4.UInt64)
+    return arc4_encode(reinterpret_cast<algopy.UInt64>(this.pool_token), algopy.arc4.UInt64)
   }
   
-  abimethod mint(a_xfer: puyapy.gtxn.AssetTransferTransaction, b_xfer: puyapy.gtxn.AssetTransferTransaction, pool_asset: puyapy.Asset, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None
+  abimethod mint(a_xfer: algopy.gtxn.AssetTransferTransaction, b_xfer: algopy.gtxn.AssetTransferTransaction, pool_asset: algopy.Asset, a_asset: algopy.Asset, b_asset: algopy.Asset): None
   {
     this::_check_bootstrapped()
     assert(pool_asset == this.pool_token, comment="asset pool incorrect")
@@ -58,13 +58,13 @@ contract ConstantProductAMM
     assert(gtxns<AssetReceiver>(b_xfer) == global<CurrentApplicationAddress>(), comment="receiver not app address")
     assert(gtxns<XferAsset>(b_xfer) == this.asset_b, comment="asset b incorrect")
     assert(gtxns<AssetAmount>(b_xfer) > 0u, comment="amount minimum not met")
-    to_mint: puyapy.UInt64 = examples.amm.contract::tokens_to_mint(pool_balance=this::_current_pool_balance(), a_balance=this::_current_a_balance(), b_balance=this::_current_b_balance(), a_amount=gtxns<AssetAmount>(a_xfer), b_amount=gtxns<AssetAmount>(b_xfer))
+    to_mint: algopy.UInt64 = examples.amm.contract::tokens_to_mint(pool_balance=this::_current_pool_balance(), a_balance=this::_current_a_balance(), b_balance=this::_current_b_balance(), a_amount=gtxns<AssetAmount>(a_xfer), b_amount=gtxns<AssetAmount>(b_xfer))
     assert(to_mint > 0u, comment="send amount too low")
     examples.amm.contract::do_asset_transfer(receiver=txn<Sender>(), asset=this.pool_token, amount=to_mint)
     this::_update_ratio()
   }
   
-  abimethod burn(pool_xfer: puyapy.gtxn.AssetTransferTransaction, pool_asset: puyapy.Asset, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None
+  abimethod burn(pool_xfer: algopy.gtxn.AssetTransferTransaction, pool_asset: algopy.Asset, a_asset: algopy.Asset, b_asset: algopy.Asset): None
   {
     this::_check_bootstrapped()
     assert(pool_asset == this.pool_token, comment="asset pool incorrect")
@@ -74,15 +74,15 @@ contract ConstantProductAMM
     assert(gtxns<AssetAmount>(pool_xfer) > 0u, comment="amount minimum not met")
     assert(gtxns<XferAsset>(pool_xfer) == this.pool_token, comment="asset pool incorrect")
     assert(gtxns<Sender>(pool_xfer) == txn<Sender>(), comment="sender invalid")
-    pool_balance: puyapy.UInt64 = this::_current_pool_balance()
-    a_amt: puyapy.UInt64 = examples.amm.contract::tokens_to_burn(pool_balance=pool_balance, supply=this::_current_a_balance(), amount=gtxns<AssetAmount>(pool_xfer))
-    b_amt: puyapy.UInt64 = examples.amm.contract::tokens_to_burn(pool_balance=pool_balance, supply=this::_current_b_balance(), amount=gtxns<AssetAmount>(pool_xfer))
+    pool_balance: algopy.UInt64 = this::_current_pool_balance()
+    a_amt: algopy.UInt64 = examples.amm.contract::tokens_to_burn(pool_balance=pool_balance, supply=this::_current_a_balance(), amount=gtxns<AssetAmount>(pool_xfer))
+    b_amt: algopy.UInt64 = examples.amm.contract::tokens_to_burn(pool_balance=pool_balance, supply=this::_current_b_balance(), amount=gtxns<AssetAmount>(pool_xfer))
     examples.amm.contract::do_asset_transfer(receiver=txn<Sender>(), asset=this.asset_a, amount=a_amt)
     examples.amm.contract::do_asset_transfer(receiver=txn<Sender>(), asset=this.asset_b, amount=b_amt)
     this::_update_ratio()
   }
   
-  abimethod swap(swap_xfer: puyapy.gtxn.AssetTransferTransaction, a_asset: puyapy.Asset, b_asset: puyapy.Asset): None
+  abimethod swap(swap_xfer: algopy.gtxn.AssetTransferTransaction, a_asset: algopy.Asset, b_asset: algopy.Asset): None
   {
     this::_check_bootstrapped()
     assert(a_asset == this.asset_a, comment="asset a incorrect")
@@ -91,20 +91,20 @@ contract ConstantProductAMM
     assert(gtxns<Sender>(swap_xfer) == txn<Sender>(), comment="sender invalid")
     switch (SINGLE_EVAL(id=0, source=gtxns<XferAsset>(swap_xfer))) {
       case this.asset_a: {
-        in_supply: puyapy.UInt64 = this::_current_b_balance()
-        out_supply: puyapy.UInt64 = this::_current_a_balance()
-        out_asset: puyapy.Asset = this.asset_a
+        in_supply: algopy.UInt64 = this::_current_b_balance()
+        out_supply: algopy.UInt64 = this::_current_a_balance()
+        out_asset: algopy.Asset = this.asset_a
       }
       case this.asset_b: {
-        in_supply: puyapy.UInt64 = this::_current_a_balance()
-        out_supply: puyapy.UInt64 = this::_current_b_balance()
-        out_asset: puyapy.Asset = this.asset_b
+        in_supply: algopy.UInt64 = this::_current_a_balance()
+        out_supply: algopy.UInt64 = this::_current_b_balance()
+        out_asset: algopy.Asset = this.asset_b
       }
       case _: {
         assert(false, comment="asset id incorrect")
       }
     }
-    to_swap: puyapy.UInt64 = examples.amm.contract::tokens_to_swap(in_amount=gtxns<AssetAmount>(swap_xfer), in_supply=in_supply, out_supply=out_supply)
+    to_swap: algopy.UInt64 = examples.amm.contract::tokens_to_swap(in_amount=gtxns<AssetAmount>(swap_xfer), in_supply=in_supply, out_supply=out_supply)
     assert(to_swap > 0u, comment="send amount too low")
     examples.amm.contract::do_asset_transfer(receiver=txn<Sender>(), asset=out_asset, amount=to_swap)
     this::_update_ratio()
@@ -117,9 +117,9 @@ contract ConstantProductAMM
   
   subroutine _update_ratio(): None
   {
-    a_balance: puyapy.UInt64 = this::_current_a_balance()
-    b_balance: puyapy.UInt64 = this::_current_b_balance()
-    this.ratio: puyapy.UInt64 = a_balance * 1000u // b_balance
+    a_balance: algopy.UInt64 = this::_current_a_balance()
+    b_balance: algopy.UInt64 = this::_current_b_balance()
+    this.ratio: algopy.UInt64 = a_balance * 1000u // b_balance
   }
   
   subroutine _check_is_governor(): None
@@ -127,41 +127,41 @@ contract ConstantProductAMM
     assert(txn<Sender>() == this.governor, comment="Only the account set in global_state.governor may call this method")
   }
   
-  subroutine _create_pool_token(): puyapy.Asset
+  subroutine _create_pool_token(): algopy.Asset
   {
     return submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetName='DPT-' + checked_maybe(asset_params_get<AssetUnitName>(this.asset_a)) + '-' + checked_maybe(asset_params_get<AssetUnitName>(this.asset_b)), ConfigAssetUnitName='dbt', ConfigAssetTotal=10000000000u, ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>(), Fee=0u)).CreatedAssetID
   }
   
-  subroutine _do_opt_in(asset: puyapy.Asset): None
+  subroutine _do_opt_in(asset: algopy.Asset): None
   {
     examples.amm.contract::do_asset_transfer(receiver=global<CurrentApplicationAddress>(), asset=asset, amount=0u)
   }
   
-  subroutine _current_pool_balance(): puyapy.UInt64
+  subroutine _current_pool_balance(): algopy.UInt64
   {
     return checked_maybe(asset_holding_get<AssetBalance>(global<CurrentApplicationAddress>(), this.pool_token))
   }
   
-  subroutine _current_a_balance(): puyapy.UInt64
+  subroutine _current_a_balance(): algopy.UInt64
   {
     return checked_maybe(asset_holding_get<AssetBalance>(global<CurrentApplicationAddress>(), this.asset_a))
   }
   
-  subroutine _current_b_balance(): puyapy.UInt64
+  subroutine _current_b_balance(): algopy.UInt64
   {
     return checked_maybe(asset_holding_get<AssetBalance>(global<CurrentApplicationAddress>(), this.asset_b))
   }
 }
 
-subroutine tokens_to_mint(pool_balance: puyapy.UInt64, a_balance: puyapy.UInt64, b_balance: puyapy.UInt64, a_amount: puyapy.UInt64, b_amount: puyapy.UInt64): puyapy.UInt64
+subroutine tokens_to_mint(pool_balance: algopy.UInt64, a_balance: algopy.UInt64, b_balance: algopy.UInt64, a_amount: algopy.UInt64, b_amount: algopy.UInt64): algopy.UInt64
 {
   is_initial_mint: bool = a_balance == a_amount and b_balance == b_amount
   if (is_initial_mint) {
     return sqrt(a_amount * b_amount) - 1000u
   }
-  issued: puyapy.UInt64 = 10000000000u - pool_balance
-  a_ratio: puyapy.UInt64 = 1000u * a_amount // a_balance - a_amount
-  b_ratio: puyapy.UInt64 = 1000u * b_amount // b_balance - b_amount
+  issued: algopy.UInt64 = 10000000000u - pool_balance
+  a_ratio: algopy.UInt64 = 1000u * a_amount // a_balance - a_amount
+  b_ratio: algopy.UInt64 = 1000u * b_amount // b_balance - b_amount
   if (a_ratio < b_ratio) {
     return a_ratio * issued // 1000u
   } else {
@@ -169,20 +169,20 @@ subroutine tokens_to_mint(pool_balance: puyapy.UInt64, a_balance: puyapy.UInt64,
   }
 }
 
-subroutine tokens_to_burn(pool_balance: puyapy.UInt64, supply: puyapy.UInt64, amount: puyapy.UInt64): puyapy.UInt64
+subroutine tokens_to_burn(pool_balance: algopy.UInt64, supply: algopy.UInt64, amount: algopy.UInt64): algopy.UInt64
 {
-  issued: puyapy.UInt64 = 10000000000u - pool_balance - amount
+  issued: algopy.UInt64 = 10000000000u - pool_balance - amount
   return supply * amount // issued
 }
 
-subroutine tokens_to_swap(in_amount: puyapy.UInt64, in_supply: puyapy.UInt64, out_supply: puyapy.UInt64): puyapy.UInt64
+subroutine tokens_to_swap(in_amount: algopy.UInt64, in_supply: algopy.UInt64, out_supply: algopy.UInt64): algopy.UInt64
 {
-  in_total: puyapy.UInt64 = 1000u * in_supply - in_amount + in_amount * 995u
-  out_total: puyapy.UInt64 = in_amount * 995u * out_supply
+  in_total: algopy.UInt64 = 1000u * in_supply - in_amount + in_amount * 995u
+  out_total: algopy.UInt64 = in_amount * 995u * out_supply
   return out_total // in_total
 }
 
-subroutine do_asset_transfer(receiver: puyapy.Account, asset: puyapy.Asset, amount: puyapy.UInt64): None
+subroutine do_asset_transfer(receiver: algopy.Account, asset: algopy.Asset, amount: algopy.UInt64): None
 {
   submit_txn(create_inner_transaction(TypeEnum=axfer, XferAsset=asset, AssetAmount=amount, AssetReceiver=receiver, Fee=0u))
 }

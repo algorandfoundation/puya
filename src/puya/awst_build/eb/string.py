@@ -152,7 +152,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
         item_expr = _get_bytes_expr(expect_operand_wtype(item, wtypes.string_wtype))
         this_expr = _get_bytes_expr(self.expr)
         is_substring_expr = SubroutineCallExpression(
-            target=FreeSubroutineTarget(module_name="puyapy_lib_bytes", name="is_substring"),
+            target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
             args=[
                 CallArg(value=item_expr, name="item"),
                 CallArg(value=this_expr, name="sequence"),

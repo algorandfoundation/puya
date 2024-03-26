@@ -19,8 +19,8 @@ SCRIPTS_DIR = Path(__file__).parent
 VCS_ROOT = SCRIPTS_DIR.parent
 SRC_DIR = VCS_ROOT / "src"
 DOCS_DIR = VCS_ROOT / "docs"
-STUBS_DIR = SRC_DIR / "puyapy-stubs"
-STUBS_DOC_DIR = DOCS_DIR / "puyapy-stubs"
+STUBS_DIR = SRC_DIR / "algopy-stubs"
+STUBS_DOC_DIR = DOCS_DIR / "algopy-stubs"
 
 
 @attrs.define
@@ -38,20 +38,20 @@ def main() -> None:
 
 def output_doc_stubs(parse_result: ParseResult) -> None:
     # parse and output reformatted __init__.pyi
-    stub = DocStub.process_module(parse_result, "puyapy")
-    puyapy_direct_imports = stub.collected_imports["puyapy"]
-    # remove any puyapy imports that are now defined in __init__.py itself
+    stub = DocStub.process_module(parse_result, "algopy")
+    algopy_direct_imports = stub.collected_imports["algopy"]
+    # remove any algopy imports that are now defined in __init__.py itself
     output_combined_stub(stub, STUBS_DOC_DIR / "__init__.pyi")
 
-    # remaining imports from puyapy are other public modules
+    # remaining imports from algopy are other public modules
     # parse and output them too
-    for other_stub_name in puyapy_direct_imports.from_imports:
-        stub = DocStub.process_module(parse_result, f"puyapy.{other_stub_name}")
+    for other_stub_name in algopy_direct_imports.from_imports:
+        stub = DocStub.process_module(parse_result, f"algopy.{other_stub_name}")
         output_combined_stub(stub, STUBS_DOC_DIR / f"{other_stub_name}.pyi")
 
 
 def output_combined_stub(stubs: "DocStub", output: Path) -> None:
-    # remove puyapy imports that have been inlined
+    # remove algopy imports that have been inlined
     lines = ["# ruff: noqa: A001, E501, F403, PYI021, PYI034, W291"]
     rexported = list[str]()
     for module, imports in stubs.collected_imports.items():
@@ -377,7 +377,7 @@ def _name_as(name: str, name_as: str | None) -> str:
 
 
 def _should_inline_module(module_id: str) -> bool:
-    return module_id.startswith("puyapy._")
+    return module_id.startswith("algopy._")
 
 
 if __name__ == "__main__":

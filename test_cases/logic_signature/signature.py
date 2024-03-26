@@ -1,5 +1,5 @@
-from puyapy import Bytes, TemplateVar, TransactionType, UInt64, logicsig, subroutine
-from puyapy.op import Global, GTxn
+from algopy import Bytes, TemplateVar, TransactionType, UInt64, logicsig, subroutine
+from algopy.op import Global, GTxn
 
 
 @logicsig

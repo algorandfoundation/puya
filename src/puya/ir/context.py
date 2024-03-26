@@ -86,9 +86,9 @@ class IRBuildContext(CompileContext):
                 case awst_nodes.InstanceSubroutineTarget(name=func_name):
                     func = self._resolve_contract_attribute(func_name, source_location)
                 case awst_nodes.FreeSubroutineTarget(module_name=module_name, name=func_name):
-                    # remap the internal _puyapy_ lib to puyapy so that functions
-                    # defined in _puyapy_ can reference other functions defined in the same module
-                    module_name = "puyapy" if module_name == "_puyapy_" else module_name
+                    # remap the internal _algopy_ lib to algopy so that functions
+                    # defined in _algopy_ can reference other functions defined in the same module
+                    module_name = "algopy" if module_name == "_algopy_" else module_name
                     func = self.module_awsts[module_name].symtable[func_name]
                 case _:
                     raise InternalError(

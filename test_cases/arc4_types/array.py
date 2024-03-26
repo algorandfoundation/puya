@@ -1,7 +1,7 @@
 import typing as t
 
-from puyapy import Bytes, Contract, String, UInt64, op, subroutine, uenumerate
-from puyapy.arc4 import (
+from algopy import Bytes, Contract, String, UInt64, op, subroutine, uenumerate
+from algopy.arc4 import (
     Byte,
     DynamicArray,
     StaticArray,

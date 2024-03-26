@@ -3,63 +3,63 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class TransactionContract(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod(create=True)
+class TransactionContract(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod(create=True)
     def create(
         self,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def pay(
         self,
-        txn: puyapy.gtxn.PaymentTransaction,
+        txn: algopy.gtxn.PaymentTransaction,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def key(
         self,
-        txn: puyapy.gtxn.KeyRegistrationTransaction,
+        txn: algopy.gtxn.KeyRegistrationTransaction,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def asset_config(
         self,
-        txn: puyapy.gtxn.AssetConfigTransaction,
+        txn: algopy.gtxn.AssetConfigTransaction,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def asset_transfer(
         self,
-        txn: puyapy.gtxn.AssetTransferTransaction,
+        txn: algopy.gtxn.AssetTransferTransaction,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def asset_freeze(
         self,
-        txn: puyapy.gtxn.AssetFreezeTransaction,
+        txn: algopy.gtxn.AssetFreezeTransaction,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def application_call(
         self,
-        txn: puyapy.gtxn.ApplicationCallTransaction,
+        txn: algopy.gtxn.ApplicationCallTransaction,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def multiple_txns(
         self,
-        txn1: puyapy.gtxn.ApplicationCallTransaction,
-        txn2: puyapy.gtxn.ApplicationCallTransaction,
-        txn3: puyapy.gtxn.ApplicationCallTransaction,
+        txn1: algopy.gtxn.ApplicationCallTransaction,
+        txn2: algopy.gtxn.ApplicationCallTransaction,
+        txn3: algopy.gtxn.ApplicationCallTransaction,
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def any_txn(
         self,
-        txn1: puyapy.gtxn.Transaction,
-        txn2: puyapy.gtxn.Transaction,
-        txn3: puyapy.gtxn.Transaction,
+        txn1: algopy.gtxn.Transaction,
+        txn2: algopy.gtxn.Transaction,
+        txn3: algopy.gtxn.Transaction,
     ) -> None: ...

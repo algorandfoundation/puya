@@ -1,4 +1,4 @@
-from puyapy import Application, ARC4Contract, Asset, Bytes, Global, arc4, op
+from algopy import Application, ARC4Contract, Asset, Bytes, Global, arc4, op
 
 from test_cases.typed_abi_call.logger import Logger, LoggerClient
 

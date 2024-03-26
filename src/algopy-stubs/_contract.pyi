@@ -1,11 +1,11 @@
 import abc
 
-from puyapy import UInt64, urange
+from algopy import UInt64, urange
 
 class StateTotals:
     """
     Options class to manually define the total amount of global and local state contract will use,
-    used by [`Contract.__init_subclass__`](#puyapy.Contract.__init_subclass__).
+    used by [`Contract.__init_subclass__`](#algopy.Contract.__init_subclass__).
 
     This is not required when all state is assigned to `self.`, but is required if a
     contract dynamically interacts with state via `AppGlobal.get_bytes` etc, or if you want
@@ -44,7 +44,7 @@ class Contract(abc.ABC):
         the base class list:
 
         ```python
-        class MyContract(puyapy.Contract, name="CustomName"):
+        class MyContract(algopy.Contract, name="CustomName"):
             ...
         ```
 
@@ -52,13 +52,13 @@ class Contract(abc.ABC):
          Will affect the output TEAL file name if there are multiple non-abstract contracts
          in the same file.
 
-         If the contract is a subclass of puyapy.ARC4Contract, `name` will also be used as the
+         If the contract is a subclass of algopy.ARC4Contract, `name` will also be used as the
          contract name in the ARC-32 application.json, instead of the class name.
 
         :param scratch_slots:
          Allows you to mark a slot ID or range of slot IDs as "off limits" to Puya.
          These slot ID(s) will never be written to or otherwise manipulating by the compiler itself.
-         This is particularly useful in combination with `puyapy.op.gload_bytes` / `puyapy.op.gload_uint64`
+         This is particularly useful in combination with `algopy.op.gload_bytes` / `algopy.op.gload_uint64`
          which lets a contract in a group transaction read from the scratch slots of another contract
          that occurs earlier in the transaction group.
 

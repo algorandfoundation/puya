@@ -1,32 +1,32 @@
 ## case: test_literal_coercion
 import typing
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> UInt64:
     one = UInt64(1)
     three = one + 2
-    typing.reveal_type(three) ## N: puyapy type is "uint64" \
-                              ## N: Revealed type is "puyapy._primitives.UInt64"
+    typing.reveal_type(three) ## N: algopy type is "uint64" \
+                              ## N: Revealed type is "algopy._primitives.UInt64"
 
     return three
 
 ## case: no_star_args
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test(*args: UInt64) -> UInt64: ## E: variadic functions are not supported
     return UInt64(1)
 
 ## case: no_kwargs
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test(**kwargs: UInt64) -> UInt64: ## E: variadic functions are not supported
     return UInt64(1)
 
 ## case: no_defaults
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test(foo: UInt64 = UInt64(1)) -> UInt64: ## E: default function argument values are not supported yet
@@ -34,7 +34,7 @@ def test(foo: UInt64 = UInt64(1)) -> UInt64: ## E: default function argument val
 
 
 ## case: doc_string_ok
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> UInt64:
@@ -42,7 +42,7 @@ def test() -> UInt64:
     return UInt64(1)
 
 ## case: expression_statement_result_ignored
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def one() -> UInt64:
@@ -53,7 +53,7 @@ def do_nothing() -> None:
     one() ## W: expression result is ignored
 
 ## case: forward_declaration
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test(a: UInt64, b: UInt64) -> UInt64:
@@ -66,7 +66,7 @@ def test(a: UInt64, b: UInt64) -> UInt64:
 
 ## case: no_type_alias
 import typing
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> UInt64:
@@ -75,7 +75,7 @@ def test() -> UInt64:
     return one
 
 ## case: no_assign_void
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def none() -> None:
@@ -87,15 +87,15 @@ def test() -> UInt64:
     return UInt64(1)
 
 ## case: invalid_type
-from puyapy import Bytes, UInt64, subroutine
+from algopy import Bytes, UInt64, subroutine
 
 @subroutine
 def test() -> None:
     b = Bytes(b"123")
-    b = UInt64(1) # type: ignore[assignment] ## E: Assignment target type puyapy.Bytes differs from expression value type puyapy.UInt64
+    b = UInt64(1) # type: ignore[assignment] ## E: Assignment target type algopy.Bytes differs from expression value type algopy.UInt64
 
 ## case: while_ok
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
@@ -104,7 +104,7 @@ def test() -> None:
         loop -= 1
 
 ## case: no_while_else
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
@@ -115,7 +115,7 @@ def test() -> None:
         pass
 
 ## case: for_ok
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
@@ -125,7 +125,7 @@ def test() -> None:
         pass
 
 ## case: no_for_else
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
@@ -137,27 +137,27 @@ def test() -> None:
         pass
 
 ## case: range_suggests_urange
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> UInt64:
     sum = UInt64(0)
-    for i in range(5): ## E: range() is not supported - use puyapy.urange() instead
+    for i in range(5): ## E: range() is not supported - use algopy.urange() instead
         sum += i
     return sum
 
 ## case: enumerate_suggests_uenumerate
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> UInt64:
     sum = UInt64(0)
-    for idx, i in enumerate((sum, sum)): ## E: enumerate() is not supported - use puyapy.uenumerate() instead
+    for idx, i in enumerate((sum, sum)): ## E: enumerate() is not supported - use algopy.uenumerate() instead
         sum += i
     return sum
 
 ## case: len_suggests_length
-from puyapy import Bytes, UInt64, subroutine
+from algopy import Bytes, UInt64, subroutine
 
 @subroutine
 def test() -> UInt64:
@@ -167,7 +167,7 @@ def test() -> UInt64:
 
 
 ## case: other_unsupported_builtin
-from puyapy import subroutine
+from algopy import subroutine
 
 @subroutine
 def test() -> None:
@@ -175,7 +175,7 @@ def test() -> None:
 
 
 ## case: urange_1_arg
-from puyapy import UInt64, subroutine, urange
+from algopy import UInt64, subroutine, urange
 
 @subroutine
 def test() -> UInt64:
@@ -186,7 +186,7 @@ def test() -> UInt64:
 
 
 ## case: urange_2_arg
-from puyapy import UInt64, subroutine, urange
+from algopy import UInt64, subroutine, urange
 
 @subroutine
 def test() -> UInt64:
@@ -197,7 +197,7 @@ def test() -> UInt64:
 
 
 ## case: urange_3_arg
-from puyapy import UInt64, subroutine, urange
+from algopy import UInt64, subroutine, urange
 
 @subroutine
 def test() -> UInt64:
@@ -207,7 +207,7 @@ def test() -> UInt64:
     return sum
 
 ## case: no_urange_4_arg
-from puyapy import UInt64, subroutine, urange
+from algopy import UInt64, subroutine, urange
 
 @subroutine
 def test() -> UInt64:
@@ -217,14 +217,14 @@ def test() -> UInt64:
     return sum
 
 ## case: no_urange_outside_for
-from puyapy import UInt64, subroutine, urange
+from algopy import UInt64, subroutine, urange
 
 @subroutine
 def test() -> None:
     i = urange(5) ## E: UnsignedRange is not valid as an rvalue
 
 ## case: uenumerate
-from puyapy import Bytes, subroutine, uenumerate
+from algopy import Bytes, subroutine, uenumerate
 import typing
 
 @subroutine
@@ -233,13 +233,13 @@ def test() -> None:
     two = Bytes(b"2")
     three = Bytes(b"3")
     for loop_index, x in uenumerate((one, two, three)):
-        typing.reveal_type(loop_index) ## N: Revealed type is "puyapy._primitives.UInt64" \
-                                       ## N: puyapy type is "uint64"
-        typing.reveal_type(x) ## N: Revealed type is "puyapy._primitives.Bytes" \
-                              ## N: puyapy type is "bytes"
+        typing.reveal_type(loop_index) ## N: Revealed type is "algopy._primitives.UInt64" \
+                                       ## N: algopy type is "uint64"
+        typing.reveal_type(x) ## N: Revealed type is "algopy._primitives.Bytes" \
+                              ## N: algopy type is "bytes"
 
 ## case: no_uenumerate_outside_for
-from puyapy import Bytes, subroutine, uenumerate
+from algopy import Bytes, subroutine, uenumerate
 
 @subroutine
 def test() -> None:
@@ -249,7 +249,7 @@ def test() -> None:
     i = uenumerate((one, two, three)) ## E: UnsignedEnumerate is not valid as an rvalue
 
 ## case: assert_ok
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
@@ -260,22 +260,22 @@ def test() -> None:
     assert a == b, "it's fine"
 
 ## case: assert_not_str_not_ok
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
     assert True, b"bytes not ok" ## E: only literal strings are supported as assertion messages
 
 ## case: none_must_not_return
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
-    return UInt64(1) # type: ignore[return-value] ## E: invalid return type of puyapy.UInt64, expected None
+    return UInt64(1) # type: ignore[return-value] ## E: invalid return type of algopy.UInt64, expected None
 
 
 ## case: typed_return_must_return_a_value
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> UInt64:
@@ -283,7 +283,7 @@ def test() -> UInt64:
     return # type: ignore[return-value] ## E: function is typed as returning a value, so a value must be returned
 
 ## case: typed_return_must_return
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> UInt64: # type: ignore[return] # TODO: this should fail during puya compilation
@@ -293,16 +293,16 @@ def test() -> UInt64: # type: ignore[return] # TODO: this should fail during puy
         pass
 
 ## case: typed_function_must_return_correct_type
-from puyapy import Bytes, UInt64, subroutine
+from algopy import Bytes, UInt64, subroutine
 
 @subroutine
 def test() -> UInt64:
     a = UInt64(1)
-    return Bytes(b"1") # type: ignore[return-value] ## E: invalid return type of puyapy.Bytes, expected puyapy.UInt64
+    return Bytes(b"1") # type: ignore[return-value] ## E: invalid return type of algopy.Bytes, expected algopy.UInt64
 
 
 ## case: no_dunder_all_name
-from puyapy import subroutine
+from algopy import subroutine
 
 __all__ = ["test"]
 
@@ -311,28 +311,28 @@ def test() -> None:
     my_all = __all__ ## E: __all__ cannot be referenced inside functions
 
 ## case: true_name_ok
-from puyapy import subroutine
+from algopy import subroutine
 
 @subroutine
 def test() -> None:
     true = True
 
 ## case: false_name_ok
-from puyapy import subroutine
+from algopy import subroutine
 
 @subroutine
 def test() -> None:
     true = False
 
 ## case: no_none_name
-from puyapy import subroutine
+from algopy import subroutine
 
 @subroutine
 def test() -> None:
     none = None ## E: None is not supported as a value, only a return type
 
 ## case: can_reference_global_defined_after
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def before() -> None:
@@ -341,7 +341,7 @@ def before() -> None:
 ONE = 1
 
 ## case: can_not_use_before_defined
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
@@ -349,23 +349,23 @@ def test() -> None:
     one = UInt64(1)
 
 ## case: no_underscore
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> None:
     _ = UInt64(1) ## E: _ is not currently supported as a variable name
 
 ## case: cant_change_type
-from puyapy import Bytes, UInt64, subroutine
+from algopy import Bytes, UInt64, subroutine
 
 @subroutine
 def test() -> None:
     one = UInt64(1)
     two = Bytes(b"2")
-    one = two = Bytes(b"3") # type: ignore[assignment] ## E: Assignment target type puyapy.UInt64 differs from expression value type puyapy.Bytes
+    one = two = Bytes(b"3") # type: ignore[assignment] ## E: Assignment target type algopy.UInt64 differs from expression value type algopy.Bytes
 
 ## case: can_reference_intrinsic_with_enum
-from puyapy import UInt64, op, subroutine
+from algopy import UInt64, op, subroutine
 
 @subroutine
 def test() -> None:
@@ -373,19 +373,19 @@ def test() -> None:
 
 ## case: can_reference_builtin_constant
 import typing
-from puyapy import OnCompleteAction, UInt64, subroutine
+from algopy import OnCompleteAction, UInt64, subroutine
 
 @subroutine
 def test() -> None:
     update_application = OnCompleteAction.UpdateApplication
-    typing.reveal_type(update_application) ## N: puyapy type is "uint64" \
-                                           ## N: Revealed type is "puyapy._constants.OnCompleteAction"
+    typing.reveal_type(update_application) ## N: algopy type is "uint64" \
+                                           ## N: Revealed type is "algopy._constants.OnCompleteAction"
     foo = update_application + 1
-    typing.reveal_type(foo) ## N: puyapy type is "uint64" \
-                            ## N: Revealed type is "puyapy._primitives.UInt64"
+    typing.reveal_type(foo) ## N: algopy type is "uint64" \
+                            ## N: Revealed type is "algopy._primitives.UInt64"
 
 ## case: can_call_other
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def one() -> UInt64:
@@ -396,7 +396,7 @@ def two() -> UInt64:
     return one() + one()
 
 ## case: no_nested_function
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test() -> UInt64:
@@ -406,7 +406,7 @@ def test() -> UInt64:
     return UInt64(2)
 
 ## case: in_operator
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test_one() -> bool:
@@ -427,7 +427,7 @@ def test_three() -> bool:
     return a in (UInt64(1), UInt64(2), UInt64(3))
 
 ## case: not_in_operator
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def test_one() -> bool:
@@ -449,7 +449,7 @@ def test_three() -> bool:
 
 
 ## case: not_operator_with_expressions
-from puyapy import UInt64, subroutine
+from algopy import UInt64, subroutine
 
 @subroutine
 def one() -> UInt64:
@@ -467,7 +467,7 @@ def test() -> bool:
 
 
 ## case: bool_eval_of_void
-from puyapy import subroutine
+from algopy import subroutine
 
 @subroutine
 def no_op() -> None:

@@ -2,18 +2,18 @@ from puya.awst import wtypes
 from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
 
 ENUM_CLASSES = {
-    "puyapy.op.Base64": {
+    "algopy.op.Base64": {
         "URLEncoding": "URLEncoding",
         "StdEncoding": "StdEncoding",
     },
-    "puyapy.op.ECDSA": {
+    "algopy.op.ECDSA": {
         "Secp256k1": "Secp256k1",
         "Secp256r1": "Secp256r1",
     },
-    "puyapy.op.VrfVerify": {
+    "algopy.op.VrfVerify": {
         "VrfAlgorand": "VrfAlgorand",
     },
-    "puyapy.op.EC": {
+    "algopy.op.EC": {
         "BN254g1": "BN254g1",
         "BN254g2": "BN254g2",
         "BLS12_381g1": "BLS12_381g1",
@@ -22,7 +22,7 @@ ENUM_CLASSES = {
 }
 
 STUB_TO_AST_MAPPER = {
-    "puyapy.op.addw": [
+    "algopy.op.addw": [
         FunctionOpMapping(
             op_code="addw",
             is_property=False,
@@ -49,7 +49,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.app_opted_in": [
+    "algopy.op.app_opted_in": [
         FunctionOpMapping(
             op_code="app_opted_in",
             is_property=False,
@@ -77,7 +77,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.arg": [
+    "algopy.op.arg": [
         FunctionOpMapping(
             op_code="args",
             is_property=False,
@@ -112,7 +112,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.balance": [
+    "algopy.op.balance": [
         FunctionOpMapping(
             op_code="balance",
             is_property=False,
@@ -132,7 +132,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.base64_decode": [
+    "algopy.op.base64_decode": [
         FunctionOpMapping(
             op_code="base64_decode",
             is_property=False,
@@ -158,7 +158,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.bitlen": [
+    "algopy.op.bitlen": [
         FunctionOpMapping(
             op_code="bitlen",
             is_property=False,
@@ -179,7 +179,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.bsqrt": [
+    "algopy.op.bsqrt": [
         FunctionOpMapping(
             op_code="bsqrt",
             is_property=False,
@@ -197,7 +197,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.btoi": [
+    "algopy.op.btoi": [
         FunctionOpMapping(
             op_code="btoi",
             is_property=False,
@@ -216,7 +216,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.bzero": [
+    "algopy.op.bzero": [
         FunctionOpMapping(
             op_code="bzero",
             is_property=False,
@@ -235,7 +235,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.concat": [
+    "algopy.op.concat": [
         FunctionOpMapping(
             op_code="concat",
             is_property=False,
@@ -261,7 +261,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.divmodw": [
+    "algopy.op.divmodw": [
         FunctionOpMapping(
             op_code="divmodw",
             is_property=False,
@@ -304,7 +304,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.divw": [
+    "algopy.op.divw": [
         FunctionOpMapping(
             op_code="divw",
             is_property=False,
@@ -337,7 +337,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ecdsa_pk_decompress": [
+    "algopy.op.ecdsa_pk_decompress": [
         FunctionOpMapping(
             op_code="ecdsa_pk_decompress",
             is_property=False,
@@ -364,7 +364,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ecdsa_pk_recover": [
+    "algopy.op.ecdsa_pk_recover": [
         FunctionOpMapping(
             op_code="ecdsa_pk_recover",
             is_property=False,
@@ -412,7 +412,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ecdsa_verify": [
+    "algopy.op.ecdsa_verify": [
         FunctionOpMapping(
             op_code="ecdsa_verify",
             is_property=False,
@@ -466,7 +466,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ed25519verify": [
+    "algopy.op.ed25519verify": [
         FunctionOpMapping(
             op_code="ed25519verify",
             is_property=False,
@@ -499,7 +499,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ed25519verify_bare": [
+    "algopy.op.ed25519verify_bare": [
         FunctionOpMapping(
             op_code="ed25519verify_bare",
             is_property=False,
@@ -532,7 +532,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.err": [
+    "algopy.op.err": [
         FunctionOpMapping(
             op_code="err",
             is_property=False,
@@ -541,7 +541,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.exit": [
+    "algopy.op.exit": [
         FunctionOpMapping(
             op_code="return",
             is_property=False,
@@ -558,7 +558,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.exp": [
+    "algopy.op.exp": [
         FunctionOpMapping(
             op_code="exp",
             is_property=False,
@@ -584,7 +584,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.expw": [
+    "algopy.op.expw": [
         FunctionOpMapping(
             op_code="expw",
             is_property=False,
@@ -611,7 +611,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.extract": [
+    "algopy.op.extract": [
         FunctionOpMapping(
             op_code="extract3",
             is_property=False,
@@ -674,7 +674,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.extract_uint16": [
+    "algopy.op.extract_uint16": [
         FunctionOpMapping(
             op_code="extract_uint16",
             is_property=False,
@@ -700,7 +700,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.extract_uint32": [
+    "algopy.op.extract_uint32": [
         FunctionOpMapping(
             op_code="extract_uint32",
             is_property=False,
@@ -726,7 +726,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.extract_uint64": [
+    "algopy.op.extract_uint64": [
         FunctionOpMapping(
             op_code="extract_uint64",
             is_property=False,
@@ -752,7 +752,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.gaid": [
+    "algopy.op.gaid": [
         FunctionOpMapping(
             op_code="gaids",
             is_property=False,
@@ -787,7 +787,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.getbit": [
+    "algopy.op.getbit": [
         FunctionOpMapping(
             op_code="getbit",
             is_property=False,
@@ -815,7 +815,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.getbyte": [
+    "algopy.op.getbyte": [
         FunctionOpMapping(
             op_code="getbyte",
             is_property=False,
@@ -841,7 +841,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.gload_bytes": [
+    "algopy.op.gload_bytes": [
         FunctionOpMapping(
             op_code="gloadss",
             is_property=False,
@@ -913,7 +913,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.gload_uint64": [
+    "algopy.op.gload_uint64": [
         FunctionOpMapping(
             op_code="gloadss",
             is_property=False,
@@ -985,7 +985,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.itob": [
+    "algopy.op.itob": [
         FunctionOpMapping(
             op_code="itob",
             is_property=False,
@@ -1004,7 +1004,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.keccak256": [
+    "algopy.op.keccak256": [
         FunctionOpMapping(
             op_code="keccak256",
             is_property=False,
@@ -1023,7 +1023,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.min_balance": [
+    "algopy.op.min_balance": [
         FunctionOpMapping(
             op_code="min_balance",
             is_property=False,
@@ -1043,7 +1043,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.mulw": [
+    "algopy.op.mulw": [
         FunctionOpMapping(
             op_code="mulw",
             is_property=False,
@@ -1070,7 +1070,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.replace": [
+    "algopy.op.replace": [
         FunctionOpMapping(
             op_code="replace3",
             is_property=False,
@@ -1134,7 +1134,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.setbit_bytes": [
+    "algopy.op.setbit_bytes": [
         FunctionOpMapping(
             op_code="setbit",
             is_property=False,
@@ -1167,7 +1167,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.setbit_uint64": [
+    "algopy.op.setbit_uint64": [
         FunctionOpMapping(
             op_code="setbit",
             is_property=False,
@@ -1200,7 +1200,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.setbyte": [
+    "algopy.op.setbyte": [
         FunctionOpMapping(
             op_code="setbyte",
             is_property=False,
@@ -1233,7 +1233,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.sha256": [
+    "algopy.op.sha256": [
         FunctionOpMapping(
             op_code="sha256",
             is_property=False,
@@ -1252,7 +1252,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.sha3_256": [
+    "algopy.op.sha3_256": [
         FunctionOpMapping(
             op_code="sha3_256",
             is_property=False,
@@ -1271,7 +1271,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.sha512_256": [
+    "algopy.op.sha512_256": [
         FunctionOpMapping(
             op_code="sha512_256",
             is_property=False,
@@ -1290,7 +1290,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.shl": [
+    "algopy.op.shl": [
         FunctionOpMapping(
             op_code="shl",
             is_property=False,
@@ -1316,7 +1316,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.shr": [
+    "algopy.op.shr": [
         FunctionOpMapping(
             op_code="shr",
             is_property=False,
@@ -1342,7 +1342,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.sqrt": [
+    "algopy.op.sqrt": [
         FunctionOpMapping(
             op_code="sqrt",
             is_property=False,
@@ -1361,7 +1361,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.substring": [
+    "algopy.op.substring": [
         FunctionOpMapping(
             op_code="substring3",
             is_property=False,
@@ -1424,7 +1424,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.vrf_verify": [
+    "algopy.op.vrf_verify": [
         FunctionOpMapping(
             op_code="vrf_verify",
             is_property=False,
@@ -1465,7 +1465,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_balance": [
+    "algopy.op.AcctParamsGet.acct_balance": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1488,7 +1488,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_min_balance": [
+    "algopy.op.AcctParamsGet.acct_min_balance": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1511,7 +1511,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_auth_addr": [
+    "algopy.op.AcctParamsGet.acct_auth_addr": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1534,7 +1534,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_total_num_uint": [
+    "algopy.op.AcctParamsGet.acct_total_num_uint": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1557,7 +1557,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_total_num_byte_slice": [
+    "algopy.op.AcctParamsGet.acct_total_num_byte_slice": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1580,7 +1580,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_total_extra_app_pages": [
+    "algopy.op.AcctParamsGet.acct_total_extra_app_pages": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1603,7 +1603,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_total_apps_created": [
+    "algopy.op.AcctParamsGet.acct_total_apps_created": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1626,7 +1626,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_total_apps_opted_in": [
+    "algopy.op.AcctParamsGet.acct_total_apps_opted_in": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1649,7 +1649,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_total_assets_created": [
+    "algopy.op.AcctParamsGet.acct_total_assets_created": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1672,7 +1672,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_total_assets": [
+    "algopy.op.AcctParamsGet.acct_total_assets": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1695,7 +1695,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_total_boxes": [
+    "algopy.op.AcctParamsGet.acct_total_boxes": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1718,7 +1718,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AcctParamsGet.acct_total_box_bytes": [
+    "algopy.op.AcctParamsGet.acct_total_box_bytes": [
         FunctionOpMapping(
             op_code="acct_params_get",
             is_property=False,
@@ -1741,7 +1741,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobal.get_bytes": [
+    "algopy.op.AppGlobal.get_bytes": [
         FunctionOpMapping(
             op_code="app_global_get",
             is_property=False,
@@ -1760,7 +1760,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobal.get_uint64": [
+    "algopy.op.AppGlobal.get_uint64": [
         FunctionOpMapping(
             op_code="app_global_get",
             is_property=False,
@@ -1779,7 +1779,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobal.get_ex_bytes": [
+    "algopy.op.AppGlobal.get_ex_bytes": [
         FunctionOpMapping(
             op_code="app_global_get_ex",
             is_property=False,
@@ -1807,7 +1807,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobal.get_ex_uint64": [
+    "algopy.op.AppGlobal.get_ex_uint64": [
         FunctionOpMapping(
             op_code="app_global_get_ex",
             is_property=False,
@@ -1835,7 +1835,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppGlobal.delete": [
+    "algopy.op.AppGlobal.delete": [
         FunctionOpMapping(
             op_code="app_global_del",
             is_property=False,
@@ -1852,7 +1852,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.AppGlobal.put": [
+    "algopy.op.AppGlobal.put": [
         FunctionOpMapping(
             op_code="app_global_put",
             is_property=False,
@@ -1878,7 +1878,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.AppLocal.get_bytes": [
+    "algopy.op.AppLocal.get_bytes": [
         FunctionOpMapping(
             op_code="app_local_get",
             is_property=False,
@@ -1905,7 +1905,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppLocal.get_uint64": [
+    "algopy.op.AppLocal.get_uint64": [
         FunctionOpMapping(
             op_code="app_local_get",
             is_property=False,
@@ -1932,7 +1932,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppLocal.get_ex_bytes": [
+    "algopy.op.AppLocal.get_ex_bytes": [
         FunctionOpMapping(
             op_code="app_local_get_ex",
             is_property=False,
@@ -1968,7 +1968,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppLocal.get_ex_uint64": [
+    "algopy.op.AppLocal.get_ex_uint64": [
         FunctionOpMapping(
             op_code="app_local_get_ex",
             is_property=False,
@@ -2004,7 +2004,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppLocal.delete": [
+    "algopy.op.AppLocal.delete": [
         FunctionOpMapping(
             op_code="app_local_del",
             is_property=False,
@@ -2029,7 +2029,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.AppLocal.put": [
+    "algopy.op.AppLocal.put": [
         FunctionOpMapping(
             op_code="app_local_put",
             is_property=False,
@@ -2063,7 +2063,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.AppParamsGet.app_approval_program": [
+    "algopy.op.AppParamsGet.app_approval_program": [
         FunctionOpMapping(
             op_code="app_params_get",
             is_property=False,
@@ -2086,7 +2086,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppParamsGet.app_clear_state_program": [
+    "algopy.op.AppParamsGet.app_clear_state_program": [
         FunctionOpMapping(
             op_code="app_params_get",
             is_property=False,
@@ -2109,7 +2109,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppParamsGet.app_global_num_uint": [
+    "algopy.op.AppParamsGet.app_global_num_uint": [
         FunctionOpMapping(
             op_code="app_params_get",
             is_property=False,
@@ -2132,7 +2132,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppParamsGet.app_global_num_byte_slice": [
+    "algopy.op.AppParamsGet.app_global_num_byte_slice": [
         FunctionOpMapping(
             op_code="app_params_get",
             is_property=False,
@@ -2155,7 +2155,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppParamsGet.app_local_num_uint": [
+    "algopy.op.AppParamsGet.app_local_num_uint": [
         FunctionOpMapping(
             op_code="app_params_get",
             is_property=False,
@@ -2178,7 +2178,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppParamsGet.app_local_num_byte_slice": [
+    "algopy.op.AppParamsGet.app_local_num_byte_slice": [
         FunctionOpMapping(
             op_code="app_params_get",
             is_property=False,
@@ -2201,7 +2201,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppParamsGet.app_extra_program_pages": [
+    "algopy.op.AppParamsGet.app_extra_program_pages": [
         FunctionOpMapping(
             op_code="app_params_get",
             is_property=False,
@@ -2224,7 +2224,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppParamsGet.app_creator": [
+    "algopy.op.AppParamsGet.app_creator": [
         FunctionOpMapping(
             op_code="app_params_get",
             is_property=False,
@@ -2247,7 +2247,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AppParamsGet.app_address": [
+    "algopy.op.AppParamsGet.app_address": [
         FunctionOpMapping(
             op_code="app_params_get",
             is_property=False,
@@ -2270,7 +2270,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetHoldingGet.asset_balance": [
+    "algopy.op.AssetHoldingGet.asset_balance": [
         FunctionOpMapping(
             op_code="asset_holding_get",
             is_property=False,
@@ -2301,7 +2301,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetHoldingGet.asset_frozen": [
+    "algopy.op.AssetHoldingGet.asset_frozen": [
         FunctionOpMapping(
             op_code="asset_holding_get",
             is_property=False,
@@ -2332,7 +2332,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_total": [
+    "algopy.op.AssetParamsGet.asset_total": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2355,7 +2355,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_decimals": [
+    "algopy.op.AssetParamsGet.asset_decimals": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2378,7 +2378,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_default_frozen": [
+    "algopy.op.AssetParamsGet.asset_default_frozen": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2401,7 +2401,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_unit_name": [
+    "algopy.op.AssetParamsGet.asset_unit_name": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2424,7 +2424,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_name": [
+    "algopy.op.AssetParamsGet.asset_name": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2447,7 +2447,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_url": [
+    "algopy.op.AssetParamsGet.asset_url": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2470,7 +2470,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_metadata_hash": [
+    "algopy.op.AssetParamsGet.asset_metadata_hash": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2493,7 +2493,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_manager": [
+    "algopy.op.AssetParamsGet.asset_manager": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2516,7 +2516,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_reserve": [
+    "algopy.op.AssetParamsGet.asset_reserve": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2539,7 +2539,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_freeze": [
+    "algopy.op.AssetParamsGet.asset_freeze": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2562,7 +2562,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_clawback": [
+    "algopy.op.AssetParamsGet.asset_clawback": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2585,7 +2585,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.AssetParamsGet.asset_creator": [
+    "algopy.op.AssetParamsGet.asset_creator": [
         FunctionOpMapping(
             op_code="asset_params_get",
             is_property=False,
@@ -2608,7 +2608,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Block.blk_seed": [
+    "algopy.op.Block.blk_seed": [
         FunctionOpMapping(
             op_code="block",
             is_property=False,
@@ -2629,7 +2629,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Block.blk_timestamp": [
+    "algopy.op.Block.blk_timestamp": [
         FunctionOpMapping(
             op_code="block",
             is_property=False,
@@ -2650,7 +2650,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Box.create": [
+    "algopy.op.Box.create": [
         FunctionOpMapping(
             op_code="box_create",
             is_property=False,
@@ -2676,7 +2676,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Box.delete": [
+    "algopy.op.Box.delete": [
         FunctionOpMapping(
             op_code="box_del",
             is_property=False,
@@ -2695,7 +2695,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Box.extract": [
+    "algopy.op.Box.extract": [
         FunctionOpMapping(
             op_code="box_extract",
             is_property=False,
@@ -2728,7 +2728,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Box.get": [
+    "algopy.op.Box.get": [
         FunctionOpMapping(
             op_code="box_get",
             is_property=False,
@@ -2748,7 +2748,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Box.length": [
+    "algopy.op.Box.length": [
         FunctionOpMapping(
             op_code="box_len",
             is_property=False,
@@ -2768,7 +2768,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Box.put": [
+    "algopy.op.Box.put": [
         FunctionOpMapping(
             op_code="box_put",
             is_property=False,
@@ -2792,7 +2792,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.Box.replace": [
+    "algopy.op.Box.replace": [
         FunctionOpMapping(
             op_code="box_replace",
             is_property=False,
@@ -2823,7 +2823,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.Box.resize": [
+    "algopy.op.Box.resize": [
         FunctionOpMapping(
             op_code="box_resize",
             is_property=False,
@@ -2847,7 +2847,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.Box.splice": [
+    "algopy.op.Box.splice": [
         FunctionOpMapping(
             op_code="box_splice",
             is_property=False,
@@ -2885,7 +2885,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.EllipticCurve.add": [
+    "algopy.op.EllipticCurve.add": [
         FunctionOpMapping(
             op_code="ec_add",
             is_property=False,
@@ -2918,7 +2918,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.EllipticCurve.map_to": [
+    "algopy.op.EllipticCurve.map_to": [
         FunctionOpMapping(
             op_code="ec_map_to",
             is_property=False,
@@ -2944,7 +2944,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.EllipticCurve.scalar_mul_multi": [
+    "algopy.op.EllipticCurve.scalar_mul_multi": [
         FunctionOpMapping(
             op_code="ec_multi_scalar_mul",
             is_property=False,
@@ -2977,7 +2977,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.EllipticCurve.pairing_check": [
+    "algopy.op.EllipticCurve.pairing_check": [
         FunctionOpMapping(
             op_code="ec_pairing_check",
             is_property=False,
@@ -3010,7 +3010,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.EllipticCurve.scalar_mul": [
+    "algopy.op.EllipticCurve.scalar_mul": [
         FunctionOpMapping(
             op_code="ec_scalar_mul",
             is_property=False,
@@ -3043,7 +3043,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.EllipticCurve.subgroup_check": [
+    "algopy.op.EllipticCurve.subgroup_check": [
         FunctionOpMapping(
             op_code="ec_subgroup_check",
             is_property=False,
@@ -3069,7 +3069,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.sender": [
+    "algopy.op.GITxn.sender": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3088,7 +3088,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.fee": [
+    "algopy.op.GITxn.fee": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3107,7 +3107,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.first_valid": [
+    "algopy.op.GITxn.first_valid": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3126,7 +3126,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.first_valid_time": [
+    "algopy.op.GITxn.first_valid_time": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3145,7 +3145,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.last_valid": [
+    "algopy.op.GITxn.last_valid": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3164,7 +3164,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.note": [
+    "algopy.op.GITxn.note": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3183,7 +3183,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.lease": [
+    "algopy.op.GITxn.lease": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3202,7 +3202,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.receiver": [
+    "algopy.op.GITxn.receiver": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3221,7 +3221,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.amount": [
+    "algopy.op.GITxn.amount": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3240,7 +3240,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.close_remainder_to": [
+    "algopy.op.GITxn.close_remainder_to": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3259,7 +3259,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.vote_pk": [
+    "algopy.op.GITxn.vote_pk": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3278,7 +3278,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.selection_pk": [
+    "algopy.op.GITxn.selection_pk": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3297,7 +3297,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.vote_first": [
+    "algopy.op.GITxn.vote_first": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3316,7 +3316,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.vote_last": [
+    "algopy.op.GITxn.vote_last": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3335,7 +3335,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.vote_key_dilution": [
+    "algopy.op.GITxn.vote_key_dilution": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3354,7 +3354,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.type": [
+    "algopy.op.GITxn.type": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3373,7 +3373,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.type_enum": [
+    "algopy.op.GITxn.type_enum": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3392,7 +3392,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.xfer_asset": [
+    "algopy.op.GITxn.xfer_asset": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3411,7 +3411,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.asset_amount": [
+    "algopy.op.GITxn.asset_amount": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3430,7 +3430,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.asset_sender": [
+    "algopy.op.GITxn.asset_sender": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3449,7 +3449,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.asset_receiver": [
+    "algopy.op.GITxn.asset_receiver": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3468,7 +3468,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.asset_close_to": [
+    "algopy.op.GITxn.asset_close_to": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3487,7 +3487,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.group_index": [
+    "algopy.op.GITxn.group_index": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3506,7 +3506,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.tx_id": [
+    "algopy.op.GITxn.tx_id": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3525,7 +3525,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.application_id": [
+    "algopy.op.GITxn.application_id": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3544,7 +3544,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.on_completion": [
+    "algopy.op.GITxn.on_completion": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3563,7 +3563,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.application_args": [
+    "algopy.op.GITxn.application_args": [
         FunctionOpMapping(
             op_code="gitxnas",
             is_property=False,
@@ -3613,7 +3613,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.num_app_args": [
+    "algopy.op.GITxn.num_app_args": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3632,7 +3632,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.accounts": [
+    "algopy.op.GITxn.accounts": [
         FunctionOpMapping(
             op_code="gitxnas",
             is_property=False,
@@ -3682,7 +3682,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.num_accounts": [
+    "algopy.op.GITxn.num_accounts": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3701,7 +3701,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.approval_program": [
+    "algopy.op.GITxn.approval_program": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3720,7 +3720,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.clear_state_program": [
+    "algopy.op.GITxn.clear_state_program": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3739,7 +3739,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.rekey_to": [
+    "algopy.op.GITxn.rekey_to": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3758,7 +3758,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset": [
+    "algopy.op.GITxn.config_asset": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3777,7 +3777,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_total": [
+    "algopy.op.GITxn.config_asset_total": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3796,7 +3796,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_decimals": [
+    "algopy.op.GITxn.config_asset_decimals": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3815,7 +3815,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_default_frozen": [
+    "algopy.op.GITxn.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3834,7 +3834,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_unit_name": [
+    "algopy.op.GITxn.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3853,7 +3853,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_name": [
+    "algopy.op.GITxn.config_asset_name": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3872,7 +3872,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_url": [
+    "algopy.op.GITxn.config_asset_url": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3891,7 +3891,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_metadata_hash": [
+    "algopy.op.GITxn.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3910,7 +3910,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_manager": [
+    "algopy.op.GITxn.config_asset_manager": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3929,7 +3929,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_reserve": [
+    "algopy.op.GITxn.config_asset_reserve": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3948,7 +3948,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_freeze": [
+    "algopy.op.GITxn.config_asset_freeze": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3967,7 +3967,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.config_asset_clawback": [
+    "algopy.op.GITxn.config_asset_clawback": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -3986,7 +3986,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.freeze_asset": [
+    "algopy.op.GITxn.freeze_asset": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4005,7 +4005,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.freeze_asset_account": [
+    "algopy.op.GITxn.freeze_asset_account": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4024,7 +4024,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.freeze_asset_frozen": [
+    "algopy.op.GITxn.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4043,7 +4043,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.assets": [
+    "algopy.op.GITxn.assets": [
         FunctionOpMapping(
             op_code="gitxnas",
             is_property=False,
@@ -4093,7 +4093,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.num_assets": [
+    "algopy.op.GITxn.num_assets": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4112,7 +4112,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.applications": [
+    "algopy.op.GITxn.applications": [
         FunctionOpMapping(
             op_code="gitxnas",
             is_property=False,
@@ -4162,7 +4162,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.num_applications": [
+    "algopy.op.GITxn.num_applications": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4181,7 +4181,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.global_num_uint": [
+    "algopy.op.GITxn.global_num_uint": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4200,7 +4200,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.global_num_byte_slice": [
+    "algopy.op.GITxn.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4219,7 +4219,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.local_num_uint": [
+    "algopy.op.GITxn.local_num_uint": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4238,7 +4238,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.local_num_byte_slice": [
+    "algopy.op.GITxn.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4257,7 +4257,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.extra_program_pages": [
+    "algopy.op.GITxn.extra_program_pages": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4276,7 +4276,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.nonparticipation": [
+    "algopy.op.GITxn.nonparticipation": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4295,7 +4295,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.logs": [
+    "algopy.op.GITxn.logs": [
         FunctionOpMapping(
             op_code="gitxnas",
             is_property=False,
@@ -4345,7 +4345,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.num_logs": [
+    "algopy.op.GITxn.num_logs": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4364,7 +4364,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.created_asset_id": [
+    "algopy.op.GITxn.created_asset_id": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4383,7 +4383,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.created_application_id": [
+    "algopy.op.GITxn.created_application_id": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4402,7 +4402,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.last_log": [
+    "algopy.op.GITxn.last_log": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4421,7 +4421,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.state_proof_pk": [
+    "algopy.op.GITxn.state_proof_pk": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4440,7 +4440,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.approval_program_pages": [
+    "algopy.op.GITxn.approval_program_pages": [
         FunctionOpMapping(
             op_code="gitxnas",
             is_property=False,
@@ -4490,7 +4490,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.num_approval_program_pages": [
+    "algopy.op.GITxn.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4509,7 +4509,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.clear_state_program_pages": [
+    "algopy.op.GITxn.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="gitxnas",
             is_property=False,
@@ -4559,7 +4559,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GITxn.num_clear_state_program_pages": [
+    "algopy.op.GITxn.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="gitxn",
             is_property=False,
@@ -4578,7 +4578,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.sender": [
+    "algopy.op.GTxn.sender": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4616,7 +4616,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.fee": [
+    "algopy.op.GTxn.fee": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4654,7 +4654,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.first_valid": [
+    "algopy.op.GTxn.first_valid": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4692,7 +4692,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.first_valid_time": [
+    "algopy.op.GTxn.first_valid_time": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4730,7 +4730,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.last_valid": [
+    "algopy.op.GTxn.last_valid": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4768,7 +4768,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.note": [
+    "algopy.op.GTxn.note": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4806,7 +4806,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.lease": [
+    "algopy.op.GTxn.lease": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4844,7 +4844,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.receiver": [
+    "algopy.op.GTxn.receiver": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4882,7 +4882,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.amount": [
+    "algopy.op.GTxn.amount": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4920,7 +4920,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.close_remainder_to": [
+    "algopy.op.GTxn.close_remainder_to": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4958,7 +4958,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.vote_pk": [
+    "algopy.op.GTxn.vote_pk": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -4996,7 +4996,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.selection_pk": [
+    "algopy.op.GTxn.selection_pk": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5034,7 +5034,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.vote_first": [
+    "algopy.op.GTxn.vote_first": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5072,7 +5072,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.vote_last": [
+    "algopy.op.GTxn.vote_last": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5110,7 +5110,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.vote_key_dilution": [
+    "algopy.op.GTxn.vote_key_dilution": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5148,7 +5148,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.type": [
+    "algopy.op.GTxn.type": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5186,7 +5186,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.type_enum": [
+    "algopy.op.GTxn.type_enum": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5224,7 +5224,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.xfer_asset": [
+    "algopy.op.GTxn.xfer_asset": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5262,7 +5262,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.asset_amount": [
+    "algopy.op.GTxn.asset_amount": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5300,7 +5300,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.asset_sender": [
+    "algopy.op.GTxn.asset_sender": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5338,7 +5338,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.asset_receiver": [
+    "algopy.op.GTxn.asset_receiver": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5376,7 +5376,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.asset_close_to": [
+    "algopy.op.GTxn.asset_close_to": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5414,7 +5414,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.group_index": [
+    "algopy.op.GTxn.group_index": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5452,7 +5452,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.tx_id": [
+    "algopy.op.GTxn.tx_id": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5490,7 +5490,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.application_id": [
+    "algopy.op.GTxn.application_id": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5528,7 +5528,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.on_completion": [
+    "algopy.op.GTxn.on_completion": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5566,7 +5566,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.application_args": [
+    "algopy.op.GTxn.application_args": [
         FunctionOpMapping(
             op_code="gtxnsas",
             is_property=False,
@@ -5667,7 +5667,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.num_app_args": [
+    "algopy.op.GTxn.num_app_args": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5705,7 +5705,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.accounts": [
+    "algopy.op.GTxn.accounts": [
         FunctionOpMapping(
             op_code="gtxnsas",
             is_property=False,
@@ -5806,7 +5806,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.num_accounts": [
+    "algopy.op.GTxn.num_accounts": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5844,7 +5844,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.approval_program": [
+    "algopy.op.GTxn.approval_program": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5882,7 +5882,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.clear_state_program": [
+    "algopy.op.GTxn.clear_state_program": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5920,7 +5920,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.rekey_to": [
+    "algopy.op.GTxn.rekey_to": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5958,7 +5958,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset": [
+    "algopy.op.GTxn.config_asset": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -5996,7 +5996,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_total": [
+    "algopy.op.GTxn.config_asset_total": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6034,7 +6034,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_decimals": [
+    "algopy.op.GTxn.config_asset_decimals": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6072,7 +6072,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_default_frozen": [
+    "algopy.op.GTxn.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6110,7 +6110,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_unit_name": [
+    "algopy.op.GTxn.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6148,7 +6148,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_name": [
+    "algopy.op.GTxn.config_asset_name": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6186,7 +6186,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_url": [
+    "algopy.op.GTxn.config_asset_url": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6224,7 +6224,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_metadata_hash": [
+    "algopy.op.GTxn.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6262,7 +6262,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_manager": [
+    "algopy.op.GTxn.config_asset_manager": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6300,7 +6300,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_reserve": [
+    "algopy.op.GTxn.config_asset_reserve": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6338,7 +6338,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_freeze": [
+    "algopy.op.GTxn.config_asset_freeze": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6376,7 +6376,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.config_asset_clawback": [
+    "algopy.op.GTxn.config_asset_clawback": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6414,7 +6414,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.freeze_asset": [
+    "algopy.op.GTxn.freeze_asset": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6452,7 +6452,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.freeze_asset_account": [
+    "algopy.op.GTxn.freeze_asset_account": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6490,7 +6490,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.freeze_asset_frozen": [
+    "algopy.op.GTxn.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6528,7 +6528,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.assets": [
+    "algopy.op.GTxn.assets": [
         FunctionOpMapping(
             op_code="gtxnsas",
             is_property=False,
@@ -6629,7 +6629,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.num_assets": [
+    "algopy.op.GTxn.num_assets": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6667,7 +6667,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.applications": [
+    "algopy.op.GTxn.applications": [
         FunctionOpMapping(
             op_code="gtxnsas",
             is_property=False,
@@ -6768,7 +6768,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.num_applications": [
+    "algopy.op.GTxn.num_applications": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6806,7 +6806,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.global_num_uint": [
+    "algopy.op.GTxn.global_num_uint": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6844,7 +6844,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.global_num_byte_slice": [
+    "algopy.op.GTxn.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6882,7 +6882,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.local_num_uint": [
+    "algopy.op.GTxn.local_num_uint": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6920,7 +6920,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.local_num_byte_slice": [
+    "algopy.op.GTxn.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6958,7 +6958,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.extra_program_pages": [
+    "algopy.op.GTxn.extra_program_pages": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -6996,7 +6996,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.nonparticipation": [
+    "algopy.op.GTxn.nonparticipation": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -7034,7 +7034,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.logs": [
+    "algopy.op.GTxn.logs": [
         FunctionOpMapping(
             op_code="gtxnsas",
             is_property=False,
@@ -7135,7 +7135,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.num_logs": [
+    "algopy.op.GTxn.num_logs": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -7173,7 +7173,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.created_asset_id": [
+    "algopy.op.GTxn.created_asset_id": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -7211,7 +7211,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.created_application_id": [
+    "algopy.op.GTxn.created_application_id": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -7249,7 +7249,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.last_log": [
+    "algopy.op.GTxn.last_log": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -7287,7 +7287,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.state_proof_pk": [
+    "algopy.op.GTxn.state_proof_pk": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -7325,7 +7325,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.approval_program_pages": [
+    "algopy.op.GTxn.approval_program_pages": [
         FunctionOpMapping(
             op_code="gtxnsas",
             is_property=False,
@@ -7426,7 +7426,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.num_approval_program_pages": [
+    "algopy.op.GTxn.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -7464,7 +7464,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.clear_state_program_pages": [
+    "algopy.op.GTxn.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="gtxnsas",
             is_property=False,
@@ -7565,7 +7565,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.GTxn.num_clear_state_program_pages": [
+    "algopy.op.GTxn.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="gtxns",
             is_property=False,
@@ -7603,7 +7603,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.min_txn_fee": [
+    "algopy.op.Global.min_txn_fee": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7616,7 +7616,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.min_balance": [
+    "algopy.op.Global.min_balance": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7629,7 +7629,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.max_txn_life": [
+    "algopy.op.Global.max_txn_life": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7642,7 +7642,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.zero_address": [
+    "algopy.op.Global.zero_address": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7655,7 +7655,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.group_size": [
+    "algopy.op.Global.group_size": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7668,7 +7668,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.logic_sig_version": [
+    "algopy.op.Global.logic_sig_version": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7681,7 +7681,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.round": [
+    "algopy.op.Global.round": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7694,7 +7694,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.latest_timestamp": [
+    "algopy.op.Global.latest_timestamp": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7707,7 +7707,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.current_application_id": [
+    "algopy.op.Global.current_application_id": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7720,7 +7720,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.creator_address": [
+    "algopy.op.Global.creator_address": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7733,7 +7733,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.current_application_address": [
+    "algopy.op.Global.current_application_address": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7746,7 +7746,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.group_id": [
+    "algopy.op.Global.group_id": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7759,7 +7759,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.opcode_budget": [
+    "algopy.op.Global.opcode_budget": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7772,7 +7772,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.caller_application_id": [
+    "algopy.op.Global.caller_application_id": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7785,7 +7785,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.caller_application_address": [
+    "algopy.op.Global.caller_application_address": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7798,7 +7798,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.asset_create_min_balance": [
+    "algopy.op.Global.asset_create_min_balance": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7811,7 +7811,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.asset_opt_in_min_balance": [
+    "algopy.op.Global.asset_opt_in_min_balance": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7824,7 +7824,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Global.genesis_hash": [
+    "algopy.op.Global.genesis_hash": [
         FunctionOpMapping(
             op_code="global",
             is_property=False,
@@ -7837,7 +7837,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.sender": [
+    "algopy.op.ITxn.sender": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7850,7 +7850,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.fee": [
+    "algopy.op.ITxn.fee": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7863,7 +7863,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.first_valid": [
+    "algopy.op.ITxn.first_valid": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7876,7 +7876,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.first_valid_time": [
+    "algopy.op.ITxn.first_valid_time": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7889,7 +7889,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.last_valid": [
+    "algopy.op.ITxn.last_valid": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7902,7 +7902,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.note": [
+    "algopy.op.ITxn.note": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7915,7 +7915,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.lease": [
+    "algopy.op.ITxn.lease": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7928,7 +7928,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.receiver": [
+    "algopy.op.ITxn.receiver": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7941,7 +7941,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.amount": [
+    "algopy.op.ITxn.amount": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7954,7 +7954,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.close_remainder_to": [
+    "algopy.op.ITxn.close_remainder_to": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7967,7 +7967,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.vote_pk": [
+    "algopy.op.ITxn.vote_pk": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7980,7 +7980,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.selection_pk": [
+    "algopy.op.ITxn.selection_pk": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -7993,7 +7993,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.vote_first": [
+    "algopy.op.ITxn.vote_first": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8006,7 +8006,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.vote_last": [
+    "algopy.op.ITxn.vote_last": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8019,7 +8019,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.vote_key_dilution": [
+    "algopy.op.ITxn.vote_key_dilution": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8032,7 +8032,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.type": [
+    "algopy.op.ITxn.type": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8045,7 +8045,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.type_enum": [
+    "algopy.op.ITxn.type_enum": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8058,7 +8058,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.xfer_asset": [
+    "algopy.op.ITxn.xfer_asset": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8071,7 +8071,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.asset_amount": [
+    "algopy.op.ITxn.asset_amount": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8084,7 +8084,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.asset_sender": [
+    "algopy.op.ITxn.asset_sender": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8097,7 +8097,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.asset_receiver": [
+    "algopy.op.ITxn.asset_receiver": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8110,7 +8110,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.asset_close_to": [
+    "algopy.op.ITxn.asset_close_to": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8123,7 +8123,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.group_index": [
+    "algopy.op.ITxn.group_index": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8136,7 +8136,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.tx_id": [
+    "algopy.op.ITxn.tx_id": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8149,7 +8149,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.application_id": [
+    "algopy.op.ITxn.application_id": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8162,7 +8162,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.on_completion": [
+    "algopy.op.ITxn.on_completion": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8175,7 +8175,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.application_args": [
+    "algopy.op.ITxn.application_args": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -8213,7 +8213,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.num_app_args": [
+    "algopy.op.ITxn.num_app_args": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8226,7 +8226,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.accounts": [
+    "algopy.op.ITxn.accounts": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -8264,7 +8264,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.num_accounts": [
+    "algopy.op.ITxn.num_accounts": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8277,7 +8277,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.approval_program": [
+    "algopy.op.ITxn.approval_program": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8290,7 +8290,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.clear_state_program": [
+    "algopy.op.ITxn.clear_state_program": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8303,7 +8303,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.rekey_to": [
+    "algopy.op.ITxn.rekey_to": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8316,7 +8316,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset": [
+    "algopy.op.ITxn.config_asset": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8329,7 +8329,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_total": [
+    "algopy.op.ITxn.config_asset_total": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8342,7 +8342,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_decimals": [
+    "algopy.op.ITxn.config_asset_decimals": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8355,7 +8355,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_default_frozen": [
+    "algopy.op.ITxn.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8368,7 +8368,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_unit_name": [
+    "algopy.op.ITxn.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8381,7 +8381,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_name": [
+    "algopy.op.ITxn.config_asset_name": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8394,7 +8394,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_url": [
+    "algopy.op.ITxn.config_asset_url": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8407,7 +8407,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_metadata_hash": [
+    "algopy.op.ITxn.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8420,7 +8420,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_manager": [
+    "algopy.op.ITxn.config_asset_manager": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8433,7 +8433,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_reserve": [
+    "algopy.op.ITxn.config_asset_reserve": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8446,7 +8446,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_freeze": [
+    "algopy.op.ITxn.config_asset_freeze": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8459,7 +8459,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.config_asset_clawback": [
+    "algopy.op.ITxn.config_asset_clawback": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8472,7 +8472,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.freeze_asset": [
+    "algopy.op.ITxn.freeze_asset": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8485,7 +8485,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.freeze_asset_account": [
+    "algopy.op.ITxn.freeze_asset_account": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8498,7 +8498,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.freeze_asset_frozen": [
+    "algopy.op.ITxn.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8511,7 +8511,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.assets": [
+    "algopy.op.ITxn.assets": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -8549,7 +8549,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.num_assets": [
+    "algopy.op.ITxn.num_assets": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8562,7 +8562,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.applications": [
+    "algopy.op.ITxn.applications": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -8600,7 +8600,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.num_applications": [
+    "algopy.op.ITxn.num_applications": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8613,7 +8613,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.global_num_uint": [
+    "algopy.op.ITxn.global_num_uint": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8626,7 +8626,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.global_num_byte_slice": [
+    "algopy.op.ITxn.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8639,7 +8639,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.local_num_uint": [
+    "algopy.op.ITxn.local_num_uint": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8652,7 +8652,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.local_num_byte_slice": [
+    "algopy.op.ITxn.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8665,7 +8665,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.extra_program_pages": [
+    "algopy.op.ITxn.extra_program_pages": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8678,7 +8678,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.nonparticipation": [
+    "algopy.op.ITxn.nonparticipation": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8691,7 +8691,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.logs": [
+    "algopy.op.ITxn.logs": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -8729,7 +8729,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.num_logs": [
+    "algopy.op.ITxn.num_logs": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8742,7 +8742,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.created_asset_id": [
+    "algopy.op.ITxn.created_asset_id": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8755,7 +8755,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.created_application_id": [
+    "algopy.op.ITxn.created_application_id": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8768,7 +8768,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.last_log": [
+    "algopy.op.ITxn.last_log": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8781,7 +8781,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.state_proof_pk": [
+    "algopy.op.ITxn.state_proof_pk": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8794,7 +8794,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.approval_program_pages": [
+    "algopy.op.ITxn.approval_program_pages": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -8832,7 +8832,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.num_approval_program_pages": [
+    "algopy.op.ITxn.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8845,7 +8845,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.clear_state_program_pages": [
+    "algopy.op.ITxn.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="itxnas",
             is_property=False,
@@ -8883,7 +8883,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxn.num_clear_state_program_pages": [
+    "algopy.op.ITxn.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="itxn",
             is_property=False,
@@ -8896,7 +8896,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.ITxnCreate.begin": [
+    "algopy.op.ITxnCreate.begin": [
         FunctionOpMapping(
             op_code="itxn_begin",
             is_property=False,
@@ -8905,7 +8905,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.next": [
+    "algopy.op.ITxnCreate.next": [
         FunctionOpMapping(
             op_code="itxn_next",
             is_property=False,
@@ -8914,7 +8914,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.submit": [
+    "algopy.op.ITxnCreate.submit": [
         FunctionOpMapping(
             op_code="itxn_submit",
             is_property=False,
@@ -8923,7 +8923,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_sender": [
+    "algopy.op.ITxnCreate.set_sender": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -8941,7 +8941,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_fee": [
+    "algopy.op.ITxnCreate.set_fee": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -8960,7 +8960,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_note": [
+    "algopy.op.ITxnCreate.set_note": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -8979,7 +8979,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_receiver": [
+    "algopy.op.ITxnCreate.set_receiver": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -8997,7 +8997,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_amount": [
+    "algopy.op.ITxnCreate.set_amount": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9016,7 +9016,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_close_remainder_to": [
+    "algopy.op.ITxnCreate.set_close_remainder_to": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9034,7 +9034,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_vote_pk": [
+    "algopy.op.ITxnCreate.set_vote_pk": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9053,7 +9053,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_selection_pk": [
+    "algopy.op.ITxnCreate.set_selection_pk": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9072,7 +9072,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_vote_first": [
+    "algopy.op.ITxnCreate.set_vote_first": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9091,7 +9091,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_vote_last": [
+    "algopy.op.ITxnCreate.set_vote_last": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9110,7 +9110,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_vote_key_dilution": [
+    "algopy.op.ITxnCreate.set_vote_key_dilution": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9129,7 +9129,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_type": [
+    "algopy.op.ITxnCreate.set_type": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9148,7 +9148,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_type_enum": [
+    "algopy.op.ITxnCreate.set_type_enum": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9167,7 +9167,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_xfer_asset": [
+    "algopy.op.ITxnCreate.set_xfer_asset": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9187,7 +9187,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_asset_amount": [
+    "algopy.op.ITxnCreate.set_asset_amount": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9206,7 +9206,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_asset_sender": [
+    "algopy.op.ITxnCreate.set_asset_sender": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9224,7 +9224,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_asset_receiver": [
+    "algopy.op.ITxnCreate.set_asset_receiver": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9242,7 +9242,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_asset_close_to": [
+    "algopy.op.ITxnCreate.set_asset_close_to": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9260,7 +9260,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_application_id": [
+    "algopy.op.ITxnCreate.set_application_id": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9280,7 +9280,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_on_completion": [
+    "algopy.op.ITxnCreate.set_on_completion": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9299,7 +9299,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_application_args": [
+    "algopy.op.ITxnCreate.set_application_args": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9318,7 +9318,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_accounts": [
+    "algopy.op.ITxnCreate.set_accounts": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9336,7 +9336,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_approval_program": [
+    "algopy.op.ITxnCreate.set_approval_program": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9355,7 +9355,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_clear_state_program": [
+    "algopy.op.ITxnCreate.set_clear_state_program": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9374,7 +9374,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_rekey_to": [
+    "algopy.op.ITxnCreate.set_rekey_to": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9392,7 +9392,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset": [
+    "algopy.op.ITxnCreate.set_config_asset": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9412,7 +9412,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_total": [
+    "algopy.op.ITxnCreate.set_config_asset_total": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9431,7 +9431,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_decimals": [
+    "algopy.op.ITxnCreate.set_config_asset_decimals": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9450,7 +9450,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_default_frozen": [
+    "algopy.op.ITxnCreate.set_config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9470,7 +9470,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_unit_name": [
+    "algopy.op.ITxnCreate.set_config_asset_unit_name": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9489,7 +9489,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_name": [
+    "algopy.op.ITxnCreate.set_config_asset_name": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9508,7 +9508,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_url": [
+    "algopy.op.ITxnCreate.set_config_asset_url": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9527,7 +9527,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_metadata_hash": [
+    "algopy.op.ITxnCreate.set_config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9546,7 +9546,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_manager": [
+    "algopy.op.ITxnCreate.set_config_asset_manager": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9564,7 +9564,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_reserve": [
+    "algopy.op.ITxnCreate.set_config_asset_reserve": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9582,7 +9582,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_freeze": [
+    "algopy.op.ITxnCreate.set_config_asset_freeze": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9600,7 +9600,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_config_asset_clawback": [
+    "algopy.op.ITxnCreate.set_config_asset_clawback": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9618,7 +9618,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_freeze_asset": [
+    "algopy.op.ITxnCreate.set_freeze_asset": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9638,7 +9638,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_freeze_asset_account": [
+    "algopy.op.ITxnCreate.set_freeze_asset_account": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9656,7 +9656,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_freeze_asset_frozen": [
+    "algopy.op.ITxnCreate.set_freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9676,7 +9676,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_assets": [
+    "algopy.op.ITxnCreate.set_assets": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9695,7 +9695,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_applications": [
+    "algopy.op.ITxnCreate.set_applications": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9714,7 +9714,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_global_num_uint": [
+    "algopy.op.ITxnCreate.set_global_num_uint": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9733,7 +9733,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_global_num_byte_slice": [
+    "algopy.op.ITxnCreate.set_global_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9752,7 +9752,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_local_num_uint": [
+    "algopy.op.ITxnCreate.set_local_num_uint": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9771,7 +9771,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_local_num_byte_slice": [
+    "algopy.op.ITxnCreate.set_local_num_byte_slice": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9790,7 +9790,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_extra_program_pages": [
+    "algopy.op.ITxnCreate.set_extra_program_pages": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9809,7 +9809,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_nonparticipation": [
+    "algopy.op.ITxnCreate.set_nonparticipation": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9829,7 +9829,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_state_proof_pk": [
+    "algopy.op.ITxnCreate.set_state_proof_pk": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9848,7 +9848,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_approval_program_pages": [
+    "algopy.op.ITxnCreate.set_approval_program_pages": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9867,7 +9867,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.ITxnCreate.set_clear_state_program_pages": [
+    "algopy.op.ITxnCreate.set_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="itxn_field",
             is_property=False,
@@ -9886,7 +9886,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.JsonRef.json_string": [
+    "algopy.op.JsonRef.json_string": [
         FunctionOpMapping(
             op_code="json_ref",
             is_property=False,
@@ -9914,7 +9914,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.JsonRef.json_uint64": [
+    "algopy.op.JsonRef.json_uint64": [
         FunctionOpMapping(
             op_code="json_ref",
             is_property=False,
@@ -9942,7 +9942,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.JsonRef.json_object": [
+    "algopy.op.JsonRef.json_object": [
         FunctionOpMapping(
             op_code="json_ref",
             is_property=False,
@@ -9970,7 +9970,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Scratch.load_bytes": [
+    "algopy.op.Scratch.load_bytes": [
         FunctionOpMapping(
             op_code="loads",
             is_property=False,
@@ -9989,7 +9989,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Scratch.load_uint64": [
+    "algopy.op.Scratch.load_uint64": [
         FunctionOpMapping(
             op_code="loads",
             is_property=False,
@@ -10008,7 +10008,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Scratch.store": [
+    "algopy.op.Scratch.store": [
         FunctionOpMapping(
             op_code="stores",
             is_property=False,
@@ -10034,7 +10034,7 @@ STUB_TO_AST_MAPPER = {
             stack_outputs=[],
         ),
     ],
-    "puyapy.op.Txn.sender": [
+    "algopy.op.Txn.sender": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10047,7 +10047,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.fee": [
+    "algopy.op.Txn.fee": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10060,7 +10060,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.first_valid": [
+    "algopy.op.Txn.first_valid": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10073,7 +10073,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.first_valid_time": [
+    "algopy.op.Txn.first_valid_time": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10086,7 +10086,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.last_valid": [
+    "algopy.op.Txn.last_valid": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10099,7 +10099,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.note": [
+    "algopy.op.Txn.note": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10112,7 +10112,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.lease": [
+    "algopy.op.Txn.lease": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10125,7 +10125,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.receiver": [
+    "algopy.op.Txn.receiver": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10138,7 +10138,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.amount": [
+    "algopy.op.Txn.amount": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10151,7 +10151,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.close_remainder_to": [
+    "algopy.op.Txn.close_remainder_to": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10164,7 +10164,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.vote_pk": [
+    "algopy.op.Txn.vote_pk": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10177,7 +10177,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.selection_pk": [
+    "algopy.op.Txn.selection_pk": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10190,7 +10190,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.vote_first": [
+    "algopy.op.Txn.vote_first": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10203,7 +10203,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.vote_last": [
+    "algopy.op.Txn.vote_last": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10216,7 +10216,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.vote_key_dilution": [
+    "algopy.op.Txn.vote_key_dilution": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10229,7 +10229,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.type": [
+    "algopy.op.Txn.type": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10242,7 +10242,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.type_enum": [
+    "algopy.op.Txn.type_enum": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10255,7 +10255,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.xfer_asset": [
+    "algopy.op.Txn.xfer_asset": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10268,7 +10268,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.asset_amount": [
+    "algopy.op.Txn.asset_amount": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10281,7 +10281,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.asset_sender": [
+    "algopy.op.Txn.asset_sender": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10294,7 +10294,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.asset_receiver": [
+    "algopy.op.Txn.asset_receiver": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10307,7 +10307,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.asset_close_to": [
+    "algopy.op.Txn.asset_close_to": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10320,7 +10320,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.group_index": [
+    "algopy.op.Txn.group_index": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10333,7 +10333,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.tx_id": [
+    "algopy.op.Txn.tx_id": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10346,7 +10346,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.application_id": [
+    "algopy.op.Txn.application_id": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10359,7 +10359,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.on_completion": [
+    "algopy.op.Txn.on_completion": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10372,7 +10372,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.application_args": [
+    "algopy.op.Txn.application_args": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -10410,7 +10410,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.num_app_args": [
+    "algopy.op.Txn.num_app_args": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10423,7 +10423,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.accounts": [
+    "algopy.op.Txn.accounts": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -10461,7 +10461,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.num_accounts": [
+    "algopy.op.Txn.num_accounts": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10474,7 +10474,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.approval_program": [
+    "algopy.op.Txn.approval_program": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10487,7 +10487,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.clear_state_program": [
+    "algopy.op.Txn.clear_state_program": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10500,7 +10500,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.rekey_to": [
+    "algopy.op.Txn.rekey_to": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10513,7 +10513,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset": [
+    "algopy.op.Txn.config_asset": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10526,7 +10526,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_total": [
+    "algopy.op.Txn.config_asset_total": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10539,7 +10539,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_decimals": [
+    "algopy.op.Txn.config_asset_decimals": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10552,7 +10552,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_default_frozen": [
+    "algopy.op.Txn.config_asset_default_frozen": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10565,7 +10565,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_unit_name": [
+    "algopy.op.Txn.config_asset_unit_name": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10578,7 +10578,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_name": [
+    "algopy.op.Txn.config_asset_name": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10591,7 +10591,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_url": [
+    "algopy.op.Txn.config_asset_url": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10604,7 +10604,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_metadata_hash": [
+    "algopy.op.Txn.config_asset_metadata_hash": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10617,7 +10617,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_manager": [
+    "algopy.op.Txn.config_asset_manager": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10630,7 +10630,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_reserve": [
+    "algopy.op.Txn.config_asset_reserve": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10643,7 +10643,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_freeze": [
+    "algopy.op.Txn.config_asset_freeze": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10656,7 +10656,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.config_asset_clawback": [
+    "algopy.op.Txn.config_asset_clawback": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10669,7 +10669,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.freeze_asset": [
+    "algopy.op.Txn.freeze_asset": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10682,7 +10682,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.freeze_asset_account": [
+    "algopy.op.Txn.freeze_asset_account": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10695,7 +10695,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.freeze_asset_frozen": [
+    "algopy.op.Txn.freeze_asset_frozen": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10708,7 +10708,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.assets": [
+    "algopy.op.Txn.assets": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -10746,7 +10746,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.num_assets": [
+    "algopy.op.Txn.num_assets": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10759,7 +10759,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.applications": [
+    "algopy.op.Txn.applications": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -10797,7 +10797,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.num_applications": [
+    "algopy.op.Txn.num_applications": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10810,7 +10810,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.global_num_uint": [
+    "algopy.op.Txn.global_num_uint": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10823,7 +10823,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.global_num_byte_slice": [
+    "algopy.op.Txn.global_num_byte_slice": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10836,7 +10836,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.local_num_uint": [
+    "algopy.op.Txn.local_num_uint": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10849,7 +10849,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.local_num_byte_slice": [
+    "algopy.op.Txn.local_num_byte_slice": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10862,7 +10862,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.extra_program_pages": [
+    "algopy.op.Txn.extra_program_pages": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10875,7 +10875,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.nonparticipation": [
+    "algopy.op.Txn.nonparticipation": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10888,7 +10888,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.logs": [
+    "algopy.op.Txn.logs": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -10926,7 +10926,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.num_logs": [
+    "algopy.op.Txn.num_logs": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10939,7 +10939,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.created_asset_id": [
+    "algopy.op.Txn.created_asset_id": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10952,7 +10952,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.created_application_id": [
+    "algopy.op.Txn.created_application_id": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10965,7 +10965,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.last_log": [
+    "algopy.op.Txn.last_log": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10978,7 +10978,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.state_proof_pk": [
+    "algopy.op.Txn.state_proof_pk": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -10991,7 +10991,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.approval_program_pages": [
+    "algopy.op.Txn.approval_program_pages": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -11029,7 +11029,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.num_approval_program_pages": [
+    "algopy.op.Txn.num_approval_program_pages": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,
@@ -11042,7 +11042,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.clear_state_program_pages": [
+    "algopy.op.Txn.clear_state_program_pages": [
         FunctionOpMapping(
             op_code="txnas",
             is_property=False,
@@ -11080,7 +11080,7 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
-    "puyapy.op.Txn.num_clear_state_program_pages": [
+    "algopy.op.Txn.num_clear_state_program_pages": [
         FunctionOpMapping(
             op_code="txn",
             is_property=False,

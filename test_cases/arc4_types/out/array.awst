@@ -2,44 +2,44 @@ contract Arc4ArraysContract
 {
   approval_program(): bool
   {
-    dynamic_uint8_array: puyapy.arc4.DynamicArray[puyapy.arc4.UInt8] = arc4_array_encode([1arc4u8, 2arc4u8], puyapy.arc4.DynamicArray[puyapy.arc4.UInt8])
-    total: puyapy.UInt64 = 0u
+    dynamic_uint8_array: algopy.arc4.DynamicArray[algopy.arc4.UInt8] = arc4_array_encode([1arc4u8, 2arc4u8], algopy.arc4.DynamicArray[algopy.arc4.UInt8])
+    total: algopy.UInt64 = 0u
     for uint8_item in dynamic_uint8_array {
-      total += arc4_decode(uint8_item, puyapy.UInt64)
+      total += arc4_decode(uint8_item, algopy.UInt64)
     }
     assert(total == 3u, comment="Total should be sum of dynamic_uint8_array items")
-    aliased_dynamic: puyapy.arc4.DynamicArray[puyapy.arc4.UInt16] = arc4_array_encode([1arc4u16], puyapy.arc4.DynamicArray[puyapy.arc4.UInt16])
+    aliased_dynamic: algopy.arc4.DynamicArray[algopy.arc4.UInt16] = arc4_array_encode([1arc4u16], algopy.arc4.DynamicArray[algopy.arc4.UInt16])
     for uint16_item in aliased_dynamic {
-      total += arc4_decode(uint16_item, puyapy.UInt64)
+      total += arc4_decode(uint16_item, algopy.UInt64)
     }
     assert(total == 4u, comment="Total should now include sum of aliased_dynamic items")
-    dynamic_string_array: puyapy.arc4.DynamicArray[puyapy.arc4.String] = arc4_array_encode([arc4_encode('Hello', puyapy.arc4.String), arc4_encode('World', puyapy.arc4.String)], puyapy.arc4.DynamicArray[puyapy.arc4.String])
+    dynamic_string_array: algopy.arc4.DynamicArray[algopy.arc4.String] = arc4_array_encode([arc4_encode('Hello', algopy.arc4.String), arc4_encode('World', algopy.arc4.String)], algopy.arc4.DynamicArray[algopy.arc4.String])
     assert(extract_uint16(dynamic_string_array, 0u) == 2u)
-    assert(reinterpret_cast<puyapy.Bytes>(dynamic_string_array[0u]) == reinterpret_cast<puyapy.Bytes>(arc4_encode('Hello', puyapy.arc4.String)))
-    result: puyapy.String = ''
+    assert(reinterpret_cast<algopy.Bytes>(dynamic_string_array[0u]) == reinterpret_cast<algopy.Bytes>(arc4_encode('Hello', algopy.arc4.String)))
+    result: algopy.String = ''
     for (index, string_item) in enumerate(dynamic_string_array) {
       if (index == 0u) {
-        result: puyapy.String = arc4_decode(string_item, puyapy.String)
+        result: algopy.String = arc4_decode(string_item, algopy.String)
       } else {
-        result += ' ' + arc4_decode(string_item, puyapy.String)
+        result += ' ' + arc4_decode(string_item, algopy.String)
       }
     }
     assert(result == 'Hello World')
-    static_uint32_array: puyapy.arc4.StaticArray[puyapy.arc4.UInt32, typing.Literal[4]] = arc4_array_encode([1arc4u32, 10arc4u32, 255arc4u32, 128arc4u32], puyapy.arc4.StaticArray[puyapy.arc4.UInt32, typing.Literal[4]])
+    static_uint32_array: algopy.arc4.StaticArray[algopy.arc4.UInt32, typing.Literal[4]] = arc4_array_encode([1arc4u32, 10arc4u32, 255arc4u32, 128arc4u32], algopy.arc4.StaticArray[algopy.arc4.UInt32, typing.Literal[4]])
     for uint32_item in static_uint32_array {
-      total += arc4_decode(uint32_item, puyapy.UInt64)
+      total += arc4_decode(uint32_item, algopy.UInt64)
     }
     assert(total == 398u)
-    aliased_static: puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[1]] = arc4_array_encode([101arc4u8], puyapy.arc4.StaticArray[puyapy.arc4.UInt8, typing.Literal[1]])
-    index: puyapy.UInt64 = 0u
-    assert(arc4_decode(aliased_static[0u], puyapy.UInt64) + arc4_decode(aliased_static[index], puyapy.UInt64) == 202u)
-    static_string_array: puyapy.arc4.StaticArray[puyapy.arc4.String, typing.Literal[2]] = arc4_array_encode([arc4_encode('Ping', puyapy.arc4.String), arc4_encode('Pong', puyapy.arc4.String)], puyapy.arc4.StaticArray[puyapy.arc4.String, typing.Literal[2]])
-    result: puyapy.String = ''
+    aliased_static: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[1]] = arc4_array_encode([101arc4u8], algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[1]])
+    index: algopy.UInt64 = 0u
+    assert(arc4_decode(aliased_static[0u], algopy.UInt64) + arc4_decode(aliased_static[index], algopy.UInt64) == 202u)
+    static_string_array: algopy.arc4.StaticArray[algopy.arc4.String, typing.Literal[2]] = arc4_array_encode([arc4_encode('Ping', algopy.arc4.String), arc4_encode('Pong', algopy.arc4.String)], algopy.arc4.StaticArray[algopy.arc4.String, typing.Literal[2]])
+    result: algopy.String = ''
     for (index, string_item) in enumerate(static_string_array) {
       if (index == 0u) {
-        result: puyapy.String = arc4_decode(string_item, puyapy.String)
+        result: algopy.String = arc4_decode(string_item, algopy.String)
       } else {
-        result += ' ' + arc4_decode(string_item, puyapy.String)
+        result += ' ' + arc4_decode(string_item, algopy.String)
       }
     }
     assert(result == 'Ping Pong')
@@ -52,8 +52,8 @@ contract Arc4ArraysContract
     return true
   }
   
-  subroutine hash_as_array(commitment_args_concat: puyapy.Bytes): puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]
+  subroutine hash_as_array(commitment_args_concat: algopy.Bytes): algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]
   {
-    return reinterpret_cast<puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]>(sha3_256(commitment_args_concat))
+    return reinterpret_cast<algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]>(sha3_256(commitment_args_concat))
   }
 }

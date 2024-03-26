@@ -1,4 +1,4 @@
-from puyapy import Contract, UInt64, log, op, uenumerate, urange
+from algopy import Contract, UInt64, log, op, uenumerate, urange
 
 LOOP_ITERATIONS = 2  # max op code budget is exceeded with more
 

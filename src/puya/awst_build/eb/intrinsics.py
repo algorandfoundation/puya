@@ -93,7 +93,7 @@ class IntrinsicNamespaceClassExpressionBuilder(IntermediateExpressionBuilder):
         if isinstance(sym_node, mypy.nodes.Var):
             intrinsic_expr = map_call(callee=sym_node.fullname, node_location=location, args={})
             if intrinsic_expr is None:
-                raise CodeError(f"Unknown puyapy member {sym_node.fullname}")
+                raise CodeError(f"Unknown algopy member {sym_node.fullname}")
             return var_expression(intrinsic_expr)
         func_def = unwrap_func_def(
             location, sym_node, num_pos_args=0  # assuming no overloads for intrinsic functions
@@ -122,7 +122,7 @@ class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
             callee=self.func_def.fullname, node_location=location, args=arg_mapping
         )
         if intrinsic_expr is None:
-            raise CodeError(f"Unknown puyapy function {self.func_def.fullname}")
+            raise CodeError(f"Unknown algopy function {self.func_def.fullname}")
         return var_expression(intrinsic_expr)
 
 

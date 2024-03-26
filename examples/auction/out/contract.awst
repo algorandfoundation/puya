@@ -1,23 +1,23 @@
 contract Auction
 {
   globals {
-    ['auction_end']: puyapy.UInt64
-    ['previous_bid']: puyapy.UInt64
-    ['asa_amount']: puyapy.UInt64
-    ['asa']: puyapy.Asset
-    ['previous_bidder']: puyapy.Account
+    ['auction_end']: algopy.UInt64
+    ['previous_bid']: algopy.UInt64
+    ['asa_amount']: algopy.UInt64
+    ['asa']: algopy.Asset
+    ['previous_bidder']: algopy.Account
   }
   locals {
-    ['claim']: puyapy.UInt64
+    ['claim']: algopy.UInt64
   }
   
   constructor()
   {
-    this.auction_end: puyapy.UInt64 = 0u
-    this.previous_bid: puyapy.UInt64 = 0u
-    this.asa_amount: puyapy.UInt64 = 0u
-    this.asa: puyapy.Asset = reinterpret_cast<puyapy.Asset>(0u)
-    this.previous_bidder: puyapy.Account = global<ZeroAddress>()
+    this.auction_end: algopy.UInt64 = 0u
+    this.previous_bid: algopy.UInt64 = 0u
+    this.asa_amount: algopy.UInt64 = 0u
+    this.asa: algopy.Asset = reinterpret_cast<algopy.Asset>(0u)
+    this.previous_bidder: algopy.Account = global<ZeroAddress>()
   }
   
   clear_state_program(): bool
@@ -25,50 +25,50 @@ contract Auction
     return true
   }
   
-  abimethod opt_into_asset(asset: puyapy.Asset): None
+  abimethod opt_into_asset(asset: algopy.Asset): None
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
-    assert(reinterpret_cast<puyapy.UInt64>(this.asa) == 0u, comment="ASA already opted in")
-    this.asa: puyapy.Asset = asset
+    assert(reinterpret_cast<algopy.UInt64>(this.asa) == 0u, comment="ASA already opted in")
+    this.asa: algopy.Asset = asset
     submit_txn(create_inner_transaction(TypeEnum=axfer, AssetReceiver=global<CurrentApplicationAddress>(), XferAsset=asset, Fee=0u))
   }
   
-  abimethod start_auction(starting_price: puyapy.arc4.UInt64, length: puyapy.arc4.UInt64, axfer: puyapy.gtxn.AssetTransferTransaction): None
+  abimethod start_auction(starting_price: algopy.arc4.UInt64, length: algopy.arc4.UInt64, axfer: algopy.gtxn.AssetTransferTransaction): None
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="auction must be started by creator")
     assert(this.auction_end == 0u, comment="auction already started")
     assert(gtxns<AssetReceiver>(axfer) == global<CurrentApplicationAddress>(), comment="axfer must transfer to this app")
-    this.asa_amount: puyapy.UInt64 = gtxns<AssetAmount>(axfer)
-    this.auction_end: puyapy.UInt64 = global<LatestTimestamp>() + arc4_decode(length, puyapy.UInt64)
-    this.previous_bid: puyapy.UInt64 = arc4_decode(starting_price, puyapy.UInt64)
+    this.asa_amount: algopy.UInt64 = gtxns<AssetAmount>(axfer)
+    this.auction_end: algopy.UInt64 = global<LatestTimestamp>() + arc4_decode(length, algopy.UInt64)
+    this.previous_bid: algopy.UInt64 = arc4_decode(starting_price, algopy.UInt64)
   }
   
   abimethod opt_in(): None
   {
   }
   
-  abimethod bid(pay: puyapy.gtxn.PaymentTransaction): None
+  abimethod bid(pay: algopy.gtxn.PaymentTransaction): None
   {
     assert(global<LatestTimestamp>() < this.auction_end, comment="auction has ended")
     assert(gtxns<Sender>(pay) == txn<Sender>(), comment="payment sender must match transaction sender")
     assert(gtxns<Amount>(pay) > this.previous_bid, comment="Bid must be higher than previous bid")
-    this.previous_bid: puyapy.UInt64 = gtxns<Amount>(pay)
-    this.previous_bidder: puyapy.Account = gtxns<Sender>(pay)
-    this.claimable_amount[txn<Sender>()]: puyapy.UInt64 = gtxns<Amount>(pay)
+    this.previous_bid: algopy.UInt64 = gtxns<Amount>(pay)
+    this.previous_bidder: algopy.Account = gtxns<Sender>(pay)
+    this.claimable_amount[txn<Sender>()]: algopy.UInt64 = gtxns<Amount>(pay)
   }
   
   abimethod claim_bids(): None
   {
-    original_amount: puyapy.UInt64 = SINGLE_EVAL(id=0, source=this.claimable_amount[txn<Sender>()])
-    amount: puyapy.UInt64 = SINGLE_EVAL(id=0, source=this.claimable_amount[txn<Sender>()])
+    original_amount: algopy.UInt64 = SINGLE_EVAL(id=0, source=this.claimable_amount[txn<Sender>()])
+    amount: algopy.UInt64 = SINGLE_EVAL(id=0, source=this.claimable_amount[txn<Sender>()])
     if (txn<Sender>() == this.previous_bidder) {
       amount -= this.previous_bid
     }
     submit_txn(create_inner_transaction(TypeEnum=pay, Fee=0u, Amount=amount, Receiver=txn<Sender>()))
-    this.claimable_amount[txn<Sender>()]: puyapy.UInt64 = original_amount - amount
+    this.claimable_amount[txn<Sender>()]: algopy.UInt64 = original_amount - amount
   }
   
-  abimethod claim_asset(asset: puyapy.Asset): None
+  abimethod claim_asset(asset: algopy.Asset): None
   {
     assert(global<LatestTimestamp>() > this.auction_end, comment="auction has not ended")
     submit_txn(create_inner_transaction(TypeEnum=axfer, Fee=0u, XferAsset=asset, AssetCloseTo=this.previous_bidder, AssetReceiver=this.previous_bidder, AssetAmount=this.asa_amount))

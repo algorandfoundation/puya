@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import Bytes, BytesBacked, UInt64
+from algopy import Bytes, BytesBacked, UInt64
 
 _T_co = typing.TypeVar("_T_co", bound=UInt64 | bool | Bytes | BytesBacked, covariant=True)
 

@@ -145,7 +145,7 @@ there more broadly.
 
 ### Abstraction without obfuscation
 
-PuyaPy is a high level language (like Python), with support for things such as branching logic, operator precedence, etc., 
+Algorand Python is a high level language, with support for things such as branching logic, operator precedence, etc., 
 and not a set of "macros" for generating TEAL. As such, developers will not be able to directly influence specific TEAL 
 output, if this is desirable a language such as [Tealish](https://tealish.tinyman.org) is more appropriate.
 

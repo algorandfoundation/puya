@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, UInt64, op, urange
+from algopy import Bytes, Contract, UInt64, op, urange
 
 TWO = 2
 TWENTY = 20

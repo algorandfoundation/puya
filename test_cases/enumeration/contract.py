@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, UInt64, subroutine, uenumerate, urange
+from algopy import Bytes, Contract, UInt64, subroutine, uenumerate, urange
 
 
 class EnumerationContract(Contract):

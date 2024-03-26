@@ -3,13 +3,13 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class EventEmitter(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod
+class EventEmitter(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod
     def emit_swapped(
         self,
-        a: puyapy.arc4.UInt64,
-        b: puyapy.arc4.UInt64,
+        a: algopy.arc4.UInt64,
+        b: algopy.arc4.UInt64,
     ) -> None: ...

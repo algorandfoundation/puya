@@ -1,7 +1,7 @@
 # ruff: noqa: SIM201, SIM202, SIM300, PLR0124
 import typing as t
 
-from puyapy import BigUInt, Contract, UInt64, arc4, subroutine
+from algopy import BigUInt, Contract, UInt64, arc4, subroutine
 
 
 class UIntNOrdering(Contract):

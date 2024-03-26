@@ -1,4 +1,4 @@
-from puyapy import UInt64
+from algopy import UInt64
 
 class OnCompleteAction(UInt64):
     """On Completion actions available in an application call transaction"""

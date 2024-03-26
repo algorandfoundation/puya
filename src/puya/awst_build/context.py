@@ -160,7 +160,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                 raise CodeError("Any type is not supported", loc)
             case _:
                 raise CodeError(
-                    f"Unable to resolve MyPy type {typ!r} to known PuyaPy type",
+                    f"Unable to resolve mypy type {typ!r} to known algopy type",
                     loc,
                 )
 

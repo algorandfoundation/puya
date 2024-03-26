@@ -1,4 +1,4 @@
-from puyapy import Contract, arc4, op
+from algopy import Contract, arc4, op
 
 
 class Arc4RefTypesContract(Contract):

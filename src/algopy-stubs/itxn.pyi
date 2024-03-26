@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import (
+from algopy import (
     Account,
     Application,
     Asset,
@@ -11,7 +11,7 @@ from puyapy import (
     UInt64,
     String,
 )
-from puyapy._transaction import (
+from algopy._transaction import (
     ApplicationProtocol,
     AssetConfigProtocol,
     AssetFreezeProtocol,

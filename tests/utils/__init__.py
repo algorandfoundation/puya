@@ -23,7 +23,7 @@ APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir", "*.mir", "*.arc32.json")
 UNSTABLE_LOG_PREFIXES = {
     LogLevel.debug: (
         "Building AWST for ",
-        "Skipping puyapy stub ",
+        "Skipping algopy stub ",
         "Skipping typeshed stub ",
         "Skipping stdlib stub ",
         "Discovered user module ",

@@ -4,14 +4,14 @@ import attrs
 
 from puya.awst import wtypes
 
-# used to map puyapy/_gen.pyi stubs to awst
+# used to map algopy/_gen.pyi stubs to awst
 # referenced by both scripts/generate_stubs.py and src/puya/awst_build/eb/intrinsics.py
 
 
 @attrs.define
 class ArgMapping:
     arg_name: str
-    """Name of puyapy argument to obtain value from"""
+    """Name of algopy argument to obtain value from"""
     allowed_types: Sequence[wtypes.WType | type] = attrs.field(factory=tuple)
     """Valid types for this argument"""
 
@@ -34,9 +34,9 @@ class FunctionOpMapping:
     op_code: str
     """TEAL op code for this mapping"""
     immediates: Sequence[str | ArgMapping] = attrs.field(factory=tuple)
-    """A list of constant values or references to an puyapy argument to include in immediate"""
+    """A list of constant values or references to an algopy argument to include in immediate"""
     stack_inputs: Sequence[ArgMapping] = attrs.field(factory=tuple)
-    """References to an puyapy argument"""
+    """References to an algopy argument"""
     stack_outputs: Sequence[wtypes.WType] = attrs.field(factory=tuple)
     """Types output by TEAL op"""
     is_property: bool = False

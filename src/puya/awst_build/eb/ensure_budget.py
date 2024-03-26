@@ -79,7 +79,7 @@ class EnsureBudgetBuilder(IntermediateExpressionBuilder):
             raise CodeError(f"Unexpected arguments: {', '.join(arg_mapping)}", location)
         call_expr = SubroutineCallExpression(
             source_location=location,
-            target=FreeSubroutineTarget(module_name="puyapy", name="ensure_budget"),
+            target=FreeSubroutineTarget(module_name="algopy", name="ensure_budget"),
             args=call_args,
             wtype=wtypes.void_wtype,
         )

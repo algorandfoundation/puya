@@ -1,31 +1,31 @@
 contract MerkleTree
 {
   globals {
-    ['root']: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]
+    ['root']: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]
   }
   
-  subroutine hash_pair(a: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]], b: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]): puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]
+  subroutine hash_pair(a: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]], b: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]): algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]
   {
-    hash_bytes: puyapy.Bytes = sha256((reinterpret_cast<puyapy.BigUInt>(reinterpret_cast<puyapy.Bytes>(a)) < reinterpret_cast<puyapy.BigUInt>(reinterpret_cast<puyapy.Bytes>(b))) ? (reinterpret_cast<puyapy.Bytes>(a) + reinterpret_cast<puyapy.Bytes>(b)) : (reinterpret_cast<puyapy.Bytes>(b) + reinterpret_cast<puyapy.Bytes>(a)))
-    return reinterpret_cast<puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]>(hash_bytes)
+    hash_bytes: algopy.Bytes = sha256((reinterpret_cast<algopy.BigUInt>(reinterpret_cast<algopy.Bytes>(a)) < reinterpret_cast<algopy.BigUInt>(reinterpret_cast<algopy.Bytes>(b))) ? (reinterpret_cast<algopy.Bytes>(a) + reinterpret_cast<algopy.Bytes>(b)) : (reinterpret_cast<algopy.Bytes>(b) + reinterpret_cast<algopy.Bytes>(a)))
+    return reinterpret_cast<algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]>(hash_bytes)
   }
   
-  subroutine compute_root_hash(proof: puyapy.arc4.DynamicArray[puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]], leaf: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]): puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]
+  subroutine compute_root_hash(proof: algopy.arc4.DynamicArray[algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]], leaf: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]): algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]
   {
-    computed: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]] = leaf.copy()
+    computed: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]] = leaf.copy()
     for proof_hash in proof {
-      computed: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]] = this::hash_pair(computed, proof_hash)
+      computed: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]] = this::hash_pair(computed, proof_hash)
     }
     return computed
   }
   
-  abimethod create(root: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]): None
+  abimethod create(root: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]): None
   {
-    this.root: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]] = root.copy()
+    this.root: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]] = root.copy()
   }
   
-  abimethod verify(proof: puyapy.arc4.DynamicArray[puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]], leaf: puyapy.arc4.StaticArray[puyapy.arc4.Byte, typing.Literal[32]]): bool
+  abimethod verify(proof: algopy.arc4.DynamicArray[algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]], leaf: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]]): bool
   {
-    return reinterpret_cast<puyapy.Bytes>(this.root) == reinterpret_cast<puyapy.Bytes>(this::compute_root_hash(proof, leaf))
+    return reinterpret_cast<algopy.Bytes>(this.root) == reinterpret_cast<algopy.Bytes>(this::compute_root_hash(proof, leaf))
   }
 }

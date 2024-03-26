@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, UInt64, log, op, subroutine, urange
+from algopy import Bytes, Contract, UInt64, log, op, subroutine, urange
 
 
 class TupleSupport(Contract):

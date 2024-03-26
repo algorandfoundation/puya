@@ -1,7 +1,7 @@
 # Converted from https://github.com/algorandfoundation/nft_voting_tool/blob/c0f8be47ab80c8694d2cf40ca0df54cec07ff14a/src/algorand/smart_contracts/voting.py
 import typing
 
-from puyapy import (
+from algopy import (
     ARC4Contract,
     Bytes,
     Global,

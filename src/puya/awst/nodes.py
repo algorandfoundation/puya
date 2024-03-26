@@ -173,10 +173,10 @@ class Literal(Node):
     For example, consider the int literal 42 (randomly selected by fair roll of D100) in the
     following:
 
-        x = puyapy.UInt(42)
+        x = algopy.UInt(42)
         x += 42
-        y = puyapy.BigUInt(42)
-        z = puyapy.InnerTransactionGroup.sender(42)
+        y = algopy.BigUInt(42)
+        z = algopy.InnerTransactionGroup.sender(42)
 
 
     The "type" of 42 in each of these is different.

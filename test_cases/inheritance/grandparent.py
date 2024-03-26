@@ -1,14 +1,14 @@
-import puyapy
+import algopy
 
 
-class GrandParentContract(puyapy.Contract):
+class GrandParentContract(algopy.Contract):
     def approval_program(self) -> bool:
         return self.method()
 
     def clear_state_program(self) -> bool:
         return True
 
-    @puyapy.subroutine
+    @algopy.subroutine
     def method(self) -> bool:
-        puyapy.log("GrandParentContract.method called")
+        algopy.log("GrandParentContract.method called")
         return True

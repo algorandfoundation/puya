@@ -3,11 +3,11 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class StateProxyContract(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod(allow_actions=['OptIn'], create=True)
+class StateProxyContract(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod(allow_actions=['OptIn'], create=True)
     def create(
         self,
     ) -> None: ...

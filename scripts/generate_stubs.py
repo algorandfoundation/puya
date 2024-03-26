@@ -426,7 +426,7 @@ def sub_types(type_name: StackType, *, covariant: bool) -> list[str]:
         return list(map(_get_imported_name, stack_type_mapping[type_name][:last_index]))
     except KeyError as ex:
         raise NotImplementedError(
-            f"Could not map stack type {type_name} to an puyapy type"
+            f"Could not map stack type {type_name} to an algopy type"
         ) from ex
 
 
@@ -963,7 +963,7 @@ def build_arg_mapping(arg_mapping: ArgMapping) -> Iterable[str]:
 
 
 def build_op_specification_body(name_suffix: str, function: FunctionDef) -> Iterable[str]:
-    yield f'    "puyapy.{STUB_NAMESPACE}.{name_suffix}": ['
+    yield f'    "algopy.{STUB_NAMESPACE}.{name_suffix}": ['
     for op_mapping in function.op_mappings:
         yield "FunctionOpMapping("
         yield f'    op_code="{op_mapping.op_code}",'
@@ -1001,7 +1001,7 @@ def build_awst_data(
     yield ""
     yield "ENUM_CLASSES = {"
     for enum_name in enums:
-        yield f'    "puyapy.{STUB_NAMESPACE}.{get_python_enum_class(enum_name)}": {{'
+        yield f'    "algopy.{STUB_NAMESPACE}.{get_python_enum_class(enum_name)}": {{'
         for enum_value in lang_spec.arg_enums[enum_name]:
             # enum names currently match enum immediate values
             yield f'    "{enum_value.name}": "{enum_value.name}",'
@@ -1029,7 +1029,7 @@ def output_stub(
     stub: list[str] = [
         "import typing",
         "",
-        f"from puyapy import {references}",
+        f"from algopy import {references}",
     ]
 
     for arg_enum in enums:
@@ -1047,7 +1047,7 @@ def output_stub(
     for class_op in class_ops:
         stub.extend(build_stub_class(class_op))
 
-    stub_out_path = VCS_ROOT / "src" / "puyapy-stubs" / f"{STUB_NAMESPACE}.pyi"
+    stub_out_path = VCS_ROOT / "src" / "algopy-stubs" / f"{STUB_NAMESPACE}.pyi"
     stub_out_path.write_text("\n".join(stub), encoding="utf-8")
     subprocess.run(["black", str(stub_out_path)], check=True, cwd=VCS_ROOT)
 

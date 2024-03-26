@@ -1,11 +1,11 @@
-from puyapy import (
+from algopy import (
     Bytes,
     Contract,
     OnCompleteAction,
     TransactionType,
     UInt64,
 )
-from puyapy.op import (
+from algopy.op import (
     GITxn,
     GTxn,
     ITxn,

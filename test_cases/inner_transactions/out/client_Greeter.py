@@ -3,17 +3,17 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class Greeter(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod
+class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod
     def bootstrap(
         self,
-    ) -> puyapy.arc4.UInt64: ...
+    ) -> algopy.arc4.UInt64: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def log_greetings(
         self,
-        name: puyapy.arc4.String,
+        name: algopy.arc4.String,
     ) -> None: ...

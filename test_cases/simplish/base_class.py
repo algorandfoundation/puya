@@ -1,6 +1,6 @@
 import abc
 
-from puyapy import Bytes, Contract, LocalState, UInt64, subroutine
+from algopy import Bytes, Contract, LocalState, UInt64, subroutine
 
 
 class CallCounter(Contract, abc.ABC):

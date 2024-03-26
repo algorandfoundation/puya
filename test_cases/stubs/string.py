@@ -1,4 +1,4 @@
-from puyapy import Contract, String
+from algopy import Contract, String
 
 
 class StringContract(Contract):

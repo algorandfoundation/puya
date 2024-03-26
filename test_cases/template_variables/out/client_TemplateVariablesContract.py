@@ -3,16 +3,16 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class TemplateVariablesContract(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod
+class TemplateVariablesContract(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod
     def get_bytes(
         self,
-    ) -> puyapy.arc4.DynamicBytes: ...
+    ) -> algopy.arc4.DynamicBytes: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def get_big_uint(
         self,
-    ) -> puyapy.arc4.UInt512: ...
+    ) -> algopy.arc4.UInt512: ...

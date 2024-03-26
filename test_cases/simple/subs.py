@@ -1,6 +1,6 @@
-import puyapy
+import algopy
 
 
-@puyapy.subroutine
-def zero() -> puyapy.UInt64:
-    return puyapy.UInt64(0)
+@algopy.subroutine
+def zero() -> algopy.UInt64:
+    return algopy.UInt64(0)

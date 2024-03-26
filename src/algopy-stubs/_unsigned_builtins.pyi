@@ -8,7 +8,7 @@ These are their replacements.
 import typing
 from collections.abc import Iterable, Iterator, Reversible
 
-from puyapy import UInt64
+from algopy import UInt64
 
 class urange(Reversible[UInt64]):  # noqa: N801
     """Produces a sequence of UInt64 from start (inclusive) to stop (exclusive) by step.

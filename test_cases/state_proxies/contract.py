@@ -1,4 +1,4 @@
-from puyapy import ARC4Contract, GlobalState, LocalState, Txn, UInt64, arc4
+from algopy import ARC4Contract, GlobalState, LocalState, Txn, UInt64, arc4
 
 
 class StateProxyContract(ARC4Contract):

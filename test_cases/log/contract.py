@@ -1,4 +1,4 @@
-from puyapy import BigUInt, Bytes, Contract, log, op
+from algopy import BigUInt, Bytes, Contract, log, op
 
 
 class MyContract(Contract):

@@ -3,29 +3,29 @@
 # fmt: off
 import typing
 
-import puyapy
+import algopy
 
 
-class TicTacToeContract(puyapy.arc4.ARC4Client, typing.Protocol):
-    @puyapy.arc4.abimethod(create='allow')
+class TicTacToeContract(algopy.arc4.ARC4Client, typing.Protocol):
+    @algopy.arc4.abimethod(create='allow')
     def new_game(
         self,
-        move: puyapy.arc4.Tuple[puyapy.arc4.UInt64, puyapy.arc4.UInt64],
+        move: algopy.arc4.Tuple[algopy.arc4.UInt64, algopy.arc4.UInt64],
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def join_game(
         self,
-        move: puyapy.arc4.Tuple[puyapy.arc4.UInt64, puyapy.arc4.UInt64],
+        move: algopy.arc4.Tuple[algopy.arc4.UInt64, algopy.arc4.UInt64],
     ) -> None: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def whose_turn(
         self,
-    ) -> puyapy.arc4.UInt8: ...
+    ) -> algopy.arc4.UInt8: ...
 
-    @puyapy.arc4.abimethod
+    @algopy.arc4.abimethod
     def play(
         self,
-        move: puyapy.arc4.Tuple[puyapy.arc4.UInt64, puyapy.arc4.UInt64],
+        move: algopy.arc4.Tuple[algopy.arc4.UInt64, algopy.arc4.UInt64],
     ) -> None: ...

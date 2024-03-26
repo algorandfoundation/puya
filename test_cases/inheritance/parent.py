@@ -1,10 +1,10 @@
-import puyapy
+import algopy
 
 from test_cases.inheritance.grandparent import GrandParentContract
 
 
 class ParentContract(GrandParentContract):
-    @puyapy.subroutine
+    @algopy.subroutine
     def method(self) -> bool:
-        puyapy.log("ParentContract.method called")
+        algopy.log("ParentContract.method called")
         return super().method()

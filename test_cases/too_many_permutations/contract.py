@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, op, subroutine
+from algopy import Bytes, Contract, op, subroutine
 
 
 class MyContract(Contract):

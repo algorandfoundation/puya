@@ -35,10 +35,10 @@ suppress_warnings = [
     "autodoc2.dup_item",
 ]
 nitpick_ignore = [
-    ("py:class", "puyapy.arc4.AllowedOnCompletes"),
+    ("py:class", "algopy.arc4.AllowedOnCompletes"),
 ]
 nitpick_ignore_regex = [
-    ("py:class", r"puyapy.*\._.*"),
+    ("py:class", r"algopy.*\._.*"),
 ]
 
 # -- Options for HTML output -------------------------------------------------
@@ -61,8 +61,8 @@ myst_enable_extensions = [
 # -- Options for autodoc2 ---
 autodoc2_packages = [
     {
-        "path": "./puyapy-stubs",
-        "module": "puyapy",
+        "path": "./algopy-stubs",
+        "module": "algopy",
         "auto_mode": False,
     },
 ]
@@ -76,7 +76,7 @@ autodoc2_hidden_objects = [
     "dunder",
 ]
 autodoc2_class_inheritance = False
-autodoc2_module_all_regexes = [r"puyapy.*"]
+autodoc2_module_all_regexes = [r"algopy.*"]
 autodoc2_render_plugin = "myst"
 autodoc2_sort_names = True
 autodoc2_index_template = None

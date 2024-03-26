@@ -148,7 +148,7 @@ def get_type_builder(python_type: str, source_location: SourceLocation) -> Expre
     try:
         type_class = CLS_NAME_TO_BUILDER[python_type]
     except KeyError as ex:
-        raise InternalError(f"Unhandled puyapy name: {python_type}", source_location) from ex
+        raise InternalError(f"Unhandled algopy name: {python_type}", source_location) from ex
     else:
         return type_class(source_location)
 

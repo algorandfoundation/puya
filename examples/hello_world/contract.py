@@ -1,4 +1,4 @@
-from puyapy import Contract, Txn, log
+from algopy import Contract, Txn, log
 
 
 class HelloWorldContract(Contract):

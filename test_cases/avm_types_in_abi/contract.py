@@ -1,4 +1,4 @@
-from puyapy import Bytes, UInt64, arc4
+from algopy import Bytes, UInt64, arc4
 
 
 class TestContract(arc4.ARC4Contract):

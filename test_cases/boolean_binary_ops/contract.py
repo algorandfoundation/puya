@@ -1,4 +1,4 @@
-from puyapy import Bytes, Contract, log, subroutine
+from algopy import Bytes, Contract, log, subroutine
 
 
 class BooleanBinaryOps(Contract):

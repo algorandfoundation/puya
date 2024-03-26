@@ -5,9 +5,9 @@
 maxdepth: 4
 ---
 
-api-puyapy
-api-puyapy.arc4
-api-puyapy.gtxn
-api-puyapy.itxn
-api-puyapy.op
+api-algopy
+api-algopy.arc4
+api-algopy.gtxn
+api-algopy.itxn
+api-algopy.op
 ```

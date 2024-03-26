@@ -1,6 +1,6 @@
 import typing
 
-from puyapy import Account, Bytes, BytesBacked, UInt64
+from algopy import Account, Bytes, BytesBacked, UInt64
 
 _TState = typing.TypeVar("_TState", bound=UInt64 | Bytes | BytesBacked)
 
@@ -18,7 +18,7 @@ class LocalState(typing.Generic[_TState]):
         """Declare the local state key and it's associated type
 
         ```python
-        self.names = LocalState(puyapy.Bytes)
+        self.names = LocalState(algopy.Bytes)
         ```
         """
     def __getitem__(self, account: Account | UInt64 | int) -> _TState:

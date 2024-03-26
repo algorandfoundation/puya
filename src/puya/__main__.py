@@ -38,7 +38,7 @@ def main() -> None:
         "--output-client",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Output puyapy contract client for typed ARC4 ABI calls",
+        help="Output algopy contract client for typed ARC4 ABI calls",
     )
     parser.add_argument(
         "--out-dir", type=Path, help="path for outputting artefacts", default=False

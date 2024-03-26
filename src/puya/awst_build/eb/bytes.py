@@ -225,7 +225,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
     ) -> ExpressionBuilder:
         item_expr = expect_operand_wtype(item, wtypes.bytes_wtype)
         is_substring_expr = SubroutineCallExpression(
-            target=FreeSubroutineTarget(module_name="puyapy_lib_bytes", name="is_substring"),
+            target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
             args=[CallArg(value=item_expr, name=None), CallArg(value=self.expr, name=None)],
             wtype=wtypes.bool_wtype,
             source_location=location,

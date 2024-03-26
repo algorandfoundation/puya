@@ -1,20 +1,20 @@
 contract AppStateContract
 {
   globals {
-    ['global_int_full']: puyapy.UInt64
-    ['global_int_no_default']: puyapy.UInt64
-    ['global_bytes_full']: puyapy.Bytes
-    ['global_bytes_no_default']: puyapy.Bytes
-    ['global_int_simplified']: puyapy.UInt64
-    ['global_bytes_simplified']: puyapy.Bytes
+    ['global_int_full']: algopy.UInt64
+    ['global_int_no_default']: algopy.UInt64
+    ['global_bytes_full']: algopy.Bytes
+    ['global_bytes_no_default']: algopy.Bytes
+    ['global_int_simplified']: algopy.UInt64
+    ['global_bytes_simplified']: algopy.Bytes
   }
   
   constructor()
   {
-    this.global_int_full: puyapy.UInt64 = 55u
-    this.global_int_simplified: puyapy.UInt64 = 33u
-    this.global_bytes_full: puyapy.Bytes = 'Hello'
-    this.global_bytes_simplified: puyapy.Bytes = 'Hello'
+    this.global_int_full: algopy.UInt64 = 55u
+    this.global_int_simplified: algopy.UInt64 = 33u
+    this.global_bytes_full: algopy.Bytes = 'Hello'
+    this.global_bytes_simplified: algopy.Bytes = 'Hello'
   }
   
   approval_program(): bool
@@ -23,8 +23,8 @@ contract AppStateContract
     assert(STATE_EXISTS(this.global_int_full))
     assert(this.global_int_full == 55u)
     assert(!(STATE_EXISTS(this.global_int_no_default)))
-    this.global_int_no_default: puyapy.UInt64 = 44u
-    (i_value, i_exists): tuple[puyapy.UInt64, bool] = STATE_GET_EX(this.global_int_no_default)
+    this.global_int_no_default: algopy.UInt64 = 44u
+    (i_value, i_exists): tuple[algopy.UInt64, bool] = STATE_GET_EX(this.global_int_no_default)
     assert(i_exists)
     assert(i_value == 44u)
     assert(this.global_bytes_simplified == 'Hello')
@@ -32,12 +32,12 @@ contract AppStateContract
     assert(this.global_bytes_full == 'Hello')
     assert(STATE_GET(this.global_bytes_full, default='default') == 'Hello')
     assert(!(STATE_EXISTS(this.global_bytes_no_default)))
-    this.global_bytes_no_default: puyapy.Bytes = 'World'
-    (b_value, b_exists): tuple[puyapy.Bytes, bool] = STATE_GET_EX(this.global_bytes_no_default)
+    this.global_bytes_no_default: algopy.Bytes = 'World'
+    (b_value, b_exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(this.global_bytes_no_default)
     assert(b_exists)
     assert(b_value == 'World')
     STATE_DELETE(this.global_bytes_no_default)
-    (b_value, b_exists): tuple[puyapy.Bytes, bool] = STATE_GET_EX(this.global_bytes_no_default)
+    (b_value, b_exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(this.global_bytes_no_default)
     assert(!(b_exists))
     assert(STATE_GET(this.global_bytes_no_default, default='default') == 'default')
     return true

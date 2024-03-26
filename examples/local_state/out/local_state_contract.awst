@@ -1,7 +1,7 @@
 contract LocalStateContract
 {
   locals {
-    ['local']: puyapy.Bytes
+    ['local']: algopy.Bytes
   }
   
   constructor()
@@ -10,7 +10,7 @@ contract LocalStateContract
   
   approval_program(): bool
   {
-    if (txn<ApplicationID>() == reinterpret_cast<puyapy.Application>(0u)) {
+    if (txn<ApplicationID>() == reinterpret_cast<algopy.Application>(0u)) {
       return true
     }
     if (!(txn<OnCompletion>() IS IN (NoOp, OptIn))) {
@@ -19,7 +19,7 @@ contract LocalStateContract
     if (txn<NumAppArgs>() == 0u) {
       return false
     }
-    method: puyapy.Bytes = txna<ApplicationArgs, 0>()
+    method: algopy.Bytes = txna<ApplicationArgs, 0>()
     if (txn<NumAppArgs>() == 1u) {
       if (method == 'get_guaranteed_data') {
         log(this::get_guaranteed_data(txn<Sender>()))
@@ -59,29 +59,29 @@ contract LocalStateContract
     return true
   }
   
-  subroutine get_guaranteed_data(for_account: puyapy.Account): puyapy.Bytes
+  subroutine get_guaranteed_data(for_account: algopy.Account): algopy.Bytes
   {
     return this.local[for_account]
   }
   
-  subroutine get_data_with_default(for_account: puyapy.Account, default: puyapy.Bytes): puyapy.Bytes
+  subroutine get_data_with_default(for_account: algopy.Account, default: algopy.Bytes): algopy.Bytes
   {
     return STATE_GET(this.local[for_account], default=default)
   }
   
-  subroutine get_data_or_assert(for_account: puyapy.Account): puyapy.Bytes
+  subroutine get_data_or_assert(for_account: algopy.Account): algopy.Bytes
   {
-    (result, exists): tuple[puyapy.Bytes, bool] = STATE_GET_EX(this.local[for_account])
+    (result, exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(this.local[for_account])
     assert(exists, comment="no data for account")
     return result
   }
   
-  subroutine set_data(for_account: puyapy.Account, value: puyapy.Bytes): None
+  subroutine set_data(for_account: algopy.Account, value: algopy.Bytes): None
   {
-    this.local[for_account]: puyapy.Bytes = value
+    this.local[for_account]: algopy.Bytes = value
   }
   
-  subroutine delete_data(for_account: puyapy.Account): None
+  subroutine delete_data(for_account: algopy.Account): None
   {
     STATE_DELETE(this.local[for_account])
   }
