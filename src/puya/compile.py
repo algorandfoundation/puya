@@ -86,7 +86,8 @@ def get_mypy_options() -> mypy.options.Options:
     # set python_executable so packages in .venv's can be found
     mypy_opts.python_executable = _get_python_exe()
     # ensure stubs are always on the path
-    mypy_opts.mypy_path = [str(VENDORED_STUBS_PATH)]
+    if Path(sys.prefix) not in VENDORED_STUBS_PATH.parents:
+        mypy_opts.mypy_path = [str(VENDORED_STUBS_PATH)]
 
     mypy_opts.export_types = True
     mypy_opts.preserve_asts = True
