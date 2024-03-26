@@ -7,7 +7,7 @@ Proof: typing.TypeAlias = arc4.DynamicArray[Bytes32]
 
 
 class MerkleTree(arc4.ARC4Contract):
-    @arc4.abimethod(create=True)
+    @arc4.abimethod(create="require")
     def create(self, root: Bytes32) -> None:
         self.root = root.bytes
 

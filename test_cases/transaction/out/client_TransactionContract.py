@@ -7,7 +7,7 @@ import algopy
 
 
 class TransactionContract(algopy.arc4.ARC4Client, typing.Protocol):
-    @algopy.arc4.abimethod(create=True)
+    @algopy.arc4.abimethod(create='require')
     def create(
         self,
     ) -> None: ...

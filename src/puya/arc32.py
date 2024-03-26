@@ -314,7 +314,7 @@ def _arc4_method_to_decorator(method: ARC4Method) -> str:
     if config.allow_create:
         abimethod_args["create"] = "allow"
     elif config.require_create:
-        abimethod_args["create"] = True
+        abimethod_args["create"] = "require"
     kwargs = ", ".join(f"{name}={value!r}" for name, value in abimethod_args.items())
     decorator = f"@{constants.ABIMETHOD_DECORATOR_ALIAS}"
     if kwargs:

@@ -7,7 +7,7 @@ import algopy
 
 
 class StateProxyContract(algopy.arc4.ARC4Client, typing.Protocol):
-    @algopy.arc4.abimethod(allow_actions=['OptIn'], create=True)
+    @algopy.arc4.abimethod(allow_actions=['OptIn'], create='require')
     def create(
         self,
     ) -> None: ...

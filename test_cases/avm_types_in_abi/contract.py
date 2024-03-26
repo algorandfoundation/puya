@@ -2,7 +2,7 @@ from algopy import Bytes, UInt64, arc4
 
 
 class TestContract(arc4.ARC4Contract):
-    @arc4.abimethod(allow_actions=["NoOp"], create=True)
+    @arc4.abimethod(allow_actions=["NoOp"], create="require")
     def create(
         self,
         bool_param: bool,

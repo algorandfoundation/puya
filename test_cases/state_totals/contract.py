@@ -11,6 +11,6 @@ class Contract(
         self.local_one = LocalState(UInt64)
         self.global_one = GlobalState(Bytes)
 
-    @arc4.baremethod(create=True)
+    @arc4.baremethod(create="require")
     def create(self) -> None:
         pass

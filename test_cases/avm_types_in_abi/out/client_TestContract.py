@@ -7,7 +7,7 @@ import algopy
 
 
 class TestContract(algopy.arc4.ARC4Client, typing.Protocol):
-    @algopy.arc4.abimethod(create=True)
+    @algopy.arc4.abimethod(create='require')
     def create(
         self,
         bool_param: algopy.arc4.Bool,

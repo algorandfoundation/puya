@@ -12,7 +12,7 @@ class VotingPreconditions(algopy.arc4.Struct):
     current_time: algopy.arc4.UInt64
 
 class VotingRoundApp(algopy.arc4.ARC4Client, typing.Protocol):
-    @algopy.arc4.abimethod(create=True)
+    @algopy.arc4.abimethod(create='require')
     def create(
         self,
         vote_id: algopy.arc4.String,

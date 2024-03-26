@@ -56,7 +56,7 @@ def get_arc4_method_config(
                     f"Invalid allowed actions: {invalid_actions}",
                     dec_loc,
                 )
-            create = abi_hints.get("create", False)
+            create = abi_hints.get("create", "disallow")
             readonly = abi_hints.get("readonly", False)
             default_args = immutabledict[str, str](abi_hints.get("default_args", {}))
             all_args = [
@@ -85,7 +85,7 @@ def get_arc4_method_config(
                     puya.models.OnCompletionAction[a] for a in allow_actions
                 ],
                 allow_create=create == "allow",
-                require_create=create is True,
+                require_create=create == "require",
                 readonly=readonly,
                 is_bare=fullname == constants.BAREMETHOD_DECORATOR,
                 default_args=default_args,
@@ -98,7 +98,7 @@ def get_arc4_method_config(
 class _AbiHints(typing.TypedDict, total=False):
     name: str
     allow_actions: list[str]
-    create: bool | typing.Literal["allow"]
+    create: typing.Literal["allow", "require", "disallow"]
     readonly: bool
     default_args: dict[str, str]
 

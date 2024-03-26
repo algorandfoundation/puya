@@ -31,7 +31,7 @@ def abimethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
 def abimethod(
     *,
     allow_actions: AllowedOnCompletes | None = None,
-    create: bool | typing.Literal["allow"] = False,
+    create: typing.Literal["allow", "require", "disallow"] = "disallow",
     name: str | None = None,
     readonly: bool = False,
     default_args: Mapping[str, str | _TABIDefaultArgSource] | None = None,
@@ -44,7 +44,7 @@ def baremethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
 def baremethod(
     *,
     allow_actions: AllowedOnCompletes | None = None,
-    create: bool | typing.Literal["allow"] = False,
+    create: typing.Literal["allow", "require", "disallow"] = "disallow",
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
     """Decorator that indicates a method is an ARC4 bare method"""
 

@@ -9,7 +9,7 @@ from algopy import (
 
 
 class TransactionContract(arc4.ARC4Contract):
-    @arc4.abimethod(create=True)
+    @arc4.abimethod(create="require")
     def create(self) -> None:
         pass
 

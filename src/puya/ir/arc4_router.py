@@ -158,7 +158,7 @@ def route_bare_methods(
                 "Application has no methods that can be called to create the contract, "
                 "but does have a NoOp bare method, so one couldn't be inserted. "
                 "In order to allow creating the contract add either an @abimethod or @baremethod"
-                'decorated method with create=True or create="allow"',
+                'decorated method with create="require" or create="allow"',
                 location,
             )
         bare_blocks[OnCompletionAction.NoOp] = create_block(

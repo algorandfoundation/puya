@@ -7,7 +7,7 @@ import algopy
 
 
 class MerkleTree(algopy.arc4.ARC4Client, typing.Protocol):
-    @algopy.arc4.abimethod(create=True)
+    @algopy.arc4.abimethod(create='require')
     def create(
         self,
         root: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[32]],

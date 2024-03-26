@@ -53,7 +53,7 @@ class VotingRoundApp(ARC4Contract):
         self.voter_count = UInt64(0)
         self.close_time = GlobalState(UInt64)
 
-    @arc4.abimethod(create=True)
+    @arc4.abimethod(create="require")
     def create(
         self,
         vote_id: arc4.String,
