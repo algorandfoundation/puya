@@ -2,8 +2,9 @@
 
 ## Module constants
 
-Module constants are compile-time constant, and can contain `int`, `str', (TODO: ETC) literals. 
-These can be referenced within stuff and things
+Module constants are compile-time constant, and can contain `bool`, `int`, `str` and `bytes` literals.
+
+You can use fstrings in module constants.
 
 Example:
 
@@ -24,7 +25,8 @@ def circle_area_100() -> UInt64:
     return circle_area(UInt64(100))
 ```
 
-
 ## if/else based on compile time constants
+
 ## math etc, some strings ops
+
 ## type aliases

@@ -1,6 +1,24 @@
 # Types
 
-## UInt64
+Algorand Python exposes a number of types that provide a statically typed representation of the behaviour that is possible on the Algorand Virtual Machine.
+
+```{contents} Types
+:local:
+:depth: 3
+:class: this-will-duplicate-information-and-it-is-still-useful-here
+```
+
+## AVM types
+
+The most basic [types on the AVM](https://developer.algorand.org/docs/get-details/dapps/avm/teal/specification/#stack-types)
+are `uint64` and `bytes[]`, representing unsigned 64-bit integers and byte arrays respectively.
+These are represented by [`UInt64`](#uint64) and [`Bytes`](#bytes) in Algorand Python.
+
+There are further "bounded" types supported by the AVM, which are backed by these two simple primitives.
+For example, `bigint` represents a variably sized (up to 512-bits), unsigned integer, but is actually
+backed by a `bytes[]`. This is represented by [`BigUInt`](#biguint) in Algorand Python.
+
+### UInt64
 
 [`algopy.UInt64`](#algopy.UInt64) represents the underlying AVM `uint64` type.
 
@@ -8,7 +26,7 @@ It supports all the same operators as `int`, except for `/`, you must use `//` f
 division instead.
 
 ```python3
-# you can instantiate with an integer literal 
+# you can instantiate with an integer literal
 num = algopy.UInt64(1)
 # no arguments default to the zero value
 zero = algopy.UInt64()
@@ -21,13 +39,13 @@ num += 1
 assert one == 1
 assert num == 2
 # note that once you have a variable of type UInt64, you don't need to type any variables
-# derived from that
+# derived from that or wrap int literals
 num2 = num + 200 // 3
 ```
 
 [Further examples available here](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/uint64.py).
 
-## Bytes
+### Bytes
 
 [`algopy.Bytes`](#algopy.Bytes) represents the underlying AVM `bytes[]` type. It is intended
 to represent binary data, for UTF-8 it might be preferable to use [String](#string).
@@ -51,12 +69,14 @@ assert data[:3] == abc
 # check if a bytes sequence occurs within another
 assert abc in data
 ```
+
 ```{hint}
-Indexing a `Bytes` returning a `Bytes` differs from the behaviour of Python's bytes type, which 
+Indexing a `Bytes` returning a `Bytes` differs from the behaviour of Python's bytes type, which
 returns an `int`.
 ```
+
 ```python
-# you can iterate 
+# you can iterate
 for i in abc:
     ...
 # construct from encoded values
@@ -68,22 +88,25 @@ data ^= ~((base32_seq & base64_seq) | hex_seq)
 # access the length via the .length property
 assert abc.length == 3
 ```
+
 ```{note}
 See [Python builtins](lg-builtins.md#len---length) for an explanation of why `len()` isn't supported.
-``` 
+```
+
 [See a full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/bytes.py).
 
-## String
+### String
 
-[`String`](#algopy.String) is a type that represents a UTF8 encoded string. It's backed by
-`Bytes`, which can be access through the `.bytes`.
+[`String`](#algopy.String) is a special Algorand Python type that represents a UTF8 encoded string.
+It's backed by `Bytes`, which can be accessed through the `.bytes`.
 
 It works similarly to `Bytes`, except that it works with `str` literals rather than `bytes`
 literals. Additionally, due to a lack of AVM support for unicode data, indexing and length
-operations are not currently supported (simply getting the length of a UTF8 string is an `O(N)` 
-operation, which would be quite costly in a smart contract).
+operations are not currently supported (simply getting the length of a UTF8 string is an `O(N)`
+operation, which would be quite costly in a smart contract). If you are happy using the length as
+the number of bytes, then you can call `.bytes.length`.
 
-```python3
+```python
 # you can instantiate with a bytes literal
 data = algopy.String("abc")
 # no arguments defaults to an empty value
@@ -108,43 +131,156 @@ assert abc.bytes == b"abc"
 
 [See a full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/string.py).
 
-## BigUInt
+### BigUInt
 
-TODO: follow pattern from UInt64
+[`algopy.BigUInt`](#algopy.BigUInt) represents a variable length (max 512-bit) unsigned integer stored
+as `bytes[]` in the AVM.
 
-## Account
+The BigUInt type is a powerful tool for manipulating and storing large unsigned integers. It
+provides an interface for dealing with big integers in a way that's a subset of what users of
+Python's built-in int type would be familiar with while using AVM supported wide math
+operations so they are relatively efficient.
 
-[`Account`](#algopy.Account) represents a logical Account, backed by a `bytes[]` representing the
-public key.
+It supports all the same operators as `int`, except for power (`**`) and `/` (you must use `//` for truncating
+division instead).
 
-## Asset
+```python
+# you can instantiate with an integer literal
+num = algopy.BigUInt(1)
+# no arguments default to the zero value
+zero = algopy.BigUInt()
+# zero is False, any other value is True
+assert not zero
+assert num
+# Like Python's `int`, `BigUInt` is immutable, so augmented assignment operators return new values
+one = num
+num += 1
+assert one == 1
+assert num == UInt64(2)
+# note that once you have a variable of type BigUInt, you don't need to type any variables
+# derived from that or wrap int literals
+num2 = num + 200 // 3
+```
 
-[`Asset`](#algopy.Asset) represents a logical Asset, backed by a `uint64` ID.
-
-## Application
-
-[`Application`](#algopy.Application) represents a logical Application, backed by a `uint64` ID.
-
-## Python built-in types
+[Further examples available here](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/uint64.py).
 
 ### bool
 
-todo: note about `and`/`or` with disparate types, might not belong here though?
+The semantics of the AVM `bool` bounded type exactly match the semantics of Python's built-in `bool` type
+and thus Algorand Python uses the in-built `bool` type from Python.
+
+Per the behaviour in normal Python, Algorand Python automatically converts various types to `bool` when they
+appear in statements that expect a `bool` e.g. `if`/`while`/`assert` statements, appear in Boolean expressions
+(e.g. next to `and` or `or` keywords) or are explicitly casted to a bool.
+
+The semantics of `not`, `and` and `or` are special [per how these keywords work in Python](https://docs.python.org/3/reference/expressions.html#boolean-operations)
+(e.g. short circuiting).
+
+```python
+a = UInt64(1)
+b = UInt64(2)
+
+c = a or b
+d = b and a
+
+e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
+f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
+
+g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
+h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
+
+i = a if b < c else d + e
+if a:
+    log("a is True")
+```
+
+[Further examples available here](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/uint64.py).
+
+### Account
+
+[`Account`](#algopy.Account) represents a logical Account, backed by a `bytes[]` representing the
+public key. It has various account related methods that can be called from the type.
+
+### Asset
+
+[`Asset`](#algopy.Asset) represents a logical Asset, backed by a `uint64` ID.
+It has various asset related methods that can be called from the type.
+
+### Application
+
+[`Application`](#algopy.Application) represents a logical Application, backed by a `uint64` ID.
+It has various application related methods that can be called from the type.
+
+## Python built-in types
+
+Unfortunately, the [AVM types](#avm-types) don't map to standard Python primitives. For instance,
+in Python, an `int` is unsigned, and effectively unbounded. A `bytes` similarly is limited only by
+the memory available, whereas an AVM `bytes[]` has a maximum length of 4096. In order to both maintain
+semantic compatibility and allow for a framework implementation in plain Python that will fail under the
+same conditions as when deployed to the AVM, support for Python primitives is limited.
+
+In saying there, there are many places where built-in Python types can be used and over time
+the places these types is able to be used is expected to increase.
+
+### bool
+
+[Per above](#bool) Algorand Python has full support for `bool`.
 
 ### tuple
-supported as arguments, local variables, return types
-nested _not_ supported
+
+Python tuples are supported as arguments to subroutines, local variables, return types. Nested tuples
+are _not_ currently supported.
 
 ### None
 
-`None` is not supported as a value, only as a type annotation to indicate a function returns no
-value.
+`None` is not supported as a value, but is supported as a type annotation to indicate a function or subroutine
+returns no value.
 
-### int, str, bytes
+### int, str, bytes, float
 
-Only as module level constants, or as arguments to compiler functionality.
+The `int`, `str` and `bytes` built-in types are currently only supported as [module-level constants](./lg-modules.md) or literals.
 
-## TemplateVar
+They can be passed as arguments to various Algorand Python methods that support them or
+when interacting with certain [AVM types](#avm-types) e.g. adding a number to a `UInt64`.
+
+`float` is not supported.
+
+## Template variables
+
+Template variables can be used to represent a placeholder for a deploy-time provided
+value. This can be declared using the `TemplateVar[TYPE]` type where `TYPE` is the
+Algorand Python type that it will be interpreted as.
+
+```python
+from algopy import BigUInt, Bytes, TemplateVar, UInt64, arc4
+from algopy.arc4 import UInt512
+
+
+class TemplateVariablesContract(arc4.ARC4Contract):
+    @arc4.abimethod()
+    def get_bytes(self) -> Bytes:
+        return TemplateVar[Bytes]("SOME_BYTES")
+
+    @arc4.abimethod()
+    def get_big_uint(self) -> UInt512:
+        x = TemplateVar[BigUInt]("SOME_BIG_UINT")
+        return UInt512(x)
+
+    @arc4.baremethod(allow_actions=["UpdateApplication"])
+    def on_update(self) -> None:
+        assert TemplateVar[bool]("UPDATABLE")
+
+    @arc4.baremethod(allow_actions=["DeleteApplication"])
+    def on_delete(self) -> None:
+        assert TemplateVar[UInt64]("DELETABLE")
+```
+
+The resulting TEAL code that PuyaPy emits has placeholders with `TMPL_{template variable name}`
+that expects either an integer value or an encoded bytes value. This behaviour exactly
+matches what
+[AlgoKit Utils expects](https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#compilation-and-template-substitution).
+
+For more information look at the API reference for [`TemplateVar`](./api-algopy.md#algopy.TemplateVar).
 
 ## ARC-4 types
 
@@ -156,4 +292,5 @@ the `native` property to retrieve the value. Most of the ARC-4 types also allow 
 you can edit values in arrays by index.
 
 Please see the [reference documentation](./api-algopy.arc4.md) for the different classes that can
-be used to represent ARC-4 values or the [ARC-4 documentation](./lg-arc4.md) for more information.
+be used to represent ARC-4 values or the [ARC-4 documentation](./lg-arc4.md) for more information
+about ARC-4.
