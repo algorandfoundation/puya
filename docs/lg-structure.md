@@ -31,9 +31,12 @@ Subroutines are "internal" or "private" methods to a contract. They can exist as
 class, or at the module level so they can be used by multiple classes or even across multiple
 projects.
 
+You can pass parameters to subroutines and define local variables, both of which automatically get
+managed for you with semantics that match Python semantics.
+
 All subroutines must be decorated with `algopy.subroutine`, like so:
 
-```python3
+```python
 def foo() -> None: # compiler error: not decorated with subroutine
     ...
 
@@ -57,7 +60,7 @@ Argument and return types to a subroutine can be any Algorand Python variable ty
 
 Returning multiple values is allowed, this is annotated in the standard Python way with `tuple`:
 
-```python3
+```python
 @algopy.subroutine
 def return_two_things() -> tuple[algopy.UInt64, algopy.String]:
     ...
@@ -65,7 +68,7 @@ def return_two_things() -> tuple[algopy.UInt64, algopy.String]:
 
 Keyword only and positional only argument list modifiers are supported:
 
-```python3
+```python
 @algopy.subroutine
 def my_method(a: algopy.UInt64, /, b: algopy.UInt64, *, c: algopy.UInt64) -> None:
     ...
@@ -107,7 +110,7 @@ definitions. Forward type declarations are allowed.
 
 Example:
 
-```python3
+```python
 class MyContract(algopy.Contract):
     foo: algopy.UInt64  # okay
     bar = algopy.UInt64(1) # not allowed
@@ -180,7 +183,7 @@ should be rejected and any other value indicates that it should be approved.
 Here is a very simple example contract that maintains a counter of how many times it has
 been called (including on create).
 
-```python3
+```python
 class Counter(algopy.Contract):
     def __init__(self) -> None:
         self.counter = algopy.UInt64(0)
@@ -228,7 +231,7 @@ A default `clear_state_program` is implemented which always approves, but this c
 
 ### Example: An ARC4 call counter
 
-```python3
+```python
 import algopy
 
 class ARC4Counter(algopy.ARC4Contract):

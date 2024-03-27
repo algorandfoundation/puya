@@ -25,7 +25,7 @@ backed by a `bytes[]`. This is represented by [`BigUInt`](./#biguint) in Algoran
 It supports all the same operators as `int`, except for `/`, you must use `//` for truncating
 division instead.
 
-```python3
+```python
 # you can instantiate with an integer literal
 num = algopy.UInt64(1)
 # no arguments default to the zero value
@@ -50,7 +50,7 @@ num2 = num + 200 // 3
 [`algopy.Bytes`](#algopy.Bytes) represents the underlying AVM `bytes[]` type. It is intended
 to represent binary data, for UTF-8 it might be preferable to use [String](#string).
 
-```python3
+```python
 # you can instantiate with a bytes literal
 data = algopy.Bytes(b"abc")
 # no arguments defaults to an empty value
