@@ -1,5 +1,4 @@
 import os
-import shutil
 import subprocess
 import sys
 import sysconfig
@@ -39,8 +38,8 @@ from puya.parse import (
 from puya.teal.main import mir_to_teal
 from puya.utils import determine_out_dir, make_path_relative_to_cwd
 
-MIN_SUPPORTED_ALGOPY_VERSION = version.parse("1.0.0")
-MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse(f"{MIN_SUPPORTED_ALGOPY_VERSION.major + 1}.0.0")
+MAX_SUPPORTED_ALGOPY_VERSION = version.parse("1.0.0")
+MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION.major}.0.0")
 
 logger = log.get_logger(__name__)
 
@@ -176,7 +175,7 @@ def _get_python_executable() -> str | None:
     if not prefix:
         logger.warning("Could not determine python prefix or algopy version")
         return None
-    logger.debug(f"Found python prefix: {prefix}")
+    logger.info(f"Found python prefix: {prefix}")
     venv_paths = sysconfig.get_paths(vars={"base": prefix})
 
     # use sys.executable as cross-platform way of correctly using python.exe or python
@@ -211,17 +210,17 @@ def _get_prefix() -> str | None:
     venv = os.getenv("VIRTUAL_ENV")
     if venv:
         return venv
-    python = shutil.which("python") or "python"
-    prefix_result = subprocess.run(
-        [python, "-c", "'import sys; print(sys.prefix or sys.base_prefix)'"],  # noqa: S603
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    # if attempt to get prefix fails, just return None
-    if prefix_result.returncode != 0:
-        return None
-    return prefix_result.stdout.strip() or None
+    for python in ("python3", "python"):
+        prefix_result = subprocess.run(
+            f"{python} -c 'import sys; print(sys.prefix or sys.base_prefix)'",
+            shell=True,  # noqa: S602
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if prefix_result.returncode == 0 and (maybe_prefix := prefix_result.stdout.strip()):
+            return maybe_prefix
+    return None
 
 
 def _check_algopy_version(site_packages: Path) -> None:
@@ -234,10 +233,10 @@ def _check_algopy_version(site_packages: Path) -> None:
     algopy_version = version.parse(algopy.version)
     logger.debug(f"Found algopy: {algopy_version}")
 
-    if not (MIN_SUPPORTED_ALGOPY_VERSION <= algopy_version < MAX_SUPPORTED_ALGOPY_VERSION_EX):
+    if not (MIN_SUPPORTED_ALGOPY_VERSION <= algopy_version <= MAX_SUPPORTED_ALGOPY_VERSION):
         raise CodeError(
             f"algopy version {algopy_version} is outside the supported range:"
-            f" >={MIN_SUPPORTED_ALGOPY_VERSION}, <{MAX_SUPPORTED_ALGOPY_VERSION_EX}"
+            f" >={MIN_SUPPORTED_ALGOPY_VERSION}, <={MAX_SUPPORTED_ALGOPY_VERSION}"
         )
 
 
