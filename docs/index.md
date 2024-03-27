@@ -49,8 +49,6 @@ To get started developing with Algorand Python, please take a look at the [Langu
 
 To see detailed guidance for using the PuyaPy compiler, please take a look at the [Compiler guide](./compiler.md).
 
-## Table of contents
-
 ```{toctree}
 ---
 maxdepth: 2

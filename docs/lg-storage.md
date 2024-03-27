@@ -7,3 +7,7 @@
 ### Local state
 
 ## Boxes
+
+## Scratch storage
+
+Talk about registering scratch in contract

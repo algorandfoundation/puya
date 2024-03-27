@@ -127,6 +127,34 @@ abstract methods are unimplemented.
 For more about inheritance and it's role in code reuse, see the section
 in [Code reuse](lg-code-reuse.md#inheritance)
 
+### Contract class configuration
+
+When defining a contract subclass you can pass configuration options to the `algopy.Contract`
+base class [per the API documentation](./api-algopy.md#algopy.Contract).
+
+Namely you can pass in:
+
+-   `name` - Which will affect the output TEAL file name if there are multiple non-abstract contracts
+    in the same file and will also be used as the contract name in the ARC-32 application.json instead of the class name.
+-   `scratch_slots` - Which allows you to mark a slot ID or range of slot IDs as "off limits" to Puya
+    so you can manually use them.
+-   `state_totals` - Which allows defining what values should be used for global and local uint and bytes storage values
+    when creating a contract and will appear in ARC-32 app spec.
+
+Full example:
+
+```python
+GLOBAL_UINTS = 3
+
+class MyContract(
+    algopy.Contract,
+    name="CustomName",
+    scratch_slots=[5, 25, urange(50, 53, 2), RenamedURange(100, 105), algopy.urange(110, 115)],
+    state_totals=StateTotals(local_bytes=1, local_uints=2, global_bytes=4, global_uints=GLOBAL_UINTS),
+):
+    ...
+```
+
 ### Example: Simplest possible `algopy.Contract` implementation
 
 For a non-ARC4 contract, the contract class must implement an `approval_program` and
