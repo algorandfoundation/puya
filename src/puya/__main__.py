@@ -37,7 +37,7 @@ def main() -> None:
     parser.add_argument(
         "--output-client",
         action=argparse.BooleanOptionalAction,
-        default=True,
+        default=False,
         help="Output algopy contract client for typed ARC4 ABI calls",
     )
     parser.add_argument(
