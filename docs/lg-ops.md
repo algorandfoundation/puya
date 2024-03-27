@@ -7,7 +7,7 @@ We generally recommend importing this entire submodule so you can use intellisen
 from algopy import (UInt64, op, subroutine)
 
 @subroutine
-def sqrt_16(*) -> UInt64:
+def sqrt_16() -> UInt64:
     return op.sqrt(16)
 ```
 
@@ -23,7 +23,7 @@ The `Txn` opcodes are so commonly used they have been exposed directly in the `a
 from algopy import (subroutine, Txn)
 
 @subroutine
-def has_no_app_args(*) -> bool:
+def has_no_app_args() -> bool:
     return Txn.num_app_args == 0
 ```
 
@@ -35,6 +35,6 @@ The `Global` opcodes are so commonly used they have been exposed directly in the
 from algopy import (subroutine, Global, Txn)
 
 @subroutine
-def only_allow_creator(*) -> None:
+def only_allow_creator() -> None:
     assert Txn.sender == Global.creator_address, "Only the contract creator can perform this operation"
 ```
