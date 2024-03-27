@@ -44,7 +44,30 @@ else:
     BAR = 456
 ```
 
-## math etc, some strings ops
+## Integer math
+
+Module constants can also be defined using common integer expressions.
+
+For example:
+
+```python
+SEVEN = 7
+TEN = 7 + 3
+FORTY_NINE = 7 ** 2
+```
+
+## Strings
+
+Module `str` constants can use f-string formatting and other common string expressions.
+
+For example:
+
+```python
+NAME = "There"
+MY_FORMATTED_STRING = f"Hello {NAME}" # Hello There
+PADDED = f"{123:05}" # "00123"
+DUPLICATED = "5" * 3 # "555"
+```
 
 ## Type aliases
 
@@ -53,11 +76,15 @@ You can create type aliases to make your contract terser and more expressive.
 For example:
 
 ```python
+import typing
+
+from algopy import arc4
 VoteIndexArray: typing.TypeAlias = arc4.DynamicArray[arc4.UInt8]
 
 Row: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[3]]
 Game: typing.TypeAlias = arc4.StaticArray[Row, typing.Literal[3]]
-Move: typing.TypeAlias = tuple[UInt64, UInt64]
+Move: typing.TypeAlias = tuple[arc4.UInt64, arc4.UInt64]
 
+Bytes32: typing.TypeAlias = arc4.StaticArray[arc4.Byte, typing.Literal[32]]
 Proof: typing.TypeAlias = arc4.DynamicArray[Bytes32]
 ```
