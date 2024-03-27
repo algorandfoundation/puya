@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## v1.0.1 (2024-03-27)
+
+### Fix
+
+* include algorand-python 1.0.1 stubs ([`ba2fe25`](https://github.com/algorandfoundation/puya/commit/ba2fe25894b7a620ace046ed60da1b0f721d679e))
+
+
 ## v1.0.0 (2024-03-27)
 
 ### Feature
