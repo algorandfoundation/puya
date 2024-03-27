@@ -18,6 +18,13 @@ A given module can contain zero, one, or many smart contracts and/or logic signa
 A module can contain [contracts](#contract-classes), [subroutines](#subroutines), 
 [logic signatures](#logic-signatures), and [compile-time constant code and values](lg-modules.md).
 
+## Typing
+
+Algorand Python code must be fully typed with 
+[type annotations](https://docs.python.org/3/library/typing.html).
+
+In practice, this mostly means annotating the arguments and return types of all functions.
+
 ## Contract classes
 
 An Algorand smart contract consists of two distinct "programs", and approval program, and a 
@@ -71,8 +78,6 @@ a `clear_state_program` method.
 As an example, this is a valid contract that always approves:
 
 ```python
-import algopy
-
 class Contract(algopy.Contract):
     def approval_program(self) -> bool:
         return True
@@ -85,13 +90,44 @@ The return value of these methods can be either a `bool` that indicates whether 
 should approve or not, or a `algopy.UInt64` value, where `UInt64(0)` indicates that the transaction
 should be rejected and any other value indicates that it should be approved.
 
+### Example: Simple call counter
+
+Here is a very simple example contract, that simple maintains a counter of how many times it has
+been called (including on create).
+
+```python3
+class Counter(algopy.Contract):
+    def __init__(self) -> None:
+        self.counter = algopy.UInt64(0)
+    
+    def approval_program(self) -> bool:
+        match algopy.Txn.on_completion:
+            case algopy.OnCompleteAction.NoOp:
+                self.increment_counter()
+                return True
+            case _:
+                # reject all OnCompletionAction's other than NoOp
+                return False
+    
+    def clear_state_program(self) -> bool:
+        return True
+    
+    @algopy.subroutine
+    def increment_counter(self) -> None:
+        self.counter += 1
+```
+
+Some things to note:
+- `self.counter` will be stored in the application's [Global State](lg-storage.md#global-state).
+- The return type of `__init__` must be `None`, this is a general typed Python concern.
+- Any methods other than `__init__`, `approval_program` or `clear_state_program` must be decorated
+  with `@subroutine`.
+
 ### Example: Simplest possible `algopy.ARC4Contract` implementation
 
 And here is a valid ARC4 contract:
 
 ```python
-import algopy
-
 class ABIContract(algopy.ARC4Contract):
     pass
 ```
@@ -104,10 +140,44 @@ based on the transaction application args to the correct public method.
 
 A default `clear_state_program` is implemented which always approves, but this can be overridden.
 
+### Example: An ARC4 call counter
+
+```python3
+import algopy
+
+class ARC4Counter(algopy.ARC4Contract):
+    def __init__(self) -> None:
+        self.counter = algopy.UInt64(0)
+
+    @algopy.arc4.abimethod(create="allow")
+    def invoke(self) -> algopy.arc4.UInt64:
+        self.increment_counter()
+        return algopy.arc4.UInt64(self.counter)
+    
+    @algopy.subroutine
+    def increment_counter(self) -> None:
+        self.counter += 1
+```
+
+This functions very similarly to the [simple example](#example-simple-call-counter).
+
+Things to note here:
+- Since the `invoke` method has `create="allow"`, it can be called both as the method to create the
+  app and also to invoke it after creation. This also means that no default bare-method create will
+  be generated, so the only way to create the contract is through this method.
+- The default options for `abimethod` is to only allow `NoOp` as an on-completion-action, so we
+  don't need to check this manually.
+- The current call count is returned from the `invoke` method.
+- Every method in an `AR4Contract` except for the optional `__init__` and `clear_state_program`
+  methods must be decorated with one of `algopy.arc4.abimethod`, `alogpy.arc4.baremethod`, or
+  `algopy.subroutine`. `subroutines` won't be directly callable through the default router.
+
+See the [ARC-4 section](lg-arc4.md) of this language guide for more info on the above.
+
 ## Subroutines
 
 TODO: no *args, **kwargs support
 
 
 
-## logic signatures
+## Logic signatures
