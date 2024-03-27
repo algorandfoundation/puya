@@ -178,12 +178,12 @@ def _get_python_executable() -> str | None:
     logger.info(f"Found python prefix: {prefix}")
     venv_paths = sysconfig.get_paths(vars={"base": prefix})
 
+    python_exe = None
     for python in ("python3", "python"):
         python_exe = shutil.which(python, path=venv_paths["scripts"])
         if python_exe:
+            logger.debug(f"Using python executable: {python_exe}")
             break
-    if python_exe:
-        logger.debug(f"Using python executable: {python_exe}")
     else:
         logger.warning("Found a python prefix, but could not find the expected python interpreter")
     # use glob here, as we don't want to assume the python version
@@ -201,7 +201,7 @@ def _get_python_executable() -> str | None:
         logger.debug(f"Using python site-packages: {site_packages}")
         _check_algopy_version(site_packages)
 
-    return str(python_exe)
+    return python_exe
 
 
 def _get_prefix() -> str | None:
