@@ -25,6 +25,62 @@ Algorand Python code must be fully typed with
 
 In practice, this mostly means annotating the arguments and return types of all functions.
 
+## Subroutines
+
+Subroutines are "internal" or "private" methods to a contract. They can exist as part of a contract
+class, or at the module level so they can be used by multiple classes or even across multiple
+projects.
+
+All subroutines must be decorated with `algopy.subroutine`, like so:
+
+```python3
+def foo() -> None: # compiler error: not decorated with subroutine
+    ...
+
+@algopy.subroutine
+def bar() -> None:
+    ...
+```
+
+
+```{note}
+Requiring this decorator serves two key purposes:
+
+1. You get an understandable error message if you try and use a third party package that wasn't 
+   built for Algorand Python 
+1. It provides for the ability to modify the functions on the fly when running in Python itself, in
+   a future testing framework.
+```
+
+Argument and return types to a subroutine can be any Algorand Python variable type (except for  
+[some inner transaction types](lg-transactions.md#inner-transaction-objects-cannot-be-passed-to-or-returned-from-subroutines)
+).
+
+Returning multiple values is allowed, this is annotated in the standard Python way with `tuple`:
+
+```python3
+@algopy.subroutine
+def return_two_things() -> tuple[algopy.UInt64, algopy.String]:
+    ...
+```
+
+Keyword only and positional only argument list modifiers are supported:
+
+```python3
+@algopy.subroutine
+def my_method(a: algopy.UInt64, /, b: algopy.UInt64, *, c: algopy.UInt64) -> None:
+    ...
+```
+In this example, `a` can only be passed positionally, `b` can be passed either by position or by 
+name, and `c` can only be passed by name.
+
+The following argument/return types are not currently supported:
+- Type unions
+- Variadic args like `*args`, `**kwargs`
+- Python types such as `int` 
+- Default values are not supported
+
+
 ## Contract classes
 
 An Algorand smart contract consists of two distinct "programs", and approval program, and a 
@@ -173,11 +229,6 @@ Things to note here:
   `algopy.subroutine`. `subroutines` won't be directly callable through the default router.
 
 See the [ARC-4 section](lg-arc4.md) of this language guide for more info on the above.
-
-## Subroutines
-
-TODO: no *args, **kwargs support
-
 
 
 ## Logic signatures
