@@ -4,7 +4,7 @@ Algorand Python allows you to do express [every op code the AVM has available](h
 We generally recommend importing this entire submodule so you can use intellisense to discover the available methods:
 
 ```python
-from algopy import (UInt64, op, subroutine)
+from algopy import UInt64, op, subroutine
 
 @subroutine
 def sqrt_16() -> UInt64:
@@ -20,7 +20,7 @@ Many ops have higher-order functionality that Algorand Python exposes and would 
 The `Txn` opcodes are so commonly used they have been exposed directly in the `algopy` module and can be easily imported to make it terser to access:
 
 ```python
-from algopy import (subroutine, Txn)
+from algopy import subroutine, Txn
 
 @subroutine
 def has_no_app_args() -> bool:
@@ -32,7 +32,7 @@ def has_no_app_args() -> bool:
 The `Global` opcodes are so commonly used they have been exposed directly in the `algopy` module and can be easily imported to make it terser to access:
 
 ```python
-from algopy import (subroutine, Global, Txn)
+from algopy import subroutine, Global, Txn
 
 @subroutine
 def only_allow_creator() -> None:
