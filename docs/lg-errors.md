@@ -22,14 +22,15 @@ The (optional) string value provided with an assertion, if provided, will be add
 
 ## Explicit failure
 
-For scenarios where you need to fail a contract explicitly, you can use the `op.err()` operation. This operation causes the TEAL program to immediately and unconditionally fail.
+For scenarios where you need to fail a contract explicitly, you can use
+the [`op.err()`](#algopy.op.err) operation. This operation causes the TEAL program to immediately 
+and unconditionally fail.
+
+Alternatively [`op.exit(0)`](#algopy.op.exit) will achieve the same result. A non-zero value will
+do the opposite and immediately succeed.
 
 ## Exception handling
 
 The AVM doesn't provide error trapping semantics so it's not possible to implement `raise` and `catch`.
 
-The equivalent of a throw in Algorand Python is this:
-
-```python
-assert False, "Exception message here"
-```
+For more details see [Unsupported Python features](lg-unsupported-python-features.md#raise-tryexceptfinally).
