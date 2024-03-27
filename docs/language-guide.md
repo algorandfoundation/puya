@@ -44,7 +44,7 @@ same conditions as when deployed to the AVM, support for Python primitives is
 [limited](lg-types.md#python-built-in-types). 
 
 For more information on the philosophy and design of Algorand Python, please see
-["Principles"](principles.md).
+["Principles"](principles.md#principles).
 
 If you aren't familiar with Python, a good place to start before continuing below is with the
 [official tutorial](https://docs.python.org/3/tutorial/index.html). Just beware that as mentioned 

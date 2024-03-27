@@ -88,6 +88,10 @@ class ManualRouting(Contract):
         log("other", Txn.on_completion, Txn.num_app_args)
 
 ```
+
+TODO: `__init__` methods
+
+
 ## Subroutines
 
 TODO: no *args, **kwargs support
@@ -98,3 +102,6 @@ TODO: no *args, **kwargs support
 - modules with no contracts
 - importing other modules
 - link to lg-modules.md for more details about supported module level code
+
+
+## logic signatures

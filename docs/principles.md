@@ -1,4 +1,4 @@
-# Principles
+# Principles & Background
 ## Background
 
 **Smart contracts** on the Algorand blockchain run on the Algorand Virtual Machine ([AVM](https://developer.algorand.org/docs/get-details/dapps/avm/)).
@@ -61,6 +61,22 @@ JavaScript and TypeScript, a parallel initiative to build a TypeScript to TEAL c
 ## Principles
 
 The principles listed here should form the basis of our decision-making, both in the design and implementation.
+
+### Least surprise
+
+Our primary objective is to assist developers in creating accurate smart contracts right from the 
+start. The often immutable nature of these contracts - although not always the case - and the 
+substantial financial value they frequently safeguard, underlines the importance of this goal.
+
+This principle ensures that the code behaves as anticipated by the developer. Specifically, if 
+you're a Python developer writing Python smart contract code, you can expect the code to behave 
+identically to its execution in a standard Python environment.
+
+Furthermore, we believe in promoting explicitness and correctness in contract code and its 
+associated typing. This approach reduces potential errors and enhances the overall integrity of our
+smart contracts. Our commitment is to provide a user-friendly platform that aligns with the 
+developer's intuition and experience, ultimately simplifying their work and minimizing the
+potential for mistakes.
 
 ### Inherited from AlgoKit
 
