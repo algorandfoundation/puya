@@ -12,11 +12,11 @@ Algorand Python exposes a number of types that provide a statically typed repres
 
 The most basic [types on the AVM](https://developer.algorand.org/docs/get-details/dapps/avm/teal/specification/#stack-types)
 are `uint64` and `bytes[]`, representing unsigned 64-bit integers and byte arrays respectively.
-These are represented by [`UInt64`](#uint64) and [`Bytes`](#bytes) in Algorand Python.
+These are represented by [`UInt64`](./#uint64) and [`Bytes`](./#bytes) in Algorand Python.
 
 There are further "bounded" types supported by the AVM, which are backed by these two simple primitives.
 For example, `bigint` represents a variably sized (up to 512-bits), unsigned integer, but is actually
-backed by a `bytes[]`. This is represented by [`BigUInt`](#biguint) in Algorand Python.
+backed by a `bytes[]`. This is represented by [`BigUInt`](./#biguint) in Algorand Python.
 
 ### UInt64
 
