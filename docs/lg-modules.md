@@ -1,12 +1,16 @@
 # Module level constructs
 
+You can write compile-time constant code at a module level and then use them in place of [Python built-in literal types](./lg-types.md#python-built-in-types).
+
+For a full example of what syntax is currently possible see the [test case example](https://github.com/algorandfoundation/puya/blob/main/test_cases/module_consts/contract.py).
+
 ## Module constants
 
-Module constants are compile-time constant, and can contain `bool`, `int`, `str` and `bytes` literals.
+Module constants are compile-time constant, and can contain `bool`, `int`, `str` and `bytes`.
 
-You can use fstrings in module constants.
+You can use fstrings and other compile-time constant values in module constants too.
 
-Example:
+For example:
 
 ```python
 from algopy import UInt64, subroutine
@@ -25,8 +29,35 @@ def circle_area_100() -> UInt64:
     return circle_area(UInt64(100))
 ```
 
-## if/else based on compile time constants
+## If statements
+
+You can use if statements with compile-time constants in module constants.
+
+For example:
+
+```python
+FOO = 42
+
+if FOO > 12:
+    BAR = 123
+else:
+    BAR = 456
+```
 
 ## math etc, some strings ops
 
-## type aliases
+## Type aliases
+
+You can create type aliases to make your contract terser and more expressive.
+
+For example:
+
+```python
+VoteIndexArray: typing.TypeAlias = arc4.DynamicArray[arc4.UInt8]
+
+Row: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[3]]
+Game: typing.TypeAlias = arc4.StaticArray[Row, typing.Literal[3]]
+Move: typing.TypeAlias = tuple[UInt64, UInt64]
+
+Proof: typing.TypeAlias = arc4.DynamicArray[Bytes32]
+```
