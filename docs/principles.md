@@ -54,7 +54,7 @@ are to "meet developers where they are" and "leverage existing ecosystem".
 Building a compiler that allows developers to write smart contracts using an idiomatic subset of a high level language 
 such as Python would make great strides towards both of these goals.
 
-Puya was the original internal code name for just such a compiler (now called Puya), one that will transform Python code into valid TEAL 
+Wyvern was the original internal code name for just such a compiler (now called Puya), one that will transform Python code into valid TEAL 
 smart contracts. In line with the principle of meeting developers where they are, and recognising the popularity of 
 JavaScript and TypeScript, a parallel initiative to build a TypeScript to TEAL compiler is [also underway](https://tealscript.netlify.app).
 
@@ -151,7 +151,7 @@ output, if this is desirable a language such as [Tealish](https://tealish.tinyma
 
 Whilst this will abstract away certain aspects of the underlying TEAL language, there are certain AVM concerns 
 (such as op code budgets) that should not be abstracted away. That said, we should strive to generate code this is
-cost-effective and unsurprising. Python mechanisms such as dynamic (runtime) dispatch, and also many of it's builtin
+cost-effective and unsurprising. Python mechanisms such as dynamic (runtime) dispatch, and also many of its builtin
 functions on types such as `str` that are taken for granted, would require large amounts of ops compared to the
 Python code it represents.
 

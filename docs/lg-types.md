@@ -164,6 +164,13 @@ bitwise_and = big_num & 0xFF
 bitwise_or = big_num | 0x0F
 bitwise_xor = big_num ^ 0x0F
 ```
+
+## Python built-in types
+
+TODO: limited scope, link to modules, also explain use in constructors for algopy types,
+special handling of unions in other algopy code (e.g. algopy.op), but can't use type unions in
+user subroutines etc
+
 ## Reference types
 
 ### Account

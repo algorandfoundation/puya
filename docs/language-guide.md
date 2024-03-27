@@ -40,14 +40,18 @@ Unfortunately, none of these types map to standard Python primitives. In Python,
 unsigned, and effectively unbounded. A `bytes` similarly is limited only by the memory available,
 whereas an AVM `bytes[]` has a maximum length of 4096. In order to both maintain semantic 
 compatibility and allow for a framework implementation in plain Python that will fail under the 
-same conditions as when deployed to the AVM, support for Python primitives is limited. 
+same conditions as when deployed to the AVM, support for Python primitives is 
+[limited](lg-types.md#python-built-in-types). 
 
 For more information on the philosophy and design of Algorand Python, please see
 ["Principles"](principles.md).
 
 If you aren't familiar with Python, a good place to start before continuing below is with the
-[official tutorial](https://docs.python.org/3/tutorial/index.html). just beware that as mentioned 
+[official tutorial](https://docs.python.org/3/tutorial/index.html). Just beware that as mentioned 
 above, [not all features are supported](./lg-unsupported-python-features.md).
+
+
+## Table of Contents
 
 ```{toctree}
 ---
