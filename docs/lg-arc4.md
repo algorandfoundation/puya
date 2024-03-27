@@ -203,3 +203,67 @@ class Reference(ARC4Contract):
 
 
 ## Typed clients
+
+[`arc4.abi_call`](#algopy.arc4.abi_call) can be used to do type safe calls to an ABI method of another contract, these
+calls can be expressed in a few ways.
+
+### ARC4Contract method
+
+An ARC4Contract method written in Algorand Python can be referenced directly e.g.
+
+```python
+from algopy import arc4, subroutine
+
+class HelloWorldContract(arc4.ARC4Contract):
+    
+    def hello(self, name: arc4.String) -> arc4.String: ... # implementation omitted
+
+@subroutine
+def call_another_contract() -> None:
+    result, txn = arc4.abi_call(HelloWorldContract.hello, arc4.String("World"), app=...)
+    assert result == "Hello, World"
+```
+
+### ARC4Client method 
+
+A ARC4Client client represents the ARC4 abimethods of a smart contract and can be used to call abimethods in a type safe way
+
+ARC4Client's can be produced by using `puyapy --output-client=True` when compiling a smart contract 
+(this would be useful if you wanted to publish a client for consumption by other smart contracts)
+An ARC4Client can also be be generated from an ARC-32 application.json using `puyapy-clientgen` 
+e.g. `puyapy-clientgen examples/hello_world_arc4/out/HelloWorldContract.arc32.json`, this would be
+the recommended approach for calling another smart contract that is not written in Algorand Python or does not provide the source
+
+```python
+from algopy import arc4, subroutine
+
+class HelloWorldClient(arc4.ARC4Client):
+    
+    def hello(self, name: arc4.String) -> arc4.String: ...
+
+@subroutine
+def call_another_contract() -> None:
+    # can reference another algopy contract method
+    result, txn = arc4.abi_call(HelloWorldClient.hello, arc4.String("World"), app=...)
+    assert result == "Hello, World"
+```
+
+### Method signature or name
+
+An ARC4 method selector can be used e.g. `"hello(string)string` along with a type index to specify the return type.
+Additionally just a name can be provided and the method signature will be inferred e.g.
+
+```python
+from algopy import arc4, subroutine
+
+
+@subroutine
+def call_another_contract() -> None:
+    # can reference a method selector
+    result, txn = arc4.abi_call[arc4.String]("hello(string)string", arc4.String("Algo"), app=...)
+    assert result == "Hello, Algo"
+    
+    # can reference a method name, the method selector is inferred from arguments and return type
+    result, txn = arc4.abi_call[arc4.String]("hello", "There", app=...)
+    assert result == "Hello, There"
+```
