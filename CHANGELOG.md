@@ -1,6 +1,23 @@
 # CHANGELOG
 
 
+## v1.0.0 (2024-03-27)
+
+### Feature
+
+* set --output-client=False by default ([`438d815`](https://github.com/algorandfoundation/puya/commit/438d815967bd3763ee799c1a0b7d3f3dcab2f769))
+
+### Fix
+
+* search for python3 when attempting to locate python executable ([`abf5c09`](https://github.com/algorandfoundation/puya/commit/abf5c0964b9264950c0b24286d7d919843cb0f7c))
+
+* use shutil.which to find python exe ([`56e46c9`](https://github.com/algorandfoundation/puya/commit/56e46c9826d39f1a514051672ec8834907d7f6e2))
+
+* set supported algopy version range correctly ([`6c1a387`](https://github.com/algorandfoundation/puya/commit/6c1a387bc11976d4ac9d63fd802312bfe1a91103))
+
+* better support for executing puyapy within a venv and outside a venv ([`212201e`](https://github.com/algorandfoundation/puya/commit/212201e7c6158a56e9063e795e5760ea65e4e7b8))
+
+
 ## v0.7.1 (2024-03-26)
 
 ### Fix
