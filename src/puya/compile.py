@@ -38,7 +38,7 @@ from puya.parse import (
 from puya.teal.main import mir_to_teal
 from puya.utils import determine_out_dir, make_path_relative_to_cwd
 
-MAX_SUPPORTED_ALGOPY_VERSION = version.parse("1.0.0")
+MAX_SUPPORTED_ALGOPY_VERSION = version.parse("1.0.1")
 MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION.major}.0.0")
 
 logger = log.get_logger(__name__)
