@@ -22,8 +22,8 @@ The greatest advantage to maintaining semantic and syntactic compatibility, howe
 realised in combination with the framework approach. Supplying a set of interfaces representing
 smart contract development and AVM functionality required allows for the possibility of
 implementing those interfaces in pure Python! This will make it possible in the near future for you
-to execute tests your smart contracts without deploying them to Algorand, and even step into and 
-break-point debug your code from those tests.
+to execute tests against your smart contracts without deploying them to Algorand, and even step
+into and break-point debug your code from those tests.
 
 The framework provides interfaces to the underlying AVM types and operations. By virtue of the AVM 
 being statically typed, these interfaces are also statically typed, and require your code to be as 
