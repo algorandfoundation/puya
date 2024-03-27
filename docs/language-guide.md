@@ -65,7 +65,6 @@ lg-modules
 lg-builtins
 lg-errors
 lg-storage
-lg-code-reuse
 lg-logs
 lg-transactions
 lg-ops
@@ -74,5 +73,3 @@ lg-arc4
 lg-arc28
 lg-unsupported-python-features
 ```
-
-TODO: sections for boolean or/and expressions, no function pointers -> no OOP example.
