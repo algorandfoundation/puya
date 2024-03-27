@@ -136,13 +136,16 @@ assert abc.bytes == b"abc"
 [`algopy.BigUInt`](#algopy.BigUInt) represents a variable length (max 512-bit) unsigned integer stored
 as `bytes[]` in the AVM.
 
-The BigUInt type is a powerful tool for manipulating and storing large unsigned integers. It
-provides an interface for dealing with big integers in a way that's a subset of what users of
-Python's built-in int type would be familiar with while using AVM supported wide math
-operations so they are relatively efficient.
+It supports all the same operators as `int`, except for power (`**`), left and right shift (`<<` 
+and `>>`) and `/` (as with `UInt64`, you must use `//` for truncating division instead).
 
-It supports all the same operators as `int`, except for power (`**`) and `/` (you must use `//` for truncating
-division instead).
+Note that the op code costs for `bigint` math are an order of magnitude higher than those for
+`uint64` math. If you just need to handle overflow, take a look at the wide ops such as `addw`,
+`mulw`, etc - all of which are exposed through the [`algopy.op`](#algopy.op) module.
+
+Another contrast between `bigint` and `uint64` math is that `bigint` math ops don't immediately
+error on overflow - if the result exceeds 512-bits, then you can still access the value via 
+`.bytes`, but any further math operations will fail. 
 
 ```python
 # you can instantiate with an integer literal
