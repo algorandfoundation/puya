@@ -29,43 +29,46 @@ num2 = num + 200 // 3
 
 ## Bytes
 
-[`algopy.Bytes`](#algopy.Bytes) represents the underlying AVM `bytes[]` type.
+[`algopy.Bytes`](#algopy.Bytes) represents the underlying AVM `bytes[]` type. It is intended
+to represent binary data, for UTF-8 it might be preferable to use [String](#string).
 
-- Equality: `==`, `!=`
-- Concatenation: `+`, `+=`
-- Indexing: `[]`
-- Slicing: `[:]`
-- Length: `len()`
-- Conversion to `UInt64`: `number.from_bytes()`
-- Conversion from `UInt64`: `bytes.from_uint64()`
-- Creation from base32, base64, hex encoded
-  string: `Bytes.from_base32()`, `Bytes.from_base64()`, `Bytes.from_hex()`
-- Bitwise operations: `&`, `|`, `^`, `~`
-
-The behavior of all these operations matches the behavior of the same operation on native
-Python `bytes`.
-
-Here are some examples of how to use `Bytes`:
-
-```python
-byte_seq = Bytes(b'Hello, World!')
-byte_seq2 = byte_seq + b' Nice to meet you.'
-byte_seq3 = byte_seq * 2
-index = byte_seq[0]
-slice = byte_seq[0:5]
-length = len(byte_seq)
-num = UInt64.from_bytes(byte_seq)
-byte_seq4 = Bytes.from_uint64(num)
-base32_seq = Bytes.from_base32('74======')
-base64_seq = Bytes.from_base64('RkY=')
-hex_seq = Bytes.from_hex('FF')
-bitwise_and = byte_seq & b'FF'
-bitwise_or = byte_seq | b'0F'
-bitwise_xor = byte_seq ^ b'0F'
-bitwise_not = ~byte_seq
-assert byte_seq4 != byte_seq3
+```python3
+# you can instantiate with a bytes literal
+data = algopy.Bytes(b"abc")
+# no arguments defaults to an empty value
+empty = algopy.Bytes()
+# empty is False, non-empty is Ture
+assert data
+assert not empty
+# Like Python's `bytes`, `Bytes` is immutable, augmented assignment operators return new values
+abc = data
+data += b"def"
+assert abc == b"abc"
+assert data == b"abcdef"
+# indexing and slicing are supported, and both return a Bytes
+assert abc[0] == b"a"
+assert data[:3] == abc
 ```
-
+```{hint}
+Indexing a `Bytes` returning a `Bytes` differs from the behaviour of Python's bytes type, which 
+returns an `int`.
+```
+```python
+# you can iterate 
+for i in abc:
+    ...
+# construct from encoded values
+base32_seq = algopy.Bytes.from_base32('74======')
+base64_seq = algopy.Bytes.from_base64('RkY=')
+hex_seq = algopy.Bytes.from_hex('FF')
+# binary manipulations ^, &, |, and ~ are supported
+data ^= ~((base32_seq & base64_seq) | hex_seq)
+# access the length via the .length property
+assert abc.length == 3
+```
+```{note}
+See [Python builtins](lg-builtins.md#len---length) for an explanation of why `len()` isn't supported.
+``` 
 [See a full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/bytes.py).
 
 ## String
