@@ -1,130 +1,53 @@
-# PuyaPy - Python to TEAL compiler
+# Algorand Python
 
+Algorand Python is a partial implementation of the Python programming language that runs on the AVM. It includes a statically typed framework for development of Algorand smart contracts and logic signatures, with Pythonic interfaces to underlying AVM functionality that works with standard Python tooling.
 
-```{warning}
-PuyaPy is currently in alpha / developer preview. It is not recommended for production usage yet.
-```
+Algorand Python is compiled for execution on the AVM by PuyaPy, an optimising compiler that ensures the resulting AVM bytecode execution semantics that match the given Python code. PuyaPy produces output that is directly compatible with [AlgoKit typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to make deployment and calling easy.
 
-PuyaPy is an optimising TEAL compiler that allows you to write code to execute on the Algorand
-Virtual Machine (AVM) with Python syntax.
+## Quick start
 
-[Project background and guiding principles](principles.md).
+The easiest way to use Algorand Python is to instantiate a template with AlgoKit via `algokit init -t python`. This will give you a full development environment with intellisense, linting, automatic formatting, breakpoint debugging, deployment and CI/CD.
 
-PuyaPy supports a statically-typed subset of valid Python syntax. Importantly, that subset has 
-identical semantics when comparing Python behaviour and behaviour of the executed TEAL. 
-For example, `foo = spam() or eggs()` will only execute `eggs()` if `bool(spam())` is `False`.
+Alternatively, if you want to start from scratch you can do the following:
 
-## Installation
+1. Ensure you have Python 3.12+
+2. [Install the PuyaPy compiler](./compiler.md#compiler-installation)
+3. [Check you can run the compiler](./compiler.md#using-the-compiler)
+4. Create a contract in a (e.g.) `contact.py` file:
+    ```python
+    from algopy import ARC4Contract, arc4
+    class HelloWorldContract(ARC4Contract):
+        @arc4.abimethod
+        def hello(self, name: arc4.String) -> arc4.String:
+            return "Hello, " + name
+    ```
+5. Compile the contract:
+    ```shell
+    # After running `poetry shell`:
+    puyapy contract.py
+    # OR if using AlgoKit CLI:
+    algokit compile py contract.py
+    ```
+6. You should now have `HelloWorldContract.approval.teal` and `HelloWorldContract.clear.teal` on the file system!
+7. We generally recommend using ARC-32 and [generated typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to have the most optimal deployment and consumption experience; to do this you need to ask PuyaPy to output an ARC-32 compatible app spec file:
+    ```shell
+    puyapy contract.py --output-arc32 --no-output-teal
+    # OR
+    algokit compile py contract.py --output-arc32 --no-output-teal
+    ```
+8. You should now have `HelloWorldContract.arc32.json`, which can be generated into a client e.g. using AlgoKit CLI:
+    ```shell
+    algokit generate client HelloWorldContract.arc32.json --output client.py
+    ```
+9. From here you can dive into the [examples](https://github.com/algorandfoundation/puya/tree/main/examples) or look at the [documentation](docs/index.md).
 
-The minimum supported Python version for running PuyaPy itself is 3.12.
+## Programming with Algorand Python
 
-You can install the developer preview of PuyaPy from PyPI into your project virtualenv:
-```shell
-pip install puya
-```
-If you're using poetry for dependency and virutalenv management, you can add it that way with
-`poetry add puya`.
+To get started developing with Algorand Python, please take a look at the [Language Guide](./language-guide.md).
 
-Or if you just want to play with some examples, you can clone the repo and have a poke around.
+## Using the PuyaPy compiler
 
-```shell
-git clone https://github.com/algorandfoundation/puya.git
-cd puya
-poetry install
-poetry shell
-```
-
-Note that with this method you'll need to activate the virtual environment created by poetry
-before using the puyapy command in each new shell that you open - you can do this by running
-`poetry shell` in the `puya` directory.
-
-## Compiler usage
-
-To check that you can run the `puyapy` command successfully after that, you can run the help command:
-
-`puyapy -h`
-
-To compile a contract or contracts, just supply the path(s) - either to the .py files themselves,
-or the containing directories. In the case of containing directories, any contracts discovered
-therein will be compiled, allowing you to compile multiple contracts at once. You can also supply
-more than one path at a time to the compiler.
-
-e.g. `puyapy my_project/` or `puyapy my_project/contract.py` will work to compile a single contract.
-
-## Language fundamentals
-
-For more in depth details see our [Language Guide](language_guide.md).
-
-### Contracts
-
-A smart contract is defined within a single class. You can extend other contracts (through inheritance),
-and also define standalone functions and reference them. This also works across different Python 
-packages - in other words, you can have a Python library with common functions and re-use that
-library across multiple projects!
-
-All contracts must inherit from the base class `algopy.Contract` - either directly or indirectly,
-which can include inheriting from `algopy.ARC4Contract`. For a non-ARC4 contract, a contract class
-must implement an `approval_program` and a `clear_state_program` method. For ARC4 contracts, these
-methods will be implemented for you, although you can optionally provide a `clear_state_program`
-(the default implementation just always approves).
-
-As an example, this is a valid contract that always approves:
-
-```python
-import algopy
-
-class Contract(algopy.Contract):
-    def approval_program(self) -> bool:
-        return True
-    
-    def clear_state_program(self) -> bool:
-        return True
-```
-
-The return value of these methods can be either a `bool` that indicates whether the transaction
-should approve or not, or a `algopy.UInt64` value, where `UInt64(0)` indicates that the transaction
-should be rejected and any other value indicates that it should be approved.
-
-And here is a valid ARC4 contract:
-
-```python
-import algopy
-
-class ABIContract(algopy.ARC4Contract):
-    """This contract can be created, but otherwise does nothing"""
-    pass
-```
-
-### Primitive types
-
-The primitive types of the AVM, `uint64` and `bytes[]` are represented by `algopy.UInt64` and 
-`algopy.Bytes` respectively. `algopy.BigUInt` is also available for AVM supported wide-math 
-(up to 512 bits).
-
-Note that Python builtin types such as `int` cannot be used as variables, for semantic compatibility 
-reasons - however you can define module level constants of this type, and integer literals are 
-permitted in expressions.
-
-For example: 
-
-```python
-from algopy import UInt64, subroutine
-
-SCALE = 100000
-SCALED_PI = 314159
-
-@subroutine
-def circle_area(radius: UInt64) -> UInt64:
-    scaled_result = SCALED_PI * radius**2
-    result = scaled_result // SCALE
-    return result
-
-
-@subroutine
-def circle_area_100() -> UInt64:
-    return circle_area(UInt64(100))
-```
-
+To see detailed guidance for using the PuyaPy compiler, please take a look at the [Compiler guide](./compiler.md).
 
 ```{toctree}
 ---
@@ -133,8 +56,8 @@ caption: Contents
 hidden: true
 ---
 
-language_guide
+language-guide
 principles
-transactions
 api
+compiler
 ```

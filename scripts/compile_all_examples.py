@@ -140,6 +140,7 @@ def _stabilise_logs(stdout: str) -> list[str]:
                 # ignore platform specific paths
                 "debug: Using python executable: ",
                 "debug: Using python site-packages: ",
+                "debug: Found algopy: ",
             )
         )
     ]

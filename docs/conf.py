@@ -7,7 +7,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "PuyaPy"
+project = "Algorand Python"
 copyright = "2024, Algorand Foundation"  # noqa: A001
 author = "Algorand Foundation"
 
@@ -73,7 +73,6 @@ autodoc2_docstring_parser_regexes = [
 autodoc2_hidden_objects = [
     "private",  # single-underscore methods, e.g. _private
     "undoc",
-    "dunder",
 ]
 autodoc2_class_inheritance = False
 autodoc2_module_all_regexes = [r"algopy.*"]

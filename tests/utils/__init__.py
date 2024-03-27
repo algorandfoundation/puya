@@ -30,6 +30,7 @@ UNSTABLE_LOG_PREFIXES = {
         # ignore platform specific paths
         "Using python executable: ",
         "Using python site-packages: ",
+        "Found algopy: ",
     ),
 }
 
