@@ -48,6 +48,8 @@ assert data == b"abcdef"
 # indexing and slicing are supported, and both return a Bytes
 assert abc[0] == b"a"
 assert data[:3] == abc
+# check if a bytes sequence occurs within another
+assert abc in data
 ```
 ```{hint}
 Indexing a `Bytes` returning a `Bytes` differs from the behaviour of Python's bytes type, which 
@@ -73,43 +75,36 @@ See [Python builtins](lg-builtins.md#len---length) for an explanation of why `le
 
 ## String
 
-`String` is a type that represents a UTF-8 encoded string. This type does not store the array
-length prefix, making it more efficient for operations such as concatenation. However, due to the
-lack of UTF-8 support in the AVM, indexing and length operations are not currently supported.
+[`String`](#algopy.String) is a type that represents a UTF8 encoded string. It's backed by
+`Bytes`, which can be access through the `.bytes`.
 
-The String type is a powerful tool for manipulating and storing UTF-8 string data. It provides an
-interface for dealing with strings in a way that's familiar to users of Python's built-in `str`
-type, while providing an AVM explicit interface.
+It works similarly to `Bytes`, except that it works with `str` literals rather than `bytes`
+literals. Additionally, due to a lack of AVM support for unicode data, indexing and length
+operations are not currently supported (simply getting the length of a UTF8 string is an `O(N)` 
+operation, which would be quite costly in a smart contract).
 
-`String` supports the following operations and methods:
-
-- Initialization: A `String` can be initialized with a Python `str` literal or a `str` variable
-  declared at the module level.
-- Concatenation: `+`, `+=`
-- Boolean casting: Explicit (`bool(value)`) and implicit (e.g. appearing in control flow statement
-  or subroutine calls) casting to a Boolean
-- Equality: `==`, `!=`
-- Contains: `in`
-- Startswith: `startswith()`
-- Endswith: `endswith()`
-- Join: `join()`
-- Getting underlying `Bytes`: `myString.bytes`
-
-Here are some examples of how to use `String`:
-
-```python
-string = String("Hello, World!")
-string2 = string + " Nice to meet you."
-string3 = string += " How are you?"
-assert string2 != string3
-if "Hello" in string2:
-    op.log("Found greeting")
-if string2.startswith("Hello"):
-    op.log("Starts with greeting")
-if string2.endswith("you."):
-    op.log("Ends with you.")
-joined_string = String(", ").join((String("Hello"), String("World")))
+```python3
+# you can instantiate with a bytes literal
+data = algopy.String("abc")
+# no arguments defaults to an empty value
+empty = algopy.String()
+# empty is False, non-empty is Ture
+assert data
+assert not empty
+# Like Python's `str`, `String` is immutable, augmented assignment operators return new values
+abc = data
+data += "def"
+assert abc == "abc"
+assert data == "abcdef"
+# whilst indexing and slicing are not supported, the following tests are:
+assert abc.startswith("ab")
+assert abc.endswith("bc")
+assert abc in data
+# you can also join multiple Strings together with a seperator:
+assert algopy.String(", ").join((abc, abc)) == "abc, abc"
 ```
+
+[See a full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/string.py).
 
 ## BigUInt
 
@@ -159,6 +154,8 @@ bitwise_xor = big_num ^ 0x0F
 ## Python built-in types
 
 ### bool
+
+todo: note about `and`/`or` with disparate types, might not belong here though?
 
 ### tuple
 
