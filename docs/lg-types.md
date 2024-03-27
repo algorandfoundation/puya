@@ -102,48 +102,15 @@ assert abc.endswith("bc")
 assert abc in data
 # you can also join multiple Strings together with a seperator:
 assert algopy.String(", ").join((abc, abc)) == "abc, abc"
+# access the underlying bytes
+assert abc.bytes == b"abc"
 ```
 
 [See a full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/stubs/string.py).
 
 ## BigUInt
 
-`BigUInt` is a type that represents a variable length (max 512-bit) unsigned integer stored
-as `bytes[]` in the AVM.
-
-The BigUInt type is a powerful tool for manipulating and storing large unsigned integers. It
-provides an interface for dealing with big integers in a way that's a subset of what users of
-Python's built-in int type would be familiar with and allowing for AVM supported wide math
-operations.
-
-`BigUInt` supports the following operations and methods:
-
-- Initialization: A `BigUInt` can be initialized with a `UInt64`, a Python `int` literal or
-  an `int` variable declared at the module level.
-- Equality: `==`, `!=`
-- Comparison: `<=`, `<`, `>=`, `>`
-- Addition: `+`, `+=`
-- Subtraction: `-`, `-=`
-- Multiplication: `*`, `*=`
-- Floor Division: `//`, `//=`
-- Modulo: `%`, `%=`
-- Bitwise operations: `&`, `^`, `|`
-- Getting underlying `Bytes`: `myBigUint.bytes`
-
-Here are some examples of how to use `BigUInt`:
-
-```python
-big_num = BigUInt(100)
-big_num2 = big_num + 200 // 3
-big_num3 = BigUInt(0b11111110)
-big_num4 = BigUInt(0x5a)
-assert big_num4 != big_num3
-if (big_num2 < 300):
-    big_num += 3
-bitwise_and = big_num & 0xFF
-bitwise_or = big_num | 0x0F
-bitwise_xor = big_num ^ 0x0F
-```
+TODO: follow pattern from UInt64
 
 ## Account
 
@@ -158,6 +125,8 @@ bitwise_xor = big_num ^ 0x0F
 todo: note about `and`/`or` with disparate types, might not belong here though?
 
 ### tuple
+supported as arguments, local variables, return types
+nested _not_ supported
 
 ### None
 
