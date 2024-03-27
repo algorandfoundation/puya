@@ -12,7 +12,7 @@ Alternatively, if you want to start from scratch you can do the following:
 
 1. Ensure you have Python 3.12+
 2. [Install the PuyaPy compiler](./compiler.md#compiler-installation)
-3. [Check you can run the compiler](./compiler.md#compiler-usage)
+3. [Check you can run the compiler](./compiler.md#using-the-compiler)
 4. Create a contract in a (e.g.) `contact.py` file:
     ```python
     from algopy import ARC4Contract, arc4

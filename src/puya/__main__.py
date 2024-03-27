@@ -20,28 +20,28 @@ def main() -> None:
         type=int,
         choices=[0, 1, 2],
         default=1,
-        help="set optimization level",
+        help="Set optimization level of output TEAL / AVM bytecode",
     )
     parser.add_argument(
         "--output-teal",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Output TEAL",
+        help="Output TEAL code",
     )
     parser.add_argument(
         "--output-arc32",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Output arc32.json",
+        help="Output {contract}.arc32.json ARC-32 app spec file",
     )
     parser.add_argument(
         "--output-client",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="Output algopy contract client for typed ARC4 ABI calls",
+        help="Output Algorand Python contract client for typed ARC4 ABI calls",
     )
     parser.add_argument(
-        "--out-dir", type=Path, help="path for outputting artefacts", default=False
+        "--out-dir", type=Path, help="Path for outputting artefacts", default=False
     )
     parser.add_argument(
         "--log-level",
@@ -56,37 +56,37 @@ def main() -> None:
         type=int,
         choices=[0, 1, 2],
         default=1,
-        help="debug information level",
+        help="Output debug information level, 0 = none, 1 = debug, 2 = reserved for future use",
     )
     parser.add_argument(
         "--output-awst",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="output parsed result of AST",
+        help="Output parsed result of AST",
     )
     parser.add_argument(
         "--output-ssa-ir",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="output IR in SSA form",
+        help="Output IR (in SSA form) before optimisations",
     )
     parser.add_argument(
         "--output-optimization-ir",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="output IR after each optimization",
+        help="Output IR after each optimization",
     )
     parser.add_argument(
         "--output-destructured-ir",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="output IR after SSA destructuring and before codegen",
+        help="Output IR after SSA destructuring and before MIR",
     )
     parser.add_argument(
         "--output-memory-ir",
         action=argparse.BooleanOptionalAction,
         default=False,
-        help="output MIR before lowering to TealOps",
+        help="Output MIR before lowering to TealOps",
     )
     parser.add_argument(
         "--target-avm-version",
