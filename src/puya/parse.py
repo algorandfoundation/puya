@@ -27,7 +27,6 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 _SRC_ROOT = Path(__file__).parent
 TYPESHED_PATH = _SRC_ROOT / "_typeshed"
-VENDORED_STUBS_PATH = _SRC_ROOT / "_vendor" / "stubs"
 _MYPY_FSCACHE = mypy.fscache.FileSystemCache()
 _MYPY_SEVERITY_TO_LOG_LEVEL = {
     "error": log.LogLevel.error,
