@@ -37,7 +37,7 @@ while condition:
     # block of code to execute if condition is True
 ```
 
-TODO: while-else not *yet* supported
+Note: we don't currently have support for while-else statements.
 
 [See full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/unssa/contract.py#L32-L83).
 
@@ -64,9 +64,9 @@ for index, item in uenumerate(reversed(urange(4))):
 assert test_array.bytes == Bytes.from_hex("03020100")
 ```
 
-[See full](https://github.com/algorandfoundation/puya/blob/main/test_cases/reversed_iteration/contract.py) [examples](https://github.com/algorandfoundation/puya/blob/main/test_cases/nested_loops/contract.py).
+Note: we don't currently have support for for-else statements.
 
-TODO: for-else not *yet* supported
+[See full](https://github.com/algorandfoundation/puya/blob/main/test_cases/reversed_iteration/contract.py) [examples](https://github.com/algorandfoundation/puya/blob/main/test_cases/nested_loops/contract.py).
 
 ## Match Statements
 
@@ -82,6 +82,6 @@ match value:
         # Fallback
 ```
 
-[See full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/match/contract.py).
+Note: Captures and patterns are not supported. Currently, there is only support for basic case/switch functionality; pattern matching and guard clauses are not currently supported.
 
-TODO: captures not supported, patterns not supported, etc, only basic "case/switch" functionality (for now)
+[See full example](https://github.com/algorandfoundation/puya/blob/main/test_cases/match/contract.py).
