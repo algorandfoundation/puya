@@ -1,7 +1,10 @@
 import os
+import shutil
+import subprocess
 import sys
 import sysconfig
 import typing
+from importlib import metadata
 from pathlib import Path
 
 import mypy.build
@@ -30,7 +33,6 @@ from puya.models import CompilationArtifact, CompiledContract, CompiledLogicSign
 from puya.options import PuyaOptions
 from puya.parse import (
     TYPESHED_PATH,
-    VENDORED_STUBS_PATH,
     ParseSource,
     parse_and_typecheck,
 )
@@ -83,11 +85,8 @@ def get_mypy_options() -> mypy.options.Options:
     mypy_opts.custom_typeshed_dir = str(TYPESHED_PATH)
     mypy_opts.abs_custom_typeshed_dir = str(TYPESHED_PATH.resolve())
 
-    # set python_executable so packages in .venv's can be found
-    mypy_opts.python_executable = _get_python_exe()
-    # ensure stubs are always on the path
-    if Path(sys.prefix) not in VENDORED_STUBS_PATH.parents:
-        mypy_opts.mypy_path = [str(VENDORED_STUBS_PATH)]
+    # set python_executable so third-party packages can be found
+    mypy_opts.python_executable = _get_python_executable()
 
     mypy_opts.export_types = True
     mypy_opts.preserve_asts = True
@@ -172,50 +171,61 @@ def module_irs_to_teal(
     return result
 
 
-def _get_python_exe() -> str | None:
-    # look for VIRTUAL_ENV as we want the venv puyapy is being run against (i.e. the project),
-    # and not the venv of puya itself (which is what sys.prefix points to)
-    venv = os.getenv("VIRTUAL_ENV")
-    site_packages = None
-    if not venv:
-        python_exe = None
-        logger.info("No current activated python virtual environment")
-    else:
-        logger.info(f"Found activated python virtual environment: {venv}")
+def _get_python_executable() -> str | None:
+    prefix = _get_prefix()
+    if not prefix:
+        logger.warning("Could not determine python prefix or algopy version")
+        return None
+    logger.debug(f"Found python prefix: {prefix}")
+    venv_paths = sysconfig.get_paths(vars={"base": prefix})
 
-        venv_paths = sysconfig.get_paths(vars={"base": venv})
-
-        python_exe = Path(venv_paths["scripts"]) / Path(sys.executable).name
-        logger.debug(f"Using python executable: {python_exe}")
-        if not python_exe.exists():
-            logger.warning(
-                "Found an activated virtual environment, but could not find the expected"
-                f" python interpreter: {python_exe}"
-            )
-        # use glob here, as we don't want to limit the python version
-        discovered_site_packages = list(
-            Path(venv).glob(str(Path("[Ll]ib") / "**" / "site-packages"))
+    # use sys.executable as cross-platform way of correctly using python.exe or python
+    python_exe = Path(venv_paths["scripts"]) / Path(sys.executable).name
+    logger.debug(f"Using python executable: {python_exe}")
+    if not python_exe.exists():
+        logger.warning(
+            "Found a python prefix, but could not find the expected"
+            f" python interpreter: {python_exe}"
         )
-        try:
-            (site_packages,) = discovered_site_packages
-        except ValueError:
-            logger.warning(
-                "Found an activated virtual environment, but could not find the expected"
-                f" site-packages: {venv=}, {discovered_site_packages=}"
-            )
-        else:
-            logger.debug(f"Using python site-packages: {site_packages}")
-    _check_algopy_version(site_packages)
-    return str(python_exe) if python_exe else None
-
-
-def _check_algopy_version(site_packages: Path | None) -> None:
-    from importlib import metadata
-
-    if site_packages:
-        pkgs = metadata.Distribution.discover(name="algorand-python", path=[str(site_packages)])
+    # use glob here, as we don't want to assume the python version
+    discovered_site_packages = list(
+        Path(prefix).glob(str(Path("[Ll]ib") / "**" / "site-packages"))
+    )
+    try:
+        (site_packages,) = discovered_site_packages
+    except ValueError:
+        logger.warning(
+            "Found a prefix, but could not find the expected"
+            f" site-packages: {prefix=}, {discovered_site_packages=}"
+        )
     else:
-        pkgs = metadata.Distribution.discover(name="algorand-python")
+        logger.debug(f"Using python site-packages: {site_packages}")
+        _check_algopy_version(site_packages)
+
+    return str(python_exe)
+
+
+def _get_prefix() -> str | None:
+    # look for VIRTUAL_ENV as we want the venv puyapy is being run against (i.e. the project),
+    # if no venv is active, then fallback to the ambient python prefix
+    venv = os.getenv("VIRTUAL_ENV")
+    if venv:
+        return venv
+    python = shutil.which("python") or "python"
+    prefix_result = subprocess.run(
+        [python, "-c", "'import sys; print(sys.prefix or sys.base_prefix)'"],  # noqa: S603
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    # if attempt to get prefix fails, just return None
+    if prefix_result.returncode != 0:
+        return None
+    return prefix_result.stdout.strip() or None
+
+
+def _check_algopy_version(site_packages: Path) -> None:
+    pkgs = metadata.Distribution.discover(name="algorand-python", path=[str(site_packages)])
     try:
         (algopy,) = pkgs
     except ValueError:
