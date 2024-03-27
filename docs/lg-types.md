@@ -114,9 +114,16 @@ TODO: follow pattern from UInt64
 
 ## Account
 
+[`Account`](#algopy.Account) represents a logical Account, backed by a `bytes[]` representing the
+public key.
+
 ## Asset
 
+[`Asset`](#algopy.Asset) represents a logical Asset, backed by a `uint64` ID.
+
 ## Application
+
+[`Application`](#algopy.Application) represents a logical Application, backed by a `uint64` ID.
 
 ## Python built-in types
 
