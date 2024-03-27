@@ -1,6 +1,6 @@
 import os
+import shutil
 import subprocess
-import sys
 import sysconfig
 import typing
 from importlib import metadata
@@ -178,14 +178,11 @@ def _get_python_executable() -> str | None:
     logger.info(f"Found python prefix: {prefix}")
     venv_paths = sysconfig.get_paths(vars={"base": prefix})
 
-    # use sys.executable as cross-platform way of correctly using python.exe or python
-    python_exe = Path(venv_paths["scripts"]) / Path(sys.executable).name
-    logger.debug(f"Using python executable: {python_exe}")
-    if not python_exe.exists():
-        logger.warning(
-            "Found a python prefix, but could not find the expected"
-            f" python interpreter: {python_exe}"
-        )
+    python_exe = shutil.which("python", path=venv_paths["scripts"])
+    if python_exe:
+        logger.debug(f"Using python executable: {python_exe}")
+    else:
+        logger.warning("Found a python prefix, but could not find the expected python interpreter")
     # use glob here, as we don't want to assume the python version
     discovered_site_packages = list(
         Path(prefix).glob(str(Path("[Ll]ib") / "**" / "site-packages"))
