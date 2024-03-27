@@ -1,4 +1,4 @@
-# Imports and inheritance
+# Code reuse
 
 ## Imports
 
