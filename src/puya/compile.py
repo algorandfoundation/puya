@@ -178,7 +178,10 @@ def _get_python_executable() -> str | None:
     logger.info(f"Found python prefix: {prefix}")
     venv_paths = sysconfig.get_paths(vars={"base": prefix})
 
-    python_exe = shutil.which("python", path=venv_paths["scripts"])
+    for python in ("python3", "python"):
+        python_exe = shutil.which(python, path=venv_paths["scripts"])
+        if python_exe:
+            break
     if python_exe:
         logger.debug(f"Using python executable: {python_exe}")
     else:
