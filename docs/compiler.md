@@ -12,15 +12,16 @@ There are three ways of installing the PuyaPy compiler.
 
 1. You can install [AlgoKit CLI](https://github.com/algorandfoundation/algokit-cli?tab=readme-ov-file#install) and you can then use the `algokit compile py` command.
 2. You can install the PuyaPy compiler into your project and thus lock the compiler version for that project:
-   `shell
-   pip install puyapy
+    ```shell
+    pip install puyapy
     # OR
     poetry add puyapy --group=dev
-    `Note: if you do this then when you use`algokit compile py` within that project directory it will invoke the installed compiler rather than a global one.
+    ```
+    Note: if you do this then when you use`algokit compile py` within that project directory it will invoke the installed compiler rather than a global one.
 3. You can install the compiler globally using [pipx](https://pipx.pypa.io/stable/):
-   `shell
-pipx install puya
-`
+    ```shell
+    pipx install puya
+    ```
 
 Alternatively, it can be installed per project. For example, if you're using [poetry](https://python-poetry.org),
 you can install it as a dev-dependency like so:
@@ -60,7 +61,20 @@ The PuyaPy compiler is based on the Puya compiler architecture, which allows for
 
 The PuyaPy compiler takes Algorand Python through a series of transformations with each transformation serving a specific purpose:
 
-    Python Abstract Syntax Tree (AST) -> MyPy AST -> Puya AST (AWST) -> Intermediate Representation (IR) in SSA form -> Optimizations (multiple rounds) -> Destructured IR -> Optimizations (multiple rounds) -> Memory IR (MIR) -> Optimizations (multiple rounds) -> TealOps IR -> Optimizations (multiple rounds) -> TEAL -> AVM bytecode
+    Python code
+        -> Python Abstract Syntax Tree (AST)
+        -> MyPy AST
+        -> Puya AST (AWST)
+        -> Intermediate Representation (IR) in SSA form
+        -> Optimizations (multiple rounds)
+        -> Destructured IR
+        -> Optimizations (multiple rounds)
+        -> Memory IR (MIR)
+        -> Optimizations (multiple rounds)
+        -> TealOps IR
+        -> Optimizations (multiple rounds)
+        -> TEAL code
+        -> AVM bytecode
 
 While this may appear complex, splitting it in this manner allows for each step to be expressed in a simple form to do one thing (well) and allows us to make use of industry research into compiler algorithms and formats.
 
@@ -144,7 +158,7 @@ pytest = "*"
 pytest-cov = "*"
 pip-audit = "*"
 pre-commit = "*"
-puyapy = "^0.7.1"
+puyapy = "^1.0"
 
 [build-system]
 requires = ["poetry-core"]
