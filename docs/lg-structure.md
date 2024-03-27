@@ -231,3 +231,18 @@ See the [ARC-4 section](lg-arc4.md) of this language guide for more info on the 
 
 
 ## Logic signatures
+
+Logic signature on Algorand are stateless, and consist of a single program. As such, they are
+implemented as functions in Algorand Python rather than classes.
+
+```python
+@algopy.logicsig
+def my_log_sig() -> bool:
+    ...
+```
+
+Similar to `approval_prorgram` or `clear_state_program` methods, the function must take no 
+arguments, and return either `bool` or `algopy.UInt64`. The meaning is the same as there, a `True`
+value or non-zero `UInt64` value indicates success, `False` or `UInt64(0)` indicates failure.
+
+Logic signatures can make use of non-contract subroutines.
