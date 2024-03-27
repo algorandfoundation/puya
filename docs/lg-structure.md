@@ -149,8 +149,8 @@ GLOBAL_UINTS = 3
 class MyContract(
     algopy.Contract,
     name="CustomName",
-    scratch_slots=[5, 25, urange(50, 53, 2), RenamedURange(100, 105), algopy.urange(110, 115)],
-    state_totals=StateTotals(local_bytes=1, local_uints=2, global_bytes=4, global_uints=GLOBAL_UINTS),
+    scratch_slots=[5, 25, algopy.urange(110, 115)],
+    state_totals=algopy.StateTotals(local_bytes=1, local_uints=2, global_bytes=4, global_uints=GLOBAL_UINTS),
 ):
     ...
 ```
