@@ -80,7 +80,6 @@ The following argument/return types are not currently supported:
 - Python types such as `int` 
 - Default values are not supported
 
-
 ## Contract classes
 
 An Algorand smart contract consists of two distinct "programs", and approval program, and a 

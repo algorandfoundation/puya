@@ -61,4 +61,5 @@ hidden: true
 language-guide
 principles
 api
+compiler
 ```
