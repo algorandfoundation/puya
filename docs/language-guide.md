@@ -74,6 +74,7 @@ lg-modules
 lg-builtins
 lg-errors
 lg-storage
+lg-code-reuse
 lg-logs
 lg-transactions
 lg-ops
