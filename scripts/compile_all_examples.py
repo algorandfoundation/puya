@@ -73,7 +73,14 @@ class ProgramSizes:
         program_sizes = ProgramSizes()
         for line in lines[1:]:
             name, o0, o1, o1_delta, o2, o2_delta = line.rsplit(maxsplit=5)
-            program_sizes.sizes[name.strip()] = {0: int(o0), 1: int(o1), 2: int(o2)}
+            name = name.strip()
+            program_sizes.sizes[name] = {}
+            for key, int_str in enumerate((o0, o1, o2)):
+                try:
+                    val = int(int_str)
+                except ValueError:
+                    continue
+                program_sizes.sizes[name][key] = val
         return program_sizes
 
     def update(self, other: "ProgramSizes") -> "ProgramSizes":
@@ -92,11 +99,14 @@ class ProgramSizes:
         )
         writer.align["Name"] = "l"
         for name, prog_sizes in self.sizes.items():
-            o0 = prog_sizes[0]
-            o1 = prog_sizes[1]
-            o2 = prog_sizes[2]
-            o1_delta = o0 - o1
-            o2_delta = o1 - o2
+            o0 = prog_sizes.get(0)
+            o1 = prog_sizes.get(1)
+            o2 = prog_sizes.get(2)
+            o1_delta = o2_delta = None
+            if o0 is not None and o1 is not None:
+                o1_delta = o0 - o1
+            if o1 is not None and o2 is not None:
+                o2_delta = o1 - o2
             writer.add_row(list(map(str, (name, o0, o1, o1_delta, o2, o2_delta))))
         return writer.get_string()
 
@@ -261,7 +271,11 @@ def main(options: CompileAllOptions) -> None:
     modified_teal = defaultdict[int, list[Path]](list)
     failures = list[tuple[str, str]]()
     with ProcessPoolExecutor() as executor:
-        args = [(case, level) for case in to_compile for level in range(3)]
+        # iterate optimization levels first and with O1 last and then cases, this is a workaround
+        # to prevent race conditions that occur when the mypy parsing stage of O0, O2 tries to
+        # read the client_<contract>.py output from the 01 level before it is finished writing to
+        # disk
+        args = [(case, level) for level in (0, 2, 1) for case in to_compile]
         for compilation_result, level in executor.map(_compile_for_level, args):
             rel_path = compilation_result.rel_path
             case_name = f"{rel_path} -O{level}"
