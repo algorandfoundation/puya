@@ -131,30 +131,8 @@ main_for_header@5:
 
 main_after_for@8:
     // arc4_types/dynamic_bytes.py:28
-    // dynamic_bytes3 = DynamicBytes(dynamic_bytes2.native)
-    dig 8
-    dup
-    extract 2 0
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    // arc4_types/dynamic_bytes.py:29
-    // assert dynamic_bytes3.native == b"\x03\x04"
-    dup
-    extract 2 0
-    byte "\x03\x04"
-    ==
-    assert
-    // arc4_types/dynamic_bytes.py:30
-    // assert dynamic_bytes3.bytes == b"\x00\x02\x03\x04"
-    byte "\x00\x02\x03\x04"
-    ==
-    assert
-    // arc4_types/dynamic_bytes.py:32
     // for uint8_item in dynamic_bytes2:
+    dig 8
     dup
     int 0
     extract_uint16
@@ -165,7 +143,7 @@ main_after_for@8:
     bury 5
 
 main_for_header@9:
-    // arc4_types/dynamic_bytes.py:32
+    // arc4_types/dynamic_bytes.py:28
     // for uint8_item in dynamic_bytes2:
     dig 4
     dig 7
@@ -178,7 +156,7 @@ main_for_header@9:
     swap
     int 1
     extract3
-    // arc4_types/dynamic_bytes.py:33
+    // arc4_types/dynamic_bytes.py:29
     // total += uint8_item.native
     btoi
     dig 4
@@ -192,13 +170,60 @@ main_for_header@9:
     b main_for_header@9
 
 main_after_for@12:
-    // arc4_types/dynamic_bytes.py:35
+    // arc4_types/dynamic_bytes.py:31
     // assert total == 20, "Total should now include sum of dynamic_bytes3 items"
     dig 3
     int 20
     ==
     assert // Total should now include sum of dynamic_bytes3 items
-    // arc4_types/dynamic_bytes.py:36
+    // arc4_types/dynamic_bytes.py:33
+    // dynamic_bytes3 = DynamicBytes(dynamic_bytes2.native)
+    dig 8
+    extract 2 0
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    // arc4_types/dynamic_bytes.py:34
+    // assert dynamic_bytes3.native == b"\x03\x04"
+    dup
+    extract 2 0
+    byte "\x03\x04"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:35
+    // assert dynamic_bytes3.bytes == b"\x00\x02\x03\x04"
+    dup
+    byte "\x00\x02\x03\x04"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:37
+    // dynamic_bytes3.extend(DynamicBytes(b"abc"))
+    extract 2 0
+    byte 0x0003616263
+    extract 2 0
+    concat
+    dup
+    len
+    itob
+    extract 6 0
+    swap
+    concat
+    // arc4_types/dynamic_bytes.py:38
+    // assert dynamic_bytes3.bytes == b"\x00\x05\x03\x04abc"
+    dup
+    byte "\x00\x05\x03\x04abc"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:39
+    // assert dynamic_bytes3.native == b"\x03\x04abc"
+    extract 2 0
+    byte "\x03\x04abc"
+    ==
+    assert
+    // arc4_types/dynamic_bytes.py:41
     // return True
     int 1
     return
