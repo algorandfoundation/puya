@@ -1,6 +1,3 @@
+{% import '.macros.j2' as macros -%}
 # {{ version.as_tag() }} ({{ release.tagged_date.strftime("%Y-%m-%d") }})
-{% for type_, commits in release["elements"] | dictsort %}{% if type_ in ("feature", "fix", "performance") %}
-## {{ type_ | capitalize }}
-{% for commit in commits %}
-* {{ commit["descriptions"][0] | indent(2)}} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
-{% endfor %}{% endif %}{% endfor %}
+{{ macros.render_type_commits(release["elements"]) }}
