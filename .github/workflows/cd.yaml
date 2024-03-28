@@ -13,13 +13,33 @@ on:
         type: boolean
         required: true
         default: true
+      bump_version:
+        description: "Bump version, set to false to re-publish with current version"
+        type: boolean
+        required: true
+        default: true
+      publish_github:
+        description: "Publish to Github?"
+        type: boolean
+        required: true
+        default: true
+      publish_pypi:
+        description: "Publish to PyPi?"
+        type: boolean
+        required: true
+        default: true
+      publish_docs:
+        description: "Publish Docs?"
+        type: boolean
+        required: true
+        default: true
       run_checks:
         description: "Run checks?"
         type: boolean
         required: true
         default: true
       dry_run:
-        description: "Dry Run?"
+        description: "Dry Run? If true, won't commit or publish anything"
         type: boolean
         required: true
         default: false
@@ -78,7 +98,8 @@ jobs:
         run: git config --global user.email "actions@github.com" && git config --global user.name "github-actions"
 
       - name: Update release
-        run: poetry run semantic-release $DRY_RUN version
+        if: inputs.bump_version
+        run: poetry run semantic-release $DRY_RUN --strict version
         env:
             GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
 
@@ -90,25 +111,34 @@ jobs:
         if: inputs.stubs_wheel
         run: |
             pushd stubs
-            poetry build --format wheel --output ../dist
+            poetry build --format wheel
             popd
 
       - uses: actions/upload-artifact@v4 # upload artifacts so they are retained on the job
         with:
-          path: dist
+          path: |
+            dist
+            stubs/dist
 
       - name: Publish to GitHub
+        if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_github
         run: poetry run semantic-release $DRY_RUN publish
         env:
             GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
 
-      - name: Publish to PyPI
-        if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run
+      - name: Publish to PyPI - Compiler
+        if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_pypi && inputs.compiler_wheel
         uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Publish to PyPI - Stubs
+        if: steps.get_branch.outputs.branch == 'main' && !inputs.dry_run && inputs.publish_pypi && inputs.stubs_wheel
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: stubs/dist
 
   publish-docs:
     name: Publish Docs
-    if: ${{ !inputs.dry_run }}
+    if: ${{ !inputs.dry_run && inputs.publish_docs }}
     uses: ./.github/workflows/gh-pages.yaml
     permissions:
       contents: read
