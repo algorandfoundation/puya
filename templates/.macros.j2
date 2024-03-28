@@ -1,0 +1,20 @@
+{%- macro render_type_commits(type_commits) -%}
+{%- for type_ in ("breaking", "feature", "performance", "fix", "documentation") -%}
+{%- if type_ in type_commits %}
+### {{ type_ | capitalize }}
+{% for commit in type_commits[type_] %}
+* {{ commit["descriptions"][0] }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
+{% set skip_line = false -%}
+{%- for line in commit["descriptions"][1:] -%}
+{# skip co-author annotations in commit messages #}
+{%- if "Co-authored-by:" in line -%}
+{%- set skip_line = true -%}
+{%- elif not skip_line %}
+{{ line | indent(2, first=True, blank=True)}}
+{% endif -%}
+{%- endfor %}
+{%- endfor -%}
+{%- endif %}
+{%- endfor -%}
+{%- endmacro -%}
+

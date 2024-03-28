@@ -1,19 +1,10 @@
+{% import '.macros.j2' as macros -%}
 # CHANGELOG
-{% if context.history.unreleased | length > 0 %}
-{# UNRELEASED #}
+{%- if context.history.unreleased | length > 0 %}
 ## Unreleased
-{% for type_, commits in context.history.unreleased | dictsort %}
-{%- if type_ in ("feature", "fix", "performance") %}
-### {{ type_ | capitalize }}
-{% for commit in commits -%}
-* {{ commit["descriptions"][0].strip() | indent(2) }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
-{% endfor %}{% endif %}{% endfor %}{% endif %}
+{{ macros.render_type_commits(context.history.unreleased) }}
+{%- endif %}
 {%- for version, release in context.history.released.items() %}
-{# RELEASED #}
 ## {{ version.as_semver_tag() }} ({{ release.tagged_date.strftime("%Y-%m-%d") }})
-{% for type_, commits in release["elements"] | dictsort %}
-{%- if type_ in ("feature", "fix", "performance") %}
-### {{ type_ | capitalize }}
-{% for commit in commits %}
-* {{ commit["descriptions"][0].strip() | indent(2) }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
-{% endfor %}{% endif %}{% endfor %}{% endfor %}
+{{ macros.render_type_commits(release["elements"]) }}
+{% endfor %}
