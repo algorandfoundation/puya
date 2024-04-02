@@ -85,14 +85,12 @@ class LogBuilder(IntermediateExpressionBuilder):
                     raise CodeError("Unexpected argument", arg.source_location)
             if log_value is None:
                 log_value = bytes_expr
-            elif sep:
+            else:
                 log_value = intrinsic_factory.concat(
                     intrinsic_factory.concat(log_value, sep, arg.source_location),
                     bytes_expr,
                     arg.source_location,
                 )
-            else:
-                log_value = intrinsic_factory.concat(log_value, bytes_expr, arg.source_location)
         if log_value is None:
             log_value = BytesConstant(value=b"", source_location=location)
         return var_expression(intrinsic_factory.log(log_value, location))
