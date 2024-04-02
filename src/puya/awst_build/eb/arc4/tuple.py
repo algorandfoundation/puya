@@ -22,7 +22,7 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.var_factory import var_expression
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -97,10 +97,8 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
 
     def produces(self) -> wtypes.WType:
         if not self.wtype:
-            # TODO: make CodeError
-            raise InternalError(
-                "Cannot resolve wtype of generic EB until the index method is called with the "
-                "generic type parameter."
+            raise CodeError(
+                "Unparameterized tuple class cannot be used as a type", self.source_location
             )
         return self.wtype
 
