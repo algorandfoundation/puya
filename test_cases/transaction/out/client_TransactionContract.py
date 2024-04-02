@@ -63,3 +63,11 @@ class TransactionContract(algopy.arc4.ARC4Client, typing.Protocol):
         txn2: algopy.gtxn.Transaction,
         txn3: algopy.gtxn.Transaction,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def group_init(
+        self,
+        txn1: algopy.gtxn.Transaction,
+        txn2: algopy.gtxn.Transaction,
+        txn3: algopy.gtxn.Transaction,
+    ) -> None: ...

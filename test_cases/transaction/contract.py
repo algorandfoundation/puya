@@ -127,3 +127,15 @@ class TransactionContract(arc4.ARC4Contract):
     ) -> None:
         for index, txn in uenumerate((txn1, txn2, txn3)):
             assert txn.group_index == index
+
+    @arc4.abimethod
+    def group_init(
+        self,
+        txn1: gtxn.Transaction,
+        txn2: gtxn.Transaction,
+        txn3: gtxn.Transaction,
+    ) -> None:
+        for txn in (txn1, txn2, txn3):
+            txn2 = gtxn.Transaction(txn.group_index)
+            assert txn.txn_id == txn2.txn_id
+        assert txn1.txn_id == gtxn.Transaction(0).txn_id
