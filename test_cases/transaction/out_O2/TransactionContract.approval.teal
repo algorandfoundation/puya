@@ -10,8 +10,9 @@ test_cases.transaction.contract.TransactionContract.approval_program:
     method "application_call(appl)void"
     method "multiple_txns(appl,appl,appl)void"
     method "any_txn(txn,txn,txn)void"
+    method "group_init(txn,txn,txn)void"
     txna ApplicationArgs 0
-    match main_create_route@1 main_pay_route@2 main_key_route@3 main_asset_config_route@4 main_asset_transfer_route@5 main_asset_freeze_route@6 main_application_call_route@7 main_multiple_txns_route@8 main_any_txn_route@9
+    match main_create_route@1 main_pay_route@2 main_key_route@3 main_asset_config_route@4 main_asset_transfer_route@5 main_asset_freeze_route@6 main_application_call_route@7 main_multiple_txns_route@8 main_any_txn_route@9 main_group_init_route@10
     err // reject transaction
 
 main_create_route@1:
@@ -183,6 +184,25 @@ main_any_txn_route@9:
     int 1
     -
     callsub any_txn
+    int 1
+    return
+
+main_group_init_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txn GroupIndex
+    int 3
+    -
+    txn GroupIndex
+    int 2
+    -
+    txn GroupIndex
+    int 1
+    -
+    callsub group_init
     int 1
     return
 
@@ -555,4 +575,45 @@ any_txn_for_body@4:
     +
     frame_bury 0
     switch any_txn_for_header_1@2 any_txn_for_header_2@3
+    retsub
+
+
+// test_cases.transaction.contract.TransactionContract.group_init(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
+group_init:
+    proto 3 0
+    byte ""
+    frame_dig -3
+    int 0
+    b group_init_for_body@4
+
+group_init_for_header_1@2:
+    frame_dig -2
+    frame_dig 0
+    b group_init_for_body@4
+
+group_init_for_header_2@3:
+    frame_dig -1
+    frame_dig 0
+
+group_init_for_body@4:
+    swap
+    dup
+    gtxns GroupIndex
+    swap
+    gtxns TxID
+    swap
+    gtxns TxID
+    ==
+    assert
+    dup
+    int 1
+    +
+    frame_bury 0
+    switch group_init_for_header_1@2 group_init_for_header_2@3
+    frame_dig -3
+    gtxns TxID
+    int 0
+    gtxns TxID
+    ==
+    assert
     retsub

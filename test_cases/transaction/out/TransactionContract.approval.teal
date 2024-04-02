@@ -12,8 +12,9 @@ test_cases.transaction.contract.TransactionContract.approval_program:
     method "application_call(appl)void"
     method "multiple_txns(appl,appl,appl)void"
     method "any_txn(txn,txn,txn)void"
+    method "group_init(txn,txn,txn)void"
     txna ApplicationArgs 0
-    match main_create_route@1 main_pay_route@2 main_key_route@3 main_asset_config_route@4 main_asset_transfer_route@5 main_asset_freeze_route@6 main_application_call_route@7 main_multiple_txns_route@8 main_any_txn_route@9
+    match main_create_route@1 main_pay_route@2 main_key_route@3 main_asset_config_route@4 main_asset_transfer_route@5 main_asset_freeze_route@6 main_application_call_route@7 main_multiple_txns_route@8 main_any_txn_route@9 main_group_init_route@10
     err // reject transaction
 
 main_create_route@1:
@@ -235,6 +236,31 @@ main_any_txn_route@9:
     // transaction/contract.py:121
     // @arc4.abimethod
     callsub any_txn
+    int 1
+    return
+
+main_group_init_route@10:
+    // transaction/contract.py:131
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // transaction/contract.py:11
+    // class TransactionContract(arc4.ARC4Contract):
+    txn GroupIndex
+    int 3
+    -
+    txn GroupIndex
+    int 2
+    -
+    txn GroupIndex
+    int 1
+    -
+    // transaction/contract.py:131
+    // @arc4.abimethod
+    callsub group_init
     int 1
     return
 
@@ -798,4 +824,61 @@ any_txn_for_body@4:
     // transaction/contract.py:128
     // for index, txn in uenumerate((txn1, txn2, txn3)):
     switch any_txn_for_header_1@2 any_txn_for_header_2@3
+    retsub
+
+
+// test_cases.transaction.contract.TransactionContract.group_init(txn1: uint64, txn2: uint64, txn3: uint64) -> void:
+group_init:
+    // transaction/contract.py:131-137
+    // @arc4.abimethod
+    // def group_init(
+    //     self,
+    //     txn1: gtxn.Transaction,
+    //     txn2: gtxn.Transaction,
+    //     txn3: gtxn.Transaction,
+    // ) -> None:
+    proto 3 0
+    byte ""
+    frame_dig -3
+    int 0
+    b group_init_for_body@4
+
+group_init_for_header_1@2:
+    frame_dig -2
+    frame_dig 0
+    b group_init_for_body@4
+
+group_init_for_header_2@3:
+    frame_dig -1
+    frame_dig 0
+
+group_init_for_body@4:
+    // transaction/contract.py:139
+    // txn2 = gtxn.Transaction(txn.group_index)
+    swap
+    dup
+    gtxns GroupIndex
+    swap
+    // transaction/contract.py:140
+    // assert txn.txn_id == txn2.txn_id
+    gtxns TxID
+    swap
+    gtxns TxID
+    ==
+    assert
+    dup
+    int 1
+    +
+    frame_bury 0
+    // transaction/contract.py:138
+    // for txn in (txn1, txn2, txn3):
+    switch group_init_for_header_1@2 group_init_for_header_2@3
+    // transaction/contract.py:141
+    // assert txn1.txn_id == gtxn.Transaction(0).txn_id
+    frame_dig -3
+    gtxns TxID
+    int 0
+    gtxns TxID
+    ==
+    assert
     retsub
