@@ -7,7 +7,6 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Decode,
-    ARC4Encode,
     BytesComparisonExpression,
     BytesConstant,
     BytesEncoding,
@@ -66,35 +65,6 @@ def get_integer_literal_value(eb_or_literal: ExpressionBuilder | Literal, purpos
             return lit_value
         case _:
             raise CodeError(f"{purpose} must be compile time constant")
-
-
-class ARC4EncodeBuilder(IntermediateExpressionBuilder):
-    def __init__(self, location: SourceLocation, wtype: wtypes.WType):
-        super().__init__(location=location)
-        self.wtype = wtype
-
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> ExpressionBuilder:
-        match args:
-            case [
-                ExpressionBuilder() as eb
-            ] if eb.rvalue().wtype == wtypes.arc4_to_avm_equivalent_wtype(self.wtype):
-                value = eb.rvalue()
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-
-        return var_expression(
-            ARC4Encode(
-                source_location=location,
-                value=value,
-                wtype=self.wtype,
-            )
-        )
 
 
 class ARC4FromLogBuilder(IntermediateExpressionBuilder):
