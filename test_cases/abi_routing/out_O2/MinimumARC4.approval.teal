@@ -1,0 +1,28 @@
+#pragma version 10
+
+test_cases.abi_routing.minimal.MinimumARC4.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    txn NumAppArgs
+    !
+    assert // reject transaction
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.abi_routing.minimal.MinimumARC4.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "gvalue"
+    int 4
+    app_global_put
+    retsub

@@ -1,0 +1,34 @@
+#pragma version 10
+
+test_cases.abi_routing.minimal.MinimumARC4.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    // abi_routing/minimal.py:4
+    // class MinimumARC4(ARC4Contract):
+    txn NumAppArgs
+    !
+    assert // reject transaction
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.abi_routing.minimal.MinimumARC4.__init__() -> void:
+__init__:
+    // abi_routing/minimal.py:5
+    // def __init__(self) -> None:
+    proto 0 0
+    // abi_routing/minimal.py:6
+    // self.gvalue = UInt64(4)
+    byte "gvalue"
+    int 4
+    app_global_put
+    retsub

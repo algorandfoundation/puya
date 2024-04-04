@@ -420,7 +420,13 @@ def fold_state_and_special_methods(
     if not (c.init and c.init.body.body):
         result.init = None
     arc4_method_refs = dict(filter(None, maybe_arc4_method_refs.values()))
-    if arc4_method_refs:
+    if arc4_method_refs and not contract.is_arc4:
+        raise InternalError(
+            "Contracts making use of the @abimethod decorator "
+            "should extend the ARC4Contract class",
+            contract.source_location,
+        )
+    if contract.is_arc4:
         if result.approval_program:
             raise CodeError(
                 "approval_program should not be defined for ARC4 contracts",

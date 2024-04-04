@@ -153,3 +153,12 @@ class Arc4CopyContract(arc4.ARC4Contract):
         destructured_a, destructured_b = my_tuple ## E: Tuple cannot be destructured as it contains an item of type algopy.arc4.DynamicArray[algopy.arc4.UInt64] which requires copying. Use index access instead
         destructured_a = my_tuple[0] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
         destructured_b = my_tuple[1] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+
+## case: abi_decorator_not_arc4_contract
+
+from algopy import arc4, Contract
+
+class MyContract(Contract): ## W: Class abi_decorator_not_arc4_contract.MyContract is implicitly abstract
+    @arc4.abimethod ## E: algopy.arc4.abimethod decorator is only for subclasses of algopy.ARC4Contract
+    def test(self) -> None:
+        pass

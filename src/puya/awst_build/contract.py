@@ -87,6 +87,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             module_name=self.cref.module_name,
             name=self.cref.class_name,
             name_override=class_options.name_override,
+            is_arc4=self._is_arc4,
             is_abstract=self._is_abstract,
             bases=_gather_bases(context, class_def),
             init=self._init_method,
