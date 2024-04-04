@@ -5,8 +5,14 @@ contract AppStateContract
     ['global_int_no_default']: algopy.UInt64
     ['global_bytes_full']: algopy.Bytes
     ['global_bytes_no_default']: algopy.Bytes
+    ['global_bool_full']: bool
+    ['global_bool_no_default']: bool
+    ['global_asset']: algopy.Asset
+    ['global_application']: algopy.Application
+    ['global_account']: algopy.Account
     ['global_int_simplified']: algopy.UInt64
     ['global_bytes_simplified']: algopy.Bytes
+    ['global_bool_simplified']: bool
   }
   
   constructor()
@@ -15,6 +21,8 @@ contract AppStateContract
     this.global_int_simplified: algopy.UInt64 = 33u
     this.global_bytes_full: algopy.Bytes = 'Hello'
     this.global_bytes_simplified: algopy.Bytes = 'Hello'
+    this.global_bool_full: bool = false
+    this.global_bool_simplified: bool = true
   }
   
   approval_program(): bool
@@ -40,6 +48,12 @@ contract AppStateContract
     (b_value, b_exists): tuple[algopy.Bytes, bool] = STATE_GET_EX(this.global_bytes_no_default)
     assert(!(b_exists))
     assert(STATE_GET(this.global_bytes_no_default, default='default') == 'default')
+    assert(STATE_EXISTS(this.global_bool_full))
+    assert(!(STATE_EXISTS(this.global_bool_no_default)))
+    this.global_bool_no_default: bool = true
+    assert(!(this.global_bool_full))
+    assert(this.global_bool_simplified)
+    assert(this.global_bool_no_default)
     return true
   }
   

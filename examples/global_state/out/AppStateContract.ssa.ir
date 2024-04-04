@@ -1,7 +1,7 @@
 contract examples.global_state.contract.AppStateContract:
     program approval:
         subroutine examples.global_state.contract.AppStateContract.approval_program() -> uint64:
-            block@0: // L14
+            block@0: // L22
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
             block@1: // on_create_L5
@@ -62,6 +62,22 @@ contract examples.global_state.contract.AppStateContract:
                 let tmp%11#0: any = (select "default" global_bytes_no_default_get_ex%0#0 global_bytes_no_default_get_ex%1#0)
                 let tmp%12#0: uint64 = (== tmp%11#0 "default")
                 (assert tmp%12#0)
+                let (global_bool_full_exists%0#0: any, global_bool_full_exists%1#0: uint64) = (app_global_get_ex 0u "global_bool_full")
+                (assert global_bool_full_exists%1#0)
+                let (global_bool_no_default_exists%0#0: any, global_bool_no_default_exists%1#0: uint64) = (app_global_get_ex 0u "global_bool_no_default")
+                let tmp%13#0: uint64 = (! global_bool_no_default_exists%1#0)
+                (assert tmp%13#0)
+                (app_global_put "global_bool_no_default" 1u)
+                let (global_bool_full_value%0#0: uint64, global_bool_full_exists%2#0: uint64) = (app_global_get_ex 0u "global_bool_full")
+                (assert global_bool_full_exists%2#0) // check global_bool_full exists
+                let tmp%14#0: uint64 = (! global_bool_full_value%0#0)
+                (assert tmp%14#0)
+                let (global_bool_simplified_value%0#0: uint64, global_bool_simplified_exists%0#0: uint64) = (app_global_get_ex 0u "global_bool_simplified")
+                (assert global_bool_simplified_exists%0#0) // check global_bool_simplified exists
+                (assert global_bool_simplified_value%0#0)
+                let (global_bool_no_default_value%0#0: uint64, global_bool_no_default_exists%2#0: uint64) = (app_global_get_ex 0u "global_bool_no_default")
+                (assert global_bool_no_default_exists%2#0) // check global_bool_no_default exists
+                (assert global_bool_no_default_value%0#0)
                 return 1u
         
         subroutine examples.global_state.contract.AppStateContract.__init__() -> void:
@@ -70,9 +86,11 @@ contract examples.global_state.contract.AppStateContract:
                 (app_global_put "global_int_simplified" 33u)
                 (app_global_put "global_bytes_full" "Hello")
                 (app_global_put "global_bytes_simplified" "Hello")
+                (app_global_put "global_bool_full" 0u)
+                (app_global_put "global_bool_simplified" 1u)
                 return 
     
     program clear-state:
         subroutine examples.global_state.contract.AppStateContract.clear_state_program() -> uint64:
-            block@0: // L40
+            block@0: // L60
                 return 1u

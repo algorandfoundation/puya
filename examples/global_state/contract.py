@@ -1,4 +1,4 @@
-from algopy import Bytes, Contract, GlobalState, UInt64
+from algopy import Account, Application, Asset, Bytes, Contract, GlobalState, UInt64
 
 
 class AppStateContract(Contract):
@@ -10,6 +10,14 @@ class AppStateContract(Contract):
         self.global_bytes_full = GlobalState(Bytes(b"Hello"))
         self.global_bytes_simplified = Bytes(b"Hello")
         self.global_bytes_no_default = GlobalState(Bytes)
+
+        self.global_bool_full = GlobalState(False)
+        self.global_bool_simplified = True
+        self.global_bool_no_default = GlobalState(bool)
+
+        self.global_asset = GlobalState(Asset)
+        self.global_application = GlobalState(Application)
+        self.global_account = GlobalState(Account)
 
     def approval_program(self) -> bool:
         assert self.global_int_simplified == 33
@@ -35,6 +43,18 @@ class AppStateContract(Contract):
         assert not b_exists
 
         assert self.global_bytes_no_default.get(Bytes(b"default")) == b"default"
+
+        # Assert 'is set'
+        assert self.global_bool_full
+        assert not self.global_bool_no_default
+
+        self.global_bool_no_default.value = True
+
+        # Assert 'value'
+        assert not self.global_bool_full.value
+        assert self.global_bool_simplified
+        assert self.global_bool_no_default.value
+
         return True
 
     def clear_state_program(self) -> bool:

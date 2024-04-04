@@ -13,6 +13,7 @@ from algopy import (
 class LocalStateContract(Contract):
     def __init__(self) -> None:
         self.local = LocalState(Bytes)
+        self.local_bool = LocalState(bool)
 
     def approval_program(self) -> bool:
         if Txn.application_id == 0:
