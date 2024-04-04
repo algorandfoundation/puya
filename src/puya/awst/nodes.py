@@ -1660,6 +1660,7 @@ class ContractFragment(ModuleStatement):
     module_name: str
     name_override: str | None
     is_abstract: bool
+    is_arc4: bool
     bases: Sequence[ContractReference] = attrs.field(converter=tuple[ContractReference, ...])
     init: ContractMethod | None = attrs.field()
     approval_program: ContractMethod | None = attrs.field()

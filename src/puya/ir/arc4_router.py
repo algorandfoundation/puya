@@ -476,6 +476,8 @@ def map_abi_args(
 def route_abi_methods(
     location: SourceLocation, methods: dict[awst_nodes.ContractMethod, ARC4MethodConfig]
 ) -> awst_nodes.Block:
+    if not methods:
+        return create_block(location, "reject_abi_methods", reject(location))
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
     for method, config in methods.items():
@@ -520,6 +522,7 @@ def route_abi_methods(
             cases=method_routing_cases,
             default_case=None,
         ),
+        reject(location),
     )
 
 
@@ -698,12 +701,7 @@ def create_abi_router(
         source_location=router_location,
         args=[],
         return_type=wtypes.bool_wtype,
-        body=create_block(
-            router_location,
-            "abi_bare_routing",
-            *router,
-            reject(contract.source_location),
-        ),
+        body=create_block(router_location, "abi_bare_routing", *router),
         docstring=None,
         abimethod_config=None,
     )

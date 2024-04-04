@@ -480,7 +480,7 @@ def test_arc4_routing(
     account: algokit_utils.Account,
 ) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(TEST_CASES_DIR / "abi_routing")
+        compile_arc32(TEST_CASES_DIR / "abi_routing" / "contract.py")
     )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
@@ -501,7 +501,7 @@ def test_arc4_routing_with_many_params(
     asset_b: int,
 ) -> None:
     app_spec = algokit_utils.ApplicationSpecification.from_json(
-        compile_arc32(TEST_CASES_DIR / "abi_routing")
+        compile_arc32(TEST_CASES_DIR / "abi_routing" / "contract.py")
     )
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
 
