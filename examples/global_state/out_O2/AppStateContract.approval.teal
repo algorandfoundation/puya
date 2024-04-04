@@ -102,6 +102,36 @@ main_entrypoint@2:
     byte "default"
     ==
     assert
+    int 0
+    byte "global_bool_full"
+    app_global_get_ex
+    bury 1
+    assert
+    int 0
+    byte "global_bool_no_default"
+    app_global_get_ex
+    bury 1
+    !
+    assert
+    byte "global_bool_no_default"
+    int 1
+    app_global_put
+    int 0
+    byte "global_bool_full"
+    app_global_get_ex
+    assert // check global_bool_full exists
+    !
+    assert
+    int 0
+    byte "global_bool_simplified"
+    app_global_get_ex
+    assert // check global_bool_simplified exists
+    assert
+    int 0
+    byte "global_bool_no_default"
+    app_global_get_ex
+    assert // check global_bool_no_default exists
+    assert
     int 1
     return
 
@@ -120,5 +150,11 @@ __init__:
     app_global_put
     byte "global_bytes_simplified"
     byte "Hello"
+    app_global_put
+    byte "global_bool_full"
+    int 0
+    app_global_put
+    byte "global_bool_simplified"
+    int 1
     app_global_put
     retsub

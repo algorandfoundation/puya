@@ -1,8 +1,8 @@
 import typing
 
-from algopy import Account, Bytes, BytesBacked, UInt64
+from algopy import Account, UInt64
 
-_TState = typing.TypeVar("_TState", bound=UInt64 | Bytes | BytesBacked)
+_TState = typing.TypeVar("_TState")
 
 class LocalState(typing.Generic[_TState]):
     """Local state associated with the application and an account"""

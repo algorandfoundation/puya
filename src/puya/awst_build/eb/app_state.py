@@ -8,6 +8,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
     AppStateKind,
+    BoolConstant,
     BytesEncoding,
     Expression,
     Literal,
@@ -92,6 +93,9 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
                 initial_value = None
             case ExpressionBuilder(value_type=wtypes.WType() as storage_wtype) as value_eb:
                 initial_value = value_eb.rvalue()
+            case Literal(value=bool(bool_value), source_location=source_location):
+                initial_value = BoolConstant(value=bool_value, source_location=source_location)
+                storage_wtype = wtypes.bool_wtype
             case _:
                 raise CodeError(
                     "First argument must be a type reference or an initial value", location
