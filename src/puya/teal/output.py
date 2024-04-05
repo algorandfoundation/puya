@@ -34,6 +34,6 @@ def emit_teal(context: CompileContext, program: models.TealProgram) -> list[str]
                         lines = textwrap.dedent("\n".join(src.code or ())).splitlines()
                         result.extend(f"{indent}// {line.rstrip()}" for line in lines)
 
-                result.append(f"{indent}{teal_op}")
+                result.append(f"{indent}{teal_op.teal()}")
             result.append("")
     return result

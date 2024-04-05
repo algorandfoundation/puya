@@ -8,7 +8,7 @@ from puya.ir.utils import format_bytes
 from puya.parse import SourceLocation
 
 
-@attrs.frozen(str=False, kw_only=True)
+@attrs.frozen(kw_only=True)
 class TealOp:
     op_code: str
     consumes: int
@@ -22,13 +22,14 @@ class TealOp:
     def immediates(self) -> Sequence[int | str]:
         return ()
 
-    def __str__(self) -> str:
-        return self.teal_str(self.op_code, *self.immediates)
+    def teal(self) -> str:
+        return self._teal_str(self.op_code, *self.immediates)
 
-    def teal_str(self, op_code: str, *immediates: int | str) -> str:
+    def _teal_str(self, op_code: str, *immediates: int | str) -> str:
         teal_args = [op_code, *map(str, immediates)]
         if self.comment:
-            teal_args.append(f"// {self.comment}")
+            comment = "\n//".join(self.comment.splitlines())
+            teal_args.append(f"// {comment}")
         return " ".join(teal_args)
 
     @property
@@ -86,11 +87,11 @@ class Cover(TealOpN):
     def _produces(self) -> int:
         return self.n + 1
 
-    def __str__(self) -> str:
+    def teal(self) -> str:
         if self.n == 1:
-            return self.teal_str("swap")
+            return self._teal_str("swap")
         else:
-            return super().__str__()
+            return super().teal()
 
 
 @attrs.frozen
@@ -107,11 +108,11 @@ class Uncover(TealOpN):
     def _produces(self) -> int:
         return self.n + 1
 
-    def __str__(self) -> str:
+    def teal(self) -> str:
         if self.n == 1:
-            return self.teal_str("swap")
+            return self._teal_str("swap")
         else:
-            return super().__str__()
+            return super().teal()
 
 
 @attrs.frozen

@@ -30,7 +30,7 @@ def _emit_op(
             case _ if debug_level < VIRTUAL_STACK_DEBUG_LEVEL:
                 context.writer.ignore_line()
     for teal_op_idx, teal_op in enumerate(teal_ops):
-        context.writer.append(str(teal_op))
+        context.writer.append(teal_op.teal())
         # omit new line for all but the last op
         if teal_op_idx < len(teal_ops) - 1:
             context.writer.new_line()

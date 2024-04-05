@@ -2,6 +2,8 @@
 
 import typing
 
+from algopy import Contract, Txn
+
 import test_cases.module_consts.constants as consts
 from test_cases.module_consts import constants, constants4
 from test_cases.module_consts.constants import BANNED, EXT_ONE, EXT_ZERO
@@ -70,3 +72,13 @@ yes_votes = 42_572_654
 no_votes = 43_132_495
 percentage = (100 * yes_votes) // (yes_votes + no_votes)
 FORMATTED = f"{yes_votes:-9} YES votes  {percentage:2.2%}"
+
+
+class MyContract(Contract):
+    def approval_program(self) -> bool:
+        assert Txn.num_app_args == 0, MAYBE_MORE
+        assert Txn.sender != consts.HACKER, consts.HACKER
+        return True
+
+    def clear_state_program(self) -> bool:
+        return True
