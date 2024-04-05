@@ -1,5 +1,9 @@
 from puya.awst import wtypes
-from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
+from puya.awst_build.intrinsic_models import (
+    FunctionOpMapping,
+    ImmediateArgMapping,
+    StackArgMapping,
+)
 
 ENUM_CLASSES = {
     "algopy.op.Base64": {
@@ -28,18 +32,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -55,20 +57,18 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -83,11 +83,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -99,11 +98,9 @@ STUB_TO_AST_MAPPER = {
             op_code="arg",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -118,12 +115,11 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -137,19 +133,16 @@ STUB_TO_AST_MAPPER = {
             op_code="base64_decode",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="e",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -164,13 +157,11 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -185,7 +176,7 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.biguint_wtype,
@@ -203,11 +194,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -222,11 +212,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -241,18 +230,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -267,32 +254,28 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="d",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -310,25 +293,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -342,19 +322,16 @@ STUB_TO_AST_MAPPER = {
             op_code="ecdsa_pk_decompress",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="v",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -369,40 +346,34 @@ STUB_TO_AST_MAPPER = {
             op_code="ecdsa_pk_recover",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="v",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="d",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -417,47 +388,40 @@ STUB_TO_AST_MAPPER = {
             op_code="ecdsa_verify",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="v",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="d",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="e",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -472,25 +436,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -505,25 +466,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -547,11 +505,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -564,18 +521,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -590,18 +545,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -617,25 +570,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -647,25 +597,20 @@ STUB_TO_AST_MAPPER = {
             op_code="extract",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="c",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -680,18 +625,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -706,18 +649,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -732,18 +673,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -758,11 +697,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -774,11 +712,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gaid",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -793,20 +729,17 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -821,18 +754,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -847,18 +778,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -870,17 +799,13 @@ STUB_TO_AST_MAPPER = {
             op_code="gload",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -892,19 +817,16 @@ STUB_TO_AST_MAPPER = {
             op_code="gloads",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -919,18 +841,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -942,17 +862,13 @@ STUB_TO_AST_MAPPER = {
             op_code="gload",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -964,19 +880,16 @@ STUB_TO_AST_MAPPER = {
             op_code="gloads",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -991,11 +904,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1010,11 +922,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1029,12 +940,11 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1049,18 +959,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1076,25 +984,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1106,26 +1011,22 @@ STUB_TO_AST_MAPPER = {
             op_code="replace2",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1140,25 +1041,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1173,25 +1071,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1206,25 +1101,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1239,11 +1131,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1258,11 +1149,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1277,11 +1167,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1296,18 +1185,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1322,18 +1209,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1348,11 +1233,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1367,25 +1251,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1397,25 +1278,20 @@ STUB_TO_AST_MAPPER = {
             op_code="substring",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="c",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1429,33 +1305,28 @@ STUB_TO_AST_MAPPER = {
             op_code="vrf_verify",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="s",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1473,12 +1344,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctBalance",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1496,12 +1366,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctMinBalance",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1519,12 +1388,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctAuthAddr",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1542,12 +1410,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctTotalNumUint",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1565,12 +1432,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctTotalNumByteSlice",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1588,12 +1454,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctTotalExtraAppPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1611,12 +1476,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctTotalAppsCreated",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1634,12 +1498,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctTotalAppsOptedIn",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1657,12 +1520,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctTotalAssetsCreated",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1680,12 +1542,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctTotalAssets",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1703,12 +1564,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctTotalBoxes",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1726,12 +1586,11 @@ STUB_TO_AST_MAPPER = {
                 "AcctTotalBoxBytes",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1747,11 +1606,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1766,11 +1624,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1785,19 +1642,17 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1813,19 +1668,17 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1841,11 +1694,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1858,20 +1710,17 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -1884,19 +1733,17 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1911,19 +1758,17 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1938,27 +1783,24 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -1974,27 +1816,24 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2010,19 +1849,17 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2035,28 +1872,24 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2071,12 +1904,11 @@ STUB_TO_AST_MAPPER = {
                 "AppApprovalProgram",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2094,12 +1926,11 @@ STUB_TO_AST_MAPPER = {
                 "AppClearStateProgram",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2117,12 +1948,11 @@ STUB_TO_AST_MAPPER = {
                 "AppGlobalNumUint",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2140,12 +1970,11 @@ STUB_TO_AST_MAPPER = {
                 "AppGlobalNumByteSlice",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2163,12 +1992,11 @@ STUB_TO_AST_MAPPER = {
                 "AppLocalNumUint",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2186,12 +2014,11 @@ STUB_TO_AST_MAPPER = {
                 "AppLocalNumByteSlice",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2209,12 +2036,11 @@ STUB_TO_AST_MAPPER = {
                 "AppExtraProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2232,12 +2058,11 @@ STUB_TO_AST_MAPPER = {
                 "AppCreator",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2255,12 +2080,11 @@ STUB_TO_AST_MAPPER = {
                 "AppAddress",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2278,20 +2102,18 @@ STUB_TO_AST_MAPPER = {
                 "AssetBalance",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2309,20 +2131,18 @@ STUB_TO_AST_MAPPER = {
                 "AssetFrozen",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2340,12 +2160,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetTotal",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2363,12 +2182,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetDecimals",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2386,12 +2204,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetDefaultFrozen",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2409,12 +2226,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetUnitName",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2432,12 +2248,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetName",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2455,12 +2270,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetURL",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2478,12 +2292,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetMetadataHash",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2501,12 +2314,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetManager",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2524,12 +2336,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetReserve",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2547,12 +2358,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetFreeze",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2570,12 +2380,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetClawback",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2593,12 +2402,11 @@ STUB_TO_AST_MAPPER = {
                 "AssetCreator",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2616,11 +2424,10 @@ STUB_TO_AST_MAPPER = {
                 "BlkSeed",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2637,11 +2444,10 @@ STUB_TO_AST_MAPPER = {
                 "BlkTimestamp",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2656,18 +2462,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2682,11 +2486,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2701,25 +2504,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2734,11 +2534,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2754,11 +2553,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2774,18 +2572,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2798,25 +2594,22 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2829,18 +2622,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -2853,32 +2644,28 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="c",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="d",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2890,26 +2677,22 @@ STUB_TO_AST_MAPPER = {
             op_code="ec_add",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="g",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2923,19 +2706,16 @@ STUB_TO_AST_MAPPER = {
             op_code="ec_map_to",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="g",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2949,26 +2729,22 @@ STUB_TO_AST_MAPPER = {
             op_code="ec_multi_scalar_mul",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="g",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -2982,26 +2758,22 @@ STUB_TO_AST_MAPPER = {
             op_code="ec_pairing_check",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="g",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -3015,26 +2787,22 @@ STUB_TO_AST_MAPPER = {
             op_code="ec_scalar_mul",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="g",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -3048,19 +2816,16 @@ STUB_TO_AST_MAPPER = {
             op_code="ec_subgroup_check",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="g",
-                    allowed_types=[
-                        str,
-                    ],
+                    literal_type=str,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -3074,11 +2839,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Sender",
             ],
@@ -3093,11 +2856,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Fee",
             ],
@@ -3112,11 +2873,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FirstValid",
             ],
@@ -3131,11 +2890,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FirstValidTime",
             ],
@@ -3150,11 +2907,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "LastValid",
             ],
@@ -3169,11 +2924,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Note",
             ],
@@ -3188,11 +2941,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Lease",
             ],
@@ -3207,11 +2958,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Receiver",
             ],
@@ -3226,11 +2975,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Amount",
             ],
@@ -3245,11 +2992,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "CloseRemainderTo",
             ],
@@ -3264,11 +3009,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "VotePK",
             ],
@@ -3283,11 +3026,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "SelectionPK",
             ],
@@ -3302,11 +3043,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "VoteFirst",
             ],
@@ -3321,11 +3060,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "VoteLast",
             ],
@@ -3340,11 +3077,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "VoteKeyDilution",
             ],
@@ -3359,11 +3094,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Type",
             ],
@@ -3378,11 +3111,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "TypeEnum",
             ],
@@ -3397,11 +3128,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "XferAsset",
             ],
@@ -3416,11 +3145,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "AssetAmount",
             ],
@@ -3435,11 +3162,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "AssetSender",
             ],
@@ -3454,11 +3179,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "AssetReceiver",
             ],
@@ -3473,11 +3196,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "AssetCloseTo",
             ],
@@ -3492,11 +3213,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "GroupIndex",
             ],
@@ -3511,11 +3230,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "TxID",
             ],
@@ -3530,11 +3247,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApplicationID",
             ],
@@ -3549,11 +3264,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "OnCompletion",
             ],
@@ -3568,20 +3281,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApplicationArgs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -3593,18 +3303,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApplicationArgs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -3618,11 +3324,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumAppArgs",
             ],
@@ -3637,20 +3341,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Accounts",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -3662,18 +3363,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Accounts",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -3687,11 +3384,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumAccounts",
             ],
@@ -3706,11 +3401,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApprovalProgram",
             ],
@@ -3725,11 +3418,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ClearStateProgram",
             ],
@@ -3744,11 +3435,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "RekeyTo",
             ],
@@ -3763,11 +3452,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAsset",
             ],
@@ -3782,11 +3469,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetTotal",
             ],
@@ -3801,11 +3486,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetDecimals",
             ],
@@ -3820,11 +3503,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetDefaultFrozen",
             ],
@@ -3839,11 +3520,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetUnitName",
             ],
@@ -3858,11 +3537,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetName",
             ],
@@ -3877,11 +3554,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetURL",
             ],
@@ -3896,11 +3571,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetMetadataHash",
             ],
@@ -3915,11 +3588,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetManager",
             ],
@@ -3934,11 +3605,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetReserve",
             ],
@@ -3953,11 +3622,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetFreeze",
             ],
@@ -3972,11 +3639,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetClawback",
             ],
@@ -3991,11 +3656,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FreezeAsset",
             ],
@@ -4010,11 +3673,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FreezeAssetAccount",
             ],
@@ -4029,11 +3690,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FreezeAssetFrozen",
             ],
@@ -4048,20 +3707,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Assets",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4073,18 +3729,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Assets",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -4098,11 +3750,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumAssets",
             ],
@@ -4117,20 +3767,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Applications",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4142,18 +3789,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Applications",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -4167,11 +3810,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumApplications",
             ],
@@ -4186,11 +3827,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "GlobalNumUint",
             ],
@@ -4205,11 +3844,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "GlobalNumByteSlice",
             ],
@@ -4224,11 +3861,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "LocalNumUint",
             ],
@@ -4243,11 +3878,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "LocalNumByteSlice",
             ],
@@ -4262,11 +3895,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ExtraProgramPages",
             ],
@@ -4281,11 +3912,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Nonparticipation",
             ],
@@ -4300,20 +3929,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Logs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4325,18 +3951,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Logs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -4350,11 +3972,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumLogs",
             ],
@@ -4369,11 +3989,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "CreatedAssetID",
             ],
@@ -4388,11 +4006,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "CreatedApplicationID",
             ],
@@ -4407,11 +4023,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "LastLog",
             ],
@@ -4426,11 +4040,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "StateProofPK",
             ],
@@ -4445,20 +4057,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApprovalProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4470,18 +4079,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApprovalProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -4495,11 +4100,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumApprovalProgramPages",
             ],
@@ -4514,20 +4117,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ClearStateProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4539,18 +4139,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ClearStateProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -4564,11 +4160,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gitxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="t",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumClearStateProgramPages",
             ],
@@ -4586,11 +4180,10 @@ STUB_TO_AST_MAPPER = {
                 "Sender",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4602,11 +4195,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Sender",
             ],
@@ -4624,11 +4215,10 @@ STUB_TO_AST_MAPPER = {
                 "Fee",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4640,11 +4230,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Fee",
             ],
@@ -4662,11 +4250,10 @@ STUB_TO_AST_MAPPER = {
                 "FirstValid",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4678,11 +4265,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FirstValid",
             ],
@@ -4700,11 +4285,10 @@ STUB_TO_AST_MAPPER = {
                 "FirstValidTime",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4716,11 +4300,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FirstValidTime",
             ],
@@ -4738,11 +4320,10 @@ STUB_TO_AST_MAPPER = {
                 "LastValid",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4754,11 +4335,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "LastValid",
             ],
@@ -4776,11 +4355,10 @@ STUB_TO_AST_MAPPER = {
                 "Note",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4792,11 +4370,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Note",
             ],
@@ -4814,11 +4390,10 @@ STUB_TO_AST_MAPPER = {
                 "Lease",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4830,11 +4405,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Lease",
             ],
@@ -4852,11 +4425,10 @@ STUB_TO_AST_MAPPER = {
                 "Receiver",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4868,11 +4440,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Receiver",
             ],
@@ -4890,11 +4460,10 @@ STUB_TO_AST_MAPPER = {
                 "Amount",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4906,11 +4475,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Amount",
             ],
@@ -4928,11 +4495,10 @@ STUB_TO_AST_MAPPER = {
                 "CloseRemainderTo",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4944,11 +4510,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "CloseRemainderTo",
             ],
@@ -4966,11 +4530,10 @@ STUB_TO_AST_MAPPER = {
                 "VotePK",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -4982,11 +4545,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "VotePK",
             ],
@@ -5004,11 +4565,10 @@ STUB_TO_AST_MAPPER = {
                 "SelectionPK",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5020,11 +4580,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "SelectionPK",
             ],
@@ -5042,11 +4600,10 @@ STUB_TO_AST_MAPPER = {
                 "VoteFirst",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5058,11 +4615,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "VoteFirst",
             ],
@@ -5080,11 +4635,10 @@ STUB_TO_AST_MAPPER = {
                 "VoteLast",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5096,11 +4650,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "VoteLast",
             ],
@@ -5118,11 +4670,10 @@ STUB_TO_AST_MAPPER = {
                 "VoteKeyDilution",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5134,11 +4685,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "VoteKeyDilution",
             ],
@@ -5156,11 +4705,10 @@ STUB_TO_AST_MAPPER = {
                 "Type",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5172,11 +4720,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Type",
             ],
@@ -5194,11 +4740,10 @@ STUB_TO_AST_MAPPER = {
                 "TypeEnum",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5210,11 +4755,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "TypeEnum",
             ],
@@ -5232,11 +4775,10 @@ STUB_TO_AST_MAPPER = {
                 "XferAsset",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5248,11 +4790,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "XferAsset",
             ],
@@ -5270,11 +4810,10 @@ STUB_TO_AST_MAPPER = {
                 "AssetAmount",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5286,11 +4825,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "AssetAmount",
             ],
@@ -5308,11 +4845,10 @@ STUB_TO_AST_MAPPER = {
                 "AssetSender",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5324,11 +4860,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "AssetSender",
             ],
@@ -5346,11 +4880,10 @@ STUB_TO_AST_MAPPER = {
                 "AssetReceiver",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5362,11 +4895,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "AssetReceiver",
             ],
@@ -5384,11 +4915,10 @@ STUB_TO_AST_MAPPER = {
                 "AssetCloseTo",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5400,11 +4930,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "AssetCloseTo",
             ],
@@ -5422,11 +4950,10 @@ STUB_TO_AST_MAPPER = {
                 "GroupIndex",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5438,11 +4965,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "GroupIndex",
             ],
@@ -5460,11 +4985,10 @@ STUB_TO_AST_MAPPER = {
                 "TxID",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5476,11 +5000,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "TxID",
             ],
@@ -5498,11 +5020,10 @@ STUB_TO_AST_MAPPER = {
                 "ApplicationID",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5514,11 +5035,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApplicationID",
             ],
@@ -5536,11 +5055,10 @@ STUB_TO_AST_MAPPER = {
                 "OnCompletion",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5552,11 +5070,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "OnCompletion",
             ],
@@ -5574,18 +5090,16 @@ STUB_TO_AST_MAPPER = {
                 "ApplicationArgs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5598,19 +5112,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "ApplicationArgs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5622,18 +5133,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApplicationArgs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -5645,20 +5152,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApplicationArgs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5675,11 +5179,10 @@ STUB_TO_AST_MAPPER = {
                 "NumAppArgs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5691,11 +5194,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumAppArgs",
             ],
@@ -5713,18 +5214,16 @@ STUB_TO_AST_MAPPER = {
                 "Accounts",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5737,19 +5236,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Accounts",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5761,18 +5257,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Accounts",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -5784,20 +5276,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Accounts",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5814,11 +5303,10 @@ STUB_TO_AST_MAPPER = {
                 "NumAccounts",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5830,11 +5318,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumAccounts",
             ],
@@ -5852,11 +5338,10 @@ STUB_TO_AST_MAPPER = {
                 "ApprovalProgram",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5868,11 +5353,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApprovalProgram",
             ],
@@ -5890,11 +5373,10 @@ STUB_TO_AST_MAPPER = {
                 "ClearStateProgram",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5906,11 +5388,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ClearStateProgram",
             ],
@@ -5928,11 +5408,10 @@ STUB_TO_AST_MAPPER = {
                 "RekeyTo",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5944,11 +5423,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "RekeyTo",
             ],
@@ -5966,11 +5443,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAsset",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -5982,11 +5458,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAsset",
             ],
@@ -6004,11 +5478,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetTotal",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6020,11 +5493,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetTotal",
             ],
@@ -6042,11 +5513,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetDecimals",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6058,11 +5528,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetDecimals",
             ],
@@ -6080,11 +5548,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetDefaultFrozen",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6096,11 +5563,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetDefaultFrozen",
             ],
@@ -6118,11 +5583,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetUnitName",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6134,11 +5598,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetUnitName",
             ],
@@ -6156,11 +5618,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetName",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6172,11 +5633,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetName",
             ],
@@ -6194,11 +5653,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetURL",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6210,11 +5668,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetURL",
             ],
@@ -6232,11 +5688,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetMetadataHash",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6248,11 +5703,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetMetadataHash",
             ],
@@ -6270,11 +5723,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetManager",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6286,11 +5738,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetManager",
             ],
@@ -6308,11 +5758,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetReserve",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6324,11 +5773,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetReserve",
             ],
@@ -6346,11 +5793,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetFreeze",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6362,11 +5808,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetFreeze",
             ],
@@ -6384,11 +5828,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetClawback",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6400,11 +5843,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ConfigAssetClawback",
             ],
@@ -6422,11 +5863,10 @@ STUB_TO_AST_MAPPER = {
                 "FreezeAsset",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6438,11 +5878,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FreezeAsset",
             ],
@@ -6460,11 +5898,10 @@ STUB_TO_AST_MAPPER = {
                 "FreezeAssetAccount",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6476,11 +5913,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FreezeAssetAccount",
             ],
@@ -6498,11 +5933,10 @@ STUB_TO_AST_MAPPER = {
                 "FreezeAssetFrozen",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6514,11 +5948,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "FreezeAssetFrozen",
             ],
@@ -6536,18 +5968,16 @@ STUB_TO_AST_MAPPER = {
                 "Assets",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6560,19 +5990,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Assets",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6584,18 +6011,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Assets",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -6607,20 +6030,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Assets",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6637,11 +6057,10 @@ STUB_TO_AST_MAPPER = {
                 "NumAssets",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6653,11 +6072,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumAssets",
             ],
@@ -6675,18 +6092,16 @@ STUB_TO_AST_MAPPER = {
                 "Applications",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6699,19 +6114,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Applications",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6723,18 +6135,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Applications",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -6746,20 +6154,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Applications",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6776,11 +6181,10 @@ STUB_TO_AST_MAPPER = {
                 "NumApplications",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6792,11 +6196,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumApplications",
             ],
@@ -6814,11 +6216,10 @@ STUB_TO_AST_MAPPER = {
                 "GlobalNumUint",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6830,11 +6231,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "GlobalNumUint",
             ],
@@ -6852,11 +6251,10 @@ STUB_TO_AST_MAPPER = {
                 "GlobalNumByteSlice",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6868,11 +6266,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "GlobalNumByteSlice",
             ],
@@ -6890,11 +6286,10 @@ STUB_TO_AST_MAPPER = {
                 "LocalNumUint",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6906,11 +6301,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "LocalNumUint",
             ],
@@ -6928,11 +6321,10 @@ STUB_TO_AST_MAPPER = {
                 "LocalNumByteSlice",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6944,11 +6336,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "LocalNumByteSlice",
             ],
@@ -6966,11 +6356,10 @@ STUB_TO_AST_MAPPER = {
                 "ExtraProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -6982,11 +6371,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ExtraProgramPages",
             ],
@@ -7004,11 +6391,10 @@ STUB_TO_AST_MAPPER = {
                 "Nonparticipation",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7020,11 +6406,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Nonparticipation",
             ],
@@ -7042,18 +6426,16 @@ STUB_TO_AST_MAPPER = {
                 "Logs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7066,19 +6448,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Logs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7090,18 +6469,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Logs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -7113,20 +6488,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "Logs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7143,11 +6515,10 @@ STUB_TO_AST_MAPPER = {
                 "NumLogs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7159,11 +6530,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumLogs",
             ],
@@ -7181,11 +6550,10 @@ STUB_TO_AST_MAPPER = {
                 "CreatedAssetID",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7197,11 +6565,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "CreatedAssetID",
             ],
@@ -7219,11 +6585,10 @@ STUB_TO_AST_MAPPER = {
                 "CreatedApplicationID",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7235,11 +6600,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "CreatedApplicationID",
             ],
@@ -7257,11 +6620,10 @@ STUB_TO_AST_MAPPER = {
                 "LastLog",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7273,11 +6635,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "LastLog",
             ],
@@ -7295,11 +6655,10 @@ STUB_TO_AST_MAPPER = {
                 "StateProofPK",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7311,11 +6670,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "StateProofPK",
             ],
@@ -7333,18 +6690,16 @@ STUB_TO_AST_MAPPER = {
                 "ApprovalProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7357,19 +6712,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "ApprovalProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7381,18 +6733,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApprovalProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -7404,20 +6752,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ApprovalProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7434,11 +6779,10 @@ STUB_TO_AST_MAPPER = {
                 "NumApprovalProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7450,11 +6794,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumApprovalProgramPages",
             ],
@@ -7472,18 +6814,16 @@ STUB_TO_AST_MAPPER = {
                 "ClearStateProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7496,19 +6836,16 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "ClearStateProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7520,18 +6857,14 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxna",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ClearStateProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="b",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -7543,20 +6876,17 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxnas",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "ClearStateProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7573,11 +6903,10 @@ STUB_TO_AST_MAPPER = {
                 "NumClearStateProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -7589,11 +6918,9 @@ STUB_TO_AST_MAPPER = {
             op_code="gtxn",
             is_property=False,
             immediates=[
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
                 "NumClearStateProgramPages",
             ],
@@ -8183,11 +7510,10 @@ STUB_TO_AST_MAPPER = {
                 "ApplicationArgs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -8200,11 +7526,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "ApplicationArgs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -8234,11 +7558,10 @@ STUB_TO_AST_MAPPER = {
                 "Accounts",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -8251,11 +7574,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Accounts",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -8519,11 +7840,10 @@ STUB_TO_AST_MAPPER = {
                 "Assets",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -8536,11 +7856,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Assets",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -8570,11 +7888,10 @@ STUB_TO_AST_MAPPER = {
                 "Applications",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -8587,11 +7904,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Applications",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -8699,11 +8014,10 @@ STUB_TO_AST_MAPPER = {
                 "Logs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -8716,11 +8030,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Logs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -8802,11 +8114,10 @@ STUB_TO_AST_MAPPER = {
                 "ApprovalProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -8819,11 +8130,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "ApprovalProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -8853,11 +8162,10 @@ STUB_TO_AST_MAPPER = {
                 "ClearStateProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -8870,11 +8178,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "ClearStateProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -8931,7 +8237,7 @@ STUB_TO_AST_MAPPER = {
                 "Sender",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -8949,11 +8255,10 @@ STUB_TO_AST_MAPPER = {
                 "Fee",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -8968,11 +8273,10 @@ STUB_TO_AST_MAPPER = {
                 "Note",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -8987,7 +8291,7 @@ STUB_TO_AST_MAPPER = {
                 "Receiver",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9005,11 +8309,10 @@ STUB_TO_AST_MAPPER = {
                 "Amount",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9024,7 +8327,7 @@ STUB_TO_AST_MAPPER = {
                 "CloseRemainderTo",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9042,11 +8345,10 @@ STUB_TO_AST_MAPPER = {
                 "VotePK",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9061,11 +8363,10 @@ STUB_TO_AST_MAPPER = {
                 "SelectionPK",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9080,11 +8381,10 @@ STUB_TO_AST_MAPPER = {
                 "VoteFirst",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9099,11 +8399,10 @@ STUB_TO_AST_MAPPER = {
                 "VoteLast",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9118,11 +8417,10 @@ STUB_TO_AST_MAPPER = {
                 "VoteKeyDilution",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9137,11 +8435,10 @@ STUB_TO_AST_MAPPER = {
                 "Type",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9156,11 +8453,10 @@ STUB_TO_AST_MAPPER = {
                 "TypeEnum",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9175,12 +8471,11 @@ STUB_TO_AST_MAPPER = {
                 "XferAsset",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9195,11 +8490,10 @@ STUB_TO_AST_MAPPER = {
                 "AssetAmount",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9214,7 +8508,7 @@ STUB_TO_AST_MAPPER = {
                 "AssetSender",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9232,7 +8526,7 @@ STUB_TO_AST_MAPPER = {
                 "AssetReceiver",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9250,7 +8544,7 @@ STUB_TO_AST_MAPPER = {
                 "AssetCloseTo",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9268,12 +8562,11 @@ STUB_TO_AST_MAPPER = {
                 "ApplicationID",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.application_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9288,11 +8581,10 @@ STUB_TO_AST_MAPPER = {
                 "OnCompletion",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9307,11 +8599,10 @@ STUB_TO_AST_MAPPER = {
                 "ApplicationArgs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9326,7 +8617,7 @@ STUB_TO_AST_MAPPER = {
                 "Accounts",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9344,11 +8635,10 @@ STUB_TO_AST_MAPPER = {
                 "ApprovalProgram",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9363,11 +8653,10 @@ STUB_TO_AST_MAPPER = {
                 "ClearStateProgram",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9382,7 +8671,7 @@ STUB_TO_AST_MAPPER = {
                 "RekeyTo",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9400,12 +8689,11 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAsset",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9420,11 +8708,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetTotal",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9439,11 +8726,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetDecimals",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9458,12 +8744,11 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetDefaultFrozen",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bool_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9478,11 +8763,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetUnitName",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9497,11 +8781,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetName",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9516,11 +8799,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetURL",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9535,11 +8817,10 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetMetadataHash",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9554,7 +8835,7 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetManager",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9572,7 +8853,7 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetReserve",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9590,7 +8871,7 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetFreeze",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9608,7 +8889,7 @@ STUB_TO_AST_MAPPER = {
                 "ConfigAssetClawback",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9626,12 +8907,11 @@ STUB_TO_AST_MAPPER = {
                 "FreezeAsset",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.asset_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9646,7 +8926,7 @@ STUB_TO_AST_MAPPER = {
                 "FreezeAssetAccount",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.account_wtype,
@@ -9664,12 +8944,11 @@ STUB_TO_AST_MAPPER = {
                 "FreezeAssetFrozen",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bool_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9684,11 +8963,10 @@ STUB_TO_AST_MAPPER = {
                 "Assets",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9703,11 +8981,10 @@ STUB_TO_AST_MAPPER = {
                 "Applications",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9722,11 +8999,10 @@ STUB_TO_AST_MAPPER = {
                 "GlobalNumUint",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9741,11 +9017,10 @@ STUB_TO_AST_MAPPER = {
                 "GlobalNumByteSlice",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9760,11 +9035,10 @@ STUB_TO_AST_MAPPER = {
                 "LocalNumUint",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9779,11 +9053,10 @@ STUB_TO_AST_MAPPER = {
                 "LocalNumByteSlice",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9798,11 +9071,10 @@ STUB_TO_AST_MAPPER = {
                 "ExtraProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9817,12 +9089,11 @@ STUB_TO_AST_MAPPER = {
                 "Nonparticipation",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bool_wtype,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9837,11 +9108,10 @@ STUB_TO_AST_MAPPER = {
                 "StateProofPK",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9856,11 +9126,10 @@ STUB_TO_AST_MAPPER = {
                 "ApprovalProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9875,11 +9144,10 @@ STUB_TO_AST_MAPPER = {
                 "ClearStateProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9894,18 +9162,16 @@ STUB_TO_AST_MAPPER = {
                 "JSONString",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9922,18 +9188,16 @@ STUB_TO_AST_MAPPER = {
                 "JSONUint64",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9950,18 +9214,16 @@ STUB_TO_AST_MAPPER = {
                 "JSONObject",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                     ],
                 ),
             ],
@@ -9976,11 +9238,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -9995,11 +9256,10 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -10014,20 +9274,17 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
-                ArgMapping(
+                StackArgMapping(
                     arg_name="b",
                     allowed_types=[
                         wtypes.bytes_wtype,
-                        bytes,
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -10380,11 +9637,10 @@ STUB_TO_AST_MAPPER = {
                 "ApplicationArgs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -10397,11 +9653,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "ApplicationArgs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -10431,11 +9685,10 @@ STUB_TO_AST_MAPPER = {
                 "Accounts",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -10448,11 +9701,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Accounts",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -10716,11 +9967,10 @@ STUB_TO_AST_MAPPER = {
                 "Assets",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -10733,11 +9983,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Assets",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -10767,11 +10015,10 @@ STUB_TO_AST_MAPPER = {
                 "Applications",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -10784,11 +10031,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Applications",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -10896,11 +10141,10 @@ STUB_TO_AST_MAPPER = {
                 "Logs",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -10913,11 +10157,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "Logs",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -10999,11 +10241,10 @@ STUB_TO_AST_MAPPER = {
                 "ApprovalProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -11016,11 +10257,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "ApprovalProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],
@@ -11050,11 +10289,10 @@ STUB_TO_AST_MAPPER = {
                 "ClearStateProgramPages",
             ],
             stack_inputs=[
-                ArgMapping(
+                StackArgMapping(
                     arg_name="a",
                     allowed_types=[
                         wtypes.uint64_wtype,
-                        int,
                     ],
                 ),
             ],
@@ -11067,11 +10305,9 @@ STUB_TO_AST_MAPPER = {
             is_property=False,
             immediates=[
                 "ClearStateProgramPages",
-                ArgMapping(
+                ImmediateArgMapping(
                     arg_name="a",
-                    allowed_types=[
-                        int,
-                    ],
+                    literal_type=int,
                 ),
             ],
             stack_inputs=[],

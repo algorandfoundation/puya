@@ -23,7 +23,11 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.intrinsic_data import ENUM_CLASSES, STUB_TO_AST_MAPPER
-from puya.awst_build.intrinsic_models import ArgMapping, FunctionOpMapping
+from puya.awst_build.intrinsic_models import (
+    FunctionOpMapping,
+    ImmediateArgMapping,
+    StackArgMapping,
+)
 from puya.awst_build.utils import get_arg_mapping, require_expression_builder
 from puya.errors import CodeError, InternalError
 
@@ -93,11 +97,9 @@ class IntrinsicNamespaceClassExpressionBuilder(IntermediateExpressionBuilder):
         if isinstance(sym_node, mypy.nodes.Var):
             intrinsic_expr = map_call(callee=sym_node.fullname, node_location=location, args={})
             if intrinsic_expr is None:
-                raise CodeError(f"Unknown algopy member {sym_node.fullname}")
+                raise CodeError(f"Unknown algopy member {sym_node.fullname}", location)
             return var_expression(intrinsic_expr)
-        func_def = unwrap_func_def(
-            location, sym_node, num_pos_args=0  # assuming no overloads for intrinsic functions
-        )
+        func_def = unwrap_func_def(location, sym_node)
         assert isinstance(func_def, mypy.nodes.FuncDef)
         return IntrinsicFunctionExpressionBuilder(func_def, location)
 
@@ -126,46 +128,15 @@ class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
         return var_expression(intrinsic_expr)
 
 
-def unwrap_func_def(
-    location: SourceLocation, node: mypy.nodes.SymbolNode, num_pos_args: int
-) -> mypy.nodes.FuncDef:
+def unwrap_func_def(location: SourceLocation, node: mypy.nodes.SymbolNode) -> mypy.nodes.FuncDef:
     match node:
         case mypy.nodes.FuncDef() as func_def:
             return func_def
-        case mypy.nodes.OverloadedFuncDef(impl=impl) as overloaded_func:
-            if impl is not None:
-                return unwrap_func_def(location, impl, num_pos_args)
-            funcs = [unwrap_func_def(location, f, num_pos_args) for f in overloaded_func.items]
-            possible_overloads = list[mypy.nodes.FuncDef]()
-            for func in funcs:
-                func_arg_kinds = [
-                    kind
-                    for kind, arg in zip(func.arg_kinds, func.arguments, strict=True)
-                    if not (arg.variable.is_self or arg.variable.is_cls)
-                ]
-                min_pos_args = func_arg_kinds.count(mypy.nodes.ArgKind.ARG_POS)
-                max_pos_args = min_pos_args + func_arg_kinds.count(mypy.nodes.ArgKind.ARG_OPT)
-                if min_pos_args <= num_pos_args <= max_pos_args:
-                    possible_overloads.append(func)
-            match possible_overloads:
-                case []:
-                    raise InternalError(
-                        f"Could not find valid overload for {overloaded_func.fullname} "
-                        f"with {num_pos_args} positional arg/s",
-                        location,
-                    )
-                case [single]:
-                    return single
-                case _:
-                    raise InternalError(
-                        f"Could not find exact overload for {overloaded_func.fullname} "
-                        f"with {num_pos_args} positional arg/s",
-                        location,
-                    )
         case mypy.nodes.Decorator(func=func_def):
             return func_def
         case _:
-            raise InternalError("Call symbol resolved to non-callable", location)
+            # if we start using @typing.overload in ops.pyi this would need to be handled here
+            raise InternalError("Unsupported callable node type for intrinsics", location)
 
 
 def get_arg_mapping_funcdef(
@@ -189,7 +160,7 @@ def _all_immediates_are_constant(
     op_mapping: FunctionOpMapping, arg_is_constant: dict[str, bool]
 ) -> bool:
     return all(
-        arg_is_constant[immediate.arg_name] if isinstance(immediate, ArgMapping) else True
+        arg_is_constant[immediate.arg_name] if isinstance(immediate, ImmediateArgMapping) else True
         for immediate in op_mapping.immediates
     )
 
@@ -215,7 +186,9 @@ def _find_op_mapping(
     return best_mapping
 
 
-def _code_error(arg: Expression | Literal, arg_mapping: ArgMapping, callee: str) -> typing.Never:
+def _code_error(
+    arg: Expression | Literal, arg_mapping: ImmediateArgMapping | StackArgMapping, callee: str
+) -> typing.Never:
     raise CodeError(
         f"Invalid argument type"
         f' "{arg.wtype if isinstance(arg, Expression) else type(arg.value).__name__}"'
@@ -224,7 +197,7 @@ def _code_error(arg: Expression | Literal, arg_mapping: ArgMapping, callee: str)
     )
 
 
-def _check_stack_type(arg_mapping: ArgMapping, node: Expression, callee: str) -> None:
+def _check_stack_type(arg_mapping: StackArgMapping, node: Expression, callee: str) -> None:
     valid: bool
     match node:
         case Expression(wtype=wtype):
@@ -261,12 +234,16 @@ def map_call(
             immediates.append(immediate)
         else:
             arg_in = args[immediate.arg_name]
-            if isinstance(arg_in, Literal) and immediate.is_allowed_constant(arg_in.value):
-                if not isinstance(arg_in.value, int | str):
-                    raise InternalError(
-                        f"Unexpected literal value type, value = {arg_in.value!r}", node_location
-                    )
-                immediates.append(arg_in.value)
+            if not isinstance(arg_in, Literal):
+                raise CodeError(
+                    f"Argument {immediate.arg_name} must be"
+                    f" a literal {immediate.literal_type.__name__} value",
+                    arg_in.source_location,
+                )
+            arg_value = arg_in.value
+            if isinstance(arg_value, immediate.literal_type):
+                assert isinstance(arg_value, int | str)
+                immediates.append(arg_value)
             else:
                 _code_error(arg_in, immediate, callee)
 
