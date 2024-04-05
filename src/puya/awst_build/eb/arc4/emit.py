@@ -46,7 +46,7 @@ class EmitBuilder(IntermediateExpressionBuilder):
                 event_arg = event_arg_eb.rvalue()
             case [Literal(value=str(event_str)), *event_args]:
                 arc4_args, signature = get_arc4_args_and_signature(
-                    event_str, event_args, location, return_wtype=None
+                    event_str, event_args, location, return_wtype=None, is_event=True
                 )
                 # check signature does not contain a return type
                 if signature.return_type != wtypes.void_wtype or (

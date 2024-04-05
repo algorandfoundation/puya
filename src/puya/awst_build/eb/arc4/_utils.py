@@ -170,9 +170,10 @@ def get_arc4_args_and_signature(
     loc: SourceLocation,
     *,
     return_wtype: wtypes.WType | None,
+    is_event: bool = False,
 ) -> tuple[Sequence[Expression], ARC4Signature]:
     method_name, maybe_args, maybe_return_type = _parse_method_signature(
-        method_sig, loc, is_event=return_wtype is None
+        method_sig, loc, is_event=is_event
     )
     arg_types = list(map(_arg_to_arc4_wtype, native_args)) if maybe_args is None else maybe_args
     num_args = len(native_args)
