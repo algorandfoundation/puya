@@ -38,7 +38,9 @@ main_start_auction_route@5:
     txn ApplicationID
     assert // is not creating
     txna ApplicationArgs 1
+    btoi
     txna ApplicationArgs 2
+    btoi
     txn GroupIndex
     int 1
     -
@@ -142,7 +144,7 @@ opt_into_asset:
     retsub
 
 
-// examples.auction.contract.Auction.start_auction(starting_price: bytes, length: bytes, axfer: uint64) -> void:
+// examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
 start_auction:
     proto 3 0
     txn Sender
@@ -167,15 +169,12 @@ start_auction:
     app_global_put
     global LatestTimestamp
     frame_dig -2
-    btoi
     +
     byte "auction_end"
     swap
     app_global_put
-    frame_dig -3
-    btoi
     byte "previous_bid"
-    swap
+    frame_dig -3
     app_global_put
     retsub
 

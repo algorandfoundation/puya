@@ -41,8 +41,8 @@ class Auction(ARC4Contract):
     @arc4.abimethod
     def start_auction(
         self,
-        starting_price: arc4.UInt64,
-        length: arc4.UInt64,
+        starting_price: UInt64,
+        length: UInt64,
         axfer: gtxn.AssetTransferTransaction,
     ) -> None:
         assert Txn.sender == Global.creator_address, "auction must be started by creator"
@@ -57,8 +57,8 @@ class Auction(ARC4Contract):
 
         # Set global state
         self.asa_amount = axfer.asset_amount
-        self.auction_end = Global.latest_timestamp + length.native
-        self.previous_bid = starting_price.native
+        self.auction_end = Global.latest_timestamp + length
+        self.previous_bid = starting_price
 
     @arc4.abimethod
     def opt_in(self) -> None:

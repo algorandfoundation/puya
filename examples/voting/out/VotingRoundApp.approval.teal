@@ -29,9 +29,11 @@ main_create_route@3:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     txna ApplicationArgs 1
+    extract 2 0
     txna ApplicationArgs 2
     extract 2 0
     txna ApplicationArgs 3
+    extract 2 0
     txna ApplicationArgs 4
     btoi
     txna ApplicationArgs 5
@@ -40,6 +42,7 @@ main_create_route@3:
     txna ApplicationArgs 7
     btoi
     txna ApplicationArgs 8
+    extract 2 0
     // voting/voting.py:56
     // @arc4.abimethod(create="require")
     callsub create
@@ -93,6 +96,7 @@ main_get_preconditions_route@6:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     txna ApplicationArgs 1
+    extract 2 0
     // voting/voting.py:157
     // @arc4.abimethod(readonly=True)
     callsub get_preconditions
@@ -137,14 +141,14 @@ create:
     // @arc4.abimethod(create="require")
     // def create(
     //     self,
-    //     vote_id: arc4.String,
+    //     vote_id: String,
     //     snapshot_public_key: Bytes,
-    //     metadata_ipfs_cid: arc4.String,
+    //     metadata_ipfs_cid: String,
     //     start_time: UInt64,
     //     end_time: UInt64,
     //     option_counts: VoteIndexArray,
     //     quorum: UInt64,
-    //     nft_image_url: arc4.String,
+    //     nft_image_url: String,
     // ) -> None:
     proto 8 0
     // voting/voting.py:68
@@ -160,11 +164,9 @@ create:
     >=
     assert // End time should be in the future
     // voting/voting.py:71
-    // self.vote_id = vote_id.native
-    frame_dig -8
-    extract 2 0
+    // self.vote_id = vote_id
     byte "vote_id"
-    swap
+    frame_dig -8
     app_global_put
     // voting/voting.py:72
     // self.snapshot_public_key = snapshot_public_key
@@ -172,11 +174,9 @@ create:
     frame_dig -7
     app_global_put
     // voting/voting.py:73
-    // self.metadata_ipfs_cid = metadata_ipfs_cid.native
-    frame_dig -6
-    extract 2 0
+    // self.metadata_ipfs_cid = metadata_ipfs_cid
     byte "metadata_ipfs_cid"
-    swap
+    frame_dig -6
     app_global_put
     // voting/voting.py:74
     // self.start_time = start_time
@@ -194,11 +194,9 @@ create:
     frame_dig -2
     app_global_put
     // voting/voting.py:77
-    // self.nft_image_url = nft_image_url.native
-    frame_dig -1
-    extract 2 0
+    // self.nft_image_url = nft_image_url
     byte "nft_image_url"
-    swap
+    frame_dig -1
     app_global_put
     // voting/voting.py:78
     // self.store_option_counts(option_counts.copy())
@@ -929,28 +927,15 @@ get_vote_from_box:
 get_preconditions:
     // voting/voting.py:157-158
     // @arc4.abimethod(readonly=True)
-    // def get_preconditions(self, signature: arc4.DynamicBytes) -> VotingPreconditions:
+    // def get_preconditions(self, signature: Bytes) -> VotingPreconditions:
     proto 1 1
     // voting/voting.py:160
     // is_voting_open=arc4.UInt64(self.voting_open()),
     callsub voting_open
     itob
     // voting/voting.py:161
-    // is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature.bytes[2:])),
+    // is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature)),
     frame_dig -1
-    len
-    int 2
-    dig 1
-    <
-    swap
-    dup
-    int 2
-    uncover 3
-    select
-    frame_dig -1
-    swap
-    uncover 2
-    substring3
     callsub allowed_to_vote
     itob
     // voting/voting.py:162
@@ -964,7 +949,7 @@ get_preconditions:
     // voting/voting.py:159-164
     // return VotingPreconditions(
     //     is_voting_open=arc4.UInt64(self.voting_open()),
-    //     is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature.bytes[2:])),
+    //     is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature)),
     //     has_already_voted=arc4.UInt64(self.already_voted()),
     //     current_time=arc4.UInt64(Global.latest_timestamp),
     // )

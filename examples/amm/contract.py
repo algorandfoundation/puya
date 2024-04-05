@@ -47,9 +47,7 @@ class ConstantProductAMM(ARC4Contract):
         self.governor = new_governor
 
     @arc4.abimethod()
-    def bootstrap(
-        self, seed: gtxn.PaymentTransaction, a_asset: Asset, b_asset: Asset
-    ) -> arc4.UInt64:
+    def bootstrap(self, seed: gtxn.PaymentTransaction, a_asset: Asset, b_asset: Asset) -> UInt64:
         """bootstraps the contract by opting into the assets and creating the pool token.
 
         Note this method will fail if it is attempted more than once on the same contract
@@ -78,7 +76,7 @@ class ConstantProductAMM(ARC4Contract):
 
         self._do_opt_in(self.asset_a)
         self._do_opt_in(self.asset_b)
-        return arc4.UInt64(self.pool_token.id)
+        return self.pool_token.id
 
     @arc4.abimethod(
         default_args={

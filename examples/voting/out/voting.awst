@@ -36,17 +36,17 @@ contract VotingRoundApp
     this.voter_count: algopy.UInt64 = 0u
   }
   
-  abimethod create(vote_id: algopy.arc4.String, snapshot_public_key: algopy.Bytes, metadata_ipfs_cid: algopy.arc4.String, start_time: algopy.UInt64, end_time: algopy.UInt64, option_counts: algopy.arc4.DynamicArray[algopy.arc4.UInt8], quorum: algopy.UInt64, nft_image_url: algopy.arc4.String): None
+  abimethod create(vote_id: algopy.String, snapshot_public_key: algopy.Bytes, metadata_ipfs_cid: algopy.String, start_time: algopy.UInt64, end_time: algopy.UInt64, option_counts: algopy.arc4.DynamicArray[algopy.arc4.UInt8], quorum: algopy.UInt64, nft_image_url: algopy.String): None
   {
     assert(start_time < end_time, comment="End time should be after start time")
     assert(end_time >= global<LatestTimestamp>(), comment="End time should be in the future")
-    this.vote_id: algopy.String = arc4_decode(vote_id, algopy.String)
+    this.vote_id: algopy.String = vote_id
     this.snapshot_public_key: algopy.Bytes = snapshot_public_key
-    this.metadata_ipfs_cid: algopy.String = arc4_decode(metadata_ipfs_cid, algopy.String)
+    this.metadata_ipfs_cid: algopy.String = metadata_ipfs_cid
     this.start_time: algopy.UInt64 = start_time
     this.end_time: algopy.UInt64 = end_time
     this.quorum: algopy.UInt64 = quorum
-    this.nft_image_url: algopy.String = arc4_decode(nft_image_url, algopy.String)
+    this.nft_image_url: algopy.String = nft_image_url
     this::store_option_counts(option_counts.copy())
   }
   
@@ -90,9 +90,9 @@ contract VotingRoundApp
     this.nft_asset_id: algopy.UInt64 = reinterpret_cast<algopy.UInt64>(submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + this.vote_id, ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=this.nft_image_url, Note=note)).CreatedAssetID)
   }
   
-  abimethod get_preconditions(signature: algopy.arc4.DynamicBytes): examples.voting.voting.VotingPreconditions
+  abimethod get_preconditions(signature: algopy.Bytes): examples.voting.voting.VotingPreconditions
   {
-    return arc4_encode((arc4_encode(this::voting_open(), algopy.arc4.UInt64), arc4_encode(this::allowed_to_vote(SINGLE_EVAL(id=0, source=reinterpret_cast<algopy.Bytes>(signature))[select(len(SINGLE_EVAL(id=0, source=reinterpret_cast<algopy.Bytes>(signature))), 2u, 2u < len(SINGLE_EVAL(id=0, source=reinterpret_cast<algopy.Bytes>(signature)))):]), algopy.arc4.UInt64), arc4_encode(this::already_voted(), algopy.arc4.UInt64), arc4_encode(global<LatestTimestamp>(), algopy.arc4.UInt64)), examples.voting.voting.VotingPreconditions)
+    return arc4_encode((arc4_encode(this::voting_open(), algopy.arc4.UInt64), arc4_encode(this::allowed_to_vote(signature), algopy.arc4.UInt64), arc4_encode(this::already_voted(), algopy.arc4.UInt64), arc4_encode(global<LatestTimestamp>(), algopy.arc4.UInt64)), examples.voting.voting.VotingPreconditions)
   }
   
   abimethod vote(fund_min_bal_req: algopy.gtxn.PaymentTransaction, signature: algopy.Bytes, answer_ids: algopy.arc4.DynamicArray[algopy.arc4.UInt8]): None
@@ -121,7 +121,7 @@ contract VotingRoundApp
   
   subroutine voting_open(): bool
   {
-    return this.is_bootstrapped and !(STATE_EXISTS(this.close_time)) and this.start_time <= SINGLE_EVAL(id=1, source=global<LatestTimestamp>()) and SINGLE_EVAL(id=1, source=global<LatestTimestamp>()) <= this.end_time
+    return this.is_bootstrapped and !(STATE_EXISTS(this.close_time)) and this.start_time <= SINGLE_EVAL(id=0, source=global<LatestTimestamp>()) and SINGLE_EVAL(id=0, source=global<LatestTimestamp>()) <= this.end_time
   }
   
   subroutine already_voted(): bool

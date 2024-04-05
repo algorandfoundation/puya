@@ -33,14 +33,14 @@ contract Auction
     submit_txn(create_inner_transaction(TypeEnum=axfer, AssetReceiver=global<CurrentApplicationAddress>(), XferAsset=asset, Fee=0u))
   }
   
-  abimethod start_auction(starting_price: algopy.arc4.UInt64, length: algopy.arc4.UInt64, axfer: algopy.gtxn.AssetTransferTransaction): None
+  abimethod start_auction(starting_price: algopy.UInt64, length: algopy.UInt64, axfer: algopy.gtxn.AssetTransferTransaction): None
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="auction must be started by creator")
     assert(this.auction_end == 0u, comment="auction already started")
     assert(gtxns<AssetReceiver>(axfer) == global<CurrentApplicationAddress>(), comment="axfer must transfer to this app")
     this.asa_amount: algopy.UInt64 = gtxns<AssetAmount>(axfer)
-    this.auction_end: algopy.UInt64 = global<LatestTimestamp>() + arc4_decode(length, algopy.UInt64)
-    this.previous_bid: algopy.UInt64 = arc4_decode(starting_price, algopy.UInt64)
+    this.auction_end: algopy.UInt64 = global<LatestTimestamp>() + length
+    this.previous_bid: algopy.UInt64 = starting_price
   }
   
   abimethod opt_in(): None
