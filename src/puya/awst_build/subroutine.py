@@ -470,15 +470,14 @@ class FunctionASTConverter(
         return ContinueStatement(self._location(stmt))
 
     def visit_assert_stmt(self, stmt: mypy.nodes.AssertStmt) -> AssertStatement:
-        comment: str | None
-        match stmt.msg:
-            case mypy.nodes.StrExpr() as str_expr:
-                comment = str_expr.value
-            case None:
-                comment = None
-            case _:
-                self._error("only literal strings are supported as assertion messages", stmt)
-                comment = None
+        comment: str | None = None
+        if stmt.msg is not None:
+            msg = stmt.msg.accept(self)
+            match msg:
+                case Literal(value=str(comment)):
+                    pass
+                case _:
+                    self._error("only literal strings are supported as assertion messages", stmt)
         condition = self._eval_condition(stmt.expr)
         return AssertStatement(
             source_location=self._location(stmt),
