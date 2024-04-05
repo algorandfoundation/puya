@@ -239,14 +239,16 @@ class Asset:
         ```
         """
     def balance(self, account: Account, /) -> UInt64:
-        """Amount of the asset unit held by this account
+        """Amount of the asset unit held by this account. Fails if the account has not
+        opted in to the asset.
 
         ```{note}
         Asset and supplied Account must be an available resource
         ```
         """
     def frozen(self, account: Account, /) -> bool:
-        """Is the asset frozen or not
+        """Is the asset frozen or not. Fails if the account has not
+        opted in to the asset.
 
         ```{note}
         Asset and supplied Account must be an available resource
