@@ -7,6 +7,7 @@ from pathlib import Path
 
 import attrs
 import pytest
+from _pytest.mark import ParameterSet
 from puya import log
 from puya.options import PuyaOptions
 
@@ -22,13 +23,18 @@ SUFFIX_O1 = ""
 SUFFIX_O2 = "_O2"
 
 
-@attrs.define(str=False)
+@attrs.frozen
 class PuyaExample:
     root: Path
-    path: Path
+    name: str
 
-    def __str__(self) -> str:
-        return f"{self.root.stem}_{self.path.stem}"
+    @property
+    def path(self) -> Path:
+        return self.root / self.name
+
+    @property
+    def id(self) -> str:
+        return f"{self.root.stem}_{self.name}"
 
 
 def _should_output(path: Path, puya_options: PuyaOptions) -> bool:
@@ -58,7 +64,7 @@ def compile_test_case(
     puya_options.out_dir = dst_out_dir
 
     compile_result = compile_src(
-        test_case.path,
+        path,
         optimization_level=puya_options.optimization_level,
         debug_level=puya_options.debug_level,
     )
@@ -75,9 +81,7 @@ def compile_test_case(
             log_path = path / f"puya{suffix}.log"
         else:
             log_path = path.with_suffix(f".puya{suffix}.log")
-        log_options = attrs.evolve(
-            puya_options, out_dir=None, paths=(test_case.path.relative_to(test_case.root),)
-        )
+        log_options = attrs.evolve(puya_options, out_dir=None, paths=(Path(test_case.name),))
         logs = "\n".join(
             (
                 f"debug: {log_options}",
@@ -176,24 +180,29 @@ def compile_with_level2_optimizations(test_case: PuyaExample) -> None:
     )
 
 
-def get_test_cases() -> Iterable[PuyaExample]:
-    to_compile = []
-    for root in (EXAMPLES_DIR, TEST_CASES_DIR):
-        for item in root.iterdir():
-            if item.is_dir():
-                if any(item.rglob("*.py")):
-                    yield PuyaExample(root, item)
-                    to_compile.append(item)
-            elif item.is_file() and item.suffix == ".py" and item.name != "__init__.py":
-                yield PuyaExample(root, item)
+def get_test_cases() -> Iterable[ParameterSet]:
+    all_examples = [
+        PuyaExample(root, item.name)
+        for root in (EXAMPLES_DIR, TEST_CASES_DIR)
+        for item in root.iterdir()
+        if item.is_dir() and any(item.glob("*.py"))
+    ]
+    for example in all_examples:
+        if example.name == "stress_tests":
+            marks = [pytest.mark.slow]
+        else:
+            marks = []
+        yield ParameterSet.param(example, marks=marks, id=example.id)
 
 
 def remove_output(path: Path) -> None:
-    for file in APPROVAL_EXTENSIONS:
-        for out_suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2):
-            for f in path.rglob(f"**/*out{out_suffix}/{file}"):
-                if f.is_file():
-                    f.unlink()
+    (path / "puya.log").unlink(missing_ok=True)
+    for out_suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2):
+        out_dir = path / f"out{out_suffix}"
+        if out_dir.exists():
+            for file in out_dir.iterdir():
+                if file.suffix in APPROVAL_EXTENSIONS:
+                    file.unlink()
 
 
 def check_for_diff(path: Path) -> str | None:
@@ -217,7 +226,7 @@ def check_for_diff(path: Path) -> str | None:
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    metafunc.parametrize("case", get_test_cases(), ids=str)
+    metafunc.parametrize("case", get_test_cases())
 
 
 def test_cases(case: PuyaExample) -> None:

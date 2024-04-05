@@ -1391,3 +1391,8 @@ def test_arc4_copy_in_state(harness: _TestHarness) -> None:
                 pass
 
     harness.deploy_from_closure(test)
+
+
+@pytest.mark.slow()
+def test_brute_force_rotation_search(harness: _TestHarness) -> None:
+    harness.deploy(TEST_CASES_DIR / "stress_tests" / "brute_force_rotation_search.py")
