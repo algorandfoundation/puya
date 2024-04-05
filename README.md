@@ -4,7 +4,7 @@ Algorand Python is a partial implementation of the Python programming language t
 
 Algorand Python is compiled for execution on the AVM by PuyaPy, an optimising compiler that ensures the resulting AVM bytecode execution semantics that match the given Python code. PuyaPy produces output that is directly compatible with [AlgoKit typed clients](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/generate.md#1-typed-clients) to make deployment and calling easy.
 
-[Documentation](https://algorandfoundation.github.io/puya/) | [Language guide](https://algorandfoundation.github.io/puya/language_guide.html)
+[Documentation](https://algorandfoundation.github.io/puya/) | [Language guide](https://algorandfoundation.github.io/puya/language-guide.html)
 
 ## Quick start
 
