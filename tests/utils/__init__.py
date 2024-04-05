@@ -19,7 +19,7 @@ from puya.utils import pushd
 
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 
-APPROVAL_EXTENSIONS = ("*.teal", "*.awst", "*.ir", "*.mir", "*.arc32.json")
+APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json"))
 UNSTABLE_LOG_PREFIXES = {
     LogLevel.debug: (
         "Building AWST for ",
@@ -182,8 +182,8 @@ def compile_src(src_path: Path, optimization_level: int, debug_level: int) -> Co
 
         output_files = {
             file.relative_to(tmp_dir): file.read_text("utf8")
-            for ext in APPROVAL_EXTENSIONS
-            for file in tmp_dir.rglob(ext)
+            for file in tmp_dir.iterdir()
+            if file.suffix in APPROVAL_EXTENSIONS
         }
         return CompilationResult(
             context=context,
