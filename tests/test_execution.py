@@ -1376,3 +1376,18 @@ def test_arc4_tuple_element_mutation(harness: _TestHarness) -> None:
                 return True
 
     harness.deploy_from_closure(test)
+
+
+def test_arc4_copy_in_state(harness: _TestHarness) -> None:
+    def test() -> None:
+        from algopy import GlobalState, arc4
+
+        class MyContract(arc4.ARC4Contract):
+            def __init__(self) -> None:
+                self.g = GlobalState(arc4.Address())
+
+            @arc4.abimethod
+            def okay(self) -> None:
+                pass
+
+    harness.deploy_from_closure(test)

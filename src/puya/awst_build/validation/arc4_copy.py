@@ -39,6 +39,11 @@ class ARC4CopyValidator(AWSTTraverser):
                 | awst_nodes.AppAccountStateExpression()
             ):
                 return True
+            case (
+                awst_nodes.IndexExpression(base=base_expr)
+                | awst_nodes.TupleItemExpression(base=base_expr)
+            ):
+                return ARC4CopyValidator._is_referable_expression(base_expr)
         return False
 
     @staticmethod
@@ -68,18 +73,7 @@ class ARC4CopyValidator(AWSTTraverser):
                         )
 
     def _check_for_arc4_copy(self, expr: awst_nodes.Expression, context_desc: str) -> None:
-        if self._is_arc4_mutable(expr.wtype):
-            match expr:
-                case (
-                    awst_nodes.ARC4ArrayEncode()
-                    | awst_nodes.ARC4Encode()
-                    | awst_nodes.Copy()
-                    | awst_nodes.ArrayConcat()
-                    | awst_nodes.SubroutineCallExpression()
-                    | awst_nodes.ReinterpretCast()
-                ):
-                    return
-
+        if self._is_arc4_mutable(expr.wtype) and self._is_referable_expression(expr):
             logger.error(
                 f"{expr.wtype} must be copied using .copy() when {context_desc}",
                 location=expr.source_location,
