@@ -229,8 +229,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 return [lambda ctx: ContractASTConverter.convert(ctx, cdef, class_options)]
         else:
             self._error(
-                f"not a subclass of {constants.CONTRACT_BASE_ALIAS}"
-                f" or a direct subclass of {constants.STRUCT_BASE_ALIAS}",
+                f"Unsupported class declaration."
+                f" Contract classes must inherit either directly"
+                f" or indirectly from {constants.CONTRACT_BASE_ALIAS}.",
                 location=cdef,
             )
         return []
