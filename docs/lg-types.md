@@ -107,7 +107,7 @@ operation, which would be quite costly in a smart contract). If you are happy us
 the number of bytes, then you can call `.bytes.length`.
 
 ```python
-# you can instantiate with a bytes literal
+# you can instantiate with a string literal
 data = algopy.String("abc")
 # no arguments defaults to an empty value
 empty = algopy.String()
