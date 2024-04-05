@@ -54,15 +54,15 @@ Where supported, the native equivalent of an ARC4 type can be obtained via the `
 
 ### Booleans
 
-**Type:** `algopy.arc4.Bool`
-**Encoding:** A single byte where the most significant bit is `1` for `True` and `0` for `False`
-**Native equivalent:** `builtins.bool`
+**Type:** `algopy.arc4.Bool`  
+**Encoding:** A single byte where the most significant bit is `1` for `True` and `0` for `False`  
+**Native equivalent:** `builtins.bool`  
 
 ### Unsigned ints
 
-**Types:** `algopy.arc4.UIntN` (<= 64 bits) `algopy.arc4.BigUIntN` (> 64 bits)
-**Encoding:** A big endian byte array of N bits
-**Native equivalent:** `algopy.UInt64` or `puya.py.BigUInt`
+**Types:** `algopy.arc4.UIntN` (<= 64 bits) `algopy.arc4.BigUIntN` (> 64 bits)  
+**Encoding:** A big endian byte array of N bits  
+**Native equivalent:** `algopy.UInt64` or `puya.py.BigUInt`  
 
 Common bit sizes have also been aliased under `algopy.arc4.UInt8`, `algopy.arc4.UInt16` etc. A uint of any size between 8 and 512 bits (in intervals of 8bits) can be created using a generic parameter. It can be helpful to define your own alias for this type. 
 
@@ -75,9 +75,9 @@ UInt40: t.TypeAlias = arc4.UIntN[t.Literal[40]]
 
 ### Unsigned fixed point decimals
 
-**Types:** `algopy.arc4.UFixedNxM` (<= 64 bits) `algopy.arc4.BigUFixedNxM` (> 64 bits)
-**Encoding:** A big endian byte array of N bits where `encoded_value = value / (10^M)`
-**Native equivalent:** _none_
+**Types:** `algopy.arc4.UFixedNxM` (<= 64 bits) `algopy.arc4.BigUFixedNxM` (> 64 bits)  
+**Encoding:** A big endian byte array of N bits where `encoded_value = value / (10^M)`  
+**Native equivalent:** _none_  
 
 ```python
 import typing as t
@@ -88,17 +88,17 @@ Decimal: t.TypeAlias = arc4.UFixedNxM[t.Literal[64], t.Literal[10]]
 
 ### Bytes and strings
 
-**Types:** `algopy.arc4.DynamicBytes` and `algopy.arc4.String` 
-**Encoding:** A variable length byte array prefixed with a 16-bit big endian header indicating the length of the data
-**Native equivalent:** `algopy.Bytes` and `algopy.String`
+**Types:** `algopy.arc4.DynamicBytes` and `algopy.arc4.String`  
+**Encoding:** A variable length byte array prefixed with a 16-bit big endian header indicating the length of the data  
+**Native equivalent:** `algopy.Bytes` and `algopy.String`  
 
 Strings are assumed to be utf-8 encoded and the length of a string is the total number of bytes, _not the total number of characters_. 
 
 ### Static arrays
 
-**Type:** `algopy.arc4.StaticArray`
-**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
-**Native equivalent:** _none_
+**Type:** `algopy.arc4.StaticArray`  
+**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing)  
+**Native equivalent:** _none_  
 
 An ARC4 StaticArray is an array of a fixed size. The item type is specified by the first generic parameter and the size is specified by the second. 
 
@@ -111,9 +111,9 @@ FourBytes: t.TypeAlias = arc4.StaticArray[arc4.Byte, t.Literal[4]]
 
 ### Dynamic arrays
 
-**Type:** `algopy.arc4.DynamicArray`
-**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
-**Native equivalent:** _none_
+**Type:** `algopy.arc4.DynamicArray`  
+**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing)  
+**Native equivalent:** _none_  
 
 An ARC4 DynamicArray is an array of a variable size. The item type is specified by the first generic parameter. Items can be added and removed via `.pop`, `.append`, and `.extend`. 
 
@@ -128,17 +128,17 @@ UInt64Array: t.TypeAlias = arc4.DynamicArray[arc4.UInt64]
 
 ### Tuples
 
-**Type:** `algopy.arc4.Tuple`
-**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
-**Native equivalent:** `builtins.tuple`
+**Type:** `algopy.arc4.Tuple`  
+**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing)  
+**Native equivalent:** `builtins.tuple`  
 
 ARC4 Tuples are immutable statically sized arrays of mixed item types. Item types can be specified via generic parameters or inferred from constructor parameters.
 
 ### Structs
 
-**Type:** `algopy.arc4.Struct`
-**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing) 
-**Native equivalent:** _none_
+**Type:** `algopy.arc4.Struct`  
+**Encoding:** See [ARC4 Container Packing](#ARC4-Container-Packing)  
+**Native equivalent:** _none_  
 
 ARC4 Structs are mutable named tuples. Items can be accessed and mutated via names instead of indexes.
 
