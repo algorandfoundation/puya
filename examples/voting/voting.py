@@ -56,25 +56,25 @@ class VotingRoundApp(ARC4Contract):
     @arc4.abimethod(create="require")
     def create(
         self,
-        vote_id: arc4.String,
+        vote_id: String,
         snapshot_public_key: Bytes,
-        metadata_ipfs_cid: arc4.String,
+        metadata_ipfs_cid: String,
         start_time: UInt64,
         end_time: UInt64,
         option_counts: VoteIndexArray,
         quorum: UInt64,
-        nft_image_url: arc4.String,
+        nft_image_url: String,
     ) -> None:
         assert start_time < end_time, "End time should be after start time"
         assert end_time >= Global.latest_timestamp, "End time should be in the future"
 
-        self.vote_id = vote_id.native
+        self.vote_id = vote_id
         self.snapshot_public_key = snapshot_public_key
-        self.metadata_ipfs_cid = metadata_ipfs_cid.native
+        self.metadata_ipfs_cid = metadata_ipfs_cid
         self.start_time = start_time
         self.end_time = end_time
         self.quorum = quorum
-        self.nft_image_url = nft_image_url.native
+        self.nft_image_url = nft_image_url
         self.store_option_counts(option_counts.copy())
 
     @arc4.abimethod
@@ -155,10 +155,10 @@ class VotingRoundApp(ARC4Contract):
         )
 
     @arc4.abimethod(readonly=True)
-    def get_preconditions(self, signature: arc4.DynamicBytes) -> VotingPreconditions:
+    def get_preconditions(self, signature: Bytes) -> VotingPreconditions:
         return VotingPreconditions(
             is_voting_open=arc4.UInt64(self.voting_open()),
-            is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature.bytes[2:])),
+            is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature)),
             has_already_voted=arc4.UInt64(self.already_voted()),
             current_time=arc4.UInt64(Global.latest_timestamp),
         )

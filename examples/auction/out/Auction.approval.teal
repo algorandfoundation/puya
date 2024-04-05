@@ -50,7 +50,9 @@ main_start_auction_route@5:
     // auction/contract.py:16
     // class Auction(ARC4Contract):
     txna ApplicationArgs 1
+    btoi
     txna ApplicationArgs 2
+    btoi
     txn GroupIndex
     int 1
     -
@@ -207,14 +209,14 @@ opt_into_asset:
     retsub
 
 
-// examples.auction.contract.Auction.start_auction(starting_price: bytes, length: bytes, axfer: uint64) -> void:
+// examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
 start_auction:
     // auction/contract.py:41-47
     // @arc4.abimethod
     // def start_auction(
     //     self,
-    //     starting_price: arc4.UInt64,
-    //     length: arc4.UInt64,
+    //     starting_price: UInt64,
+    //     length: UInt64,
     //     axfer: gtxn.AssetTransferTransaction,
     // ) -> None:
     proto 3 0
@@ -254,20 +256,17 @@ start_auction:
     swap
     app_global_put
     // auction/contract.py:60
-    // self.auction_end = Global.latest_timestamp + length.native
+    // self.auction_end = Global.latest_timestamp + length
     global LatestTimestamp
     frame_dig -2
-    btoi
     +
     byte "auction_end"
     swap
     app_global_put
     // auction/contract.py:61
-    // self.previous_bid = starting_price.native
-    frame_dig -3
-    btoi
+    // self.previous_bid = starting_price
     byte "previous_bid"
-    swap
+    frame_dig -3
     app_global_put
     retsub
 

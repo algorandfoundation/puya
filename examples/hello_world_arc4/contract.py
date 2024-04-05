@@ -1,4 +1,4 @@
-from algopy import ARC4Contract, arc4
+from algopy import ARC4Contract, String, arc4
 
 # Note: this contract is also used in the Puya AlgoKit template. So any breaking changes
 # that require fixing this contract should also be made there
@@ -8,5 +8,5 @@ from algopy import ARC4Contract, arc4
 
 class HelloWorldContract(ARC4Contract):
     @arc4.abimethod
-    def hello(self, name: arc4.String) -> arc4.String:
+    def hello(self, name: String) -> String:
         return "Hello, " + name

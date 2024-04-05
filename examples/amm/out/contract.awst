@@ -28,7 +28,7 @@ contract ConstantProductAMM
     this.governor: algopy.Account = new_governor
   }
   
-  abimethod bootstrap(seed: algopy.gtxn.PaymentTransaction, a_asset: algopy.Asset, b_asset: algopy.Asset): algopy.arc4.UInt64
+  abimethod bootstrap(seed: algopy.gtxn.PaymentTransaction, a_asset: algopy.Asset, b_asset: algopy.Asset): algopy.UInt64
   {
     assert(!(reinterpret_cast<bool>(this.pool_token)), comment="application has already been bootstrapped")
     this::_check_is_governor()
@@ -41,7 +41,7 @@ contract ConstantProductAMM
     this.pool_token: algopy.Asset = this::_create_pool_token()
     this::_do_opt_in(this.asset_a)
     this::_do_opt_in(this.asset_b)
-    return arc4_encode(reinterpret_cast<algopy.UInt64>(this.pool_token), algopy.arc4.UInt64)
+    return reinterpret_cast<algopy.UInt64>(this.pool_token)
   }
   
   abimethod mint(a_xfer: algopy.gtxn.AssetTransferTransaction, b_xfer: algopy.gtxn.AssetTransferTransaction, pool_asset: algopy.Asset, a_asset: algopy.Asset, b_asset: algopy.Asset): None

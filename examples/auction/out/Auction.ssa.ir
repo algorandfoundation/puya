@@ -31,67 +31,69 @@ contract examples.auction.contract.Auction:
                 let tmp%10#0: uint64 = (txn ApplicationID)
                 (assert tmp%10#0) // is not creating
                 let tmp%11#0: bytes = (txna ApplicationArgs 1)
-                let tmp%12#0: bytes = (txna ApplicationArgs 2)
-                let tmp%13#0: uint64 = (txn GroupIndex)
-                let awst_tmp%0#0: uint64 = (- tmp%13#0 1u)
-                let tmp%14#0: uint64 = ((gtxns TypeEnum) awst_tmp%0#0)
-                let tmp%15#0: uint64 = (== tmp%14#0 axfer)
-                let (value%0#0: uint64, check%0#0: uint64) = (awst_tmp%0#0, tmp%15#0)
+                let tmp%12#0: uint64 = (btoi tmp%11#0)
+                let tmp%13#0: bytes = (txna ApplicationArgs 2)
+                let tmp%14#0: uint64 = (btoi tmp%13#0)
+                let tmp%15#0: uint64 = (txn GroupIndex)
+                let awst_tmp%0#0: uint64 = (- tmp%15#0 1u)
+                let tmp%16#0: uint64 = ((gtxns TypeEnum) awst_tmp%0#0)
+                let tmp%17#0: uint64 = (== tmp%16#0 axfer)
+                let (value%0#0: uint64, check%0#0: uint64) = (awst_tmp%0#0, tmp%17#0)
                 (assert check%0#0) // transaction type is axfer
-                examples.auction.contract.Auction.start_auction(tmp%11#0, tmp%12#0, value%0#0)
+                examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%14#0, value%0#0)
                 return 1u
             block@6: // opt_in_route_L63
-                let tmp%16#0: uint64 = (txn OnCompletion)
-                let tmp%17#0: uint64 = (== tmp%16#0 NoOp)
-                (assert tmp%17#0) // OnCompletion is NoOp
-                let tmp%18#0: uint64 = (txn ApplicationID)
-                (assert tmp%18#0) // is not creating
+                let tmp%18#0: uint64 = (txn OnCompletion)
+                let tmp%19#0: uint64 = (== tmp%18#0 NoOp)
+                (assert tmp%19#0) // OnCompletion is NoOp
+                let tmp%20#0: uint64 = (txn ApplicationID)
+                (assert tmp%20#0) // is not creating
                 examples.auction.contract.Auction.opt_in()
                 return 1u
             block@7: // bid_route_L67
-                let tmp%19#0: uint64 = (txn OnCompletion)
-                let tmp%20#0: uint64 = (== tmp%19#0 NoOp)
-                (assert tmp%20#0) // OnCompletion is NoOp
-                let tmp%21#0: uint64 = (txn ApplicationID)
-                (assert tmp%21#0) // is not creating
-                let tmp%22#0: uint64 = (txn GroupIndex)
-                let awst_tmp%1#0: uint64 = (- tmp%22#0 1u)
-                let tmp%23#0: uint64 = ((gtxns TypeEnum) awst_tmp%1#0)
-                let tmp%24#0: uint64 = (== tmp%23#0 pay)
-                let (value%1#0: uint64, check%1#0: uint64) = (awst_tmp%1#0, tmp%24#0)
+                let tmp%21#0: uint64 = (txn OnCompletion)
+                let tmp%22#0: uint64 = (== tmp%21#0 NoOp)
+                (assert tmp%22#0) // OnCompletion is NoOp
+                let tmp%23#0: uint64 = (txn ApplicationID)
+                (assert tmp%23#0) // is not creating
+                let tmp%24#0: uint64 = (txn GroupIndex)
+                let awst_tmp%1#0: uint64 = (- tmp%24#0 1u)
+                let tmp%25#0: uint64 = ((gtxns TypeEnum) awst_tmp%1#0)
+                let tmp%26#0: uint64 = (== tmp%25#0 pay)
+                let (value%1#0: uint64, check%1#0: uint64) = (awst_tmp%1#0, tmp%26#0)
                 (assert check%1#0) // transaction type is pay
                 examples.auction.contract.Auction.bid(value%1#0)
                 return 1u
             block@8: // claim_bids_route_L83
-                let tmp%25#0: uint64 = (txn OnCompletion)
-                let tmp%26#0: uint64 = (== tmp%25#0 NoOp)
-                (assert tmp%26#0) // OnCompletion is NoOp
-                let tmp%27#0: uint64 = (txn ApplicationID)
-                (assert tmp%27#0) // is not creating
+                let tmp%27#0: uint64 = (txn OnCompletion)
+                let tmp%28#0: uint64 = (== tmp%27#0 NoOp)
+                (assert tmp%28#0) // OnCompletion is NoOp
+                let tmp%29#0: uint64 = (txn ApplicationID)
+                (assert tmp%29#0) // is not creating
                 examples.auction.contract.Auction.claim_bids()
                 return 1u
             block@9: // claim_asset_route_L99
-                let tmp%28#0: uint64 = (txn OnCompletion)
-                let tmp%29#0: uint64 = (== tmp%28#0 NoOp)
-                (assert tmp%29#0) // OnCompletion is NoOp
-                let tmp%30#0: uint64 = (txn ApplicationID)
-                (assert tmp%30#0) // is not creating
-                let tmp%31#0: bytes = (txna ApplicationArgs 1)
-                let tmp%32#0: uint64 = (btoi tmp%31#0)
-                let tmp%33#0: uint64 = ((txnas Assets) tmp%32#0)
-                examples.auction.contract.Auction.claim_asset(tmp%33#0)
+                let tmp%30#0: uint64 = (txn OnCompletion)
+                let tmp%31#0: uint64 = (== tmp%30#0 NoOp)
+                (assert tmp%31#0) // OnCompletion is NoOp
+                let tmp%32#0: uint64 = (txn ApplicationID)
+                (assert tmp%32#0) // is not creating
+                let tmp%33#0: bytes = (txna ApplicationArgs 1)
+                let tmp%34#0: uint64 = (btoi tmp%33#0)
+                let tmp%35#0: uint64 = ((txnas Assets) tmp%34#0)
+                examples.auction.contract.Auction.claim_asset(tmp%35#0)
                 return 1u
             block@10: // switch_case_default_L16
                 goto block@11
             block@11: // switch_case_next_L16
                 goto block@15
             block@12: // bare_routing_L16
-                let tmp%34#0: uint64 = (txn OnCompletion)
-                switch tmp%34#0 {0u => block@13, * => block@14}
+                let tmp%36#0: uint64 = (txn OnCompletion)
+                switch tmp%36#0 {0u => block@13, * => block@14}
             block@13: // create_L16
-                let tmp%35#0: uint64 = (txn ApplicationID)
-                let tmp%36#0: uint64 = (! tmp%35#0)
-                (assert tmp%36#0) // is creating
+                let tmp%37#0: uint64 = (txn ApplicationID)
+                let tmp%38#0: uint64 = (! tmp%37#0)
+                (assert tmp%38#0) // is creating
                 return 1u
             block@14: // reject_bare_on_completion_L16
                 fail // reject transaction
@@ -236,7 +238,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%NumClearStateProgramPages#0: uint64 = (itxn NumClearStateProgramPages)
                 return 
         
-        subroutine examples.auction.contract.Auction.start_auction(starting_price: bytes, length: bytes, axfer: uint64) -> void:
+        subroutine examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
             block@0: // L41
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
@@ -253,11 +255,9 @@ contract examples.auction.contract.Auction:
                 let new_state_value%0#0: uint64 = ((gtxns AssetAmount) axfer#0)
                 (app_global_put "asa_amount" new_state_value%0#0)
                 let tmp%7#0: uint64 = (global LatestTimestamp)
-                let tmp%8#0: uint64 = (btoi length#0)
-                let new_state_value%1#0: uint64 = (+ tmp%7#0 tmp%8#0)
+                let new_state_value%1#0: uint64 = (+ tmp%7#0 length#0)
                 (app_global_put "auction_end" new_state_value%1#0)
-                let new_state_value%2#0: uint64 = (btoi starting_price#0)
-                (app_global_put "previous_bid" new_state_value%2#0)
+                (app_global_put "previous_bid" starting_price#0)
                 return 
         
         subroutine examples.auction.contract.Auction.opt_in() -> void:

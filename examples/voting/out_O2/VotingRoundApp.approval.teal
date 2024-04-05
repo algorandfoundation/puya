@@ -23,9 +23,11 @@ main_create_route@3:
     !
     assert // is creating
     txna ApplicationArgs 1
+    extract 2 0
     txna ApplicationArgs 2
     extract 2 0
     txna ApplicationArgs 3
+    extract 2 0
     txna ApplicationArgs 4
     btoi
     txna ApplicationArgs 5
@@ -34,6 +36,7 @@ main_create_route@3:
     txna ApplicationArgs 7
     btoi
     txna ApplicationArgs 8
+    extract 2 0
     callsub create
     int 1
     return
@@ -73,6 +76,7 @@ main_get_preconditions_route@6:
     txn ApplicationID
     assert // is not creating
     txna ApplicationArgs 1
+    extract 2 0
     callsub get_preconditions
     byte 0x151f7c75
     swap
@@ -114,18 +118,14 @@ create:
     global LatestTimestamp
     >=
     assert // End time should be in the future
-    frame_dig -8
-    extract 2 0
     byte "vote_id"
-    swap
+    frame_dig -8
     app_global_put
     byte "snapshot_public_key"
     frame_dig -7
     app_global_put
-    frame_dig -6
-    extract 2 0
     byte "metadata_ipfs_cid"
-    swap
+    frame_dig -6
     app_global_put
     byte "start_time"
     frame_dig -5
@@ -136,10 +136,8 @@ create:
     byte "quorum"
     frame_dig -2
     app_global_put
-    frame_dig -1
-    extract 2 0
     byte "nft_image_url"
-    swap
+    frame_dig -1
     app_global_put
     frame_dig -3
     callsub store_option_counts
@@ -537,19 +535,6 @@ get_preconditions:
     callsub voting_open
     itob
     frame_dig -1
-    len
-    int 2
-    dig 1
-    <
-    swap
-    dup
-    int 2
-    uncover 3
-    select
-    frame_dig -1
-    swap
-    uncover 2
-    substring3
     callsub allowed_to_vote
     itob
     callsub already_voted
