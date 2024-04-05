@@ -27,6 +27,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import constants
+from puya.awst_build.constants import TransactionType
 from puya.awst_build.eb.arc4._utils import (
     ARC4Signature,
     arc4_tuple_from_items,
@@ -92,41 +93,8 @@ class ABICallGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        abi_call_expr = _extract_abi_call_args(args, arg_kinds, arg_names, location)
-        method = abi_call_expr.method
-        match method:
-            case Literal(value=str(method_sig)):
-                arc4_args, signature = get_arc4_args_and_signature(
-                    method_sig, abi_call_expr.abi_args, location, return_wtype=wtypes.void_wtype
-                )
-            case (
-                ARC4ClientMethodExpressionBuilder() | BaseClassSubroutineInvokerExpressionBuilder()
-            ) as eb:
-                signature = get_arc4_signature(eb.context, eb.type_info, eb.name, location)
-                num_args = len(abi_call_expr.abi_args)
-                num_types = len(signature.arg_types)
-                if num_types != num_args:
-                    raise CodeError(
-                        f"Number of arguments ({num_args})"
-                        f" does not match signature ({num_types})",
-                        location,
-                    )
-                arc4_args = [
-                    expect_arc4_operand_wtype(arg, wtype)
-                    for arg, wtype in zip(abi_call_expr.abi_args, signature.arg_types, strict=True)
-                ]
-            case _:
-                raise CodeError(
-                    "First argument must be a reference to an ARC4 ABI method", location
-                )
-
-        return var_expression(
-            _create_abi_call_expr(
-                signature,
-                arc4_args,
-                abi_call_expr.transaction_kwargs,
-                location,
-            )
+        return ABICallClassExpressionBuilder(None, self.source_location).call(
+            args, arg_kinds, arg_names, location
         )
 
     def index_multiple(
@@ -185,13 +153,18 @@ class ARC4ClientMethodExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
-    def __init__(self, wtype: wtypes.WType, source_location: SourceLocation) -> None:
+    def __init__(self, result_wtype: wtypes.WType | None, source_location: SourceLocation) -> None:
         super().__init__(source_location)
-        self.wtype = wtype
+        self.result_wtype = result_wtype
+        app_itxn_wtype = wtypes.WInnerTransaction.from_type(TransactionType.appl)
+        if _is_typed(result_wtype):
+            self.wtype: wtypes.WInnerTransaction | wtypes.WTuple = wtypes.WTuple.from_types(
+                (result_wtype, app_itxn_wtype)
+            )
+        else:
+            self.wtype = app_itxn_wtype
 
     def produces(self) -> wtypes.WType:
-        if self.wtype is None:
-            raise CodeError("ABICall must have a type parameter", self.source_location)
         return self.wtype
 
     def call(
@@ -204,23 +177,45 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
         abi_call_expr = _extract_abi_call_args(args, arg_kinds, arg_names, location)
         method = abi_call_expr.method
 
+        result_wtype = self.result_wtype
         match method:
             case Literal(value=str(method_str)):
                 arc4_args, signature = get_arc4_args_and_signature(
-                    method_str, abi_call_expr.abi_args, location, return_wtype=self.wtype
+                    method_str,
+                    abi_call_expr.abi_args,
+                    location,
+                    # if result_wtype is defined, it will be validated against signature
+                    # if it is not defined, then it will be based on supplied literal
+                    return_wtype=result_wtype,
                 )
+                if not signature.method_selector.startswith(method_str):
+                    raise CodeError(
+                        f"Method selector from args '{signature.method_selector}' "
+                        f"does not match provided method selector: '{method_str}'",
+                        method.source_location,
+                    )
+            case (
+                ARC4ClientMethodExpressionBuilder() | BaseClassSubroutineInvokerExpressionBuilder()
+            ) as eb:
+                signature = get_arc4_signature(eb.context, eb.type_info, eb.name, location)
+                result_wtype = signature.return_type
+                num_args = len(abi_call_expr.abi_args)
+                num_types = len(signature.arg_types)
+                if num_types != num_args:
+                    raise CodeError(
+                        f"Number of arguments ({num_args})"
+                        f" does not match signature ({num_types})",
+                        location,
+                    )
+                arc4_args = [
+                    expect_arc4_operand_wtype(arg, wtype)
+                    for arg, wtype in zip(abi_call_expr.abi_args, signature.arg_types, strict=True)
+                ]
             case _:
                 raise CodeError(
                     "First argument must be a `str` value of an ARC4 method name/selector",
                     location,
                 )
-
-        if not signature.method_selector.startswith(method_str):
-            raise CodeError(
-                f"Method selector from args '{signature.method_selector}' "
-                f"does not match provided method selector: '{method_str}'",
-                method.source_location,
-            )
 
         return var_expression(
             _create_abi_call_expr(
@@ -228,8 +223,13 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
                 arc4_args,
                 abi_call_expr.transaction_kwargs,
                 location,
+                return_inner_txn_only=not _is_typed(result_wtype),
             )
         )
+
+
+def _is_typed(wtype: wtypes.WType | None) -> typing.TypeGuard[wtypes.WType]:
+    return wtype is not None and wtype is not wtypes.void_wtype
 
 
 def _create_abi_call_expr(
@@ -237,6 +237,8 @@ def _create_abi_call_expr(
     abi_args: Sequence[Expression],
     transaction_kwargs: dict[str, ExpressionBuilder | Literal],
     location: SourceLocation,
+    *,
+    return_inner_txn_only: bool,
 ) -> Expression:
     abi_arg_exprs: list[Expression] = [
         MethodConstant(
@@ -321,7 +323,7 @@ def _create_abi_call_expr(
         wtype=wtypes.WInnerTransaction.from_type(constants.TransactionType.appl),
     )
 
-    if signature.return_type == wtypes.void_wtype:
+    if return_inner_txn_only:
         return itxn
     itxn_tmp = SingleEvaluation(itxn)
     last_log = InnerTransactionField(
