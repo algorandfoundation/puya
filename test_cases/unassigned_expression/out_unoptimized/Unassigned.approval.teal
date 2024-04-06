@@ -1,0 +1,132 @@
+#pragma version 10
+
+test_cases.unassigned_expression.contract.Unassigned.approval_program:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@7
+    txna ApplicationArgs 0
+    method "discard_op()void"
+    method "discard_subroutine()void"
+    method "discard_constants()void"
+    uncover 3
+    match main_discard_op_route@2 main_discard_subroutine_route@3 main_discard_constants_route@4
+    b main_switch_case_default@5
+
+main_discard_op_route@2:
+    // unassigned_expression/contract.py:5
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub discard_op
+    int 1
+    return
+
+main_discard_subroutine_route@3:
+    // unassigned_expression/contract.py:9
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub discard_subroutine
+    int 1
+    return
+
+main_discard_constants_route@4:
+    // unassigned_expression/contract.py:13
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub discard_constants
+    int 1
+    return
+
+main_switch_case_default@5:
+    b main_after_if_else@10
+
+main_bare_routing@7:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    txn OnCompletion
+    int 0
+    swap
+    match main_create@8
+    b main_reject_bare_on_completion@9
+
+main_create@8:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+main_reject_bare_on_completion@9:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    err // reject transaction
+
+main_after_if_else@10:
+    // unassigned_expression/contract.py:4
+    // class Unassigned(ARC4Contract):
+    err // reject transaction
+
+
+// test_cases.unassigned_expression.contract.Unassigned.discard_op() -> void:
+discard_op:
+    // unassigned_expression/contract.py:5-6
+    // @arc4.abimethod()
+    // def discard_op(self) -> None:
+    proto 0 0
+    // unassigned_expression/contract.py:7
+    // op.bzero(10)
+    int 10
+    bzero
+    pop
+    retsub
+
+
+// test_cases.unassigned_expression.contract.Unassigned.discard_subroutine() -> void:
+discard_subroutine:
+    // unassigned_expression/contract.py:9-10
+    // @arc4.abimethod()
+    // def discard_subroutine(self) -> None:
+    proto 0 0
+    // unassigned_expression/contract.py:11
+    // get_a_value()
+    callsub get_a_value
+    pop
+    retsub
+
+
+// test_cases.unassigned_expression.contract.get_a_value() -> uint64:
+get_a_value:
+    // unassigned_expression/contract.py:20-21
+    // @subroutine
+    // def get_a_value() -> UInt64:
+    proto 0 1
+    // unassigned_expression/contract.py:22
+    // return UInt64(42)
+    int 42
+    retsub
+
+
+// test_cases.unassigned_expression.contract.Unassigned.discard_constants() -> void:
+discard_constants:
+    // unassigned_expression/contract.py:13-14
+    // @arc4.abimethod()
+    // def discard_constants(self) -> None:
+    proto 0 0
+    retsub
