@@ -147,18 +147,22 @@ class MemoryIRBuilder(IRVisitor[None]):
         )
 
     def visit_intrinsic_op(self, intrinsic: ir.Intrinsic) -> None:
+        discard_results = intrinsic is self.active_op
         for arg in intrinsic.args:
             arg.accept(self)
+        produces = len(intrinsic.op_signature.returns)
         self._add_op(
             models.IntrinsicOp(
                 op_code=intrinsic.op.code,
                 immediates=intrinsic.immediates,
                 source_location=intrinsic.source_location,
                 consumes=len(intrinsic.op_signature.args),
-                produces=len(intrinsic.op_signature.returns),
+                produces=produces,
                 comment=intrinsic.comment,
             )
         )
+        if discard_results and produces:
+            self._add_op(models.Pop(produces))
 
     def visit_invoke_subroutine(self, callsub: ir.InvokeSubroutine) -> None:
         discard_results = callsub is self.active_op

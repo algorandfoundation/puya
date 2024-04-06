@@ -1,0 +1,81 @@
+#pragma version 10
+
+test_cases.unassigned_expression.contract.Unassigned.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@7
+    method "discard_op()void"
+    method "discard_subroutine()void"
+    method "discard_constants()void"
+    txna ApplicationArgs 0
+    match main_discard_op_route@2 main_discard_subroutine_route@3 main_discard_constants_route@4
+    err // reject transaction
+
+main_discard_op_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub discard_op
+    int 1
+    return
+
+main_discard_subroutine_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub discard_subroutine
+    int 1
+    return
+
+main_discard_constants_route@4:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub discard_constants
+    int 1
+    return
+
+main_bare_routing@7:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.unassigned_expression.contract.Unassigned.discard_op() -> void:
+discard_op:
+    proto 0 0
+    int 10
+    bzero
+    pop
+    retsub
+
+
+// test_cases.unassigned_expression.contract.Unassigned.discard_subroutine() -> void:
+discard_subroutine:
+    proto 0 0
+    callsub get_a_value
+    pop
+    retsub
+
+
+// test_cases.unassigned_expression.contract.get_a_value() -> uint64:
+get_a_value:
+    proto 0 1
+    int 42
+    retsub
+
+
+// test_cases.unassigned_expression.contract.Unassigned.discard_constants() -> void:
+discard_constants:
+    proto 0 0
+    retsub
