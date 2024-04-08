@@ -347,6 +347,11 @@ class FunctionASTConverter(
             raise CodeError(
                 f"{rvalue.python_name} should only be used inside a contract class", stmt_loc
             )
+        if self.func_def.name != "__init__":
+            raise CodeError(
+                f"{rvalue.python_name} can only be used in the __init__ method",
+                stmt_loc,
+            )
         if len(lvalues) != 1:
             raise CodeError(
                 f"{rvalue.python_name} can only be assigned to a single member variable",
