@@ -595,3 +595,16 @@ class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
             rhs=rhs,
         )
         return var_expression(cmp_expr)
+
+
+class AddressExpressionBuilder(StaticArrayExpressionBuilder):
+    def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+        match name:
+            case "native":
+                return var_expression(
+                    ReinterpretCast(
+                        expr=self.expr, wtype=wtypes.account_wtype, source_location=location
+                    )
+                )
+            case _:
+                return super().member_access(name, location)
