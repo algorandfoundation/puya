@@ -135,3 +135,24 @@ class Baddie(arc4.ARC4Contract):
         arr2.append(arc4.Byte(1))
         assert foo
 
+
+## case: test_state_proxies_outside_init_fail
+from algopy import GlobalState, LocalState, Txn, UInt64, arc4
+
+class Baddie(arc4.ARC4Contract):
+    def __init__(self) -> None:
+        self.global_a = GlobalState(UInt64)
+        self.local_b = LocalState(UInt64)
+
+    @arc4.abimethod
+    def okay(self) -> None:
+        self.global_a.value = UInt64(123)
+        self.local_b[Txn.sender] = UInt64(456)
+
+    @arc4.abimethod()
+    def not_okay1(self) -> None:
+        self.global_c = GlobalState(UInt64) ## E: algopy.GlobalState can only be used in the __init__ method
+
+    @arc4.abimethod()
+    def not_okay2(self) -> None:
+        self.local_d = LocalState(UInt64) ## E: algopy.LocalState can only be used in the __init__ method
