@@ -119,7 +119,7 @@ class NotOkay(arc4.ARC4Contract):
 ## case: arc4_copy
 
 import typing
-from algopy import arc4, GlobalState, subroutine
+from algopy import GlobalState, LocalState, Txn, arc4, subroutine
 
 IntArray: typing.TypeAlias = arc4.DynamicArray[arc4.UInt64]
 
@@ -128,6 +128,7 @@ class Arc4CopyContract(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.global_a = IntArray()
         self.global_b = GlobalState(IntArray())
+        self.local = LocalState(IntArray)
 
     @subroutine
     def method_a(self, a: IntArray) -> None:
@@ -136,23 +137,48 @@ class Arc4CopyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def test(self) -> None:
         # Local does not need copy
+
         local_array = IntArray()
         self.method_a(local_array)
+
+        # Require copy when reassigning
+
+        copy1 = local_array ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+        assert (copy2 := local_array).length, "this isn't ok" ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+        valid_tuple = (local_array.copy(),)
+        copy3 = valid_tuple[0] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+        copy4 = self.global_a ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+        copy5 = self.global_b.value ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+
+        # Require copy when building a collection
+
+        my_tuple = (local_array, local_array) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a tuple expression
+        copy_in_tuple = arc4.Tuple(valid_tuple) ## E: tuple[algopy.arc4.DynamicArray[algopy.arc4.UInt64]] must be copied using .copy() when being passed to a constructor
+        copy_in_array1 = arc4.DynamicArray(local_array) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to an array constructor
+        copy_in_array2 = arc4.StaticArray(local_array) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to an array constructor
 
         # State vars should require copy
 
         self.method_a(self.global_a) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine from state
         self.method_a(self.global_b.value) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine from state
+        self.method_a(self.local[Txn.sender]) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine from state
 
-        # Require copy when building a tuple
+        # Tuple items require a copy when passing
 
-        my_tuple = (local_array, local_array) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a tuple expression
+        self.method_a(valid_tuple[0]) ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being passed to a subroutine
 
-        # Don't allow destructuring of arc4 containers from tuples
+        # Require copy when reassigning tuple elements
 
         destructured_a, destructured_b = my_tuple ## E: Tuple cannot be destructured as it contains an item of type algopy.arc4.DynamicArray[algopy.arc4.UInt64] which requires copying. Use index access instead
         destructured_a = my_tuple[0] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
         destructured_b = my_tuple[1] ## E: algopy.arc4.DynamicArray[algopy.arc4.UInt64] must be copied using .copy() when being assigned to another variable
+
+        # Can't create copies by iterating
+        valid_array_of_arrays = arc4.DynamicArray(local_array.copy())
+
+        for an_array in valid_array_of_arrays: ## E: Cannot directly iterate an ARC4 array of mutable objects, construct a for-loop over the indexes via urange(<array>.length) instead
+            assert an_array.length
+
 
 ## case: abi_decorator_not_arc4_contract
 
