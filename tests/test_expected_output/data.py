@@ -512,7 +512,7 @@ class TestFile(pytest.File):
         # however a ParseError in a single case will effect all cases which is not ideal
         try:
             compile_and_update_cases(self.cases)
-        except PuyaError as ex:
+        except (PuyaError, SystemExit) as ex:
             pytest.fail(f"Unhandled compiler error: {ex}", pytrace=False)
         except BaseException as ex:
             # unexpected error, fail immediately
