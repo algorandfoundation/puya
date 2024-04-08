@@ -55,7 +55,7 @@ to represent binary data, for UTF-8 it might be preferable to use [String](#stri
 data = algopy.Bytes(b"abc")
 # no arguments defaults to an empty value
 empty = algopy.Bytes()
-# empty is False, non-empty is Ture
+# empty is False, non-empty is True
 assert data
 assert not empty
 # Like Python's `bytes`, `Bytes` is immutable, augmented assignment operators return new values
@@ -111,7 +111,7 @@ the number of bytes, then you can call `.bytes.length`.
 data = algopy.String("abc")
 # no arguments defaults to an empty value
 empty = algopy.String()
-# empty is False, non-empty is Ture
+# empty is False, non-empty is True
 assert data
 assert not empty
 # Like Python's `str`, `String` is immutable, augmented assignment operators return new values
@@ -136,7 +136,7 @@ assert abc.bytes == b"abc"
 [`algopy.BigUInt`](#algopy.BigUInt) represents a variable length (max 512-bit) unsigned integer stored
 as `bytes[]` in the AVM.
 
-It supports all the same operators as `int`, except for power (`**`), left and right shift (`<<` 
+It supports all the same operators as `int`, except for power (`**`), left and right shift (`<<`
 and `>>`) and `/` (as with `UInt64`, you must use `//` for truncating division instead).
 
 Note that the op code costs for `bigint` math are an order of magnitude higher than those for
@@ -144,8 +144,8 @@ Note that the op code costs for `bigint` math are an order of magnitude higher t
 `mulw`, etc - all of which are exposed through the [`algopy.op`](#algopy.op) module.
 
 Another contrast between `bigint` and `uint64` math is that `bigint` math ops don't immediately
-error on overflow - if the result exceeds 512-bits, then you can still access the value via 
-`.bytes`, but any further math operations will fail. 
+error on overflow - if the result exceeds 512-bits, then you can still access the value via
+`.bytes`, but any further math operations will fail.
 
 ```python
 # you can instantiate with an integer literal
@@ -222,8 +222,7 @@ the memory available, whereas an AVM `bytes[]` has a maximum length of 4096. In 
 semantic compatibility and allow for a framework implementation in plain Python that will fail under the
 same conditions as when deployed to the AVM, support for Python primitives is limited.
 
-In saying there, there are many places where built-in Python types can be used and over time
-the places these types is able to be used is expected to increase.
+In saying that, there are many places where built-in Python types can be used and over time the places these types can be used are expected to increase.
 
 ### bool
 
