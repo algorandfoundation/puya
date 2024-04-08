@@ -719,9 +719,9 @@ class FunctionASTConverter(
             mypy.nodes.GDEF: "global",
             None: "unknown",
         }.get(expr.kind)
-        raise InternalError(
-            f'Unable to resolve reference to "{fullname}" with scope "{scope}"'
-            f" (node = {expr.node})",
+        # this can happen in otherwise well-formed code that is just missing a reference
+        raise CodeError(
+            f"Unable to resolve reference to {fullname or expr.name!r}, {scope=}",
             expr_loc,
         )
 
