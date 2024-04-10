@@ -139,17 +139,24 @@ def example() -> None:
         clear_state_program=HELLO_WORLD_CLEAR,
         fee=0,
     ).submit()
+    app = application_txn.created_app
 
     # invoke an ABI method
     call_txn = itxn.ApplicationCall(
-        app_id=application_txn.created_app,
-        app_args=(arc4.arc4_signature("hello(string)string"), Bytes(b"World")),
+        app_id=app,
+        app_args=(arc4.arc4_signature("hello(string)string"), arc4.String("World")),
         fee=0,
     ).submit()
     # extract result
     hello_world_result = arc4.String.from_log(call_txn.last_log)
-
-    assert hello_world_result.decode() == b"Hello World"
+    
+    # OR, call it automatic ARC4 encoding, type validation and result handling
+    hello_world_result, call_txn = arc4.abi_call[arc4.String]( # declare return type
+        "hello(string)string", # method signature to call 
+        "again", # abi method arguments
+        fee=0, # other transaction parameters
+        app_id=app
+    )
 ```
 
 #### Create and submit transactions in a loop
@@ -228,7 +235,7 @@ def example() -> None:
     txn_id = payment_txn.txn_id  # this is ok
 ```
 
-#### Inner transactions methods cannot be called if there is a subsequent inner transaction submitted.
+#### Inner transactions methods cannot be called if there is a subsequent inner transaction submitted or another subroutine is called.
 
 ```python
 from algopy import itxn, subroutine
@@ -241,7 +248,9 @@ def example() -> None:
 
     # another inner transaction is submitted
     itxn.ApplicationCall(...).submit()
+    # or another subroutine is called
+    call_some_other_subroutine()
 
     app1_txn_id = app_1.txn_id  # this is ok, properties are still available
-    another_log_from_call1 = app_1.logs(1)  # this will error at runtime as the array results are no longer available
+    another_log_from_call1 = app_1.logs(1)  # this is not allowed as the array results may no longer be available, instead assign to a variable before submitting another transaction
 ```

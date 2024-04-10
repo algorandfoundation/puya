@@ -16,6 +16,7 @@ from puya.ir.optimize.dead_code_elimination import (
     remove_unused_subroutines,
     remove_unused_variables,
 )
+from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
 from puya.ir.to_text_visitor import output_artifact_ir_to_path
@@ -55,15 +56,18 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(copy_propagation),
             SubroutineOptimization.from_function(intrinsic_simplifier, loop=True),
             SubroutineOptimization.from_function(remove_unused_variables),
+            SubroutineOptimization.from_function(inner_txn_field_replacer),
             SubroutineOptimization.from_function(simplify_control_ops, loop=True),
             SubroutineOptimization.from_function(remove_linear_jump),
             SubroutineOptimization.from_function(remove_empty_blocks),
             SubroutineOptimization.from_function(remove_unreachable_blocks),
             SubroutineOptimization.from_function(repeated_expression_elimination),
         ]
-    return [
-        SubroutineOptimization.from_function(remove_unused_variables),
-    ]
+    else:
+        return [
+            SubroutineOptimization.from_function(remove_unused_variables),
+            SubroutineOptimization.from_function(inner_txn_field_replacer),
+        ]
 
 
 def _split_parallel_copies(sub: models.Subroutine) -> None:

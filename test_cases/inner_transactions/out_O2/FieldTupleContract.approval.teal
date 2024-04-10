@@ -1,0 +1,241 @@
+#pragma version 10
+
+test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@6
+    method "test_assign_tuple()void"
+    method "test_assign_tuple_mixed()void"
+    txna ApplicationArgs 0
+    match main_test_assign_tuple_route@2 main_test_assign_tuple_mixed_route@3
+    err // reject transaction
+
+main_test_assign_tuple_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_assign_tuple
+    int 1
+    return
+
+main_test_assign_tuple_mixed_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_assign_tuple_mixed
+    int 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple() -> void:
+test_assign_tuple:
+    proto 0 0
+    itxn_begin
+    int 0
+    itxn_field Fee
+    byte "1a"
+    itxn_field ApplicationArgs
+    byte "2a"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
+    itxn_next
+    int 0
+    itxn_field Fee
+    byte "different param set"
+    itxn_field Note
+    byte "3a"
+    itxn_field ApplicationArgs
+    byte "4a"
+    itxn_field ApplicationArgs
+    byte "5a"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
+    itxn_submit
+    gitxna 0 ApplicationArgs 0
+    byte "1a"
+    ==
+    assert
+    gitxna 0 ApplicationArgs 1
+    byte "2a"
+    ==
+    assert
+    itxna ApplicationArgs 0
+    byte "3a"
+    ==
+    assert
+    itxna ApplicationArgs 1
+    byte "4a"
+    ==
+    assert
+    itxna ApplicationArgs 2
+    byte "5a"
+    ==
+    assert
+    itxn_begin
+    int 0
+    itxn_field Fee
+    byte "different param set"
+    itxn_field Note
+    byte "3b"
+    itxn_field ApplicationArgs
+    byte "4b"
+    itxn_field ApplicationArgs
+    byte "5b"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
+    itxn_next
+    int 0
+    itxn_field Fee
+    byte "1b"
+    itxn_field ApplicationArgs
+    byte "2b"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
+    itxn_submit
+    itxna ApplicationArgs 0
+    byte "1b"
+    ==
+    assert
+    itxna ApplicationArgs 1
+    byte "2b"
+    ==
+    assert
+    gitxna 0 ApplicationArgs 0
+    byte "3b"
+    ==
+    assert
+    gitxna 0 ApplicationArgs 1
+    byte "4b"
+    ==
+    assert
+    gitxna 0 ApplicationArgs 2
+    byte "5b"
+    ==
+    assert
+    itxn_begin
+    int 0
+    itxn_field Fee
+    byte "1c"
+    itxn_field ApplicationArgs
+    byte "2c"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
+    itxn_next
+    int 0
+    itxn_field Fee
+    byte "different param set"
+    itxn_field Note
+    byte "3c"
+    itxn_field ApplicationArgs
+    byte "4c"
+    itxn_field ApplicationArgs
+    byte "5c"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
+    itxn_submit
+    gitxna 0 ApplicationArgs 0
+    byte "1c"
+    ==
+    assert
+    gitxna 0 ApplicationArgs 1
+    byte "2c"
+    ==
+    assert
+    itxna ApplicationArgs 0
+    byte "3c"
+    ==
+    assert
+    itxna ApplicationArgs 1
+    byte "4c"
+    ==
+    assert
+    itxna ApplicationArgs 2
+    byte "5c"
+    ==
+    assert
+    retsub
+
+
+// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed() -> void:
+test_assign_tuple_mixed:
+    proto 0 0
+    itxn_begin
+    int 0
+    itxn_field Fee
+    byte "1a"
+    itxn_field ApplicationArgs
+    byte "2a"
+    itxn_field ApplicationArgs
+    int DeleteApplication
+    itxn_field OnCompletion
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    int appl
+    itxn_field TypeEnum
+    itxn_submit
+    itxna ApplicationArgs 0
+    byte "1a"
+    ==
+    assert
+    itxna ApplicationArgs 1
+    byte "2a"
+    ==
+    assert
+    retsub

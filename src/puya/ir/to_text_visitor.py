@@ -51,6 +51,11 @@ class ToTextVisitor(IRVisitor[str]):
             callee += f" // {intrinsic.comment}"
         return callee
 
+    def visit_inner_transaction_field(self, field: models.InnerTransactionField) -> str:
+        group = field.group_index.accept(self)
+        array_access = f"[{field.array_index.accept(self)}]" if field.array_index else ""
+        return f"itxn[{group}].{field.field}{array_access}"
+
     def visit_invoke_subroutine(self, op: models.InvokeSubroutine) -> str:
         args = ", ".join(a.accept(self) for a in op.args)
         return f"{op.target.full_name}({args})"

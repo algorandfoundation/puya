@@ -1,0 +1,401 @@
+#pragma version 10
+
+test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.approval_program:
+    // inner_transactions/field_tuple_assignment.py:21
+    // class FieldTupleContract(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    method "test_assign_tuple()void"
+    method "test_assign_tuple_mixed()void"
+    txna ApplicationArgs 0
+    match main_test_assign_tuple_route@2 main_test_assign_tuple_mixed_route@3
+    err // reject transaction
+
+main_test_assign_tuple_route@2:
+    // inner_transactions/field_tuple_assignment.py:22
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_assign_tuple
+    int 1
+    return
+
+main_test_assign_tuple_mixed_route@3:
+    // inner_transactions/field_tuple_assignment.py:71
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_assign_tuple_mixed
+    int 1
+    return
+
+main_bare_routing@6:
+    // inner_transactions/field_tuple_assignment.py:21
+    // class FieldTupleContract(ARC4Contract):
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple() -> void:
+test_assign_tuple:
+    // inner_transactions/field_tuple_assignment.py:22-23
+    // @arc4.abimethod
+    // def test_assign_tuple(self) -> None:
+    proto 0 0
+    // inner_transactions/field_tuple_assignment.py:41
+    // txn_1, txn_2 = itxn.submit_txns(create_txns[0], create_txns[1])
+    itxn_begin
+    // inner_transactions/field_tuple_assignment.py:30
+    // fee=0,
+    int 0
+    itxn_field Fee
+    // inner_transactions/field_tuple_assignment.py:29
+    // app_args=(Bytes(b"1a"), Bytes(b"2a")),
+    byte "1a"
+    itxn_field ApplicationArgs
+    byte "2a"
+    itxn_field ApplicationArgs
+    // inner_transactions/field_tuple_assignment.py:28
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
+    itxn_field OnCompletion
+    // inner_transactions/field_tuple_assignment.py:27
+    // clear_state_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/field_tuple_assignment.py:26
+    // approval_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    // inner_transactions/field_tuple_assignment.py:25
+    // itxn.ApplicationCall(
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/field_tuple_assignment.py:41
+    // txn_1, txn_2 = itxn.submit_txns(create_txns[0], create_txns[1])
+    itxn_next
+    // inner_transactions/field_tuple_assignment.py:38
+    // fee=0,
+    int 0
+    itxn_field Fee
+    // inner_transactions/field_tuple_assignment.py:37
+    // note=b"different param set",
+    byte "different param set"
+    itxn_field Note
+    // inner_transactions/field_tuple_assignment.py:36
+    // app_args=(Bytes(b"3a"), Bytes(b"4a"), Bytes(b"5a")),
+    byte "3a"
+    itxn_field ApplicationArgs
+    byte "4a"
+    itxn_field ApplicationArgs
+    byte "5a"
+    itxn_field ApplicationArgs
+    // inner_transactions/field_tuple_assignment.py:35
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
+    itxn_field OnCompletion
+    // inner_transactions/field_tuple_assignment.py:34
+    // clear_state_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/field_tuple_assignment.py:33
+    // approval_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    // inner_transactions/field_tuple_assignment.py:32
+    // itxn.ApplicationCall(
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/field_tuple_assignment.py:41
+    // txn_1, txn_2 = itxn.submit_txns(create_txns[0], create_txns[1])
+    itxn_submit
+    // inner_transactions/field_tuple_assignment.py:43
+    // assert txn_1.app_args(0) == b"1a"
+    gitxna 0 ApplicationArgs 0
+    byte "1a"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:44
+    // assert txn_1.app_args(1) == b"2a"
+    gitxna 0 ApplicationArgs 1
+    byte "2a"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:45
+    // assert txn_2.app_args(0) == b"3a"
+    itxna ApplicationArgs 0
+    byte "3a"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:46
+    // assert txn_2.app_args(1) == b"4a"
+    itxna ApplicationArgs 1
+    byte "4a"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:47
+    // assert txn_2.app_args(2) == b"5a"
+    itxna ApplicationArgs 2
+    byte "5a"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:52
+    // txn_1, txn_2 = itxn.submit_txns(create_txns[1], create_txns[0])
+    itxn_begin
+    // inner_transactions/field_tuple_assignment.py:38
+    // fee=0,
+    int 0
+    itxn_field Fee
+    // inner_transactions/field_tuple_assignment.py:37
+    // note=b"different param set",
+    byte "different param set"
+    itxn_field Note
+    // inner_transactions/field_tuple_assignment.py:50
+    // create_txns[1].set(app_args=(Bytes(b"3b"), Bytes(b"4b"), Bytes(b"5b")))
+    byte "3b"
+    itxn_field ApplicationArgs
+    byte "4b"
+    itxn_field ApplicationArgs
+    byte "5b"
+    itxn_field ApplicationArgs
+    // inner_transactions/field_tuple_assignment.py:35
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
+    itxn_field OnCompletion
+    // inner_transactions/field_tuple_assignment.py:34
+    // clear_state_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/field_tuple_assignment.py:33
+    // approval_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    // inner_transactions/field_tuple_assignment.py:32
+    // itxn.ApplicationCall(
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/field_tuple_assignment.py:52
+    // txn_1, txn_2 = itxn.submit_txns(create_txns[1], create_txns[0])
+    itxn_next
+    // inner_transactions/field_tuple_assignment.py:30
+    // fee=0,
+    int 0
+    itxn_field Fee
+    // inner_transactions/field_tuple_assignment.py:49
+    // create_txns[0].set(app_args=(Bytes(b"1b"), Bytes(b"2b")))
+    byte "1b"
+    itxn_field ApplicationArgs
+    byte "2b"
+    itxn_field ApplicationArgs
+    // inner_transactions/field_tuple_assignment.py:28
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
+    itxn_field OnCompletion
+    // inner_transactions/field_tuple_assignment.py:27
+    // clear_state_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/field_tuple_assignment.py:26
+    // approval_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    // inner_transactions/field_tuple_assignment.py:25
+    // itxn.ApplicationCall(
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/field_tuple_assignment.py:52
+    // txn_1, txn_2 = itxn.submit_txns(create_txns[1], create_txns[0])
+    itxn_submit
+    // inner_transactions/field_tuple_assignment.py:54
+    // assert txn_2.app_args(0) == b"1b"
+    itxna ApplicationArgs 0
+    byte "1b"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:55
+    // assert txn_2.app_args(1) == b"2b"
+    itxna ApplicationArgs 1
+    byte "2b"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:56
+    // assert txn_1.app_args(0) == b"3b"
+    gitxna 0 ApplicationArgs 0
+    byte "3b"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:57
+    // assert txn_1.app_args(1) == b"4b"
+    gitxna 0 ApplicationArgs 1
+    byte "4b"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:58
+    // assert txn_1.app_args(2) == b"5b"
+    gitxna 0 ApplicationArgs 2
+    byte "5b"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:63
+    // txn_tuple = itxn.submit_txns(create_txns[0], create_txns[1])
+    itxn_begin
+    // inner_transactions/field_tuple_assignment.py:30
+    // fee=0,
+    int 0
+    itxn_field Fee
+    // inner_transactions/field_tuple_assignment.py:60
+    // create_txns[0].set(app_args=(Bytes(b"1c"), Bytes(b"2c")))
+    byte "1c"
+    itxn_field ApplicationArgs
+    byte "2c"
+    itxn_field ApplicationArgs
+    // inner_transactions/field_tuple_assignment.py:28
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
+    itxn_field OnCompletion
+    // inner_transactions/field_tuple_assignment.py:27
+    // clear_state_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/field_tuple_assignment.py:26
+    // approval_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    // inner_transactions/field_tuple_assignment.py:25
+    // itxn.ApplicationCall(
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/field_tuple_assignment.py:63
+    // txn_tuple = itxn.submit_txns(create_txns[0], create_txns[1])
+    itxn_next
+    // inner_transactions/field_tuple_assignment.py:38
+    // fee=0,
+    int 0
+    itxn_field Fee
+    // inner_transactions/field_tuple_assignment.py:37
+    // note=b"different param set",
+    byte "different param set"
+    itxn_field Note
+    // inner_transactions/field_tuple_assignment.py:61
+    // create_txns[1].set(app_args=(Bytes(b"3c"), Bytes(b"4c"), Bytes(b"5c")))
+    byte "3c"
+    itxn_field ApplicationArgs
+    byte "4c"
+    itxn_field ApplicationArgs
+    byte "5c"
+    itxn_field ApplicationArgs
+    // inner_transactions/field_tuple_assignment.py:35
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
+    itxn_field OnCompletion
+    // inner_transactions/field_tuple_assignment.py:34
+    // clear_state_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/field_tuple_assignment.py:33
+    // approval_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    // inner_transactions/field_tuple_assignment.py:32
+    // itxn.ApplicationCall(
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/field_tuple_assignment.py:63
+    // txn_tuple = itxn.submit_txns(create_txns[0], create_txns[1])
+    itxn_submit
+    // inner_transactions/field_tuple_assignment.py:65
+    // assert txn_tuple[0].app_args(0) == b"1c"
+    gitxna 0 ApplicationArgs 0
+    byte "1c"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:66
+    // assert txn_tuple[0].app_args(1) == b"2c"
+    gitxna 0 ApplicationArgs 1
+    byte "2c"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:67
+    // assert txn_tuple[1].app_args(0) == b"3c"
+    itxna ApplicationArgs 0
+    byte "3c"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:68
+    // assert txn_tuple[1].app_args(1) == b"4c"
+    itxna ApplicationArgs 1
+    byte "4c"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:69
+    // assert txn_tuple[1].app_args(2) == b"5c"
+    itxna ApplicationArgs 2
+    byte "5c"
+    ==
+    assert
+    retsub
+
+
+// test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed() -> void:
+test_assign_tuple_mixed:
+    // inner_transactions/field_tuple_assignment.py:71-72
+    // @arc4.abimethod
+    // def test_assign_tuple_mixed(self) -> None:
+    proto 0 0
+    // inner_transactions/field_tuple_assignment.py:83
+    // result_with_txn = tuple_with_txn_fields[0].submit(), tuple_with_txn_fields[1]
+    itxn_begin
+    // inner_transactions/field_tuple_assignment.py:79
+    // fee=0,
+    int 0
+    itxn_field Fee
+    // inner_transactions/field_tuple_assignment.py:78
+    // app_args=(Bytes(b"1a"), Bytes(b"2a")),
+    byte "1a"
+    itxn_field ApplicationArgs
+    byte "2a"
+    itxn_field ApplicationArgs
+    // inner_transactions/field_tuple_assignment.py:77
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
+    itxn_field OnCompletion
+    // inner_transactions/field_tuple_assignment.py:76
+    // clear_state_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ClearStateProgramPages
+    // inner_transactions/field_tuple_assignment.py:75
+    // approval_program=ALWAYS_APPROVE,
+    byte 0x098101
+    itxn_field ApprovalProgramPages
+    // inner_transactions/field_tuple_assignment.py:74
+    // itxn.ApplicationCall(
+    int appl
+    itxn_field TypeEnum
+    // inner_transactions/field_tuple_assignment.py:83
+    // result_with_txn = tuple_with_txn_fields[0].submit(), tuple_with_txn_fields[1]
+    itxn_submit
+    // inner_transactions/field_tuple_assignment.py:85
+    // assert result_with_txn[0].app_args(0) == b"1a"
+    itxna ApplicationArgs 0
+    byte "1a"
+    ==
+    assert
+    // inner_transactions/field_tuple_assignment.py:86
+    // assert result_with_txn[0].app_args(1) == b"2a"
+    itxna ApplicationArgs 1
+    byte "2a"
+    ==
+    assert
+    retsub

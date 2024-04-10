@@ -15,6 +15,7 @@ from puya.ir.models import (
     Fail,
     Goto,
     GotoNth,
+    InnerTransactionField,
     Intrinsic,
     InvokeSubroutine,
     MethodConstant,
@@ -107,6 +108,15 @@ class IRMutator(IRVisitor[t.Any]):
     def visit_intrinsic_op(self, intrinsic: Intrinsic) -> Intrinsic | None:
         intrinsic.args = [a.accept(self) for a in intrinsic.args]
         return intrinsic
+
+    def visit_inner_transaction_field(
+        self, field: InnerTransactionField
+    ) -> InnerTransactionField | Intrinsic:
+        field.group_index = field.group_index.accept(self)
+        field.is_last_in_group = field.is_last_in_group.accept(self)
+        if field.array_index:
+            field.array_index = field.array_index.accept(self)
+        return field
 
     def visit_invoke_subroutine(self, callsub: InvokeSubroutine) -> InvokeSubroutine:
         callsub.args = [a.accept(self) for a in callsub.args]

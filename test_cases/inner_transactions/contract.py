@@ -94,6 +94,8 @@ class MyContract(Contract):
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
                 app_args=args,
+                on_completion=OnCompleteAction.NoOp,
+                note=b"with args param set",
                 fee=0,
             )
         else:
@@ -101,7 +103,7 @@ class MyContract(Contract):
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
                 app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
-                note=b"different param set",
+                note=b"no args param set",
                 fee=0,
             )
         create_app_txn = create_app_params.submit()
@@ -117,9 +119,7 @@ class MyContract(Contract):
                 fee=0,
             ).submit()
             assert create_app_txn2.app_args(0) == b"42", "correct args used 2"
-        assert (
-            create_app_txn.app_args(0) == b"1"
-        ), "this will error on access if create_app_txn2 was submitted"
+            assert create_app_txn.note == b"with args param set"
 
     @subroutine
     def test3(self) -> None:

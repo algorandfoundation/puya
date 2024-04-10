@@ -664,6 +664,51 @@ def test_inner_transactions_c2c(algod_client: AlgodClient, account: algokit_util
     assert decode_logs(result.tx_info["logs"], "b") == [b"HelloWorld returned: Hello, There"]
 
 
+def test_inner_transactions_array_access(
+    algod_client: AlgodClient, account: algokit_utils.Account
+) -> None:
+    example = TEST_CASES_DIR / "inner_transactions" / "array_access.py"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+
+    # deploy greeter
+    increased_fee = algod_client.suggested_params()
+    increased_fee.flat_fee = True
+    increased_fee.fee = constants.min_txn_fee * 2
+    app_client = algokit_utils.ApplicationClient(
+        algod_client, app_spec, signer=account, suggested_params=increased_fee
+    )
+    app_client.create()
+
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=200_000,
+        ),
+    )
+
+    app_client.call("test_branching_array_call", maybe=True)
+    app_client.call("test_branching_array_call", maybe=False)
+
+
+def test_inner_transactions_tuple(
+    algod_client: AlgodClient, account: algokit_utils.Account
+) -> None:
+    example = TEST_CASES_DIR / "inner_transactions" / "field_tuple_assignment.py"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+
+    increased_fee = algod_client.suggested_params()
+    increased_fee.flat_fee = True
+    increased_fee.fee = constants.min_txn_fee * 7
+    app_client = algokit_utils.ApplicationClient(
+        algod_client, app_spec, signer=account, suggested_params=increased_fee
+    )
+    app_client.create()
+
+    app_client.call("test_assign_tuple")
+    app_client.call("test_assign_tuple_mixed")
+
+
 def test_state_proxies(algod_client: AlgodClient, account: algokit_utils.Account) -> None:
     example = TEST_CASES_DIR / "state_proxies" / "contract.py"
 
@@ -798,6 +843,12 @@ def test_typed_abi_call(
 
     app_client.call(
         "test_arg_conversion",
+        transaction_parameters=txn_params,
+        app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_method_overload",
         transaction_parameters=txn_params,
         app=logger.app_id,
     )

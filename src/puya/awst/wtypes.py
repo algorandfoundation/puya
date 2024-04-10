@@ -496,8 +496,13 @@ def is_inner_transaction_tuple_type(wtype: WType) -> typing.TypeGuard[WTuple]:
     return isinstance(wtype, WTuple) and all(is_inner_transaction_type(t) for t in wtype.types)
 
 
-def is_inner_transaction_params_type(wtype: WType) -> typing.TypeGuard[WInnerTransactionFields]:
+def is_inner_transaction_field_type(wtype: WType) -> typing.TypeGuard[WInnerTransactionFields]:
     return isinstance(wtype, WInnerTransactionFields)
+
+
+def has_inner_transaction_field_type(wtype: WType) -> bool:
+    types = wtype.types if isinstance(wtype, WTuple) else (wtype,)
+    return any(map(is_inner_transaction_field_type, types))
 
 
 def is_reference_type(wtype: WType) -> bool:

@@ -337,7 +337,7 @@ test2:
     int 0
     dupn 3
     byte ""
-    dup
+    dupn 2
     // inner_transactions/contract.py:91
     // if op.Txn.num_app_args:
     txn NumAppArgs
@@ -351,14 +351,20 @@ test2:
     // inner_transactions/contract.py:96
     // app_args=args,
     int 2
+    frame_bury 4
+    // inner_transactions/contract.py:97
+    // on_completion=OnCompleteAction.NoOp,
+    int NoOp
+    frame_bury 6
+    int 1
     frame_bury 5
-    // inner_transactions/contract.py:93
-    // create_app_params = itxn.ApplicationCall(
-    int 0
+    // inner_transactions/contract.py:98
+    // note=b"with args param set",
+    byte "with args param set"
     b test2_after_if_else@3
 
 test2_else_body@2:
-    // inner_transactions/contract.py:103
+    // inner_transactions/contract.py:105
     // app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
     byte "3"
     frame_bury 0
@@ -367,35 +373,43 @@ test2_else_body@2:
     byte "5"
     frame_bury 2
     int 3
+    frame_bury 4
+    // inner_transactions/contract.py:106
+    // note=b"no args param set",
+    byte "no args param set"
+    // inner_transactions/contract.py:102
+    // create_app_params = itxn.ApplicationCall(
+    int 0
     frame_bury 5
-    // inner_transactions/contract.py:104
-    // note=b"different param set",
-    byte "different param set"
-    frame_bury 3
-    int 1
 
 test2_after_if_else@3:
-    // inner_transactions/contract.py:107
+    // inner_transactions/contract.py:109
     // create_app_txn = create_app_params.submit()
     itxn_begin
-    int 1
-    >=
-    bz test2_next_field@5
-    frame_dig 3
-    itxn_field Note
-
-test2_next_field@5:
-    // inner_transactions/contract.py:97
+    // inner_transactions/contract.py:99
     // fee=0,
     int 0
     itxn_field Fee
+    itxn_field Note
+    frame_dig 5
+    int 1
+    >=
+    // inner_transactions/contract.py:109
+    // create_app_txn = create_app_params.submit()
+    bz test2_next_field@5
+    frame_dig 6
+    itxn_field OnCompletion
+
+test2_next_field@5:
     frame_dig 0
     itxn_field ApplicationArgs
     frame_dig 1
     itxn_field ApplicationArgs
-    frame_dig 5
+    frame_dig 4
     int 3
     >=
+    // inner_transactions/contract.py:109
+    // create_app_txn = create_app_params.submit()
     bz test2_next_field@7
     frame_dig 2
     itxn_field ApplicationArgs
@@ -413,30 +427,30 @@ test2_next_field@7:
     // create_app_params = itxn.ApplicationCall(
     int appl
     itxn_field TypeEnum
-    // inner_transactions/contract.py:107
+    // inner_transactions/contract.py:109
     // create_app_txn = create_app_params.submit()
     itxn_submit
-    int 1
-    frame_bury 4
-    // inner_transactions/contract.py:108
+    itxn Note
+    frame_bury 3
+    // inner_transactions/contract.py:110
     // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
     itxna ApplicationArgs 0
     byte "1"
     ==
     assert // correct args used 1
-    // inner_transactions/contract.py:109
+    // inner_transactions/contract.py:111
     // assert create_app_txn.app_args(1) == b"2", "correct args used 2"
     itxna ApplicationArgs 1
     byte "2"
     ==
     assert // correct args used 2
-    // inner_transactions/contract.py:111
+    // inner_transactions/contract.py:113
     // if op.Txn.num_app_args > 1:
     txn NumAppArgs
     int 1
     >
     bz test2_after_if_else@11
-    // inner_transactions/contract.py:112-118
+    // inner_transactions/contract.py:114-120
     // create_app_txn2 = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
     //     clear_state_program=ALWAYS_APPROVE,
@@ -445,31 +459,31 @@ test2_next_field@7:
     //     fee=0,
     // ).submit()
     itxn_begin
-    // inner_transactions/contract.py:117
+    // inner_transactions/contract.py:119
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:116
+    // inner_transactions/contract.py:118
     // app_args=(Bytes(b"42"),),
     byte "42"
     itxn_field ApplicationArgs
-    // inner_transactions/contract.py:115
+    // inner_transactions/contract.py:117
     // on_completion=OnCompleteAction.DeleteApplication,
     int DeleteApplication
     itxn_field OnCompletion
-    // inner_transactions/contract.py:114
+    // inner_transactions/contract.py:116
     // clear_state_program=ALWAYS_APPROVE,
     byte 0x098101
     itxn_field ClearStateProgramPages
-    // inner_transactions/contract.py:113
+    // inner_transactions/contract.py:115
     // approval_program=ALWAYS_APPROVE,
     byte 0x098101
     itxn_field ApprovalProgramPages
-    // inner_transactions/contract.py:112
+    // inner_transactions/contract.py:114
     // create_app_txn2 = itxn.ApplicationCall(
     int appl
     itxn_field TypeEnum
-    // inner_transactions/contract.py:112-118
+    // inner_transactions/contract.py:114-120
     // create_app_txn2 = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
     //     clear_state_program=ALWAYS_APPROVE,
@@ -478,30 +492,20 @@ test2_next_field@7:
     //     fee=0,
     // ).submit()
     itxn_submit
-    int 2
-    frame_bury 4
-    // inner_transactions/contract.py:119
+    // inner_transactions/contract.py:121
     // assert create_app_txn2.app_args(0) == b"42", "correct args used 2"
     itxna ApplicationArgs 0
     byte "42"
     ==
     assert // correct args used 2
+    // inner_transactions/contract.py:122
+    // assert create_app_txn.note == b"with args param set"
+    frame_dig 3
+    byte "with args param set"
+    ==
+    assert
 
 test2_after_if_else@11:
-    // inner_transactions/contract.py:121
-    // create_app_txn.app_args(0) == b"1"
-    frame_dig 4
-    int 1
-    ==
-    assert // 'create_app_txn' can still be accessed
-    itxna ApplicationArgs 0
-    byte "1"
-    ==
-    // inner_transactions/contract.py:120-122
-    // assert (
-    //     create_app_txn.app_args(0) == b"1"
-    // ), "this will error on access if create_app_txn2 was submitted"
-    assert // this will error on access if create_app_txn2 was submitted
     retsub
 
 
@@ -555,25 +559,8 @@ test3:
     // app_p_1 = itxn.ApplicationCall(
     int appl
     itxn_field TypeEnum
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:197
+    // app_p_2,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -599,25 +586,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:198
+    // app_p_3,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -643,25 +613,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:199
+    // app_p_4,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -687,25 +640,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:200
+    // app_p_5,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -731,25 +667,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:201
+    // app_p_6,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -775,25 +694,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:202
+    // app_p_7,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -819,25 +721,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:203
+    // app_p_8,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -863,25 +748,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:204
+    // app_p_9,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -907,25 +775,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:205
+    // app_p_10,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -951,25 +802,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:206
+    // app_p_11,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -995,25 +829,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:207
+    // app_p_12,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -1039,25 +856,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:208
+    // app_p_13,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -1083,25 +883,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:209
+    // app_p_14,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -1127,25 +910,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:210
+    // app_p_15,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
@@ -1171,25 +937,8 @@ test3:
     // fee=0,
     int 0
     itxn_field Fee
-    // inner_transactions/contract.py:195-212
-    // ) = itxn.submit_txns(
-    //     app_p_1,
-    //     app_p_2,
-    //     app_p_3,
-    //     app_p_4,
-    //     app_p_5,
-    //     app_p_6,
-    //     app_p_7,
-    //     app_p_8,
-    //     app_p_9,
-    //     app_p_10,
-    //     app_p_11,
-    //     app_p_12,
-    //     app_p_13,
-    //     app_p_14,
-    //     app_p_15,
-    //     app_p_16,
-    // )
+    // inner_transactions/contract.py:211
+    // app_p_16,
     itxn_next
     // inner_transactions/contract.py:128
     // clear_state_program=ALWAYS_APPROVE,
