@@ -204,11 +204,12 @@ class Phi(IRVisitable, _Freezable):
         return visitor.visit_phi(self)
 
 
-@attrs.frozen
+@attrs.frozen(kw_only=True)
 class UInt64Constant(Constant):
     value: int
     ir_type: IRType = attrs.field(default=IRType.uint64)
     teal_alias: str | None = None
+    source_location: SourceLocation | None = attrs.field(eq=False)
 
     @ir_type.validator
     def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
@@ -225,6 +226,7 @@ class UInt64Constant(Constant):
 class BigUIntConstant(Constant):
     value: int
     ir_type: IRType = attrs.field(default=IRType.biguint, init=False)
+    source_location: SourceLocation | None = attrs.field(eq=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_biguint_constant(self)
@@ -247,6 +249,7 @@ class BytesConstant(Constant):
 
     encoding: AVMBytesEncoding
     value: bytes
+    source_location: SourceLocation | None = attrs.field(eq=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_bytes_constant(self)
@@ -258,6 +261,7 @@ class AddressConstant(Constant):
 
     ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
     value: str
+    source_location: SourceLocation | None = attrs.field(eq=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_address_constant(self)
@@ -269,9 +273,29 @@ class MethodConstant(Constant):
 
     ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
     value: str
+    source_location: SourceLocation | None = attrs.field(eq=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_method_constant(self)
+
+
+@attrs.define(eq=False)
+class InnerTransactionField(Op, ValueProvider):
+    field: str
+    group_index: Value
+    is_last_in_group: Value
+    array_index: Value | None
+    type: IRType
+
+    def _frozen_data(self) -> object:
+        return self.field, self.group_index, self.is_last_in_group, self.array_index, self.type
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_inner_transaction_field(self)
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.type,)
 
 
 @attrs.define(eq=False)

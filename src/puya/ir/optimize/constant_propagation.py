@@ -42,6 +42,10 @@ def gather_constants(subroutine: models.Subroutine) -> dict[models.Register, mod
             match op:
                 case models.Assignment(targets=[register], source=models.Constant() as constant):
                     constants[register] = constant
+                case models.Assignment(
+                    targets=[register], source=models.Register() as source_reg
+                ) if (maybe_constant := constants.get(source_reg)):
+                    constants[register] = maybe_constant
     for block in subroutine.body:
         for phi in block.phis:
             if phi_constant := _get_singular_phi_constant(phi, constants):

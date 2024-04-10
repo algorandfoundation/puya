@@ -2,14 +2,15 @@
 
 test_cases.typed_abi_call.typed_c2c.Greeter.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@9
+    bz main_bare_routing@10
     method "test_method_selector_kinds(application)void"
+    method "test_method_overload(application)void"
     method "test_arg_conversion(application)void"
     method "test_15plus_args(application)void"
     method "test_void(application)void"
     method "test_ref_types(application,asset)void"
     txna ApplicationArgs 0
-    match main_test_method_selector_kinds_route@2 main_test_arg_conversion_route@3 main_test_15plus_args_route@4 main_test_void_route@5 main_test_ref_types_route@6
+    match main_test_method_selector_kinds_route@2 main_test_method_overload_route@3 main_test_arg_conversion_route@4 main_test_15plus_args_route@5 main_test_void_route@6 main_test_ref_types_route@7
     err // reject transaction
 
 main_test_method_selector_kinds_route@2:
@@ -25,7 +26,20 @@ main_test_method_selector_kinds_route@2:
     int 1
     return
 
-main_test_arg_conversion_route@3:
+main_test_method_overload_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_method_overload
+    int 1
+    return
+
+main_test_arg_conversion_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -38,7 +52,7 @@ main_test_arg_conversion_route@3:
     int 1
     return
 
-main_test_15plus_args_route@4:
+main_test_15plus_args_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -51,7 +65,7 @@ main_test_15plus_args_route@4:
     int 1
     return
 
-main_test_void_route@5:
+main_test_void_route@6:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -64,7 +78,7 @@ main_test_void_route@5:
     int 1
     return
 
-main_test_ref_types_route@6:
+main_test_ref_types_route@7:
     txn OnCompletion
     !
     assert // OnCompletion is NoOp
@@ -80,7 +94,7 @@ main_test_ref_types_route@6:
     int 1
     return
 
-main_bare_routing@9:
+main_bare_routing@10:
     txn OnCompletion
     !
     assert // reject transaction
@@ -207,6 +221,121 @@ test_method_selector_kinds:
     ==
     assert // ARC4 prefix is valid
     byte "\x00\x0becho: test5"
+    ==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app: uint64) -> void:
+test_method_overload:
+    proto 1 0
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    int 0
+    itxn_field Fee
+    method "echo(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x0etyped + ignore"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    itxn_submit
+    itxn LastLog
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte "\x00\x14echo: typed + ignore"
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    int 0
+    itxn_field Fee
+    method "echo(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x10untyped + ignore"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte "\x00\x16echo: untyped + ignore"
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    int 0
+    itxn_field Fee
+    method "echo(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x05tuple"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    itxn LastLog
+    swap
+    byte "\x00\x0becho: tuple"
+    ==
+    assert
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte "\x00\x0becho: tuple"
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    int 0
+    itxn_field Fee
+    method "echo(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x07untyped"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    byte "\x00\recho: untyped"
     ==
     assert
     retsub

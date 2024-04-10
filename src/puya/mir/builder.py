@@ -1,7 +1,7 @@
 import attrs
 
 from puya import log
-from puya.errors import InternalError
+from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import IRVisitor
@@ -132,6 +132,14 @@ class MemoryIRBuilder(IRVisitor[None]):
                 const.value,
                 source_location=const.source_location,
             )
+        )
+
+    def visit_inner_transaction_field(self, field: ir.InnerTransactionField) -> None:
+        raise CodeError(
+            "Inner transaction field access with non constant group index,"
+            " to resolve move field access to same code path where the inner transaction is"
+            " submitted",
+            field.source_location,
         )
 
     def visit_phi(self, phi: ir.Phi) -> None:

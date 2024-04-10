@@ -1232,7 +1232,7 @@ def test_log(harness: _TestHarness) -> None:
 def test_inner_transactions(harness: _TestHarness) -> None:
     harness.deploy(TEST_CASES_DIR / "inner_transactions" / "contract.py")
     # ensure app meets minimum balance requirements
-    harness.fund(8 * 100_000)
+    harness.fund(9 * 100_000)
 
     increased_fee = harness.client.suggested_params()
     increased_fee.flat_fee = True
@@ -1242,11 +1242,7 @@ def test_inner_transactions(harness: _TestHarness) -> None:
 
     harness.call(AppCallRequest(sp=increased_fee, args=[b"test2"]))
 
-    with pytest.raises(LogicError) as ex_info:
-        harness.call(AppCallRequest(sp=increased_fee, args=[b"test2", b"fail"]))
-    ex = ex_info.value
-    assert ex.line_no is not None
-    assert "'create_app_txn' can still be accessed" in ex.lines[ex.line_no]
+    harness.call(AppCallRequest(sp=increased_fee, args=[b"test2", b"do 2nd submit"]))
 
     harness.call(AppCallRequest(sp=increased_fee, args=[b"test3"]))
 

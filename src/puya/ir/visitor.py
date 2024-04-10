@@ -56,6 +56,10 @@ class IRVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
+    def visit_inner_transaction_field(self, intrinsic: puya.ir.models.InnerTransactionField) -> T:
+        ...
+
+    @abstractmethod
     def visit_invoke_subroutine(self, callsub: puya.ir.models.InvokeSubroutine) -> T:
         ...
 
@@ -146,6 +150,12 @@ class IRTraverser(IRVisitor[None]):
         for arg in intrinsic.args:
             arg.accept(self)
 
+    def visit_inner_transaction_field(self, field: puya.ir.models.InnerTransactionField) -> None:
+        field.group_index.accept(self)
+        field.is_last_in_group.accept(self)
+        if field.array_index:
+            field.array_index.accept(self)
+
     def visit_invoke_subroutine(self, callsub: puya.ir.models.InvokeSubroutine) -> None:
         for arg in callsub.args:
             arg.accept(self)
@@ -213,6 +223,11 @@ class NoOpIRVisitor(typing.Generic[T], IRVisitor[T | None]):
         return None
 
     def visit_intrinsic_op(self, intrinsic: puya.ir.models.Intrinsic) -> T | None:
+        return None
+
+    def visit_inner_transaction_field(
+        self, field: puya.ir.models.InnerTransactionField
+    ) -> T | None:
         return None
 
     def visit_invoke_subroutine(self, callsub: puya.ir.models.InvokeSubroutine) -> T | None:

@@ -43,7 +43,7 @@ class MyContract(Contract):
     @subroutine
     def must_unpack_tuple(self) -> None:
         t1, t2 = itxn.submit_txns(itxn.InnerTransaction(type=TransactionType.Payment), itxn.InnerTransaction(type=TransactionType.Payment)) # this is ok
-        txn_tuple = itxn.submit_txns(itxn.InnerTransaction(type=TransactionType.Payment), itxn.InnerTransaction(type=TransactionType.Payment)) # this is not ## E: Inner Transactions cannot be part of an unpacked tuple: tuple[algopy.itxn.InnerTransactionResult, algopy.itxn.InnerTransactionResult]
+        txn_tuple = itxn.submit_txns(itxn.InnerTransaction(type=TransactionType.Payment), itxn.InnerTransaction(type=TransactionType.Payment)) # this is not
 
 
 ## case: test_inner_txn_param_cant_be_aliased
@@ -113,3 +113,120 @@ def method_selector_mismatch() -> None:
 def allowed_coercions() -> None:
     arc4.abi_call("foo", 256) # value inferred from args
     arc4.abi_call(Client.foo, 1)
+
+## case: test_stale_itxn_array_read
+from algopy import (
+    ARC4Contract,
+    Bytes,
+    OnCompleteAction,
+    arc4,
+    itxn,
+    op,
+    subroutine,
+)
+
+ALWAYS_APPROVE = (
+    b"\x09"  # pragma version 9
+    b"\x81\x01"  # pushint 1
+)
+
+class MyContract(ARC4Contract):
+
+    @arc4.abimethod
+    def test1(self) -> None:
+        create_app_txn = itxn.ApplicationCall(
+            approval_program=ALWAYS_APPROVE,
+            clear_state_program=ALWAYS_APPROVE,
+            app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
+            note=b"different param set",
+            fee=0,
+        ).submit()
+
+        assert create_app_txn.app_args(0) == b"1", "correct args used 1"
+
+        create_app_txn2 = itxn.ApplicationCall( ## W: 'create_app_txn' becomes potentially stale here
+            approval_program=ALWAYS_APPROVE,
+            clear_state_program=ALWAYS_APPROVE,
+            on_completion=OnCompleteAction.DeleteApplication,
+            app_args=(Bytes(b"42"),),
+            fee=0,
+        ).submit()
+
+        assert create_app_txn2.app_args(0) == b"42", "correct args used 2"
+        assert create_app_txn.app_args(0) == b"1", "this is an error" ## E: Inner Transaction referred to by 'create_app_txn' may no longer be valid due to other inner transaction submissions, or subroutine calls. This means array field access may not give expected results, move array field access after 'create_app_txn' definition and before expression indicated.
+
+        some_sub_that_may_submit_another_inner_txn() ## W: 'create_app_txn2' becomes potentially stale here
+
+        assert create_app_txn2.app_args(0) == b"42", "this is an error" ## E: Inner Transaction referred to by 'create_app_txn2' may no longer be valid due to other inner transaction submissions, or subroutine calls. This means array field access may not give expected results, move array field access after 'create_app_txn2' definition and before expression indicated.
+
+    @arc4.abimethod
+    def test2(self) -> None:
+        create_app_txn = itxn.ApplicationCall(
+            approval_program=ALWAYS_APPROVE,
+            clear_state_program=ALWAYS_APPROVE,
+            app_args=(Bytes(b"42"), Bytes(b"4"), Bytes(b"5")),
+            note=b"different param set",
+            fee=0,
+        ).submit()
+
+        if create_app_txn.last_log != b"":
+            create_app_txn = itxn.ApplicationCall(
+                approval_program=ALWAYS_APPROVE,
+                clear_state_program=ALWAYS_APPROVE,
+                on_completion=OnCompleteAction.DeleteApplication,
+                app_args=(Bytes(b"42"),),
+                fee=0,
+            ).submit()
+
+        assert create_app_txn.app_args(0) == b"42", "correct args used"
+
+        some_sub_that_may_submit_another_inner_txn() ## W: 'create_app_txn' becomes potentially stale here
+
+        assert create_app_txn.app_args(0) == b"42", "correct args used" ## E: Inner Transaction referred to by 'create_app_txn' may no longer be valid due to other inner transaction submissions, or subroutine calls. This means array field access may not give expected results, move array field access after 'create_app_txn' definition and before expression indicated.
+
+@subroutine
+def some_sub_that_may_submit_another_inner_txn() -> None:
+    pass
+
+## case: test_non_constant_group_index
+from algopy import (
+    ARC4Contract,
+    Bytes,
+    OnCompleteAction,
+    Txn,
+    arc4,
+    itxn,
+    op,
+    subroutine,
+)
+
+ALWAYS_APPROVE = (
+    b"\x09"  # pragma version 9
+    b"\x81\x01"  # pushint 1
+)
+
+class MyContract(ARC4Contract):
+
+    @arc4.abimethod
+    def test1(self) -> None:
+        txn_1 = itxn.ApplicationCall(
+            approval_program=ALWAYS_APPROVE,
+            clear_state_program=ALWAYS_APPROVE,
+            app_args=(Bytes(b"1"), Bytes(b"2")),
+            note=b"first param set",
+            fee=0,
+        )
+        txn_2 = itxn.ApplicationCall(
+            approval_program=ALWAYS_APPROVE,
+            clear_state_program=ALWAYS_APPROVE,
+            app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
+            note=b"different param set",
+            fee=0,
+        )
+        if Txn.num_app_args:
+            create_1, create_2 = itxn.submit_txns(txn_1, txn_2)
+        else:
+            create_2, create_1 = itxn.submit_txns(txn_1, txn_2)
+
+        assert create_1.num_app_args > 2
+        assert create_1.app_args(0) == b"1" ## E: Inner transaction field access with non constant group index, to resolve move field access to same code path where the inner transaction is submitted

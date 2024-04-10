@@ -186,7 +186,7 @@ test2:
     int 0
     dupn 3
     byte ""
-    dup
+    dupn 2
     txn NumAppArgs
     bz test2_else_body@2
     byte "1"
@@ -194,8 +194,12 @@ test2:
     byte "2"
     frame_bury 1
     int 2
+    frame_bury 4
+    int NoOp
+    frame_bury 6
+    int 1
     frame_bury 5
-    int 0
+    byte "with args param set"
     b test2_after_if_else@3
 
 test2_else_body@2:
@@ -206,27 +210,29 @@ test2_else_body@2:
     byte "5"
     frame_bury 2
     int 3
+    frame_bury 4
+    byte "no args param set"
+    int 0
     frame_bury 5
-    byte "different param set"
-    frame_bury 3
-    int 1
 
 test2_after_if_else@3:
     itxn_begin
+    int 0
+    itxn_field Fee
+    itxn_field Note
+    frame_dig 5
     int 1
     >=
     bz test2_next_field@5
-    frame_dig 3
-    itxn_field Note
+    frame_dig 6
+    itxn_field OnCompletion
 
 test2_next_field@5:
-    int 0
-    itxn_field Fee
     frame_dig 0
     itxn_field ApplicationArgs
     frame_dig 1
     itxn_field ApplicationArgs
-    frame_dig 5
+    frame_dig 4
     int 3
     >=
     bz test2_next_field@7
@@ -241,8 +247,8 @@ test2_next_field@7:
     int appl
     itxn_field TypeEnum
     itxn_submit
-    int 1
-    frame_bury 4
+    itxn Note
+    frame_bury 3
     itxna ApplicationArgs 0
     byte "1"
     ==
@@ -269,22 +275,16 @@ test2_next_field@7:
     int appl
     itxn_field TypeEnum
     itxn_submit
-    int 2
-    frame_bury 4
     itxna ApplicationArgs 0
     byte "42"
     ==
     assert // correct args used 2
+    frame_dig 3
+    byte "with args param set"
+    ==
+    assert
 
 test2_after_if_else@11:
-    frame_dig 4
-    int 1
-    ==
-    assert // 'create_app_txn' can still be accessed
-    itxna ApplicationArgs 0
-    byte "1"
-    ==
-    assert // this will error on access if create_app_txn2 was submitted
     retsub
 
 

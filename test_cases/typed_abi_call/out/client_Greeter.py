@@ -14,6 +14,12 @@ class Greeter(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def test_method_overload(
+        self,
+        app: algopy.Application,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def test_arg_conversion(
         self,
         app: algopy.Application,

@@ -516,7 +516,7 @@ class TestFile(pytest.File):
             pytest.fail(f"Unhandled compiler error: {ex}", pytrace=False)
         except BaseException as ex:
             # unexpected error, fail immediately
-            pytest.fail(f"Unexpected error: {ex}", pytrace=True)
+            pytest.fail(f"Unexpected error: {ex!r}", pytrace=False)
 
     def teardown(self) -> None:
         if self.auto_update_output:

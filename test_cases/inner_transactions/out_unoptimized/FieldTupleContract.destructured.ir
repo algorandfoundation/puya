@@ -1,0 +1,220 @@
+contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract:
+    program approval:
+        subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.approval_program() -> bool:
+            block@0: // L21
+                let tmp%0#0: bool = (txn NumAppArgs)
+                goto tmp%0#0 ? block@1 : block@6
+            block@1: // abi_routing_L21
+                let tmp%1#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%1#0 {method "test_assign_tuple()void" => block@2, method "test_assign_tuple_mixed()void" => block@3, * => block@4}
+            block@2: // test_assign_tuple_route_L22
+                let tmp%2#0: uint64 = (txn OnCompletion)
+                let tmp%3#0: bool = (== tmp%2#0 NoOp)
+                (assert tmp%3#0) // OnCompletion is NoOp
+                let tmp%4#0: bool = (txn ApplicationID)
+                (assert tmp%4#0) // is not creating
+                test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple()
+                return 1u
+            block@3: // test_assign_tuple_mixed_route_L71
+                let tmp%5#0: uint64 = (txn OnCompletion)
+                let tmp%6#0: bool = (== tmp%5#0 NoOp)
+                (assert tmp%6#0) // OnCompletion is NoOp
+                let tmp%7#0: bool = (txn ApplicationID)
+                (assert tmp%7#0) // is not creating
+                test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed()
+                return 1u
+            block@4: // switch_case_default_L21
+                goto block@5
+            block@5: // switch_case_next_L21
+                fail // reject transaction
+            block@6: // bare_routing_L21
+                let tmp%8#0: uint64 = (txn OnCompletion)
+                switch tmp%8#0 {0u => block@7, * => block@8}
+            block@7: // create_L21
+                let tmp%9#0: bool = (txn ApplicationID)
+                let tmp%10#0: bool = (! tmp%9#0)
+                (assert tmp%10#0) // is creating
+                return 1u
+            block@8: // reject_bare_on_completion_L21
+                fail // reject transaction
+        
+        subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple() -> void:
+            block@0: // L22
+                let create_txns.0%%param_TypeEnum_idx_0#0: uint64 = appl
+                let create_txns.0%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
+                let create_txns.0%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
+                let create_txns.0%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
+                let create_txns.0%%param_ApplicationArgs_idx_0#0: bytes = "1a"
+                let create_txns.0%%param_ApplicationArgs_idx_1#0: bytes = "2a"
+                let create_txns.0%%param_Fee_idx_0#0: uint64 = 0u
+                let create_txns.1%%param_TypeEnum_idx_0#0: uint64 = appl
+                let create_txns.1%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
+                let create_txns.1%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
+                let create_txns.1%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
+                let create_txns.1%%param_ApplicationArgs_idx_0#0: bytes = "3a"
+                let create_txns.1%%param_ApplicationArgs_idx_1#0: bytes = "4a"
+                let create_txns.1%%param_ApplicationArgs_idx_2#0: bytes = "5a"
+                let create_txns.1%%param_Note_idx_0#0: bytes = "different param set"
+                let create_txns.1%%param_Fee_idx_0#0: uint64 = 0u
+                itxn_begin
+                ((itxn_field Fee) create_txns.0%%param_Fee_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field OnCompletion) create_txns.0%%param_OnCompletion_idx_0#0)
+                ((itxn_field ClearStateProgramPages) create_txns.0%%param_ClearStateProgramPages_idx_0#0)
+                ((itxn_field ApprovalProgramPages) create_txns.0%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field TypeEnum) create_txns.0%%param_TypeEnum_idx_0#0)
+                goto block@1
+            block@1: // next_txn_L41
+                itxn_next
+                ((itxn_field Fee) create_txns.1%%param_Fee_idx_0#0)
+                ((itxn_field Note) create_txns.1%%param_Note_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_2#0)
+                ((itxn_field OnCompletion) create_txns.1%%param_OnCompletion_idx_0#0)
+                ((itxn_field ClearStateProgramPages) create_txns.1%%param_ClearStateProgramPages_idx_0#0)
+                ((itxn_field ApprovalProgramPages) create_txns.1%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field TypeEnum) create_txns.1%%param_TypeEnum_idx_0#0)
+                goto block@2
+            block@2: // next_txn_L41
+                itxn_submit
+                let tmp%0#0: bytes = ((gitxnas 0 ApplicationArgs) 0u)
+                let tmp%1#0: bool = (== tmp%0#0 "1a")
+                (assert tmp%1#0)
+                let tmp%2#0: bytes = ((gitxnas 0 ApplicationArgs) 1u)
+                let tmp%3#0: bool = (== tmp%2#0 "2a")
+                (assert tmp%3#0)
+                let tmp%4#0: bytes = ((itxnas ApplicationArgs) 0u)
+                let tmp%5#0: bool = (== tmp%4#0 "3a")
+                (assert tmp%5#0)
+                let tmp%6#0: bytes = ((itxnas ApplicationArgs) 1u)
+                let tmp%7#0: bool = (== tmp%6#0 "4a")
+                (assert tmp%7#0)
+                let tmp%8#0: bytes = ((itxnas ApplicationArgs) 2u)
+                let tmp%9#0: bool = (== tmp%8#0 "5a")
+                (assert tmp%9#0)
+                let create_txns.0%%param_ApplicationArgs_idx_0#0: bytes = "1b"
+                let create_txns.0%%param_ApplicationArgs_idx_1#0: bytes = "2b"
+                let create_txns.1%%param_ApplicationArgs_idx_0#0: bytes = "3b"
+                let create_txns.1%%param_ApplicationArgs_idx_1#0: bytes = "4b"
+                let create_txns.1%%param_ApplicationArgs_idx_2#0: bytes = "5b"
+                itxn_begin
+                ((itxn_field Fee) create_txns.1%%param_Fee_idx_0#0)
+                ((itxn_field Note) create_txns.1%%param_Note_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_2#0)
+                ((itxn_field OnCompletion) create_txns.1%%param_OnCompletion_idx_0#0)
+                ((itxn_field ClearStateProgramPages) create_txns.1%%param_ClearStateProgramPages_idx_0#0)
+                ((itxn_field ApprovalProgramPages) create_txns.1%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field TypeEnum) create_txns.1%%param_TypeEnum_idx_0#0)
+                goto block@3
+            block@3: // next_txn_L52
+                itxn_next
+                ((itxn_field Fee) create_txns.0%%param_Fee_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field OnCompletion) create_txns.0%%param_OnCompletion_idx_0#0)
+                ((itxn_field ClearStateProgramPages) create_txns.0%%param_ClearStateProgramPages_idx_0#0)
+                ((itxn_field ApprovalProgramPages) create_txns.0%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field TypeEnum) create_txns.0%%param_TypeEnum_idx_0#0)
+                goto block@4
+            block@4: // next_txn_L52
+                itxn_submit
+                let tmp%10#0: bytes = ((itxnas ApplicationArgs) 0u)
+                let tmp%11#0: bool = (== tmp%10#0 "1b")
+                (assert tmp%11#0)
+                let tmp%12#0: bytes = ((itxnas ApplicationArgs) 1u)
+                let tmp%13#0: bool = (== tmp%12#0 "2b")
+                (assert tmp%13#0)
+                let tmp%14#0: bytes = ((gitxnas 0 ApplicationArgs) 0u)
+                let tmp%15#0: bool = (== tmp%14#0 "3b")
+                (assert tmp%15#0)
+                let tmp%16#0: bytes = ((gitxnas 0 ApplicationArgs) 1u)
+                let tmp%17#0: bool = (== tmp%16#0 "4b")
+                (assert tmp%17#0)
+                let tmp%18#0: bytes = ((gitxnas 0 ApplicationArgs) 2u)
+                let tmp%19#0: bool = (== tmp%18#0 "5b")
+                (assert tmp%19#0)
+                let create_txns.0%%param_ApplicationArgs_idx_0#0: bytes = "1c"
+                let create_txns.0%%param_ApplicationArgs_idx_1#0: bytes = "2c"
+                let create_txns.1%%param_ApplicationArgs_idx_0#0: bytes = "3c"
+                let create_txns.1%%param_ApplicationArgs_idx_1#0: bytes = "4c"
+                let create_txns.1%%param_ApplicationArgs_idx_2#0: bytes = "5c"
+                itxn_begin
+                ((itxn_field Fee) create_txns.0%%param_Fee_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field OnCompletion) create_txns.0%%param_OnCompletion_idx_0#0)
+                ((itxn_field ClearStateProgramPages) create_txns.0%%param_ClearStateProgramPages_idx_0#0)
+                ((itxn_field ApprovalProgramPages) create_txns.0%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field TypeEnum) create_txns.0%%param_TypeEnum_idx_0#0)
+                goto block@5
+            block@5: // next_txn_L63
+                itxn_next
+                ((itxn_field Fee) create_txns.1%%param_Fee_idx_0#0)
+                ((itxn_field Note) create_txns.1%%param_Note_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_2#0)
+                ((itxn_field OnCompletion) create_txns.1%%param_OnCompletion_idx_0#0)
+                ((itxn_field ClearStateProgramPages) create_txns.1%%param_ClearStateProgramPages_idx_0#0)
+                ((itxn_field ApprovalProgramPages) create_txns.1%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field TypeEnum) create_txns.1%%param_TypeEnum_idx_0#0)
+                goto block@6
+            block@6: // next_txn_L63
+                itxn_submit
+                let tmp%20#0: bytes = ((gitxnas 0 ApplicationArgs) 0u)
+                let tmp%21#0: bool = (== tmp%20#0 "1c")
+                (assert tmp%21#0)
+                let tmp%22#0: bytes = ((gitxnas 0 ApplicationArgs) 1u)
+                let tmp%23#0: bool = (== tmp%22#0 "2c")
+                (assert tmp%23#0)
+                let tmp%24#0: bytes = ((itxnas ApplicationArgs) 0u)
+                let tmp%25#0: bool = (== tmp%24#0 "3c")
+                (assert tmp%25#0)
+                let tmp%26#0: bytes = ((itxnas ApplicationArgs) 1u)
+                let tmp%27#0: bool = (== tmp%26#0 "4c")
+                (assert tmp%27#0)
+                let tmp%28#0: bytes = ((itxnas ApplicationArgs) 2u)
+                let tmp%29#0: bool = (== tmp%28#0 "5c")
+                (assert tmp%29#0)
+                return 
+        
+        subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed() -> void:
+            block@0: // L71
+                let tuple_with_txn_fields.0%%param_TypeEnum_idx_0#0: uint64 = appl
+                let tuple_with_txn_fields.0%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
+                let tuple_with_txn_fields.0%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
+                let tuple_with_txn_fields.0%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
+                let tuple_with_txn_fields.0%%param_ApplicationArgs_idx_0#0: bytes = "1a"
+                let tuple_with_txn_fields.0%%param_ApplicationArgs_idx_1#0: bytes = "2a"
+                let tuple_with_txn_fields.0%%param_Fee_idx_0#0: uint64 = 0u
+                let tuple_with_txn_fields.1#0: bytes = "some other value"
+                itxn_begin
+                ((itxn_field Fee) tuple_with_txn_fields.0%%param_Fee_idx_0#0)
+                ((itxn_field ApplicationArgs) tuple_with_txn_fields.0%%param_ApplicationArgs_idx_0#0)
+                ((itxn_field ApplicationArgs) tuple_with_txn_fields.0%%param_ApplicationArgs_idx_1#0)
+                ((itxn_field OnCompletion) tuple_with_txn_fields.0%%param_OnCompletion_idx_0#0)
+                ((itxn_field ClearStateProgramPages) tuple_with_txn_fields.0%%param_ClearStateProgramPages_idx_0#0)
+                ((itxn_field ApprovalProgramPages) tuple_with_txn_fields.0%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field TypeEnum) tuple_with_txn_fields.0%%param_TypeEnum_idx_0#0)
+                goto block@1
+            block@1: // next_txn_L83
+                itxn_submit
+                let result_with_txn.1#0: bytes = tuple_with_txn_fields.1#0
+                let tmp%0#0: bytes = ((itxnas ApplicationArgs) 0u)
+                let tmp%1#0: bool = (== tmp%0#0 "1a")
+                (assert tmp%1#0)
+                let tmp%2#0: bytes = ((itxnas ApplicationArgs) 1u)
+                let tmp%3#0: bool = (== tmp%2#0 "2a")
+                (assert tmp%3#0)
+                let tmp%4#0: bool = (== result_with_txn.1#0 "some other value")
+                (assert tmp%4#0)
+                return 
+    
+    program clear-state:
+        subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.clear_state_program() -> bool:
+            block@0: // L21
+                return 1u

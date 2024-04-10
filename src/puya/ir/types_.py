@@ -68,6 +68,8 @@ def wtype_to_ir_type(
             | wtypes.asset_wtype
             | wtypes.application_wtype
             | wtypes.WGroupTransaction()
+            | wtypes.WInnerTransactionFields()
+            | wtypes.WInnerTransaction()
         ):
             return IRType.uint64
         case wtypes.biguint_wtype:
@@ -116,6 +118,8 @@ def wtype_to_avm_type(
             | wtypes.asset_wtype
             | wtypes.application_wtype
             | wtypes.WGroupTransaction()
+            | wtypes.WInnerTransaction()
+            | wtypes.WInnerTransactionFields()
         ):
             return AVMType.uint64
         case (

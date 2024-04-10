@@ -18,6 +18,21 @@ class Greeter(ARC4Contract):
         assert result == "echo: test5"
 
     @arc4.abimethod()
+    def test_method_overload(self, app: Application) -> None:
+        arc4.abi_call[arc4.String]("echo(string)string", "typed + ignore", app_id=app, fee=0)
+        assert arc4.String.from_log(op.ITxn.last_log()) == "echo: typed + ignore"
+
+        arc4.abi_call("echo(string)string", "untyped + ignore", app_id=app, fee=0)
+        assert arc4.String.from_log(op.ITxn.last_log()) == "echo: untyped + ignore"
+
+        result = arc4.abi_call[arc4.String]("echo(string)string", "tuple", app_id=app, fee=0)
+        assert result[0] == "echo: tuple"
+        assert arc4.String.from_log(result[1].last_log) == "echo: tuple"
+
+        txn_result = arc4.abi_call("echo(string)string", "untyped", app_id=app, fee=0)
+        assert arc4.String.from_log(txn_result.last_log) == "echo: untyped"
+
+    @arc4.abimethod()
     def test_arg_conversion(self, app: Application) -> None:
         txn = arc4.abi_call(Logger.log_string, "converted1", app_id=app, fee=0)
         assert txn.last_log == b"converted1"

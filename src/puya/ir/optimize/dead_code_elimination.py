@@ -215,7 +215,7 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
     for (block, ass), registers in assignments.items():
         if registers.symmetric_difference(ass.targets):
             pass  # some registers still used
-        elif isinstance(ass.source, models.Value) or (
+        elif isinstance(ass.source, models.Value | models.InnerTransactionField) or (
             isinstance(ass.source, models.Intrinsic)
             and ass.source.op.code in SIDE_EFFECT_FREE_AVM_OPS
         ):
