@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from functools import cached_property
 
 import attrs
 
@@ -13,7 +14,7 @@ class StackArgMapping:
     arg_name: str
     """Name of algopy argument to obtain value from"""
     allowed_types: Sequence[wtypes.WType] = attrs.field()
-    """Valid types for this argument"""
+    """Valid types for this argument, in descending priority for literal conversions"""
 
     @allowed_types.validator
     def check(self, _attribute: object, value: Sequence[wtypes.WType]) -> None:
@@ -41,3 +42,7 @@ class FunctionOpMapping:
     """Types output by TEAL op"""
     is_property: bool = False
     """Is this function represented as a property"""
+
+    @cached_property
+    def literal_arg_names(self) -> set[str]:
+        return {im.arg_name for im in self.immediates if not isinstance(im, str)}

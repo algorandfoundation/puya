@@ -298,14 +298,20 @@ def get_arg_mapping(
     location: SourceLocation,
 ) -> dict[str, T]:
     arg_mapping = dict[str, T]()
+    has_too_many_error = False
     for arg_idx, (supplied_arg_name, arg) in enumerate(args):
         if supplied_arg_name is not None:
             arg_name = supplied_arg_name
         else:
             try:
                 arg_name = positional_arg_names[arg_idx]
-            except IndexError as ex:
-                raise CodeError("Too many positional arguments", location) from ex
+            except IndexError:
+                if not has_too_many_error:
+                    logger.error(  # noqa: TRY400
+                        "Too many positional arguments", location=location
+                    )
+                    has_too_many_error = True
+                continue
         arg_mapping[arg_name] = arg
     return arg_mapping
 
