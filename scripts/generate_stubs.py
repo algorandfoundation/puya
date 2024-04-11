@@ -50,7 +50,7 @@ WTYPE_TO_LITERAL: dict[wtypes.WType, type[int | str | bytes] | None] = {
     wtypes.bytes_wtype: bytes,
     wtypes.uint64_wtype: int,
     wtypes.account_wtype: None,  # could be str
-    wtypes.biguint_wtype: None,  # could be int
+    wtypes.biguint_wtype: int,
     wtypes.bool_wtype: None,  # already a Python type
     # below are covered transitively with respect to STACK_TYPE_MAPPING
     wtypes.application_wtype: None,  # maybe could be int? but also covered transitively anyway

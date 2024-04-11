@@ -76,7 +76,7 @@ def bitlen(a: Bytes | UInt64 | bytes | int, /) -> UInt64:
     Native TEAL opcode: [`bitlen`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#bitlen)
     """
 
-def bsqrt(a: BigUInt, /) -> BigUInt:
+def bsqrt(a: BigUInt | int, /) -> BigUInt:
     """
     The largest integer I such that I^2 <= A. A and I are interpreted as big-endian unsigned integers
 
