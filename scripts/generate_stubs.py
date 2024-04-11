@@ -678,7 +678,7 @@ def get_python_enum_class(arg_enum: str) -> str:
     return snake_case(arg_enum).replace("_", " ").title().replace(" ", "")
 
 
-def get_op_args(op: Op) -> Iterable[TypedName]:
+def get_op_args(op: Op, replace_any_with: StackType | None) -> Iterable[TypedName]:
     for immediate in op.immediate_args:
         arg_type: ImmediateKind | str = immediate.immediate_type
         if immediate.immediate_type == ImmediateKind.arg_enum:
@@ -691,7 +691,7 @@ def get_op_args(op: Op) -> Iterable[TypedName]:
             doc=immediate.doc,
         )
 
-    yield from map_typed_names(op.stack_inputs)
+    yield from map_typed_names(op.stack_inputs, replace_any_with=replace_any_with)
 
 
 def get_op_returns(op: Op, replace_any_with: StackType | None) -> Iterable[TypedName]:
@@ -789,7 +789,7 @@ def build_operation_method(
     replace_any_with: StackType | None = None,
     const_immediate_value: tuple[Immediate, ArgEnum] | None = None,
 ) -> FunctionDef:
-    args = list(get_op_args(op))
+    args = list(get_op_args(op, replace_any_with))
 
     # python stub args can be different to mapping args, due to immediate args
     # that are inferred based on the method/property used
