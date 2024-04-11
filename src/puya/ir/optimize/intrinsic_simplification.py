@@ -1,4 +1,5 @@
 import base64
+import math
 import operator
 import typing
 from collections.abc import Callable
@@ -447,6 +448,9 @@ def _try_simplify_uint64_unary_op(
         elif intrinsic.op is AVMOp.bitwise_not:
             inverted = x ^ 0xFFFFFFFFFFFFFFFF
             return models.UInt64Constant(value=inverted, source_location=op_loc)
+        elif intrinsic.op is AVMOp.sqrt:
+            value = math.isqrt(x)
+            return models.UInt64Constant(value=value, source_location=op_loc)
         else:
             logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {x}")
     return None
@@ -456,21 +460,27 @@ def _try_simplify_bytes_unary_op(
     subroutine: models.Subroutine, intrinsic: models.Intrinsic, arg: models.Value
 ) -> models.ValueProvider | None:
     op_loc = intrinsic.source_location
-    byte_const = _get_byte_constant(subroutine, arg)
-    if byte_const is not None:
-        if intrinsic.op is AVMOp.bitwise_not_bytes:
-            inverted = bytes([x ^ 0xFF for x in byte_const.value])
-            return models.BytesConstant(
-                value=inverted, encoding=byte_const.encoding, source_location=op_loc
-            )
-        elif intrinsic.op is AVMOp.btoi:
-            converted = int.from_bytes(byte_const.value, byteorder="big", signed=False)
-            return models.UInt64Constant(value=converted, source_location=op_loc)
-        elif intrinsic.op is AVMOp.len_:
-            length = len(byte_const.value)
-            return models.UInt64Constant(value=length, source_location=op_loc)
-        else:
-            logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
+    if intrinsic.op is AVMOp.bsqrt:
+        biguint_const, _, _ = _get_biguint_constant(subroutine, arg)
+        if biguint_const is not None:
+            value = math.isqrt(biguint_const)
+            return models.BigUIntConstant(value=value, source_location=op_loc)
+    else:
+        byte_const = _get_byte_constant(subroutine, arg)
+        if byte_const is not None:
+            if intrinsic.op is AVMOp.bitwise_not_bytes:
+                inverted = bytes([x ^ 0xFF for x in byte_const.value])
+                return models.BytesConstant(
+                    value=inverted, encoding=byte_const.encoding, source_location=op_loc
+                )
+            elif intrinsic.op is AVMOp.btoi:
+                converted = int.from_bytes(byte_const.value, byteorder="big", signed=False)
+                return models.UInt64Constant(value=converted, source_location=op_loc)
+            elif intrinsic.op is AVMOp.len_:
+                length = len(byte_const.value)
+                return models.UInt64Constant(value=length, source_location=op_loc)
+            else:
+                logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
     return None
 
 

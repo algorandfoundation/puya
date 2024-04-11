@@ -1,4 +1,4 @@
-from algopy import Contract, UInt64
+from algopy import Contract, UInt64, op
 
 
 class Uint64Contract(Contract):
@@ -72,6 +72,8 @@ class Uint64Contract(Contract):
         assert y == 0b00111110
         y ^= 0b11111111
         assert y == 0b11000001
+
+        assert op.sqrt(UInt64(17)) == op.sqrt(16)
 
         return UInt64(1)
 
