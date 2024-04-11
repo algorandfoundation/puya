@@ -1,4 +1,4 @@
-from algopy import BigUInt, Contract, UInt64, subroutine
+from algopy import BigUInt, Contract, UInt64, op, subroutine
 
 
 class BigUIntContract(Contract):
@@ -6,6 +6,7 @@ class BigUIntContract(Contract):
         compare_biguints(BigUInt(1), BigUInt(2))
         compare_biguint_vs_uint64(BigUInt(1), UInt64(2))
         compare_uint64_vs_biguint(UInt64(1), BigUInt(2))
+        assert op.bsqrt(BigUInt(9)) == op.bsqrt(10)
         return True
 
     def clear_state_program(self) -> bool:
