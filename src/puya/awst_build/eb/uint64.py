@@ -60,7 +60,9 @@ class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
             case [Literal(value=int(int_value))]:
                 const = UInt64Constant(value=int_value, source_location=location)
             case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+                logger.error("Invalid/unhandled arguments", location=location)
+                # dummy value to continue with
+                const = UInt64Constant(value=0, source_location=location)
         return var_expression(const)
 
 

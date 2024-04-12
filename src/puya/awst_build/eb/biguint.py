@@ -60,7 +60,9 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             case [ExpressionBuilder() as eb]:
                 value = uint64_to_biguint(eb, location)
             case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+                logger.error("Invalid/unhandled arguments", location=location)
+                # dummy value to continue with
+                value = BigUIntConstant(value=0, source_location=location)
         return var_expression(value)
 
 

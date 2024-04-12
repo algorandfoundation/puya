@@ -37,7 +37,7 @@ class Arc4SignatureBuilder(IntermediateExpressionBuilder):
                 pass
             case _:
                 logger.error(f"Unexpected args for {ARC4_SIGNATURE_ALIAS}", location=location)
-                str_value = "" # dummy value to keep evaluating
+                str_value = ""  # dummy value to keep evaluating
         return var_expression(
             MethodConstant(
                 value=str_value,

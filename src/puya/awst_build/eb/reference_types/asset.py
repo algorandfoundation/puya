@@ -4,14 +4,9 @@ import typing
 
 from immutabledict import immutabledict
 
+from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    CheckedMaybe,
-    Expression,
-    IntrinsicCall,
-    Literal,
-    UInt64Constant,
-)
+from puya.awst.nodes import CheckedMaybe, Expression, IntrinsicCall, Literal, UInt64Constant
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -30,6 +25,9 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
+logger = log.get_logger(__name__)
+
+
 class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
     def produces(self) -> wtypes.WType:
         return wtypes.asset_wtype
@@ -44,12 +42,14 @@ class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
         match args:
             case []:
                 uint64_expr: Expression = UInt64Constant(value=0, source_location=location)
-            case [Literal(value=int(int_value), source_location=loc)]:
-                uint64_expr = UInt64Constant(value=int_value, source_location=loc)
+            case [Literal(value=int(int_value))]:
+                uint64_expr = UInt64Constant(value=int_value, source_location=location)
             case [ExpressionBuilder() as eb]:
                 uint64_expr = expect_operand_wtype(eb, wtypes.uint64_wtype)
             case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+                logger.error("Invalid/unhandled arguments", location=location)
+                # dummy value to continue with
+                uint64_expr = UInt64Constant(value=0, source_location=location)
         return AssetExpressionBuilder(uint64_expr)
 
 

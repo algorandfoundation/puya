@@ -4,6 +4,7 @@ import typing
 
 from immutabledict import immutabledict
 
+from puya import log
 from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -41,6 +42,9 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
+logger = log.get_logger(__name__)
+
+
 class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     def produces(self) -> wtypes.WType:
         return wtypes.account_wtype
@@ -54,8 +58,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case []:
-                const_op = intrinsic_factory.zero_address(location)
-                return var_expression(const_op)
+                value: Expression = intrinsic_factory.zero_address(location)
             case [Literal(value=str(addr_value))]:
                 if not wtypes.valid_address(addr_value):
                     raise CodeError(
@@ -63,8 +66,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                         f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
                         location,
                     )
-                const = AddressConstant(value=addr_value, source_location=location)
-                return var_expression(const)
+                value = AddressConstant(value=addr_value, source_location=location)
             case [ExpressionBuilder() as eb]:
                 value = expect_operand_wtype(eb, wtypes.bytes_wtype)
                 address_bytes_temp = SingleEvaluation(value)
@@ -80,13 +82,14 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                     source_location=location,
                     comment="Address length is 32 bytes",
                 )
-                return var_expression(
-                    ReinterpretCast(
-                        expr=address_bytes, wtype=self.produces(), source_location=location
-                    )
+                value = ReinterpretCast(
+                    expr=address_bytes, wtype=self.produces(), source_location=location
                 )
             case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+                logger.error("Invalid/unhandled arguments", location=location)
+                # dummy value to continue with
+                value = intrinsic_factory.zero_address(location)
+        return var_expression(value)
 
 
 class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
