@@ -22,7 +22,7 @@ contract Arc4StructsTypeContract
     coord_1: test_cases.arc4_types.structs.Vector = arc4_encode((35.382882839arc4u64x9, 150.382884930arc4u64x9), test_cases.arc4_types.structs.Vector)
     coord_2: test_cases.arc4_types.structs.Vector = arc4_encode((35.382882839arc4u64x9, 150.382884930arc4u64x9), test_cases.arc4_types.structs.Vector)
     coord_3: test_cases.arc4_types.structs.Vector = test_cases.arc4_types.structs::add(coord_1.copy(), coord_2.copy())
-    for val in (coord_3[0u], coord_3[1u]) {
+    for val in (coord_3.x, coord_3.y) {
       log(reinterpret_cast<algopy.Bytes>(val))
     }
     flags: test_cases.arc4_types.structs.Flags = arc4_encode((arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool), arc4_encode(true, algopy.arc4.Bool), arc4_encode(false, algopy.arc4.Bool)), test_cases.arc4_types.structs.Flags)
@@ -41,21 +41,21 @@ contract Arc4StructsTypeContract
 
 subroutine add(v1: test_cases.arc4_types.structs.Vector, v2: test_cases.arc4_types.structs.Vector): test_cases.arc4_types.structs.Vector
 {
-  return arc4_encode((test_cases.arc4_types.structs::add_decimal(v1[0u], v2[0u]), test_cases.arc4_types.structs::add_decimal(v1[1u], v2[1u])), test_cases.arc4_types.structs.Vector)
+  return arc4_encode((test_cases.arc4_types.structs::add_decimal(v1.x, v2.x), test_cases.arc4_types.structs::add_decimal(v1.y, v2.y)), test_cases.arc4_types.structs.Vector)
 }
 
 subroutine check(flags: test_cases.arc4_types.structs.Flags): None
 {
-  assert(arc4_decode(flags[0u], bool))
-  assert(!(arc4_decode(flags[1u], bool)))
-  assert(arc4_decode(flags[2u], bool))
-  assert(!(arc4_decode(flags[3u], bool)))
+  assert(arc4_decode(flags.a, bool))
+  assert(!(arc4_decode(flags.b, bool)))
+  assert(arc4_decode(flags.c, bool))
+  assert(!(arc4_decode(flags.d, bool)))
 }
 
 subroutine nested_decode(vector_flags: test_cases.arc4_types.structs.VectorFlags): None
 {
-  assert(reinterpret_cast<algopy.Bytes>(vector_flags[0u][0u]) == itob(35382882839u))
-  assert(arc4_decode(vector_flags[1u][2u], bool))
+  assert(reinterpret_cast<algopy.Bytes>(vector_flags.vector.x) == itob(35382882839u))
+  assert(arc4_decode(vector_flags.flags.c, bool))
 }
 
 subroutine add_decimal(x: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]], y: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]): algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[9]]

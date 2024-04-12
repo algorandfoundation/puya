@@ -3,7 +3,7 @@ import functools
 import math
 import os
 import typing
-from collections.abc import Callable, Iterable, Iterator, MutableMapping, MutableSet, Set
+from collections.abc import Callable, Iterable, Iterator, MutableMapping, MutableSet, Sequence, Set
 from pathlib import Path
 
 import attrs
@@ -255,3 +255,7 @@ def coalesce(*args: T | None) -> T | None:
         if arg is not None:
             return arg
     return None
+
+
+def positive_index(idx: int, seq: Sequence[T]) -> int:
+    return idx if idx >= 0 else len(seq) + idx

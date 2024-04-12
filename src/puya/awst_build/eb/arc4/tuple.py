@@ -7,20 +7,12 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
     Expression,
-    IndexExpression,
     Literal,
-    UInt64Constant,
+    TupleItemExpression,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.arc4.base import (
-    ARC4ClassExpressionBuilder,
-    ARC4EncodedExpressionBuilder,
-)
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    GenericClassExpressionBuilder,
-    TypeClassExpressionBuilder,
-)
+from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
+from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError
 
@@ -34,62 +26,6 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ARC4TupleGenericClassExpressionBuilder(GenericClassExpressionBuilder):
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> TypeClassExpressionBuilder:
-        tuple_item_types = list[wtypes.WType]()
-        for index in indexes:
-            match index:
-                case TypeClassExpressionBuilder() as type_class:
-                    wtype = type_class.produces()
-                    if not wtypes.is_arc4_encoded_type(wtype):
-                        raise CodeError(
-                            "ARC4 Tuples can only contain ARC4 encoded values", location
-                        )
-                    tuple_item_types.append(wtype)
-                case _:
-                    raise CodeError("Invalid type parameter", index.source_location)
-        return ARC4TupleClassExpressionBuilder(
-            location, wtypes.ARC4Tuple.from_types(tuple_item_types)
-        )
-
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> ExpressionBuilder:
-        return tuple_constructor(args, None, location)
-
-
-def tuple_constructor(
-    args: Sequence[ExpressionBuilder | Literal],
-    wtype: wtypes.ARC4Tuple | None,
-    location: SourceLocation,
-) -> ExpressionBuilder:
-    match args:
-        case [ExpressionBuilder(value_type=wtypes.WTuple() as tuple_wtype) as eb]:
-            tuple_ex = eb.rvalue()
-
-            if wtype is None:
-                wtype = wtypes.ARC4Tuple.from_types(tuple_wtype.types)
-            else:
-                expected_type = wtypes.WTuple.from_types(wtype.types)
-                if tuple_ex.wtype != expected_type:
-                    raise CodeError(
-                        f"Invalid arg type: expected {expected_type}, got {tuple_ex.wtype}",
-                        location,
-                    )
-
-            return var_expression(
-                ARC4Encode(value=tuple_ex, wtype=wtype, source_location=location)
-            )
-
-    raise CodeError("Invalid/unhandled arguments", location)
-
-
 class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
     def __init__(self, location: SourceLocation, wtype: wtypes.ARC4Tuple | None = None):
         super().__init__(location)
@@ -98,7 +34,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
     def produces(self) -> wtypes.WType:
         if not self.wtype:
             raise CodeError(
-                "Unparameterized tuple class cannot be used as a type", self.source_location
+                "Unparameterized arc4.Tuple class cannot be used as a type", self.source_location
             )
         return self.wtype
 
@@ -134,7 +70,26 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        return tuple_constructor(args, self.wtype, location)
+        wtype = self.wtype
+        match args:
+            case [ExpressionBuilder(value_type=wtypes.WTuple() as tuple_wtype) as eb]:
+                tuple_ex = eb.rvalue()
+
+                if wtype is None:
+                    wtype = wtypes.ARC4Tuple.from_types(tuple_wtype.types)
+                else:
+                    expected_type = wtypes.WTuple.from_types(wtype.types)
+                    if tuple_ex.wtype != expected_type:
+                        raise CodeError(
+                            f"Invalid arg type: expected {expected_type}, got {tuple_ex.wtype}",
+                            location,
+                        )
+
+                return var_expression(
+                    ARC4Encode(value=tuple_ex, wtype=wtype, source_location=location)
+                )
+
+        raise CodeError("Invalid/unhandled arguments", location)
 
 
 class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
@@ -146,22 +101,24 @@ class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        match index:
-            case Literal(value=int(index_int), source_location=index_loc):
+        index_expr_or_literal = index
+        match index_expr_or_literal:
+            case Literal(value=int(index_value)) as index_literal:
                 try:
-                    item_wtype = self.wtype.types[index_int]
+                    self.wtype.types[index_value]
                 except IndexError as ex:
-                    raise CodeError("Tuple index out of bounds", index_loc) from ex
+                    raise CodeError(
+                        "Tuple index out of bounds", index_literal.source_location
+                    ) from ex
                 return var_expression(
-                    IndexExpression(
-                        source_location=location,
+                    TupleItemExpression(
                         base=self.expr,
-                        index=UInt64Constant(value=index_int, source_location=index_loc),
-                        wtype=item_wtype,
+                        index=index_value,
+                        source_location=location,
                     )
                 )
             case _:
-                raise CodeError(f"{self.wtype.name} can only be indexed with literal values")
+                raise CodeError("arc4.Tuple can only be indexed by int constants")
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)

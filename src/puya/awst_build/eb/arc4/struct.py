@@ -7,10 +7,9 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
     Expression,
-    IndexExpression,
+    FieldExpression,
     Literal,
     TupleExpression,
-    UInt64Constant,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
@@ -30,6 +29,7 @@ if typing.TYPE_CHECKING:
         ExpressionBuilder,
     )
     from puya.parse import SourceLocation
+
 
 logger = log.get_logger(__name__)
 
@@ -88,14 +88,13 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
-            case tuple_field if tuple_field in self.wtype.fields:
-                index = self.wtype.names.index(tuple_field)
+            case field_name if field_name in self.wtype.fields:
                 return var_expression(
-                    IndexExpression(
+                    FieldExpression(
                         source_location=location,
                         base=self.expr,
-                        index=UInt64Constant(value=index, source_location=location),
-                        wtype=self.wtype.fields[tuple_field],
+                        name=field_name,
+                        wtype=self.wtype.fields[field_name],
                     )
                 )
             case "bytes":

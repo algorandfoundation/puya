@@ -51,6 +51,7 @@ from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStateDeclaration
 from puya.awst_build.eb.arc4 import (
+    ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
     ARC4StructClassExpressionBuilder,
 )
@@ -60,7 +61,6 @@ from puya.awst_build.eb.base import (
     ExpressionBuilder,
     StateProxyDefinitionBuilder,
     StateProxyMemberBuilder,
-    TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
 from puya.awst_build.eb.contracts import (
@@ -838,10 +838,7 @@ class FunctionASTConverter(
 
         callee = call.callee.accept(self)
         callee_builder = require_expression_builder(callee)
-        if (
-            isinstance(callee_builder, TypeClassExpressionBuilder)
-            and callee_builder.produces() == wtypes.bool_wtype
-        ):
+        if isinstance(callee_builder, BoolClassExpressionBuilder | ARC4BoolClassExpressionBuilder):
             args_context: typing.Any = self._enter_bool_context
         else:
             args_context = contextlib.nullcontext

@@ -45,7 +45,6 @@ from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     ExpressionBuilder,
-    GenericClassExpressionBuilder,
     IntermediateExpressionBuilder,
     Iteration,
     TypeClassExpressionBuilder,
@@ -69,69 +68,10 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class DynamicArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> TypeClassExpressionBuilder:
-        match indexes:
-            case [TypeClassExpressionBuilder() as eb]:
-                element_wtype = eb.produces()
-                wtype = wtypes.ARC4DynamicArray.from_element_type(element_wtype)
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-        return DynamicArrayClassExpressionBuilder(location=location, wtype=wtype)
-
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> ExpressionBuilder:
-        return dynamic_array_constructor(args=args, wtype=None, location=location)
-
-
-def dynamic_array_constructor(
-    args: Sequence[ExpressionBuilder | Literal],
-    wtype: wtypes.ARC4DynamicArray | None,
-    location: SourceLocation,
-) -> ExpressionBuilder:
-    non_literal_args = [
-        require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
-        for a in args
-    ]
-    if wtype is None:
-        if non_literal_args:
-            element_wtype = non_literal_args[0].wtype
-            wtype = wtypes.ARC4DynamicArray.from_element_type(element_wtype)
-        else:
-            raise CodeError("Empty arrays require a type annotation to be instantiated", location)
-
-    for a in non_literal_args:
-        expect_operand_wtype(a, wtype.element_type)
-
-    return var_expression(
-        ARC4ArrayEncode(
-            source_location=location,
-            values=tuple(non_literal_args),
-            wtype=wtype,
-        )
-    )
-
-
 class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     def __init__(self, location: SourceLocation, wtype: wtypes.ARC4DynamicArray | None = None):
         super().__init__(location)
         self.wtype = wtype
-
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> ExpressionBuilder:
-        return dynamic_array_constructor(args=args, wtype=self.wtype, location=location)
 
     def produces(self) -> wtypes.WType:
         if not self.wtype:
@@ -141,27 +81,91 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             )
         return self.wtype
 
+    def index(
+        self, index: ExpressionBuilder | Literal, location: SourceLocation
+    ) -> ExpressionBuilder:
+        return self.index_multiple([index], location)
 
-class StaticArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
     def index_multiple(
         self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> TypeClassExpressionBuilder:
+    ) -> ExpressionBuilder:
+        match indexes:
+            case [TypeClassExpressionBuilder() as eb]:
+                element_wtype = eb.produces()
+                self.wtype = wtypes.ARC4DynamicArray.from_element_type(element_wtype)
+                return self
+            case _:
+                raise CodeError("Invalid/unhandled arguments", location)
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        non_literal_args = [
+            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
+            for a in args
+        ]
+        wtype = self.wtype
+        if wtype is None:
+            if non_literal_args:
+                element_wtype = non_literal_args[0].wtype
+                wtype = wtypes.ARC4DynamicArray.from_element_type(element_wtype)
+            else:
+                raise CodeError(
+                    "Empty arrays require a type annotation to be instantiated", location
+                )
+
+        for a in non_literal_args:
+            expect_operand_wtype(a, wtype.element_type)
+
+        return var_expression(
+            ARC4ArrayEncode(
+                source_location=location,
+                values=tuple(non_literal_args),
+                wtype=wtype,
+            )
+        )
+
+
+class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
+    def __init__(self, location: SourceLocation, wtype: wtypes.ARC4StaticArray | None = None):
+        super().__init__(location)
+        self.wtype = wtype
+
+    def produces(self) -> wtypes.WType:
+        if not self.wtype:
+            raise InternalError(
+                "Cannot resolve wtype of generic EB until the index method is called with the "
+                "generic type parameter."
+            )
+        return self.wtype
+
+    def index(
+        self, index: ExpressionBuilder | Literal, location: SourceLocation
+    ) -> ExpressionBuilder:
+        return self.index_multiple([index], location)
+
+    def index_multiple(
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+    ) -> ExpressionBuilder:
         match indexes:
             case [TypeClassExpressionBuilder() as item_type, array_size]:
                 array_size_ = get_integer_literal_value(array_size, "Array size")
                 element_wtype = item_type.produces()
-                wtype = wtypes.ARC4StaticArray.from_element_type_and_size(
+                self.wtype = wtypes.ARC4StaticArray.from_element_type_and_size(
                     array_size=array_size_,
                     element_type=element_wtype,
                 )
-
+                return self
             case _:
                 raise CodeError(
                     "Invalid type arguments for StaticArray. "
                     "Expected StaticArray[ItemType, typing.Literal[n]]",
                     location,
                 )
-        return StaticArrayClassExpressionBuilder(location=location, wtype=wtype)
 
     def call(
         self,
@@ -170,70 +174,44 @@ class StaticArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        return static_array_constructor(args=args, wtype=None, location=location)
-
-
-def static_array_constructor(
-    args: Sequence[ExpressionBuilder | Literal],
-    wtype: wtypes.ARC4StaticArray | None,
-    location: SourceLocation,
-) -> ExpressionBuilder:
-    non_literal_args = [
-        require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
-        for a in args
-    ]
-    if wtype is None:
-        if non_literal_args:
-            element_wtype = non_literal_args[0].wtype
-            array_size = len(non_literal_args)
-            wtype = wtypes.ARC4StaticArray.from_element_type_and_size(
-                array_size=array_size,
-                element_type=element_wtype,
+        non_literal_args = [
+            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
+            for a in args
+        ]
+        wtype = self.wtype
+        if wtype is None:
+            if non_literal_args:
+                element_wtype = non_literal_args[0].wtype
+                array_size = len(non_literal_args)
+                wtype = wtypes.ARC4StaticArray.from_element_type_and_size(
+                    array_size=array_size,
+                    element_type=element_wtype,
+                )
+            else:
+                raise CodeError(
+                    "Empty arrays require a type annotation to be instantiated", location
+                )
+        elif wtype.array_size != len(non_literal_args):
+            raise CodeError(
+                f"StaticArray should be initialized with {wtype.array_size} values",
+                location,
             )
-        else:
-            raise CodeError("Empty arrays require a type annotation to be instantiated", location)
-    elif wtype.array_size != len(non_literal_args):
-        raise CodeError(
-            f"StaticArray should be initialized with {wtype.array_size} values",
-            location,
-        )
 
-    for a in non_literal_args:
-        expect_operand_wtype(a, wtype.element_type)
+        for a in non_literal_args:
+            expect_operand_wtype(a, wtype.element_type)
 
-    return var_expression(
-        ARC4ArrayEncode(
-            source_location=location,
-            values=tuple(non_literal_args),
-            wtype=wtype,
-        )
-    )
-
-
-class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
-    def __init__(self, location: SourceLocation, wtype: wtypes.ARC4StaticArray):
-        super().__init__(location)
-        self.wtype = wtype
-
-    def call(
-        self,
-        args: Sequence[ExpressionBuilder | Literal],
-        arg_kinds: list[mypy.nodes.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> ExpressionBuilder:
-        return static_array_constructor(args=args, wtype=self.wtype, location=location)
-
-    def produces(self) -> wtypes.WType:
-        if not self.wtype:
-            raise InternalError(
-                "Cannot resolve wtype of generic EB until the index method is called with the "
-                "generic type parameter."
+        return var_expression(
+            ARC4ArrayEncode(
+                source_location=location,
+                values=tuple(non_literal_args),
+                wtype=wtype,
             )
-        return self.wtype
+        )
 
 
 class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
+    wtype: wtypes.ARC4StaticArray
+
     def __init__(self, location: SourceLocation):
         super().__init__(location=location, wtype=wtypes.arc4_address_type)
 

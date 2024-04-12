@@ -38,13 +38,6 @@ class CodeError(PuyaError):
     """Base class for all exceptions that indicate a fault in the code being compiled."""
 
 
-class TodoError(CodeError):
-    """Not a code error but it's not a crash either"""
-
-    def __init__(self, location: SourceLocation | None, msg: str | None = None):
-        super().__init__(msg or "TODO: support this thing", location=location)
-
-
 def _crash_report() -> None:
     # Adapted from report_internal_error in mypy
     tb = traceback.extract_stack()[:-4]

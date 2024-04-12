@@ -26,7 +26,7 @@ from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import require_expression_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
-from puya.utils import clamp
+from puya.utils import clamp, positive_index
 
 logger = log.get_logger(__name__)
 
@@ -84,14 +84,14 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
                         "Tuple index out of bounds", index_literal.source_location
                     ) from ex
                 item_expr = TupleItemExpression(
-                    source_location=location,
                     base=self.expr,
                     index=index_value,
+                    source_location=location,
                 )
                 return var_expression(item_expr)
             case _:
                 raise CodeError(
-                    "tuples can only be indexed by literal ints",
+                    "tuples can only be indexed by int constants",
                     index_expr_or_literal.source_location,
                 )
 
@@ -130,7 +130,7 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
                 expr = None
                 idx = None
             case Literal(value=int(idx), source_location=start_loc):
-                positive_idx = idx if idx >= 0 else len(self.wtype.types) + idx
+                positive_idx = positive_index(idx, self.wtype.types)
                 positive_idx_clamped = clamp(positive_idx, low=0, high=len(self.wtype.types) - 1)
                 expr = UInt64Constant(value=positive_idx_clamped, source_location=start_loc)
             case _:

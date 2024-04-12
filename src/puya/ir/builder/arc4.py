@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Callable, Sequence
 
 import attrs
@@ -90,12 +91,11 @@ def _visit_arc4_tuple_decode(
     items = list[Value]()
 
     for index in range(len(wtype.types)):
-        index_const = UInt64Constant(value=index, source_location=source_location)
         item_value = _read_nth_item_of_arc4_heterogeneous_container(
             context,
             array_bytes_sans_length_header=value,
             tuple_type=wtype,
-            index=index_const,
+            index=index,
             source_location=source_location,
         )
         (item,) = assign(
@@ -160,25 +160,29 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
             )
 
 
-def maybe_arc4_index_expr(
-    context: IRFunctionBuildContext, expr: awst_nodes.IndexExpression, base: Value, index: Value
-) -> ValueProvider | None:
+def arc4_array_index(
+    context: IRFunctionBuildContext,
+    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray,
+    base: Value,
+    index: Value,
+    source_location: SourceLocation,
+) -> ValueProvider:
     """
     If expr is an ARC4 index expression will return the resulting ValueProvider.
     Returns None if not an ARC4 expression
     """
 
-    match expr.base.wtype:
+    match wtype:
         case wtypes.ARC4StaticArray(array_size=array_size, element_type=element_type):
             _assert_index_in_bounds(
                 context,
                 index=index,
-                length=UInt64Constant(value=array_size, source_location=expr.source_location),
-                source_location=expr.source_location,
+                length=UInt64Constant(value=array_size, source_location=source_location),
+                source_location=source_location,
             )
             return _read_nth_item_of_arc4_homogeneous_container(
                 context,
-                source_location=expr.source_location,
+                source_location=source_location,
                 array_bytes_sans_length_header=base,
                 index=index,
                 item_wtype=element_type,
@@ -192,41 +196,48 @@ def maybe_arc4_index_expr(
                     op=AVMOp.extract_uint16,
                     args=[
                         base,
-                        UInt64Constant(value=0, source_location=expr.source_location),
+                        UInt64Constant(value=0, source_location=source_location),
                     ],
-                    source_location=expr.source_location,
+                    source_location=source_location,
                 ),
-                source_location=expr.source_location,
+                source_location=source_location,
             )
             (array_data_sans_header,) = assign(
                 context,
-                source_location=expr.source_location,
+                source_location=source_location,
                 temp_description="array_data_sans_header",
                 source=Intrinsic(
                     op=AVMOp.extract,
                     args=[base],
                     immediates=[2, 0],
-                    source_location=expr.source_location,
+                    source_location=source_location,
                 ),
             )
             return _read_nth_item_of_arc4_homogeneous_container(
                 context,
-                source_location=expr.source_location,
+                source_location=source_location,
                 array_bytes_sans_length_header=array_data_sans_header,
                 index=index,
                 item_wtype=element_type,
             )
-        case wtypes.ARC4Tuple() | wtypes.ARC4Struct() as tuple_type:
-            if not isinstance(index, UInt64Constant):
-                raise InternalError("Tuples must be index with a constant value")
-            return _read_nth_item_of_arc4_heterogeneous_container(
-                context,
-                source_location=expr.source_location,
-                array_bytes_sans_length_header=base,
-                index=index,
-                tuple_type=tuple_type,
-            )
-    return None
+        case _:
+            typing.assert_never(wtype)
+
+
+def arc4_tuple_index(
+    context: IRFunctionBuildContext,
+    base: Value,
+    index: int,
+    wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct,
+    source_location: SourceLocation,
+) -> ValueProvider:
+    return _read_nth_item_of_arc4_heterogeneous_container(
+        context,
+        array_bytes_sans_length_header=base,
+        index=index,
+        tuple_type=wtype,
+        source_location=source_location,
+    )
 
 
 def _value_as_uint16(
@@ -443,7 +454,7 @@ def encode_arc4_array(
 def _arc4_replace_struct_item(
     context: IRFunctionBuildContext,
     base_expr: awst_nodes.Expression,
-    index_value_expr: awst_nodes.Expression,
+    field_name: str,
     wtype: wtypes.ARC4Struct,
     value: ValueProvider,
     source_location: SourceLocation,
@@ -458,13 +469,10 @@ def _arc4_replace_struct_item(
         temp_description="assigned_value",
         source=value,
     )
-    if isinstance(index_value_expr, awst_nodes.IntegerConstant):
-        index_int = index_value_expr.value
-        if index_int >= len(wtype.types):
-            raise CodeError("Index access is out of bounds", source_location)
-        element_type = wtype.types[index_int]
-    else:
-        raise CodeError("arc4.Structs cannot be dynamically indexed", source_location)
+    element_type = wtype.fields.get(field_name)
+    if element_type is None:
+        raise CodeError(f"Invalid arc4.Struct field name {field_name}", source_location)
+    index_int = wtype.names.index(field_name)
 
     element_size = get_arc4_fixed_bit_size(element_type)
     header_up_to_item = determine_arc4_tuple_head_size(
@@ -676,15 +684,15 @@ def _read_nth_item_of_arc4_heterogeneous_container(
     *,
     array_bytes_sans_length_header: Value,
     tuple_type: wtypes.ARC4Tuple | wtypes.ARC4Struct,
-    index: UInt64Constant,
+    index: int,
     source_location: SourceLocation,
 ) -> ValueProvider:
     tuple_item_types = tuple_type.types
 
-    item_wtype = tuple_item_types[index.value]
+    item_wtype = tuple_item_types[index]
     item_bit_size = get_arc4_fixed_bit_size(item_wtype)
     head_up_to_item = determine_arc4_tuple_head_size(
-        tuple_item_types[0 : index.value], round_end_result=False
+        tuple_item_types[0:index], round_end_result=False
     )
     if item_bit_size is not None:
         item_index: Value = UInt64Constant(
@@ -1164,9 +1172,9 @@ def handle_arc4_assign(
                 ),
                 source_location=source_location,
             )
-        case awst_nodes.IndexExpression(
+        case awst_nodes.FieldExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
-            index=index_value,
+            name=field_name,
         ):
             return handle_arc4_assign(
                 context,
@@ -1174,7 +1182,7 @@ def handle_arc4_assign(
                 value=_arc4_replace_struct_item(
                     context,
                     base_expr=base_expr,
-                    index_value_expr=index_value,
+                    field_name=field_name,
                     wtype=struct_wtype,
                     value=value,
                     source_location=source_location,
