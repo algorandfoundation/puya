@@ -181,4 +181,4 @@ def _translate_biguint_math_operator(
     try:
         return BigUIntBinaryOperator(operator.value)
     except ValueError as ex:
-        raise CodeError(f"Unsupported BigUInt math operator {operator.value}", loc) from ex
+        raise CodeError(f"Unsupported BigUInt math operator {operator.value!r}", loc) from ex
