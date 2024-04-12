@@ -75,6 +75,8 @@ class Uint64Contract(Contract):
 
         assert op.sqrt(UInt64(17)) == op.sqrt(16)
 
+        assert one == +one
+
         return UInt64(1)
 
     def clear_state_program(self) -> bool:
