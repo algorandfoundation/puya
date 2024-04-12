@@ -12,7 +12,7 @@ from puya.awst.nodes import (
     BigUIntBinaryOperator,
     UInt64BinaryOperator,
 )
-from puya.errors import CodeError, InternalError, TodoError
+from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, flow_control, state
 from puya.ir.builder._utils import (
@@ -372,11 +372,44 @@ class FunctionIRBuilder(
         )
 
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> TExpression:
-        tup = self.visit_and_materialise(expr.base)
-        return tup[expr.index]
+        if isinstance(expr.base.wtype, wtypes.WTuple):
+            tup = self.visit_and_materialise(expr.base)
+            return tup[expr.index]
+        elif isinstance(expr.base.wtype, wtypes.ARC4Tuple):
+            base = self.visit_and_materialise_single(expr.base)
+            return arc4.arc4_tuple_index(
+                self.context,
+                base=base,
+                index=expr.index,
+                wtype=expr.base.wtype,
+                source_location=expr.source_location,
+            )
+        else:
+            raise InternalError(
+                f"Tuple indexing operation IR lowering"
+                f" not implemented for base type {expr.base.wtype.name}",
+                expr.source_location,
+            )
 
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
-        raise TodoError(expr.source_location, "TODO: IR building: visit_field_expression")
+        if isinstance(expr.base.wtype, wtypes.WStructType):
+            raise NotImplementedError
+        elif isinstance(expr.base.wtype, wtypes.ARC4Struct):  # noqa: RET506
+            base = self.visit_and_materialise_single(expr.base)
+            index = expr.base.wtype.names.index(expr.name)
+            return arc4.arc4_tuple_index(
+                self.context,
+                base=base,
+                index=index,
+                wtype=expr.base.wtype,
+                source_location=expr.source_location,
+            )
+        else:
+            raise InternalError(
+                f"Field access IR lowering"
+                f" not implemented for base type {expr.base.wtype.name}",
+                expr.source_location,
+            )
 
     def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> TExpression:
         """Slices an enumerable type."""
@@ -426,16 +459,15 @@ class FunctionIRBuilder(
                     source_location=expr.source_location,
                 )
         else:
-            raise TodoError(expr.source_location, f"TODO: IR Slice {expr.wtype}")
+            raise InternalError(
+                f"Slice operation IR lowering not implemented for {expr.wtype.name}",
+                expr.source_location,
+            )
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         index = self.visit_and_materialise_single(expr.index)
         base = self.visit_and_materialise_single(expr.base)
 
-        if expr.index.wtype != wtypes.uint64_wtype:
-            raise CodeError(
-                f"Only {wtypes.uint64_wtype} indexes are supported", expr.index.source_location
-            )
         if expr.base.wtype == wtypes.bytes_wtype:
             # note: the below works because Bytes is immutable, so this index expression
             # can never appear as an assignment target
@@ -464,10 +496,21 @@ class FunctionIRBuilder(
                 args=[base, index, index_plus_1],
                 source_location=expr.source_location,
             )
-        elif value_provider := arc4.maybe_arc4_index_expr(self.context, expr, base, index):
-            return value_provider
+        elif isinstance(expr.base.wtype, wtypes.WArray):
+            raise NotImplementedError
+        elif isinstance(expr.base.wtype, wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray):
+            return arc4.arc4_array_index(
+                self.context,
+                expr.base.wtype,
+                base=base,
+                index=index,
+                source_location=expr.source_location,
+            )
         else:
-            raise CodeError(f"Indexing {expr.base.wtype} is not support", expr.source_location)
+            raise InternalError(
+                f"Indexing operation IR lowering not implemented for {expr.wtype.name}",
+                expr.source_location,
+            )
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
         return flow_control.handle_conditional_expression(self.context, expr)
@@ -518,7 +561,7 @@ class FunctionIRBuilder(
         return state.visit_state_exists(self.context, expr)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
-        raise TodoError(expr.source_location, "TODO: visit_new_array")
+        raise NotImplementedError
 
     def visit_arc4_array_encode(self, expr: awst_nodes.ARC4ArrayEncode) -> TExpression:
         return arc4.encode_arc4_array(self.context, expr)
@@ -619,9 +662,10 @@ class FunctionIRBuilder(
         item_register = self.visit_and_materialise_single(expr.item)
 
         if not isinstance(expr.sequence.wtype, wtypes.WTuple):
-            raise TodoError(
+            raise InternalError(
+                f"Containment operation IR lowering"
+                f" not implemented for sequence type {expr.sequence.wtype.name}",
                 expr.source_location,
-                "TODO: IR building: visit_contains_expression handle non tuple contains",
             )
         items_sequence = [
             item
@@ -833,7 +877,7 @@ class FunctionIRBuilder(
         handle_for_in_loop(self.context, statement)
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
-        raise TodoError(expr.source_location, "TODO: visit_new_struct")
+        raise NotImplementedError
 
     def visit_array_pop(self, expr: puya.awst.nodes.ArrayPop) -> TExpression:
         source_location = expr.source_location

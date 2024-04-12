@@ -35,23 +35,23 @@ contract Arc4MutableParamsContract
     assert(t)
     assert(!(f))
     assert(reinterpret_cast<algopy.BigUInt>(my_array[1u]) == reinterpret_cast<algopy.BigUInt>(5arc4u8), comment="my_array has been mutated by the subroutine")
-    assert(reinterpret_cast<algopy.Bytes>(my_struct[2u]) == reinterpret_cast<algopy.Bytes>(arc4_encode('AARRGH!', algopy.arc4.String)), comment="my_struct has been mutated by the subroutine")
+    assert(reinterpret_cast<algopy.Bytes>(my_struct.s_val_1) == reinterpret_cast<algopy.Bytes>(arc4_encode('AARRGH!', algopy.arc4.String)), comment="my_struct has been mutated by the subroutine")
     this::other_routine(my_array_copy.copy(), my_struct_copy.copy())
     assert(reinterpret_cast<algopy.BigUInt>(my_array_copy[1u]) == reinterpret_cast<algopy.BigUInt>(2arc4u8), comment="my_array_copy should not be mutated by the subroutine")
-    assert(reinterpret_cast<algopy.Bytes>(my_struct_copy[2u]) == reinterpret_cast<algopy.Bytes>(arc4_encode('Happy', algopy.arc4.String)), comment="my_struct_copy should not be mutated by the subroutine")
+    assert(reinterpret_cast<algopy.Bytes>(my_struct_copy.s_val_1) == reinterpret_cast<algopy.Bytes>(arc4_encode('Happy', algopy.arc4.String)), comment="my_struct_copy should not be mutated by the subroutine")
     my_array_copy_2: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]] = my_array_copy.copy()
     my_array_copy_2: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]] = this::other_routine_2(my_array_copy_2)
     assert(reinterpret_cast<algopy.BigUInt>(my_array_copy_2[0u]) == reinterpret_cast<algopy.BigUInt>(1arc4u8), comment="my_array_copy_2 should have original value")
     this::other_routine_2(my_array_copy_2)
     assert(reinterpret_cast<algopy.BigUInt>(my_array_copy_2[0u]) == reinterpret_cast<algopy.BigUInt>(10arc4u8), comment="my_array_copy_2 should have mutated value")
     nested: test_cases.arc4_types.mutable_params.StructWithArray = arc4_encode((my_array.copy()), test_cases.arc4_types.mutable_params.StructWithArray)
-    this::other_routine_2(nested[0u].copy())
+    this::other_routine_2(nested.test_array.copy())
   }
   
   subroutine other_routine(array: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]], struct: test_cases.arc4_types.mutable_params.TestStruct): tuple[bool, bool]
   {
     array[1u]: algopy.arc4.UInt8 = 5arc4u8
-    struct[2u]: algopy.arc4.String = arc4_encode('AARRGH!', algopy.arc4.String)
+    struct.s_val_1: algopy.arc4.String = arc4_encode('AARRGH!', algopy.arc4.String)
     return (true, false)
   }
   

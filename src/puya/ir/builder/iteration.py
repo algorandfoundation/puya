@@ -27,6 +27,7 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
+from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -56,7 +57,10 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
             case _:
                 break
 
-    if has_enumerate:
+    if not has_enumerate:
+        index_var = None
+        item_var = statement.items
+    else:
         if not (
             isinstance(statement.items, awst_nodes.TupleExpression)
             and len(statement.items.items) == 2
@@ -66,10 +70,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 "when using uenumerate(), loop variables must be an unpacked two item tuple",
                 statement.sequence.source_location,
             )
-        index_var, item_var = statement.items.items
-    else:
-        index_var = None
-        item_var = statement.items
+        index_var, item_var = lvalue_items(statement.items)
 
     match sequence:
         case awst_nodes.Range(
@@ -215,8 +216,8 @@ def _iterate_urange(
     context: IRFunctionBuildContext,
     *,
     loop_body: awst_nodes.Block,
-    item_var: Expression,
-    index_var: Expression | None,
+    item_var: awst_nodes.Lvalue,
+    index_var: awst_nodes.Lvalue | None,
     statement_loc: SourceLocation,
     range_start: Expression,
     range_stop: Expression,
@@ -484,8 +485,8 @@ def _iterate_indexable(
     context: IRFunctionBuildContext,
     *,
     loop_body: awst_nodes.Block,
-    item_var: Expression,
-    index_var: Expression | None,
+    item_var: awst_nodes.Lvalue,
+    index_var: awst_nodes.Lvalue | None,
     statement_loc: SourceLocation,
     indexable_size: Value,
     get_value_at_index: typing.Callable[[Register], ValueProvider],
@@ -604,8 +605,8 @@ def _iterate_tuple(
     context: IRFunctionBuildContext,
     *,
     loop_body: awst_nodes.Block,
-    item_var: awst_nodes.Expression,
-    index_var: awst_nodes.Expression | None,
+    item_var: awst_nodes.Lvalue,
+    index_var: awst_nodes.Lvalue | None,
     tuple_items: Sequence[Value],
     statement_loc: SourceLocation,
     reverse_index: bool,

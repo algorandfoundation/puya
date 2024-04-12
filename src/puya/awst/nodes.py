@@ -13,6 +13,7 @@ from immutabledict import immutabledict
 from puya.awst import wtypes
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
+from puya.utils import positive_index
 
 if t.TYPE_CHECKING:
     import decimal
@@ -786,23 +787,24 @@ class TupleItemExpression(Expression):
 
     Note: this is its own item (vs IndexExpression) for two reasons:
     1. It's not a valid lvalue (tuples are immutable)
-    2. The index must always be a literal
+    2. The index must always be a literal, and can be negative
     """
 
     base: Expression
-    index: int
+    index: int = attrs.field(validator=attrs.validators.ge(0))
 
     def __init__(self, base: Expression, index: int, source_location: SourceLocation) -> None:
         base_wtype = base.wtype
-        if not isinstance(base_wtype, wtypes.WTuple):
+        if not isinstance(base_wtype, wtypes.WTuple | wtypes.ARC4Tuple):
             raise InternalError(
                 f"Tuple item expression should be for a tuple type, got {base_wtype}",
                 source_location,
             )
+        index = positive_index(index, base_wtype.types)
         try:
             wtype = base_wtype.types[index]
         except IndexError as ex:
-            raise InternalError("invalid index into tuple expression", source_location) from ex
+            raise CodeError("invalid index into tuple expression", source_location) from ex
         self.__attrs_init__(
             source_location=source_location,
             base=base,
@@ -874,7 +876,9 @@ class SubmitInnerTransaction(Expression):
 
 @attrs.frozen
 class FieldExpression(Expression):
-    base: Expression
+    base: Expression = attrs.field(
+        validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct)
+    )
     name: str
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -883,8 +887,15 @@ class FieldExpression(Expression):
 
 @attrs.frozen
 class IndexExpression(Expression):
-    base: Expression
-    index: Expression
+    base: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.bytes_wtype,
+            wtypes.ARC4StaticArray,
+            wtypes.ARC4DynamicArray,
+            # NOTE: tuples (native or arc4) use TupleItemExpression instead
+        )
+    )
+    index: Expression = attrs.field(validator=expression_has_wtype(wtypes.uint64_wtype))
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_index_expression(self)
@@ -892,7 +903,12 @@ class IndexExpression(Expression):
 
 @attrs.frozen
 class SliceExpression(Expression):
-    base: Expression
+    base: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.bytes_wtype,
+            wtypes.WTuple,
+        )
+    )
 
     begin_index: Expression | None
     end_index: Expression | None
@@ -965,7 +981,7 @@ Lvalue = (
     | TupleExpression
     | AppStateExpression
     | AppAccountStateExpression
-    | ReinterpretCast
+    # TODO: should ReinterpretCast be supported here?
 )
 
 

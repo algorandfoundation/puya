@@ -1,5 +1,8 @@
 import base64
+import typing
+from collections.abc import Sequence
 
+from puya.awst import nodes as awst_nodes
 from puya.ir.types_ import AVMBytesEncoding
 
 
@@ -52,3 +55,11 @@ def format_bytes(b: bytes, encoding: AVMBytesEncoding) -> str:
 
 def format_tuple_index(var_name: str, index: int | str) -> str:
     return f"{var_name}.{index}"
+
+
+def lvalue_items(tup: awst_nodes.TupleExpression) -> Sequence[awst_nodes.Lvalue]:
+    items = list[awst_nodes.Lvalue]()
+    for item in tup.items:
+        assert isinstance(item, awst_nodes.Lvalue)  # type: ignore[arg-type]
+        items.append(typing.cast(awst_nodes.Lvalue, item))
+    return items

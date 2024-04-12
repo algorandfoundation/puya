@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 from puya import log
@@ -5,7 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.errors import CodeError, TodoError
+from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
 from puya.ir.builder._utils import assign
@@ -19,6 +20,7 @@ from puya.ir.models import (
 from puya.ir.types_ import (
     bytes_enc_to_avm_bytes_enc,
 )
+from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -26,7 +28,7 @@ logger = log.get_logger(__name__)
 
 def handle_assignment_expr(
     context: IRFunctionBuildContext,
-    target: awst_nodes.Expression,
+    target: awst_nodes.Lvalue,
     value: awst_nodes.Expression,
     assignment_location: SourceLocation,
 ) -> Sequence[Value]:
@@ -38,7 +40,7 @@ def handle_assignment_expr(
 
 def handle_assignment(
     context: IRFunctionBuildContext,
-    target: awst_nodes.Expression,
+    target: awst_nodes.Lvalue,
     value: ValueProvider,
     assignment_location: SourceLocation,
 ) -> Sequence[Value]:
@@ -56,20 +58,18 @@ def handle_assignment(
                 names=[(var_name, var_loc)],
                 source_location=assignment_location,
             )
-        case awst_nodes.TupleExpression(items=items):
+        case awst_nodes.TupleExpression() as tup_expr:
             source = context.visitor.materialise_value_provider(
                 value, description="tuple_assignment"
             )
+            items = lvalue_items(tup_expr)
             if len(source) != len(items):
                 raise CodeError("unpacking vs result length mismatch", assignment_location)
             return [
                 val
                 for dst, src in zip(items, source, strict=True)
                 for val in handle_assignment(
-                    context,
-                    target=dst,
-                    value=src,
-                    assignment_location=assignment_location,
+                    context, target=dst, value=src, assignment_location=assignment_location
                 )
             ]
         case awst_nodes.AppStateExpression(field_name=field_name, source_location=key_loc):
@@ -122,22 +122,41 @@ def handle_assignment(
                 )
             )
             return source
-        case awst_nodes.IndexExpression(
-            base=awst_nodes.Expression(
-                wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() | wtypes.ARC4Struct()
-            )
-        ) as ix_expr:
-            return (
-                arc4.handle_arc4_assign(
-                    context,
-                    target=ix_expr,
-                    value=value,
-                    source_location=assignment_location,
-                ),
-            )
+        case awst_nodes.IndexExpression() as ix_expr:
+            if isinstance(ix_expr.base.wtype, wtypes.WArray):
+                raise NotImplementedError
+            elif isinstance(ix_expr.base.wtype, wtypes.ARC4Type):  # noqa: RET506
+                return (
+                    arc4.handle_arc4_assign(
+                        context,
+                        target=ix_expr,
+                        value=value,
+                        source_location=assignment_location,
+                    ),
+                )
+            else:
+                raise InternalError(
+                    f"Indexed assignment operation IR lowering"
+                    f" not implemented for base type {ix_expr.base.wtype.name}",
+                    assignment_location,
+                )
+        case awst_nodes.FieldExpression() as field_expr:
+            if isinstance(field_expr.base.wtype, wtypes.WStructType):
+                raise NotImplementedError
+            elif isinstance(field_expr.base.wtype, wtypes.ARC4Struct):  # noqa: RET506
+                return (
+                    arc4.handle_arc4_assign(
+                        context,
+                        target=field_expr,
+                        value=value,
+                        source_location=assignment_location,
+                    ),
+                )
+            else:
+                raise InternalError(
+                    f"Field assignment operation IR lowering"
+                    f" not implemented for base type {field_expr.base.wtype.name}",
+                    assignment_location,
+                )
         case _:
-            raise TodoError(
-                assignment_location,
-                "TODO: explicitly handle or reject assignment target type:"
-                f" {type(target).__name__}",
-            )
+            typing.assert_never(target)

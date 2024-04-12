@@ -375,24 +375,13 @@ def current_group_index(location: SourceLocation) -> awst_nodes.Expression:
     return intrinsic_factory.txn("GroupIndex", wtypes.uint64_wtype, location)
 
 
-def tuple_item(
-    tuple_expression: awst_nodes.Expression, index: int, location: SourceLocation
-) -> awst_nodes.Expression:
-    return awst_nodes.TupleItemExpression(
-        source_location=location, base=tuple_expression, index=index
-    )
-
-
 def arc4_tuple_index(
     arc4_tuple_expression: awst_nodes.Expression, index: int, location: SourceLocation
 ) -> awst_nodes.Expression:
     assert isinstance(arc4_tuple_expression.wtype, wtypes.ARC4Tuple)
 
-    return awst_nodes.IndexExpression(
-        source_location=location,
-        index=awst_nodes.UInt64Constant(value=index, source_location=location),
-        wtype=arc4_tuple_expression.wtype.types[index],
-        base=arc4_tuple_expression,
+    return awst_nodes.TupleItemExpression(
+        base=arc4_tuple_expression, index=index, source_location=location
     )
 
 

@@ -17,6 +17,7 @@ from puya.awst.nodes import (
     ReinterpretCast,
     Statement,
     TupleExpression,
+    TupleItemExpression,
 )
 from puya.errors import CodeError, InternalError
 from puya.utils import coalesce
@@ -434,6 +435,8 @@ class ValueExpressionBuilder(ExpressionBuilder):
 
 
 def _validate_lvalue(resolved: Expression) -> Lvalue:
+    if isinstance(resolved, TupleItemExpression):
+        raise CodeError("Tuple items cannot be reassigned", resolved.source_location)
     if not (isinstance(resolved, Lvalue) and resolved.wtype.lvalue):  # type: ignore[arg-type,misc]
         raise CodeError(
             f"{resolved.wtype.stub_name} expression is not valid as assignment target",

@@ -34,7 +34,7 @@ contract Arc4MutationContract
     d_array: algopy.arc4.DynamicArray[algopy.arc4.String] = arc4_array_encode([arc4_encode('Test', algopy.arc4.String)], algopy.arc4.DynamicArray[algopy.arc4.String])
     nested_in_array: algopy.arc4.DynamicArray[algopy.arc4.DynamicArray[algopy.arc4.String]] = arc4_array_encode([d_array.copy()], algopy.arc4.DynamicArray[algopy.arc4.DynamicArray[algopy.arc4.String]])
     nested_in_struct: test_cases.arc4_types.mutation.StructWithArray = arc4_encode((nested_in_array[0u].copy()), test_cases.arc4_types.mutation.StructWithArray)
-    assert(reinterpret_cast<algopy.Bytes>(d_array) == reinterpret_cast<algopy.Bytes>(nested_in_struct[0u]))
+    assert(reinterpret_cast<algopy.Bytes>(d_array) == reinterpret_cast<algopy.Bytes>(nested_in_struct.d_array))
   }
   
   subroutine array_concat(): None
@@ -92,11 +92,11 @@ contract Arc4MutationContract
   subroutine struct_assign(): None
   {
     test_struct: test_cases.arc4_types.mutation.TestStruct = arc4_encode((arc4_encode(true, algopy.arc4.Bool), 50arc4u8, arc4_encode('Happy', algopy.arc4.String), arc4_encode('Days', algopy.arc4.String)), test_cases.arc4_types.mutation.TestStruct)
-    test_struct[0u]: algopy.arc4.Bool = arc4_encode(false, algopy.arc4.Bool)
-    test_struct[1u]: algopy.arc4.UInt8 = 12arc4u8
+    test_struct.b_val: algopy.arc4.Bool = arc4_encode(false, algopy.arc4.Bool)
+    test_struct.u_val: algopy.arc4.UInt8 = 12arc4u8
     assert(reinterpret_cast<algopy.Bytes>(test_struct) == reinterpret_cast<algopy.Bytes>(arc4_encode((arc4_encode(false, algopy.arc4.Bool), 12arc4u8, arc4_encode('Happy', algopy.arc4.String), arc4_encode('Days', algopy.arc4.String)), test_cases.arc4_types.mutation.TestStruct)))
-    test_struct[2u]: algopy.arc4.String = arc4_encode('Hmmmm', algopy.arc4.String)
-    test_struct[3u]: algopy.arc4.String = arc4_encode('Oh well', algopy.arc4.String)
+    test_struct.s_val_1: algopy.arc4.String = arc4_encode('Hmmmm', algopy.arc4.String)
+    test_struct.s_val_2: algopy.arc4.String = arc4_encode('Oh well', algopy.arc4.String)
     assert(reinterpret_cast<algopy.Bytes>(test_struct) == reinterpret_cast<algopy.Bytes>(arc4_encode((arc4_encode(false, algopy.arc4.Bool), 12arc4u8, arc4_encode('Hmmmm', algopy.arc4.String), arc4_encode('Oh well', algopy.arc4.String)), test_cases.arc4_types.mutation.TestStruct)))
   }
   

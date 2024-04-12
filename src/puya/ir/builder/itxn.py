@@ -26,6 +26,7 @@ from puya.ir.models import (
 )
 from puya.ir.ssa import BraunSSA
 from puya.ir.types_ import wtype_to_avm_type
+from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 from puya.utils import StableSet
 
@@ -100,7 +101,7 @@ class InnerTransactionBuilder:
 
     def handle_inner_transaction_assignments(
         self,
-        target: awst_nodes.Expression,
+        target: awst_nodes.Lvalue,
         value: awst_nodes.Expression,
         source_location: SourceLocation,
     ) -> bool:
@@ -118,7 +119,7 @@ class InnerTransactionBuilder:
             and isinstance(value, awst_nodes.TupleExpression)
             and any(isinstance(i.wtype, wtypes.WInnerTransaction) for i in value.items)
         ):
-            for item_target, item_value in zip(target.items, value.items, strict=True):
+            for item_target, item_value in zip(lvalue_items(target), value.items, strict=True):
                 if isinstance(item_value, awst_nodes.SubmitInnerTransaction):
                     names = self._get_expression_names(item_target, 1)
                     self.handle_submit_inner_transaction(item_value, names)
