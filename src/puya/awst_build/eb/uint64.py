@@ -31,7 +31,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal_to_expr
-from puya.errors import CodeError, TodoError
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -101,8 +101,6 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         other_expr = convert_literal_to_expr(other, self.wtype)
         if other_expr.wtype == self.wtype:
             pass
-        elif other_expr.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to uint64")
         else:
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
@@ -124,8 +122,6 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         other_expr = convert_literal_to_expr(other, self.wtype)
         if other_expr.wtype == self.wtype:
             pass
-        elif other_expr.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to uint64")
         else:
             return NotImplemented
         lhs = self.expr
@@ -144,8 +140,6 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         value = convert_literal_to_expr(rhs, self.wtype)
         if value.wtype == self.wtype:
             pass
-        elif value.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to uint64")
         else:
             raise CodeError(
                 f"Invalid operand type {value.wtype} for {op.value}= with {self.wtype}", location

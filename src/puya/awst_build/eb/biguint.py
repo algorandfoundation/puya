@@ -29,7 +29,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal_to_expr
-from puya.errors import CodeError, TodoError
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -102,8 +102,6 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
             pass
         elif other_expr.wtype == wtypes.uint64_wtype:
             other_expr = uint64_to_biguint(other, location)
-        elif other_expr.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to biguint")
         else:
             return NotImplemented
         cmp_expr = NumericComparisonExpression(
@@ -127,8 +125,6 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
             pass
         elif other_expr.wtype == wtypes.uint64_wtype:
             other_expr = uint64_to_biguint(other, location)
-        elif other_expr.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to biguint")
         else:
             return NotImplemented
         lhs = self.expr
@@ -149,8 +145,6 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
             pass
         elif value.wtype == wtypes.uint64_wtype:
             value = uint64_to_biguint(rhs, location)
-        elif value.wtype == wtypes.bool_wtype:
-            raise TodoError(location, "TODO: support upcast from bool to biguint")
         else:
             raise CodeError(
                 f"Invalid operand type {value.wtype} for {op.value}= with {self.wtype}", location
