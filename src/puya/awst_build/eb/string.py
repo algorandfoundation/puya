@@ -34,7 +34,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import expect_operand_wtype
+from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -132,8 +132,11 @@ class StringExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        other_expr = expect_operand_wtype(other, self.wtype)
-
+        other_expr = convert_literal_to_expr(other, self.wtype)
+        if other_expr.wtype == self.wtype:
+            pass
+        else:
+            return NotImplemented
         cmp = BytesComparisonExpression(
             source_location=location,
             lhs=self.expr,

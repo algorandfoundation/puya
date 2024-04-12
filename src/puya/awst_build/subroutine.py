@@ -1079,10 +1079,6 @@ class FunctionASTConverter(
         #       type signatures that should be possible, and we can always know it's value at
         #       compile time, but it would always result in a constant ...
 
-        expr_wtype = self.context.mypy_expr_node_type(expr)
-        if expr_wtype is not wtypes.bool_wtype:
-            raise CodeError("Result of comparison must be a boolean type", expr_loc)
-
         operands = [o.accept(self) for o in expr.operands]
         operands[1:-1] = [temporary_assignment_if_required(operand) for operand in operands[1:-1]]
 
@@ -1132,7 +1128,7 @@ class FunctionASTConverter(
             op = BuilderComparisonOp(invert_ordered_binary_op(operator))
             result = rhs.compare(other=lhs, op=op, location=cmp_loc)
         if result is NotImplemented:
-            raise CodeError(f"Unsupported comparison {operator} between types", cmp_loc)
+            raise CodeError(f"Unsupported comparison {operator!r} between types", cmp_loc)
         return result.rvalue()
 
     def visit_int_expr(self, expr: mypy.nodes.IntExpr) -> Literal:
