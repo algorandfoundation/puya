@@ -21,8 +21,8 @@ def typing_interactions() -> None:
     typing.assert_type(UInt64(1), UInt64) ## W: use of typing.assert_type has no effect on compilation \
                                           ## W: expression result is ignored
 
-    assert typing.cast(Bytes, Account(SOME_ADDRESS)) == Bytes.from_base64(SOME_ADDRESS_PADDED) ## E: Unsupported comparison == between types \
-                                                                                               ## W: use of typing.cast, output may be invalid or insecure TEAL
+    assert typing.cast(Bytes, Account(SOME_ADDRESS)) == Bytes.from_base64(SOME_ADDRESS_PADDED) ## W: use of typing.cast, output may be invalid or insecure TEAL \
+                                                                                               ## E: Unsupported comparison '==' between types
 
 ## case: test_unreachable
 
@@ -225,3 +225,11 @@ def invalid_constructor_args() -> None:
     # the next check is just to make sure we didn't throw on the line above
 
     h = 1 ## E: A Python literal is not valid at this location
+
+
+## case: unsupported_type_comparisons
+from algopy import *
+
+@subroutine
+def compare_biguint_string() -> None:
+    assert BigUInt() != String() # type: ignore[operator,misc] ## E: Unsupported comparison '!=' between types
