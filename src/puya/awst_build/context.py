@@ -17,7 +17,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants
 from puya.awst_build.eb.base import TypeClassExpressionBuilder
 from puya.context import CompileContext
-from puya.errors import CodeError, InternalError, PuyaError, log_exceptions
+from puya.errors import CodeError, InternalError, log_exceptions
 from puya.parse import SourceLocation
 from puya.utils import attrs_extend
 
@@ -135,13 +135,6 @@ class ASTConversionModuleContext(ASTConversionContext):
                 else:
                     tuple_builder = ARC4TupleClassExpressionBuilder(loc)
                 return tuple_builder.index_multiple(types, loc)
-            case mypy.types.Instance(type=mypy.nodes.TypeInfo(is_enum=True, bases=bases)):
-                for base in bases:
-                    try:
-                        return self._type_to_builder(base, source_location=loc)
-                    except PuyaError:
-                        pass
-                raise CodeError("Cannot resolve enum type to an appropriate base type", loc)
             case mypy.types.Instance() as inst:
                 return self.resolve_type_from_name_and_args(
                     type_fullname=inst.type.fullname,
