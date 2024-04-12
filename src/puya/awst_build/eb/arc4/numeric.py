@@ -24,7 +24,7 @@ from puya.awst_build.eb.arc4.base import (
 )
 from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.errors import CodeError, InternalError, TodoError
+from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -207,8 +207,6 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
                 )
             case wtypes.uint64_wtype:
                 other_expr = uint64_to_biguint(other, location)
-            case wtypes.bool_wtype:
-                raise TodoError(location, "TODO: support upcast from bool to arc4.UIntN")
             case _:
                 return NotImplemented
         cmp_expr = NumericComparisonExpression(
