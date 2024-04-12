@@ -173,4 +173,4 @@ def _translate_uint64_math_operator(
     try:
         return UInt64BinaryOperator(operator.value)
     except ValueError as ex:
-        raise CodeError(f"Unsupported UInt64 math operator {operator.value}", loc) from ex
+        raise CodeError(f"Unsupported UInt64 math operator {operator.value!r}", loc) from ex
