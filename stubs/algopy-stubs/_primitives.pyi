@@ -155,11 +155,7 @@ class Bytes(Reversible[Bytes]):
 
     __match_value__: bytes
     __match_args__ = ("__match_value__",)
-    @typing.overload
-    def __init__(self) -> None:
-        """Initializes an empty sequence of bytes"""
-    @typing.overload
-    def __init__(self, value: bytes, /):
+    def __init__(self, value: bytes = b"", /):
         """Bytes can be initialized with a Python bytes literal, or bytes variable
         declared at the module level"""
     @staticmethod

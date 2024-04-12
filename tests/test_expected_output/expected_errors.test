@@ -208,3 +208,20 @@ def asset() -> None:
 @subroutine
 def application() -> None:
     Application().foo # type: ignore[attr-defined] ## E: Unrecognised member of algopy.Application: foo
+
+
+## case: invalid_constructor_args
+from algopy import *
+
+@subroutine
+def invalid_constructor_args() -> None:
+    a = UInt64("a") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+    b = BigUInt("b") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+    c = Bytes(3) # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+    d = String(4) # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+    e = Account(5) # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+    f = Asset("f") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+    g = Application("g") # type: ignore[arg-type] ## E: Invalid/unhandled arguments
+    # the next check is just to make sure we didn't throw on the line above
+
+    h = 1 ## E: A Python literal is not valid at this location

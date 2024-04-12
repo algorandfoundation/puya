@@ -74,12 +74,14 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case []:
-                const = BytesConstant(value=b"", source_location=location)
-                return var_expression(const)
+                value: Expression = BytesConstant(value=b"", source_location=location)
             case [Literal(value=bytes()) as literal]:
-                return var_expression(convert_literal(literal, wtypes.bytes_wtype))
+                value = convert_literal(literal, wtypes.bytes_wtype)
             case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+                logger.error("Invalid/unhandled arguments", location=location)
+                # dummy value to continue with
+                value = BytesConstant(value=b"", source_location=location)
+        return var_expression(value)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         """Handle self.name"""

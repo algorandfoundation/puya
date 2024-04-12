@@ -64,7 +64,9 @@ class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             case [Literal(value=str(value))]:
                 pass
             case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+                logger.error("Invalid/unhandled arguments", location=location)
+                # dummy value to continue with
+                value = ""
         str_const = StringConstant(value=value, source_location=location)
         return var_expression(str_const)
 
