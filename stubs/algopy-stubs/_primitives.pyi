@@ -149,6 +149,8 @@ class UInt64:
         """A UInt64 can be bitwise inverted e.g. `~UInt64(4)`"""
     def __index__(self) -> int:
         """A UInt64 can be used in indexing/slice expressions"""
+    def __pos__(self) -> UInt64:
+        """Supports unary + operator. Redundant given the type is unsigned"""
 
 class Bytes(Reversible[Bytes]):
     """A byte sequence, with a maximum length of 4096 bytes, one of the primary data types on the AVM"""
@@ -389,3 +391,5 @@ class BigUInt(BytesBacked):
         """A BigUInt can bitwise or with another BigUInt, UInt64 or int e.g. `4 | BigUInt(2)`"""
     def __ior__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         """A BigUInt can bitwise or with another BigUInt, UInt64 or int e.g. `a |= BigUInt(2)`"""
+    def __pos__(self) -> BigUInt:
+        """Supports unary + operator. Redundant given the type is unsigned"""
