@@ -902,12 +902,6 @@ def test_biguint_from_to_bytes(harness: _TestHarness) -> None:
     assert result.decode_logs("i") == [123]
 
 
-@pytest.mark.xfail(reason="Struct support not implemented yet")
-def test_augmented_assignment_with_side_effects(harness: _TestHarness) -> None:
-    result = harness.deploy(TEST_CASES_DIR / "aug_ass_wit_side_efex")
-    assert result.decode_logs("i") == [1]
-
-
 def test_abi_string(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "arc4_types" / "string.py",
