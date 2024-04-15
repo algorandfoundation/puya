@@ -13,7 +13,6 @@ from immutabledict import immutabledict
 from puya.awst import wtypes
 from puya.awst.wtypes import WType
 from puya.errors import CodeError, InternalError
-from puya.utils import positive_index
 
 if t.TYPE_CHECKING:
     import decimal
@@ -791,7 +790,7 @@ class TupleItemExpression(Expression):
     """
 
     base: Expression
-    index: int = attrs.field(validator=attrs.validators.ge(0))
+    index: int
 
     def __init__(self, base: Expression, index: int, source_location: SourceLocation) -> None:
         base_wtype = base.wtype
@@ -800,7 +799,6 @@ class TupleItemExpression(Expression):
                 f"Tuple item expression should be for a tuple type, got {base_wtype}",
                 source_location,
             )
-        index = positive_index(index, base_wtype.types)
         try:
             wtype = base_wtype.types[index]
         except IndexError as ex:
