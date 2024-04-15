@@ -27,6 +27,9 @@ contract Arc4TuplesTypeContract
   subroutine test_stuff(test_tuple: algopy.arc4.Tuple[algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.String, algopy.arc4.String, algopy.arc4.UInt8]): tuple[algopy.UInt64, algopy.arc4.String]
   {
     (a, b, c, d, e): tuple[algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.String, algopy.arc4.String, algopy.arc4.UInt8] = arc4_decode(test_tuple, tuple[algopy.arc4.UInt8, algopy.arc4.UInt8, algopy.arc4.String, algopy.arc4.String, algopy.arc4.UInt8])
+    assert(reinterpret_cast<algopy.BigUInt>(test_tuple[0]) == reinterpret_cast<algopy.BigUInt>(a))
+    assert(reinterpret_cast<algopy.BigUInt>(test_tuple[-1]) == reinterpret_cast<algopy.BigUInt>(e))
+    assert(reinterpret_cast<algopy.Bytes>(test_tuple[-2]) == reinterpret_cast<algopy.Bytes>(d))
     total: algopy.UInt64 = arc4_decode(a, algopy.UInt64) + arc4_decode(b, algopy.UInt64) + arc4_decode(e, algopy.UInt64)
     text: algopy.String = arc4_decode(c, algopy.String) + ' ' + arc4_decode(d, algopy.String)
     return (total, arc4_encode(text, algopy.arc4.String))

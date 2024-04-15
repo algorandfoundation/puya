@@ -55,6 +55,10 @@ class Arc4TuplesTypeContract(Contract):
     def test_stuff(self, test_tuple: TestTuple) -> tuple[UInt64, String]:
         a, b, c, d, e = test_tuple.native
 
+        assert test_tuple[-0] == a
+        assert test_tuple[-1] == e
+        assert test_tuple[-2] == d
+
         total = a.native + b.native + e.native
         text = c.native + " " + d.native
 
