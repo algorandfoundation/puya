@@ -189,7 +189,7 @@ def _wtype_to_struct_def(wtype: wtypes.ARC4Struct) -> ARC32StructDef:
 
 
 def arc4_encode(
-    base: awst_nodes.Expression, target_wtype: wtypes.WType, location: SourceLocation
+    base: awst_nodes.Expression, target_wtype: wtypes.ARC4Type, location: SourceLocation
 ) -> awst_nodes.Expression:
     match base.wtype:
         case wtypes.bytes_wtype:

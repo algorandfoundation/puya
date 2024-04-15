@@ -28,7 +28,7 @@ logger = log.get_logger(__name__)
 
 
 class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
+    def produces(self) -> wtypes.ARC4Type:
         return wtypes.arc4_bool_wtype
 
     def call(

@@ -408,6 +408,7 @@ class AddressConstant(Expression):
 @attrs.frozen
 class ARC4Encode(Expression):
     value: Expression
+    wtype: wtypes.ARC4Type
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_encode(self)

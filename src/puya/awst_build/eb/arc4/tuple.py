@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from puya import log
+from puya import arc4_util, log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     ARC4Encode,
@@ -48,7 +48,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
         indexes: Sequence[ExpressionBuilder | Literal],
         location: SourceLocation,
     ) -> TypeClassExpressionBuilder:
-        tuple_item_types = list[wtypes.WType]()
+        tuple_item_types = list[wtypes.ARC4Type]()
         for index in indexes:
             match index:
                 case TypeClassExpressionBuilder() as type_class:
@@ -76,7 +76,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
                 tuple_ex = eb.rvalue()
 
                 if wtype is None:
-                    wtype = wtypes.ARC4Tuple.from_types(tuple_wtype.types)
+                    wtype = arc4_util.make_tuple_wtype(tuple_wtype.types, location)
                 else:
                     expected_type = wtypes.WTuple.from_types(wtype.types)
                     if tuple_ex.wtype != expected_type:
