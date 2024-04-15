@@ -8,8 +8,7 @@ import attrs
 import mypy.nodes
 import mypy.types
 
-from puya import log
-from puya.arc4_util import arc4_to_wtype, split_tuple_types, wtype_to_arc4
+from puya import arc4_util, log
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -143,8 +142,8 @@ class ARC4Signature:
 
     @property
     def method_selector(self) -> str:
-        args = ",".join(map(wtype_to_arc4, self.arg_types))
-        return f"{self.method_name}({args}){wtype_to_arc4(self.return_type)}"
+        args = ",".join(map(arc4_util.wtype_to_arc4, self.arg_types))
+        return f"{self.method_name}({args}){arc4_util.wtype_to_arc4(self.return_type)}"
 
 
 def get_arc4_signature(
@@ -219,7 +218,7 @@ def arc4_tuple_from_items(
     args_tuple = awst_nodes.TupleExpression.from_items(items, source_location)
     return awst_nodes.ARC4Encode(
         value=args_tuple,
-        wtype=wtypes.ARC4Tuple.from_types(args_tuple.wtype.types),
+        wtype=arc4_util.make_tuple_wtype(args_tuple.wtype.types, source_location),
         source_location=source_location,
     )
 
@@ -278,11 +277,13 @@ def _parse_method_signature(
     args: list[wtypes.WType] | None = None
     returns: wtypes.WType | None = None
     if maybe_args:
-        args = [arc4_to_wtype(a, location) for a in split_tuple_types(maybe_args)]
+        args = [
+            arc4_util.arc4_to_wtype(a, location) for a in arc4_util.split_tuple_types(maybe_args)
+        ]
     if maybe_returns:
         if is_event:
             raise CodeError(
                 f"Invalid signature, trailing text after args {maybe_returns!r}", location
             )
-        returns = arc4_to_wtype(maybe_returns, location)
+        returns = arc4_util.arc4_to_wtype(maybe_returns, location)
     return name, args, returns

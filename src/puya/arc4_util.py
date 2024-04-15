@@ -66,6 +66,34 @@ _ARC4_WTYPE_MAPPING = {
 }
 
 
+def make_dynamic_array_wtype(
+    element_type: wtypes.WType, location: SourceLocation | None
+) -> wtypes.ARC4DynamicArray:
+    if not wtypes.is_arc4_encoded_type(element_type):
+        raise CodeError(f"Invalid element type for arc4.DynamicArray: {element_type}", location)
+    return wtypes.ARC4DynamicArray.from_element_type(element_type)
+
+
+def make_static_array_wtype(
+    element_type: wtypes.WType, size: int, location: SourceLocation | None
+) -> wtypes.ARC4StaticArray:
+    if not wtypes.is_arc4_encoded_type(element_type):
+        raise CodeError(f"Invalid element type for arc4.StaticArray: {element_type}", location)
+    return wtypes.ARC4StaticArray.from_element_type_and_size(element_type, int(size))
+
+
+def make_tuple_wtype(
+    types: Iterable[wtypes.WType], location: SourceLocation | None
+) -> wtypes.ARC4Tuple:
+    arc4_types = list[wtypes.ARC4Type]()
+    for typ in types:
+        if wtypes.is_arc4_encoded_type(typ):
+            arc4_types.append(typ)
+        else:
+            raise CodeError(f"Invalid type for arc4.Tuple element: {typ}", location)
+    return wtypes.ARC4Tuple.from_types(arc4_types)
+
+
 def arc4_to_wtype(typ: str, location: SourceLocation | None = None) -> wtypes.WType:
     try:
         return _ARC4_WTYPE_MAPPING[typ]
@@ -79,17 +107,17 @@ def arc4_to_wtype(typ: str, location: SourceLocation | None = None) -> wtypes.WT
         return wtypes.ARC4UFixedNxM.from_scale_and_precision(int(n), int(m))
     if fixed_array := _FIXED_ARRAY_REGEX.match(typ):
         arr_type, size = fixed_array.group("type", "size")
-        inner_cls = arc4_to_wtype(arr_type, location)
-        return wtypes.ARC4StaticArray.from_element_type_and_size(inner_cls, int(size))
+        element_type = arc4_to_wtype(arr_type, location)
+        return make_static_array_wtype(element_type, int(size), location)
     if dynamic_array := _DYNAMIC_ARRAY_REGEX.match(typ):
         arr_type = dynamic_array.group("type")
-        inner_cls = arc4_to_wtype(arr_type, location)
-        return wtypes.ARC4DynamicArray.from_element_type(inner_cls)
+        element_type = arc4_to_wtype(arr_type, location)
+        return make_dynamic_array_wtype(element_type, location)
     if tuple_match := _TUPLE_REGEX.match(typ):
         tuple_types = [
             arc4_to_wtype(x, location) for x in split_tuple_types(tuple_match.group("types"))
         ]
-        return wtypes.ARC4Tuple.from_types(tuple_types)
+        return make_tuple_wtype(tuple_types, location)
     raise CodeError(f"Unknown ARC4 type '{typ}'", location)
 
 

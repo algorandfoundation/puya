@@ -269,17 +269,15 @@ class ARC4UIntN(ARC4Type):
 @typing.final
 @attrs.frozen(str=False, kw_only=True)
 class ARC4Tuple(ARC4Type):
-    types: tuple[WType, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
+    types: tuple[ARC4Type, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
 
     @classmethod
-    def from_types(cls, types: Iterable[WType]) -> typing.Self:
+    def from_types(cls, types: Iterable[ARC4Type]) -> typing.Self:
         types = tuple(types)
         if not types:
             raise ValueError("arc4.Tuple needs types")
         immutable = True
         for typ in types:
-            if not is_arc4_encoded_type(typ):
-                raise ValueError(f"Invalid type for arc4.Tuple: {typ}")
             # this seems counterintuitive, but is necessary.
             # despite the overall collection remaining stable, since ARC4 types
             # are encoded as a single value, if items within the tuple can be mutated,
@@ -332,7 +330,7 @@ class ARC4UFixedNxM(ARC4Type):
 
 @attrs.frozen(str=False, kw_only=True)
 class ARC4Array(ARC4Type):
-    element_type: WType
+    element_type: ARC4Type
     immutable: bool = attrs.field(default=False, init=False)
 
 
@@ -340,9 +338,7 @@ class ARC4Array(ARC4Type):
 @attrs.frozen(str=False, kw_only=True)
 class ARC4DynamicArray(ARC4Array):
     @classmethod
-    def from_element_type(cls, element_type: WType) -> typing.Self:
-        if not is_arc4_encoded_type(element_type):
-            raise ValueError(f"Invalid type for arc4.DynamicArray: {element_type}")
+    def from_element_type(cls, element_type: ARC4Type) -> typing.Self:
         name = f"arc4.dynamic_array<{element_type.name}>"
         return cls(
             name=name,
@@ -358,10 +354,8 @@ class ARC4StaticArray(ARC4Array):
 
     @classmethod
     def from_element_type_and_size(
-        cls, element_type: WType, array_size: int, alias: str | None = None
+        cls, element_type: ARC4Type, array_size: int, alias: str | None = None
     ) -> typing.Self:
-        if not is_arc4_encoded_type(element_type):
-            raise ValueError(f"Invalid type for arc4.StaticArray: {element_type}")
         name = f"arc4.static_array<{element_type.name}, {array_size}>"
         return cls(
             array_size=array_size,
@@ -379,11 +373,11 @@ class ARC4StaticArray(ARC4Array):
 @typing.final
 @attrs.frozen(str=False, kw_only=True)
 class ARC4Struct(ARC4Type):
-    fields: Mapping[str, WType] = attrs.field(
+    fields: Mapping[str, ARC4Type] = attrs.field(
         converter=immutabledict, validator=[attrs.validators.min_len(1)]
     )
     names: Sequence[str] = attrs.field(init=False, eq=False)
-    types: Sequence[WType] = attrs.field(init=False, eq=False)
+    types: Sequence[ARC4Type] = attrs.field(init=False, eq=False)
     immutable: bool = attrs.field(default=False, init=False)
 
     @names.default
@@ -395,12 +389,11 @@ class ARC4Struct(ARC4Type):
         return list(self.fields.values())
 
     @classmethod
-    def from_name_and_fields(cls, *, python_name: str, fields: Mapping[str, WType]) -> typing.Self:
+    def from_name_and_fields(
+        cls, *, python_name: str, fields: Mapping[str, ARC4Type]
+    ) -> typing.Self:
         if not fields:
             raise ValueError("arc4.Struct needs at least one element")
-        for t in fields.values():
-            if not is_arc4_encoded_type(t):
-                raise ValueError(f"arc4.Struct should not contain non arc4 types: {t}")
         name = (
             "arc4.struct<"
             + ",".join(
@@ -536,7 +529,7 @@ def has_arc4_equivalent_type(wtype: WType) -> bool:
     return False
 
 
-def avm_to_arc4_equivalent_type(wtype: WType) -> WType:
+def avm_to_arc4_equivalent_type(wtype: WType) -> ARC4Type:
     if wtype is bool_wtype:
         return arc4_bool_wtype
     if wtype is uint64_wtype:

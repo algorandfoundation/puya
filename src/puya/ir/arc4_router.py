@@ -1,6 +1,6 @@
 from collections.abc import Iterable, Mapping, Sequence
 
-from puya.arc4_util import get_abi_signature, wtype_to_arc4
+from puya import arc4_util
 from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
@@ -403,8 +403,9 @@ def map_abi_args(
             else:
                 return wtype
 
-        args_overflow_wtype = wtypes.ARC4Tuple.from_types(
-            [map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]]
+        args_overflow_wtype = arc4_util.make_tuple_wtype(
+            [map_param_wtype_to_arc4_tuple_type(a.wtype) for a in non_transaction_args[14:]],
+            location,
         )
         last_arg = app_arg(15, args_overflow_wtype, location)
 
@@ -492,7 +493,7 @@ def route_abi_methods(
             call_and_maybe_log,
             approve(abi_loc),
         )
-        arc4_signature = get_abi_signature(method, config)
+        arc4_signature = arc4_util.get_abi_signature(method, config)
         if arc4_signature in seen_signatures:
             raise CodeError(
                 f"Cannot have duplicate ARC4 method signatures: {arc4_signature}", abi_loc
@@ -525,7 +526,7 @@ def _validate_default_args(
         for parameter_name, source_name in method.abimethod_config.default_args.items():
             # any invalid parameter matches should have been caught earlier
             parameter = args_by_name[parameter_name]
-            param_arc4_type = wtype_to_arc4(parameter.wtype)
+            param_arc4_type = arc4_util.wtype_to_arc4(parameter.wtype)
             # special handling for reference types
             match param_arc4_type:
                 case "asset" | "application":
@@ -572,7 +573,7 @@ def _validate_default_args(
                             f"'{source_name}' does not provide a value",
                             method.source_location,
                         )
-                    if wtype_to_arc4(return_type) != param_arc4_type:
+                    if arc4_util.wtype_to_arc4(return_type) != param_arc4_type:
                         raise CodeError(
                             f"'{source_name}' does not provide '{param_arc4_type}' type",
                             method.source_location,
@@ -654,14 +655,14 @@ def create_abi_router(
             args=[
                 ARC4MethodArg(
                     name=a.name,
-                    type_=wtype_to_arc4(a.wtype),
+                    type_=arc4_util.wtype_to_arc4(a.wtype),
                     desc=docs[m].args.get(a.name),
                 )
                 for a in m.args
             ],
             returns=ARC4Returns(
                 desc=docs[m].returns,
-                type_=wtype_to_arc4(m.return_type),
+                type_=arc4_util.wtype_to_arc4(m.return_type),
             ),
             config=abi_config,
         )

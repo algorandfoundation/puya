@@ -659,7 +659,7 @@ def _process_struct(
 def _process_arc4_struct(
     context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
 ) -> StatementResult:
-    field_types = dict[str, wtypes.WType]()
+    field_types = dict[str, wtypes.ARC4Type]()
     field_decls = list[StructureField]()
     docstring = cdef.docstring
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from abc import ABC
 
-from puya import log
+from puya import arc4_util, log
 from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -73,7 +73,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         super().__init__(location)
         self.wtype = wtype
 
-    def produces(self) -> wtypes.WType:
+    def produces(self) -> wtypes.ARC4Type:
         if not self.wtype:
             raise InternalError(
                 "Cannot resolve wtype of generic EB until the index method is called with the "
@@ -92,7 +92,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         match indexes:
             case [TypeClassExpressionBuilder() as eb]:
                 element_wtype = eb.produces()
-                self.wtype = wtypes.ARC4DynamicArray.from_element_type(element_wtype)
+                self.wtype = arc4_util.make_dynamic_array_wtype(element_wtype, location)
                 return self
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
@@ -112,7 +112,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         if wtype is None:
             if non_literal_args:
                 element_wtype = non_literal_args[0].wtype
-                wtype = wtypes.ARC4DynamicArray.from_element_type(element_wtype)
+                wtype = arc4_util.make_dynamic_array_wtype(element_wtype, location)
             else:
                 raise CodeError(
                     "Empty arrays require a type annotation to be instantiated", location
@@ -155,9 +155,8 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             case [TypeClassExpressionBuilder() as item_type, array_size]:
                 array_size_ = get_integer_literal_value(array_size, "Array size")
                 element_wtype = item_type.produces()
-                self.wtype = wtypes.ARC4StaticArray.from_element_type_and_size(
-                    array_size=array_size_,
-                    element_type=element_wtype,
+                self.wtype = arc4_util.make_static_array_wtype(
+                    element_wtype, array_size_, location
                 )
                 return self
             case _:
@@ -183,10 +182,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             if non_literal_args:
                 element_wtype = non_literal_args[0].wtype
                 array_size = len(non_literal_args)
-                wtype = wtypes.ARC4StaticArray.from_element_type_and_size(
-                    array_size=array_size,
-                    element_type=element_wtype,
-                )
+                wtype = arc4_util.make_static_array_wtype(element_wtype, array_size, location)
             else:
                 raise CodeError(
                     "Empty arrays require a type annotation to be instantiated", location
