@@ -692,7 +692,7 @@ def _read_nth_item_of_arc4_heterogeneous_container(
     item_wtype = tuple_item_types[index]
     item_bit_size = get_arc4_fixed_bit_size(item_wtype)
     head_up_to_item = determine_arc4_tuple_head_size(
-        tuple_item_types[0:index], round_end_result=False
+        tuple_item_types[:index], round_end_result=False
     )
     if item_bit_size is not None:
         item_index: Value = UInt64Constant(
