@@ -12,6 +12,7 @@ class TupleSupport(Contract):
         (did_overflow, self.state) = op.addw(a, b)
         assert not did_overflow, "overflow!"
         ab = (a, b)
+        assert ab[-1] == ab[1]
         result = op.addw(a, b)
         assert not result[0], "overflow!"
         c = d = UInt64(3)
