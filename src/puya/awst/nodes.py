@@ -981,7 +981,6 @@ Lvalue = (
     | TupleExpression
     | AppStateExpression
     | AppAccountStateExpression
-    # TODO: should ReinterpretCast be supported here?
 )
 
 
