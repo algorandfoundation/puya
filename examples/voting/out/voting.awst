@@ -92,7 +92,7 @@ contract VotingRoundApp
   
   abimethod get_preconditions(signature: algopy.Bytes): examples.voting.voting.VotingPreconditions
   {
-    return arc4_encode((arc4_encode(this::voting_open(), algopy.arc4.UInt64), arc4_encode(this::allowed_to_vote(signature), algopy.arc4.UInt64), arc4_encode(this::already_voted(), algopy.arc4.UInt64), arc4_encode(global<LatestTimestamp>(), algopy.arc4.UInt64)), examples.voting.voting.VotingPreconditions)
+    return new examples.voting.voting.VotingPreconditions(is_voting_open=arc4_encode(this::voting_open(), algopy.arc4.UInt64), is_allowed_to_vote=arc4_encode(this::allowed_to_vote(signature), algopy.arc4.UInt64), has_already_voted=arc4_encode(this::already_voted(), algopy.arc4.UInt64), current_time=arc4_encode(global<LatestTimestamp>(), algopy.arc4.UInt64))
   }
   
   abimethod vote(fund_min_bal_req: algopy.gtxn.PaymentTransaction, signature: algopy.Bytes, answer_ids: algopy.arc4.DynamicArray[algopy.arc4.UInt8]): None

@@ -50,10 +50,6 @@ class FunctionTraverser(
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> None:
         expr.value.accept(self)
 
-    def visit_arc4_array_encode(self, expr: awst_nodes.ARC4ArrayEncode) -> None:
-        for value in expr.values:
-            value.accept(self)
-
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> None:
         expr.left.accept(self)
         expr.right.accept(self)
@@ -143,7 +139,11 @@ class FunctionTraverser(
         expr.account.accept(self)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> None:
-        for element in expr.elements:
+        for element in expr.values:
+            element.accept(self)
+
+    def visit_new_struct(self, expr: awst_nodes.NewStruct) -> None:
+        for element in expr.values.values():
             element.accept(self)
 
     def visit_bytes_comparison_expression(

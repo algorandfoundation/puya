@@ -408,7 +408,17 @@ class AddressConstant(Expression):
 @attrs.frozen
 class ARC4Encode(Expression):
     value: Expression
-    wtype: wtypes.ARC4Type
+    wtype: wtypes.ARC4Type = attrs.field(
+        validator=wtype_is_one_of(
+            wtypes.ARC4UIntN,
+            wtypes.ARC4UFixedNxM,
+            wtypes.ARC4Tuple,
+            wtypes.arc4_string_wtype,
+            wtypes.arc4_bool_wtype,
+            wtypes.arc4_dynamic_bytes,
+            wtypes.arc4_address_type,
+        )
+    )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_encode(self)
@@ -424,15 +434,6 @@ class Copy(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_copy(self)
-
-
-@attrs.frozen
-class ARC4ArrayEncode(Expression):
-    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray
-    values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
-
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        return visitor.visit_arc4_array_encode(self)
 
 
 @attrs.frozen
@@ -986,11 +987,11 @@ Lvalue = (
 
 @attrs.frozen
 class NewArray(Expression):
-    elements: tuple[Expression, ...] = attrs.field()
-    wtype: wtypes.WArray
+    wtype: wtypes.WArray | wtypes.ARC4Array
+    values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
-    @elements.validator
-    def check(self, _attribute: object, value: tuple[Expression, ...]) -> None:
+    @values.validator
+    def _check_element_types(self, _attribute: object, value: tuple[Expression, ...]) -> None:
         if any(expr.wtype != self.wtype.element_type for expr in value):
             raise ValueError(
                 f"All array elements should have array type: {self.wtype.element_type}"
@@ -1551,8 +1552,17 @@ class StateDelete(Statement):
 
 @attrs.frozen
 class NewStruct(Expression):
-    args: tuple[CallArg, ...]
-    wtype: wtypes.WStructType
+    wtype: wtypes.WStructType | wtypes.ARC4Struct
+    values: Mapping[str, Expression] = attrs.field(converter=immutabledict)
+
+    @values.validator
+    def _validate_values(self, _instance: object, values: Mapping[str, Expression]) -> None:
+        if values.keys() != self.wtype.fields.keys():
+            raise CodeError("Invalid argument(s)", self.source_location)
+        for field_name, field_value in self.values.items():
+            expected_wtype = self.wtype.fields[field_name]
+            if field_value.wtype != expected_wtype:
+                raise CodeError("Invalid argument type(s)", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_new_struct(self)

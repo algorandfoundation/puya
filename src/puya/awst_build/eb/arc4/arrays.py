@@ -8,7 +8,6 @@ from puya.algo_constants import ENCODED_ADDRESS_LENGTH
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AddressConstant,
-    ARC4ArrayEncode,
     ArrayConcat,
     ArrayExtend,
     ArrayPop,
@@ -20,6 +19,7 @@ from puya.awst.nodes import (
     IndexExpression,
     IntrinsicCall,
     Literal,
+    NewArray,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
@@ -122,7 +122,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             expect_operand_wtype(a, wtype.element_type)
 
         return var_expression(
-            ARC4ArrayEncode(
+            NewArray(
                 source_location=location,
                 values=tuple(non_literal_args),
                 wtype=wtype,
@@ -197,7 +197,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             expect_operand_wtype(a, wtype.element_type)
 
         return var_expression(
-            ARC4ArrayEncode(
+            NewArray(
                 source_location=location,
                 values=tuple(non_literal_args),
                 wtype=wtype,

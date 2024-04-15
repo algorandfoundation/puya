@@ -24,8 +24,8 @@ contract Arc4MutableParamsContract
   
   subroutine mutating_copies(): None
   {
-    my_array: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]] = arc4_array_encode([1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8], algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]])
-    my_struct: test_cases.arc4_types.mutable_params.TestStruct = arc4_encode((arc4_encode(true, algopy.arc4.Bool), 50arc4u8, arc4_encode('Happy', algopy.arc4.String), arc4_encode('Days', algopy.arc4.String)), test_cases.arc4_types.mutable_params.TestStruct)
+    my_array: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]] = new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]](1arc4u8, 2arc4u8, 3arc4u8, 4arc4u8)
+    my_struct: test_cases.arc4_types.mutable_params.TestStruct = new test_cases.arc4_types.mutable_params.TestStruct(b_val=arc4_encode(true, algopy.arc4.Bool), u_val=50arc4u8, s_val_1=arc4_encode('Happy', algopy.arc4.String), s_val_2=arc4_encode('Days', algopy.arc4.String))
     my_array_copy: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]] = my_array.copy()
     my_struct_copy: test_cases.arc4_types.mutable_params.TestStruct = my_struct.copy()
     my_array[2u]: algopy.arc4.UInt8 = 5arc4u8
@@ -44,7 +44,7 @@ contract Arc4MutableParamsContract
     assert(reinterpret_cast<algopy.BigUInt>(my_array_copy_2[0u]) == reinterpret_cast<algopy.BigUInt>(1arc4u8), comment="my_array_copy_2 should have original value")
     this::other_routine_2(my_array_copy_2)
     assert(reinterpret_cast<algopy.BigUInt>(my_array_copy_2[0u]) == reinterpret_cast<algopy.BigUInt>(10arc4u8), comment="my_array_copy_2 should have mutated value")
-    nested: test_cases.arc4_types.mutable_params.StructWithArray = arc4_encode((my_array.copy()), test_cases.arc4_types.mutable_params.StructWithArray)
+    nested: test_cases.arc4_types.mutable_params.StructWithArray = new test_cases.arc4_types.mutable_params.StructWithArray(test_array=my_array.copy())
     this::other_routine_2(nested.test_array.copy())
   }
   

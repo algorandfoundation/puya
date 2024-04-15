@@ -58,10 +58,6 @@ class ToCodeVisitor(
     def visit_arc4_encode(self, expr: nodes.ARC4Encode) -> str:
         return f"arc4_encode({expr.value.accept(self)}, {expr.wtype})"
 
-    def visit_arc4_array_encode(self, expr: nodes.ARC4ArrayEncode) -> str:
-        items = ", ".join([value.accept(self) for value in expr.values])
-        return f"arc4_array_encode([{items}], {expr.wtype})"
-
     def visit_contains_expression(self, expr: nodes.Contains) -> str:
         return f"{expr.item.accept(self)} IS IN {expr.sequence.accept(self)}"
 
@@ -80,13 +76,11 @@ class ToCodeVisitor(
         return f"this.{expr.field_name}[{expr.account.accept(self)}]"
 
     def visit_new_array(self, expr: nodes.NewArray) -> str:
-        args = ", ".join(a.accept(self) for a in expr.elements)
-        return f"new {expr.wtype.element_type}[]({args})"
+        args = ", ".join(a.accept(self) for a in expr.values)
+        return f"new {expr.wtype}({args})"
 
     def visit_new_struct(self, expr: nodes.NewStruct) -> str:
-        args = ", ".join(
-            [(f"{a.name}=" if a.name else "") + a.value.accept(self) for a in expr.args]
-        )
+        args = ", ".join([f"{name}=" + value.accept(self) for name, value in expr.values.items()])
         return f"new {expr.wtype}({args})"
 
     def visit_enumeration(self, expr: nodes.Enumeration) -> str:

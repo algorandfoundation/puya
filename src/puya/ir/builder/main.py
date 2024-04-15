@@ -561,10 +561,13 @@ class FunctionIRBuilder(
         return state.visit_state_exists(self.context, expr)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
-        raise NotImplementedError
-
-    def visit_arc4_array_encode(self, expr: awst_nodes.ARC4ArrayEncode) -> TExpression:
-        return arc4.encode_arc4_array(self.context, expr)
+        match expr.wtype:
+            case wtypes.ARC4Array():
+                return arc4.encode_arc4_array(self.context, expr)
+            case wtypes.WArray():
+                raise NotImplementedError
+            case _:
+                typing.assert_never(expr.wtype)
 
     def visit_bytes_comparison_expression(
         self, expr: awst_nodes.BytesComparisonExpression
@@ -877,7 +880,13 @@ class FunctionIRBuilder(
         handle_for_in_loop(self.context, statement)
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
-        raise NotImplementedError
+        match expr.wtype:
+            case wtypes.WStructType():
+                raise NotImplementedError
+            case wtypes.ARC4Struct() as arc4_struct_wtype:
+                return arc4.encode_arc4_struct(self.context, expr, arc4_struct_wtype)
+            case _:
+                typing.assert_never(expr.wtype)
 
     def visit_array_pop(self, expr: puya.awst.nodes.ArrayPop) -> TExpression:
         source_location = expr.source_location

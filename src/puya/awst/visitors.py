@@ -189,10 +189,6 @@ class ExpressionVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
-    def visit_arc4_array_encode(self, expr: puya.awst.nodes.ARC4ArrayEncode) -> T:
-        ...
-
-    @abstractmethod
     def visit_array_concat(self, expr: puya.awst.nodes.ArrayConcat) -> T:
         ...
 
@@ -238,11 +234,13 @@ class ExpressionVisitor(t.Generic[T], ABC):
     ) -> T:
         ...
 
+    @abstractmethod
     def visit_new_array(self, expr: puya.awst.nodes.NewArray) -> T:
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def visit_new_struct(self, expr: puya.awst.nodes.NewStruct) -> T:
-        raise NotImplementedError
+        ...
 
     @abstractmethod
     def visit_bytes_comparison_expression(

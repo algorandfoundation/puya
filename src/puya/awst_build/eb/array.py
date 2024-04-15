@@ -67,7 +67,7 @@ class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
             expect_operand_wtype(a, expected_type)
         array_wtype = wtypes.WArray.from_element_type(expected_type)
         array_expr = NewArray(
-            source_location=location, elements=tuple(non_literal_args), wtype=array_wtype
+            source_location=location, values=tuple(non_literal_args), wtype=array_wtype
         )
         return var_expression(array_expr)
 
