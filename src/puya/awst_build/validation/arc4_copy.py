@@ -54,10 +54,11 @@ class ARC4CopyValidator(AWSTTraverser):
                     message = "being passed to a subroutine"
             _check_for_arc4_copy(arg.value, message)
 
-    def visit_arc4_array_encode(self, expr: awst_nodes.ARC4ArrayEncode) -> None:
-        super().visit_arc4_array_encode(expr)
-        for v in expr.values:
-            _check_for_arc4_copy(v, "being passed to an array constructor")
+    def visit_new_array(self, expr: awst_nodes.NewArray) -> None:
+        super().visit_new_array(expr)
+        if isinstance(expr.wtype, wtypes.ARC4Array):
+            for v in expr.values:
+                _check_for_arc4_copy(v, "being passed to an array constructor")
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> None:
         super().visit_arc4_encode(expr)

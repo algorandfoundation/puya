@@ -4,14 +4,13 @@ import mypy.nodes
 import mypy.types
 
 from puya.awst import wtypes
-from puya.awst.nodes import CallArg, Expression, FieldExpression, Literal, NewStruct
+from puya.awst.nodes import Expression, FieldExpression, Literal
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import require_expression_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -31,14 +30,7 @@ class StructSubclassExpressionBuilder(TypeClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        # TODO: validation etc
-        ctor_args = [
-            # TODO: allow literals?
-            CallArg(name=arg_name, value=require_expression_builder(a).rvalue())
-            for a, arg_name in zip(args, arg_names, strict=True)
-        ]
-        struct_expr = NewStruct(source_location=location, args=tuple(ctor_args), wtype=self.wtype)
-        return var_expression(struct_expr)
+        raise NotImplementedError
 
 
 class StructExpressionBuilder(ValueExpressionBuilder):

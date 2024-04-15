@@ -109,6 +109,17 @@ def _visit_arc4_tuple_decode(
     return ValueTuple(source_location=source_location, values=items)
 
 
+def encode_arc4_struct(
+    context: IRFunctionBuildContext, expr: awst_nodes.NewStruct, wtype: wtypes.ARC4Struct
+) -> ValueProvider:
+    assert expr.wtype == wtype
+    elements = [
+        context.visitor.visit_and_materialise_single(expr.values[field_name])
+        for field_name in expr.wtype.fields
+    ]
+    return _visit_arc4_tuple_encode(context, elements, wtype.types, expr.source_location)
+
+
 def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) -> ValueProvider:
     match expr.wtype:
         case wtypes.arc4_bool_wtype:
@@ -118,8 +129,9 @@ def encode_expr(context: IRFunctionBuildContext, expr: awst_nodes.ARC4Encode) ->
             value = context.visitor.visit_and_materialise_single(expr.value)
             num_bytes = wt.n // 8
             return _itob_fixed(context, value, num_bytes, expr.source_location)
-        case wtypes.ARC4Tuple(types=item_types) | wtypes.ARC4Struct(types=item_types):
-            return _visit_arc4_tuple_encode(context, expr, item_types)
+        case wtypes.ARC4Tuple(types=item_types):
+            elements = context.visitor.visit_and_materialise(expr.value)
+            return _visit_arc4_tuple_encode(context, elements, item_types, expr.source_location)
         case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes:
             if isinstance(expr.value, awst_nodes.BytesConstant):
                 ir_const = context.visitor.visit_expr(expr.value)
@@ -266,12 +278,11 @@ def _value_as_uint16(
 
 def _visit_arc4_tuple_encode(
     context: IRFunctionBuildContext,
-    expr: awst_nodes.ARC4Encode,
+    elements: Sequence[Value],
     tuple_items: Sequence[wtypes.WType],
+    expr_loc: SourceLocation,
 ) -> ValueProvider:
-    elements = context.visitor.visit_and_materialise(expr.value)
     header_size = determine_arc4_tuple_head_size(tuple_items, round_end_result=True)
-    expr_loc = expr.source_location
 
     (current_tail_offset,) = assign(
         context,
@@ -358,9 +369,7 @@ def _visit_arc4_tuple_encode(
     return encoded_tuple_buffer
 
 
-def encode_arc4_array(
-    context: IRFunctionBuildContext, expr: awst_nodes.ARC4ArrayEncode
-) -> ValueProvider:
+def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray) -> ValueProvider:
     len_prefix = (
         len(expr.values).to_bytes(2, "big")
         if isinstance(expr.wtype, wtypes.ARC4DynamicArray)

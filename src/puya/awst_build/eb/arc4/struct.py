@@ -5,19 +5,17 @@ import typing
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    ARC4Encode,
     Expression,
     FieldExpression,
     Literal,
-    TupleExpression,
+    NewStruct,
 )
 from puya.awst_build.eb._utils import bool_eval_to_constant
-from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes, get_bytes_expr_builder
 from puya.awst_build.eb.base import BuilderComparisonOp, ValueExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import get_arg_mapping
+from puya.awst_build.utils import get_arg_mapping, require_expression_builder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -60,24 +58,19 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             location=location,
         )
 
-        args_positioned = list[Expression]()
+        values = dict[str, Expression]()
         for field_name, field_type in self.wtype.fields.items():
             field_value = field_mapping.pop(field_name, None)
             if field_value is None:
                 raise CodeError(f"Missing required argument {field_name}", location)
-            args_positioned.append(expect_arc4_operand_wtype(field_value, field_type))
+            field_expr = require_expression_builder(field_value).rvalue()
+            if field_expr.wtype != field_type:
+                raise CodeError("Invalid type for field", field_expr.source_location)
+            values[field_name] = field_expr
         if field_mapping:
             raise CodeError(f"Unexpected keyword arguments: {' '.join(field_mapping)}", location)
 
-        tuple_expr = TupleExpression(
-            items=args_positioned,
-            source_location=location,
-            wtype=wtypes.WTuple.from_types(types=self.wtype.types),
-        )
-
-        return var_expression(
-            ARC4Encode(wtype=self.wtype, value=tuple_expr, source_location=location)
-        )
+        return var_expression(NewStruct(wtype=self.wtype, values=values, source_location=location))
 
 
 class ARC4StructExpressionBuilder(ValueExpressionBuilder):
