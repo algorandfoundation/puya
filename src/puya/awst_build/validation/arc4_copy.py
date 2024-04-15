@@ -17,19 +17,24 @@ class ARC4CopyValidator(AWSTTraverser):
         for module_statement in module.body:
             module_statement.accept(validator)
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._for_items: awst_nodes.Lvalue | None = None
+
     def visit_assignment_statement(self, statement: awst_nodes.AssignmentStatement) -> None:
         _check_assignment(statement.target, statement.value)
         statement.value.accept(self)
 
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> None:
         super().visit_tuple_expression(expr)
-        for item in expr.items:
-            _check_for_arc4_copy(item, "being passed to a tuple expression")
+        if expr is not self._for_items:
+            for item in expr.items:
+                _check_for_arc4_copy(item, "being passed to a tuple expression")
 
     def visit_for_in_loop(self, statement: awst_nodes.ForInLoop) -> None:
-        if not isinstance(statement.sequence, awst_nodes.Range):
-            statement.sequence.accept(self)
-        statement.loop_body.accept(self)
+        self._for_items = statement.items
+        super().visit_for_in_loop(statement)
+        self._for_items = None
 
     def visit_assignment_expression(self, expr: awst_nodes.AssignmentExpression) -> None:
         _check_assignment(expr.target, expr.value)
@@ -70,11 +75,14 @@ def _is_referable_expression(expr: awst_nodes.Expression) -> bool:
             awst_nodes.VarExpression()
             | awst_nodes.AppStateExpression()
             | awst_nodes.AppAccountStateExpression()
+            | awst_nodes.StateGet()
+            | awst_nodes.StateGetEx()
         ):
             return True
         case (
             awst_nodes.IndexExpression(base=base_expr)
             | awst_nodes.TupleItemExpression(base=base_expr)
+            | awst_nodes.FieldExpression(base=base_expr)
         ):
             return _is_referable_expression(base_expr)
     return False
@@ -83,17 +91,14 @@ def _is_referable_expression(expr: awst_nodes.Expression) -> bool:
 def _check_assignment(target: awst_nodes.Expression, value: awst_nodes.Expression) -> None:
     if not isinstance(target, awst_nodes.TupleExpression):
         _check_for_arc4_copy(value, "being assigned to another variable")
-    else:
-        match value.wtype:
-            case wtypes.WTuple(types=item_types):
-                if _is_referable_expression(value):
-                    problem_type = next((i for i in item_types if _is_arc4_mutable(i)), None)
-                    if problem_type:
-                        logger.error(
-                            f"Tuple cannot be destructured as it contains an item of type"
-                            f" {problem_type} which requires copying. Use index access instead",
-                            location=value.source_location,
-                        )
+    elif _is_referable_expression(value):
+        problem_type = next((i for i in target.wtype.types if _is_arc4_mutable(i)), None)
+        if problem_type:
+            logger.error(
+                f"Tuple cannot be destructured as it contains an item of type"
+                f" {problem_type} which requires copying. Use index access instead",
+                location=value.source_location,
+            )
 
 
 def _check_for_arc4_copy(expr: awst_nodes.Expression, context_desc: str) -> None:
