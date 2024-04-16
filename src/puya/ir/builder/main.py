@@ -8,18 +8,11 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import (
-    BigUIntBinaryOperator,
-    UInt64BinaryOperator,
-)
+from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, flow_control, state
-from puya.ir.builder._utils import (
-    assert_value,
-    assign,
-    mkblocks,
-)
+from puya.ir.builder._utils import assert_value, assign, mkblocks
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.callsub import visit_subroutine_call_expression
 from puya.ir.builder.iteration import handle_for_in_loop
@@ -250,18 +243,12 @@ class FunctionIRBuilder(
     ) -> TExpression:
         left = self.visit_and_materialise_single(expr.lhs)
         right = self.visit_and_materialise_single(expr.rhs)
-        if not (left.atype & right.atype):
+        if left.atype != right.atype:
             raise InternalError(
                 "Numeric comparison between different numeric types", expr.source_location
             )
-        if left.atype != AVMType.any:
-            atype = left.atype
-        elif right.atype != AVMType.any:
-            atype = right.atype
-        else:
-            raise InternalError("Numeric comparison mapped to any type", expr.source_location)
         op_code = expr.operator.value
-        if atype == AVMType.bytes:
+        if left.atype == AVMType.bytes:
             op_code = "b" + op_code
 
         try:
@@ -754,12 +741,7 @@ class FunctionIRBuilder(
                     )
                 )
         return_types = [r.atype for r in result]
-        if not (
-            len(return_types) == len(self.context.subroutine.returns)
-            and all(
-                a & b for a, b in zip(return_types, self.context.subroutine.returns, strict=True)
-            )
-        ):
+        if return_types != self.context.subroutine.returns:
             raise CodeError(
                 f"Invalid return type {return_types} in {self.context.function.full_name},"
                 f" should be {self.context.subroutine.returns}",

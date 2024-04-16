@@ -4,12 +4,12 @@
 ### {{ type_ | capitalize }}
 {% for commit in type_commits[type_] %}
 * {{ commit["descriptions"][0] }} ([`{{ commit.short_hash }}`]({{ commit.hexsha | commit_hash_url }}))
-{% set skip_line = false -%}
+{% set ns = namespace(skip_line=false) -%}
 {%- for line in commit["descriptions"][1:] -%}
-{# skip co-author annotations in commit messages #}
-{%- if "Co-authored-by:" in line -%}
-{%- set skip_line = true -%}
-{%- elif not skip_line %}
+{# skip co-author annotations in commit messages and internal notes #}
+{%- if "---------" in line -%}
+{%- set ns.skip_line = true -%}
+{%- elif not ns.skip_line %}
 {{ line | indent(2, first=True, blank=True)}}
 {% endif -%}
 {%- endfor %}

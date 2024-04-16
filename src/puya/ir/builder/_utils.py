@@ -1,6 +1,8 @@
 import typing
 from collections.abc import Iterator, Sequence
 
+import attrs
+
 from puya.avm_type import AVMType
 from puya.awst import nodes as awst_nodes
 from puya.errors import InternalError
@@ -148,6 +150,7 @@ def assign_intrinsic_op(
     args: Sequence[int | bytes | Value],
     source_location: SourceLocation | None,
     immediates: list[int | str] | None = None,
+    return_type: Sequence[AVMType] | None = None,
 ) -> Sequence[Register]:
     def map_arg(arg: int | bytes | Value) -> Value:
         match arg:
@@ -156,35 +159,36 @@ def assign_intrinsic_op(
             case bytes(b_val):
                 return BytesConstant(
                     value=b_val,
-                    source_location=source_location,
                     encoding=AVMBytesEncoding.base16,
+                    source_location=source_location,
                 )
             case _:
                 return arg
 
+    intrinsic = Intrinsic(
+        op=op,
+        immediates=immediates or [],
+        args=[map_arg(a) for a in args],
+        types=(
+            return_type
+            if return_type is not None
+            else typing.cast(Sequence[AVMType], attrs.NOTHING)
+        ),
+        source_location=source_location,
+    )
     if isinstance(target, str):
         return assign(
             context,
             temp_description=target,
+            source=intrinsic,
             source_location=source_location,
-            source=Intrinsic(
-                op=op,
-                immediates=immediates or list[int | str](),
-                args=[map_arg(a) for a in args],
-                source_location=source_location,
-            ),
         )
     else:
         return assign(
             context,
             names=[(target.name, source_location)],
+            source=intrinsic,
             source_location=source_location,
-            source=Intrinsic(
-                op=op,
-                immediates=immediates or list[int | str](),
-                args=[map_arg(a) for a in args],
-                source_location=source_location,
-            ),
         )
 
 

@@ -4,35 +4,20 @@ from collections.abc import Iterable, Iterator, Sequence
 
 import attrs
 
+from puya import log
 from puya.avm_type import AVMType
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.avm_ops_models import OpSignature, Variant
+from puya.ir.avm_ops_models import OpSignature, StackType, Variant
 from puya.ir.types_ import AVMBytesEncoding, stack_type_to_avm_type
 from puya.ir.visitor import IRVisitor
 from puya.models import ContractMetaData, LogicSignatureMetaData
 from puya.parse import SourceLocation
 from puya.utils import unique
 
+logger = log.get_logger(__name__)
+
 T = t.TypeVar("T")
-
-
-def _check_stack_types(
-    error_format: str,
-    target_types: Sequence[AVMType],
-    source_types: Sequence[AVMType],
-    source_location: SourceLocation | None,
-) -> None:
-    if len(target_types) != len(source_types) or not all(
-        a & b for a, b in zip(target_types, source_types, strict=True)
-    ):
-        raise CodeError(
-            error_format.format(
-                source_types=f"({', '.join(map(str, source_types))})",
-                target_types=f"({', '.join(map(str, target_types))})",
-            ),
-            source_location,
-        )
 
 
 class Context(t.Protocol):
@@ -88,6 +73,11 @@ class Value(ValueProvider, abc.ABC):
     """
 
     atype: AVMType = attrs.field(repr=lambda x: x.name)
+
+    @atype.validator
+    def _validate_not_any(self, _attribute: object, atype: AVMType) -> None:
+        if atype is AVMType.any:
+            raise InternalError(f"Register has type any: {self}", self.source_location)
 
     @property
     def types(self) -> Sequence[AVMType]:
@@ -191,7 +181,7 @@ class Phi(IRVisitable, _Freezable):
 
     @args.validator
     def check_args(self, _attribute: object, args: Sequence[PhiArgument]) -> None:
-        bad_args = [arg for arg in args if not (arg.value.atype & self.atype)]
+        bad_args = [arg for arg in args if arg.value.atype != self.atype]
         if bad_args:
             raise InternalError(f"Phi node received arguments with unexpected type(s): {bad_args}")
         seen_blocks = set[BasicBlock]()
@@ -291,20 +281,6 @@ class Intrinsic(Op, ValueProvider):
     def _default_types(self) -> tuple[AVMType, ...]:
         return tuple(map(stack_type_to_avm_type, self.op_signature.returns))
 
-    @_types.validator
-    def _validate_types(self, _attribute: object, types: Sequence[AVMType]) -> None:
-        expected_types = self._default_types()
-        received_types = tuple(types)
-        desc = f"({self.op} {' '.join(map(str, self.immediates))}): "
-        _check_stack_types(
-            "Incompatible return types on Intrinsic"
-            + desc
-            + " received = {source_types}, expected = {target_types}",
-            expected_types,
-            received_types,
-            self.source_location,
-        )
-
     def _frozen_data(self) -> object:
         return self.op, tuple(self.immediates), tuple(self.args), self.comment
 
@@ -323,19 +299,39 @@ class Intrinsic(Op, ValueProvider):
     def op_variant(self) -> Variant:
         return self.op.get_variant(self.immediates)
 
+    @_types.validator
+    def _validate_types(self, _attribute: object, types: Sequence[AVMType]) -> None:
+        if AVMType.any in types:
+            raise InternalError(
+                f"Intrinsic op {self.op.name} requires return type information",
+                self.source_location,
+            )
+        self._check_stack_types("return", self.op_signature.returns, types)
+
     @args.validator
     def _validate_args(self, _attribute: object, args: list[Value]) -> None:
-        expected_args = [stack_type_to_avm_type(a) for a in self.op_signature.args]
-        received_args = [a.atype for a in args]
-        desc = f"({self.op} {' '.join(map(str, self.immediates))}): "
-        _check_stack_types(
-            "Incompatible argument types on Intrinsic"
-            + desc
-            + " received = {source_types}, expected = {target_types}",
-            expected_args,
-            received_args,
-            self.source_location,
-        )
+        arg_types = [a.atype for a in args]
+        self._check_stack_types("argument", self.op_signature.args, arg_types)
+
+    def _check_stack_types(
+        self,
+        context: str,
+        expected_types: Sequence[StackType],
+        source_types: Sequence[AVMType],
+    ) -> None:
+        target_types = [stack_type_to_avm_type(a) for a in expected_types]
+        if len(target_types) != len(source_types) or not all(
+            a & b for a, b in zip(target_types, source_types, strict=True)
+        ):
+            logger.error(
+                (
+                    f"Incompatible {context} types on Intrinsic"
+                    f"({self.op} {' '.join(map(str, self.immediates))}): "
+                    f" received = ({', '.join(map(str, source_types))}),"
+                    f" expected = ({', '.join(map(str, target_types))})"
+                ),
+                location=self.source_location,
+            )
 
 
 @attrs.define(eq=False)
@@ -389,13 +385,14 @@ class Assignment(Op):
 
     @source.validator
     def _check_types(self, _attribute: object, source: ValueProvider) -> None:
-        _check_stack_types(
-            "Incompatible types on assignment: "
-            "source = {source_types}, target = {target_types}",
-            [target.atype for target in self.targets],
-            list(source.types),
-            self.source_location,
-        )
+        target_type = [target.atype for target in self.targets]
+        source_type = list(source.types)
+        if target_type != source_type:
+            raise CodeError(
+                f"Incompatible types on assignment:"
+                f" source = {source_type}, target = {target_type}",
+                self.source_location,
+            )
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_assignment(self)
@@ -566,7 +563,7 @@ class Switch(ControlOp):
 
     @cases.validator
     def _check_cases(self, _attribute: object, cases: dict[Value, BasicBlock]) -> None:
-        if not all(case.atype & self.value.atype for case in cases):
+        if any(case.atype != self.value.atype for case in cases):
             raise CodeError(
                 "Switch cases types mismatch with value to match", self.source_location
             )
@@ -684,7 +681,7 @@ class Subroutine(Context):
     body: list[BasicBlock] = attrs.field()
 
     @property
-    def returns(self) -> Sequence[AVMType]:
+    def returns(self) -> list[AVMType]:
         return [*self._returns, *(p.atype for p in self.parameters if p.implicit_return)]
 
     @body.validator
