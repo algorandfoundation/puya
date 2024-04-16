@@ -1,4 +1,5 @@
 import abc
+import typing
 import typing as t
 from collections.abc import Iterable, Iterator, Sequence
 
@@ -9,7 +10,7 @@ from puya.avm_type import AVMType
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import OpSignature, StackType, Variant
-from puya.ir.types_ import AVMBytesEncoding, stack_type_to_avm_type
+from puya.ir.types_ import AVMBytesEncoding, IRType, stack_type_to_avm_type, stack_type_to_ir_type
 from puya.ir.visitor import IRVisitor
 from puya.models import ContractMetaData, LogicSignatureMetaData
 from puya.parse import SourceLocation
@@ -60,8 +61,13 @@ class ValueProvider(IRVisitable, _Freezable, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def types(self) -> Sequence[AVMType]:
+    def types(self) -> Sequence[IRType]:
         ...
+
+    @property
+    @t.final
+    def atypes(self) -> Sequence[AVMType]:
+        return tuple(t.avm_type for t in self.types)
 
 
 @attrs.frozen
@@ -72,16 +78,16 @@ class Value(ValueProvider, abc.ABC):
     value *producers* such as subroutine invocations
     """
 
-    atype: AVMType = attrs.field(repr=lambda x: x.name)
-
-    @atype.validator
-    def _validate_not_any(self, _attribute: object, atype: AVMType) -> None:
-        if atype is AVMType.any:
-            raise InternalError(f"Register has type any: {self}", self.source_location)
+    ir_type: IRType = attrs.field(repr=lambda x: x.name)
 
     @property
-    def types(self) -> Sequence[AVMType]:
-        return (self.atype,)
+    @t.final
+    def atype(self) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
+        return self.ir_type.avm_type
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.ir_type,)
 
     def _frozen_data(self) -> object:
         return self
@@ -165,8 +171,12 @@ class Phi(IRVisitable, _Freezable):
     undefined_predecessors: list["BasicBlock"] = attrs.field(factory=list)
 
     @property
+    def ir_type(self) -> IRType:
+        return self.register.ir_type
+
+    @property
     def atype(self) -> AVMType:
-        return self.register.atype
+        return self.ir_type.avm_type
 
     @property
     def non_self_args(self) -> Sequence[PhiArgument]:
@@ -197,8 +207,15 @@ class Phi(IRVisitable, _Freezable):
 @attrs.frozen
 class UInt64Constant(Constant):
     value: int
-    atype: AVMType = attrs.field(default=AVMType.uint64, init=False)
+    ir_type: IRType = attrs.field(default=IRType.uint64)
     teal_alias: str | None = None
+
+    @ir_type.validator
+    def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
+        if ir_type.avm_type is not AVMType.uint64:
+            raise InternalError(
+                f"Invalid type for UInt64Constant: {ir_type}", self.source_location
+            )
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_uint64_constant(self)
@@ -207,7 +224,7 @@ class UInt64Constant(Constant):
 @attrs.frozen
 class BigUIntConstant(Constant):
     value: int
-    atype: AVMType = attrs.field(default=AVMType.bytes, init=False)
+    ir_type: IRType = attrs.field(default=IRType.biguint, init=False)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_biguint_constant(self)
@@ -216,7 +233,7 @@ class BigUIntConstant(Constant):
 @attrs.frozen
 class TemplateVar(Value):
     name: str
-    atype: AVMType
+    ir_type: IRType
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_template_var(self)
@@ -226,10 +243,9 @@ class TemplateVar(Value):
 class BytesConstant(Constant):
     """Constant for types that are logically bytes"""
 
-    atype: AVMType = attrs.field(default=AVMType.bytes, init=False)
+    ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
 
     encoding: AVMBytesEncoding
-
     value: bytes
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -240,8 +256,7 @@ class BytesConstant(Constant):
 class AddressConstant(Constant):
     """Constant for address literals"""
 
-    atype: AVMType = attrs.field(default=AVMType.bytes, init=False)
-
+    ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
     value: str
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -252,8 +267,7 @@ class AddressConstant(Constant):
 class MethodConstant(Constant):
     """Constant for method literals"""
 
-    atype: AVMType = attrs.field(default=AVMType.bytes, init=False)
-
+    ir_type: IRType = attrs.field(default=IRType.bytes, init=False)
     value: str
 
     def accept(self, visitor: IRVisitor[T]) -> T:
@@ -275,11 +289,20 @@ class Intrinsic(Op, ValueProvider):
     immediates: list[str | int] = attrs.field(factory=list)
     args: list[Value] = attrs.field(factory=list)
     comment: str | None = None  # used e.g. for asserts
-    _types: Sequence[AVMType] = attrs.field(converter=tuple[AVMType, ...])
+    _types: Sequence[IRType] = attrs.field(converter=tuple[IRType, ...])
 
     @_types.default
-    def _default_types(self) -> tuple[AVMType, ...]:
-        return tuple(map(stack_type_to_avm_type, self.op_signature.returns))
+    def _default_types(self) -> tuple[IRType, ...]:
+        types = list[IRType]()
+        for stack_type in self.op_signature.returns:
+            ir_type = stack_type_to_ir_type(stack_type)
+            if ir_type is None:
+                raise InternalError(
+                    f"Intrinsic op {self.op.name} requires return type information",
+                    self.source_location,
+                )
+            types.append(ir_type)
+        return tuple(types)
 
     def _frozen_data(self) -> object:
         return self.op, tuple(self.immediates), tuple(self.args), self.comment
@@ -288,7 +311,7 @@ class Intrinsic(Op, ValueProvider):
         return visitor.visit_intrinsic_op(self)
 
     @property
-    def types(self) -> Sequence[AVMType]:
+    def types(self) -> Sequence[IRType]:
         return self._types
 
     @property
@@ -300,28 +323,23 @@ class Intrinsic(Op, ValueProvider):
         return self.op.get_variant(self.immediates)
 
     @_types.validator
-    def _validate_types(self, _attribute: object, types: Sequence[AVMType]) -> None:
-        if AVMType.any in types:
-            raise InternalError(
-                f"Intrinsic op {self.op.name} requires return type information",
-                self.source_location,
-            )
+    def _validate_types(self, _attribute: object, types: Sequence[IRType]) -> None:
         self._check_stack_types("return", self.op_signature.returns, types)
 
     @args.validator
     def _validate_args(self, _attribute: object, args: list[Value]) -> None:
-        arg_types = [a.atype for a in args]
+        arg_types = [a.ir_type for a in args]
         self._check_stack_types("argument", self.op_signature.args, arg_types)
 
     def _check_stack_types(
         self,
         context: str,
         expected_types: Sequence[StackType],
-        source_types: Sequence[AVMType],
+        source_types: Sequence[IRType],
     ) -> None:
         target_types = [stack_type_to_avm_type(a) for a in expected_types]
         if len(target_types) != len(source_types) or not all(
-            a & b for a, b in zip(target_types, source_types, strict=True)
+            tt & st.avm_type for tt, st in zip(target_types, source_types, strict=True)
         ):
             logger.error(
                 (
@@ -351,7 +369,7 @@ class InvokeSubroutine(Op, ValueProvider):
         return visitor.visit_invoke_subroutine(self)
 
     @property
-    def types(self) -> Sequence[AVMType]:
+    def types(self) -> Sequence[IRType]:
         return self.target.returns
 
 
@@ -363,8 +381,8 @@ class ValueTuple(ValueProvider):
         return visitor.visit_value_tuple(self)
 
     @property
-    def types(self) -> Sequence[AVMType]:
-        return [val.atype for val in self.values]
+    def types(self) -> Sequence[IRType]:
+        return [val.ir_type for val in self.values]
 
     def _frozen_data(self) -> object:
         return tuple(self.values)
@@ -385,12 +403,15 @@ class Assignment(Op):
 
     @source.validator
     def _check_types(self, _attribute: object, source: ValueProvider) -> None:
+        # TODO: need to update some optimiser code and/or introduce ReinterpretCast ValueProvider
+        #       here before we can just use ir_type.
         target_type = [target.atype for target in self.targets]
-        source_type = list(source.types)
+        source_type = list(source.atypes)
         if target_type != source_type:
             raise CodeError(
                 f"Incompatible types on assignment:"
-                f" source = {source_type}, target = {target_type}",
+                f" source = ({', '.join(map(str, source_type))}),"
+                f" target = ({', '.join(map(str, target_type))})",
                 self.source_location,
             )
 
@@ -485,7 +506,7 @@ class ConditionalBranch(ControlOp):
     def check(self, _attribute: object, result: Value) -> None:
         if result.atype != AVMType.uint64:
             raise CodeError(
-                "Branch condition can only be uint64 typed value", self.source_location
+                "Branch condition can only be uint64 backed value", self.source_location
             )
 
     def targets(self) -> Sequence[BasicBlock]:
@@ -621,7 +642,7 @@ class ProgramExit(ControlOp):
     @result.validator
     def check(self, _attribute: object, result: Value) -> None:
         if result.atype != AVMType.uint64:
-            raise CodeError("Can only exit with uint64 typed value", self.source_location)
+            raise CodeError("Can only exit with uint64 backed value", self.source_location)
 
     def _frozen_data(self) -> object:
         return self.result
@@ -677,12 +698,12 @@ class Subroutine(Context):
     class_name: str | None  # None if a function (vs a method)
     method_name: str
     parameters: Sequence[Parameter]
-    _returns: Sequence[AVMType]
+    _returns: Sequence[IRType]
     body: list[BasicBlock] = attrs.field()
 
     @property
-    def returns(self) -> list[AVMType]:
-        return [*self._returns, *(p.atype for p in self.parameters if p.implicit_return)]
+    def returns(self) -> list[IRType]:
+        return [*self._returns, *(p.ir_type for p in self.parameters if p.implicit_return)]
 
     @body.validator
     def _check_blocks(self, _attribute: object, body: list[BasicBlock]) -> None:

@@ -1,10 +1,9 @@
-from puya.avm_type import AVMType
 from puya.awst import nodes as awst_nodes
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assert_value, assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import BytesConstant, Intrinsic, UInt64Constant, Value, ValueProvider
-from puya.ir.types_ import bytes_enc_to_avm_bytes_enc, wtype_to_avm_type
+from puya.ir.types_ import IRType, bytes_enc_to_avm_bytes_enc, wtype_to_ir_type
 from puya.parse import SourceLocation
 
 
@@ -63,7 +62,7 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
     return Intrinsic(
         op=AVMOp.select,
         args=[default, maybe_value, exists],
-        types=[wtype_to_avm_type(expr.wtype)],
+        types=[wtype_to_ir_type(expr.wtype)],
         source_location=expr.source_location,
     )
 
@@ -84,18 +83,18 @@ def _checked_state_access(
     assert_comment: str,
 ) -> ValueProvider:
     get = _build_state_get_ex(context, expr, expr.source_location)
-    # note: we manually construct temporary targets here since atype is any,
+    # note: we manually construct temporary targets here since ir_type is any,
     #       but we "know" the type from the expression
-    value_atype = wtype_to_avm_type(expr.wtype)
+    value_ir_type = wtype_to_ir_type(expr.wtype)
     value_tmp = mktemp(
         context,
-        atype=value_atype,
+        ir_type=value_ir_type,
         description=f"{expr.field_name}_value",
         source_location=expr.source_location,
     )
     did_exist_tmp = mktemp(
         context,
-        atype=AVMType.uint64,
+        ir_type=IRType.bool,
         description=f"{expr.field_name}_exists",
         source_location=expr.source_location,
     )
@@ -138,7 +137,7 @@ def _build_state_get_ex(
         args=args,
         source_location=source_location,
         types=[
-            wtype_to_avm_type(state_def.storage_wtype),
-            AVMType.uint64,
+            wtype_to_ir_type(state_def.storage_wtype),
+            IRType.bool,
         ],
     )

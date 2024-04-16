@@ -1,6 +1,6 @@
 contract test_cases.intrinsics.overloaded.Overloaded:
     program approval:
-        subroutine test_cases.intrinsics.overloaded.Overloaded.approval_program() -> uint64:
+        subroutine test_cases.intrinsics.overloaded.Overloaded.approval_program() -> bool:
             block@0: // L8
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
@@ -10,19 +10,19 @@ contract test_cases.intrinsics.overloaded.Overloaded:
             block@2: // entrypoint_L5
                 let tmp%0#0: uint64 = (app_global_get "key")
                 let tmp%1#0: uint64 = (app_global_get "key")
-                let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
+                let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
                 (assert tmp%2#0)
-                let (tmp%3#0: uint64, tmp%4#0: uint64) = (app_global_get_ex 0u "key")
-                let (tmp%5#0: uint64, tmp%6#0: uint64) = (app_global_get_ex 0u "key")
-                let tmp%7#0: uint64 = (== tmp%3#0 tmp%5#0)
+                let (tmp%3#0: uint64, tmp%4#0: bool) = (app_global_get_ex 0u "key")
+                let (tmp%5#0: uint64, tmp%6#0: bool) = (app_global_get_ex 0u "key")
+                let tmp%7#0: bool = (== tmp%3#0 tmp%5#0)
                 (assert tmp%7#0)
                 let tmp%8#0: uint64 = (setbit 0u 0u 1u)
                 let tmp%9#0: uint64 = (setbit 0u 0u 1u)
-                let tmp%10#0: uint64 = (== tmp%8#0 tmp%9#0)
+                let tmp%10#0: bool = (== tmp%8#0 tmp%9#0)
                 (assert tmp%10#0)
                 let tmp%11#0: uint64 = (select 0u 1u 1u)
                 let tmp%12#0: uint64 = (select 1u 0u 0u)
-                let tmp%13#0: uint64 = (== tmp%11#0 tmp%12#0)
+                let tmp%13#0: bool = (== tmp%11#0 tmp%12#0)
                 (assert tmp%13#0)
                 return 1u
         
@@ -32,6 +32,6 @@ contract test_cases.intrinsics.overloaded.Overloaded:
                 return 
     
     program clear-state:
-        subroutine test_cases.intrinsics.overloaded.Overloaded.clear_state_program() -> uint64:
+        subroutine test_cases.intrinsics.overloaded.Overloaded.clear_state_program() -> bool:
             block@0: // L15
                 return 1u

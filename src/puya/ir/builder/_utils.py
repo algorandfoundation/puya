@@ -3,7 +3,6 @@ from collections.abc import Iterator, Sequence
 
 import attrs
 
-from puya.avm_type import AVMType
 from puya.awst import nodes as awst_nodes
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
@@ -19,7 +18,7 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
-from puya.ir.types_ import AVMBytesEncoding
+from puya.ir.types_ import AVMBytesEncoding, IRType
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -65,8 +64,8 @@ def assign(
         if isinstance(temp_description, str):
             temp_description = [temp_description] * len(atypes)
         targets = [
-            mktemp(context, atype, source_location, description=descr)
-            for atype, descr in zip(atypes, temp_description, strict=True)
+            mktemp(context, ir_type, source_location, description=descr)
+            for ir_type, descr in zip(atypes, temp_description, strict=True)
         ]
     else:
         assert (
@@ -84,8 +83,8 @@ def assign(
                 ) from ex
             names = [(format_tuple_index(name, idx), var_loc) for idx, _ in enumerate(atypes)]
         targets = [
-            context.ssa.new_register(name, atype, var_loc)
-            for (name, var_loc), atype in zip(names, atypes, strict=True)
+            context.ssa.new_register(name, ir_type, var_loc)
+            for (name, var_loc), ir_type in zip(names, atypes, strict=True)
         ]
 
     assign_targets(
@@ -129,14 +128,14 @@ def assign_targets(
 
 def mktemp(
     context: IRFunctionBuildContext,
-    atype: AVMType,
+    ir_type: IRType,
     source_location: SourceLocation | None,
     *,
     description: str,
 ) -> Register:
     register = context.ssa.new_register(
         name=context.next_tmp_name(description),
-        atype=atype,
+        ir_type=ir_type,
         location=source_location,
     )
     return register
@@ -150,7 +149,7 @@ def assign_intrinsic_op(
     args: Sequence[int | bytes | Value],
     source_location: SourceLocation | None,
     immediates: list[int | str] | None = None,
-    return_type: Sequence[AVMType] | None = None,
+    return_type: Sequence[IRType] | None = None,
 ) -> Sequence[Register]:
     def map_arg(arg: int | bytes | Value) -> Value:
         match arg:
@@ -172,7 +171,7 @@ def assign_intrinsic_op(
         types=(
             return_type
             if return_type is not None
-            else typing.cast(Sequence[AVMType], attrs.NOTHING)
+            else typing.cast(Sequence[IRType], attrs.NOTHING)
         ),
         source_location=source_location,
     )

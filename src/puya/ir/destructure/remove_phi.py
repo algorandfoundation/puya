@@ -17,7 +17,7 @@ def convert_to_cssa(sub: models.Subroutine) -> None:
         max_versions[mem.name] += 1
         return models.Register(
             source_location=mem.source_location,
-            atype=mem.atype,
+            ir_type=mem.ir_type,
             name=mem.name,
             version=max_versions[mem.name],
         )

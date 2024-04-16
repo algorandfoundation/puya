@@ -14,7 +14,7 @@ from puya.ir.models import (
     Switch,
     Value,
 )
-from puya.ir.types_ import wtype_to_avm_type
+from puya.ir.types_ import wtype_to_ir_type
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
@@ -240,6 +240,6 @@ def handle_conditional_expression(
     context.block_builder.goto_and_activate(merge_block)
     context.ssa.seal_block(merge_block)
     result = context.ssa.read_variable(
-        variable=tmp_var_name, atype=wtype_to_avm_type(expr), block=merge_block
+        variable=tmp_var_name, ir_type=wtype_to_ir_type(expr), block=merge_block
     )
     return result

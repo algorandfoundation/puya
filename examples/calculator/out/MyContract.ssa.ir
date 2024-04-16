@@ -3,7 +3,7 @@ contract examples.calculator.contract.MyContract:
         subroutine examples.calculator.contract.MyContract.approval_program() -> uint64:
             block@0: // L19
                 let num_args#0: uint64 = (txn NumAppArgs)
-                let tmp%0#0: uint64 = (== num_args#0 0u)
+                let tmp%0#0: bool = (== num_args#0 0u)
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L21
                 let a#0: uint64 = 0u
@@ -15,7 +15,7 @@ contract examples.calculator.contract.MyContract:
                 (log tmp%2#0)
                 goto block@3
             block@2: // else_body_L21
-                let tmp%3#0: uint64 = (== num_args#0 3u)
+                let tmp%3#0: bool = (== num_args#0 3u)
                 (assert tmp%3#0) // Expected 3 args
                 let action_b#0: bytes = (txna ApplicationArgs 0)
                 let action#1: uint64 = (btoi action_b#0)
@@ -44,25 +44,25 @@ contract examples.calculator.contract.MyContract:
         
         subroutine examples.calculator.contract.MyContract.do_calc(maybe_action: uint64, a: uint64, b: uint64) -> uint64:
             block@0: // L56
-                let tmp%0#0: uint64 = (== maybe_action#0 1u)
+                let tmp%0#0: bool = (== maybe_action#0 1u)
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L58
                 let tmp%1#0: uint64 = examples.calculator.contract.MyContract.add(a#0, b#0)
                 return tmp%1#0
             block@2: // else_body_L58
-                let tmp%2#0: uint64 = (== maybe_action#0 2u)
+                let tmp%2#0: bool = (== maybe_action#0 2u)
                 goto tmp%2#0 ? block@3 : block@4
             block@3: // if_body_L60
                 let tmp%3#0: uint64 = examples.calculator.contract.MyContract.sub(a#0, b#0)
                 return tmp%3#0
             block@4: // else_body_L60
-                let tmp%4#0: uint64 = (== maybe_action#0 3u)
+                let tmp%4#0: bool = (== maybe_action#0 3u)
                 goto tmp%4#0 ? block@5 : block@6
             block@5: // if_body_L62
                 let tmp%5#0: uint64 = examples.calculator.contract.MyContract.mul(a#0, b#0)
                 return tmp%5#0
             block@6: // else_body_L62
-                let tmp%6#0: uint64 = (== maybe_action#0 4u)
+                let tmp%6#0: bool = (== maybe_action#0 4u)
                 goto tmp%6#0 ? block@7 : block@8
             block@7: // if_body_L64
                 let tmp%7#0: uint64 = examples.calculator.contract.MyContract.div(a#0, b#0)
@@ -94,7 +94,7 @@ contract examples.calculator.contract.MyContract:
             block@0: // L9
                 let digits#0: bytes = "0123456789"
                 let radix#0: uint64 = (len digits#0)
-                let tmp%0#0: uint64 = (< i#0 radix#0)
+                let tmp%0#0: bool = (< i#0 radix#0)
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L13
                 let index_plus_1%0#0: uint64 = (+ i#0 1u)
@@ -111,22 +111,22 @@ contract examples.calculator.contract.MyContract:
         
         subroutine examples.calculator.contract.MyContract.op(action: uint64) -> bytes:
             block@0: // L43
-                let tmp%0#0: uint64 = (== action#0 1u)
+                let tmp%0#0: bool = (== action#0 1u)
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L45
                 return " + "
             block@2: // else_body_L45
-                let tmp%1#0: uint64 = (== action#0 2u)
+                let tmp%1#0: bool = (== action#0 2u)
                 goto tmp%1#0 ? block@3 : block@4
             block@3: // if_body_L47
                 return " - "
             block@4: // else_body_L47
-                let tmp%2#0: uint64 = (== action#0 3u)
+                let tmp%2#0: bool = (== action#0 3u)
                 goto tmp%2#0 ? block@5 : block@6
             block@5: // if_body_L49
                 return " * "
             block@6: // else_body_L49
-                let tmp%3#0: uint64 = (== action#0 4u)
+                let tmp%3#0: bool = (== action#0 4u)
                 goto tmp%3#0 ? block@7 : block@8
             block@7: // if_body_L51
                 return " // "
@@ -134,6 +134,6 @@ contract examples.calculator.contract.MyContract:
                 return " - "
     
     program clear-state:
-        subroutine examples.calculator.contract.MyContract.clear_state_program() -> uint64:
+        subroutine examples.calculator.contract.MyContract.clear_state_program() -> bool:
             block@0: // L85
                 return 1u

@@ -9,6 +9,7 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.models import PhiArgument
 from puya.ir.optimize._utils import get_definition
 from puya.ir.ssa import TrivialPhiRemover
+from puya.ir.types_ import IRType
 from puya.utils import unique
 
 logger = log.get_logger(__name__)
@@ -86,7 +87,7 @@ def simplify_control_ops(_context: CompileContext, subroutine: models.Subroutine
                 logger.debug("inlining condition branch to err block into an assert false")
                 not_condition = models.Register(
                     name=f"not%{condition.name}",
-                    atype=AVMType.uint64,
+                    ir_type=IRType.bool,
                     version=condition.version,
                     source_location=source_location,
                 )

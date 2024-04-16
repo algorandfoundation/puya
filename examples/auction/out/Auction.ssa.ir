@@ -1,6 +1,6 @@
 contract examples.auction.contract.Auction:
     program approval:
-        subroutine examples.auction.contract.Auction.approval_program() -> uint64:
+        subroutine examples.auction.contract.Auction.approval_program() -> bool:
             block@0: // L16
                 let app_id%0#0: uint64 = (txn ApplicationID)
                 goto app_id%0#0 ? block@2 : block@1
@@ -8,16 +8,16 @@ contract examples.auction.contract.Auction:
                 examples.auction.contract.Auction.__init__()
                 goto block@2
             block@2: // entrypoint_L17
-                let tmp%0#0: uint64 = (txn NumAppArgs)
+                let tmp%0#0: bool = (txn NumAppArgs)
                 goto tmp%0#0 ? block@3 : block@12
             block@3: // abi_routing_L16
                 let tmp%1#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%1#0 {method "opt_into_asset(asset)void" => block@4, method "start_auction(uint64,uint64,axfer)void" => block@5, method "opt_in()void" => block@6, method "bid(pay)void" => block@7, method "claim_bids()void" => block@8, method "claim_asset(asset)void" => block@9, * => block@10}
             block@4: // opt_into_asset_route_L25
                 let tmp%2#0: uint64 = (txn OnCompletion)
-                let tmp%3#0: uint64 = (== tmp%2#0 NoOp)
+                let tmp%3#0: bool = (== tmp%2#0 NoOp)
                 (assert tmp%3#0) // OnCompletion is NoOp
-                let tmp%4#0: uint64 = (txn ApplicationID)
+                let tmp%4#0: bool = (txn ApplicationID)
                 (assert tmp%4#0) // is not creating
                 let tmp%5#0: bytes = (txna ApplicationArgs 1)
                 let tmp%6#0: uint64 = (btoi tmp%5#0)
@@ -26,9 +26,9 @@ contract examples.auction.contract.Auction:
                 return 1u
             block@5: // start_auction_route_L41
                 let tmp%8#0: uint64 = (txn OnCompletion)
-                let tmp%9#0: uint64 = (== tmp%8#0 NoOp)
+                let tmp%9#0: bool = (== tmp%8#0 NoOp)
                 (assert tmp%9#0) // OnCompletion is NoOp
-                let tmp%10#0: uint64 = (txn ApplicationID)
+                let tmp%10#0: bool = (txn ApplicationID)
                 (assert tmp%10#0) // is not creating
                 let tmp%11#0: bytes = (txna ApplicationArgs 1)
                 let tmp%12#0: uint64 = (btoi tmp%11#0)
@@ -37,46 +37,46 @@ contract examples.auction.contract.Auction:
                 let tmp%15#0: uint64 = (txn GroupIndex)
                 let awst_tmp%0#0: uint64 = (- tmp%15#0 1u)
                 let tmp%16#0: uint64 = ((gtxns TypeEnum) awst_tmp%0#0)
-                let tmp%17#0: uint64 = (== tmp%16#0 axfer)
-                let (value%0#0: uint64, check%0#0: uint64) = (awst_tmp%0#0, tmp%17#0)
+                let tmp%17#0: bool = (== tmp%16#0 axfer)
+                let (value%0#0: uint64, check%0#0: bool) = (awst_tmp%0#0, tmp%17#0)
                 (assert check%0#0) // transaction type is axfer
                 examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%14#0, value%0#0)
                 return 1u
             block@6: // opt_in_route_L63
                 let tmp%18#0: uint64 = (txn OnCompletion)
-                let tmp%19#0: uint64 = (== tmp%18#0 NoOp)
+                let tmp%19#0: bool = (== tmp%18#0 NoOp)
                 (assert tmp%19#0) // OnCompletion is NoOp
-                let tmp%20#0: uint64 = (txn ApplicationID)
+                let tmp%20#0: bool = (txn ApplicationID)
                 (assert tmp%20#0) // is not creating
                 examples.auction.contract.Auction.opt_in()
                 return 1u
             block@7: // bid_route_L67
                 let tmp%21#0: uint64 = (txn OnCompletion)
-                let tmp%22#0: uint64 = (== tmp%21#0 NoOp)
+                let tmp%22#0: bool = (== tmp%21#0 NoOp)
                 (assert tmp%22#0) // OnCompletion is NoOp
-                let tmp%23#0: uint64 = (txn ApplicationID)
+                let tmp%23#0: bool = (txn ApplicationID)
                 (assert tmp%23#0) // is not creating
                 let tmp%24#0: uint64 = (txn GroupIndex)
                 let awst_tmp%1#0: uint64 = (- tmp%24#0 1u)
                 let tmp%25#0: uint64 = ((gtxns TypeEnum) awst_tmp%1#0)
-                let tmp%26#0: uint64 = (== tmp%25#0 pay)
-                let (value%1#0: uint64, check%1#0: uint64) = (awst_tmp%1#0, tmp%26#0)
+                let tmp%26#0: bool = (== tmp%25#0 pay)
+                let (value%1#0: uint64, check%1#0: bool) = (awst_tmp%1#0, tmp%26#0)
                 (assert check%1#0) // transaction type is pay
                 examples.auction.contract.Auction.bid(value%1#0)
                 return 1u
             block@8: // claim_bids_route_L83
                 let tmp%27#0: uint64 = (txn OnCompletion)
-                let tmp%28#0: uint64 = (== tmp%27#0 NoOp)
+                let tmp%28#0: bool = (== tmp%27#0 NoOp)
                 (assert tmp%28#0) // OnCompletion is NoOp
-                let tmp%29#0: uint64 = (txn ApplicationID)
+                let tmp%29#0: bool = (txn ApplicationID)
                 (assert tmp%29#0) // is not creating
                 examples.auction.contract.Auction.claim_bids()
                 return 1u
             block@9: // claim_asset_route_L99
                 let tmp%30#0: uint64 = (txn OnCompletion)
-                let tmp%31#0: uint64 = (== tmp%30#0 NoOp)
+                let tmp%31#0: bool = (== tmp%30#0 NoOp)
                 (assert tmp%31#0) // OnCompletion is NoOp
-                let tmp%32#0: uint64 = (txn ApplicationID)
+                let tmp%32#0: bool = (txn ApplicationID)
                 (assert tmp%32#0) // is not creating
                 let tmp%33#0: bytes = (txna ApplicationArgs 1)
                 let tmp%34#0: uint64 = (btoi tmp%33#0)
@@ -91,8 +91,8 @@ contract examples.auction.contract.Auction:
                 let tmp%36#0: uint64 = (txn OnCompletion)
                 switch tmp%36#0 {0u => block@13, * => block@14}
             block@13: // create_L16
-                let tmp%37#0: uint64 = (txn ApplicationID)
-                let tmp%38#0: uint64 = (! tmp%37#0)
+                let tmp%37#0: bool = (txn ApplicationID)
+                let tmp%38#0: bool = (! tmp%37#0)
                 (assert tmp%38#0) // is creating
                 return 1u
             block@14: // reject_bare_on_completion_L16
@@ -102,11 +102,11 @@ contract examples.auction.contract.Auction:
             block@0: // L25
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
-                let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
+                let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
                 (assert tmp%2#0) // Only creator can opt in to ASA
-                let (asa_value%0#0: uint64, asa_exists%0#0: uint64) = (app_global_get_ex 0u "asa")
+                let (asa_value%0#0: uint64, asa_exists%0#0: bool) = (app_global_get_ex 0u "asa")
                 (assert asa_exists%0#0) // check asa exists
-                let tmp%3#0: uint64 = (== asa_value%0#0 0u)
+                let tmp%3#0: bool = (== asa_value%0#0 0u)
                 (assert tmp%3#0) // ASA already opted in
                 (app_global_put "asa" asset#0)
                 itxn_begin
@@ -207,7 +207,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%ConfigAsset#0: uint64 = (itxn ConfigAsset)
                 let submit_result_0%0%%ConfigAssetTotal#0: uint64 = (itxn ConfigAssetTotal)
                 let submit_result_0%0%%ConfigAssetDecimals#0: uint64 = (itxn ConfigAssetDecimals)
-                let submit_result_0%0%%ConfigAssetDefaultFrozen#0: uint64 = (itxn ConfigAssetDefaultFrozen)
+                let submit_result_0%0%%ConfigAssetDefaultFrozen#0: bool = (itxn ConfigAssetDefaultFrozen)
                 let submit_result_0%0%%ConfigAssetUnitName#0: bytes = (itxn ConfigAssetUnitName)
                 let submit_result_0%0%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
                 let submit_result_0%0%%ConfigAssetURL#0: bytes = (itxn ConfigAssetURL)
@@ -218,7 +218,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%ConfigAssetClawback#0: bytes = (itxn ConfigAssetClawback)
                 let submit_result_0%0%%FreezeAsset#0: uint64 = (itxn FreezeAsset)
                 let submit_result_0%0%%FreezeAssetAccount#0: bytes = (itxn FreezeAssetAccount)
-                let submit_result_0%0%%FreezeAssetFrozen#0: uint64 = (itxn FreezeAssetFrozen)
+                let submit_result_0%0%%FreezeAssetFrozen#0: bool = (itxn FreezeAssetFrozen)
                 let submit_result_0%0%%NumAssets#0: uint64 = (itxn NumAssets)
                 let submit_result_0%0%%NumApplications#0: uint64 = (itxn NumApplications)
                 let submit_result_0%0%%GlobalNumUint#0: uint64 = (itxn GlobalNumUint)
@@ -226,7 +226,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%LocalNumUint#0: uint64 = (itxn LocalNumUint)
                 let submit_result_0%0%%LocalNumByteSlice#0: uint64 = (itxn LocalNumByteSlice)
                 let submit_result_0%0%%ExtraProgramPages#0: uint64 = (itxn ExtraProgramPages)
-                let submit_result_0%0%%Nonparticipation#0: uint64 = (itxn Nonparticipation)
+                let submit_result_0%0%%Nonparticipation#0: bool = (itxn Nonparticipation)
                 let submit_result_0%0%%NumLogs#0: uint64 = (itxn NumLogs)
                 let submit_result_0%0%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
                 let submit_result_0%0%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
@@ -240,15 +240,15 @@ contract examples.auction.contract.Auction:
             block@0: // L41
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
-                let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
+                let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
                 (assert tmp%2#0) // auction must be started by creator
-                let (auction_end_value%0#0: uint64, auction_end_exists%0#0: uint64) = (app_global_get_ex 0u "auction_end")
+                let (auction_end_value%0#0: uint64, auction_end_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
                 (assert auction_end_exists%0#0) // check auction_end exists
-                let tmp%3#0: uint64 = (== auction_end_value%0#0 0u)
+                let tmp%3#0: bool = (== auction_end_value%0#0 0u)
                 (assert tmp%3#0) // auction already started
                 let tmp%4#0: bytes = ((gtxns AssetReceiver) axfer#0)
                 let tmp%5#0: bytes = (global CurrentApplicationAddress)
-                let tmp%6#0: uint64 = (== tmp%4#0 tmp%5#0)
+                let tmp%6#0: bool = (== tmp%4#0 tmp%5#0)
                 (assert tmp%6#0) // axfer must transfer to this app
                 let new_state_value%0#0: uint64 = ((gtxns AssetAmount) axfer#0)
                 (app_global_put "asa_amount" new_state_value%0#0)
@@ -265,18 +265,18 @@ contract examples.auction.contract.Auction:
         subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
             block@0: // L67
                 let tmp%0#0: uint64 = (global LatestTimestamp)
-                let (auction_end_value%0#0: uint64, auction_end_exists%0#0: uint64) = (app_global_get_ex 0u "auction_end")
+                let (auction_end_value%0#0: uint64, auction_end_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
                 (assert auction_end_exists%0#0) // check auction_end exists
-                let tmp%1#0: uint64 = (< tmp%0#0 auction_end_value%0#0)
+                let tmp%1#0: bool = (< tmp%0#0 auction_end_value%0#0)
                 (assert tmp%1#0) // auction has ended
                 let tmp%2#0: bytes = ((gtxns Sender) pay#0)
                 let tmp%3#0: bytes = (txn Sender)
-                let tmp%4#0: uint64 = (== tmp%2#0 tmp%3#0)
+                let tmp%4#0: bool = (== tmp%2#0 tmp%3#0)
                 (assert tmp%4#0) // payment sender must match transaction sender
                 let tmp%5#0: uint64 = ((gtxns Amount) pay#0)
-                let (previous_bid_value%0#0: uint64, previous_bid_exists%0#0: uint64) = (app_global_get_ex 0u "previous_bid")
+                let (previous_bid_value%0#0: uint64, previous_bid_exists%0#0: bool) = (app_global_get_ex 0u "previous_bid")
                 (assert previous_bid_exists%0#0) // check previous_bid exists
-                let tmp%6#0: uint64 = (> tmp%5#0 previous_bid_value%0#0)
+                let tmp%6#0: bool = (> tmp%5#0 previous_bid_value%0#0)
                 (assert tmp%6#0) // Bid must be higher than previous bid
                 let new_state_value%0#0: uint64 = ((gtxns Amount) pay#0)
                 (app_global_put "previous_bid" new_state_value%0#0)
@@ -290,18 +290,18 @@ contract examples.auction.contract.Auction:
         subroutine examples.auction.contract.Auction.claim_bids() -> void:
             block@0: // L83
                 let tmp%0#0: bytes = (txn Sender)
-                let (claimable_amount_value%0#0: uint64, claimable_amount_exists%0#0: uint64) = (app_local_get_ex tmp%0#0 0u "claim")
+                let (claimable_amount_value%0#0: uint64, claimable_amount_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "claim")
                 (assert claimable_amount_exists%0#0) // check claimable_amount exists for account
                 let awst_tmp%0#0: uint64 = claimable_amount_value%0#0
                 let original_amount#0: uint64 = awst_tmp%0#0
                 let amount#0: uint64 = awst_tmp%0#0
                 let tmp%1#0: bytes = (txn Sender)
-                let (previous_bidder_value%0#0: bytes, previous_bidder_exists%0#0: uint64) = (app_global_get_ex 0u "previous_bidder")
+                let (previous_bidder_value%0#0: bytes, previous_bidder_exists%0#0: bool) = (app_global_get_ex 0u "previous_bidder")
                 (assert previous_bidder_exists%0#0) // check previous_bidder exists
-                let tmp%2#0: uint64 = (== tmp%1#0 previous_bidder_value%0#0)
+                let tmp%2#0: bool = (== tmp%1#0 previous_bidder_value%0#0)
                 goto tmp%2#0 ? block@1 : block@2
             block@1: // if_body_L87
-                let (previous_bid_value%0#0: uint64, previous_bid_exists%0#0: uint64) = (app_global_get_ex 0u "previous_bid")
+                let (previous_bid_value%0#0: uint64, previous_bid_exists%0#0: bool) = (app_global_get_ex 0u "previous_bid")
                 (assert previous_bid_exists%0#0) // check previous_bid exists
                 let amount#1: uint64 = (- amount#0 previous_bid_value%0#0)
                 goto block@2
@@ -405,7 +405,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%ConfigAsset#0: uint64 = (itxn ConfigAsset)
                 let submit_result_0%0%%ConfigAssetTotal#0: uint64 = (itxn ConfigAssetTotal)
                 let submit_result_0%0%%ConfigAssetDecimals#0: uint64 = (itxn ConfigAssetDecimals)
-                let submit_result_0%0%%ConfigAssetDefaultFrozen#0: uint64 = (itxn ConfigAssetDefaultFrozen)
+                let submit_result_0%0%%ConfigAssetDefaultFrozen#0: bool = (itxn ConfigAssetDefaultFrozen)
                 let submit_result_0%0%%ConfigAssetUnitName#0: bytes = (itxn ConfigAssetUnitName)
                 let submit_result_0%0%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
                 let submit_result_0%0%%ConfigAssetURL#0: bytes = (itxn ConfigAssetURL)
@@ -416,7 +416,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%ConfigAssetClawback#0: bytes = (itxn ConfigAssetClawback)
                 let submit_result_0%0%%FreezeAsset#0: uint64 = (itxn FreezeAsset)
                 let submit_result_0%0%%FreezeAssetAccount#0: bytes = (itxn FreezeAssetAccount)
-                let submit_result_0%0%%FreezeAssetFrozen#0: uint64 = (itxn FreezeAssetFrozen)
+                let submit_result_0%0%%FreezeAssetFrozen#0: bool = (itxn FreezeAssetFrozen)
                 let submit_result_0%0%%NumAssets#0: uint64 = (itxn NumAssets)
                 let submit_result_0%0%%NumApplications#0: uint64 = (itxn NumApplications)
                 let submit_result_0%0%%GlobalNumUint#0: uint64 = (itxn GlobalNumUint)
@@ -424,7 +424,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%LocalNumUint#0: uint64 = (itxn LocalNumUint)
                 let submit_result_0%0%%LocalNumByteSlice#0: uint64 = (itxn LocalNumByteSlice)
                 let submit_result_0%0%%ExtraProgramPages#0: uint64 = (itxn ExtraProgramPages)
-                let submit_result_0%0%%Nonparticipation#0: uint64 = (itxn Nonparticipation)
+                let submit_result_0%0%%Nonparticipation#0: bool = (itxn Nonparticipation)
                 let submit_result_0%0%%NumLogs#0: uint64 = (itxn NumLogs)
                 let submit_result_0%0%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
                 let submit_result_0%0%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
@@ -440,9 +440,9 @@ contract examples.auction.contract.Auction:
         subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
             block@0: // L99
                 let tmp%0#0: uint64 = (global LatestTimestamp)
-                let (auction_end_value%0#0: uint64, auction_end_exists%0#0: uint64) = (app_global_get_ex 0u "auction_end")
+                let (auction_end_value%0#0: uint64, auction_end_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
                 (assert auction_end_exists%0#0) // check auction_end exists
-                let tmp%1#0: uint64 = (> tmp%0#0 auction_end_value%0#0)
+                let tmp%1#0: bool = (> tmp%0#0 auction_end_value%0#0)
                 (assert tmp%1#0) // auction has not ended
                 itxn_begin
                 let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = axfer
@@ -451,15 +451,15 @@ contract examples.auction.contract.Auction:
                 let inner_txn_params%0%%Fee_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_XferAsset_idx_0#0: uint64 = asset#0
                 let inner_txn_params%0%%XferAsset_length#0: uint64 = 1u
-                let (previous_bidder_value%0#0: bytes, previous_bidder_exists%0#0: uint64) = (app_global_get_ex 0u "previous_bidder")
+                let (previous_bidder_value%0#0: bytes, previous_bidder_exists%0#0: bool) = (app_global_get_ex 0u "previous_bidder")
                 (assert previous_bidder_exists%0#0) // check previous_bidder exists
                 let inner_txn_params%0%%param_AssetCloseTo_idx_0#0: bytes = previous_bidder_value%0#0
                 let inner_txn_params%0%%AssetCloseTo_length#0: uint64 = 1u
-                let (previous_bidder_value%1#0: bytes, previous_bidder_exists%1#0: uint64) = (app_global_get_ex 0u "previous_bidder")
+                let (previous_bidder_value%1#0: bytes, previous_bidder_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
                 (assert previous_bidder_exists%1#0) // check previous_bidder exists
                 let inner_txn_params%0%%param_AssetReceiver_idx_0#0: bytes = previous_bidder_value%1#0
                 let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 1u
-                let (asa_amount_value%0#0: uint64, asa_amount_exists%0#0: uint64) = (app_global_get_ex 0u "asa_amount")
+                let (asa_amount_value%0#0: uint64, asa_amount_exists%0#0: bool) = (app_global_get_ex 0u "asa_amount")
                 (assert asa_amount_exists%0#0) // check asa_amount exists
                 let inner_txn_params%0%%param_AssetAmount_idx_0#0: uint64 = asa_amount_value%0#0
                 let inner_txn_params%0%%AssetAmount_length#0: uint64 = 1u
@@ -552,7 +552,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%ConfigAsset#0: uint64 = (itxn ConfigAsset)
                 let submit_result_0%0%%ConfigAssetTotal#0: uint64 = (itxn ConfigAssetTotal)
                 let submit_result_0%0%%ConfigAssetDecimals#0: uint64 = (itxn ConfigAssetDecimals)
-                let submit_result_0%0%%ConfigAssetDefaultFrozen#0: uint64 = (itxn ConfigAssetDefaultFrozen)
+                let submit_result_0%0%%ConfigAssetDefaultFrozen#0: bool = (itxn ConfigAssetDefaultFrozen)
                 let submit_result_0%0%%ConfigAssetUnitName#0: bytes = (itxn ConfigAssetUnitName)
                 let submit_result_0%0%%ConfigAssetName#0: bytes = (itxn ConfigAssetName)
                 let submit_result_0%0%%ConfigAssetURL#0: bytes = (itxn ConfigAssetURL)
@@ -563,7 +563,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%ConfigAssetClawback#0: bytes = (itxn ConfigAssetClawback)
                 let submit_result_0%0%%FreezeAsset#0: uint64 = (itxn FreezeAsset)
                 let submit_result_0%0%%FreezeAssetAccount#0: bytes = (itxn FreezeAssetAccount)
-                let submit_result_0%0%%FreezeAssetFrozen#0: uint64 = (itxn FreezeAssetFrozen)
+                let submit_result_0%0%%FreezeAssetFrozen#0: bool = (itxn FreezeAssetFrozen)
                 let submit_result_0%0%%NumAssets#0: uint64 = (itxn NumAssets)
                 let submit_result_0%0%%NumApplications#0: uint64 = (itxn NumApplications)
                 let submit_result_0%0%%GlobalNumUint#0: uint64 = (itxn GlobalNumUint)
@@ -571,7 +571,7 @@ contract examples.auction.contract.Auction:
                 let submit_result_0%0%%LocalNumUint#0: uint64 = (itxn LocalNumUint)
                 let submit_result_0%0%%LocalNumByteSlice#0: uint64 = (itxn LocalNumByteSlice)
                 let submit_result_0%0%%ExtraProgramPages#0: uint64 = (itxn ExtraProgramPages)
-                let submit_result_0%0%%Nonparticipation#0: uint64 = (itxn Nonparticipation)
+                let submit_result_0%0%%Nonparticipation#0: bool = (itxn Nonparticipation)
                 let submit_result_0%0%%NumLogs#0: uint64 = (itxn NumLogs)
                 let submit_result_0%0%%CreatedAssetID#0: uint64 = (itxn CreatedAssetID)
                 let submit_result_0%0%%CreatedApplicationID#0: uint64 = (itxn CreatedApplicationID)
@@ -592,6 +592,6 @@ contract examples.auction.contract.Auction:
                 return 
     
     program clear-state:
-        subroutine examples.auction.contract.Auction.clear_state_program() -> uint64:
+        subroutine examples.auction.contract.Auction.clear_state_program() -> bool:
             block@0: // L119
                 return 1u

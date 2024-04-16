@@ -34,7 +34,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
-from puya.ir.types_ import AVMBytesEncoding
+from puya.ir.types_ import AVMBytesEncoding, IRType
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
@@ -373,7 +373,7 @@ def _set_bit(
     return Intrinsic(
         op=AVMOp.setbit,
         args=[value, index_const, bit],
-        types=[value.atype],
+        types=[value.ir_type],
         source_location=source_location,
     )
 
@@ -677,7 +677,7 @@ def _arc4_replace_struct_item(
             source_location=source_location,
             op=AVMOp.setbit,
             args=(base, header_up_to_item, is_true),
-            return_type=[base.atype],
+            return_type=[base.ir_type],
         )
         return updated_data
     else:
@@ -1339,7 +1339,7 @@ def _arc4_replace_array_item(
             source_location=source_location,
             op=AVMOp.setbit,
             args=(base, write_offset, is_true),
-            return_type=[base.atype],
+            return_type=[base.ir_type],
         )
     else:
         (updated_target,) = assign_intrinsic_op(
@@ -1564,8 +1564,8 @@ def pop_arc4_array(
 ) -> ValueProvider:
     source_location = expr.source_location
     element_size = get_arc4_fixed_bit_size(array_wtype.element_type)
-    popped = mktemp(context, AVMType.bytes, source_location, description="popped")
-    data = mktemp(context, AVMType.bytes, source_location, description="data")
+    popped = mktemp(context, IRType.bytes, source_location, description="popped")
+    data = mktemp(context, IRType.bytes, source_location, description="data")
     base = context.visitor.visit_and_materialise_single(expr.base)
     match element_size:
         case 1:

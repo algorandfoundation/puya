@@ -1,6 +1,6 @@
 contract test_cases.inner_transactions.itxn_loop.MyContract:
     program approval:
-        subroutine test_cases.inner_transactions.itxn_loop.MyContract.approval_program() -> uint64:
+        subroutine test_cases.inner_transactions.itxn_loop.MyContract.approval_program() -> bool:
             block@0: // L19
                 let note#0: bytes = "ABCDE"
                 let app_params%%param_TypeEnum_idx_0#0: uint64 = appl
@@ -14,7 +14,7 @@ contract test_cases.inner_transactions.itxn_loop.MyContract:
                 let range_item%0#0: uint64 = 0u
                 goto block@1
             block@1: // for_header_L28
-                let continue_looping%0#0: uint64 = (< range_item%0#0 4u)
+                let continue_looping%0#0: bool = (< range_item%0#0 4u)
                 goto continue_looping%0#0 ? block@2 : block@15
             block@2: // for_body_L28
                 let i#0: uint64 = range_item%0#0
@@ -42,15 +42,15 @@ contract test_cases.inner_transactions.itxn_loop.MyContract:
                 goto block@7
             block@7: // switch_case_next_L30
                 itxn_begin
-                let is_ApplicationArgs_count_gte_1%0#0: uint64 = (>= app_params%%ApplicationArgs_length#0 1u)
+                let is_ApplicationArgs_count_gte_1%0#0: bool = (>= app_params%%ApplicationArgs_length#0 1u)
                 goto is_ApplicationArgs_count_gte_1%0#0 ? block@8 : block@11
             block@8: // set_ApplicationArgs_0_to_0_L40
                 ((itxn_field ApplicationArgs) app_params%%param_ApplicationArgs_idx_0#0)
-                let is_ApplicationArgs_count_gte_2%0#0: uint64 = (>= app_params%%ApplicationArgs_length#0 2u)
+                let is_ApplicationArgs_count_gte_2%0#0: bool = (>= app_params%%ApplicationArgs_length#0 2u)
                 goto is_ApplicationArgs_count_gte_2%0#0 ? block@9 : block@11
             block@9: // set_ApplicationArgs_1_to_1_L40
                 ((itxn_field ApplicationArgs) app_params%%param_ApplicationArgs_idx_1#0)
-                let is_ApplicationArgs_count_gte_3%0#0: uint64 = (>= app_params%%ApplicationArgs_length#0 3u)
+                let is_ApplicationArgs_count_gte_3%0#0: bool = (>= app_params%%ApplicationArgs_length#0 3u)
                 goto is_ApplicationArgs_count_gte_3%0#0 ? block@10 : block@11
             block@10: // set_ApplicationArgs_2_to_2_L40
                 ((itxn_field ApplicationArgs) app_params%%param_ApplicationArgs_idx_2#0)
@@ -80,6 +80,6 @@ contract test_cases.inner_transactions.itxn_loop.MyContract:
                 return 1u
     
     program clear-state:
-        subroutine test_cases.inner_transactions.itxn_loop.MyContract.clear_state_program() -> uint64:
+        subroutine test_cases.inner_transactions.itxn_loop.MyContract.clear_state_program() -> bool:
             block@0: // L16
                 return 1u

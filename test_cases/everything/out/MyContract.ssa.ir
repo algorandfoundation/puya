@@ -1,15 +1,15 @@
 contract test_cases.everything.contract.Everything:
     program approval:
-        subroutine test_cases.everything.contract.Everything.approval_program() -> uint64:
+        subroutine test_cases.everything.contract.Everything.approval_program() -> bool:
             block@0: // L37
                 let tmp%0#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%0#0 {method "create()void" => block@1, method "register(string)void" => block@2, method "say_hello()string" => block@3, method "calculate(uint64,uint64)uint64" => block@4, method "close_out()void" => block@5, * => block@6}
             block@1: // create_route_L41
                 let tmp%1#0: uint64 = (txn OnCompletion)
-                let tmp%2#0: uint64 = (== tmp%1#0 NoOp)
+                let tmp%2#0: bool = (== tmp%1#0 NoOp)
                 (assert tmp%2#0) // OnCompletion is NoOp
-                let tmp%3#0: uint64 = (txn ApplicationID)
-                let tmp%4#0: uint64 = (! tmp%3#0)
+                let tmp%3#0: bool = (txn ApplicationID)
+                let tmp%4#0: bool = (! tmp%3#0)
                 (assert tmp%4#0) // is creating
                 test_cases.everything.contract.Everything.create()
                 return 1u
@@ -18,16 +18,16 @@ contract test_cases.everything.contract.Everything:
                 let tmp%6#0: uint64 = (shl 1u tmp%5#0)
                 let tmp%7#0: uint64 = (& tmp%6#0 3u)
                 (assert tmp%7#0) // OnCompletion is one of NoOp, OptIn
-                let tmp%8#0: uint64 = (txn ApplicationID)
+                let tmp%8#0: bool = (txn ApplicationID)
                 (assert tmp%8#0) // is not creating
                 let tmp%9#0: bytes = (txna ApplicationArgs 1)
                 test_cases.everything.contract.Everything.register(tmp%9#0)
                 return 1u
             block@3: // say_hello_route_L56
                 let tmp%10#0: uint64 = (txn OnCompletion)
-                let tmp%11#0: uint64 = (== tmp%10#0 NoOp)
+                let tmp%11#0: bool = (== tmp%10#0 NoOp)
                 (assert tmp%11#0) // OnCompletion is NoOp
-                let tmp%12#0: uint64 = (txn ApplicationID)
+                let tmp%12#0: bool = (txn ApplicationID)
                 (assert tmp%12#0) // is not creating
                 let tmp%13#0: bytes = test_cases.everything.contract.Everything.say_hello()
                 let tmp%14#0: bytes = (concat 0x151f7c75 tmp%13#0)
@@ -35,9 +35,9 @@ contract test_cases.everything.contract.Everything:
                 return 1u
             block@4: // calculate_route_L64
                 let tmp%15#0: uint64 = (txn OnCompletion)
-                let tmp%16#0: uint64 = (== tmp%15#0 NoOp)
+                let tmp%16#0: bool = (== tmp%15#0 NoOp)
                 (assert tmp%16#0) // OnCompletion is NoOp
-                let tmp%17#0: uint64 = (txn ApplicationID)
+                let tmp%17#0: bool = (txn ApplicationID)
                 (assert tmp%17#0) // is not creating
                 let tmp%18#0: bytes = (txna ApplicationArgs 1)
                 let tmp%19#0: bytes = (txna ApplicationArgs 2)
@@ -47,9 +47,9 @@ contract test_cases.everything.contract.Everything:
                 return 1u
             block@5: // close_out_route_L69
                 let tmp%22#0: uint64 = (txn OnCompletion)
-                let tmp%23#0: uint64 = (== tmp%22#0 CloseOut)
+                let tmp%23#0: bool = (== tmp%22#0 CloseOut)
                 (assert tmp%23#0) // OnCompletion is CloseOut
-                let tmp%24#0: uint64 = (txn ApplicationID)
+                let tmp%24#0: bool = (txn ApplicationID)
                 (assert tmp%24#0) // is not creating
                 test_cases.everything.contract.Everything.close_out()
                 return 1u
@@ -69,7 +69,7 @@ contract test_cases.everything.contract.Everything:
             block@0: // L77
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = test_cases.everything.contract.get_banned()
-                let tmp%2#0: uint64 = (!= tmp%0#0 tmp%1#0)
+                let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
                 (assert tmp%2#0) // You are banned, goodbye
                 return 
         
@@ -88,15 +88,15 @@ contract test_cases.everything.contract.Everything:
             block@0: // L47
                 test_cases.everything.contract.Everything._check_ban_list()
                 let tmp%0#0: uint64 = (txn OnCompletion)
-                let tmp%1#0: uint64 = (== tmp%0#0 OptIn)
+                let tmp%1#0: bool = (== tmp%0#0 OptIn)
                 goto tmp%1#0 ? block@1 : block@4
             block@1: // if_body_L50
-                let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: uint64) = (app_local_get_ex 0u 0u "name")
+                let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (app_local_get_ex 0u 0u "name")
                 let sender_name#0: bytes = tuple_assignment%0#0
-                let sender_name_existed#0: uint64 = tuple_assignment%1#0
+                let sender_name_existed#0: bool = tuple_assignment%1#0
                 goto sender_name_existed#0 ? block@3 : block@2
             block@2: // if_body_L52
-                let (counter_value%0#0: uint64, counter_exists%0#0: uint64) = (app_global_get_ex 0u "counter")
+                let (counter_value%0#0: uint64, counter_exists%0#0: bool) = (app_global_get_ex 0u "counter")
                 (assert counter_exists%0#0) // check counter exists
                 let tmp%2#0: uint64 = test_cases.everything.my_base.multiplicative_identity()
                 let new_state_value%0#0: uint64 = (+ counter_value%0#0 tmp%2#0)
@@ -115,9 +115,9 @@ contract test_cases.everything.contract.Everything:
         subroutine test_cases.everything.contract.Everything.say_hello() -> bytes:
             block@0: // L56
                 test_cases.everything.contract.Everything._check_ban_list()
-                let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: uint64) = (app_local_get_ex 0u 0u "name")
+                let (tuple_assignment%0#0: bytes, tuple_assignment%1#0: bool) = (app_local_get_ex 0u 0u "name")
                 let name#0: bytes = tuple_assignment%0#0
-                let exists#0: uint64 = tuple_assignment%1#0
+                let exists#0: bool = tuple_assignment%1#0
                 goto exists#0 ? block@2 : block@1
             block@1: // if_body_L60
                 return "\x00\x0fHowdy stranger!"
@@ -162,7 +162,7 @@ contract test_cases.everything.contract.Everything:
         
         subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
             block@0: // L81
-                let (counter_value%0#0: uint64, counter_exists%0#0: uint64) = (app_global_get_ex 0u "counter")
+                let (counter_value%0#0: uint64, counter_exists%0#0: bool) = (app_global_get_ex 0u "counter")
                 (assert counter_exists%0#0) // check counter exists
                 let tmp%0#0: uint64 = test_cases.everything.contract.positive_one()
                 let new_state_value%0#0: uint64 = (- counter_value%0#0 tmp%0#0)
@@ -174,14 +174,14 @@ contract test_cases.everything.contract.Everything:
                 return 1u
     
     program clear-state:
-        subroutine test_cases.everything.contract.Everything.clear_state_program() -> uint64:
+        subroutine test_cases.everything.contract.Everything.clear_state_program() -> bool:
             block@0: // L73
                 test_cases.everything.contract.Everything._remove_sender()
                 return 1u
         
         subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
             block@0: // L81
-                let (counter_value%0#0: uint64, counter_exists%0#0: uint64) = (app_global_get_ex 0u "counter")
+                let (counter_value%0#0: uint64, counter_exists%0#0: bool) = (app_global_get_ex 0u "counter")
                 (assert counter_exists%0#0) // check counter exists
                 let tmp%0#0: uint64 = test_cases.everything.contract.positive_one()
                 let new_state_value%0#0: uint64 = (- counter_value%0#0 tmp%0#0)

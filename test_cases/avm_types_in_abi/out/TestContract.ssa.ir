@@ -1,15 +1,15 @@
 contract test_cases.avm_types_in_abi.contract.TestContract:
     program approval:
-        subroutine test_cases.avm_types_in_abi.contract.TestContract.approval_program() -> uint64:
+        subroutine test_cases.avm_types_in_abi.contract.TestContract.approval_program() -> bool:
             block@0: // L4
                 let tmp%0#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%0#0 {method "create(bool,uint64,byte[],(bool,uint64,byte[]))(bool,uint64,byte[])" => block@1, method "tuple_of_arc4((uint8,address))(uint8,address)" => block@2, * => block@3}
             block@1: // create_route_L5
                 let tmp%1#0: uint64 = (txn OnCompletion)
-                let tmp%2#0: uint64 = (== tmp%1#0 NoOp)
+                let tmp%2#0: bool = (== tmp%1#0 NoOp)
                 (assert tmp%2#0) // OnCompletion is NoOp
-                let tmp%3#0: uint64 = (txn ApplicationID)
-                let tmp%4#0: uint64 = (! tmp%3#0)
+                let tmp%3#0: bool = (txn ApplicationID)
+                let tmp%4#0: bool = (! tmp%3#0)
                 (assert tmp%4#0) // is creating
                 let tmp%5#0: bytes = (txna ApplicationArgs 1)
                 let tmp%6#0: uint64 = (getbit tmp%5#0 0u)
@@ -29,7 +29,7 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
                 let tmp%12#0: uint64 = (getbit awst_tmp%0#0 0u)
                 let tmp%13#0: uint64 = (btoi awst_tmp%1#0)
                 let tmp%14#0: bytes = ((extract 2 0) awst_tmp%2#0)
-                let (awst_tmp%3#0: uint64, awst_tmp%4#0: uint64, awst_tmp%5#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%6#0, tmp%8#0, tmp%10#0, tmp%12#0, tmp%13#0, tmp%14#0)
+                let (awst_tmp%3#0: bool, awst_tmp%4#0: uint64, awst_tmp%5#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%6#0, tmp%8#0, tmp%10#0, tmp%12#0, tmp%13#0, tmp%14#0)
                 let tmp%15#0: bytes = (setbit 0x00 0u awst_tmp%3#0)
                 let val_as_bytes%0#0: bytes = (itob awst_tmp%4#0)
                 let awst_tmp%6#0: bytes = awst_tmp%5#0
@@ -52,9 +52,9 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
                 return 1u
             block@2: // tuple_of_arc4_route_L17
                 let tmp%21#0: uint64 = (txn OnCompletion)
-                let tmp%22#0: uint64 = (== tmp%21#0 NoOp)
+                let tmp%22#0: bool = (== tmp%21#0 NoOp)
                 (assert tmp%22#0) // OnCompletion is NoOp
-                let tmp%23#0: uint64 = (txn ApplicationID)
+                let tmp%23#0: bool = (txn ApplicationID)
                 (assert tmp%23#0) // is not creating
                 let tmp%24#0: bytes = (txna ApplicationArgs 1)
                 let item0%1#0: bytes = (extract3 tmp%24#0 0u 1u)
@@ -72,39 +72,39 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
             block@4: // switch_case_next_L4
                 fail // reject transaction
         
-        subroutine test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes) -> <uint64, uint64, bytes>:
+        subroutine test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: bool, uint64_param: uint64, bytes_param: bytes, tuple_param.0: bool, tuple_param.1: uint64, tuple_param.2: bytes) -> <bool, uint64, bytes>:
             block@0: // L5
-                let (result.0#0: uint64, result.1#0: uint64, result.2#0: bytes) = (bool_param#0, uint64_param#0, bytes_param#0)
-                let tmp%0#0: uint64 = (== result.0#0 tuple_param.0#0)
+                let (result.0#0: bool, result.1#0: uint64, result.2#0: bytes) = (bool_param#0, uint64_param#0, bytes_param#0)
+                let tmp%0#0: bool = (== result.0#0 tuple_param.0#0)
                 goto tmp%0#0 ? block@1 : block@4
             block@1: // and_contd_L14
-                let tmp%1#0: uint64 = (== result.1#0 tuple_param.1#0)
+                let tmp%1#0: bool = (== result.1#0 tuple_param.1#0)
                 goto tmp%1#0 ? block@2 : block@4
             block@2: // and_contd_L14
-                let tmp%2#0: uint64 = (== result.2#0 tuple_param.2#0)
+                let tmp%2#0: bool = (== result.2#0 tuple_param.2#0)
                 goto tmp%2#0 ? block@3 : block@4
             block@3: // bool_true_L14
-                let and_result%0#0: uint64 = 1u
+                let and_result%0#0: bool = 1u
                 goto block@5
             block@4: // bool_false_L14
-                let and_result%0#1: uint64 = 0u
+                let and_result%0#1: bool = 0u
                 goto block@5
             block@5: // bool_merge_L14
-                let and_result%0#2: uint64 = φ(and_result%0#0 <- block@3, and_result%0#1 <- block@4)
+                let and_result%0#2: bool = φ(and_result%0#0 <- block@3, and_result%0#1 <- block@4)
                 (assert and_result%0#2)
                 return result.0#0 result.1#0 result.2#0
         
         subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes, args.1: bytes) -> <bytes, bytes>:
             block@0: // L17
                 let tmp%0#0: uint64 = (len args.0#0)
-                let tmp%1#0: uint64 = (== tmp%0#0 1u)
+                let tmp%1#0: bool = (== tmp%0#0 1u)
                 (assert tmp%1#0)
                 let tmp%2#0: uint64 = (len args.1#0)
-                let tmp%3#0: uint64 = (== tmp%2#0 32u)
+                let tmp%3#0: bool = (== tmp%2#0 32u)
                 (assert tmp%3#0)
                 return args.0#0 args.1#0
     
     program clear-state:
-        subroutine test_cases.avm_types_in_abi.contract.TestContract.clear_state_program() -> uint64:
+        subroutine test_cases.avm_types_in_abi.contract.TestContract.clear_state_program() -> bool:
             block@0: // L4
                 return 1u

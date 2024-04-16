@@ -39,9 +39,10 @@ from puya.ir.models import (
 )
 from puya.ir.types_ import (
     AVMBytesEncoding,
+    IRType,
     bytes_enc_to_avm_bytes_enc,
-    wtype_to_avm_type,
-    wtype_to_avm_types,
+    wtype_to_ir_type,
+    wtype_to_ir_types,
 )
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -216,7 +217,9 @@ class FunctionIRBuilder(
                 )
 
     def visit_bool_constant(self, expr: awst_nodes.BoolConstant) -> TExpression:
-        return UInt64Constant(value=int(expr.value), source_location=expr.source_location)
+        return UInt64Constant(
+            value=int(expr.value), ir_type=IRType.bool, source_location=expr.source_location
+        )
 
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
         return BytesConstant(
@@ -287,15 +290,15 @@ class FunctionIRBuilder(
                 values=[
                     self.context.ssa.read_variable(
                         variable=format_tuple_index(expr.name, idx),
-                        atype=wtype_to_avm_type(wt, expr.source_location),
+                        ir_type=wtype_to_ir_type(wt, expr.source_location),
                         block=self.context.block_builder.active_block,
                     )
                     for idx, wt in enumerate(expr.wtype.types)
                 ],
             )
-        atype = wtype_to_avm_type(expr)
+        ir_type = wtype_to_ir_type(expr)
         variable = self.context.ssa.read_variable(
-            expr.name, atype, self.context.block_builder.active_block
+            expr.name, ir_type, self.context.block_builder.active_block
         )
         return variable
 
@@ -321,7 +324,7 @@ class FunctionIRBuilder(
                     source_location=call.source_location,
                     args=args,
                     immediates=list(call.immediates),
-                    types=wtype_to_avm_types(call.wtype),
+                    types=wtype_to_ir_types(call.wtype),
                 )
 
     def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:
@@ -351,7 +354,7 @@ class FunctionIRBuilder(
         items = []
         for item in expr.items:
             # TODO: don't rely on a pure function's side effects (raising) for validation
-            wtype_to_avm_type(item)
+            wtype_to_ir_type(item)
             items.append(self.visit_and_materialise_single(item))
         return ValueTuple(
             source_location=expr.source_location,
@@ -603,7 +606,7 @@ class FunctionIRBuilder(
             self.context.block_builder.activate_block(true_block)
             assign(
                 self.context,
-                UInt64Constant(value=1, source_location=None),
+                UInt64Constant(value=1, ir_type=IRType.bool, source_location=None),
                 names=[(tmp_name, None)],
                 source_location=None,
             )
@@ -612,14 +615,14 @@ class FunctionIRBuilder(
             self.context.block_builder.activate_block(false_block)
             assign(
                 self.context,
-                UInt64Constant(value=0, source_location=None),
+                UInt64Constant(value=0, ir_type=IRType.bool, source_location=None),
                 names=[(tmp_name, None)],
                 source_location=None,
             )
             self.context.block_builder.goto_and_activate(merge_block)
             self.context.ssa.seal_block(merge_block)
             return self.context.ssa.read_variable(
-                variable=tmp_name, atype=AVMType.uint64, block=merge_block
+                variable=tmp_name, ir_type=IRType.bool, block=merge_block
             )
 
         left = self.visit_and_materialise_single(expr.left)
@@ -698,8 +701,8 @@ class FunctionIRBuilder(
 
     def visit_reinterpret_cast(self, expr: awst_nodes.ReinterpretCast) -> TExpression:
         # should be a no-op for us, but we validate the cast here too
-        inner_avm_type = wtype_to_avm_type(expr.expr)
-        outer_avm_type = wtype_to_avm_type(expr)
+        inner_avm_type = wtype_to_ir_type(expr.expr).avm_type
+        outer_avm_type = wtype_to_ir_type(expr).avm_type
         if inner_avm_type != outer_avm_type:
             raise InternalError(
                 f"Tried to reinterpret {expr.expr.wtype} as {expr.wtype},"
@@ -736,11 +739,11 @@ class FunctionIRBuilder(
                 result.append(
                     self.context.ssa.read_variable(
                         param.name,
-                        param.atype,
+                        param.ir_type,
                         self.context.block_builder.active_block,
                     )
                 )
-        return_types = [r.atype for r in result]
+        return_types = [r.ir_type for r in result]
         if return_types != self.context.subroutine.returns:
             raise CodeError(
                 f"Invalid return type {return_types} in {self.context.function.full_name},"
@@ -755,9 +758,11 @@ class FunctionIRBuilder(
         )
 
     def visit_template_var(self, expr: puya.awst.nodes.TemplateVar) -> TExpression:
-        atype = wtype_to_avm_type(expr.wtype)
-        typing.assert_type(atype, typing.Literal[AVMType.uint64, AVMType.bytes])
-        return TemplateVar(name=expr.name, atype=atype, source_location=expr.source_location)
+        return TemplateVar(
+            name=expr.name,
+            ir_type=wtype_to_ir_type(expr.wtype),
+            source_location=expr.source_location,
+        )
 
     def visit_continue_statement(self, statement: awst_nodes.ContinueStatement) -> TStatement:
         self.context.block_builder.loop_continue(statement.source_location)

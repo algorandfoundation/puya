@@ -13,7 +13,7 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
                 (log tmp%0#0)
                 let (did_overflow#0: uint64, result.1#0: uint64) = (addw 1u 2u)
                 (app_global_put "state" result.1#0)
-                let tmp%1#0: uint64 = (! did_overflow#0)
+                let tmp%1#0: bool = (! did_overflow#0)
                 (assert tmp%1#0) // overflow!
                 let tmp%9#0: bytes = test_cases.tuple_support.tuple_support.bytes_combine("Hello, ", "world!")
                 (log tmp%9#0)
@@ -59,7 +59,7 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
                 let (hi_carry1#0: uint64, c_mid#0: uint64) = (addw a.0#0 b.0#0)
                 let (hi_carry2#0: uint64, c_mid#1: uint64) = (addw c_mid#0 lo_carry#0)
                 let (did_overflow#0: uint64, c_hi#0: uint64) = (addw hi_carry1#0 hi_carry2#0)
-                let tmp%0#0: uint64 = (! did_overflow#0)
+                let tmp%0#0: bool = (! did_overflow#0)
                 (assert tmp%0#0) // is such a thing even possible? 👽
                 return c_hi#0 c_mid#1 c_lo#0
         
@@ -71,7 +71,7 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
             block@1: // for_header_L71
                 let _i#0: uint64 = φ(range_item%0#0 <- block@0, range_item%0#3 <- block@2)
                 let result#3: bytes = φ(result#0 <- block@0, result#2 <- block@2)
-                let continue_looping%0#0: uint64 = (< _i#0 arg.1#0)
+                let continue_looping%0#0: bool = (< _i#0 arg.1#0)
                 goto continue_looping%0#0 ? block@2 : block@5
             block@2: // for_body_L71
                 let result#2: bytes = (concat result#3 arg.0#0)
@@ -84,9 +84,9 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
             block@0: // L97
                 let a#0: uint64 = (+ zero#0 1u)
                 let b#0: uint64 = (+ zero#0 2u)
-                let tmp%0#0: uint64 = (== b#0 2u)
+                let tmp%0#0: bool = (== b#0 2u)
                 (assert tmp%0#0) // a should be two
-                let tmp%1#0: uint64 = (== a#0 1u)
+                let tmp%1#0: bool = (== a#0 1u)
                 (assert tmp%1#0) // b should be one
                 return 
         
@@ -95,7 +95,7 @@ contract test_cases.tuple_support.tuple_support.TupleSupport:
                 let tmp%0#0: uint64 = test_cases.tuple_support.tuple_support.add_three_values(values.0#0, values.1#0, values.2#0)
                 let tmp%1#0: uint64 = (+ values.0#0 values.1#0)
                 let tmp%2#0: uint64 = (+ tmp%1#0 values.2#0)
-                let tmp%3#0: uint64 = (== tmp%0#0 tmp%2#0)
+                let tmp%3#0: bool = (== tmp%0#0 tmp%2#0)
                 (assert tmp%3#0)
                 return 
         

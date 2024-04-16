@@ -274,6 +274,13 @@ def _patch_lang_spec(lang_spec: dict[str, typing.Any]) -> None:
         _patch_return_type(ops, op_name, 0, "uint64", "application")
 
     # patch ops that use a stack type of uint64
+    # for return types that should be a bool
+    for op_name in [
+        "!",
+    ]:
+        _patch_return_type(ops, op_name, 0, "uint64", "bool")
+
+    # patch ops that use a stack type of uint64
     # for arguments that should be an Asset
     for op_name, arg_index in {
         "asset_holding_get": 1,

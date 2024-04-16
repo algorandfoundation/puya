@@ -32,7 +32,7 @@ from puya.ir.models import (
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_contract_ir
 from puya.ir.to_text_visitor import output_artifact_ir_to_path
-from puya.ir.types_ import wtype_to_avm_type, wtype_to_avm_types
+from puya.ir.types_ import wtype_to_avm_type, wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
 from puya.ir.validation.main import validate_module_artifact
 from puya.models import (
@@ -244,7 +244,7 @@ def _build_parameter_list(
                     source_location=arg.source_location,
                     version=0,
                     name=format_tuple_index(arg.name, tup_idx),
-                    atype=wtype_to_avm_type(tup_type),
+                    ir_type=wtype_to_ir_type(tup_type),
                     implicit_return=allow_implicits and not tup_type.immutable,
                 )
         else:
@@ -253,7 +253,7 @@ def _build_parameter_list(
                     source_location=arg.source_location,
                     version=0,
                     name=arg.name,
-                    atype=wtype_to_avm_type(arg.wtype),
+                    ir_type=wtype_to_ir_type(arg.wtype),
                     implicit_return=allow_implicits and not arg.wtype.immutable,
                 )
             )
@@ -284,7 +284,7 @@ def _make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Sub
 
     parameters = list(_build_parameter_list(func.args, allow_implicits=allow_implicits))
 
-    returns = wtype_to_avm_types(func.return_type)
+    returns = wtype_to_ir_types(func.return_type)
 
     return Subroutine(
         source_location=func.source_location,
@@ -305,15 +305,16 @@ def _make_program(
 ) -> Program:
     if main.args:
         raise InternalError("main method should not have args")
-    if wtype_to_avm_type(main.return_type) != AVMType.uint64:
-        raise InternalError("main method should return uint64 stack type")
+    return_type = wtype_to_ir_type(main.return_type)
+    if return_type.avm_type != AVMType.uint64:
+        raise InternalError("main method should return uint64 backed type")
     main_sub = Subroutine(
         source_location=main.source_location,
         module_name=main.module_name,
         class_name=main.class_name if isinstance(main, awst_nodes.ContractMethod) else None,
         method_name=main.name,
         parameters=[],
-        returns=[AVMType.uint64],
+        returns=[return_type],
         body=[],
     )
     on_create_sub: Subroutine | None = None
