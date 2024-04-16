@@ -133,7 +133,7 @@ class BlocksBuilder:
             self.terminate(
                 SubroutineReturn(
                     result=[
-                        self.ssa.read_variable(p.name, p.atype, self._blocks[-1])
+                        self.ssa.read_variable(p.name, p.ir_type, self._blocks[-1])
                         for p in params
                         if p.implicit_return
                     ],

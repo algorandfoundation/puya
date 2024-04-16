@@ -1,6 +1,6 @@
 contract test_cases.match.contract.MyContract:
     program approval:
-        subroutine test_cases.match.contract.MyContract.approval_program() -> uint64:
+        subroutine test_cases.match.contract.MyContract.approval_program() -> bool:
             block@0: // L5
                 (app_global_put "case_one" 1u)
                 (app_global_put "case_two" 2u)
@@ -28,7 +28,7 @@ contract test_cases.match.contract.MyContract:
         subroutine test_cases.match.contract.MyContract.match_biguint() -> void:
             block@0: // L38
                 let tmp%0#0: uint64 = (txn NumAppArgs)
-                let tmp%1#0: bytes = (itob tmp%0#0)
+                let tmp%1#0: biguint = (itob tmp%0#0)
                 let n#0: bytes = (b* tmp%1#0 10b)
                 switch n#0 {0b => block@1, 10b => block@2, * => return }
             block@1: // switch_case_0_L43
@@ -69,9 +69,9 @@ contract test_cases.match.contract.MyContract:
         subroutine test_cases.match.contract.MyContract.match_attributes() -> void:
             block@0: // L60
                 let n#0: uint64 = (txn NumAppArgs)
-                let (case_one_value%0#0: uint64, case_one_exists%0#0: uint64) = (app_global_get_ex 0u "case_one")
+                let (case_one_value%0#0: uint64, case_one_exists%0#0: bool) = (app_global_get_ex 0u "case_one")
                 (assert case_one_exists%0#0) // check case_one exists
-                let (case_two_value%0#0: uint64, case_two_exists%0#0: uint64) = (app_global_get_ex 0u "case_two")
+                let (case_two_value%0#0: uint64, case_two_exists%0#0: bool) = (app_global_get_ex 0u "case_two")
                 (assert case_two_exists%0#0) // check case_two exists
                 switch n#0 {case_one_value%0#0 => block@1, case_two_value%0#0 => block@2, * => block@3}
             block@1: // switch_case_0_L65
@@ -89,7 +89,7 @@ contract test_cases.match.contract.MyContract:
         subroutine test_cases.match.contract.MyContract.match_bools() -> void:
             block@0: // L74
                 let tmp%0#0: uint64 = (txn NumAppArgs)
-                let n#0: uint64 = (> tmp%0#0 0u)
+                let n#0: bool = (> tmp%0#0 0u)
                 goto_nth [block@2, block@1][n#0] else return 
             block@1: // switch_case_0_L79
                 (log "Hello True")
@@ -101,6 +101,6 @@ contract test_cases.match.contract.MyContract:
                 return 
     
     program clear-state:
-        subroutine test_cases.match.contract.MyContract.clear_state_program() -> uint64:
+        subroutine test_cases.match.contract.MyContract.clear_state_program() -> bool:
             block@0: // L85
                 return 1u

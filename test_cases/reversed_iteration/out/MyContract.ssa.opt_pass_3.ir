@@ -1,6 +1,6 @@
 contract test_cases.reversed_iteration.contract.MyContract:
     program approval:
-        subroutine test_cases.reversed_iteration.contract.MyContract.approval_program() -> uint64:
+        subroutine test_cases.reversed_iteration.contract.MyContract.approval_program() -> bool:
             block@6: // after_for_L8
                 let item_index_internal%0#0: uint64 = 0u
                 let reverse_index_internal%0#0: uint64 = 0u
@@ -8,7 +8,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
             block@7: // for_header_L11
                 let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@6, item_index_internal%0#2 <- block@8)
                 let reverse_index_internal%0#1: uint64 = φ(reverse_index_internal%0#0 <- block@6, reverse_index_internal%0#2 <- block@8)
-                let continue_looping%2#0: uint64 = (< item_index_internal%0#1 0u)
+                let continue_looping%2#0: bool = (< item_index_internal%0#1 0u)
                 goto continue_looping%2#0 ? block@8 : block@10
             block@8: // for_body_L11
                 let reverse_index_internal%0#2: uint64 = (- reverse_index_internal%0#1 1u)
@@ -19,7 +19,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
             block@10: // after_for_L11
                 let array_data%0#3: bytes = 0x000000
                 let test_array#0: bytes = (concat array_data%0#3 0x00)
-                let range_mod_step_not_zero%1#0: uint64 = 0u
+                let range_mod_step_not_zero%1#0: bool = 0u
                 let iteration_count%1#0: uint64 = (+ 4u range_mod_step_not_zero%1#0)
                 let iteration_count_minus_one%1#0: uint64 = (- iteration_count%1#0 1u)
                 let range_index%0#0: uint64 = 0u
@@ -30,7 +30,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let test_array#1: bytes = φ(test_array#0 <- block@10, test_array#2 <- block@15)
                 let val_as_bytes%0#0: bytes = (itob item#0)
                 let assigned_value%0#0: bytes = ((extract 7 1) val_as_bytes%0#0)
-                let index_is_in_bounds%0#0: uint64 = (< index#0 4u)
+                let index_is_in_bounds%0#0: bool = (< index#0 4u)
                 (assert index_is_in_bounds%0#0) // Index access is out of bounds
                 let test_array#2: bytes = (replace3 test_array#1 index#0 assigned_value%0#0)
                 goto item#0 ? block@15 : block@16
@@ -39,9 +39,9 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let range_index%0#2: uint64 = (+ index#0 1u)
                 goto block@13
             block@16: // after_for_L15
-                let tmp%1#0: uint64 = (== test_array#2 0x03020100)
+                let tmp%1#0: bool = (== test_array#2 0x03020100)
                 (assert tmp%1#0)
-                let range_mod_step_not_zero%2#0: uint64 = 0u
+                let range_mod_step_not_zero%2#0: bool = 0u
                 let iteration_count%2#0: uint64 = (+ 4u range_mod_step_not_zero%2#0)
                 let iteration_count_minus_one%2#0: uint64 = (- iteration_count%2#0 1u)
                 let range_item%2#0: uint64 = 4u
@@ -51,16 +51,16 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let item#1: uint64 = φ(range_item%2#0 <- block@16, range_item%2#3 <- block@21)
                 let range_index%1#3: uint64 = φ(range_index%1#0 <- block@16, range_index%1#2 <- block@21)
                 let test_array#6: bytes = φ(test_array#2 <- block@16, test_array#5 <- block@21)
-                let continue_looping%5#0: uint64 = (< item#1 8u)
+                let continue_looping%5#0: bool = (< item#1 8u)
                 goto continue_looping%5#0 ? block@19 : block@24
             block@19: // for_body_L20
                 let index#1: uint64 = (- iteration_count_minus_one%2#0 range_index%1#3)
                 let val_as_bytes%1#0: bytes = (itob item#1)
                 let assigned_value%1#0: bytes = ((extract 7 1) val_as_bytes%1#0)
-                let index_is_in_bounds%1#0: uint64 = (< index#1 4u)
+                let index_is_in_bounds%1#0: bool = (< index#1 4u)
                 (assert index_is_in_bounds%1#0) // Index access is out of bounds
                 let test_array#5: bytes = (replace3 test_array#6 index#1 assigned_value%1#0)
-                let tmp%2#0: uint64 = (== index#1 2u)
+                let tmp%2#0: bool = (== index#1 2u)
                 goto tmp%2#0 ? block@20 : block@21
             block@20: // if_body_L23
                 goto block@24
@@ -70,7 +70,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 goto block@18
             block@24: // after_for_L20
                 let test_array#7: bytes = φ(test_array#6 <- block@18, test_array#5 <- block@20)
-                let tmp%3#0: uint64 = (== test_array#7 0x03020504)
+                let tmp%3#0: bool = (== test_array#7 0x03020504)
                 (assert tmp%3#0)
                 let value_as_uint16%1#0: bytes = 0x0009
                 let array_data%1#2: bytes = (concat 0x0006 value_as_uint16%1#0)
@@ -89,7 +89,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let item_index_internal%1#1: uint64 = φ(item_index_internal%1#0 <- block@24, item_index_internal%1#2 <- block@26)
                 let reverse_index_internal%1#1: uint64 = φ(reverse_index_internal%1#0 <- block@24, reverse_index_internal%1#2 <- block@26)
                 let some_string_reversed#1: bytes = φ(some_string_reversed#0 <- block@24, some_string_reversed#2 <- block@26)
-                let continue_looping%6#0: uint64 = (< item_index_internal%1#1 3u)
+                let continue_looping%6#0: bool = (< item_index_internal%1#1 3u)
                 goto continue_looping%6#0 ? block@26 : block@28
             block@26: // for_body_L30
                 let reverse_index_internal%1#2: uint64 = (- reverse_index_internal%1#1 1u)
@@ -108,7 +108,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
                 goto block@25
             block@28: // after_for_L30
-                let tmp%4#0: uint64 = (== some_string_reversed#1 "\x00\x03cba")
+                let tmp%4#0: bool = (== some_string_reversed#1 "\x00\x03cba")
                 (assert tmp%4#0)
                 let bytes_reversed_with_index#0: bytes = ""
                 let bytes_length%0#0: uint64 = 5u
@@ -118,14 +118,14 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let item_index_internal%2#1: uint64 = φ(item_index_internal%2#0 <- block@28, item_index_internal%2#2 <- block@30)
                 let reverse_index_internal%2#1: uint64 = φ(bytes_length%0#0 <- block@28, index#2 <- block@30)
                 let bytes_reversed_with_index#1: bytes = φ(bytes_reversed_with_index#0 <- block@28, bytes_reversed_with_index#2 <- block@30)
-                let continue_looping%7#0: uint64 = (< item_index_internal%2#1 5u)
+                let continue_looping%7#0: bool = (< item_index_internal%2#1 5u)
                 goto continue_looping%7#0 ? block@30 : block@32
             block@30: // for_body_L36
                 let index#2: uint64 = (- reverse_index_internal%2#1 1u)
                 let bytes_item#0: bytes = (extract3 "HELLO" index#2 1u)
                 let awst_tmp%0#0: bytes = (itob index#2)
                 let tmp%5#0: uint64 = (len awst_tmp%0#0)
-                let tmp%8#0: uint64 = (< 1u tmp%5#0)
+                let tmp%8#0: bool = (< 1u tmp%5#0)
                 let tmp%9#0: uint64 = (select tmp%5#0 1u tmp%8#0)
                 let tmp%10#0: uint64 = (- tmp%5#0 tmp%9#0)
                 let tmp%11#0: bytes = (substring3 awst_tmp%0#0 tmp%10#0 tmp%5#0)
@@ -134,7 +134,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let item_index_internal%2#2: uint64 = (+ item_index_internal%2#1 1u)
                 goto block@29
             block@32: // after_for_L36
-                let tmp%13#0: uint64 = (== bytes_reversed_with_index#1 "\x04O\x03L\x02L\x01E\x00H")
+                let tmp%13#0: bool = (== bytes_reversed_with_index#1 "\x04O\x03L\x02L\x01E\x00H")
                 (assert tmp%13#0)
                 let tuple_index%0#0: uint64 = 0u
                 let tuple_item#0: uint64 = 3u
@@ -152,7 +152,7 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let index#3: uint64 = φ(tuple_index%0#0 <- block@32, tuple_index%0#5 <- block@34, tuple_index%0#5 <- block@35, tuple_index%0#5 <- block@36)
                 let tuple_item#4: uint64 = φ(tuple_item#0 <- block@32, tuple_item#1 <- block@34, tuple_item#2 <- block@35, tuple_item#3 <- block@36)
                 let tmp%14#0: uint64 = (+ index#3 tuple_item#4)
-                let tmp%15#0: uint64 = (== tmp%14#0 3u)
+                let tmp%15#0: bool = (== tmp%14#0 3u)
                 (assert tmp%15#0)
                 let tuple_index%0#5: uint64 = (+ index#3 1u)
                 goto_nth [block@34, block@35, block@36][index#3] else goto block@39
@@ -177,17 +177,17 @@ contract test_cases.reversed_iteration.contract.MyContract:
                 let tuple_item#9: uint64 = φ(tuple_item#5 <- block@39, tuple_item#6 <- block@41, tuple_item#7 <- block@42, tuple_item#8 <- block@43)
                 let prev_index#1: uint64 = φ(prev_index#0 <- block@39, index#4 <- block@41, index#4 <- block@42, index#4 <- block@43)
                 let index#4: uint64 = (- 3u tuple_index%1#1)
-                let tmp%16#0: uint64 = (< prev_item#1 tuple_item#9)
+                let tmp%16#0: bool = (< prev_item#1 tuple_item#9)
                 (assert tmp%16#0)
-                let tmp%17#0: uint64 = (> prev_index#1 index#4)
+                let tmp%17#0: bool = (> prev_index#1 index#4)
                 (assert tmp%17#0)
                 let tmp%18#0: uint64 = (+ index#4 tuple_item#9)
-                let tmp%19#0: uint64 = (== tmp%18#0 8u)
+                let tmp%19#0: bool = (== tmp%18#0 8u)
                 (assert tmp%19#0)
                 let tuple_index%1#5: uint64 = (+ tuple_index%1#1 1u)
                 goto_nth [block@41, block@42, block@43][tuple_index%1#1] else return 1u
     
     program clear-state:
-        subroutine test_cases.reversed_iteration.contract.MyContract.clear_state_program() -> uint64:
+        subroutine test_cases.reversed_iteration.contract.MyContract.clear_state_program() -> bool:
             block@0: // L77
                 return 1u

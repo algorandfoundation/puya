@@ -4,8 +4,8 @@ from collections.abc import Iterator, Sequence
 from pathlib import Path
 
 from puya import log
-from puya.avm_type import AVMType
 from puya.ir import models
+from puya.ir.types_ import IRType
 from puya.ir.utils import format_bytes
 from puya.ir.visitor import IRVisitor
 from puya.utils import make_path_relative_to_cwd
@@ -15,7 +15,7 @@ logger = log.get_logger(__name__)
 
 class ToTextVisitor(IRVisitor[str]):
     def visit_assignment(self, op: models.Assignment) -> str:
-        targets = ", ".join(f"{r.accept(self)}: {r.atype.name}" for r in op.targets)
+        targets = ", ".join(f"{r.accept(self)}: {r.ir_type.name}" for r in op.targets)
         if len(op.targets) > 1:
             targets = f"({targets})"
         source = op.source.accept(self)
@@ -79,7 +79,7 @@ class ToTextVisitor(IRVisitor[str]):
         return f"return {results}"
 
     def visit_template_var(self, deploy_var: models.TemplateVar) -> str:
-        return f"TemplateVar[{deploy_var.atype}]({deploy_var.name})"
+        return f"TemplateVar[{deploy_var.ir_type.name}]({deploy_var.name})"
 
     def visit_program_exit(self, op: models.ProgramExit) -> str:
         return f"exit {op.result.accept(self)}"
@@ -91,7 +91,7 @@ class ToTextVisitor(IRVisitor[str]):
 
     def visit_phi(self, op: models.Phi) -> str:
         r = op.register
-        target = f"{r.accept(self)}: {r.atype.name}"
+        target = f"{r.accept(self)}: {r.ir_type.name}"
         if op.args:
             args = ", ".join(a.accept(self) for a in op.args)
             source = f"φ({args})"
@@ -139,14 +139,14 @@ def render_program(emitter: TextEmitter, name: str, program: models.Program) -> 
         for idx, sub in enumerate(program.all_subroutines):
             if idx > 0:
                 emitter.append("")
-            args = ", ".join(f"{r.name}: {r.atype.name}" for r in sub.parameters)
+            args = ", ".join(f"{r.name}: {r.ir_type.name}" for r in sub.parameters)
             match sub.returns:
                 case []:
                     returns = "void"
-                case [AVMType(name=returns)]:
+                case [IRType(name=returns)]:
                     pass
-                case _ as atypes:
-                    returns = f"<{', '.join(t.name for t in atypes)}>"  # type: ignore[misc]
+                case _ as ir_types:
+                    returns = f"<{', '.join(t.name for t in ir_types)}>"
             emitter.append(f"subroutine {sub.full_name}({args}) -> {returns}:")
             with emitter.indent():
                 render_body(emitter, sub.body)

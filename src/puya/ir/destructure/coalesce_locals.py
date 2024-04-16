@@ -1,4 +1,5 @@
 import itertools
+import typing
 import typing as t
 from collections.abc import Iterable
 from copy import deepcopy
@@ -6,8 +7,10 @@ from copy import deepcopy
 import attrs
 
 from puya import log
+from puya.avm_type import AVMType
 from puya.context import CompileContext
 from puya.ir import models
+from puya.ir.types_ import IRType
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.ir.vla import VariableLifetimeAnalysis
 from puya.options import LocalsCoalescingStrategy
@@ -136,10 +139,17 @@ class AggressiveGrouping(CoalesceGroupStrategy):
     def determine_group_replacement(self, regs: Iterable[models.Register]) -> models.Register:
         next_id = next(self._counter)
         (atype,) = {r.atype for r in regs}
+        match atype:
+            case AVMType.uint64:
+                ir_type = IRType.uint64
+            case AVMType.bytes:
+                ir_type = IRType.bytes
+            case _:
+                typing.assert_never(atype)
         return models.Register(
             name="",
             version=next_id,
-            atype=atype,
+            ir_type=ir_type,
             source_location=None,
         )
 

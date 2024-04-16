@@ -1,12 +1,12 @@
 contract test_cases.arc4_types.array.Arc4ArraysContract:
     program approval:
-        subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
+        subroutine test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> bool:
             block@0: // L24
                 let total#0: uint64 = 0u
                 let item_index_internal%0#0: uint64 = 0u
                 goto block@1
             block@1: // for_header_L27
-                let continue_looping%0#0: uint64 = (< item_index_internal%0#0 2u)
+                let continue_looping%0#0: bool = (< item_index_internal%0#0 2u)
                 goto continue_looping%0#0 ? block@2 : block@4
             block@2: // for_body_L27
                 let uint8_item#0: bytes = (extract3 0x0102 item_index_internal%0#0 1u)
@@ -15,12 +15,12 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
                 goto block@1
             block@4: // after_for_L27
-                let tmp%1#0: uint64 = (== total#0 3u)
+                let tmp%1#0: bool = (== total#0 3u)
                 (assert tmp%1#0) // Total should be sum of dynamic_uint8_array items
                 let item_index_internal%1#0: uint64 = 0u
                 goto block@5
             block@5: // for_header_L32
-                let continue_looping%1#0: uint64 = (< item_index_internal%1#0 1u)
+                let continue_looping%1#0: bool = (< item_index_internal%1#0 1u)
                 goto continue_looping%1#0 ? block@6 : block@8
             block@6: // for_body_L32
                 let item_index%1#0: uint64 = (* item_index_internal%1#0 2u)
@@ -30,14 +30,14 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let item_index_internal%1#0: uint64 = (+ item_index_internal%1#0 1u)
                 goto block@5
             block@8: // after_for_L32
-                let tmp%3#0: uint64 = (== total#0 4u)
+                let tmp%3#0: bool = (== total#0 4u)
                 (assert tmp%3#0) // Total should now include sum of aliased_dynamic items
                 let result#0: bytes = ""
                 let item_index_internal%2#0: uint64 = 0u
                 let index#0: uint64 = item_index_internal%2#0
                 goto block@9
             block@9: // for_header_L39
-                let continue_looping%2#0: uint64 = (< index#0 2u)
+                let continue_looping%2#0: bool = (< index#0 2u)
                 goto continue_looping%2#0 ? block@10 : block@15
             block@10: // for_body_L39
                 let item_index_index%1#0: uint64 = (* index#0 2u)
@@ -59,12 +59,12 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let index#0: uint64 = item_index_internal%2#0
                 goto block@9
             block@15: // after_for_L39
-                let tmp%11#0: uint64 = (== result#0 "Hello World")
+                let tmp%11#0: bool = (== result#0 "Hello World")
                 (assert tmp%11#0)
                 let item_index_internal%3#0: uint64 = 0u
                 goto block@16
             block@16: // for_header_L49
-                let continue_looping%3#0: uint64 = (< item_index_internal%3#0 4u)
+                let continue_looping%3#0: bool = (< item_index_internal%3#0 4u)
                 goto continue_looping%3#0 ? block@17 : block@19
             block@17: // for_body_L49
                 let item_index%4#0: uint64 = (* item_index_internal%3#0 4u)
@@ -74,14 +74,14 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let item_index_internal%3#0: uint64 = (+ item_index_internal%3#0 1u)
                 goto block@16
             block@19: // after_for_L49
-                let tmp%13#0: uint64 = (== total#0 398u)
+                let tmp%13#0: bool = (== total#0 398u)
                 (assert tmp%13#0)
                 let result#0: bytes = ""
                 let item_index_internal%4#0: uint64 = 0u
                 let index#0: uint64 = item_index_internal%4#0
                 goto block@20
             block@20: // for_header_L63
-                let continue_looping%4#0: uint64 = (< index#0 2u)
+                let continue_looping%4#0: bool = (< index#0 2u)
                 goto continue_looping%4#0 ? block@21 : block@26
             block@21: // for_body_L63
                 let item_index_index%2#0: uint64 = (* index#0 2u)
@@ -103,7 +103,7 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 let index#0: uint64 = item_index_internal%4#0
                 goto block@20
             block@26: // after_for_L63
-                let tmp%23#0: uint64 = (== result#0 "Ping Pong")
+                let tmp%23#0: bool = (== result#0 "Ping Pong")
                 (assert tmp%23#0)
                 test_cases.arc4_types.array.Arc4ArraysContract.hash_as_array("Testing 123")
                 return 1u
@@ -114,6 +114,6 @@ contract test_cases.arc4_types.array.Arc4ArraysContract:
                 return tmp%0#0
     
     program clear-state:
-        subroutine test_cases.arc4_types.array.Arc4ArraysContract.clear_state_program() -> uint64:
+        subroutine test_cases.arc4_types.array.Arc4ArraysContract.clear_state_program() -> bool:
             block@0: // L79
                 return 1u

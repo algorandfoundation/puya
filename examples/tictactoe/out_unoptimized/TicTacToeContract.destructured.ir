@@ -1,12 +1,12 @@
 contract examples.tictactoe.tictactoe.TicTacToeContract:
     program approval:
-        subroutine examples.tictactoe.tictactoe.TicTacToeContract.approval_program() -> uint64:
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.approval_program() -> bool:
             block@0: // L15
                 let tmp%0#0: bytes = (txna ApplicationArgs 0)
                 switch tmp%0#0 {method "new_game((uint64,uint64))void" => block@1, method "join_game((uint64,uint64))void" => block@2, method "whose_turn()uint8" => block@3, method "play((uint64,uint64))void" => block@4, * => block@5}
             block@1: // new_game_route_L20
                 let tmp%1#0: uint64 = (txn OnCompletion)
-                let tmp%2#0: uint64 = (== tmp%1#0 NoOp)
+                let tmp%2#0: bool = (== tmp%1#0 NoOp)
                 (assert tmp%2#0) // OnCompletion is NoOp
                 let tmp%3#0: bytes = (txna ApplicationArgs 1)
                 let item0%0#0: bytes = (extract3 tmp%3#0 0u 8u)
@@ -19,9 +19,9 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 return 1u
             block@2: // join_game_route_L37
                 let tmp%6#0: uint64 = (txn OnCompletion)
-                let tmp%7#0: uint64 = (== tmp%6#0 NoOp)
+                let tmp%7#0: bool = (== tmp%6#0 NoOp)
                 (assert tmp%7#0) // OnCompletion is NoOp
-                let tmp%8#0: uint64 = (txn ApplicationID)
+                let tmp%8#0: bool = (txn ApplicationID)
                 (assert tmp%8#0) // is not creating
                 let tmp%9#0: bytes = (txna ApplicationArgs 1)
                 let item0%1#0: bytes = (extract3 tmp%9#0 0u 8u)
@@ -34,9 +34,9 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 return 1u
             block@3: // whose_turn_route_L43
                 let tmp%12#0: uint64 = (txn OnCompletion)
-                let tmp%13#0: uint64 = (== tmp%12#0 NoOp)
+                let tmp%13#0: bool = (== tmp%12#0 NoOp)
                 (assert tmp%13#0) // OnCompletion is NoOp
-                let tmp%14#0: uint64 = (txn ApplicationID)
+                let tmp%14#0: bool = (txn ApplicationID)
                 (assert tmp%14#0) // is not creating
                 let tmp%15#0: bytes = examples.tictactoe.tictactoe.TicTacToeContract.whose_turn()
                 let tmp%16#0: bytes = (concat 0x151f7c75 tmp%15#0)
@@ -44,9 +44,9 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 return 1u
             block@4: // play_route_L47
                 let tmp%17#0: uint64 = (txn OnCompletion)
-                let tmp%18#0: uint64 = (== tmp%17#0 NoOp)
+                let tmp%18#0: bool = (== tmp%17#0 NoOp)
                 (assert tmp%18#0) // OnCompletion is NoOp
-                let tmp%19#0: uint64 = (txn ApplicationID)
+                let tmp%19#0: bool = (txn ApplicationID)
                 (assert tmp%19#0) // is not creating
                 let tmp%20#0: bytes = (txna ApplicationArgs 1)
                 let item0%2#0: bytes = (extract3 tmp%20#0 0u 8u)
@@ -67,10 +67,10 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let tmp%0#0: uint64 = (txn ApplicationID)
                 goto tmp%0#0 ? block@1 : block@4
             block@1: // if_body_L22
-                let (challenger_exists%0#0: bytes, challenger_exists%1#0: uint64) = (app_global_get_ex 0u "challenger")
+                let (challenger_exists%0#0: bytes, challenger_exists%1#0: bool) = (app_global_get_ex 0u "challenger")
                 goto challenger_exists%1#0 ? block@2 : block@3
             block@2: // if_body_L23
-                let (winner_exists%0#0: bytes, winner_exists%1#0: uint64) = (app_global_get_ex 0u "winner")
+                let (winner_exists%0#0: bytes, winner_exists%1#0: bool) = (app_global_get_ex 0u "winner")
                 (assert winner_exists%1#0) // Game isn't over
                 goto block@3
             block@3: // after_if_else_L23
@@ -84,37 +84,37 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 (app_global_put "game" new_state_value%1#0)
                 let column#0: uint64 = move.0#0
                 let row#0: uint64 = move.1#0
-                let tmp%1#0: uint64 = (< column#0 3u)
+                let tmp%1#0: bool = (< column#0 3u)
                 goto tmp%1#0 ? block@5 : block@7
             block@5: // and_contd_L33
-                let tmp%2#0: uint64 = (< row#0 3u)
+                let tmp%2#0: bool = (< row#0 3u)
                 goto tmp%2#0 ? block@6 : block@7
             block@6: // bool_true_L33
-                let and_result%0#0: uint64 = 1u
+                let and_result%0#0: bool = 1u
                 goto block@8
             block@7: // bool_false_L33
-                let and_result%0#0: uint64 = 0u
+                let and_result%0#0: bool = 0u
                 goto block@8
             block@8: // bool_merge_L33
                 (assert and_result%0#0) // Move must be in range
-                let (game_value%0#0: bytes, game_exists%0#0: uint64) = (app_global_get_ex 0u "game")
+                let (game_value%0#0: bytes, game_exists%0#0: bool) = (app_global_get_ex 0u "game")
                 (assert game_exists%0#0) // check game exists
                 let array_length%0#0: uint64 = 3u
-                let index_is_in_bounds%0#0: uint64 = (< row#0 array_length%0#0)
+                let index_is_in_bounds%0#0: bool = (< row#0 array_length%0#0)
                 (assert index_is_in_bounds%0#0) // Index access is out of bounds
                 let item_index%0#0: uint64 = (* row#0 3u)
                 let tmp%3#0: bytes = (extract3 game_value%0#0 item_index%0#0 3u)
                 let assigned_value%0#0: bytes = 0x01
                 let array_length%1#0: uint64 = 3u
-                let index_is_in_bounds%1#0: uint64 = (< column#0 array_length%1#0)
+                let index_is_in_bounds%1#0: bool = (< column#0 array_length%1#0)
                 (assert index_is_in_bounds%1#0) // Index access is out of bounds
                 let write_offset%0#0: uint64 = (* column#0 1u)
                 let updated_target%0#0: bytes = (replace3 tmp%3#0 write_offset%0#0 assigned_value%0#0)
-                let (game_value%1#0: bytes, game_exists%1#0: uint64) = (app_global_get_ex 0u "game")
+                let (game_value%1#0: bytes, game_exists%1#0: bool) = (app_global_get_ex 0u "game")
                 (assert game_exists%1#0) // check game exists
                 let assigned_value%1#0: bytes = updated_target%0#0
                 let array_length%2#0: uint64 = 3u
-                let index_is_in_bounds%2#0: uint64 = (< row#0 array_length%2#0)
+                let index_is_in_bounds%2#0: bool = (< row#0 array_length%2#0)
                 (assert index_is_in_bounds%2#0) // Index access is out of bounds
                 let write_offset%1#0: uint64 = (* row#0 3u)
                 let updated_target%1#0: bytes = (replace3 game_value%1#0 write_offset%1#0 assigned_value%1#0)
@@ -124,8 +124,8 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game(move.0: uint64, move.1: uint64) -> void:
             block@0: // L37
-                let (challenger_exists%0#0: bytes, challenger_exists%1#0: uint64) = (app_global_get_ex 0u "challenger")
-                let tmp%0#0: uint64 = (! challenger_exists%1#0)
+                let (challenger_exists%0#0: bytes, challenger_exists%1#0: bool) = (app_global_get_ex 0u "challenger")
+                let tmp%0#0: bool = (! challenger_exists%1#0)
                 (assert tmp%0#0) // Host already has a challenger
                 let new_state_value%0#0: bytes = (txn Sender)
                 (app_global_put "challenger" new_state_value%0#0)
@@ -136,68 +136,68 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
             block@0: // L60
                 let column#0: uint64 = move.0#0
                 let row#0: uint64 = move.1#0
-                let tmp%0#0: uint64 = (< column#0 3u)
+                let tmp%0#0: bool = (< column#0 3u)
                 goto tmp%0#0 ? block@1 : block@3
             block@1: // and_contd_L63
-                let tmp%1#0: uint64 = (< row#0 3u)
+                let tmp%1#0: bool = (< row#0 3u)
                 goto tmp%1#0 ? block@2 : block@3
             block@2: // bool_true_L63
-                let and_result%0#0: uint64 = 1u
+                let and_result%0#0: bool = 1u
                 goto block@4
             block@3: // bool_false_L63
-                let and_result%0#0: uint64 = 0u
+                let and_result%0#0: bool = 0u
                 goto block@4
             block@4: // bool_merge_L63
                 (assert and_result%0#0) // Move must be in range
-                let (game_value%0#0: bytes, game_exists%0#0: uint64) = (app_global_get_ex 0u "game")
+                let (game_value%0#0: bytes, game_exists%0#0: bool) = (app_global_get_ex 0u "game")
                 (assert game_exists%0#0) // check game exists
                 let array_length%0#0: uint64 = 3u
-                let index_is_in_bounds%0#0: uint64 = (< row#0 array_length%0#0)
+                let index_is_in_bounds%0#0: bool = (< row#0 array_length%0#0)
                 (assert index_is_in_bounds%0#0) // Index access is out of bounds
                 let item_index%0#0: uint64 = (* row#0 3u)
                 let tmp%2#0: bytes = (extract3 game_value%0#0 item_index%0#0 3u)
                 let array_length%1#0: uint64 = 3u
-                let index_is_in_bounds%1#0: uint64 = (< column#0 array_length%1#0)
+                let index_is_in_bounds%1#0: bool = (< column#0 array_length%1#0)
                 (assert index_is_in_bounds%1#0) // Index access is out of bounds
                 let item_index%1#0: uint64 = (* column#0 1u)
                 let tmp%3#0: bytes = (extract3 tmp%2#0 item_index%1#0 1u)
-                let tmp%4#0: uint64 = (b== tmp%3#0 0x00)
+                let tmp%4#0: bool = (b== tmp%3#0 0x00)
                 (assert tmp%4#0) // Square is already taken
-                let (game_value%1#0: bytes, game_exists%1#0: uint64) = (app_global_get_ex 0u "game")
+                let (game_value%1#0: bytes, game_exists%1#0: bool) = (app_global_get_ex 0u "game")
                 (assert game_exists%1#0) // check game exists
                 let array_length%2#0: uint64 = 3u
-                let index_is_in_bounds%2#0: uint64 = (< row#0 array_length%2#0)
+                let index_is_in_bounds%2#0: bool = (< row#0 array_length%2#0)
                 (assert index_is_in_bounds%2#0) // Index access is out of bounds
                 let item_index%2#0: uint64 = (* row#0 3u)
                 let tmp%5#0: bytes = (extract3 game_value%1#0 item_index%2#0 3u)
                 let assigned_value%0#0: bytes = player#0
                 let array_length%3#0: uint64 = 3u
-                let index_is_in_bounds%3#0: uint64 = (< column#0 array_length%3#0)
+                let index_is_in_bounds%3#0: bool = (< column#0 array_length%3#0)
                 (assert index_is_in_bounds%3#0) // Index access is out of bounds
                 let write_offset%0#0: uint64 = (* column#0 1u)
                 let updated_target%0#0: bytes = (replace3 tmp%5#0 write_offset%0#0 assigned_value%0#0)
-                let (game_value%2#0: bytes, game_exists%2#0: uint64) = (app_global_get_ex 0u "game")
+                let (game_value%2#0: bytes, game_exists%2#0: bool) = (app_global_get_ex 0u "game")
                 (assert game_exists%2#0) // check game exists
                 let assigned_value%1#0: bytes = updated_target%0#0
                 let array_length%4#0: uint64 = 3u
-                let index_is_in_bounds%4#0: uint64 = (< row#0 array_length%4#0)
+                let index_is_in_bounds%4#0: bool = (< row#0 array_length%4#0)
                 (assert index_is_in_bounds%4#0) // Index access is out of bounds
                 let write_offset%1#0: uint64 = (* row#0 3u)
                 let updated_target%1#0: bytes = (replace3 game_value%2#0 write_offset%1#0 assigned_value%1#0)
                 (app_global_put "game" updated_target%1#0)
-                let (turns_value%0#0: uint64, turns_exists%0#0: uint64) = (app_global_get_ex 0u "turns")
+                let (turns_value%0#0: uint64, turns_exists%0#0: bool) = (app_global_get_ex 0u "turns")
                 (assert turns_exists%0#0) // check turns exists
                 let new_state_value%0#0: uint64 = (+ turns_value%0#0 1u)
                 (app_global_put "turns" new_state_value%0#0)
-                let tmp%6#0: uint64 = examples.tictactoe.tictactoe.TicTacToeContract.did_win(player#0, column#0, row#0)
+                let tmp%6#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win(player#0, column#0, row#0)
                 goto tmp%6#0 ? block@5 : block@6
             block@5: // if_body_L67
                 (app_global_put "winner" player#0)
                 goto block@9
             block@6: // else_body_L67
-                let (turns_value%1#0: uint64, turns_exists%1#0: uint64) = (app_global_get_ex 0u "turns")
+                let (turns_value%1#0: uint64, turns_exists%1#0: bool) = (app_global_get_ex 0u "turns")
                 (assert turns_exists%1#0) // check turns exists
-                let tmp%7#0: uint64 = (== turns_value%1#0 9u)
+                let tmp%7#0: bool = (== turns_value%1#0 9u)
                 goto tmp%7#0 ? block@7 : block@8
             block@7: // if_body_L69
                 (app_global_put "winner" 0x03)
@@ -207,37 +207,37 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
             block@9: // after_if_else_L67
                 return 
         
-        subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: bytes, column: uint64, row: uint64) -> uint64:
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: bytes, column: uint64, row: uint64) -> bool:
             block@0: // L72
-                let (game_value%0#0: bytes, game_exists%0#0: uint64) = (app_global_get_ex 0u "game")
+                let (game_value%0#0: bytes, game_exists%0#0: bool) = (app_global_get_ex 0u "game")
                 (assert game_exists%0#0) // check game exists
                 let copy%0#0: bytes = game_value%0#0
                 let g#0: bytes = copy%0#0
                 let array_length%0#0: uint64 = 3u
-                let index_is_in_bounds%0#0: uint64 = (< row#0 array_length%0#0)
+                let index_is_in_bounds%0#0: bool = (< row#0 array_length%0#0)
                 (assert index_is_in_bounds%0#0) // Index access is out of bounds
                 let item_index%0#0: uint64 = (* row#0 3u)
                 let tmp%0#0: bytes = (extract3 g#0 item_index%0#0 3u)
                 let item_index%1#0: uint64 = (* 0u 1u)
                 let tmp%1#0: bytes = (extract3 tmp%0#0 item_index%1#0 1u)
                 let array_length%1#0: uint64 = 3u
-                let index_is_in_bounds%1#0: uint64 = (< row#0 array_length%1#0)
+                let index_is_in_bounds%1#0: bool = (< row#0 array_length%1#0)
                 (assert index_is_in_bounds%1#0) // Index access is out of bounds
                 let item_index%2#0: uint64 = (* row#0 3u)
                 let tmp%2#0: bytes = (extract3 g#0 item_index%2#0 3u)
                 let item_index%3#0: uint64 = (* 1u 1u)
                 let awst_tmp%0#0: bytes = (extract3 tmp%2#0 item_index%3#0 1u)
-                let tmp%3#0: uint64 = (b== tmp%1#0 awst_tmp%0#0)
+                let tmp%3#0: bool = (b== tmp%1#0 awst_tmp%0#0)
                 goto tmp%3#0 ? block@1 : block@3
             block@1: // and_contd_L76
                 let array_length%2#0: uint64 = 3u
-                let index_is_in_bounds%2#0: uint64 = (< row#0 array_length%2#0)
+                let index_is_in_bounds%2#0: bool = (< row#0 array_length%2#0)
                 (assert index_is_in_bounds%2#0) // Index access is out of bounds
                 let item_index%4#0: uint64 = (* row#0 3u)
                 let tmp%4#0: bytes = (extract3 g#0 item_index%4#0 3u)
                 let item_index%5#0: uint64 = (* 2u 1u)
                 let tmp%5#0: bytes = (extract3 tmp%4#0 item_index%5#0 1u)
-                let tmp%6#0: uint64 = (b== awst_tmp%0#0 tmp%5#0)
+                let tmp%6#0: bool = (b== awst_tmp%0#0 tmp%5#0)
                 goto tmp%6#0 ? block@2 : block@3
             block@2: // if_body_L76
                 return 1u
@@ -245,28 +245,28 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let item_index%6#0: uint64 = (* 0u 3u)
                 let tmp%7#0: bytes = (extract3 g#0 item_index%6#0 3u)
                 let array_length%3#0: uint64 = 3u
-                let index_is_in_bounds%3#0: uint64 = (< column#0 array_length%3#0)
+                let index_is_in_bounds%3#0: bool = (< column#0 array_length%3#0)
                 (assert index_is_in_bounds%3#0) // Index access is out of bounds
                 let item_index%7#0: uint64 = (* column#0 1u)
                 let tmp%8#0: bytes = (extract3 tmp%7#0 item_index%7#0 1u)
                 let item_index%8#0: uint64 = (* 1u 3u)
                 let tmp%9#0: bytes = (extract3 g#0 item_index%8#0 3u)
                 let array_length%4#0: uint64 = 3u
-                let index_is_in_bounds%4#0: uint64 = (< column#0 array_length%4#0)
+                let index_is_in_bounds%4#0: bool = (< column#0 array_length%4#0)
                 (assert index_is_in_bounds%4#0) // Index access is out of bounds
                 let item_index%9#0: uint64 = (* column#0 1u)
                 let awst_tmp%1#0: bytes = (extract3 tmp%9#0 item_index%9#0 1u)
-                let tmp%10#0: uint64 = (b== tmp%8#0 awst_tmp%1#0)
+                let tmp%10#0: bool = (b== tmp%8#0 awst_tmp%1#0)
                 goto tmp%10#0 ? block@4 : block@6
             block@4: // and_contd_L79
                 let item_index%10#0: uint64 = (* 2u 3u)
                 let tmp%11#0: bytes = (extract3 g#0 item_index%10#0 3u)
                 let array_length%5#0: uint64 = 3u
-                let index_is_in_bounds%5#0: uint64 = (< column#0 array_length%5#0)
+                let index_is_in_bounds%5#0: bool = (< column#0 array_length%5#0)
                 (assert index_is_in_bounds%5#0) // Index access is out of bounds
                 let item_index%11#0: uint64 = (* column#0 1u)
                 let tmp%12#0: bytes = (extract3 tmp%11#0 item_index%11#0 1u)
-                let tmp%13#0: uint64 = (b== awst_tmp%1#0 tmp%12#0)
+                let tmp%13#0: bool = (b== awst_tmp%1#0 tmp%12#0)
                 goto tmp%13#0 ? block@5 : block@6
             block@5: // if_body_L79
                 return 1u
@@ -275,21 +275,21 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let tmp%14#0: bytes = (extract3 g#0 item_index%12#0 3u)
                 let item_index%13#0: uint64 = (* 1u 1u)
                 let tmp%15#0: bytes = (extract3 tmp%14#0 item_index%13#0 1u)
-                let tmp%16#0: uint64 = (b== player#0 tmp%15#0)
+                let tmp%16#0: bool = (b== player#0 tmp%15#0)
                 goto tmp%16#0 ? block@7 : block@14
             block@7: // if_body_L82
                 let item_index%14#0: uint64 = (* 0u 3u)
                 let tmp%17#0: bytes = (extract3 g#0 item_index%14#0 3u)
                 let item_index%15#0: uint64 = (* 0u 1u)
                 let tmp%18#0: bytes = (extract3 tmp%17#0 item_index%15#0 1u)
-                let tmp%19#0: uint64 = (b== tmp%18#0 player#0)
+                let tmp%19#0: bool = (b== tmp%18#0 player#0)
                 goto tmp%19#0 ? block@8 : block@10
             block@8: // and_contd_L84
                 let item_index%16#0: uint64 = (* 2u 3u)
                 let tmp%20#0: bytes = (extract3 g#0 item_index%16#0 3u)
                 let item_index%17#0: uint64 = (* 2u 1u)
                 let tmp%21#0: bytes = (extract3 tmp%20#0 item_index%17#0 1u)
-                let tmp%22#0: uint64 = (b== player#0 tmp%21#0)
+                let tmp%22#0: bool = (b== player#0 tmp%21#0)
                 goto tmp%22#0 ? block@9 : block@10
             block@9: // if_body_L84
                 return 1u
@@ -298,14 +298,14 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let tmp%23#0: bytes = (extract3 g#0 item_index%18#0 3u)
                 let item_index%19#0: uint64 = (* 2u 1u)
                 let tmp%24#0: bytes = (extract3 tmp%23#0 item_index%19#0 1u)
-                let tmp%25#0: uint64 = (b== tmp%24#0 player#0)
+                let tmp%25#0: bool = (b== tmp%24#0 player#0)
                 goto tmp%25#0 ? block@11 : block@13
             block@11: // and_contd_L86
                 let item_index%20#0: uint64 = (* 2u 3u)
                 let tmp%26#0: bytes = (extract3 g#0 item_index%20#0 3u)
                 let item_index%21#0: uint64 = (* 0u 1u)
                 let tmp%27#0: bytes = (extract3 tmp%26#0 item_index%21#0 1u)
-                let tmp%28#0: uint64 = (b== player#0 tmp%27#0)
+                let tmp%28#0: bool = (b== player#0 tmp%27#0)
                 goto tmp%28#0 ? block@12 : block@13
             block@12: // if_body_L86
                 return 1u
@@ -316,7 +316,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes:
             block@0: // L43
-                let (turns_value%0#0: uint64, turns_exists%0#0: uint64) = (app_global_get_ex 0u "turns")
+                let (turns_value%0#0: uint64, turns_exists%0#0: bool) = (app_global_get_ex 0u "turns")
                 (assert turns_exists%0#0) // check turns exists
                 let tmp%0#0: uint64 = (% turns_value%0#0 2u)
                 goto tmp%0#0 ? block@1 : block@2
@@ -331,27 +331,27 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
             block@0: // L47
-                let (winner_exists%0#0: bytes, winner_exists%1#0: uint64) = (app_global_get_ex 0u "winner")
-                let tmp%0#0: uint64 = (! winner_exists%1#0)
+                let (winner_exists%0#0: bytes, winner_exists%1#0: bool) = (app_global_get_ex 0u "winner")
+                let tmp%0#0: bool = (! winner_exists%1#0)
                 (assert tmp%0#0) // Game is already finished
-                let (turns_value%0#0: uint64, turns_exists%0#0: uint64) = (app_global_get_ex 0u "turns")
+                let (turns_value%0#0: uint64, turns_exists%0#0: bool) = (app_global_get_ex 0u "turns")
                 (assert turns_exists%0#0) // check turns exists
                 let tmp%1#0: uint64 = (% turns_value%0#0 2u)
                 goto tmp%1#0 ? block@1 : block@2
             block@1: // if_body_L50
                 let tmp%2#0: bytes = (txn Sender)
-                let (host_value%0#0: bytes, host_exists%0#0: uint64) = (app_global_get_ex 0u "host")
+                let (host_value%0#0: bytes, host_exists%0#0: bool) = (app_global_get_ex 0u "host")
                 (assert host_exists%0#0) // check host exists
-                let tmp%3#0: uint64 = (== tmp%2#0 host_value%0#0)
+                let tmp%3#0: bool = (== tmp%2#0 host_value%0#0)
                 (assert tmp%3#0) // It is the host's turn
                 let player#0: bytes = 0x01
                 goto block@3
             block@2: // else_body_L50
                 let tmp%4#0: bytes = (txn Sender)
                 let tmp%5#0: bytes = (global ZeroAddress)
-                let (challenger_get_ex%0#0: bytes, challenger_get_ex%1#0: uint64) = (app_global_get_ex 0u "challenger")
+                let (challenger_get_ex%0#0: bytes, challenger_get_ex%1#0: bool) = (app_global_get_ex 0u "challenger")
                 let tmp%6#0: bytes = (select tmp%5#0 challenger_get_ex%0#0 challenger_get_ex%1#0)
-                let tmp%7#0: uint64 = (== tmp%4#0 tmp%6#0)
+                let tmp%7#0: bool = (== tmp%4#0 tmp%6#0)
                 (assert tmp%7#0) // It is the challenger's turn
                 let player#0: bytes = 0x02
                 goto block@3
@@ -360,6 +360,6 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 return 
     
     program clear-state:
-        subroutine examples.tictactoe.tictactoe.TicTacToeContract.clear_state_program() -> uint64:
+        subroutine examples.tictactoe.tictactoe.TicTacToeContract.clear_state_program() -> bool:
             block@0: // L15
                 return 1u

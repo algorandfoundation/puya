@@ -62,7 +62,7 @@ def _lower_subroutine_to_mir(
                 models.Parameter(name=p.name, local_id=p.local_id, atype=p.atype)
                 for p in subroutine.parameters
             ],
-            returns=subroutine.returns,
+            returns=[r.avm_type for r in subroutine.returns],
         ),
         is_main=is_main,
         preamble=preamble,

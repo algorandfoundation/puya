@@ -3,7 +3,6 @@ from collections.abc import Mapping, Sequence
 
 import attrs
 
-from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -25,7 +24,7 @@ from puya.ir.models import (
     ValueTuple,
 )
 from puya.ir.ssa import BraunSSA
-from puya.ir.types_ import wtype_to_avm_type
+from puya.ir.types_ import IRType, wtype_to_ir_type
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 from puya.utils import StableSet
@@ -206,7 +205,7 @@ class InnerTransactionBuilder:
             )
         field_var_name = get_inner_txn_field_name(var_name, field.immediate)
         return self.ssa.read_variable(
-            field_var_name, wtype_to_avm_type(field.wtype), self.block_builder.active_block
+            field_var_name, wtype_to_ir_type(field.wtype), self.block_builder.active_block
         )
 
     def handle_submit_inner_transaction(
@@ -322,11 +321,11 @@ class InnerTransactionBuilder:
         idx_to: int,
     ) -> None:
         field = field_data.field
-        field_atype = wtype_to_avm_type(field.wtype)
+        field_ir_type = wtype_to_ir_type(field.wtype)
         for idx in range(idx_from, idx_to):
             field_value = self.ssa.read_variable(
                 field_data.get_value_register_name(idx),
-                field_atype,
+                field_ir_type,
                 self.block_builder.active_block,
             )
             self.block_builder.add(
@@ -344,7 +343,7 @@ class InnerTransactionBuilder:
         field = field_data.field
         len_register = self.ssa.read_variable(
             field_data.field_count_register_name,
-            AVMType.uint64,
+            IRType.uint64,
             self.block_builder.active_block,
         )
 
@@ -422,7 +421,7 @@ class InnerTransactionBuilder:
                     context=self.context,
                     source=self.ssa.read_variable(
                         src_field_register,
-                        wtype_to_avm_type(field.wtype),
+                        wtype_to_ir_type(field.wtype),
                         self.block_builder.active_block,
                     ),
                     names=[(dest_field_register, var_loc)],
@@ -432,7 +431,7 @@ class InnerTransactionBuilder:
                 context=self.context,
                 source=self.ssa.read_variable(
                     src_field_data.field_count_register_name,
-                    AVMType.uint64,
+                    IRType.uint64,
                     self.block_builder.active_block,
                 ),
                 names=[(dest_field_data.field_count_register_name, var_loc)],
@@ -443,7 +442,7 @@ class InnerTransactionBuilder:
         self, var_name: str, submit_id: int, loc: SourceLocation
     ) -> None:
         current_submit_id = self.ssa.read_variable(
-            INNER_TRANSACTION_SUBMIT_ID_NAME, AVMType.uint64, self.block_builder.active_block
+            INNER_TRANSACTION_SUBMIT_ID_NAME, IRType.uint64, self.block_builder.active_block
         )
         (submit_id_eq,) = assign_intrinsic_op(
             context=self.context,

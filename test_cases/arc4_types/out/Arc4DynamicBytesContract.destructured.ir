@@ -1,12 +1,12 @@
 contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
     program approval:
-        subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program() -> uint64:
+        subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program() -> bool:
             block@0: // L10
                 let total#0: uint64 = 0u
                 let item_index_internal%0#0: uint64 = 0u
                 goto block@1
             block@1: // for_header_L16
-                let continue_looping%0#0: uint64 = (< item_index_internal%0#0 3u)
+                let continue_looping%0#0: bool = (< item_index_internal%0#0 3u)
                 goto continue_looping%0#0 ? block@2 : block@4
             block@2: // for_body_L16
                 let uint8_item#0: bytes = (extract3 0x020301 item_index_internal%0#0 1u)
@@ -15,12 +15,12 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
                 goto block@1
             block@4: // after_for_L16
-                let tmp%4#0: uint64 = (== total#0 6u)
+                let tmp%4#0: bool = (== total#0 6u)
                 (assert tmp%4#0) // Total should be of dynamic_bytes items
                 let item_index_internal%1#0: uint64 = 0u
                 goto block@5
             block@5: // for_header_L25
-                let continue_looping%1#0: uint64 = (< item_index_internal%1#0 2u)
+                let continue_looping%1#0: bool = (< item_index_internal%1#0 2u)
                 goto continue_looping%1#0 ? block@6 : block@8
             block@6: // for_body_L25
                 let uint8_item#0: bytes = (extract3 0x0304 item_index_internal%1#0 1u)
@@ -32,7 +32,7 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let item_index_internal%2#0: uint64 = 0u
                 goto block@9
             block@9: // for_header_L32
-                let continue_looping%2#0: uint64 = (< item_index_internal%2#0 2u)
+                let continue_looping%2#0: bool = (< item_index_internal%2#0 2u)
                 goto continue_looping%2#0 ? block@10 : block@12
             block@10: // for_body_L32
                 let uint8_item#0: bytes = (extract3 0x0304 item_index_internal%2#0 1u)
@@ -41,11 +41,11 @@ contract test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract:
                 let item_index_internal%2#0: uint64 = (+ item_index_internal%2#0 1u)
                 goto block@9
             block@12: // after_for_L32
-                let tmp%14#0: uint64 = (== total#0 20u)
+                let tmp%14#0: bool = (== total#0 20u)
                 (assert tmp%14#0) // Total should now include sum of dynamic_bytes3 items
                 return 1u
     
     program clear-state:
-        subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program() -> uint64:
+        subroutine test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.clear_state_program() -> bool:
             block@0: // L43
                 return 1u

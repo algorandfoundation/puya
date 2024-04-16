@@ -4097,7 +4097,7 @@ class AVMOp(enum.StrEnum):
     not_ = AVMOpData(
         op_code="!",
         variants=Variant(
-            signature=OpSignature(args=[StackType.uint64], returns=[StackType.uint64]),
+            signature=OpSignature(args=[StackType.uint64], returns=[StackType.bool]),
             supported_modes=RunMode.any,
         ),
         immediate_types=(),

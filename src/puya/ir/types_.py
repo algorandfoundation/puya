@@ -21,11 +21,82 @@ class AVMBytesEncoding(enum.StrEnum):
     utf8 = enum.auto()
 
 
+@enum.unique
+class IRType(enum.StrEnum):
+    bytes = enum.auto()
+    uint64 = enum.auto()
+    bool = enum.auto()
+    biguint = enum.auto()
+
+    @property
+    def avm_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
+        match self:
+            case IRType.bool:
+                return AVMType.uint64
+            case IRType.uint64:
+                return AVMType.uint64
+            case IRType.bytes:
+                return AVMType.bytes
+            case IRType.biguint:
+                return AVMType.bytes
+            case _:
+                typing.assert_never(self)
+
+
 def bytes_enc_to_avm_bytes_enc(bytes_encoding: BytesEncoding) -> AVMBytesEncoding:
     try:
         return AVMBytesEncoding(bytes_encoding.value)
     except ValueError as ex:
         raise InternalError(f"Unhandled BytesEncoding: {bytes_encoding}") from ex
+
+
+def wtype_to_ir_type(
+    expr_or_wtype: wtypes.WType | awst_nodes.Expression,
+    source_location: SourceLocation | None = None,
+) -> IRType:
+    if isinstance(expr_or_wtype, awst_nodes.Expression):
+        return wtype_to_ir_type(
+            expr_or_wtype.wtype, source_location=source_location or expr_or_wtype.source_location
+        )
+    else:
+        wtype = expr_or_wtype
+    match wtype:
+        case wtypes.bool_wtype:
+            return IRType.bool
+        case (
+            wtypes.uint64_wtype
+            | wtypes.asset_wtype
+            | wtypes.application_wtype
+            | wtypes.WGroupTransaction()
+        ):
+            return IRType.uint64
+        case wtypes.biguint_wtype:
+            return IRType.biguint
+        case wtypes.bytes_wtype | wtypes.account_wtype | wtypes.string_wtype | wtypes.ARC4Type():
+            return IRType.bytes
+        case wtypes.void_wtype:
+            raise InternalError("Can't translate void WType to IRType", source_location)
+        case _:
+            raise CodeError(
+                f"Unsupported nested/compound type encountered: {wtype}",
+                source_location,
+            )
+
+
+def wtype_to_ir_types(
+    expr_or_wtype: wtypes.WType | awst_nodes.Expression,
+    source_location: SourceLocation | None = None,
+) -> list[IRType]:
+    if isinstance(expr_or_wtype, awst_nodes.Expression):
+        wtype = expr_or_wtype.wtype
+    else:
+        wtype = expr_or_wtype
+    if wtype == wtypes.void_wtype:
+        return []
+    elif isinstance(wtype, wtypes.WTuple):
+        return [wtype_to_ir_type(t, source_location) for t in wtype.types]
+    else:
+        return [wtype_to_ir_type(wtype, source_location)]
 
 
 def wtype_to_avm_type(
@@ -64,22 +135,6 @@ def wtype_to_avm_type(
             )
 
 
-def wtype_to_avm_types(
-    expr_or_wtype: wtypes.WType | awst_nodes.Expression,
-    source_location: SourceLocation | None = None,
-) -> list[AVMType]:
-    if isinstance(expr_or_wtype, awst_nodes.Expression):
-        wtype = expr_or_wtype.wtype
-    else:
-        wtype = expr_or_wtype
-    if wtype == wtypes.void_wtype:
-        return []
-    elif isinstance(wtype, wtypes.WTuple):
-        return [wtype_to_avm_type(t, source_location) for t in wtype.types]
-    else:
-        return [wtype_to_avm_type(wtype, source_location)]
-
-
 def stack_type_to_avm_type(stack_type: StackType) -> AVMType:
     match stack_type:
         case StackType.uint64 | StackType.bool | StackType.asset | StackType.application:
@@ -94,3 +149,19 @@ def stack_type_to_avm_type(stack_type: StackType) -> AVMType:
             return AVMType.bytes
         case StackType.any | StackType.address_or_index:
             return AVMType.any
+
+
+def stack_type_to_ir_type(stack_type: StackType) -> IRType | None:
+    match stack_type:
+        case StackType.bool:
+            return IRType.bool
+        case StackType.bigint:
+            return IRType.biguint
+        case StackType.uint64 | StackType.asset | StackType.application:
+            return IRType.uint64
+        case StackType.bytes | StackType.box_name | StackType.address | StackType.state_key:
+            return IRType.bytes
+        case StackType.any | StackType.address_or_index:
+            return None
+        case _:
+            typing.assert_never(stack_type)

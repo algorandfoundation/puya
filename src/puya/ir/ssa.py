@@ -3,9 +3,9 @@ from collections.abc import Sequence
 import attrs
 
 from puya import log
-from puya.avm_type import AVMType
 from puya.errors import InternalError
 from puya.ir import models as ir
+from puya.ir.types_ import IRType
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.parse import SourceLocation
 
@@ -53,15 +53,15 @@ class BraunSSA:
         else:
             return True
 
-    def read_variable(self, variable: str, atype: AVMType, block: ir.BasicBlock) -> ir.Register:
+    def read_variable(self, variable: str, ir_type: IRType, block: ir.BasicBlock) -> ir.Register:
         try:
             result = self._current_def[variable][block]
         except KeyError:
-            result = self._read_variable_recursive(variable, atype, block)
+            result = self._read_variable_recursive(variable, ir_type, block)
         return result
 
     def _read_variable_recursive(
-        self, variable: str, atype: AVMType, block: ir.BasicBlock
+        self, variable: str, ir_type: IRType, block: ir.BasicBlock
     ) -> ir.Register:
         value: ir.Register
         if not self.is_sealed(block):
@@ -70,25 +70,25 @@ class BraunSSA:
                 f"Phi: {block}"
             )
             # incomplete CFG
-            phi = self._new_phi(block, variable, atype)
+            phi = self._new_phi(block, variable, ir_type)
             self._incomplete_phis.setdefault(block, []).append(phi)
             value = phi.register
         elif len(block.predecessors) == 1:
-            value = self.read_variable(variable, atype, block.predecessors[0])
+            value = self.read_variable(variable, ir_type, block.predecessors[0])
         else:
             # break any potential cycles with empty Phi
-            phi = self._new_phi(block, variable, atype)
+            phi = self._new_phi(block, variable, ir_type)
             self.write_variable(variable, block, phi.register)
             value = self._add_phi_operands(phi, block)
         self.write_variable(variable, block, value)
         return value
 
     def new_register(
-        self, name: str, atype: AVMType, location: SourceLocation | None
+        self, name: str, ir_type: IRType, location: SourceLocation | None
     ) -> ir.Register:
         version = self._variable_versions.get(name, 0)
         self._variable_versions[name] = version + 1
-        return ir.Register(source_location=location, name=name, version=version, atype=atype)
+        return ir.Register(source_location=location, name=name, version=version, ir_type=ir_type)
 
     def is_sealed(self, block: ir.BasicBlock) -> bool:
         return block in self._sealed_blocks
@@ -107,8 +107,8 @@ class BraunSSA:
                 ", ".join(map(str, incomplete_phis))
             )
 
-    def _new_phi(self, block: ir.BasicBlock, variable: str, atype: AVMType) -> ir.Phi:
-        reg = self.new_register(variable, atype, location=None)
+    def _new_phi(self, block: ir.BasicBlock, variable: str, ir_type: IRType) -> ir.Phi:
+        reg = self.new_register(variable, ir_type, location=None)
         phi = ir.Phi(register=reg)
         block.phis.append(phi)
 
@@ -120,7 +120,7 @@ class BraunSSA:
     def _add_phi_operands(self, phi: ir.Phi, block: ir.BasicBlock) -> ir.Register:
         variable = phi.register.name
         for block_pred in block.predecessors:
-            pred_variable = self.read_variable(variable, phi.atype, block_pred)
+            pred_variable = self.read_variable(variable, phi.ir_type, block_pred)
             phi.args.append(
                 ir.PhiArgument(
                     value=pred_variable,

@@ -2,7 +2,6 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -27,6 +26,7 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
+from puya.ir.types_ import IRType
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
@@ -661,7 +661,7 @@ def _iterate_tuple(
                 op=AVMOp.sub,
                 args=[
                     len(tuple_items) - 1,
-                    context.ssa.read_variable(tuple_index, AVMType.uint64, body),
+                    context.ssa.read_variable(tuple_index, IRType.uint64, body),
                 ],
             )
             handle_assignment(
@@ -674,7 +674,7 @@ def _iterate_tuple(
             handle_assignment(
                 context,
                 target=index_var,
-                value=context.ssa.read_variable(tuple_index, AVMType.uint64, body),
+                value=context.ssa.read_variable(tuple_index, IRType.uint64, body),
                 assignment_location=index_var.source_location,
             )
 
@@ -683,7 +683,7 @@ def _iterate_tuple(
 
     context.block_builder.goto_and_activate(footer)
     context.ssa.seal_block(footer)
-    curr_index_internal = context.ssa.read_variable(tuple_index, AVMType.uint64, footer)
+    curr_index_internal = context.ssa.read_variable(tuple_index, IRType.uint64, footer)
     (_updated_r,) = assign(
         context,
         source=Intrinsic(
@@ -720,4 +720,4 @@ def _refresh_mutated_variable(context: IRFunctionBuildContext, reg: Register) ->
     reference to the most recent assigned register which will still be valid because it's
     within the same block.
     """
-    return context.ssa.read_variable(reg.name, reg.atype, context.block_builder.active_block)
+    return context.ssa.read_variable(reg.name, reg.ir_type, context.block_builder.active_block)

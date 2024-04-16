@@ -108,7 +108,7 @@ def _impl(sub: models.Subroutine) -> None:
 
     def make_temp(x: models.Value | models.Register) -> models.Register:
         return models.Register(
-            atype=x.atype,
+            ir_type=x.ir_type,
             name=f"{our_tmp_prefix}{next(next_tmp_id)}",
             version=0,
             source_location=x.source_location,

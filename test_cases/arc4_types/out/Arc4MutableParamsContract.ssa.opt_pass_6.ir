@@ -1,6 +1,6 @@
 contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
     program approval:
-        subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program() -> uint64:
+        subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program() -> bool:
             block@0: // L28
                 test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies()
                 return 1u
@@ -9,46 +9,46 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
             block@0: // L33
                 let my_struct#0: bytes = 0x80320006000d00054861707079000444617973
                 let my_array#1: bytes = ((replace2 2) 0x01020304 0x05)
-                let tmp%2#0: uint64 = 1u
+                let tmp%2#0: bool = 1u
                 (assert tmp%2#0) // my_array_copy should be unchanged
                 let tmp%3#0: bytes = ((extract 2 1) my_array#1)
-                let tmp%4#0: uint64 = (b== tmp%3#0 0x05)
+                let tmp%4#0: bool = (b== tmp%3#0 0x05)
                 (assert tmp%4#0) // my_array should be mutated
-                let (t#0: uint64, f#0: uint64, my_array#2: bytes, my_struct#1: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(my_array#1, my_struct#0)
+                let (t#0: bool, f#0: bool, my_array#2: bytes, my_struct#1: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(my_array#1, my_struct#0)
                 (assert t#0)
-                let tmp%5#0: uint64 = (! f#0)
+                let tmp%5#0: bool = (! f#0)
                 (assert tmp%5#0)
                 let tmp%6#0: bytes = ((extract 1 1) my_array#2)
-                let tmp%7#0: uint64 = (b== tmp%6#0 0x05)
+                let tmp%7#0: bool = (b== tmp%6#0 0x05)
                 (assert tmp%7#0) // my_array has been mutated by the subroutine
                 let item_index%3#0: uint64 = (extract_uint16 my_struct#1 2u)
                 let item_length%0#0: uint64 = (extract_uint16 my_struct#1 item_index%3#0)
                 let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
                 let tmp%8#0: bytes = (extract3 my_struct#1 item_index%3#0 item_length_plus_2%0#0)
-                let tmp%9#0: uint64 = (== tmp%8#0 "\x00\x07AARRGH!")
+                let tmp%9#0: bool = (== tmp%8#0 "\x00\x07AARRGH!")
                 (assert tmp%9#0) // my_struct has been mutated by the subroutine
-                let (other_routine%4#0: uint64, other_routine%5#0: uint64, other_routine%6#0: bytes, other_routine%7#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, my_struct#0)
-                let tmp%11#0: uint64 = 1u
+                let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: bytes, other_routine%7#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, my_struct#0)
+                let tmp%11#0: bool = 1u
                 (assert tmp%11#0) // my_array_copy should not be mutated by the subroutine
                 let item_index%5#0: uint64 = (extract_uint16 my_struct#0 2u)
                 let item_length%1#0: uint64 = (extract_uint16 my_struct#0 item_index%5#0)
                 let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
                 let tmp%12#0: bytes = (extract3 my_struct#0 item_index%5#0 item_length_plus_2%1#0)
-                let tmp%13#0: uint64 = (== tmp%12#0 "\x00\x05Happy")
+                let tmp%13#0: bool = (== tmp%12#0 "\x00\x05Happy")
                 (assert tmp%13#0) // my_struct_copy should not be mutated by the subroutine
                 let (my_array_copy_2#2: bytes, my_array_copy_2#1: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(0x01020304)
                 let tmp%14#0: bytes = ((extract 0 1) my_array_copy_2#2)
-                let tmp%15#0: uint64 = (b== tmp%14#0 0x01)
+                let tmp%15#0: bool = (b== tmp%14#0 0x01)
                 (assert tmp%15#0) // my_array_copy_2 should have original value
                 let (other_routine_2%2#0: bytes, my_array_copy_2#3: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(my_array_copy_2#2)
                 let tmp%16#0: bytes = ((extract 0 1) my_array_copy_2#3)
-                let tmp%17#0: uint64 = (b== tmp%16#0 0x0a)
+                let tmp%17#0: bool = (b== tmp%16#0 0x0a)
                 (assert tmp%17#0) // my_array_copy_2 should have mutated value
                 let tmp%18#0: bytes = ((extract 0 4) my_array#2)
                 let (other_routine_2%4#0: bytes, other_routine_2%5#0: bytes) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(tmp%18#0)
                 return 
         
-        subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: bytes, struct: bytes) -> <uint64, uint64, bytes, bytes>:
+        subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: bytes, struct: bytes) -> <bool, bool, bytes, bytes>:
             block@0: // L92
                 let array#1: bytes = ((replace2 1) array#0 0x05)
                 let item_offset%0#0: uint64 = (extract_uint16 struct#0 2u)
@@ -70,6 +70,6 @@ contract test_cases.arc4_types.mutable_params.Arc4MutableParamsContract:
                 return array#0 array#1
     
     program clear-state:
-        subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.clear_state_program() -> uint64:
+        subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.clear_state_program() -> bool:
             block@0: // L115
                 return 1u

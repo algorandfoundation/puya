@@ -1,88 +1,88 @@
 contract test_cases.undefined_phi_args.baddie.Baddie:
     program approval:
-        subroutine test_cases.undefined_phi_args.baddie.Baddie.approval_program() -> uint64:
+        subroutine test_cases.undefined_phi_args.baddie.Baddie.approval_program() -> bool:
             block@0: // L5
                 let test_case#0: bytes = (txna ApplicationArgs 0)
                 let tmp%0#0: uint64 = (txn NumAppArgs)
-                let tmp%1#0: uint64 = (> tmp%0#0 1u)
+                let tmp%1#0: bool = (> tmp%0#0 1u)
                 goto tmp%1#0 ? block@1 : block@3
             block@1: // and_contd_L8
                 let tmp%2#0: bytes = (txna ApplicationArgs 1)
                 let tmp%3#0: uint64 = (btoi tmp%2#0)
                 goto tmp%3#0 ? block@2 : block@3
             block@2: // bool_true_L8
-                let and_result%0#0: uint64 = 1u
+                let and_result%0#0: bool = 1u
                 goto block@4
             block@3: // bool_false_L8
-                let and_result%0#1: uint64 = 0u
+                let and_result%0#1: bool = 0u
                 goto block@4
             block@4: // bool_merge_L8
-                let invert_second_condition#0: uint64 = φ(and_result%0#0 <- block@2, and_result%0#1 <- block@3)
+                let invert_second_condition#0: bool = φ(and_result%0#0 <- block@2, and_result%0#1 <- block@3)
                 goto invert_second_condition#0 ? block@5 : block@12
             block@5: // if_body_L11
-                let tmp%5#0: uint64 = (== test_case#0 "uint")
+                let tmp%5#0: bool = (== test_case#0 "uint")
                 goto tmp%5#0 ? block@6 : block@7
             block@6: // if_body_L12
                 let tmp%6#0: uint64 = test_cases.undefined_phi_args.baddie.test_uint_undefined(1u, 0u)
-                let tmp%7#0: uint64 = (== tmp%6#0 10u)
+                let tmp%7#0: bool = (== tmp%6#0 10u)
                 (assert tmp%7#0)
                 let tmp%8#0: uint64 = test_cases.undefined_phi_args.baddie.test_uint_undefined(0u, 1u)
-                let tmp%9#0: uint64 = (== tmp%8#0 8u)
+                let tmp%9#0: bool = (== tmp%8#0 8u)
                 (assert tmp%9#0)
                 goto block@19
             block@7: // else_body_L12
-                let tmp%10#0: uint64 = (== test_case#0 "bytes")
+                let tmp%10#0: bool = (== test_case#0 "bytes")
                 goto tmp%10#0 ? block@8 : block@9
             block@8: // if_body_L15
-                let tmp%11#0: bytes = test_cases.undefined_phi_args.baddie.test_bytes_undefined(1u, 0u)
-                let tmp%12#0: uint64 = (b== tmp%11#0 10b)
+                let tmp%11#0: biguint = test_cases.undefined_phi_args.baddie.test_bytes_undefined(1u, 0u)
+                let tmp%12#0: bool = (b== tmp%11#0 10b)
                 (assert tmp%12#0)
-                let tmp%13#0: bytes = test_cases.undefined_phi_args.baddie.test_bytes_undefined(0u, 1u)
-                let tmp%14#0: uint64 = (b== tmp%13#0 8b)
+                let tmp%13#0: biguint = test_cases.undefined_phi_args.baddie.test_bytes_undefined(0u, 1u)
+                let tmp%14#0: bool = (b== tmp%13#0 8b)
                 (assert tmp%14#0)
                 goto block@19
             block@9: // else_body_L15
-                let tmp%15#0: bytes = test_cases.undefined_phi_args.baddie.test_mixed_undefined(1u, 0u)
-                let tmp%16#0: uint64 = (b== tmp%15#0 10b)
+                let tmp%15#0: biguint = test_cases.undefined_phi_args.baddie.test_mixed_undefined(1u, 0u)
+                let tmp%16#0: bool = (b== tmp%15#0 10b)
                 (assert tmp%16#0)
-                let tmp%17#0: bytes = test_cases.undefined_phi_args.baddie.test_mixed_undefined(0u, 1u)
-                let tmp%18#0: uint64 = (b== tmp%17#0 8b)
+                let tmp%17#0: biguint = test_cases.undefined_phi_args.baddie.test_mixed_undefined(0u, 1u)
+                let tmp%18#0: bool = (b== tmp%17#0 8b)
                 (assert tmp%18#0)
                 goto block@19
             block@12: // else_body_L11
-                let tmp%19#0: uint64 = (== test_case#0 "uint")
+                let tmp%19#0: bool = (== test_case#0 "uint")
                 goto tmp%19#0 ? block@13 : block@14
             block@13: // if_body_L22
                 let tmp%20#0: uint64 = test_cases.undefined_phi_args.baddie.test_uint_undefined(1u, 1u)
-                let tmp%21#0: uint64 = (== tmp%20#0 8u)
+                let tmp%21#0: bool = (== tmp%20#0 8u)
                 (assert tmp%21#0)
                 let tmp%22#0: uint64 = test_cases.undefined_phi_args.baddie.test_uint_undefined(0u, 0u)
-                let tmp%23#0: uint64 = (== tmp%22#0 10u)
+                let tmp%23#0: bool = (== tmp%22#0 10u)
                 (assert tmp%23#0)
                 goto block@19
             block@14: // else_body_L22
-                let tmp%24#0: uint64 = (== test_case#0 "bytes")
+                let tmp%24#0: bool = (== test_case#0 "bytes")
                 goto tmp%24#0 ? block@15 : block@16
             block@15: // if_body_L25
-                let tmp%25#0: bytes = test_cases.undefined_phi_args.baddie.test_bytes_undefined(1u, 1u)
-                let tmp%26#0: uint64 = (b== tmp%25#0 8b)
+                let tmp%25#0: biguint = test_cases.undefined_phi_args.baddie.test_bytes_undefined(1u, 1u)
+                let tmp%26#0: bool = (b== tmp%25#0 8b)
                 (assert tmp%26#0)
-                let tmp%27#0: bytes = test_cases.undefined_phi_args.baddie.test_bytes_undefined(0u, 0u)
-                let tmp%28#0: uint64 = (b== tmp%27#0 10b)
+                let tmp%27#0: biguint = test_cases.undefined_phi_args.baddie.test_bytes_undefined(0u, 0u)
+                let tmp%28#0: bool = (b== tmp%27#0 10b)
                 (assert tmp%28#0)
                 goto block@19
             block@16: // else_body_L25
-                let tmp%29#0: bytes = test_cases.undefined_phi_args.baddie.test_mixed_undefined(1u, 1u)
-                let tmp%30#0: uint64 = (b== tmp%29#0 8b)
+                let tmp%29#0: biguint = test_cases.undefined_phi_args.baddie.test_mixed_undefined(1u, 1u)
+                let tmp%30#0: bool = (b== tmp%29#0 8b)
                 (assert tmp%30#0)
-                let tmp%31#0: bytes = test_cases.undefined_phi_args.baddie.test_mixed_undefined(0u, 0u)
-                let tmp%32#0: uint64 = (b== tmp%31#0 10b)
+                let tmp%31#0: biguint = test_cases.undefined_phi_args.baddie.test_mixed_undefined(0u, 0u)
+                let tmp%32#0: bool = (b== tmp%31#0 10b)
                 (assert tmp%32#0)
                 goto block@19
             block@19: // after_if_else_L11
                 return 1u
         
-        subroutine test_cases.undefined_phi_args.baddie.test_uint_undefined(x: uint64, y: uint64) -> uint64:
+        subroutine test_cases.undefined_phi_args.baddie.test_uint_undefined(x: bool, y: bool) -> uint64:
             block@0: // L37
                 let a#3: uint64 = undefined
                 goto x#0 ? block@1 : block@2
@@ -104,15 +104,15 @@ contract test_cases.undefined_phi_args.baddie.Baddie:
                 let c#2: uint64 = φ(c#0 <- block@6, c#1 <- block@7)
                 return c#2
         
-        subroutine test_cases.undefined_phi_args.baddie.test_bytes_undefined(x: uint64, y: uint64) -> bytes:
+        subroutine test_cases.undefined_phi_args.baddie.test_bytes_undefined(x: bool, y: bool) -> biguint:
             block@0: // L52
-                let a#3: bytes = undefined
+                let a#3: biguint = undefined
                 goto x#0 ? block@1 : block@2
             block@1: // if_body_L54
-                let a#0: bytes = 7b
+                let a#0: biguint = 7b
                 goto block@2
             block@2: // after_if_else_L54
-                let a#2: bytes = φ(a#3 <- block@0, a#0 <- block@1)
+                let a#2: biguint = φ(a#3 <- block@0, a#0 <- block@1)
                 goto block@5
             block@5: // after_if_else_L56
                 goto y#0 ? block@6 : block@7
@@ -120,13 +120,13 @@ contract test_cases.undefined_phi_args.baddie.Baddie:
                 let c#0: bytes = (b+ a#2 1b)
                 goto block@8
             block@7: // else_body_L60
-                let c#1: bytes = 10b
+                let c#1: biguint = 10b
                 goto block@8
             block@8: // after_if_else_L60
-                let c#2: bytes = φ(c#0 <- block@6, c#1 <- block@7)
+                let c#2: biguint = φ(c#0 <- block@6, c#1 <- block@7)
                 return c#2
         
-        subroutine test_cases.undefined_phi_args.baddie.test_mixed_undefined(x: uint64, y: uint64) -> bytes:
+        subroutine test_cases.undefined_phi_args.baddie.test_mixed_undefined(x: bool, y: bool) -> biguint:
             block@0: // L67
                 let a#3: uint64 = undefined
                 goto x#0 ? block@1 : block@2
@@ -139,17 +139,17 @@ contract test_cases.undefined_phi_args.baddie.Baddie:
             block@5: // after_if_else_L71
                 goto y#0 ? block@6 : block@7
             block@6: // if_body_L75
-                let tmp%0#0: bytes = (itob a#2)
+                let tmp%0#0: biguint = (itob a#2)
                 let c#0: bytes = (b+ tmp%0#0 1b)
                 goto block@8
             block@7: // else_body_L75
-                let c#1: bytes = 10b
+                let c#1: biguint = 10b
                 goto block@8
             block@8: // after_if_else_L75
-                let c#2: bytes = φ(c#0 <- block@6, c#1 <- block@7)
+                let c#2: biguint = φ(c#0 <- block@6, c#1 <- block@7)
                 return c#2
     
     program clear-state:
-        subroutine test_cases.undefined_phi_args.baddie.Baddie.clear_state_program() -> uint64:
+        subroutine test_cases.undefined_phi_args.baddie.Baddie.clear_state_program() -> bool:
             block@0: // L33
                 return 1u
