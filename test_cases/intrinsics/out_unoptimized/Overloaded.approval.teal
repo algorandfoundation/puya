@@ -1,0 +1,59 @@
+#pragma version 10
+
+test_cases.intrinsics.overloaded.Overloaded.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    // intrinsics/overloaded.py:9
+    // assert op.AppGlobal.get_uint64(b"key") == op.AppGlobal.get_uint64(b"key")
+    byte "key"
+    app_global_get
+    byte "key"
+    app_global_get
+    ==
+    assert
+    // intrinsics/overloaded.py:10
+    // assert self.key.maybe()[0] == self.key.maybe()[0]
+    int 0
+    byte "key"
+    app_global_get_ex
+    pop
+    int 0
+    byte "key"
+    app_global_get_ex
+    pop
+    ==
+    assert
+    // intrinsics/overloaded.py:11
+    // assert op.setbit_uint64(0, 0, 1) == op.setbit_uint64(0, 0, 1)
+    int 0
+    int 0
+    int 1
+    setbit
+    int 0
+    int 0
+    int 1
+    setbit
+    ==
+    assert
+    // intrinsics/overloaded.py:12-14
+    // # TODO: allow select intrinsic usage
+    // # assert op.select_uint64(0, 1, True) == op.select_uint64(1, 0, False)
+    // return True
+    int 1
+    return
+
+
+// test_cases.intrinsics.overloaded.Overloaded.__init__() -> void:
+__init__:
+    // intrinsics/overloaded.py:5
+    // def __init__(self) -> None:
+    proto 0 0
+    // intrinsics/overloaded.py:6
+    // self.key = GlobalState(UInt64(0))
+    byte "key"
+    int 0
+    app_global_put
+    retsub

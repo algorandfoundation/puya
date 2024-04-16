@@ -1,0 +1,35 @@
+#pragma version 10
+
+test_cases.intrinsics.overloaded.Overloaded.approval_program:
+    txn ApplicationID
+    bnz main_entrypoint@2
+    callsub __init__
+
+main_entrypoint@2:
+    byte "key"
+    app_global_get
+    byte "key"
+    app_global_get
+    ==
+    assert
+    int 0
+    byte "key"
+    app_global_get_ex
+    pop
+    int 0
+    byte "key"
+    app_global_get_ex
+    pop
+    ==
+    assert
+    int 1
+    return
+
+
+// test_cases.intrinsics.overloaded.Overloaded.__init__() -> void:
+__init__:
+    proto 0 0
+    byte "key"
+    int 0
+    app_global_put
+    retsub

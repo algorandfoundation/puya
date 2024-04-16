@@ -1184,6 +1184,10 @@ def test_intrinsics_immediate_variants(harness: _TestHarness) -> None:
     )
 
 
+def test_intrinsics_overloaded(harness: _TestHarness) -> None:
+    harness.deploy(TEST_CASES_DIR / "intrinsics" / "overloaded.py")
+
+
 def test_too_many_permutations(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "too_many_permutations",

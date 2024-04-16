@@ -1,0 +1,31 @@
+contract test_cases.intrinsics.overloaded.Overloaded:
+    program approval:
+        subroutine test_cases.intrinsics.overloaded.Overloaded.approval_program() -> uint64:
+            block@0: // L8
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L5
+                test_cases.intrinsics.overloaded.Overloaded.__init__()
+                goto block@2
+            block@2: // entrypoint_L5
+                let tmp%0#0: uint64 = (app_global_get "key")
+                let tmp%1#0: uint64 = (app_global_get "key")
+                let tmp%2#0: uint64 = (== tmp%0#0 tmp%1#0)
+                (assert tmp%2#0)
+                let (tmp%3#0: uint64, tmp%4#0: uint64) = (app_global_get_ex 0u "key")
+                let (tmp%5#0: uint64, tmp%6#0: uint64) = (app_global_get_ex 0u "key")
+                let tmp%7#0: uint64 = (== tmp%3#0 tmp%5#0)
+                (assert tmp%7#0)
+                let tmp%10#0: uint64 = 1u
+                (assert tmp%10#0)
+                return 1u
+        
+        subroutine test_cases.intrinsics.overloaded.Overloaded.__init__() -> void:
+            block@0: // L5
+                (app_global_put "key" 0u)
+                return 
+    
+    program clear-state:
+        subroutine test_cases.intrinsics.overloaded.Overloaded.clear_state_program() -> uint64:
+            block@0: // L16
+                return 1u
