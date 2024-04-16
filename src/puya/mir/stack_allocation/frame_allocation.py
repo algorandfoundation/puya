@@ -49,11 +49,15 @@ def get_allocate_op(
     variable_type_mapping = get_local_id_types(subroutine)
     for variable in all_variables:
         match variable_type_mapping.get(variable):
-            # treat any as uint when pre-allocating
-            case AVMType.uint64 | AVMType.any:
+            case AVMType.uint64:
                 uint64_vars.append(variable)
             case AVMType.bytes:
                 byte_vars.append(variable)
+            case AVMType.any:
+                raise InternalError(
+                    "Encountered AVM type any on preamble construction",
+                    subroutine.preamble.source_location,
+                )
             case None:
                 raise CodeError(
                     f"Undefined register: {variable}."

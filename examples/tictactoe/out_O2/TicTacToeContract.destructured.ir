@@ -57,10 +57,10 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
                 let tmp%0#0: uint64 = (txn ApplicationID)
                 goto tmp%0#0 ? block@1 : block@4
             block@1: // if_body_L22
-                let (challenger_exists%0#0: any, challenger_exists%1#0: uint64) = (app_global_get_ex 0u "challenger")
+                let (challenger_exists%0#0: bytes, challenger_exists%1#0: uint64) = (app_global_get_ex 0u "challenger")
                 goto challenger_exists%1#0 ? block@2 : block@3
             block@2: // if_body_L23
-                let (winner_exists%0#0: any, winner_exists%1#0: uint64) = (app_global_get_ex 0u "winner")
+                let (winner_exists%0#0: bytes, winner_exists%1#0: uint64) = (app_global_get_ex 0u "winner")
                 (assert winner_exists%1#0) // Game isn't over
                 goto block@3
             block@3: // after_if_else_L23
@@ -102,7 +102,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game(move.0: uint64, move.1: uint64) -> void:
             block@0: // L37
-                let (challenger_exists%0#0: any, challenger_exists%1#0: uint64) = (app_global_get_ex 0u "challenger")
+                let (challenger_exists%0#0: bytes, challenger_exists%1#0: uint64) = (app_global_get_ex 0u "challenger")
                 let tmp%0#0: uint64 = (! challenger_exists%1#0)
                 (assert tmp%0#0) // Host already has a challenger
                 let new_state_value%0#0: bytes = (txn Sender)
@@ -237,7 +237,7 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
         
         subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
             block@0: // L47
-                let (winner_exists%0#0: any, winner_exists%1#0: uint64) = (app_global_get_ex 0u "winner")
+                let (winner_exists%0#0: bytes, winner_exists%1#0: uint64) = (app_global_get_ex 0u "winner")
                 let tmp%0#0: uint64 = (! winner_exists%1#0)
                 (assert tmp%0#0) // Game is already finished
                 let (turns_value%0#0: uint64, turns_exists%0#0: uint64) = (app_global_get_ex 0u "turns")
@@ -255,8 +255,8 @@ contract examples.tictactoe.tictactoe.TicTacToeContract:
             block@2: // else_body_L50
                 let tmp%4#0: bytes = (txn Sender)
                 let tmp%5#0: bytes = (global ZeroAddress)
-                let (challenger_get_ex%0#0: any, challenger_get_ex%1#0: uint64) = (app_global_get_ex 0u "challenger")
-                let tmp%6#0: any = (select tmp%5#0 challenger_get_ex%0#0 challenger_get_ex%1#0)
+                let (challenger_get_ex%0#0: bytes, challenger_get_ex%1#0: uint64) = (app_global_get_ex 0u "challenger")
+                let tmp%6#0: bytes = (select tmp%5#0 challenger_get_ex%0#0 challenger_get_ex%1#0)
                 let tmp%7#0: uint64 = (== tmp%4#0 tmp%6#0)
                 (assert tmp%7#0) // It is the challenger's turn
                 let player#0: bytes = 0x02

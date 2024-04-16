@@ -121,7 +121,12 @@ class StoreOp(MemoryOp, abc.ABC):
     """An op for storing values"""
 
     local_id: str
-    atype: AVMType
+    atype: AVMType = attrs.field()
+
+    @atype.validator
+    def _validate_not_any(self, _attribute: object, atype: AVMType) -> None:
+        if atype is AVMType.any:
+            raise InternalError(f"Register has type any: {self}", self.source_location)
 
 
 @attrs.frozen(kw_only=True, eq=False)
@@ -129,7 +134,12 @@ class LoadOp(MemoryOp, abc.ABC):
     """An op for loading values"""
 
     local_id: str
-    atype: AVMType
+    atype: AVMType = attrs.field()
+
+    @atype.validator
+    def _validate_not_any(self, _attribute: object, atype: AVMType) -> None:
+        if atype is AVMType.any:
+            raise InternalError(f"Register has type any: {self}", self.source_location)
 
 
 @attrs.frozen(eq=False)

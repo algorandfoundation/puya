@@ -63,6 +63,7 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
     return Intrinsic(
         op=AVMOp.select,
         args=[default, maybe_value, exists],
+        types=[wtype_to_avm_type(expr.wtype)],
         source_location=expr.source_location,
     )
 
@@ -132,4 +133,12 @@ def _build_state_get_ex(
         op = AVMOp.app_local_get_ex
         account = context.visitor.visit_and_materialise_single(expr.account)
         args.insert(0, account)
-    return Intrinsic(op=op, args=args, source_location=source_location)
+    return Intrinsic(
+        op=op,
+        args=args,
+        source_location=source_location,
+        types=[
+            wtype_to_avm_type(state_def.storage_wtype),
+            AVMType.uint64,
+        ],
+    )

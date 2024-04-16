@@ -330,13 +330,10 @@ def _visit_arc4_tuple_encode(
                 )
 
                 assign_buffer(
-                    Intrinsic(
-                        op=AVMOp.setbit,
-                        args=[
-                            encoded_tuple_buffer,
-                            UInt64Constant(value=before_header, source_location=expr_loc),
-                            is_true,
-                        ],
+                    _set_bit(
+                        value=encoded_tuple_buffer,
+                        index=before_header,
+                        bit=is_true,
                         source_location=expr_loc,
                     )
                 )
@@ -367,6 +364,18 @@ def _visit_arc4_tuple_encode(
         if is_arc4_dynamic_size(el_wtype):
             append_to_buffer(element)
     return encoded_tuple_buffer
+
+
+def _set_bit(
+    *, value: Value, index: int, bit: Value, source_location: SourceLocation | None
+) -> Intrinsic:
+    index_const = UInt64Constant(value=index, source_location=source_location)
+    return Intrinsic(
+        op=AVMOp.setbit,
+        args=[value, index_const, bit],
+        types=[value.atype],
+        source_location=source_location,
+    )
 
 
 def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray) -> ValueProvider:
@@ -410,16 +419,10 @@ def encode_arc4_array(context: IRFunctionBuildContext, expr: awst_nodes.NewArray
                     ),
                     source_location=expr_loc,
                 )
-                new_array_data_value = Intrinsic(
-                    op=AVMOp.setbit,
-                    args=[
-                        array_data,
-                        UInt64Constant(
-                            value=index + (len(len_prefix) * 8),
-                            source_location=expr_loc,
-                        ),
-                        is_true,
-                    ],
+                new_array_data_value = _set_bit(
+                    value=array_data,
+                    index=index + 8 * len(len_prefix),
+                    bit=is_true,
                     source_location=expr_loc,
                 )
             array_data = reassign(context, array_data, new_array_data_value, expr_loc)
@@ -673,7 +676,8 @@ def _arc4_replace_struct_item(
             target="updated_data",
             source_location=source_location,
             op=AVMOp.setbit,
-            args=[base, header_up_to_item, is_true],
+            args=(base, header_up_to_item, is_true),
+            return_type=[base.atype],
         )
         return updated_data
     else:
@@ -1334,11 +1338,8 @@ def _arc4_replace_array_item(
             target="updated_target",
             source_location=source_location,
             op=AVMOp.setbit,
-            args=[
-                base,
-                write_offset,
-                is_true,
-            ],
+            args=(base, write_offset, is_true),
+            return_type=[base.atype],
         )
     else:
         (updated_target,) = assign_intrinsic_op(
@@ -1640,17 +1641,10 @@ def _assert_index_in_bounds(
     )
 
 
-def encode_arc4_bool(value: Value, source_location: SourceLocation) -> ValueProvider:
-    return Intrinsic(
-        op=AVMOp.setbit,
-        args=[
-            BytesConstant(
-                value=0x00.to_bytes(1, "big"),
-                source_location=source_location,
-                encoding=AVMBytesEncoding.base16,
-            ),
-            UInt64Constant(value=0, source_location=None),
-            value,
-        ],
+def encode_arc4_bool(bit: Value, source_location: SourceLocation) -> ValueProvider:
+    value = BytesConstant(
+        value=0x00.to_bytes(1, "big"),
         source_location=source_location,
+        encoding=AVMBytesEncoding.base16,
     )
+    return _set_bit(value=value, index=0, bit=bit, source_location=source_location)

@@ -187,7 +187,9 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
 def _try_fold_intrinsic(
     subroutine: models.Subroutine, intrinsic: models.Intrinsic
 ) -> models.ValueProvider | None:
-    if intrinsic.op in (AVMOp.loads, AVMOp.gloads) or (intrinsic.op.code.startswith("box_")):
+    if intrinsic.op in (AVMOp.loads, AVMOp.gloads) or (
+        intrinsic.op.code.startswith(("box_", "app_global_", "app_local_"))
+    ):
         # can't simplify these
         return None
     elif intrinsic.op in (AVMOp.itob, AVMOp.bzero):
