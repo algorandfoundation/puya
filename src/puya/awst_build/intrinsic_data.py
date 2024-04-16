@@ -1035,6 +1035,68 @@ STUB_TO_AST_MAPPER = {
             ],
         ),
     ],
+    "algopy.op.select_bytes": [
+        FunctionOpMapping(
+            op_code="select",
+            is_property=False,
+            immediates=[],
+            stack_inputs=[
+                StackArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                    ],
+                ),
+                StackArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.bytes_wtype,
+                    ],
+                ),
+                StackArgMapping(
+                    arg_name="c",
+                    allowed_types=[
+                        wtypes.bool_wtype,
+                        wtypes.uint64_wtype,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.bytes_wtype,
+            ],
+        ),
+    ],
+    "algopy.op.select_uint64": [
+        FunctionOpMapping(
+            op_code="select",
+            is_property=False,
+            immediates=[],
+            stack_inputs=[
+                StackArgMapping(
+                    arg_name="a",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                    ],
+                ),
+                StackArgMapping(
+                    arg_name="b",
+                    allowed_types=[
+                        wtypes.uint64_wtype,
+                    ],
+                ),
+                StackArgMapping(
+                    arg_name="c",
+                    allowed_types=[
+                        wtypes.bool_wtype,
+                        wtypes.uint64_wtype,
+                    ],
+                ),
+            ],
+            stack_outputs=[
+                wtypes.uint64_wtype,
+            ],
+        ),
+    ],
     "algopy.op.setbit_bytes": [
         FunctionOpMapping(
             op_code="setbit",

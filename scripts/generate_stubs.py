@@ -316,8 +316,6 @@ EXCLUDED_OPCODES = {
     # maninuplates what other low level ops point to
     "intcblock",
     "bytecblock",
-    # would require a TypeVar and can be done with ternary instead
-    "select",
     # implicit immediates, covered by optimiser and/or assembler
     "arg_0",
     "arg_1",
