@@ -4171,7 +4171,7 @@ class AVMOp(enum.StrEnum):
         op_code="select",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.any, StackType.any, StackType.uint64], returns=[StackType.any]
+                args=[StackType.any, StackType.any, StackType.bool], returns=[StackType.any]
             ),
             supported_modes=RunMode.any,
         ),

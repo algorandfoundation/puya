@@ -309,6 +309,20 @@ def replace(a: Bytes | bytes, b: UInt64 | int, c: Bytes | bytes, /) -> Bytes:
     Native TEAL opcode: [`replace2`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#replace2), [`replace3`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#replace3)
     """
 
+def select_bytes(a: Bytes | bytes, b: Bytes | bytes, c: bool | UInt64 | int, /) -> Bytes:
+    """
+    selects one of two values based on top-of-stack: B if C != 0, else A
+
+    Native TEAL opcode: [`select`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#select)
+    """
+
+def select_uint64(a: UInt64 | int, b: UInt64 | int, c: bool | UInt64 | int, /) -> UInt64:
+    """
+    selects one of two values based on top-of-stack: B if C != 0, else A
+
+    Native TEAL opcode: [`select`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#select)
+    """
+
 def setbit_bytes(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
     """
     Copy of (byte-array or integer) A, with the Bth bit set to (0 or 1) C. If B is greater than or equal to the bit length of the value (8*byte length), the program fails
