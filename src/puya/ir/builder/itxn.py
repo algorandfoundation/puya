@@ -329,7 +329,11 @@ class InnerTransactionBuilder:
                     self.block_builder.goto_and_activate(next_field)
                     self.ssa.seal_block(next_field)
 
-            group_indexes.append(UInt64Constant(value=group_index, source_location=submit_var_loc))
+            group_indexes.append(
+                UInt64Constant(
+                    value=group_index, source_location=submit_var_loc, ir_type=IRType.itxn
+                )
+            )
 
             self.block_builder.goto_and_activate(next_txn)
             self.ssa.seal_block(next_txn)
@@ -442,7 +446,9 @@ class InnerTransactionBuilder:
         # an undefined variable warning
         assign(
             context=self.context,
-            source=UInt64Constant(value=next(self._create_itxn_counter), source_location=var_loc),
+            source=UInt64Constant(
+                value=next(self._create_itxn_counter), source_location=var_loc, ir_type=IRType.itxn
+            ),
             names=[(var_name, var_loc)],
             source_location=var_loc,
         )
