@@ -27,6 +27,7 @@ class IRType(enum.StrEnum):
     uint64 = enum.auto()
     bool = enum.auto()
     biguint = enum.auto()
+    itxn = enum.auto()
 
     @property
     def avm_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
@@ -39,6 +40,8 @@ class IRType(enum.StrEnum):
                 return AVMType.bytes
             case IRType.biguint:
                 return AVMType.bytes
+            case IRType.itxn:
+                return AVMType.uint64
             case _:
                 typing.assert_never(self)
 
@@ -68,10 +71,10 @@ def wtype_to_ir_type(
             | wtypes.asset_wtype
             | wtypes.application_wtype
             | wtypes.WGroupTransaction()
-            | wtypes.WInnerTransactionFields()
-            | wtypes.WInnerTransaction()
         ):
             return IRType.uint64
+        case wtypes.WInnerTransaction() | wtypes.WInnerTransactionFields():
+            return IRType.itxn
         case wtypes.biguint_wtype:
             return IRType.biguint
         case wtypes.bytes_wtype | wtypes.account_wtype | wtypes.string_wtype | wtypes.ARC4Type():
