@@ -32,18 +32,13 @@ class IRType(enum.StrEnum):
 
     @property
     def avm_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
-        match self:
-            case IRType.uint64 | IRType.bool:
-                return AVMType.uint64
-            case IRType.bytes | IRType.biguint:
-                return AVMType.bytes
-            case IRType.itxn_group_idx | IRType.itxn_field_set:
-                raise InternalError("ITxn types cannot be mapped to stack types")
-            case _:
-                typing.assert_never(self)
+        maybe_result = self.maybe_avm_type
+        if not isinstance(maybe_result, AVMType):
+            raise InternalError(f"{maybe_result} cannot be mapped to AVM stack type")
+        return maybe_result
 
     @property
-    def maybe_avm_type(self) -> AVMType | str:
+    def maybe_avm_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes] | str:
         match self:
             case IRType.uint64 | IRType.bool:
                 return AVMType.uint64
