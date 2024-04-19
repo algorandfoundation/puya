@@ -117,7 +117,7 @@ def optimize_and_destructure_ir(
         output_artifact_ir_to_path(
             artifact_ir, artifact_ir_base_path.with_suffix(".destructured.ir")
         )
-    # re-run validation post everything, in case we've accidentally inserted something,
+    # validation is run as the last step, in case we've accidentally inserted something,
     # and in particular post subroutine removal, because some things that are "linked"
     # are not necessarily used from the current artifact
     validate_module_artifact(context, artifact_ir)

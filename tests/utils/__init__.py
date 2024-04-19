@@ -7,7 +7,12 @@ from pathlib import Path
 import attrs
 from puya.awst.nodes import Module
 from puya.awst_build.main import output_awst, transform_ast
-from puya.compile import module_irs_to_teal, parse_with_mypy, write_artifacts
+from puya.compile import (
+    module_irs_to_teal,
+    optimize_and_destructure_module_irs,
+    parse_with_mypy,
+    write_artifacts,
+)
 from puya.context import CompileContext
 from puya.errors import CodeError
 from puya.ir.main import build_module_irs
@@ -130,7 +135,10 @@ def awst_to_teal(
     module_irs = build_module_irs(context, module_asts)
     if log_ctx.num_errors:
         return None
-    compiled_contracts = module_irs_to_teal(context, module_irs)
+    module_irs_destructured = optimize_and_destructure_module_irs(context, module_irs)
+    if log_ctx.num_errors:
+        return None
+    compiled_contracts = module_irs_to_teal(context, module_irs_destructured)
     if log_ctx.num_errors:
         return None
     return compiled_contracts
