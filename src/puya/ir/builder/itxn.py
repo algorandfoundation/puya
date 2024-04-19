@@ -8,6 +8,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.awst.to_code_visitor import ToCodeVisitor
+from puya.awst.wtypes import is_inner_transaction_field_type
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assign, assign_intrinsic_op
@@ -88,35 +89,39 @@ class InnerTransactionBuilder:
         return self.context.block_builder
 
     def handle_inner_transaction_field_assignments(
-        self,
-        target: awst_nodes.Lvalue,
-        value: awst_nodes.Expression,
-        source_location: SourceLocation,
+        self, stmt: awst_nodes.AssignmentStatement
     ) -> bool:
-        if not wtypes.has_inner_transaction_field_type(value.wtype):
-            raise InternalError(
-                "Expected expression containing WInnerTransactionField type", source_location
-            )
+        value = stmt.value
+        source_location = stmt.source_location
+        target = stmt.target
         match value:
             case awst_nodes.CreateInnerTransaction(fields=fields):
                 ((var_name, var_loc),) = _get_assignment_target_local_names(target, 1)
                 self._set_inner_transaction_fields(var_name, fields, var_loc)
-            case awst_nodes.Copy(value=value):
+                return True
+            case awst_nodes.Copy(
+                value=awst_nodes.Expression(wtype=wtypes.WInnerTransactionFields()) as copy_source
+            ):
                 ((var_name, var_loc),) = _get_assignment_target_local_names(target, 1)
-                src_var_name = self._resolve_inner_txn_params_var_name(value)
+                src_var_name = self._resolve_inner_txn_params_var_name(copy_source)
                 self._copy_inner_transaction_fields(var_name, src_var_name, var_loc)
-            case awst_nodes.TupleExpression(items=tuple_items):
+                return True
+            case awst_nodes.TupleExpression(items=tuple_items) as tuple_source if any(
+                map(is_inner_transaction_field_type, tuple_source.wtype.types)
+            ):
                 names = _get_assignment_target_local_names(target, len(tuple_items))
                 for (item_name, item_loc), item_value in zip(names, tuple_items, strict=True):
                     match item_value:
                         case awst_nodes.CreateInnerTransaction(fields=fields):
                             self._set_inner_transaction_fields(item_name, fields, item_loc)
                         case awst_nodes.Copy(
-                            value=value
-                        ) if wtypes.is_inner_transaction_field_type(value.wtype):
-                            src_var_name = self._resolve_inner_txn_params_var_name(value)
+                            value=awst_nodes.Expression(
+                                wtype=wtypes.WInnerTransactionFields()
+                            ) as copy_source
+                        ):
+                            src_var_name = self._resolve_inner_txn_params_var_name(copy_source)
                             self._copy_inner_transaction_fields(item_name, src_var_name, item_loc)
-                        case _ if wtypes.is_inner_transaction_field_type(item_value.wtype):
+                        case awst_nodes.Expression(wtype=wtypes.WInnerTransactionFields()):
                             raise CodeError(
                                 "Unexpected Inner Transaction encountered in tuple", item_loc
                             )
@@ -128,12 +133,14 @@ class InnerTransactionBuilder:
                                 names=[(item_name, item_loc)],
                                 source_location=source_location,
                             )
-            case _:
+                return True
+            case awst_nodes.Expression(wtype=wtypes.WInnerTransactionFields()):
                 raise CodeError(
                     "Inner Transaction params can only be reassigned using copy()",
                     source_location,
                 )
-        return True
+            case _:
+                return False
 
     def _visit_submit_expr(self, expr: awst_nodes.Expression) -> Sequence[Value]:
         value_provider = self.context.visitor.visit_expr(expr)
