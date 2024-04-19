@@ -2,13 +2,12 @@
 
 test_cases.stubs.string.StringContract.approval_program:
     int 0
-    dupn 21
+    dup
     // stubs/string.py:6
     // empty = String()
     byte ""
     // stubs/string.py:7
     // assert not empty, "Empty bytes should be False"
-    dup
     len
     !
     assert // Empty bytes should be False
@@ -17,7 +16,6 @@ test_cases.stubs.string.StringContract.approval_program:
     byte " "
     // stubs/string.py:9
     // assert non_empty, "Non-empty bytes should be True"
-    dup
     len
     assert // Non-empty bytes should be True
     // stubs/string.py:11
@@ -44,6 +42,12 @@ test_cases.stubs.string.StringContract.approval_program:
     byte "ab"
     ==
     assert
+    // stubs/string.py:6
+    // empty = String()
+    byte ""
+    // stubs/string.py:8
+    // non_empty = String(" ")
+    byte " "
     // stubs/string.py:15
     // assert empty != non_empty
     !=
@@ -77,20 +81,15 @@ test_cases.stubs.string.StringContract.approval_program:
     callsub is_substring
     !
     assert
-    // stubs/string.py:25
-    // alpha = String("abcdefg")
-    byte "abcdefg"
-    dup
-    swap
     // stubs/string.py:26
     // assert alpha.startswith("")
     byte ""
-    dup
-    cover 2
     len
-    swap
-    dup
-    cover 2
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:26
+    // assert alpha.startswith("")
     len
     >
     bz main_ternary_false@2
@@ -100,14 +99,17 @@ test_cases.stubs.string.StringContract.approval_program:
 main_ternary_false@2:
     // stubs/string.py:26
     // assert alpha.startswith("")
-    dig 1
-    dup
+    byte ""
     len
-    dig 2
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:26
+    // assert alpha.startswith("")
     int 0
     uncover 2
     extract3
-    swap
+    byte ""
     ==
 
 main_ternary_merge@3:
@@ -117,12 +119,12 @@ main_ternary_merge@3:
     // stubs/string.py:27
     // assert alpha.startswith("a")
     byte "a"
-    dup
-    bury 16
     len
-    dig 3
-    dup
-    bury 12
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:27
+    // assert alpha.startswith("a")
     len
     >
     bz main_ternary_false@5
@@ -132,14 +134,17 @@ main_ternary_merge@3:
 main_ternary_false@5:
     // stubs/string.py:27
     // assert alpha.startswith("a")
-    dig 14
-    dup
+    byte "a"
     len
-    dig 11
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:27
+    // assert alpha.startswith("a")
     int 0
     uncover 2
     extract3
-    swap
+    byte "a"
     ==
 
 main_ternary_merge@6:
@@ -149,12 +154,12 @@ main_ternary_merge@6:
     // stubs/string.py:28
     // assert alpha.startswith("ab")
     byte "ab"
-    dup
-    bury 10
     len
-    dig 3
-    dup
-    bury 10
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:28
+    // assert alpha.startswith("ab")
     len
     >
     bz main_ternary_false@8
@@ -164,14 +169,17 @@ main_ternary_merge@6:
 main_ternary_false@8:
     // stubs/string.py:28
     // assert alpha.startswith("ab")
-    dig 8
-    dup
+    byte "ab"
     len
-    dig 9
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:28
+    // assert alpha.startswith("ab")
     int 0
     uncover 2
     extract3
-    swap
+    byte "ab"
     ==
 
 main_ternary_merge@9:
@@ -181,12 +189,12 @@ main_ternary_merge@9:
     // stubs/string.py:29
     // assert not alpha.startswith("b")
     byte "b"
-    dup
-    bury 8
     len
-    dig 3
-    dup
-    bury 8
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:29
+    // assert not alpha.startswith("b")
     len
     >
     bz main_ternary_false@11
@@ -196,14 +204,17 @@ main_ternary_merge@9:
 main_ternary_false@11:
     // stubs/string.py:29
     // assert not alpha.startswith("b")
-    dig 6
-    dup
+    byte "b"
     len
-    dig 7
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:29
+    // assert not alpha.startswith("b")
     int 0
     uncover 2
     extract3
-    swap
+    byte "b"
     ==
 
 main_ternary_merge@12:
@@ -211,16 +222,17 @@ main_ternary_merge@12:
     // assert not alpha.startswith("b")
     !
     assert
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:30
     // assert alpha.startswith(alpha)
-    dig 2
-    dup
-    dup
-    bury 7
     len
-    swap
-    dup
-    bury 6
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:30
+    // assert alpha.startswith(alpha)
     len
     >
     bz main_ternary_false@14
@@ -228,34 +240,46 @@ main_ternary_merge@12:
     b main_ternary_merge@15
 
 main_ternary_false@14:
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:30
     // assert alpha.startswith(alpha)
-    dig 4
-    dup
     len
-    dig 5
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:30
+    // assert alpha.startswith(alpha)
     int 0
     uncover 2
     extract3
-    swap
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:30
+    // assert alpha.startswith(alpha)
     ==
 
 main_ternary_merge@15:
     // stubs/string.py:30
     // assert alpha.startswith(alpha)
     assert
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:31
     // assert not alpha.startswith(alpha + "!")
-    dig 2
-    dup
     byte "!"
     concat
     dup
-    bury 27
+    bury 3
     len
-    swap
-    dup
-    bury 26
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:31
+    // assert not alpha.startswith(alpha + "!")
     len
     >
     bz main_ternary_false@17
@@ -265,10 +289,14 @@ main_ternary_merge@15:
 main_ternary_false@17:
     // stubs/string.py:31
     // assert not alpha.startswith(alpha + "!")
-    dig 24
+    dig 1
     dup
     len
-    dig 25
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:31
+    // assert not alpha.startswith(alpha + "!")
     int 0
     uncover 2
     extract3
@@ -283,12 +311,12 @@ main_ternary_merge@18:
     // stubs/string.py:33
     // assert alpha.endswith("")
     byte ""
-    dup
-    bury 24
     len
-    dig 3
-    dup
-    bury 24
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:33
+    // assert alpha.endswith("")
     len
     >
     bz main_ternary_false@20
@@ -296,23 +324,26 @@ main_ternary_merge@18:
     b main_ternary_merge@21
 
 main_ternary_false@20:
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:33
     // assert alpha.endswith("")
-    dig 21
-    dup
     len
-    dig 24
-    dup
-    cover 2
+    byte ""
     len
     -
-    dig 1
+    byte ""
     len
-    uncover 3
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:33
+    // assert alpha.endswith("")
     uncover 2
     uncover 2
     extract3
-    swap
+    byte ""
     ==
 
 main_ternary_merge@21:
@@ -322,12 +353,12 @@ main_ternary_merge@21:
     // stubs/string.py:34
     // assert alpha.endswith("g")
     byte "g"
-    dup
-    bury 22
     len
-    dig 3
-    dup
-    bury 22
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:34
+    // assert alpha.endswith("g")
     len
     >
     bz main_ternary_false@23
@@ -335,23 +366,26 @@ main_ternary_merge@21:
     b main_ternary_merge@24
 
 main_ternary_false@23:
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:34
     // assert alpha.endswith("g")
-    dig 19
-    dup
     len
-    dig 22
-    dup
-    cover 2
+    byte "g"
     len
     -
-    dig 1
+    byte "g"
     len
-    uncover 3
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:34
+    // assert alpha.endswith("g")
     uncover 2
     uncover 2
     extract3
-    swap
+    byte "g"
     ==
 
 main_ternary_merge@24:
@@ -361,12 +395,12 @@ main_ternary_merge@24:
     // stubs/string.py:35
     // assert alpha.endswith("fg")
     byte "fg"
-    dup
-    bury 20
     len
-    dig 3
-    dup
-    bury 20
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:35
+    // assert alpha.endswith("fg")
     len
     >
     bz main_ternary_false@26
@@ -374,23 +408,26 @@ main_ternary_merge@24:
     b main_ternary_merge@27
 
 main_ternary_false@26:
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:35
     // assert alpha.endswith("fg")
-    dig 17
-    dup
     len
-    dig 20
-    dup
-    cover 2
+    byte "fg"
     len
     -
-    dig 1
+    byte "fg"
     len
-    uncover 3
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:35
+    // assert alpha.endswith("fg")
     uncover 2
     uncover 2
     extract3
-    swap
+    byte "fg"
     ==
 
 main_ternary_merge@27:
@@ -400,12 +437,12 @@ main_ternary_merge@27:
     // stubs/string.py:36
     // assert not alpha.endswith("f")
     byte "f"
-    dup
-    bury 18
     len
-    dig 3
-    dup
-    bury 18
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:36
+    // assert not alpha.endswith("f")
     len
     >
     bz main_ternary_false@29
@@ -413,23 +450,26 @@ main_ternary_merge@27:
     b main_ternary_merge@30
 
 main_ternary_false@29:
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:36
     // assert not alpha.endswith("f")
-    dig 15
-    dup
     len
-    dig 18
-    dup
-    cover 2
+    byte "f"
     len
     -
-    dig 1
+    byte "f"
     len
-    uncover 3
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:36
+    // assert not alpha.endswith("f")
     uncover 2
     uncover 2
     extract3
-    swap
+    byte "f"
     ==
 
 main_ternary_merge@30:
@@ -437,16 +477,17 @@ main_ternary_merge@30:
     // assert not alpha.endswith("f")
     !
     assert
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:37
     // assert alpha.endswith(alpha)
-    dig 2
-    dup
-    dup
-    bury 16
     len
-    swap
-    dup
-    bury 15
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:37
+    // assert alpha.endswith(alpha)
     len
     >
     bz main_ternary_false@32
@@ -454,23 +495,38 @@ main_ternary_merge@30:
     b main_ternary_merge@33
 
 main_ternary_false@32:
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:37
     // assert alpha.endswith(alpha)
-    dig 12
-    dup
     len
-    dig 15
-    dup
-    cover 2
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:37
+    // assert alpha.endswith(alpha)
     len
     -
-    dig 1
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:37
+    // assert alpha.endswith(alpha)
     len
-    uncover 3
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:37
+    // assert alpha.endswith(alpha)
     uncover 2
     uncover 2
     extract3
-    swap
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:37
+    // assert alpha.endswith(alpha)
     ==
 
 main_ternary_merge@33:
@@ -480,16 +536,20 @@ main_ternary_merge@33:
     // stubs/string.py:38
     // assert not alpha.endswith("!" + alpha)
     byte "!"
-    dig 3
-    dup
-    cover 2
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:38
+    // assert not alpha.endswith("!" + alpha)
     concat
     dup
-    bury 14
+    bury 2
     len
-    swap
-    dup
-    bury 13
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:38
+    // assert not alpha.endswith("!" + alpha)
     len
     >
     bz main_ternary_false@35
@@ -497,19 +557,24 @@ main_ternary_merge@33:
     b main_ternary_merge@36
 
 main_ternary_false@35:
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
     // stubs/string.py:38
     // assert not alpha.endswith("!" + alpha)
-    dig 10
-    dup
     len
-    dig 13
+    dig 1
     dup
     cover 2
     len
     -
     dig 1
     len
-    uncover 3
+    // stubs/string.py:25
+    // alpha = String("abcdefg")
+    byte "abcdefg"
+    // stubs/string.py:38
+    // assert not alpha.endswith("!" + alpha)
     uncover 2
     uncover 2
     extract3
@@ -524,57 +589,62 @@ main_ternary_merge@36:
     // stubs/string.py:40
     // d, e, f = String("d"), String("e"), String("f")
     byte "d"
-    byte "e"
-    swap
-    byte "f"
-    cover 2
     // stubs/string.py:41
     // assert String(".").join((d, e, f)) == "d.e.f"
-    dup
-    cover 2
-    dig 1
-    cover 2
-    dig 4
-    cover 2
     byte "."
-    uncover 5
-    dig 1
     concat
-    uncover 5
+    // stubs/string.py:40
+    // d, e, f = String("d"), String("e"), String("f")
+    byte "e"
+    // stubs/string.py:41
+    // assert String(".").join((d, e, f)) == "d.e.f"
     concat
-    swap
+    byte "."
     concat
-    uncover 3
+    // stubs/string.py:40
+    // d, e, f = String("d"), String("e"), String("f")
+    byte "f"
+    // stubs/string.py:41
+    // assert String(".").join((d, e, f)) == "d.e.f"
     concat
     byte "d.e.f"
     ==
     assert
+    // stubs/string.py:40
+    // d, e, f = String("d"), String("e"), String("f")
+    byte "d"
     // stubs/string.py:42
     // assert String("").join((d, e, f)) == "def"
-    dup
-    uncover 2
-    swap
-    uncover 3
-    cover 2
     byte ""
-    dup
-    cover 2
     concat
-    uncover 2
+    // stubs/string.py:40
+    // d, e, f = String("d"), String("e"), String("f")
+    byte "e"
+    // stubs/string.py:42
+    // assert String("").join((d, e, f)) == "def"
     concat
-    swap
+    byte ""
     concat
-    swap
+    // stubs/string.py:40
+    // d, e, f = String("d"), String("e"), String("f")
+    byte "f"
+    // stubs/string.py:42
+    // assert String("").join((d, e, f)) == "def"
     concat
     byte "def"
     ==
     assert
+    // stubs/string.py:40
+    // d, e, f = String("d"), String("e"), String("f")
+    byte "d"
     // stubs/string.py:43
     // assert String(".").join((d,)) == "d"
-    dup
     byte "d"
     ==
     assert
+    // stubs/string.py:40
+    // d, e, f = String("d"), String("e"), String("f")
+    byte "d"
     // stubs/string.py:44
     // assert String("").join((d,)) == "d"
     byte "d"

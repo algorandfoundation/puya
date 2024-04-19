@@ -35,26 +35,21 @@ contract test_cases.inner_transactions.contract.MyContract:
         subroutine test_cases.inner_transactions.contract.MyContract.test1() -> void:
             block@0: // L42
                 (app_global_put "name" "AST1")
-                let asset_params%%param_TypeEnum_idx_0#0: uint64 = acfg
-                let asset_params%%param_ConfigAssetTotal_idx_0#0: uint64 = 1000u
                 let (name_value%0#0: bytes, name_exists%0#0: bool) = (app_global_get_ex 0u "name")
                 (assert name_exists%0#0) // check name exists
                 let asset_params%%param_ConfigAssetName_idx_0#0: bytes = name_value%0#0
-                let asset_params%%param_ConfigAssetUnitName_idx_0#0: bytes = "unit"
-                let asset_params%%param_ConfigAssetDecimals_idx_0#0: uint64 = 3u
                 let asset_params%%param_ConfigAssetManager_idx_0#0: bytes = (global CurrentApplicationAddress)
                 let asset_params%%param_ConfigAssetReserve_idx_0#0: bytes = (global CurrentApplicationAddress)
-                let asset_params%%param_Fee_idx_0#0: uint64 = 0u
                 (app_global_put "name" "AST2")
                 itxn_begin
-                ((itxn_field Fee) asset_params%%param_Fee_idx_0#0)
+                ((itxn_field Fee) 0u)
                 ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
-                ((itxn_field ConfigAssetDecimals) asset_params%%param_ConfigAssetDecimals_idx_0#0)
-                ((itxn_field ConfigAssetUnitName) asset_params%%param_ConfigAssetUnitName_idx_0#0)
+                ((itxn_field ConfigAssetDecimals) 3u)
+                ((itxn_field ConfigAssetUnitName) "unit")
                 ((itxn_field ConfigAssetName) asset_params%%param_ConfigAssetName_idx_0#0)
-                ((itxn_field ConfigAssetTotal) asset_params%%param_ConfigAssetTotal_idx_0#0)
-                ((itxn_field TypeEnum) asset_params%%param_TypeEnum_idx_0#0)
+                ((itxn_field ConfigAssetTotal) 1000u)
+                ((itxn_field TypeEnum) acfg)
                 goto block@1
             block@1: // next_txn_L55
                 itxn_submit
@@ -64,14 +59,14 @@ contract test_cases.inner_transactions.contract.MyContract:
                 (assert name_exists%1#0) // check name exists
                 let asset_params%%param_ConfigAssetName_idx_0#0: bytes = name_value%1#0
                 itxn_begin
-                ((itxn_field Fee) asset_params%%param_Fee_idx_0#0)
+                ((itxn_field Fee) 0u)
                 ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
-                ((itxn_field ConfigAssetDecimals) asset_params%%param_ConfigAssetDecimals_idx_0#0)
-                ((itxn_field ConfigAssetUnitName) asset_params%%param_ConfigAssetUnitName_idx_0#0)
+                ((itxn_field ConfigAssetDecimals) 3u)
+                ((itxn_field ConfigAssetUnitName) "unit")
                 ((itxn_field ConfigAssetName) asset_params%%param_ConfigAssetName_idx_0#0)
-                ((itxn_field ConfigAssetTotal) asset_params%%param_ConfigAssetTotal_idx_0#0)
-                ((itxn_field TypeEnum) asset_params%%param_TypeEnum_idx_0#0)
+                ((itxn_field ConfigAssetTotal) 1000u)
+                ((itxn_field TypeEnum) acfg)
                 goto block@2
             block@2: // next_txn_L61
                 itxn_submit
@@ -89,27 +84,22 @@ contract test_cases.inner_transactions.contract.MyContract:
                 (assert check%1#0) // asset exists
                 let tmp%3#0: bool = (== value%1#0 "AST2")
                 (assert tmp%3#0) // created asset 2 is correct
-                let app_create_params%%param_TypeEnum_idx_0#0: uint64 = appl
-                let app_create_params%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
-                let app_create_params%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
-                let app_create_params%%param_Fee_idx_0#0: uint64 = 0u
-                let asset_params%%param_ConfigAssetName_idx_0#0: bytes = "AST3"
                 itxn_begin
-                ((itxn_field Fee) app_create_params%%param_Fee_idx_0#0)
-                ((itxn_field ClearStateProgramPages) app_create_params%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_create_params%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field TypeEnum) app_create_params%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x098101)
+                ((itxn_field TypeEnum) appl)
                 goto block@3
             block@3: // next_txn_L79
                 itxn_next
-                ((itxn_field Fee) asset_params%%param_Fee_idx_0#0)
+                ((itxn_field Fee) 0u)
                 ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
-                ((itxn_field ConfigAssetDecimals) asset_params%%param_ConfigAssetDecimals_idx_0#0)
-                ((itxn_field ConfigAssetUnitName) asset_params%%param_ConfigAssetUnitName_idx_0#0)
-                ((itxn_field ConfigAssetName) asset_params%%param_ConfigAssetName_idx_0#0)
-                ((itxn_field ConfigAssetTotal) asset_params%%param_ConfigAssetTotal_idx_0#0)
-                ((itxn_field TypeEnum) asset_params%%param_TypeEnum_idx_0#0)
+                ((itxn_field ConfigAssetDecimals) 3u)
+                ((itxn_field ConfigAssetUnitName) "unit")
+                ((itxn_field ConfigAssetName) "AST3")
+                ((itxn_field ConfigAssetTotal) 1000u)
+                ((itxn_field TypeEnum) acfg)
                 goto block@4
             block@4: // next_txn_L79
                 itxn_submit
@@ -118,38 +108,34 @@ contract test_cases.inner_transactions.contract.MyContract:
                 (assert app_create_txn.CreatedApplicationID#0) // created app
                 let tmp%4#0: bool = (== asset3_txn.ConfigAssetName#0 "AST3")
                 (assert tmp%4#0) // asset3_txn is correct
-                let app_create_params%%param_Note_idx_0#0: bytes = "3rd"
-                let app_create_params%%Note_length#1: uint64 = 1u
-                let asset_params%%param_Note_idx_0#0: bytes = "3rd"
-                let asset_params%%Note_length#1: uint64 = 1u
                 itxn_begin
-                let is_Note_count_gte_1%0#0: bool = (>= app_create_params%%Note_length#1 1u)
+                let is_Note_count_gte_1%0#0: bool = (>= 1u 1u)
                 goto is_Note_count_gte_1%0#0 ? block@5 : block@6
             block@5: // set_Note_0_to_0_L86
-                ((itxn_field Note) app_create_params%%param_Note_idx_0#0)
+                ((itxn_field Note) "3rd")
                 goto block@6
             block@6: // next_field_L86
-                ((itxn_field Fee) app_create_params%%param_Fee_idx_0#0)
-                ((itxn_field ClearStateProgramPages) app_create_params%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_create_params%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field TypeEnum) app_create_params%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x098101)
+                ((itxn_field TypeEnum) appl)
                 goto block@7
             block@7: // next_txn_L86
                 itxn_next
-                let is_Note_count_gte_1%1#0: bool = (>= asset_params%%Note_length#1 1u)
+                let is_Note_count_gte_1%1#0: bool = (>= 1u 1u)
                 goto is_Note_count_gte_1%1#0 ? block@8 : block@9
             block@8: // set_Note_0_to_0_L86
-                ((itxn_field Note) asset_params%%param_Note_idx_0#0)
+                ((itxn_field Note) "3rd")
                 goto block@9
             block@9: // next_field_L86
-                ((itxn_field Fee) asset_params%%param_Fee_idx_0#0)
+                ((itxn_field Fee) 0u)
                 ((itxn_field ConfigAssetReserve) asset_params%%param_ConfigAssetReserve_idx_0#0)
                 ((itxn_field ConfigAssetManager) asset_params%%param_ConfigAssetManager_idx_0#0)
-                ((itxn_field ConfigAssetDecimals) asset_params%%param_ConfigAssetDecimals_idx_0#0)
-                ((itxn_field ConfigAssetUnitName) asset_params%%param_ConfigAssetUnitName_idx_0#0)
-                ((itxn_field ConfigAssetName) asset_params%%param_ConfigAssetName_idx_0#0)
-                ((itxn_field ConfigAssetTotal) asset_params%%param_ConfigAssetTotal_idx_0#0)
-                ((itxn_field TypeEnum) asset_params%%param_TypeEnum_idx_0#0)
+                ((itxn_field ConfigAssetDecimals) 3u)
+                ((itxn_field ConfigAssetUnitName) "unit")
+                ((itxn_field ConfigAssetName) "AST3")
+                ((itxn_field ConfigAssetTotal) 1000u)
+                ((itxn_field TypeEnum) acfg)
                 goto block@10
             block@10: // next_txn_L86
                 itxn_submit
@@ -160,34 +146,24 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let tmp%0#0: uint64 = (txn NumAppArgs)
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L91
-                let args.0#0: bytes = "1"
-                let args.1#0: bytes = "2"
-                let create_app_params%%param_TypeEnum_idx_0#0: uint64 = appl
-                let create_app_params%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
-                let create_app_params%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
-                let create_app_params%%param_ApplicationArgs_idx_0#0: bytes = args.0#0
-                let create_app_params%%param_ApplicationArgs_idx_1#0: bytes = args.1#0
+                let create_app_params%%param_ApplicationArgs_idx_0#0: bytes = "1"
+                let create_app_params%%param_ApplicationArgs_idx_1#0: bytes = "2"
                 let create_app_params%%ApplicationArgs_length#0: uint64 = 2u
                 let create_app_params%%param_OnCompletion_idx_0#0: uint64 = NoOp
                 let create_app_params%%OnCompletion_length#0: uint64 = 1u
                 let create_app_params%%param_Note_idx_0#0: bytes = "with args param set"
-                let create_app_params%%param_Fee_idx_0#0: uint64 = 0u
                 goto block@3
             block@2: // else_body_L91
-                let create_app_params%%param_TypeEnum_idx_0#0: uint64 = appl
-                let create_app_params%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
-                let create_app_params%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
                 let create_app_params%%param_ApplicationArgs_idx_0#0: bytes = "3"
                 let create_app_params%%param_ApplicationArgs_idx_1#0: bytes = "4"
                 let create_app_params%%param_ApplicationArgs_idx_2#0: bytes = "5"
                 let create_app_params%%ApplicationArgs_length#0: uint64 = 3u
                 let create_app_params%%param_Note_idx_0#0: bytes = "no args param set"
-                let create_app_params%%param_Fee_idx_0#0: uint64 = 0u
                 let create_app_params%%OnCompletion_length#0: uint64 = 0u
                 goto block@3
             block@3: // after_if_else_L91
                 itxn_begin
-                ((itxn_field Fee) create_app_params%%param_Fee_idx_0#0)
+                ((itxn_field Fee) 0u)
                 ((itxn_field Note) create_app_params%%param_Note_idx_0#0)
                 let is_OnCompletion_count_gte_1%0#0: bool = (>= create_app_params%%OnCompletion_length#0 1u)
                 goto is_OnCompletion_count_gte_1%0#0 ? block@4 : block@5
@@ -203,9 +179,9 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field ApplicationArgs) create_app_params%%param_ApplicationArgs_idx_2#0)
                 goto block@7
             block@7: // next_field_L109
-                ((itxn_field ClearStateProgramPages) create_app_params%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) create_app_params%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field TypeEnum) create_app_params%%param_TypeEnum_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x098101)
+                ((itxn_field TypeEnum) appl)
                 goto block@8
             block@8: // next_txn_L109
                 itxn_submit
@@ -221,18 +197,12 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto tmp%6#0 ? block@9 : block@11
             block@9: // if_body_L113
                 itxn_begin
-                let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
-                let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
-                let inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
-                let inner_txn_params%0%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
-                let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes = "42"
-                let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
-                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
-                ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_0#0)
-                ((itxn_field OnCompletion) inner_txn_params%0%%param_OnCompletion_idx_0#0)
-                ((itxn_field ClearStateProgramPages) inner_txn_params%0%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ApplicationArgs) "42")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x098101)
+                ((itxn_field TypeEnum) appl)
                 goto block@10
             block@10: // next_txn_L114
                 itxn_submit
@@ -247,244 +217,148 @@ contract test_cases.inner_transactions.contract.MyContract:
         
         subroutine test_cases.inner_transactions.contract.MyContract.test3() -> void:
             block@0: // L124
-                let app_p_1%%param_TypeEnum_idx_0#0: uint64 = appl
-                let app_p_1%%param_ApprovalProgramPages_idx_0#0: bytes = 0x09361a00b08101
-                let app_p_1%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
-                let app_p_1%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
-                let app_p_1%%param_ApplicationArgs_idx_0#0: bytes = "1"
-                let app_p_1%%param_Fee_idx_0#0: uint64 = 0u
-                let app_p_2%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_2%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_2%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_2%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_2%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_2%%param_ApplicationArgs_idx_0#1: bytes = "2"
-                let app_p_3%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_3%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_3%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_3%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_3%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_3%%param_ApplicationArgs_idx_0#1: bytes = "3"
-                let app_p_4%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_4%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_4%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_4%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_4%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_4%%param_ApplicationArgs_idx_0#1: bytes = "4"
-                let app_p_5%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_5%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_5%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_5%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_5%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_5%%param_ApplicationArgs_idx_0#1: bytes = "5"
-                let app_p_6%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_6%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_6%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_6%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_6%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_6%%param_ApplicationArgs_idx_0#1: bytes = "6"
-                let app_p_7%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_7%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_7%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_7%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_7%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_7%%param_ApplicationArgs_idx_0#1: bytes = "7"
-                let app_p_8%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_8%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_8%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_8%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_8%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_8%%param_ApplicationArgs_idx_0#1: bytes = "8"
-                let app_p_9%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_9%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_9%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_9%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_9%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_9%%param_ApplicationArgs_idx_0#1: bytes = "9"
-                let app_p_10%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_10%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_10%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_10%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_10%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_10%%param_ApplicationArgs_idx_0#1: bytes = "10"
-                let app_p_11%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_11%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_11%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_11%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_11%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_11%%param_ApplicationArgs_idx_0#1: bytes = "11"
-                let app_p_12%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_12%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_12%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_12%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_12%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_12%%param_ApplicationArgs_idx_0#1: bytes = "12"
-                let app_p_13%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_13%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_13%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_13%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_13%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_13%%param_ApplicationArgs_idx_0#1: bytes = "13"
-                let app_p_14%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_14%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_14%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_14%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_14%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_14%%param_ApplicationArgs_idx_0#1: bytes = "14"
-                let app_p_15%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_15%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_15%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_15%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_15%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_15%%param_ApplicationArgs_idx_0#1: bytes = "15"
-                let app_p_16%%param_Fee_idx_0#0: uint64 = app_p_1%%param_Fee_idx_0#0
-                let app_p_16%%param_TypeEnum_idx_0#0: uint64 = app_p_1%%param_TypeEnum_idx_0#0
-                let app_p_16%%param_OnCompletion_idx_0#0: uint64 = app_p_1%%param_OnCompletion_idx_0#0
-                let app_p_16%%param_ApprovalProgramPages_idx_0#0: bytes = app_p_1%%param_ApprovalProgramPages_idx_0#0
-                let app_p_16%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
-                let app_p_16%%param_ApplicationArgs_idx_0#1: bytes = "16"
                 itxn_begin
-                ((itxn_field Fee) app_p_1%%param_Fee_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_1%%param_ApplicationArgs_idx_0#0)
-                ((itxn_field OnCompletion) app_p_1%%param_OnCompletion_idx_0#0)
-                ((itxn_field ClearStateProgramPages) app_p_1%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_1%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field TypeEnum) app_p_1%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ApplicationArgs) "1")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field TypeEnum) appl)
                 goto block@1
             block@1: // next_txn_L196
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_2%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_2%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_2%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_2%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_2%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_2%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "2")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@2
             block@2: // next_txn_L197
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_3%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_3%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_3%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_3%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_3%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_3%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "3")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@3
             block@3: // next_txn_L198
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_4%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_4%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_4%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_4%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_4%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_4%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "4")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@4
             block@4: // next_txn_L199
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_5%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_5%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_5%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_5%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_5%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_5%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "5")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@5
             block@5: // next_txn_L200
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_6%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_6%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_6%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_6%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_6%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_6%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "6")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@6
             block@6: // next_txn_L201
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_7%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_7%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_7%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_7%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_7%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_7%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "7")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@7
             block@7: // next_txn_L202
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_8%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_8%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_8%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_8%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_8%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_8%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "8")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@8
             block@8: // next_txn_L203
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_9%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_9%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_9%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_9%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_9%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_9%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "9")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@9
             block@9: // next_txn_L204
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_10%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_10%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_10%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_10%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_10%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_10%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "10")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@10
             block@10: // next_txn_L205
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_11%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_11%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_11%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_11%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_11%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_11%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "11")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@11
             block@11: // next_txn_L206
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_12%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_12%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_12%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_12%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_12%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_12%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "12")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@12
             block@12: // next_txn_L207
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_13%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_13%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_13%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_13%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_13%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_13%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "13")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@13
             block@13: // next_txn_L208
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_14%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_14%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_14%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_14%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_14%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_14%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "14")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@14
             block@14: // next_txn_L209
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_15%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_15%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_15%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_15%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_15%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_15%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "15")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@15
             block@15: // next_txn_L210
                 itxn_next
-                ((itxn_field ClearStateProgramPages) app_p_16%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_16%%param_ApprovalProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_16%%param_ApplicationArgs_idx_0#1)
-                ((itxn_field OnCompletion) app_p_16%%param_OnCompletion_idx_0#0)
-                ((itxn_field TypeEnum) app_p_16%%param_TypeEnum_idx_0#0)
-                ((itxn_field Fee) app_p_16%%param_Fee_idx_0#0)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x09361a00b08101)
+                ((itxn_field ApplicationArgs) "16")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@16
             block@16: // next_txn_L211
                 itxn_submit
@@ -541,30 +415,22 @@ contract test_cases.inner_transactions.contract.MyContract:
         subroutine test_cases.inner_transactions.contract.MyContract.test4() -> void:
             block@0: // L231
                 let lots_of_bytes#0: bytes = (bzero 2044u)
-                let approval_1#0: bytes = 0x098101
                 let tmp%0#0: bytes = (concat 0x80fc0f lots_of_bytes#0)
                 let approval_2#0: bytes = (concat tmp%0#0 "H")
-                let app_p_1%%param_TypeEnum_idx_0#0: uint64 = appl
-                let app_p_1%%param_ApprovalProgramPages_idx_0#0: bytes = approval_1#0
                 let app_p_1%%param_ApprovalProgramPages_idx_1#0: bytes = approval_2#0
                 let app_p_1%%param_ApprovalProgramPages_idx_2#0: bytes = approval_2#0
                 let app_p_1%%param_ApprovalProgramPages_idx_3#0: bytes = approval_2#0
-                let app_p_1%%param_ClearStateProgramPages_idx_0#0: bytes = 0x098101
-                let app_p_1%%param_OnCompletion_idx_0#0: uint64 = DeleteApplication
-                let app_p_1%%param_ApplicationArgs_idx_0#0: bytes = "1"
-                let app_p_1%%param_ExtraProgramPages_idx_0#0: uint64 = 3u
-                let app_p_1%%param_Fee_idx_0#0: uint64 = 0u
                 itxn_begin
-                ((itxn_field Fee) app_p_1%%param_Fee_idx_0#0)
-                ((itxn_field ExtraProgramPages) app_p_1%%param_ExtraProgramPages_idx_0#0)
-                ((itxn_field ApplicationArgs) app_p_1%%param_ApplicationArgs_idx_0#0)
-                ((itxn_field OnCompletion) app_p_1%%param_OnCompletion_idx_0#0)
-                ((itxn_field ClearStateProgramPages) app_p_1%%param_ClearStateProgramPages_idx_0#0)
-                ((itxn_field ApprovalProgramPages) app_p_1%%param_ApprovalProgramPages_idx_0#0)
+                ((itxn_field Fee) 0u)
+                ((itxn_field ExtraProgramPages) 3u)
+                ((itxn_field ApplicationArgs) "1")
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ClearStateProgramPages) 0x098101)
+                ((itxn_field ApprovalProgramPages) 0x098101)
                 ((itxn_field ApprovalProgramPages) app_p_1%%param_ApprovalProgramPages_idx_1#0)
                 ((itxn_field ApprovalProgramPages) app_p_1%%param_ApprovalProgramPages_idx_2#0)
                 ((itxn_field ApprovalProgramPages) app_p_1%%param_ApprovalProgramPages_idx_3#0)
-                ((itxn_field TypeEnum) app_p_1%%param_TypeEnum_idx_0#0)
+                ((itxn_field TypeEnum) appl)
                 goto block@1
             block@1: // next_txn_L251
                 itxn_submit
@@ -576,7 +442,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let tmp%2#0: bool = (== app_1.NumApprovalProgramPages#0 2u)
                 (assert tmp%2#0) // approval_pages == 2
                 let tmp%3#0: bytes = ((itxnas ApprovalProgramPages) 0u)
-                let tmp%4#0: bytes = (concat approval_1#0 approval_2#0)
+                let tmp%4#0: bytes = (concat 0x098101 approval_2#0)
                 let awst_tmp%0#0: bytes = approval_2#0
                 let tmp%5#0: uint64 = (len awst_tmp%0#0)
                 let tmp%6#0: uint64 = (len awst_tmp%0#0)

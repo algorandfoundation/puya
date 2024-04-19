@@ -6,51 +6,51 @@ test_cases.conditional_expressions.contract.MyContract.approval_program:
     // conditional_expressions/contract.py:8
     // a = UInt64(1)
     int 1
-    dup
-    swap
-    // conditional_expressions/contract.py:9
-    // b = UInt64(2)
-    int 2
-    swap
     // conditional_expressions/contract.py:11
     // c = a or b
     bz main_ternary_false@2
-    dig 1
+    // conditional_expressions/contract.py:8
+    // a = UInt64(1)
+    int 1
     b main_ternary_merge@3
 
 main_ternary_false@2:
-    // conditional_expressions/contract.py:11
-    // c = a or b
-    dup
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    int 2
 
 main_ternary_merge@3:
     // conditional_expressions/contract.py:11
     // c = a or b
-    bury 8
+    bury 6
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    int 2
     // conditional_expressions/contract.py:12
     // d = b and a
-    dup
     bnz main_ternary_false@5
-    dup
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    int 2
     b main_ternary_merge@6
 
 main_ternary_false@5:
-    // conditional_expressions/contract.py:12
-    // d = b and a
-    dig 1
+    // conditional_expressions/contract.py:8
+    // a = UInt64(1)
+    int 1
 
 main_ternary_merge@6:
     // conditional_expressions/contract.py:12
     // d = b and a
-    bury 7
+    bury 5
     // conditional_expressions/contract.py:14
     // e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
     int 0
     callsub expensive_op
     dup
-    bury 13
+    bury 11
     bz main_ternary_false@8
-    dig 11
+    dig 9
     b main_ternary_merge@9
 
 main_ternary_false@8:
@@ -62,15 +62,15 @@ main_ternary_false@8:
 main_ternary_merge@9:
     // conditional_expressions/contract.py:14
     // e = self.expensive_op(UInt64(0)) or self.side_effecting_op(UInt64(1))
-    bury 6
+    bury 4
     // conditional_expressions/contract.py:15
     // f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
     int 3
     callsub expensive_op
     dup
-    bury 12
+    bury 10
     bz main_ternary_false@11
-    dig 10
+    dig 8
     b main_ternary_merge@12
 
 main_ternary_false@11:
@@ -82,15 +82,15 @@ main_ternary_false@11:
 main_ternary_merge@12:
     // conditional_expressions/contract.py:15
     // f = self.expensive_op(UInt64(3)) or self.side_effecting_op(UInt64(42))
-    bury 5
+    bury 3
     // conditional_expressions/contract.py:17
     // g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
     int 0
     callsub side_effecting_op
     dup
-    bury 11
+    bury 9
     bnz main_ternary_false@14
-    dig 9
+    dig 7
     b main_ternary_merge@15
 
 main_ternary_false@14:
@@ -102,15 +102,15 @@ main_ternary_false@14:
 main_ternary_merge@15:
     // conditional_expressions/contract.py:17
     // g = self.side_effecting_op(UInt64(0)) and self.expensive_op(UInt64(42))
-    bury 4
+    bury 2
     // conditional_expressions/contract.py:18
     // h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
     int 2
     callsub side_effecting_op
     dup
-    bury 10
+    bury 8
     bnz main_ternary_false@17
-    dig 8
+    dig 6
     b main_ternary_merge@18
 
 main_ternary_false@17:
@@ -122,40 +122,48 @@ main_ternary_false@17:
 main_ternary_merge@18:
     // conditional_expressions/contract.py:18
     // h = self.side_effecting_op(UInt64(2)) and self.expensive_op(UInt64(3))
-    bury 3
+    bury 1
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    int 2
     // conditional_expressions/contract.py:20
     // i = a if b < c else d + e
-    dup
-    dig 8
+    dig 6
     <
     bz main_ternary_false@20
-    dig 1
+    // conditional_expressions/contract.py:8
+    // a = UInt64(1)
+    int 1
     b main_ternary_merge@21
 
 main_ternary_false@20:
     // conditional_expressions/contract.py:20
     // i = a if b < c else d + e
-    dig 6
-    dig 6
+    dig 4
+    dig 4
     +
 
 main_ternary_merge@21:
+    // conditional_expressions/contract.py:8
+    // a = UInt64(1)
+    int 1
+    // conditional_expressions/contract.py:9
+    // b = UInt64(2)
+    int 2
     // conditional_expressions/contract.py:22
     // result = a * b * c * d * f * h - e - g + i
-    dig 2
-    dig 2
     *
-    dig 9
-    *
-    dig 8
+    dig 7
     *
     dig 6
     *
     dig 4
     *
-    dig 7
-    -
+    dig 2
+    *
     dig 5
+    -
+    dig 3
     -
     swap
     +

@@ -4,7 +4,7 @@ test_cases.reversed_iteration.contract.MyContract.approval_program:
     int 0
     dupn 4
     byte ""
-    dupn 20
+    dupn 18
     // reversed_iteration/contract.py:8-9
     // # Check empty iterations don't error
     // for i in reversed(urange(0)):
@@ -33,13 +33,11 @@ test_cases.reversed_iteration.contract.MyContract.approval_program:
     swap
     *
     int 0
-    bury 7
-    int 0
     swap
     +
-    bury 12
-    dig 11
-    dig 6
+    bury 10
+    dig 9
+    int 0
     >=
     bz main_after_for@6
 
@@ -47,7 +45,7 @@ main_for_body@3:
     // reversed_iteration/contract.py:8-9
     // # Check empty iterations don't error
     // for i in reversed(urange(0)):
-    dig 11
+    dig 9
     // reversed_iteration/contract.py:10
     // log(op.itob(i))
     itob
@@ -55,36 +53,36 @@ main_for_body@3:
     // reversed_iteration/contract.py:8-9
     // # Check empty iterations don't error
     // for i in reversed(urange(0)):
-    dig 11
-    dig 6
+    dig 9
+    int 0
     >
     bz main_after_for@6
-    dig 11
+    dig 9
     int 1
     -
-    bury 12
+    bury 10
     b main_for_body@3
 
 main_after_for@6:
     int 0
-    bury 20
+    bury 18
     // reversed_iteration/contract.py:11
     // for x in reversed(arc4.StaticArray[arc4.UInt8, typing.Literal[0]]()):
     int 0
-    bury 9
+    bury 7
 
 main_for_header@7:
     // reversed_iteration/contract.py:11
     // for x in reversed(arc4.StaticArray[arc4.UInt8, typing.Literal[0]]()):
-    dig 19
+    dig 17
     int 0
     <
     bz main_after_for@10
-    dig 8
+    dig 6
     int 1
     -
     dup
-    bury 10
+    bury 8
     int 1
     *
     byte 0x
@@ -94,10 +92,10 @@ main_for_header@7:
     // reversed_iteration/contract.py:12
     // log(x.bytes)
     log
-    dig 19
+    dig 17
     int 1
     +
-    bury 20
+    bury 18
     b main_for_header@7
 
 main_after_for@10:
@@ -113,7 +111,7 @@ main_after_for@10:
     byte 0x00
     concat
     dup
-    bury 24
+    bury 22
     // reversed_iteration/contract.py:15-16
     // # urange: reversed items, forward index
     // for index, item in uenumerate(reversed(urange(4))):
@@ -123,7 +121,7 @@ main_after_for@10:
     int 4
     <
     swap
-    bury 23
+    bury 21
     bz main_after_for@16
     int 4
     int 0
@@ -144,69 +142,66 @@ main_after_for@10:
     swap
     *
     int 0
-    bury 6
-    int 0
     swap
     +
-    bury 11
+    bury 9
     int 0
-    bury 14
-    dig 10
-    dig 5
+    bury 12
+    dig 8
+    int 0
     >=
-    dig 23
+    dig 21
     dup
-    bury 24
-    bury 24
+    bury 22
+    bury 22
     bz main_after_for@16
 
 main_for_body@13:
     // reversed_iteration/contract.py:15-16
     // # urange: reversed items, forward index
     // for index, item in uenumerate(reversed(urange(4))):
-    dig 10
-    dig 14
+    dig 8
+    dig 12
     swap
     // reversed_iteration/contract.py:17
     // test_array[index] = arc4.UInt8(item)
     itob
     extract 7 1
     swap
+    dup
     int 4
-    dig 1
-    swap
     <
     assert // Index access is out of bounds
     int 1
     *
-    dig 24
+    dig 22
     swap
     uncover 2
     replace3
-    bury 23
+    bury 21
     // reversed_iteration/contract.py:15-16
     // # urange: reversed items, forward index
     // for index, item in uenumerate(reversed(urange(4))):
-    dig 10
-    dig 5
+    dig 8
+    int 0
     >
-    dig 23
-    bury 23
+    dig 21
+    bury 21
     bz main_after_for@16
-    dig 10
+    dig 8
     int 1
     -
-    bury 11
-    dig 13
+    bury 9
+    dig 11
     int 1
     +
-    bury 14
+    bury 12
     b main_for_body@13
 
 main_after_for@16:
-    dig 21
+    dig 19
     dup
-    bury 24
+    bury 22
     // reversed_iteration/contract.py:18
     // assert test_array.bytes == Bytes.from_hex("03020100")
     dup
@@ -222,7 +217,7 @@ main_after_for@16:
     int 8
     <
     swap
-    bury 23
+    bury 21
     bz main_after_for@24
     int 8
     int 4
@@ -239,25 +234,25 @@ main_after_for@16:
     +
     int 1
     -
-    bury 17
+    bury 15
     int 4
-    bury 10
+    bury 8
     int 0
-    bury 13
+    bury 11
 
 main_for_header@18:
     // reversed_iteration/contract.py:20-21
     // # urange: forward items, reversed index
     // for index, item in reversed(uenumerate(reversed(urange(4, 8)))):
-    dig 9
+    dig 7
     int 8
     <
-    dig 23
-    bury 23
+    dig 21
+    bury 21
     bz main_after_for@24
-    dig 9
-    dig 17
-    dig 14
+    dig 7
+    dig 15
+    dig 12
     -
     swap
     // reversed_iteration/contract.py:22
@@ -265,26 +260,25 @@ main_for_header@18:
     itob
     extract 7 1
     swap
+    dup
     int 4
-    dig 1
-    swap
     <
     assert // Index access is out of bounds
     dup
     int 1
     *
-    dig 25
+    dig 23
     swap
     uncover 3
     replace3
-    bury 24
+    bury 22
     // reversed_iteration/contract.py:23
     // if index == 2:
     int 2
     ==
     bz main_after_if_else@21
-    dig 22
-    bury 22
+    dig 20
+    bury 20
     // reversed_iteration/contract.py:24
     // break
     b main_after_for@24
@@ -293,18 +287,18 @@ main_after_if_else@21:
     // reversed_iteration/contract.py:20-21
     // # urange: forward items, reversed index
     // for index, item in reversed(uenumerate(reversed(urange(4, 8)))):
-    dig 9
+    dig 7
     int 1
     +
-    bury 10
-    dig 12
+    bury 8
+    dig 10
     int 1
     +
-    bury 13
+    bury 11
     b main_for_header@18
 
 main_after_for@24:
-    dig 21
+    dig 19
     // reversed_iteration/contract.py:25
     // assert test_array.bytes == Bytes.from_hex("03020504")
     byte 0x03020504
@@ -313,17 +307,16 @@ main_after_for@24:
     // reversed_iteration/contract.py:27-28
     // # Indexable: Reversed items
     // some_strings = arc4.StaticArray(arc4.String("a"), arc4.String("b"), arc4.String("c"))
-    byte 0x
     int 6
-    dup
     itob
     extract 6 2
-    uncover 2
+    byte 0x
     swap
     concat
-    swap
     byte "\x00\x01a"
     len
+    int 6
+    swap
     +
     dup
     itob
@@ -344,33 +337,33 @@ main_after_for@24:
     concat
     byte "\x00\x01c"
     concat
-    bury 24
+    bury 22
     // reversed_iteration/contract.py:29
     // some_string_reversed = arc4.String("")
     byte "\x00\x00"
-    bury 25
+    bury 23
     int 0
-    bury 19
+    bury 17
     // reversed_iteration/contract.py:30
     // for str_item in reversed(some_strings):
     int 3
-    bury 8
+    bury 6
 
 main_for_header@25:
     // reversed_iteration/contract.py:30
     // for str_item in reversed(some_strings):
-    dig 18
+    dig 16
     int 3
     <
     bz main_after_for@28
-    dig 7
+    dig 5
     int 1
     -
     dup
-    bury 9
+    bury 7
     int 2
     *
-    dig 24
+    dig 22
     dup
     cover 2
     swap
@@ -386,7 +379,7 @@ main_for_header@25:
     extract3
     // reversed_iteration/contract.py:31
     // some_string_reversed += str_item
-    dig 25
+    dig 23
     extract 2 0
     swap
     extract 2 0
@@ -397,17 +390,17 @@ main_for_header@25:
     extract 6 0
     swap
     concat
-    bury 25
-    dig 18
+    bury 23
+    dig 16
     int 1
     +
-    bury 19
+    bury 17
     b main_for_header@25
 
 main_after_for@28:
     // reversed_iteration/contract.py:32
     // assert some_string_reversed == "cba"
-    dig 24
+    dig 22
     byte "\x00\x03cba"
     ==
     assert
@@ -415,29 +408,29 @@ main_after_for@28:
     // # Indexable: Reversed item and index
     // bytes_reversed_with_index = Bytes(b"")
     byte ""
-    bury 26
+    bury 24
     // reversed_iteration/contract.py:36
     // for index, bytes_item in reversed(uenumerate(Bytes(b"HELLO"))):
     byte "HELLO"
     len
     dup
-    bury 22
+    bury 20
     int 0
-    bury 19
-    bury 7
+    bury 17
+    bury 5
 
 main_for_header@29:
     // reversed_iteration/contract.py:36
     // for index, bytes_item in reversed(uenumerate(Bytes(b"HELLO"))):
-    dig 17
-    dig 21
+    dig 15
+    dig 19
     <
     bz main_after_for@32
-    dig 6
+    dig 4
     int 1
     -
     dup
-    bury 8
+    bury 6
     byte "HELLO"
     dig 1
     int 1
@@ -473,20 +466,20 @@ main_for_header@29:
     substring3
     swap
     concat
-    dig 26
+    dig 24
     swap
     concat
-    bury 26
-    dig 17
+    bury 24
+    dig 15
     int 1
     +
-    bury 18
+    bury 16
     b main_for_header@29
 
 main_after_for@32:
     // reversed_iteration/contract.py:38
     // assert bytes_reversed_with_index == b"\04O\03L\02L\01E\00H"
-    dig 25
+    dig 23
     byte "\x04O\x03L\x02L\x01E\x00H"
     ==
     assert
@@ -554,11 +547,11 @@ main_for_body@37:
     // # Tuple: Forward items, reverse index
     // prev_item = UInt64(0)
     int 0
-    bury 15
+    bury 13
     // reversed_iteration/contract.py:55
     // prev_index = UInt64(99)
     int 99
-    bury 16
+    bury 14
     int 0
     bury 2
     // reversed_iteration/contract.py:60
@@ -595,7 +588,7 @@ main_for_body@44:
     -
     // reversed_iteration/contract.py:68
     // assert prev_item < tuple_item
-    dig 16
+    dig 14
     uncover 2
     dup
     cover 3
@@ -603,7 +596,7 @@ main_for_body@44:
     assert
     // reversed_iteration/contract.py:69
     // assert prev_index > index
-    dig 17
+    dig 15
     dig 1
     >
     assert
@@ -618,10 +611,10 @@ main_for_body@44:
     // reversed_iteration/contract.py:72
     // prev_item = tuple_item
     swap
-    bury 16
+    bury 14
     // reversed_iteration/contract.py:73
     // prev_index = index
-    bury 16
+    bury 14
     dig 1
     dup
     int 1
