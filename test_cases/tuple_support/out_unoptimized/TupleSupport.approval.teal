@@ -2,7 +2,6 @@
 
 test_cases.tuple_support.tuple_support.TupleSupport.approval_program:
     byte ""
-    dupn 8
     txn ApplicationID
     bnz main_entrypoint@2
     callsub __init__
@@ -21,15 +20,9 @@ main_entrypoint@2:
     // tuple_support/tuple_support.py:11
     // (a, b) = (UInt64(1), UInt64(2))
     int 1
-    dup
-    bury 10
     int 2
-    dup
-    bury 7
     // tuple_support/tuple_support.py:12
     // (did_overflow, self.state) = op.addw(a, b)
-    dig 1
-    dig 1
     addw
     swap
     byte "state"
@@ -39,92 +32,88 @@ main_entrypoint@2:
     // assert not did_overflow, "overflow!"
     !
     assert // overflow!
-    // tuple_support/tuple_support.py:14
-    // ab = (a, b)
-    dig 1
-    cover 2
-    dup
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    int 2
+    int 2
     // tuple_support/tuple_support.py:15
     // assert ab[-1] == ab[1]
-    dup
-    dig 1
     ==
     assert
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    int 1
+    int 2
     // tuple_support/tuple_support.py:16
     // result = op.addw(a, b)
-    dig 2
-    dig 2
     addw
     pop
     // tuple_support/tuple_support.py:17
     // assert not result[0], "overflow!"
     !
     assert // overflow!
-    // tuple_support/tuple_support.py:18
-    // c = d = UInt64(3)
-    int 3
-    int 3
-    // tuple_support/tuple_support.py:19
-    // (a2, b2) = ab
-    dig 5
-    bury 14
-    dig 2
-    bury 10
-    // tuple_support/tuple_support.py:20
-    // cd = (c, d)
-    bury 8
-    bury 6
-    // tuple_support/tuple_support.py:21
-    // ab2 = ab
-    uncover 3
-    bury 10
-    bury 8
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    int 1
+    int 2
     // tuple_support/tuple_support.py:22-23
     // # ((a2, b2), cd, ab2) = (ab, (c, d), ab) # TODO: support this instead of 3 lines above
     // if a == b:
     ==
     bz main_else_body@4
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    int 1
     // tuple_support/tuple_support.py:24
     // tup = ab2
-    dig 6
     bury 1
-    dig 5
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    int 2
     b main_after_if_else@5
 
 main_else_body@4:
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    int 3
     // tuple_support/tuple_support.py:26
     // tup = cd
-    dig 2
     bury 1
-    dig 1
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    int 3
 
 main_after_if_else@5:
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    int 1
+    int 1
     // tuple_support/tuple_support.py:27
     // assert a2 == a
-    dig 8
-    dig 10
-    dup
-    cover 2
     ==
     assert
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    int 2
+    int 2
     // tuple_support/tuple_support.py:28
     // assert b2 == b
-    dig 5
-    dig 7
-    dup
-    cover 2
     ==
     assert
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    int 3
     // tuple_support/tuple_support.py:29
     // assert cd[0] == tup[0]
-    dig 5
-    dig 4
+    dig 2
     ==
     assert
+    // tuple_support/tuple_support.py:18
+    // c = d = UInt64(3)
+    int 3
     // tuple_support/tuple_support.py:30
     // assert cd[1] == tup[1]
-    dig 4
-    uncover 3
+    swap
     ==
     assert
     // tuple_support/tuple_support.py:32-34
@@ -138,14 +127,17 @@ main_after_if_else@5:
     // tuple_support/tuple_support.py:35
     // max_uint64 = UInt64(2**64 - 1)
     int 18446744073709551615
+    int 18446744073709551615
     // tuple_support/tuple_support.py:36
     // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
-    dup
-    swap
     addw
     swap
-    dig 3
-    dig 3
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    int 1
+    int 2
+    // tuple_support/tuple_support.py:36
+    // hi, mid, lo = addw2(op.addw(max_uint64, max_uint64), op.addw(a, b))
     addw
     swap
     uncover 2
@@ -217,6 +209,10 @@ main_after_if_else@5:
     //     )
     // )
     callsub slicing
+    // tuple_support/tuple_support.py:11
+    // (a, b) = (UInt64(1), UInt64(2))
+    int 1
+    int 2
     // tuple_support/tuple_support.py:54
     // return a + b
     +

@@ -3,27 +3,9 @@
 test_cases.inner_transactions.itxn_loop.MyContract.approval_program:
     int 0
     dupn 3
-    // inner_transactions/itxn_loop.py:20
-    // note = Bytes(b"ABCDE")
-    byte "ABCDE"
-    // inner_transactions/itxn_loop.py:21
-    // app_params = itxn.ApplicationCall(
-    int appl
-    // inner_transactions/itxn_loop.py:22
-    // approval_program=programs.ALWAYS_APPROVE,
-    byte 0x0a8101
-    // inner_transactions/itxn_loop.py:23
-    // clear_state_program=programs.ALWAYS_APPROVE,
-    byte 0x0a8101
-    // inner_transactions/itxn_loop.py:24
-    // on_completion=OnCompleteAction.DeleteApplication,
-    int DeleteApplication
     // inner_transactions/itxn_loop.py:25
     // note=b"",
     byte ""
-    // inner_transactions/itxn_loop.py:26
-    // fee=0,
-    int 0
     // inner_transactions/itxn_loop.py:21
     // app_params = itxn.ApplicationCall(
     int 0
@@ -41,13 +23,15 @@ main_for_header@1:
     <
     bz main_after_for@15
     dup
+    // inner_transactions/itxn_loop.py:20
+    // note = Bytes(b"ABCDE")
+    byte "ABCDE"
     // inner_transactions/itxn_loop.py:29
     // i_note = op.extract(note, 0, i)
-    dig 9
     int 0
     dig 2
     extract3
-    bury 11
+    bury 5
     // inner_transactions/itxn_loop.py:31
     // case UInt64(1):
     int 1
@@ -75,12 +59,12 @@ main_for_header@1:
 main_switch_case_0@3:
     // inner_transactions/itxn_loop.py:29
     // i_note = op.extract(note, 0, i)
-    dig 9
-    bury 4
+    dig 3
+    bury 3
     // inner_transactions/itxn_loop.py:32
     // app_params.set(note=i_note, app_args=(Bytes(b"1"),))
     byte "1"
-    bury 13
+    bury 7
     int 1
     bury 2
     b main_switch_case_next@7
@@ -88,14 +72,14 @@ main_switch_case_0@3:
 main_switch_case_1@4:
     // inner_transactions/itxn_loop.py:29
     // i_note = op.extract(note, 0, i)
-    dig 9
-    bury 4
+    dig 3
+    bury 3
     // inner_transactions/itxn_loop.py:34
     // app_params.set(note=i_note, app_args=(Bytes(b"2"), Bytes(b"1")))
     byte "2"
-    bury 13
+    bury 7
     byte "1"
-    bury 12
+    bury 6
     int 2
     bury 2
     b main_switch_case_next@7
@@ -103,16 +87,16 @@ main_switch_case_1@4:
 main_switch_case_2@5:
     // inner_transactions/itxn_loop.py:29
     // i_note = op.extract(note, 0, i)
-    dig 9
-    bury 4
+    dig 3
+    bury 3
     // inner_transactions/itxn_loop.py:38
     // app_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
     byte "3"
-    bury 13
+    bury 7
     byte "2"
-    bury 12
+    bury 6
     byte "1"
-    bury 11
+    bury 5
     int 3
     bury 2
     b main_switch_case_next@7
@@ -127,33 +111,43 @@ main_switch_case_next@7:
     int 1
     >=
     bz main_next_field@11
-    dig 12
+    dig 6
     itxn_field ApplicationArgs
     dig 1
     int 2
     >=
     bz main_next_field@11
-    dig 11
+    dig 5
     itxn_field ApplicationArgs
     dig 1
     int 3
     >=
     bz main_next_field@11
-    dig 10
+    dig 4
     itxn_field ApplicationArgs
 
 main_next_field@11:
-    dig 2
+    // inner_transactions/itxn_loop.py:26
+    // fee=0,
+    int 0
     itxn_field Fee
-    dig 3
+    dig 2
     itxn_field Note
-    dig 4
+    // inner_transactions/itxn_loop.py:24
+    // on_completion=OnCompleteAction.DeleteApplication,
+    int DeleteApplication
     itxn_field OnCompletion
-    dig 5
+    // inner_transactions/itxn_loop.py:23
+    // clear_state_program=programs.ALWAYS_APPROVE,
+    byte 0x0a8101
     itxn_field ClearStateProgramPages
-    dig 6
+    // inner_transactions/itxn_loop.py:22
+    // approval_program=programs.ALWAYS_APPROVE,
+    byte 0x0a8101
     itxn_field ApprovalProgramPages
-    dig 7
+    // inner_transactions/itxn_loop.py:21
+    // app_params = itxn.ApplicationCall(
+    int appl
     itxn_field TypeEnum
     // inner_transactions/itxn_loop.py:40
     // app_txn = app_params.submit()

@@ -65,6 +65,7 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
         ]
     else:
         return [
+            SubroutineOptimization.from_function(constant_replacer, loop=True),
             SubroutineOptimization.from_function(remove_unused_variables),
             SubroutineOptimization.from_function(inner_txn_field_replacer),
         ]
