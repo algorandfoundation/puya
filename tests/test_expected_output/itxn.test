@@ -221,3 +221,25 @@ class MyContract(ARC4Contract):
 
         assert create_1.num_app_args > 2
         assert create_1.app_args(0) == b"1" ## E: Inner transaction field access with non constant group index, to resolve move field access to same code path where the inner transaction is submitted
+
+
+## case: test_unassigned_create_itxn
+
+from algopy import *
+
+ALWAYS_APPROVE = (
+    b"\x09"  # pragma version 9
+    b"\x81\x01"  # pushint 1
+)
+
+class FieldTupleContract(ARC4Contract):
+    @arc4.abimethod
+    def test_assign_tuple(self) -> None:
+        itxn.ApplicationCall( ## W: expression result is ignored \
+                              ## E: statement has no effect, did you forget to submit?
+            approval_program=ALWAYS_APPROVE,
+            clear_state_program=ALWAYS_APPROVE,
+            on_completion=OnCompleteAction.DeleteApplication,
+            app_args=(Bytes(b"1a"), Bytes(b"2a")),
+            fee=0,
+        )
