@@ -330,9 +330,11 @@ class FunctionIRBuilder(
                 )
 
     def visit_create_inner_transaction(self, call: awst_nodes.CreateInnerTransaction) -> None:
-        raise InternalError(
-            "Inner transaction parameters can only be assigned to local variables",
-            call.source_location,
+        # for semantic compatibility, this is an error, since we don't evaluate the args
+        # here (there would be no point, if we hit this node on its own and not as part
+        # of a submit or an assigment, it does nothing)
+        logger.error(
+            "statement has no effect, did you forget to submit?", location=call.source_location
         )
 
     def visit_submit_inner_transaction(
