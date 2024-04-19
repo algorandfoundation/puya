@@ -1,7 +1,9 @@
+import typing
+
 import attrs
 
 from puya import log
-from puya.errors import CodeError, InternalError
+from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.types_ import AVMBytesEncoding
 from puya.ir.visitor import IRVisitor
@@ -86,12 +88,6 @@ class MemoryIRBuilder(IRVisitor[None]):
             )
         )
 
-    def visit_value_tuple(self, tup: ir.ValueTuple) -> None:
-        raise InternalError(
-            "Encountered ValueTuple during codegen - should have been eliminated in prior stages",
-            tup.source_location,
-        )
-
     def visit_uint64_constant(self, const: ir.UInt64Constant) -> None:
         self._add_op(
             models.PushInt(
@@ -132,32 +128,6 @@ class MemoryIRBuilder(IRVisitor[None]):
                 const.value,
                 source_location=const.source_location,
             )
-        )
-
-    def visit_itxn_constant(self, const: ir.ITxnConstant) -> None:
-        raise InternalError(
-            "ITxnConstant detected at MIR lowering outside of InnerTransactionField node",
-            const.source_location,
-        )
-
-    def visit_inner_transaction_field(self, field: ir.InnerTransactionField) -> None:
-        raise CodeError(
-            "Inner transaction field access with non constant group index,"
-            " to resolve move field access to same code path where the inner transaction is"
-            " submitted",
-            field.source_location,
-        )
-
-    def visit_phi(self, phi: ir.Phi) -> None:
-        raise InternalError(
-            "Encountered Phi node during codegen - should have been eliminated in prior stages",
-            phi.source_location,
-        )
-
-    def visit_phi_argument(self, arg: ir.PhiArgument) -> None:
-        raise InternalError(
-            "Encountered PhiArgument during codegen - should have been eliminated in prior stages",
-            arg.source_location,
         )
 
     def visit_intrinsic_op(self, intrinsic: ir.Intrinsic) -> None:
@@ -318,3 +288,26 @@ class MemoryIRBuilder(IRVisitor[None]):
             successors=successors,
             source_location=block.source_location,
         )
+
+    def visit_value_tuple(self, tup: ir.ValueTuple) -> None:
+        _unexpected_node(tup)
+
+    def visit_itxn_constant(self, const: ir.ITxnConstant) -> None:
+        _unexpected_node(const)
+
+    def visit_inner_transaction_field(self, field: ir.InnerTransactionField) -> None:
+        _unexpected_node(field)
+
+    def visit_phi(self, phi: ir.Phi) -> None:
+        _unexpected_node(phi)
+
+    def visit_phi_argument(self, arg: ir.PhiArgument) -> None:
+        _unexpected_node(arg)
+
+
+def _unexpected_node(node: ir.IRVisitable) -> typing.Never:
+    raise InternalError(
+        f"Encountered node of type {type(node).__name__!r} during codegen"
+        f" - should have been eliminated in prior stages",
+        node.source_location,
+    )
