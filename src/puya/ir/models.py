@@ -191,9 +191,14 @@ class Phi(IRVisitable, _Freezable):
 
     @args.validator
     def check_args(self, _attribute: object, args: Sequence[PhiArgument]) -> None:
-        bad_args = [arg for arg in args if arg.value.atype != self.atype]
+        bad_args = [
+            arg for arg in args if arg.value.ir_type.maybe_avm_type != self.ir_type.maybe_avm_type
+        ]
         if bad_args:
-            raise InternalError(f"Phi node received arguments with unexpected type(s): {bad_args}")
+            raise InternalError(
+                f"Phi node (register={self.register}) received arguments with unexpected type(s):"
+                f" {', '.join(map(str, bad_args))}, "
+            )
         seen_blocks = set[BasicBlock]()
         for arg in args:
             if arg.through in seen_blocks:
@@ -220,6 +225,21 @@ class UInt64Constant(Constant):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_uint64_constant(self)
+
+
+@attrs.frozen(kw_only=True)
+class ITxnConstant(Constant):
+    value: int
+    ir_type: IRType = attrs.field()
+    source_location: SourceLocation | None = attrs.field(eq=False)
+
+    @ir_type.validator
+    def _validate_ir_type(self, _attribute: object, ir_type: IRType) -> None:
+        if ir_type not in (IRType.itxn_group_idx, IRType.itxn_field_set):
+            raise InternalError(f"Invalid type for ITxnConstant: {ir_type}", self.source_location)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_itxn_constant(self)
 
 
 @attrs.frozen
@@ -427,17 +447,21 @@ class Assignment(Op):
 
     @source.validator
     def _check_types(self, _attribute: object, source: ValueProvider) -> None:
-        # TODO: need to update some optimiser code and/or introduce ReinterpretCast ValueProvider
-        #       here before we can just use ir_type.
-        target_type = [target.atype for target in self.targets]
-        source_type = list(source.atypes)
-        if target_type != source_type:
-            raise CodeError(
-                f"Incompatible types on assignment:"
-                f" source = ({', '.join(map(str, source_type))}),"
-                f" target = ({', '.join(map(str, target_type))})",
-                self.source_location,
-            )
+        target_ir_types = [target.ir_type for target in self.targets]
+        source_ir_types = list(source.types)
+        if target_ir_types != source_ir_types:
+            # TODO: need to update some optimiser code and/or
+            #       introduce ReinterpretCast ValueProvider
+            #       here before we can remove this fallback to AVMType here
+            target_atypes = [tt.maybe_avm_type for tt in target_ir_types]
+            source_atypes = [st.maybe_avm_type for st in source_ir_types]
+            if target_atypes != source_atypes:
+                raise CodeError(
+                    f"Incompatible types on assignment:"
+                    f" source = ({', '.join(map(str, source_ir_types))}),"
+                    f" target = ({', '.join(map(str, target_ir_types))})",
+                    self.source_location,
+                )
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_assignment(self)

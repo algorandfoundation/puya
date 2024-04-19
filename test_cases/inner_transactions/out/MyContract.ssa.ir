@@ -35,7 +35,7 @@ contract test_cases.inner_transactions.contract.MyContract:
         subroutine test_cases.inner_transactions.contract.MyContract.test1() -> void:
             block@0: // L42
                 (app_global_put "name" "AST1")
-                let asset_params#0: itxn = 0u
+                let asset_params#0: itxn_field_set = itxn_field_set(0)
                 let asset_params%%param_TypeEnum_idx_0#0: uint64 = acfg
                 let asset_params%%TypeEnum_length#0: uint64 = 1u
                 let asset_params%%param_ConfigAssetTotal_idx_0#0: uint64 = 1000u
@@ -110,8 +110,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto block@1
             block@1: // next_txn_L55
                 itxn_submit
-                let asset1_txn#0: itxn = 0u
-                let asset1_txn._is_last#0: uint64 = 1u
+                let asset1_txn#0: itxn_group_idx = itxn_group_idx(0)
+                let asset1_txn._is_last#0: bool = 1u
                 let asset1_txn.Sender#0: bytes = itxn[asset1_txn#0].Sender
                 let asset1_txn.Fee#0: uint64 = itxn[asset1_txn#0].Fee
                 let asset1_txn.FirstValid#0: uint64 = itxn[asset1_txn#0].FirstValid
@@ -173,7 +173,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let asset1_txn.StateProofPK#0: bytes = itxn[asset1_txn#0].StateProofPK
                 let asset1_txn.NumApprovalProgramPages#0: uint64 = itxn[asset1_txn#0].NumApprovalProgramPages
                 let asset1_txn.NumClearStateProgramPages#0: uint64 = itxn[asset1_txn#0].NumClearStateProgramPages
-                let asset_params#1: itxn = 1u
+                let asset_params#1: itxn_field_set = itxn_field_set(1)
                 let (name_value%1#0: bytes, name_exists%1#0: bool) = (app_global_get_ex 0u "name")
                 (assert name_exists%1#0) // check name exists
                 let asset_params%%param_ConfigAssetName_idx_0#1: bytes = name_value%1#0
@@ -190,8 +190,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto block@2
             block@2: // next_txn_L61
                 itxn_submit
-                let asset2_txn#0: itxn = 0u
-                let asset2_txn._is_last#0: uint64 = 1u
+                let asset2_txn#0: itxn_group_idx = itxn_group_idx(0)
+                let asset2_txn._is_last#0: bool = 1u
                 let asset2_txn.Sender#0: bytes = itxn[asset2_txn#0].Sender
                 let asset2_txn.Fee#0: uint64 = itxn[asset2_txn#0].Fee
                 let asset2_txn.FirstValid#0: uint64 = itxn[asset2_txn#0].FirstValid
@@ -265,7 +265,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 (assert check%1#0) // asset exists
                 let tmp%3#0: bool = (== value%1#0 "AST2")
                 (assert tmp%3#0) // created asset 2 is correct
-                let app_create_params#0: itxn = 2u
+                let app_create_params#0: itxn_field_set = itxn_field_set(2)
                 let app_create_params%%param_TypeEnum_idx_0#0: uint64 = appl
                 let app_create_params%%TypeEnum_length#0: uint64 = 1u
                 let app_create_params%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
@@ -321,7 +321,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_create_params%%Accounts_length#0: uint64 = 0u
                 let app_create_params%%Assets_length#0: uint64 = 0u
                 let app_create_params%%Applications_length#0: uint64 = 0u
-                let asset_params#2: itxn = 3u
+                let asset_params#2: itxn_field_set = itxn_field_set(3)
                 let asset_params%%param_ConfigAssetName_idx_0#2: bytes = "AST3"
                 let asset_params%%ConfigAssetName_length#2: uint64 = 1u
                 itxn_begin
@@ -343,8 +343,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto block@4
             block@4: // next_txn_L79
                 itxn_submit
-                let app_create_txn#0: itxn = 0u
-                let app_create_txn._is_last#0: uint64 = 0u
+                let app_create_txn#0: itxn_group_idx = itxn_group_idx(0)
+                let app_create_txn._is_last#0: bool = 0u
                 let app_create_txn.Sender#0: bytes = itxn[app_create_txn#0].Sender
                 let app_create_txn.Fee#0: uint64 = itxn[app_create_txn#0].Fee
                 let app_create_txn.FirstValid#0: uint64 = itxn[app_create_txn#0].FirstValid
@@ -406,8 +406,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_create_txn.StateProofPK#0: bytes = itxn[app_create_txn#0].StateProofPK
                 let app_create_txn.NumApprovalProgramPages#0: uint64 = itxn[app_create_txn#0].NumApprovalProgramPages
                 let app_create_txn.NumClearStateProgramPages#0: uint64 = itxn[app_create_txn#0].NumClearStateProgramPages
-                let asset3_txn#0: itxn = 1u
-                let asset3_txn._is_last#0: uint64 = 1u
+                let asset3_txn#0: itxn_group_idx = itxn_group_idx(1)
+                let asset3_txn._is_last#0: bool = 1u
                 let asset3_txn.Sender#0: bytes = itxn[asset3_txn#0].Sender
                 let asset3_txn.Fee#0: uint64 = itxn[asset3_txn#0].Fee
                 let asset3_txn.FirstValid#0: uint64 = itxn[asset3_txn#0].FirstValid
@@ -472,10 +472,10 @@ contract test_cases.inner_transactions.contract.MyContract:
                 (assert app_create_txn.CreatedApplicationID#0) // created app
                 let tmp%4#0: bool = (== asset3_txn.ConfigAssetName#0 "AST3")
                 (assert tmp%4#0) // asset3_txn is correct
-                let app_create_params#1: itxn = 4u
+                let app_create_params#1: itxn_field_set = itxn_field_set(4)
                 let app_create_params%%param_Note_idx_0#0: bytes = "3rd"
                 let app_create_params%%Note_length#1: uint64 = 1u
-                let asset_params#3: itxn = 5u
+                let asset_params#3: itxn_field_set = itxn_field_set(5)
                 let asset_params%%param_Note_idx_0#0: bytes = "3rd"
                 let asset_params%%Note_length#1: uint64 = 1u
                 itxn_begin
@@ -519,7 +519,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto tmp%0#0 ? block@1 : block@2
             block@1: // if_body_L91
                 let (args.0#0: bytes, args.1#0: bytes) = ("1", "2")
-                let create_app_params#0: itxn = 0u
+                let create_app_params#0: itxn_field_set = itxn_field_set(0)
                 let create_app_params%%param_TypeEnum_idx_0#0: uint64 = appl
                 let create_app_params%%TypeEnum_length#0: uint64 = 1u
                 let create_app_params%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
@@ -581,7 +581,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let create_app_params%%Applications_length#0: uint64 = 0u
                 goto block@3
             block@2: // else_body_L91
-                let create_app_params#1: itxn = 1u
+                let create_app_params#1: itxn_field_set = itxn_field_set(1)
                 let create_app_params%%param_TypeEnum_idx_0#1: uint64 = appl
                 let create_app_params%%TypeEnum_length#1: uint64 = 1u
                 let create_app_params%%param_ApprovalProgramPages_idx_0#1: bytes = 0x098101
@@ -677,8 +677,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto block@8
             block@8: // next_txn_L109
                 itxn_submit
-                let create_app_txn#0: itxn = 0u
-                let create_app_txn._is_last#0: uint64 = 1u
+                let create_app_txn#0: itxn_group_idx = itxn_group_idx(0)
+                let create_app_txn._is_last#0: bool = 1u
                 let create_app_txn.Sender#0: bytes = itxn[create_app_txn#0].Sender
                 let create_app_txn.Fee#0: uint64 = itxn[create_app_txn#0].Fee
                 let create_app_txn.FirstValid#0: uint64 = itxn[create_app_txn#0].FirstValid
@@ -751,7 +751,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto tmp%6#0 ? block@9 : block@11
             block@9: // if_body_L113
                 itxn_begin
-                let inner_txn_params%0#0: itxn = 2u
+                let inner_txn_params%0#0: itxn_field_set = itxn_field_set(2)
                 let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
                 let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
@@ -818,8 +818,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto block@10
             block@10: // next_txn_L114
                 itxn_submit
-                let create_app_txn2#0: itxn = 0u
-                let create_app_txn2._is_last#0: uint64 = 1u
+                let create_app_txn2#0: itxn_group_idx = itxn_group_idx(0)
+                let create_app_txn2._is_last#0: bool = 1u
                 let create_app_txn2.Sender#0: bytes = itxn[create_app_txn2#0].Sender
                 let create_app_txn2.Fee#0: uint64 = itxn[create_app_txn2#0].Fee
                 let create_app_txn2.FirstValid#0: uint64 = itxn[create_app_txn2#0].FirstValid
@@ -892,7 +892,7 @@ contract test_cases.inner_transactions.contract.MyContract:
         
         subroutine test_cases.inner_transactions.contract.MyContract.test3() -> void:
             block@0: // L124
-                let app_p_1#0: itxn = 0u
+                let app_p_1#0: itxn_field_set = itxn_field_set(0)
                 let app_p_1%%param_TypeEnum_idx_0#0: uint64 = appl
                 let app_p_1%%TypeEnum_length#0: uint64 = 1u
                 let app_p_1%%param_ApprovalProgramPages_idx_0#0: bytes = 0x09361a00b08101
@@ -1007,7 +1007,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_2%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_2%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_2%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_2#0: itxn = 1u
+                let app_p_2#0: itxn_field_set = itxn_field_set(1)
                 let app_p_2%%param_ApplicationArgs_idx_0#1: bytes = "2"
                 let app_p_2%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_3%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1067,7 +1067,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_3%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_3%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_3%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_3#0: itxn = 2u
+                let app_p_3#0: itxn_field_set = itxn_field_set(2)
                 let app_p_3%%param_ApplicationArgs_idx_0#1: bytes = "3"
                 let app_p_3%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_4%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1127,7 +1127,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_4%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_4%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_4%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_4#0: itxn = 3u
+                let app_p_4#0: itxn_field_set = itxn_field_set(3)
                 let app_p_4%%param_ApplicationArgs_idx_0#1: bytes = "4"
                 let app_p_4%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_5%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1187,7 +1187,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_5%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_5%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_5%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_5#0: itxn = 4u
+                let app_p_5#0: itxn_field_set = itxn_field_set(4)
                 let app_p_5%%param_ApplicationArgs_idx_0#1: bytes = "5"
                 let app_p_5%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_6%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1247,7 +1247,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_6%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_6%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_6%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_6#0: itxn = 5u
+                let app_p_6#0: itxn_field_set = itxn_field_set(5)
                 let app_p_6%%param_ApplicationArgs_idx_0#1: bytes = "6"
                 let app_p_6%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_7%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1307,7 +1307,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_7%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_7%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_7%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_7#0: itxn = 6u
+                let app_p_7#0: itxn_field_set = itxn_field_set(6)
                 let app_p_7%%param_ApplicationArgs_idx_0#1: bytes = "7"
                 let app_p_7%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_8%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1367,7 +1367,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_8%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_8%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_8%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_8#0: itxn = 7u
+                let app_p_8#0: itxn_field_set = itxn_field_set(7)
                 let app_p_8%%param_ApplicationArgs_idx_0#1: bytes = "8"
                 let app_p_8%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_9%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1427,7 +1427,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_9%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_9%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_9%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_9#0: itxn = 8u
+                let app_p_9#0: itxn_field_set = itxn_field_set(8)
                 let app_p_9%%param_ApplicationArgs_idx_0#1: bytes = "9"
                 let app_p_9%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_10%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1487,7 +1487,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_10%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_10%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_10%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_10#0: itxn = 9u
+                let app_p_10#0: itxn_field_set = itxn_field_set(9)
                 let app_p_10%%param_ApplicationArgs_idx_0#1: bytes = "10"
                 let app_p_10%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_11%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1547,7 +1547,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_11%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_11%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_11%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_11#0: itxn = 10u
+                let app_p_11#0: itxn_field_set = itxn_field_set(10)
                 let app_p_11%%param_ApplicationArgs_idx_0#1: bytes = "11"
                 let app_p_11%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_12%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1607,7 +1607,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_12%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_12%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_12%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_12#0: itxn = 11u
+                let app_p_12#0: itxn_field_set = itxn_field_set(11)
                 let app_p_12%%param_ApplicationArgs_idx_0#1: bytes = "12"
                 let app_p_12%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_13%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1667,7 +1667,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_13%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_13%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_13%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_13#0: itxn = 12u
+                let app_p_13#0: itxn_field_set = itxn_field_set(12)
                 let app_p_13%%param_ApplicationArgs_idx_0#1: bytes = "13"
                 let app_p_13%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_14%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1727,7 +1727,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_14%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_14%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_14%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_14#0: itxn = 13u
+                let app_p_14#0: itxn_field_set = itxn_field_set(13)
                 let app_p_14%%param_ApplicationArgs_idx_0#1: bytes = "14"
                 let app_p_14%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_15%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1787,7 +1787,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_15%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_15%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_15%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_15#0: itxn = 14u
+                let app_p_15#0: itxn_field_set = itxn_field_set(14)
                 let app_p_15%%param_ApplicationArgs_idx_0#1: bytes = "15"
                 let app_p_15%%ApplicationArgs_length#1: uint64 = 1u
                 let app_p_16%%Sender_length#0: uint64 = app_p_1%%Sender_length#0
@@ -1847,7 +1847,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app_p_16%%ApprovalProgramPages_length#0: uint64 = app_p_1%%ApprovalProgramPages_length#0
                 let app_p_16%%param_ClearStateProgramPages_idx_0#0: bytes = app_p_1%%param_ClearStateProgramPages_idx_0#0
                 let app_p_16%%ClearStateProgramPages_length#0: uint64 = app_p_1%%ClearStateProgramPages_length#0
-                let app_p_16#0: itxn = 15u
+                let app_p_16#0: itxn_field_set = itxn_field_set(15)
                 let app_p_16%%param_ApplicationArgs_idx_0#1: bytes = "16"
                 let app_p_16%%ApplicationArgs_length#1: uint64 = 1u
                 itxn_begin
@@ -1995,8 +1995,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto block@16
             block@16: // next_txn_L211
                 itxn_submit
-                let app1#0: itxn = 0u
-                let app1._is_last#0: uint64 = 0u
+                let app1#0: itxn_group_idx = itxn_group_idx(0)
+                let app1._is_last#0: bool = 0u
                 let app1.Sender#0: bytes = itxn[app1#0].Sender
                 let app1.Fee#0: uint64 = itxn[app1#0].Fee
                 let app1.FirstValid#0: uint64 = itxn[app1#0].FirstValid
@@ -2058,8 +2058,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app1.StateProofPK#0: bytes = itxn[app1#0].StateProofPK
                 let app1.NumApprovalProgramPages#0: uint64 = itxn[app1#0].NumApprovalProgramPages
                 let app1.NumClearStateProgramPages#0: uint64 = itxn[app1#0].NumClearStateProgramPages
-                let app2#0: itxn = 1u
-                let app2._is_last#0: uint64 = 0u
+                let app2#0: itxn_group_idx = itxn_group_idx(1)
+                let app2._is_last#0: bool = 0u
                 let app2.Sender#0: bytes = itxn[app2#0].Sender
                 let app2.Fee#0: uint64 = itxn[app2#0].Fee
                 let app2.FirstValid#0: uint64 = itxn[app2#0].FirstValid
@@ -2121,8 +2121,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app2.StateProofPK#0: bytes = itxn[app2#0].StateProofPK
                 let app2.NumApprovalProgramPages#0: uint64 = itxn[app2#0].NumApprovalProgramPages
                 let app2.NumClearStateProgramPages#0: uint64 = itxn[app2#0].NumClearStateProgramPages
-                let app3#0: itxn = 2u
-                let app3._is_last#0: uint64 = 0u
+                let app3#0: itxn_group_idx = itxn_group_idx(2)
+                let app3._is_last#0: bool = 0u
                 let app3.Sender#0: bytes = itxn[app3#0].Sender
                 let app3.Fee#0: uint64 = itxn[app3#0].Fee
                 let app3.FirstValid#0: uint64 = itxn[app3#0].FirstValid
@@ -2184,8 +2184,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app3.StateProofPK#0: bytes = itxn[app3#0].StateProofPK
                 let app3.NumApprovalProgramPages#0: uint64 = itxn[app3#0].NumApprovalProgramPages
                 let app3.NumClearStateProgramPages#0: uint64 = itxn[app3#0].NumClearStateProgramPages
-                let app4#0: itxn = 3u
-                let app4._is_last#0: uint64 = 0u
+                let app4#0: itxn_group_idx = itxn_group_idx(3)
+                let app4._is_last#0: bool = 0u
                 let app4.Sender#0: bytes = itxn[app4#0].Sender
                 let app4.Fee#0: uint64 = itxn[app4#0].Fee
                 let app4.FirstValid#0: uint64 = itxn[app4#0].FirstValid
@@ -2247,8 +2247,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app4.StateProofPK#0: bytes = itxn[app4#0].StateProofPK
                 let app4.NumApprovalProgramPages#0: uint64 = itxn[app4#0].NumApprovalProgramPages
                 let app4.NumClearStateProgramPages#0: uint64 = itxn[app4#0].NumClearStateProgramPages
-                let app5#0: itxn = 4u
-                let app5._is_last#0: uint64 = 0u
+                let app5#0: itxn_group_idx = itxn_group_idx(4)
+                let app5._is_last#0: bool = 0u
                 let app5.Sender#0: bytes = itxn[app5#0].Sender
                 let app5.Fee#0: uint64 = itxn[app5#0].Fee
                 let app5.FirstValid#0: uint64 = itxn[app5#0].FirstValid
@@ -2310,8 +2310,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app5.StateProofPK#0: bytes = itxn[app5#0].StateProofPK
                 let app5.NumApprovalProgramPages#0: uint64 = itxn[app5#0].NumApprovalProgramPages
                 let app5.NumClearStateProgramPages#0: uint64 = itxn[app5#0].NumClearStateProgramPages
-                let app6#0: itxn = 5u
-                let app6._is_last#0: uint64 = 0u
+                let app6#0: itxn_group_idx = itxn_group_idx(5)
+                let app6._is_last#0: bool = 0u
                 let app6.Sender#0: bytes = itxn[app6#0].Sender
                 let app6.Fee#0: uint64 = itxn[app6#0].Fee
                 let app6.FirstValid#0: uint64 = itxn[app6#0].FirstValid
@@ -2373,8 +2373,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app6.StateProofPK#0: bytes = itxn[app6#0].StateProofPK
                 let app6.NumApprovalProgramPages#0: uint64 = itxn[app6#0].NumApprovalProgramPages
                 let app6.NumClearStateProgramPages#0: uint64 = itxn[app6#0].NumClearStateProgramPages
-                let app7#0: itxn = 6u
-                let app7._is_last#0: uint64 = 0u
+                let app7#0: itxn_group_idx = itxn_group_idx(6)
+                let app7._is_last#0: bool = 0u
                 let app7.Sender#0: bytes = itxn[app7#0].Sender
                 let app7.Fee#0: uint64 = itxn[app7#0].Fee
                 let app7.FirstValid#0: uint64 = itxn[app7#0].FirstValid
@@ -2436,8 +2436,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app7.StateProofPK#0: bytes = itxn[app7#0].StateProofPK
                 let app7.NumApprovalProgramPages#0: uint64 = itxn[app7#0].NumApprovalProgramPages
                 let app7.NumClearStateProgramPages#0: uint64 = itxn[app7#0].NumClearStateProgramPages
-                let app8#0: itxn = 7u
-                let app8._is_last#0: uint64 = 0u
+                let app8#0: itxn_group_idx = itxn_group_idx(7)
+                let app8._is_last#0: bool = 0u
                 let app8.Sender#0: bytes = itxn[app8#0].Sender
                 let app8.Fee#0: uint64 = itxn[app8#0].Fee
                 let app8.FirstValid#0: uint64 = itxn[app8#0].FirstValid
@@ -2499,8 +2499,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app8.StateProofPK#0: bytes = itxn[app8#0].StateProofPK
                 let app8.NumApprovalProgramPages#0: uint64 = itxn[app8#0].NumApprovalProgramPages
                 let app8.NumClearStateProgramPages#0: uint64 = itxn[app8#0].NumClearStateProgramPages
-                let app9#0: itxn = 8u
-                let app9._is_last#0: uint64 = 0u
+                let app9#0: itxn_group_idx = itxn_group_idx(8)
+                let app9._is_last#0: bool = 0u
                 let app9.Sender#0: bytes = itxn[app9#0].Sender
                 let app9.Fee#0: uint64 = itxn[app9#0].Fee
                 let app9.FirstValid#0: uint64 = itxn[app9#0].FirstValid
@@ -2562,8 +2562,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app9.StateProofPK#0: bytes = itxn[app9#0].StateProofPK
                 let app9.NumApprovalProgramPages#0: uint64 = itxn[app9#0].NumApprovalProgramPages
                 let app9.NumClearStateProgramPages#0: uint64 = itxn[app9#0].NumClearStateProgramPages
-                let app10#0: itxn = 9u
-                let app10._is_last#0: uint64 = 0u
+                let app10#0: itxn_group_idx = itxn_group_idx(9)
+                let app10._is_last#0: bool = 0u
                 let app10.Sender#0: bytes = itxn[app10#0].Sender
                 let app10.Fee#0: uint64 = itxn[app10#0].Fee
                 let app10.FirstValid#0: uint64 = itxn[app10#0].FirstValid
@@ -2625,8 +2625,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app10.StateProofPK#0: bytes = itxn[app10#0].StateProofPK
                 let app10.NumApprovalProgramPages#0: uint64 = itxn[app10#0].NumApprovalProgramPages
                 let app10.NumClearStateProgramPages#0: uint64 = itxn[app10#0].NumClearStateProgramPages
-                let app11#0: itxn = 10u
-                let app11._is_last#0: uint64 = 0u
+                let app11#0: itxn_group_idx = itxn_group_idx(10)
+                let app11._is_last#0: bool = 0u
                 let app11.Sender#0: bytes = itxn[app11#0].Sender
                 let app11.Fee#0: uint64 = itxn[app11#0].Fee
                 let app11.FirstValid#0: uint64 = itxn[app11#0].FirstValid
@@ -2688,8 +2688,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app11.StateProofPK#0: bytes = itxn[app11#0].StateProofPK
                 let app11.NumApprovalProgramPages#0: uint64 = itxn[app11#0].NumApprovalProgramPages
                 let app11.NumClearStateProgramPages#0: uint64 = itxn[app11#0].NumClearStateProgramPages
-                let app12#0: itxn = 11u
-                let app12._is_last#0: uint64 = 0u
+                let app12#0: itxn_group_idx = itxn_group_idx(11)
+                let app12._is_last#0: bool = 0u
                 let app12.Sender#0: bytes = itxn[app12#0].Sender
                 let app12.Fee#0: uint64 = itxn[app12#0].Fee
                 let app12.FirstValid#0: uint64 = itxn[app12#0].FirstValid
@@ -2751,8 +2751,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app12.StateProofPK#0: bytes = itxn[app12#0].StateProofPK
                 let app12.NumApprovalProgramPages#0: uint64 = itxn[app12#0].NumApprovalProgramPages
                 let app12.NumClearStateProgramPages#0: uint64 = itxn[app12#0].NumClearStateProgramPages
-                let app13#0: itxn = 12u
-                let app13._is_last#0: uint64 = 0u
+                let app13#0: itxn_group_idx = itxn_group_idx(12)
+                let app13._is_last#0: bool = 0u
                 let app13.Sender#0: bytes = itxn[app13#0].Sender
                 let app13.Fee#0: uint64 = itxn[app13#0].Fee
                 let app13.FirstValid#0: uint64 = itxn[app13#0].FirstValid
@@ -2814,8 +2814,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app13.StateProofPK#0: bytes = itxn[app13#0].StateProofPK
                 let app13.NumApprovalProgramPages#0: uint64 = itxn[app13#0].NumApprovalProgramPages
                 let app13.NumClearStateProgramPages#0: uint64 = itxn[app13#0].NumClearStateProgramPages
-                let app14#0: itxn = 13u
-                let app14._is_last#0: uint64 = 0u
+                let app14#0: itxn_group_idx = itxn_group_idx(13)
+                let app14._is_last#0: bool = 0u
                 let app14.Sender#0: bytes = itxn[app14#0].Sender
                 let app14.Fee#0: uint64 = itxn[app14#0].Fee
                 let app14.FirstValid#0: uint64 = itxn[app14#0].FirstValid
@@ -2877,8 +2877,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app14.StateProofPK#0: bytes = itxn[app14#0].StateProofPK
                 let app14.NumApprovalProgramPages#0: uint64 = itxn[app14#0].NumApprovalProgramPages
                 let app14.NumClearStateProgramPages#0: uint64 = itxn[app14#0].NumClearStateProgramPages
-                let app15#0: itxn = 14u
-                let app15._is_last#0: uint64 = 0u
+                let app15#0: itxn_group_idx = itxn_group_idx(14)
+                let app15._is_last#0: bool = 0u
                 let app15.Sender#0: bytes = itxn[app15#0].Sender
                 let app15.Fee#0: uint64 = itxn[app15#0].Fee
                 let app15.FirstValid#0: uint64 = itxn[app15#0].FirstValid
@@ -2940,8 +2940,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let app15.StateProofPK#0: bytes = itxn[app15#0].StateProofPK
                 let app15.NumApprovalProgramPages#0: uint64 = itxn[app15#0].NumApprovalProgramPages
                 let app15.NumClearStateProgramPages#0: uint64 = itxn[app15#0].NumClearStateProgramPages
-                let app16#0: itxn = 15u
-                let app16._is_last#0: uint64 = 1u
+                let app16#0: itxn_group_idx = itxn_group_idx(15)
+                let app16._is_last#0: bool = 1u
                 let app16.Sender#0: bytes = itxn[app16#0].Sender
                 let app16.Fee#0: uint64 = itxn[app16#0].Fee
                 let app16.FirstValid#0: uint64 = itxn[app16#0].FirstValid
@@ -3059,7 +3059,7 @@ contract test_cases.inner_transactions.contract.MyContract:
                 let approval_1#0: bytes = 0x098101
                 let tmp%0#0: bytes = (concat 0x80fc0f lots_of_bytes#0)
                 let approval_2#0: bytes = (concat tmp%0#0 "H")
-                let app_p_1#0: itxn = 0u
+                let app_p_1#0: itxn_field_set = itxn_field_set(0)
                 let app_p_1%%param_TypeEnum_idx_0#0: uint64 = appl
                 let app_p_1%%TypeEnum_length#0: uint64 = 1u
                 let app_p_1%%param_ApprovalProgramPages_idx_0#0: bytes = approval_1#0
@@ -3135,8 +3135,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 goto block@1
             block@1: // next_txn_L251
                 itxn_submit
-                let app_1#0: itxn = 0u
-                let app_1._is_last#0: uint64 = 1u
+                let app_1#0: itxn_group_idx = itxn_group_idx(0)
+                let app_1._is_last#0: bool = 1u
                 let app_1.Sender#0: bytes = itxn[app_1#0].Sender
                 let app_1.Fee#0: uint64 = itxn[app_1#0].Fee
                 let app_1.FirstValid#0: uint64 = itxn[app_1#0].FirstValid

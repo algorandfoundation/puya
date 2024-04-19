@@ -42,6 +42,8 @@ def gather_constants(subroutine: models.Subroutine) -> dict[models.Register, mod
             match op:
                 case models.Assignment(targets=[register], source=models.Constant() as constant):
                     constants[register] = constant
+                # TODO: maybe we make this optimiser at level 0 instead?
+                #       below is so that itxn continues to work
                 case models.Assignment(
                     targets=[register], source=models.Register() as source_reg
                 ) if (maybe_constant := constants.get(source_reg)):

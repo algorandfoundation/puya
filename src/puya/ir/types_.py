@@ -27,21 +27,30 @@ class IRType(enum.StrEnum):
     uint64 = enum.auto()
     bool = enum.auto()
     biguint = enum.auto()
-    itxn = enum.auto()
+    itxn_group_idx = enum.auto()  # the group index of the result
+    itxn_field_set = enum.auto()  # a collection of fields for a pending itxn submit
 
     @property
     def avm_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
         match self:
-            case IRType.bool:
+            case IRType.uint64 | IRType.bool:
                 return AVMType.uint64
-            case IRType.uint64:
-                return AVMType.uint64
-            case IRType.bytes:
+            case IRType.bytes | IRType.biguint:
                 return AVMType.bytes
-            case IRType.biguint:
-                return AVMType.bytes
-            case IRType.itxn:
+            case IRType.itxn_group_idx | IRType.itxn_field_set:
+                raise InternalError("ITxn types cannot be mapped to stack types")
+            case _:
+                typing.assert_never(self)
+
+    @property
+    def maybe_avm_type(self) -> AVMType | str:
+        match self:
+            case IRType.uint64 | IRType.bool:
                 return AVMType.uint64
+            case IRType.bytes | IRType.biguint:
+                return AVMType.bytes
+            case IRType.itxn_group_idx | IRType.itxn_field_set:
+                return self.name
             case _:
                 typing.assert_never(self)
 
@@ -73,8 +82,10 @@ def wtype_to_ir_type(
             | wtypes.WGroupTransaction()
         ):
             return IRType.uint64
-        case wtypes.WInnerTransaction() | wtypes.WInnerTransactionFields():
-            return IRType.itxn
+        case wtypes.WInnerTransaction():
+            return IRType.itxn_group_idx
+        case wtypes.WInnerTransactionFields():
+            return IRType.itxn_field_set
         case wtypes.biguint_wtype:
             return IRType.biguint
         case wtypes.bytes_wtype | wtypes.account_wtype | wtypes.string_wtype | wtypes.ARC4Type():

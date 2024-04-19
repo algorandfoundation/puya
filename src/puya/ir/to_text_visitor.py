@@ -39,6 +39,9 @@ class ToTextVisitor(IRVisitor[str]):
     def visit_method_constant(self, op: models.MethodConstant) -> str:
         return f'method "{op.value}"'
 
+    def visit_itxn_constant(self, op: models.ITxnConstant) -> str:
+        return f"{op.ir_type.name}({op.value})"
+
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:
         callee = intrinsic.op.code
         immediates = list(map(str, intrinsic.immediates))
