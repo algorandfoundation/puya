@@ -189,16 +189,7 @@ def some_sub_that_may_submit_another_inner_txn() -> None:
     pass
 
 ## case: test_non_constant_group_index
-from algopy import (
-    ARC4Contract,
-    Bytes,
-    OnCompleteAction,
-    Txn,
-    arc4,
-    itxn,
-    op,
-    subroutine,
-)
+from algopy import ARC4Contract, Bytes, Txn, arc4, itxn
 
 ALWAYS_APPROVE = (
     b"\x09"  # pragma version 9
@@ -224,9 +215,9 @@ class MyContract(ARC4Contract):
             fee=0,
         )
         if Txn.num_app_args:
-            create_1, create_2 = itxn.submit_txns(txn_1, txn_2)
+            create_1, create_2 = itxn.submit_txns(txn_1, txn_2) ## N: Potential cause of field access with non-constant group index
         else:
-            create_2, create_1 = itxn.submit_txns(txn_1, txn_2)
+            create_2, create_1 = itxn.submit_txns(txn_1, txn_2) ## N: Potential cause of field access with non-constant group index
 
         assert create_1.num_app_args > 2
         assert create_1.app_args(0) == b"1" ## E: Inner transaction field access with non constant group index, to resolve move field access to same code path where the inner transaction is submitted

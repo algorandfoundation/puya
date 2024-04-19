@@ -54,7 +54,9 @@ def compile_to_teal(puya_options: PuyaOptions) -> None:
         log_ctx.exit_if_errors()
         module_irs = build_module_irs(context, awst)
         log_ctx.exit_if_errors()
-        compiled_contracts_by_source_path = module_irs_to_teal(context, module_irs)
+        module_irs_destructured = optimize_and_destructure_module_irs(context, module_irs)
+        log_ctx.exit_if_errors()
+        compiled_contracts_by_source_path = module_irs_to_teal(context, module_irs_destructured)
         log_ctx.exit_if_errors()
         write_artifacts(context, compiled_contracts_by_source_path)
     log_ctx.exit_if_errors()
@@ -120,12 +122,11 @@ def get_mypy_options() -> mypy.options.Options:
     return mypy_opts
 
 
-def module_irs_to_teal(
+def optimize_and_destructure_module_irs(
     context: CompileContext, module_irs: dict[str, list[ModuleArtifact]]
-) -> dict[ParseSource, list[CompilationArtifact]]:
-    result = dict[ParseSource, list[CompilationArtifact]]()
-    # used to check for conflicts that would occur on output
-    artifacts_by_output_base = dict[Path, ModuleArtifact]()
+) -> dict[ParseSource, list[ModuleArtifact]]:
+    result = dict[ParseSource, list[ModuleArtifact]]()
+
     for src in context.parse_result.sources:
         module_ir = module_irs.get(src.module_name)
         if module_ir is None:
@@ -142,31 +143,45 @@ def module_irs_to_teal(
                 out_dir = determine_out_dir(src.path.parent, context.options)
                 name = artifact_ir.metadata.name
                 artifact_ir_base_path = out_dir / name
-                if existing := artifacts_by_output_base.get(artifact_ir_base_path):
-                    logger.error(
-                        f"Duplicate contract name {name}", location=artifact_ir.source_location
-                    )
-                    logger.info(
-                        f"Contract name {name} first seen here", location=existing.source_location
-                    )
-                else:
-                    artifacts_by_output_base[artifact_ir_base_path] = artifact_ir
-
                 artifact_ir = optimize_and_destructure_ir(
                     context, artifact_ir, artifact_ir_base_path
                 )
 
-                match artifact_ir:
-                    case ContractIR() as contract:
-                        compiled: CompilationArtifact = _contract_ir_to_teal(
-                            context, contract, artifact_ir_base_path
-                        )
-                    case LogicSignature() as logic_sig:
-                        compiled = _logic_sig_to_teal(context, logic_sig, artifact_ir_base_path)
-                    case _:
-                        typing.assert_never(artifact_ir)
+                result.setdefault(src, []).append(artifact_ir)
+    return result
 
-                result.setdefault(src, []).append(compiled)
+
+def module_irs_to_teal(
+    context: CompileContext, module_irs: dict[ParseSource, list[ModuleArtifact]]
+) -> dict[ParseSource, list[CompilationArtifact]]:
+    result = dict[ParseSource, list[CompilationArtifact]]()
+    # used to check for conflicts that would occur on output
+    artifacts_by_output_base = dict[Path, ModuleArtifact]()
+    for src, artifact_irs in module_irs.items():
+        for artifact_ir in artifact_irs:
+            out_dir = determine_out_dir(src.path.parent, context.options)
+            name = artifact_ir.metadata.name
+            artifact_ir_base_path = out_dir / name
+            if existing := artifacts_by_output_base.get(artifact_ir_base_path):
+                logger.error(
+                    f"Duplicate contract name {name}", location=artifact_ir.source_location
+                )
+                logger.info(
+                    f"Contract name {name} first seen here", location=existing.source_location
+                )
+            else:
+                artifacts_by_output_base[artifact_ir_base_path] = artifact_ir
+            match artifact_ir:
+                case ContractIR() as contract:
+                    compiled: CompilationArtifact = _contract_ir_to_teal(
+                        context, contract, artifact_ir_base_path
+                    )
+                case LogicSignature() as logic_sig:
+                    compiled = _logic_sig_to_teal(context, logic_sig, artifact_ir_base_path)
+                case _:
+                    typing.assert_never(artifact_ir)
+
+            result.setdefault(src, []).append(compiled)
     return result
 
 
