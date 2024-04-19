@@ -181,13 +181,14 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
         match method:
             case Literal(value=str(method_str)):
                 arc4_args, signature = get_arc4_args_and_signature(
-                    method_str,
-                    abi_call_expr.abi_args,
-                    location,
-                    # if result_wtype is defined, it will be validated against signature
-                    # if it is not defined, then it will be based on supplied literal
-                    return_wtype=result_wtype,
+                    method_str, abi_call_expr.abi_args, location
                 )
+                if result_wtype is not None:
+                    # this will be validated against signature below, by comparing
+                    # the generated method_selector against the supplied method_str
+                    signature = attrs.evolve(signature, return_type=result_wtype)
+                elif signature.return_type is None:
+                    signature = attrs.evolve(signature, return_type=wtypes.void_wtype)
                 if not signature.method_selector.startswith(method_str):
                     raise CodeError(
                         f"Method selector from args '{signature.method_selector}' "
@@ -240,6 +241,8 @@ def _create_abi_call_expr(
     *,
     return_inner_txn_only: bool,
 ) -> Expression:
+    if signature.return_type is None:
+        raise InternalError("Expected ARC4Signature.return_type to be defined", location)
     abi_arg_exprs: list[Expression] = [
         MethodConstant(
             value=signature.method_selector,
