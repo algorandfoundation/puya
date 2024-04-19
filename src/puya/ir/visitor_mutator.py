@@ -18,6 +18,7 @@ from puya.ir.models import (
     InnerTransactionField,
     Intrinsic,
     InvokeSubroutine,
+    ITxnConstant,
     MethodConstant,
     Op,
     Phi,
@@ -93,6 +94,9 @@ class IRMutator(IRVisitor[t.Any]):
         return const
 
     def visit_method_constant(self, const: MethodConstant) -> MethodConstant:
+        return const
+
+    def visit_itxn_constant(self, const: ITxnConstant) -> ITxnConstant:
         return const
 
     def visit_phi(self, phi: Phi) -> Phi | None:

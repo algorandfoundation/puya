@@ -44,6 +44,10 @@ class IRVisitor(t.Generic[T], ABC):
         ...
 
     @abstractmethod
+    def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> T:
+        ...
+
+    @abstractmethod
     def visit_phi(self, phi: puya.ir.models.Phi) -> T:
         ...
 
@@ -138,6 +142,9 @@ class IRTraverser(IRVisitor[None]):
     def visit_method_constant(self, const: puya.ir.models.MethodConstant) -> None:
         pass
 
+    def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> None:
+        pass
+
     def visit_phi(self, phi: puya.ir.models.Phi) -> None:
         phi.register.accept(self)
         for arg in phi.args:
@@ -211,6 +218,9 @@ class NoOpIRVisitor(typing.Generic[T], IRVisitor[T | None]):
         return None
 
     def visit_method_constant(self, const: puya.ir.models.MethodConstant) -> T | None:
+        return None
+
+    def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> T | None:
         return None
 
     def visit_phi(self, phi: puya.ir.models.Phi) -> T | None:

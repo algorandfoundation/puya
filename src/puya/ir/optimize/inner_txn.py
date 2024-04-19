@@ -29,11 +29,11 @@ class IntrinsicFieldReplacer(IRMutator):
 
     def _get_constant(self, value: models.Value, default: int | None = None) -> int | None:
         match value:
-            case models.UInt64Constant() as const_uint64:
-                return const_uint64.value
+            case models.UInt64Constant(value=int_value) | models.ITxnConstant(value=int_value):
+                return int_value
             case models.Register() as group_reg if (
                 (const := self.constants.get(group_reg))
-                and isinstance(const, models.UInt64Constant)
+                and isinstance(const, models.UInt64Constant | models.ITxnConstant)
             ):
                 return const.value
             case _:

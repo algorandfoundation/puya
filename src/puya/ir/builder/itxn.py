@@ -18,6 +18,7 @@ from puya.ir.models import (
     ConditionalBranch,
     InnerTransactionField,
     Intrinsic,
+    ITxnConstant,
     Register,
     UInt64Constant,
     Value,
@@ -219,7 +220,7 @@ class InnerTransactionBuilder:
             )
 
         itxn = self.context.visitor.visit_expr(itxn_field.itxn)
-        if not isinstance(itxn, Register | UInt64Constant):
+        if not isinstance(itxn, Register | ITxnConstant):
             itxn_field_desc = {itxn_field.itxn.accept(ToCodeVisitor())}
             raise CodeError(
                 f"Could not resolve inner transaction group index for {itxn_field_desc}",
@@ -239,13 +240,14 @@ class InnerTransactionBuilder:
             case Register(name=itxn_name) if self.ssa.has_version(_get_txn_is_last(itxn_name)):
                 is_last_in_group: Value = self.ssa.read_variable(
                     _get_txn_is_last(itxn_name),
-                    IRType.uint64,
+                    IRType.bool,
                     self.block_builder.active_block,
                 )
             # otherwise infer based on itxn expr
             case _:
                 is_last_in_group = UInt64Constant(
-                    value=1 if _is_single_submit_expr(itxn_field.itxn) else 0,
+                    value=int(_is_single_submit_expr(itxn_field.itxn)),
+                    ir_type=IRType.bool,
                     source_location=src_loc,
                 )
 
@@ -262,7 +264,7 @@ class InnerTransactionBuilder:
 
     def handle_submit_inner_transaction(
         self, submit: awst_nodes.SubmitInnerTransaction
-    ) -> Sequence[UInt64Constant]:
+    ) -> Sequence[ITxnConstant]:
         src_loc = submit.source_location
 
         self.block_builder.add(
@@ -330,8 +332,10 @@ class InnerTransactionBuilder:
                     self.ssa.seal_block(next_field)
 
             group_indexes.append(
-                UInt64Constant(
-                    value=group_index, source_location=submit_var_loc, ir_type=IRType.itxn
+                ITxnConstant(
+                    value=group_index,
+                    source_location=submit_var_loc,
+                    ir_type=IRType.itxn_group_idx,
                 )
             )
 
@@ -365,7 +369,9 @@ class InnerTransactionBuilder:
             (is_last_in_group,) = assign(
                 self.context,
                 source=UInt64Constant(
-                    value=1 if group_index == last_index else 0, source_location=var_loc
+                    value=int(group_index == last_index),
+                    ir_type=IRType.bool,
+                    source_location=var_loc,
                 ),
                 names=[(_get_txn_is_last(var_name), var_loc)],
                 source_location=src_loc,
@@ -446,8 +452,10 @@ class InnerTransactionBuilder:
         # an undefined variable warning
         assign(
             context=self.context,
-            source=UInt64Constant(
-                value=next(self._create_itxn_counter), source_location=var_loc, ir_type=IRType.itxn
+            source=ITxnConstant(
+                value=next(self._create_itxn_counter),
+                source_location=var_loc,
+                ir_type=IRType.itxn_field_set,
             ),
             names=[(var_name, var_loc)],
             source_location=var_loc,

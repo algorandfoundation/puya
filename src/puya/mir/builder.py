@@ -134,6 +134,12 @@ class MemoryIRBuilder(IRVisitor[None]):
             )
         )
 
+    def visit_itxn_constant(self, const: ir.ITxnConstant) -> None:
+        raise InternalError(
+            "ITxnConstant detected at MIR lowering outside of InnerTransactionField node",
+            const.source_location,
+        )
+
     def visit_inner_transaction_field(self, field: ir.InnerTransactionField) -> None:
         raise CodeError(
             "Inner transaction field access with non constant group index,"
