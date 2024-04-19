@@ -120,10 +120,8 @@ class FunctionIRBuilder(
         return arc4.encode_expr(self.context, expr)
 
     def visit_assignment_statement(self, stmt: awst_nodes.AssignmentStatement) -> TStatement:
-        if wtypes.has_inner_transaction_field_type(stmt.value.wtype):
-            self._itxn.handle_inner_transaction_field_assignments(
-                stmt.target, stmt.value, stmt.source_location
-            )
+        if self._itxn.handle_inner_transaction_field_assignments(stmt):  # noqa: SIM114
+            pass
         elif self._itxn.handle_inner_transaction_submit_assignments(
             stmt.target, stmt.value, stmt.source_location
         ):

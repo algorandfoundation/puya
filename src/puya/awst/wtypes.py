@@ -500,11 +500,6 @@ def is_inner_transaction_field_type(wtype: WType) -> typing.TypeGuard[WInnerTran
     return isinstance(wtype, WInnerTransactionFields)
 
 
-def has_inner_transaction_field_type(wtype: WType) -> bool:
-    types = wtype.types if isinstance(wtype, WTuple) else (wtype,)
-    return any(map(is_inner_transaction_field_type, types))
-
-
 def is_reference_type(wtype: WType) -> bool:
     return wtype in (asset_wtype, account_wtype, application_wtype)
 
