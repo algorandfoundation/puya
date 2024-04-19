@@ -99,14 +99,14 @@ class InnerTransactionBuilder:
             )
         match value:
             case awst_nodes.CreateInnerTransaction(fields=fields):
-                ((var_name, var_loc),) = self._get_assignment_target_local_names(target, 1)
+                ((var_name, var_loc),) = _get_assignment_target_local_names(target, 1)
                 self._set_inner_transaction_fields(var_name, fields, var_loc)
             case awst_nodes.Copy(value=value):
-                ((var_name, var_loc),) = self._get_assignment_target_local_names(target, 1)
+                ((var_name, var_loc),) = _get_assignment_target_local_names(target, 1)
                 src_var_name = self._resolve_inner_txn_params_var_name(value)
                 self._copy_inner_transaction_fields(var_name, src_var_name, var_loc)
             case awst_nodes.TupleExpression(items=tuple_items):
-                names = self._get_assignment_target_local_names(target, len(tuple_items))
+                names = _get_assignment_target_local_names(target, len(tuple_items))
                 for (item_name, item_loc), item_value in zip(names, tuple_items, strict=True):
                     match item_value:
                         case awst_nodes.CreateInnerTransaction(fields=fields):
@@ -162,13 +162,13 @@ class InnerTransactionBuilder:
                     target, single_eval, source_location
                 )
             case awst_nodes.SubmitInnerTransaction() as submit_expr:
-                names = self._get_assignment_target_local_names(target, len(submit_expr.itxns))
+                names = _get_assignment_target_local_names(target, len(submit_expr.itxns))
                 submit = self._visit_submit_expr(submit_expr)
                 return self._assign_submit_inner_transaction_fields(names, submit, source_location)
             case awst_nodes.TupleExpression(items=tuple_items) if any(
                 isinstance(i.wtype, wtypes.WInnerTransaction) for i in tuple_items
             ):
-                names = self._get_assignment_target_local_names(target, len(tuple_items))
+                names = _get_assignment_target_local_names(target, len(tuple_items))
                 result = []
                 for (item_name, item_loc), item_value in zip(names, tuple_items, strict=True):
                     # check for a nested SubmitInnerTransaction with >1 transaction
@@ -553,28 +553,29 @@ class InnerTransactionBuilder:
                 )
         return var_name
 
-    def _get_assignment_target_local_names(
-        self, target: awst_nodes.Expression, expected_number: int
-    ) -> Sequence[tuple[str, SourceLocation]]:
-        match target:
-            case awst_nodes.VarExpression(name=var_name) if expected_number == 1:
-                names = [(var_name, target.source_location)]
-            case awst_nodes.VarExpression(name=var_name):
-                names = [
-                    (format_tuple_index(var_name, idx), target.source_location)
-                    for idx in range(expected_number)
-                ]
-            case awst_nodes.TupleExpression(items=items) if expected_number == len(items) and all(
-                isinstance(i, awst_nodes.VarExpression) for i in items
-            ):
-                items = typing.cast(Sequence[awst_nodes.VarExpression], items)
-                names = [(expr.name, expr.source_location) for expr in items]
-            case _:
-                raise CodeError(
-                    "Inner Transactions can only be assigned to local variables",
-                    target.source_location,
-                )
-        return names
+
+def _get_assignment_target_local_names(
+    target: awst_nodes.Expression, expected_number: int
+) -> Sequence[tuple[str, SourceLocation]]:
+    match target:
+        case awst_nodes.VarExpression(name=var_name) if expected_number == 1:
+            names = [(var_name, target.source_location)]
+        case awst_nodes.VarExpression(name=var_name):
+            names = [
+                (format_tuple_index(var_name, idx), target.source_location)
+                for idx in range(expected_number)
+            ]
+        case awst_nodes.TupleExpression(items=items) if expected_number == len(items) and all(
+            isinstance(i, awst_nodes.VarExpression) for i in items
+        ):
+            items = typing.cast(Sequence[awst_nodes.VarExpression], items)
+            names = [(expr.name, expr.source_location) for expr in items]
+        case _:
+            raise CodeError(
+                "Inner Transactions can only be assigned to local variables",
+                target.source_location,
+            )
+    return names
 
 
 def _is_single_submit_expr(expr: awst_nodes.Expression) -> bool:
