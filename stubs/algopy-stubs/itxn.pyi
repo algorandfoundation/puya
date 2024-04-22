@@ -114,6 +114,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         ## asset transfer
         xfer_asset: Asset | UInt64 | int = ...,
         asset_amount: UInt64 | int = ...,
+        asset_sender: Account | str = ...,
         asset_receiver: Account | str = ...,
         asset_close_to: Account | str = ...,
         ## asset freeze
@@ -172,6 +173,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         ## asset transfer
         xfer_asset: Asset | UInt64 | int = ...,
         asset_amount: UInt64 | int = ...,
+        asset_sender: Account | str = ...,
         asset_receiver: Account | str = ...,
         asset_close_to: Account | str = ...,
         ## asset freeze
@@ -316,6 +318,7 @@ class AssetTransfer(_InnerTransaction[AssetTransferInnerTransaction]):
         xfer_asset: Asset | UInt64 | int,
         asset_receiver: Account | str,
         asset_amount: UInt64 | int = ...,
+        asset_sender: Account | str = ...,
         asset_close_to: Account | str = ...,
         sender: Account | str = ...,
         fee: UInt64 | int = ...,
@@ -327,6 +330,7 @@ class AssetTransfer(_InnerTransaction[AssetTransferInnerTransaction]):
         *,
         xfer_asset: Asset | UInt64 | int = ...,
         asset_amount: UInt64 | int = ...,
+        asset_sender: Account | str = ...,
         asset_receiver: Account | str = ...,
         asset_close_to: Account | str = ...,
         sender: Account | str = ...,

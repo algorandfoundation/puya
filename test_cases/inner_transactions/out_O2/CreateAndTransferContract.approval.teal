@@ -1,0 +1,72 @@
+#pragma version 10
+
+test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@5
+    method "create_and_transfer()void"
+    txna ApplicationArgs 0
+    match main_create_and_transfer_route@2
+    err // reject transaction
+
+main_create_and_transfer_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub create_and_transfer
+    int 1
+    return
+
+main_bare_routing@5:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer() -> void:
+create_and_transfer:
+    proto 0 0
+    itxn_begin
+    global CurrentApplicationAddress
+    dup
+    int 0
+    itxn_field Fee
+    itxn_field ConfigAssetClawback
+    itxn_field ConfigAssetManager
+    int 0
+    itxn_field ConfigAssetDecimals
+    byte "TST"
+    itxn_field ConfigAssetUnitName
+    byte "test"
+    itxn_field ConfigAssetName
+    int 1000
+    itxn_field ConfigAssetTotal
+    int acfg
+    itxn_field TypeEnum
+    itxn_submit
+    itxn CreatedAssetID
+    itxn_begin
+    dup
+    asset_params_get AssetCreator
+    swap
+    cover 2
+    assert // asset exists
+    global CurrentApplicationAddress
+    int 0
+    itxn_field Fee
+    swap
+    itxn_field XferAsset
+    int 1000
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field AssetSender
+    int axfer
+    itxn_field TypeEnum
+    itxn_submit
+    retsub
