@@ -1,6 +1,5 @@
 import json
 from collections.abc import Iterable
-from pathlib import Path
 
 import mypy.nodes
 from puya.awst.nodes import INNER_PARAM_TXN_FIELDS, TXN_FIELDS
