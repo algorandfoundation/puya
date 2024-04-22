@@ -25,7 +25,6 @@ class ArrayAccessContract(ARC4Contract):
                 approval_program=ALWAYS_APPROVE,
                 clear_state_program=ALWAYS_APPROVE,
                 app_args=(Bytes(b"1"), Bytes(b"2")),
-                fee=0,
             ).submit()
         else:
             create_app_txn = itxn.ApplicationCall(
@@ -33,7 +32,6 @@ class ArrayAccessContract(ARC4Contract):
                 clear_state_program=ALWAYS_APPROVE,
                 app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
                 note=b"different param set",
-                fee=0,
             ).submit()
         if maybe:
             assert create_app_txn.app_args(0) == b"1", "correct args used 1"

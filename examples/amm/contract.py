@@ -275,7 +275,6 @@ class ConstantProductAMM(ARC4Contract):
                 decimals=3,
                 manager=Global.current_application_address,
                 reserve=Global.current_application_address,
-                fee=0,
             )
             .submit()
             .created_asset
@@ -360,5 +359,4 @@ def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> Non
         xfer_asset=asset,
         asset_amount=amount,
         asset_receiver=receiver,
-        fee=0,
     ).submit()

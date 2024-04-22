@@ -594,6 +594,7 @@ class TxnField:
 class TxnFields:
     approval_program_pages = TxnField.bytes_("ApprovalProgramPages", num_values=4)
     clear_state_program_pages = TxnField.bytes_("ClearStateProgramPages", num_values=4)
+    fee = TxnField.uint64("Fee")
     type = TxnField.uint64("TypeEnum")
     app_args = TxnField.bytes_(
         immediate="ApplicationArgs",
@@ -612,7 +613,7 @@ class TxnFields:
 
 TXN_FIELDS = [
     TxnField.account("Sender"),
-    TxnField.uint64("Fee"),
+    TxnFields.fee,
     TxnField.uint64("FirstValid", is_inner_param=False),
     TxnField.uint64("FirstValidTime", is_inner_param=False),
     TxnField.uint64("LastValid", is_inner_param=False),

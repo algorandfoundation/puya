@@ -24,7 +24,7 @@ contract examples.auction.contract.Auction:
                 let tmp%7#0: uint64 = ((txnas Assets) tmp%6#0)
                 examples.auction.contract.Auction.opt_into_asset(tmp%7#0)
                 return 1u
-            block@5: // start_auction_route_L41
+            block@5: // start_auction_route_L40
                 let tmp%8#0: uint64 = (txn OnCompletion)
                 let tmp%9#0: bool = (== tmp%8#0 NoOp)
                 (assert tmp%9#0) // OnCompletion is NoOp
@@ -42,7 +42,7 @@ contract examples.auction.contract.Auction:
                 (assert check%0#0) // transaction type is axfer
                 examples.auction.contract.Auction.start_auction(tmp%12#0, tmp%14#0, value%0#0)
                 return 1u
-            block@6: // opt_in_route_L63
+            block@6: // opt_in_route_L62
                 let tmp%18#0: uint64 = (txn OnCompletion)
                 let tmp%19#0: bool = (== tmp%18#0 NoOp)
                 (assert tmp%19#0) // OnCompletion is NoOp
@@ -50,7 +50,7 @@ contract examples.auction.contract.Auction:
                 (assert tmp%20#0) // is not creating
                 examples.auction.contract.Auction.opt_in()
                 return 1u
-            block@7: // bid_route_L67
+            block@7: // bid_route_L66
                 let tmp%21#0: uint64 = (txn OnCompletion)
                 let tmp%22#0: bool = (== tmp%21#0 NoOp)
                 (assert tmp%22#0) // OnCompletion is NoOp
@@ -64,7 +64,7 @@ contract examples.auction.contract.Auction:
                 (assert check%1#0) // transaction type is pay
                 examples.auction.contract.Auction.bid(value%1#0)
                 return 1u
-            block@8: // claim_bids_route_L83
+            block@8: // claim_bids_route_L82
                 let tmp%27#0: uint64 = (txn OnCompletion)
                 let tmp%28#0: bool = (== tmp%27#0 NoOp)
                 (assert tmp%28#0) // OnCompletion is NoOp
@@ -72,7 +72,7 @@ contract examples.auction.contract.Auction:
                 (assert tmp%29#0) // is not creating
                 examples.auction.contract.Auction.claim_bids()
                 return 1u
-            block@9: // claim_asset_route_L99
+            block@9: // claim_asset_route_L97
                 let tmp%30#0: uint64 = (txn OnCompletion)
                 let tmp%31#0: bool = (== tmp%30#0 NoOp)
                 (assert tmp%31#0) // OnCompletion is NoOp
@@ -111,14 +111,14 @@ contract examples.auction.contract.Auction:
                 (app_global_put "asa" asset#0)
                 itxn_begin
                 let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
+                let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
+                let inner_txn_params%0%%Fee_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = axfer
                 let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_AssetReceiver_idx_0#0: bytes = (global CurrentApplicationAddress)
                 let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_XferAsset_idx_0#0: uint64 = asset#0
                 let inner_txn_params%0%%XferAsset_length#0: uint64 = 1u
-                let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
-                let inner_txn_params%0%%Fee_length#0: uint64 = 1u
                 let inner_txn_params%0%%Sender_length#0: uint64 = 0u
                 let inner_txn_params%0%%Note_length#0: uint64 = 0u
                 let inner_txn_params%0%%Receiver_length#0: uint64 = 0u
@@ -166,17 +166,17 @@ contract examples.auction.contract.Auction:
                 let inner_txn_params%0%%Applications_length#0: uint64 = 0u
                 let inner_txn_params%0%%ApprovalProgramPages_length#0: uint64 = 0u
                 let inner_txn_params%0%%ClearStateProgramPages_length#0: uint64 = 0u
-                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
                 ((itxn_field XferAsset) inner_txn_params%0%%param_XferAsset_idx_0#0)
                 ((itxn_field AssetReceiver) inner_txn_params%0%%param_AssetReceiver_idx_0#0)
                 ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
                 goto block@1
             block@1: // next_txn_L34
                 itxn_submit
                 return 
         
         subroutine examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
-            block@0: // L41
+            block@0: // L40
                 let tmp%0#0: bytes = (txn Sender)
                 let tmp%1#0: bytes = (global CreatorAddress)
                 let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
@@ -198,11 +198,11 @@ contract examples.auction.contract.Auction:
                 return 
         
         subroutine examples.auction.contract.Auction.opt_in() -> void:
-            block@0: // L63
+            block@0: // L62
                 return 
         
         subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
-            block@0: // L67
+            block@0: // L66
                 let tmp%0#0: uint64 = (global LatestTimestamp)
                 let (auction_end_value%0#0: uint64, auction_end_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
                 (assert auction_end_exists%0#0) // check auction_end exists
@@ -227,7 +227,7 @@ contract examples.auction.contract.Auction:
                 return 
         
         subroutine examples.auction.contract.Auction.claim_bids() -> void:
-            block@0: // L83
+            block@0: // L82
                 let tmp%0#0: bytes = (txn Sender)
                 let (claimable_amount_value%0#0: uint64, claimable_amount_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "claim")
                 (assert claimable_amount_exists%0#0) // check claimable_amount exists for account
@@ -239,19 +239,19 @@ contract examples.auction.contract.Auction:
                 (assert previous_bidder_exists%0#0) // check previous_bidder exists
                 let tmp%2#0: bool = (== tmp%1#0 previous_bidder_value%0#0)
                 goto tmp%2#0 ? block@1 : block@2
-            block@1: // if_body_L87
+            block@1: // if_body_L86
                 let (previous_bid_value%0#0: uint64, previous_bid_exists%0#0: bool) = (app_global_get_ex 0u "previous_bid")
                 (assert previous_bid_exists%0#0) // check previous_bid exists
                 let amount#1: uint64 = (- amount#0 previous_bid_value%0#0)
                 goto block@2
-            block@2: // after_if_else_L87
+            block@2: // after_if_else_L86
                 let amount#2: uint64 = φ(amount#0 <- block@0, amount#1 <- block@1)
                 itxn_begin
                 let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
-                let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = pay
-                let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
                 let inner_txn_params%0%%Fee_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = pay
+                let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_Amount_idx_0#0: uint64 = amount#2
                 let inner_txn_params%0%%Amount_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_Receiver_idx_0#0: bytes = (txn Sender)
@@ -305,10 +305,10 @@ contract examples.auction.contract.Auction:
                 let inner_txn_params%0%%ClearStateProgramPages_length#0: uint64 = 0u
                 ((itxn_field Receiver) inner_txn_params%0%%param_Receiver_idx_0#0)
                 ((itxn_field Amount) inner_txn_params%0%%param_Amount_idx_0#0)
-                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
                 ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
                 goto block@3
-            block@3: // next_txn_L91
+            block@3: // next_txn_L90
                 itxn_submit
                 let new_state_value%0#0: uint64 = (- original_amount#0 amount#2)
                 let tmp%3#0: bytes = (txn Sender)
@@ -316,7 +316,7 @@ contract examples.auction.contract.Auction:
                 return 
         
         subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
-            block@0: // L99
+            block@0: // L97
                 let tmp%0#0: uint64 = (global LatestTimestamp)
                 let (auction_end_value%0#0: uint64, auction_end_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
                 (assert auction_end_exists%0#0) // check auction_end exists
@@ -324,10 +324,10 @@ contract examples.auction.contract.Auction:
                 (assert tmp%1#0) // auction has not ended
                 itxn_begin
                 let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
-                let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = axfer
-                let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = 0u
                 let inner_txn_params%0%%Fee_length#0: uint64 = 1u
+                let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = axfer
+                let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
                 let inner_txn_params%0%%param_XferAsset_idx_0#0: uint64 = asset#0
                 let inner_txn_params%0%%XferAsset_length#0: uint64 = 1u
                 let (previous_bidder_value%0#0: bytes, previous_bidder_exists%0#0: bool) = (app_global_get_ex 0u "previous_bidder")
@@ -391,10 +391,10 @@ contract examples.auction.contract.Auction:
                 ((itxn_field AssetReceiver) inner_txn_params%0%%param_AssetReceiver_idx_0#0)
                 ((itxn_field AssetCloseTo) inner_txn_params%0%%param_AssetCloseTo_idx_0#0)
                 ((itxn_field XferAsset) inner_txn_params%0%%param_XferAsset_idx_0#0)
-                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
                 ((itxn_field TypeEnum) inner_txn_params%0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
                 goto block@1
-            block@1: // next_txn_L102
+            block@1: // next_txn_L100
                 itxn_submit
                 return 
         
@@ -410,5 +410,5 @@ contract examples.auction.contract.Auction:
     
     program clear-state:
         subroutine examples.auction.contract.Auction.clear_state_program() -> bool:
-            block@0: // L119
+            block@0: // L115
                 return 1u

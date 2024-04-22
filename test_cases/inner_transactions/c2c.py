@@ -14,7 +14,6 @@ class Greeter(ARC4Contract):
             itxn.ApplicationCall(
                 approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
                 clear_state_program=HELLO_WORLD_CLEAR,
-                fee=0,
             )
             .submit()
             .created_app

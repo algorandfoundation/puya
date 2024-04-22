@@ -286,11 +286,15 @@ def _create_abi_call_expr(
                 raise CodeError("Invalid argument type", arg_expr.source_location)
 
     fields: dict[TxnField, Expression] = {
+        TxnFields.fee: UInt64Constant(
+            value=0,
+            source_location=location,
+        ),
         TxnFields.type: UInt64Constant(
             value=constants.TransactionType.appl.value,
             teal_alias=constants.TransactionType.appl.name,
             source_location=location,
-        )
+        ),
     }
     if len(abi_arg_exprs) > 15:
         packed_arg_slice = slice(15, None)

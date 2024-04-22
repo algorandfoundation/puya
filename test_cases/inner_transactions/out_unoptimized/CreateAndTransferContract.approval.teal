@@ -59,7 +59,7 @@ create_and_transfer:
     // @arc4.abimethod()
     // def create_and_transfer(self) -> None:
     proto 0 0
-    // inner_transactions/asset_transfer.py:15-24
+    // inner_transactions/asset_transfer.py:15-23
     // itxn.AssetConfig(
     //     total=1000,
     //     asset_name="test",
@@ -67,7 +67,6 @@ create_and_transfer:
     //     decimals=0,
     //     manager=op.Global.current_application_address,
     //     clawback=op.Global.current_application_address,
-    //     fee=0,
     // )
     // .submit()
     itxn_begin
@@ -77,10 +76,6 @@ create_and_transfer:
     // inner_transactions/asset_transfer.py:21
     // clawback=op.Global.current_application_address,
     global CurrentApplicationAddress
-    // inner_transactions/asset_transfer.py:22
-    // fee=0,
-    int 0
-    itxn_field Fee
     itxn_field ConfigAssetClawback
     itxn_field ConfigAssetManager
     // inner_transactions/asset_transfer.py:19
@@ -103,6 +98,19 @@ create_and_transfer:
     // itxn.AssetConfig(
     int acfg
     itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // inner_transactions/asset_transfer.py:15-23
+    // itxn.AssetConfig(
+    //     total=1000,
+    //     asset_name="test",
+    //     unit_name="TST",
+    //     decimals=0,
+    //     manager=op.Global.current_application_address,
+    //     clawback=op.Global.current_application_address,
+    // )
+    // .submit()
+    itxn_submit
     // inner_transactions/asset_transfer.py:15-24
     // itxn.AssetConfig(
     //     total=1000,
@@ -111,70 +119,53 @@ create_and_transfer:
     //     decimals=0,
     //     manager=op.Global.current_application_address,
     //     clawback=op.Global.current_application_address,
-    //     fee=0,
-    // )
-    // .submit()
-    itxn_submit
-    // inner_transactions/asset_transfer.py:15-25
-    // itxn.AssetConfig(
-    //     total=1000,
-    //     asset_name="test",
-    //     unit_name="TST",
-    //     decimals=0,
-    //     manager=op.Global.current_application_address,
-    //     clawback=op.Global.current_application_address,
-    //     fee=0,
     // )
     // .submit()
     // .created_asset
     itxn CreatedAssetID
-    // inner_transactions/asset_transfer.py:28-35
+    // inner_transactions/asset_transfer.py:27-33
     // # transfer
     // itxn.AssetTransfer(
     //     asset_sender=new_asset.creator,
     //     asset_receiver=Global.current_application_address,
     //     asset_amount=1000,
     //     xfer_asset=new_asset,
-    //     fee=0,
     // ).submit()
     itxn_begin
-    // inner_transactions/asset_transfer.py:30
+    // inner_transactions/asset_transfer.py:29
     // asset_sender=new_asset.creator,
     dup
     asset_params_get AssetCreator
     assert // asset exists
     swap
-    // inner_transactions/asset_transfer.py:31
+    // inner_transactions/asset_transfer.py:30
     // asset_receiver=Global.current_application_address,
     global CurrentApplicationAddress
     // inner_transactions/asset_transfer.py:13-14
     // # create
     // new_asset = (
     swap
-    // inner_transactions/asset_transfer.py:34
-    // fee=0,
-    int 0
-    itxn_field Fee
     itxn_field XferAsset
-    // inner_transactions/asset_transfer.py:32
+    // inner_transactions/asset_transfer.py:31
     // asset_amount=1000,
     int 1000
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetSender
-    // inner_transactions/asset_transfer.py:28-29
+    // inner_transactions/asset_transfer.py:27-28
     // # transfer
     // itxn.AssetTransfer(
     int axfer
     itxn_field TypeEnum
-    // inner_transactions/asset_transfer.py:28-35
+    int 0
+    itxn_field Fee
+    // inner_transactions/asset_transfer.py:27-33
     // # transfer
     // itxn.AssetTransfer(
     //     asset_sender=new_asset.creator,
     //     asset_receiver=Global.current_application_address,
     //     asset_amount=1000,
     //     xfer_asset=new_asset,
-    //     fee=0,
     // ).submit()
     itxn_submit
     retsub

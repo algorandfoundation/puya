@@ -24,7 +24,7 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 let tmp%6#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
                 (log tmp%6#0)
                 return 1u
-            block@5: // log_greetings_route_L24
+            block@5: // log_greetings_route_L23
                 let tmp%7#0: uint64 = (txn OnCompletion)
                 let tmp%8#0: bool = (== tmp%7#0 NoOp)
                 (assert tmp%8#0) // OnCompletion is NoOp
@@ -55,10 +55,10 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 let tmp%0#0: bool = (! hello_app_value%0#0)
                 (assert tmp%0#0) // already bootstrapped
                 itxn_begin
-                ((itxn_field Fee) 0u)
                 ((itxn_field ClearStateProgramPages) 0x0a8101)
                 ((itxn_field ApprovalProgramPages) 0x0a200101311b410026800402bece11361a008e0100010031191444311844361a018800158004151f7c754c50b02243311914443118144422438a01018bff570200800748656c6c6f2c204c504915165706004c5089)
                 ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@1
             block@1: // next_txn_L14
                 itxn_submit
@@ -69,7 +69,7 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 return hello_app_value%1#0
         
         subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
-            block@0: // L24
+            block@0: // L23
                 itxn_begin
                 let (hello_app_value%0#0: uint64, hello_app_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
                 (assert hello_app_exists%0#0) // check hello_app exists
@@ -79,8 +79,9 @@ contract test_cases.inner_transactions.c2c.Greeter:
                 ((itxn_field ApplicationArgs) inner_txn_params%0%%param_ApplicationArgs_idx_1#0)
                 ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
                 ((itxn_field TypeEnum) appl)
+                ((itxn_field Fee) 0u)
                 goto block@1
-            block@1: // next_txn_L26
+            block@1: // next_txn_L25
                 itxn_submit
                 let hello_call.LastLog#0: bytes = (itxn LastLog)
                 let awst_tmp%0#0: bytes = hello_call.LastLog#0

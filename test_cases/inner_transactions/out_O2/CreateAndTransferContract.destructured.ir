@@ -29,7 +29,6 @@ contract test_cases.inner_transactions.asset_transfer.CreateAndTransferContract:
                 itxn_begin
                 let inner_txn_params%0%%param_ConfigAssetManager_idx_0#0: bytes = (global CurrentApplicationAddress)
                 let inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0: bytes = (global CurrentApplicationAddress)
-                ((itxn_field Fee) 0u)
                 ((itxn_field ConfigAssetClawback) inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0)
                 ((itxn_field ConfigAssetManager) inner_txn_params%0%%param_ConfigAssetManager_idx_0#0)
                 ((itxn_field ConfigAssetDecimals) 0u)
@@ -37,18 +36,19 @@ contract test_cases.inner_transactions.asset_transfer.CreateAndTransferContract:
                 ((itxn_field ConfigAssetName) "test")
                 ((itxn_field ConfigAssetTotal) 1000u)
                 ((itxn_field TypeEnum) acfg)
+                ((itxn_field Fee) 0u)
                 itxn_submit
                 let new_asset#0: uint64 = (itxn CreatedAssetID)
                 itxn_begin
                 let (value%0#0: bytes, check%0#0: bool) = ((asset_params_get AssetCreator) new_asset#0)
                 (assert check%0#0) // asset exists
                 let inner_txn_params%1%%param_AssetReceiver_idx_0#0: bytes = (global CurrentApplicationAddress)
-                ((itxn_field Fee) 0u)
                 ((itxn_field XferAsset) new_asset#0)
                 ((itxn_field AssetAmount) 1000u)
                 ((itxn_field AssetReceiver) inner_txn_params%1%%param_AssetReceiver_idx_0#0)
                 ((itxn_field AssetSender) value%0#0)
                 ((itxn_field TypeEnum) axfer)
+                ((itxn_field Fee) 0u)
                 itxn_submit
                 return 
     

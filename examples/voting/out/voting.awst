@@ -87,7 +87,7 @@ contract VotingRoundApp
       }
     }
     note += ']}}'
-    this.nft_asset_id: algopy.UInt64 = reinterpret_cast<algopy.UInt64>(submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + this.vote_id, ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=this.nft_image_url, Note=note)).CreatedAssetID)
+    this.nft_asset_id: algopy.UInt64 = reinterpret_cast<algopy.UInt64>(submit_txn(create_inner_transaction(Fee=global<MinTxnFee>(), TypeEnum=acfg, ConfigAssetTotal=1u, ConfigAssetDecimals=0u, ConfigAssetDefaultFrozen=false, ConfigAssetName='[VOTE RESULT] ' + this.vote_id, ConfigAssetUnitName='VOTERSLT', ConfigAssetURL=this.nft_image_url, Note=note)).CreatedAssetID)
   }
   
   abimethod get_preconditions(signature: algopy.Bytes): examples.voting.voting.VotingPreconditions
@@ -145,7 +145,7 @@ contract VotingRoundApp
   
   subroutine allowed_to_vote(signature: algopy.Bytes): bool
   {
-    algopy::ensure_budget(required_budget=2000u, fee_source=2u)
+    algopy::ensure_budget(required_budget=2000u, fee_source=0u)
     return ed25519verify_bare(reinterpret_cast<algopy.Bytes>(txn<Sender>()), signature, this.snapshot_public_key)
   }
 }

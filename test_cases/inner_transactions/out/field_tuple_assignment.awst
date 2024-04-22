@@ -5,7 +5,7 @@ contract FieldTupleContract
 {
   abimethod test_assign_tuple(): None
   {
-    create_txns: tuple[algopy.itxn.ApplicationCall, algopy.itxn.ApplicationCall] = (create_inner_transaction(TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1a', '2a'), Fee=0u), create_inner_transaction(TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('3a', '4a', '5a'), Note='different param set', Fee=0u))
+    create_txns: tuple[algopy.itxn.ApplicationCall, algopy.itxn.ApplicationCall] = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1a', '2a')), create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('3a', '4a', '5a'), Note='different param set'))
     (txn_1, txn_2): tuple[algopy.itxn.ApplicationCallInnerTransaction, algopy.itxn.ApplicationCallInnerTransaction] = submit_txn(create_txns[0], create_txns[1])
     assert(txn_1.ApplicationArgs[0u] == '1a')
     assert(txn_1.ApplicationArgs[1u] == '2a')
@@ -32,7 +32,7 @@ contract FieldTupleContract
   
   abimethod test_assign_tuple_mixed(): None
   {
-    tuple_with_txn_fields: tuple[algopy.itxn.ApplicationCall, algopy.Bytes] = (create_inner_transaction(TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1a', '2a'), Fee=0u), 'some other value')
+    tuple_with_txn_fields: tuple[algopy.itxn.ApplicationCall, algopy.Bytes] = (create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=hex<"098101">, ClearStateProgramPages=hex<"098101">, OnCompletion=DeleteApplication, ApplicationArgs=('1a', '2a')), 'some other value')
     result_with_txn: tuple[algopy.itxn.ApplicationCallInnerTransaction, algopy.Bytes] = (submit_txn(tuple_with_txn_fields[0]), tuple_with_txn_fields[1])
     assert(result_with_txn[0].ApplicationArgs[0u] == '1a')
     assert(result_with_txn[0].ApplicationArgs[1u] == '2a')

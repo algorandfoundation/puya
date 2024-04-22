@@ -129,7 +129,7 @@ contract ConstantProductAMM
   
   subroutine _create_pool_token(): algopy.Asset
   {
-    return submit_txn(create_inner_transaction(TypeEnum=acfg, ConfigAssetName='DPT-' + checked_maybe(asset_params_get<AssetUnitName>(this.asset_a)) + '-' + checked_maybe(asset_params_get<AssetUnitName>(this.asset_b)), ConfigAssetUnitName='dbt', ConfigAssetTotal=10000000000u, ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>(), Fee=0u)).CreatedAssetID
+    return submit_txn(create_inner_transaction(Fee=0u, TypeEnum=acfg, ConfigAssetName='DPT-' + checked_maybe(asset_params_get<AssetUnitName>(this.asset_a)) + '-' + checked_maybe(asset_params_get<AssetUnitName>(this.asset_b)), ConfigAssetUnitName='dbt', ConfigAssetTotal=10000000000u, ConfigAssetDecimals=3u, ConfigAssetManager=global<CurrentApplicationAddress>(), ConfigAssetReserve=global<CurrentApplicationAddress>())).CreatedAssetID
   }
   
   subroutine _do_opt_in(asset: algopy.Asset): None
@@ -184,5 +184,5 @@ subroutine tokens_to_swap(in_amount: algopy.UInt64, in_supply: algopy.UInt64, ou
 
 subroutine do_asset_transfer(receiver: algopy.Account, asset: algopy.Asset, amount: algopy.UInt64): None
 {
-  submit_txn(create_inner_transaction(TypeEnum=axfer, XferAsset=asset, AssetAmount=amount, AssetReceiver=receiver, Fee=0u))
+  submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetAmount=amount, AssetReceiver=receiver))
 }

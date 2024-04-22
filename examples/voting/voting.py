@@ -149,6 +149,7 @@ class VotingRoundApp(ARC4Contract):
                 unit_name="VOTERSLT",
                 url=self.nft_image_url,
                 note=note,
+                fee=Global.min_txn_fee,
             )
             .submit()
             .created_asset.id
