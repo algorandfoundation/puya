@@ -17,3 +17,17 @@ from algopy import Contract
 ```
 
 For more details on using this API and the puyapy compiler see https://algorandfoundation.github.io/puya/
+
+## Versioning
+
+The Algorand Python API follows [semver](https://semver.org/) versioning to indicate the type of changes in the API 
+
+### Major
+Increases in the major version number are a breaking change that will require updating existing contracts due to 
+incompatible changes to the API. Generally this would coincide with compiler changes requiring a major version update.
+
+### Minor 
+Increases in the minor version number indicate new functionality, existing contracts do not need to be updated, but an updated compiler is required.
+
+### Patch
+Increase in the patch version number indicate a fix to the API itself, or updated documentation, these changes do not require an updated compiler.

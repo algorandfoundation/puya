@@ -7,7 +7,7 @@ from puya.awst.nodes import INNER_PARAM_TXN_FIELDS, TXN_FIELDS
 from puya.awst_build import constants
 from puya.awst_build.eb.transaction import get_field_python_name
 
-from tests import EXAMPLES_DIR
+from tests import EXAMPLES_DIR, VCS_ROOT
 from tests.utils import get_awst_cache
 
 _ALL_PYTHON_TXN_FIELD_NAMES = set(map(get_field_python_name, TXN_FIELDS))
@@ -103,7 +103,7 @@ def test_txn_fields() -> None:
 
 
 def test_mismatched_langspec_txn_fields() -> None:
-    langspec_path = Path(__file__).parent / ".." / "langspec.puya.json"
+    langspec_path = VCS_ROOT / "langspec.puya.json"
     langspec = json.loads(langspec_path.read_text())
     arg_enums = langspec["arg_enums"]
     all_txn_fields = {field["name"] for field in arg_enums["txn"]}
