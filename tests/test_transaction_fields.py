@@ -10,6 +10,14 @@ from tests.utils import get_awst_cache
 
 _ALL_PYTHON_TXN_FIELD_NAMES = set(map(get_field_python_name, TXN_FIELDS))
 _INNER_TRANSACTION_PYTHON_TXN_FIELD_NAMES = set(map(get_field_python_name, INNER_PARAM_TXN_FIELDS))
+_INTENTIONALLY_OMITTED_INNER_TXN_FIELDS = {
+    # the need to use approval / clear_state pages is abstracted away by
+    # allowing a tuple of pages in the stubs layer
+    "approval_program_pages",
+    "clear_state_program_pages",
+    # only allow enum version of type
+    "type_bytes",
+}
 
 
 def _get_type_infos(type_names: Iterable[str]) -> Iterable[mypy.nodes.TypeInfo]:
@@ -34,6 +42,7 @@ def test_group_transaction_members() -> None:
 
 
 def test_inner_transaction_field_setters() -> None:
+    unmapped = _INNER_TRANSACTION_PYTHON_TXN_FIELD_NAMES - _INTENTIONALLY_OMITTED_INNER_TXN_FIELDS
     for type_info in _get_type_infos(
         t.itxn_fields for t in constants.TRANSACTION_TYPE_TO_CLS.values()
     ):
@@ -41,18 +50,20 @@ def test_inner_transaction_field_setters() -> None:
         for member in ("__init__", "set"):
             func_def = type_info.names[member].node
             assert isinstance(func_def, mypy.nodes.FuncDef)
-            arg_names = [a for a in func_def.arg_names if a is not None]
+            arg_names = {a for a in func_def.arg_names if a is not None}
             arg_names.remove("self")
-            unknown = sorted(set(arg_names) - _INNER_TRANSACTION_PYTHON_TXN_FIELD_NAMES)
+            unknown = sorted(arg_names - _INNER_TRANSACTION_PYTHON_TXN_FIELD_NAMES)
             assert not unknown, f"{type_info.fullname}: Unknown TxnField param members: {unknown}"
+            unmapped -= arg_names
 
             if init_args is None:
-                init_args = set(arg_names)
+                init_args = arg_names
             else:
-                difference = init_args.symmetric_difference(set(arg_names))
+                difference = init_args.symmetric_difference(arg_names)
                 assert (
                     not difference
                 ), f"{type_info.fullname}.{member} field difference: {difference}"
+    assert not unmapped, f"Unmapped inner param fields: {sorted(unmapped)}"
 
 
 def test_inner_transaction_members() -> None:

@@ -38,8 +38,10 @@ from puya.parse import (
 from puya.teal.main import mir_to_teal
 from puya.utils import determine_out_dir, make_path_relative_to_cwd
 
-MAX_SUPPORTED_ALGOPY_VERSION = version.parse("1.0.1")
-MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION.major}.0.0")
+# this should contain the lowest version number that this compiler does NOT support
+# i.e. the next minor version after what is defined in stubs/pyproject.toml:tool.poetry.version
+MAX_SUPPORTED_ALGOPY_VERSION_EX = version.parse("1.1.0")
+MIN_SUPPORTED_ALGOPY_VERSION = version.parse(f"{MAX_SUPPORTED_ALGOPY_VERSION_EX.major}.0.0")
 
 logger = log.get_logger(__name__)
 
@@ -248,10 +250,10 @@ def _check_algopy_version(site_packages: Path) -> None:
     algopy_version = version.parse(algopy.version)
     logger.debug(f"Found algopy: {algopy_version}")
 
-    if not (MIN_SUPPORTED_ALGOPY_VERSION <= algopy_version <= MAX_SUPPORTED_ALGOPY_VERSION):
+    if not (MIN_SUPPORTED_ALGOPY_VERSION <= algopy_version < MAX_SUPPORTED_ALGOPY_VERSION_EX):
         raise CodeError(
             f"algopy version {algopy_version} is outside the supported range:"
-            f" >={MIN_SUPPORTED_ALGOPY_VERSION}, <={MAX_SUPPORTED_ALGOPY_VERSION}"
+            f" >={MIN_SUPPORTED_ALGOPY_VERSION}, <{MAX_SUPPORTED_ALGOPY_VERSION_EX}"
         )
 
 
