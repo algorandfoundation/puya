@@ -1,2 +1,2 @@
-def test_another_method():
+def test_another_method() -> None:
     pass
