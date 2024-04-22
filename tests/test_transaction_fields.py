@@ -1,4 +1,6 @@
+import json
 from collections.abc import Iterable
+from pathlib import Path
 
 import mypy.nodes
 from puya.awst.nodes import INNER_PARAM_TXN_FIELDS, TXN_FIELDS
@@ -98,3 +100,33 @@ def test_txn_fields() -> None:
     # anything missing is an error
     missing_fields = sorted(_ALL_PYTHON_TXN_FIELD_NAMES - seen_fields)
     assert not missing_fields, f"Txn Fields not mapped: {missing_fields}"
+
+
+def test_mismatched_langspec_txn_fields() -> None:
+    langspec_path = Path(__file__).parent / ".." / "langspec.puya.json"
+    langspec = json.loads(langspec_path.read_text())
+    arg_enums = langspec["arg_enums"]
+    all_txn_fields = {field["name"] for field in arg_enums["txn"]}
+    txn_array_fields = {field["name"] for field in arg_enums["txna"]}
+    txn_single_fields = all_txn_fields - txn_array_fields
+    inner_txn_fields = {field["name"] for field in arg_enums["itxn_field"]}
+
+    assert not _set_difference(
+        all_txn_fields, [f.immediate for f in TXN_FIELDS]
+    ), "txn field mismatch"
+
+    assert not _set_difference(
+        txn_single_fields, [f.immediate for f in TXN_FIELDS if not f.is_array]
+    ), "single txn field mismatch"
+
+    assert not _set_difference(
+        txn_array_fields, [f.immediate for f in TXN_FIELDS if f.is_array]
+    ), "array txn field mismatch"
+
+    assert not _set_difference(
+        inner_txn_fields, [f.immediate for f in TXN_FIELDS if f.is_inner_param]
+    ), "inner txn field mismatch"
+
+
+def _set_difference(expected: set[str], actual: list[str]) -> list[str]:
+    return list(expected.symmetric_difference(actual))
