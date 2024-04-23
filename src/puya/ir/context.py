@@ -115,17 +115,9 @@ class IRBuildContext(CompileContext):
             raise CodeError(f"State reference {field_name} resolved to {node}", source_location)
         return node
 
-    def resolve_box(
-        self, field_name: str, source_location: SourceLocation
-    ) -> awst_nodes.BoxProxyDefinition:
-        node = self._resolve_contract_attribute(field_name, source_location)
-        if not isinstance(node, awst_nodes.BoxProxyDefinition):
-            raise CodeError(f"Box reference {field_name} resolved to {node}", source_location)
-        return node
-
     def _resolve_contract_attribute(
         self, name: str, source_location: SourceLocation
-    ) -> awst_nodes.ContractMethod | awst_nodes.AppStateDefinition | awst_nodes.BoxProxyDefinition:
+    ) -> awst_nodes.ContractMethod | awst_nodes.AppStateDefinition:
         if self.contract is None:
             raise InternalError(
                 f"Cannot resolve contract member {name} as there is no current contract",

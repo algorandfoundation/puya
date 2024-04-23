@@ -4,8 +4,8 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import box
 from puya.ir.builder._utils import assert_value, assign_targets, mktemp
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import BytesConstant, Intrinsic, UInt64Constant, Value, ValueProvider
-from puya.ir.types_ import IRType, bytes_enc_to_avm_bytes_enc, wtype_to_ir_type
+from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider
+from puya.ir.types_ import IRType, wtype_to_ir_type
 from puya.parse import SourceLocation
 
 
@@ -41,11 +41,7 @@ def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.St
 
     subject = statement.field
     state_def = context.resolve_state(subject.field_name, subject.source_location)
-    key = BytesConstant(
-        value=state_def.key,
-        source_location=subject.source_location,
-        encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
-    )
+    key = context.visitor.visit_bytes_constant(state_def.key)
     args: list[Value] = [key]
     if isinstance(subject, awst_nodes.AppStateExpression):
         op = AVMOp.app_global_del
@@ -136,11 +132,7 @@ def _build_state_get_ex(
 ) -> Intrinsic:
     state_def = context.resolve_state(expr.field_name, expr.source_location)
     current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-    key = BytesConstant(
-        value=state_def.key,
-        source_location=expr.source_location,
-        encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
-    )
+    key = context.visitor.visit_bytes_constant(state_def.key)
     args: list[Value] = [current_app_offset, key]
     if isinstance(expr, awst_nodes.AppStateExpression):
         op = AVMOp.app_global_get_ex

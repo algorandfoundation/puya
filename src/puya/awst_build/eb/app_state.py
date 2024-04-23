@@ -9,6 +9,7 @@ from puya.awst.nodes import (
     AppStateExpression,
     AppStateKind,
     BoolConstant,
+    BytesConstant,
     BytesEncoding,
     Expression,
     Literal,
@@ -20,6 +21,7 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import constants
+from puya.awst_build.contract_data import AppStateDeclType
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -111,14 +113,17 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
 
         match key_arg:
             case None:
-                key = None
-                key_encoding = None
-            case Literal(value=bytes(bytes_value)):
-                key = bytes_value
-                key_encoding = BytesEncoding.unknown
-            case Literal(value=str(str_value)):
-                key = str_value.encode("utf8")
-                key_encoding = BytesEncoding.utf8
+                key_override = None
+            case Literal(value=bytes(bytes_value), source_location=key_lit_loc):
+                key_override = BytesConstant(
+                    value=bytes_value, encoding=BytesEncoding.unknown, source_location=key_lit_loc
+                )
+            case Literal(value=str(str_value), source_location=key_lit_loc):
+                key_override = BytesConstant(
+                    value=str_value.encode("utf8"),
+                    encoding=BytesEncoding.utf8,
+                    source_location=key_lit_loc,
+                )
             case _:
                 raise CodeError("key should be a string or bytes literal", key_arg.source_location)
 
@@ -135,8 +140,7 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
         return AppStateProxyDefinitionBuilder(
             location=location,
             storage=storage_wtype,
-            key=key,
-            key_encoding=key_encoding,
+            key_override=key_override,
             description=description,
             initial_value=initial_value,
         )
@@ -145,6 +149,7 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
 class AppStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
     kind = AppStateKind.app_global
     python_name = constants.CLS_GLOBAL_STATE_ALIAS
+    decl_type = AppStateDeclType.global_proxy
 
 
 class AppStateExpressionBuilder(StateProxyMemberBuilder):

@@ -46,7 +46,7 @@ main_after_if_else@4:
     //     OnCompleteAction.DeleteApplication,
     // ):
     ==
-    cover 1
+    swap
     // simplish/contract.py:37
     // OnCompleteAction.DeleteApplication,
     int DeleteApplication
@@ -67,12 +67,16 @@ main_after_if_else@4:
     // simplish/contract.py:40
     // log(Bytes(b"I was used ") + itoa(self.counter) + b" time(s) before I died")
     int 0
+    // simplish/base_class.py:8
+    // self.counter = UInt64(0)
     byte "counter"
+    // simplish/contract.py:40
+    // log(Bytes(b"I was used ") + itoa(self.counter) + b" time(s) before I died")
     app_global_get_ex
     assert // check counter exists
     callsub itoa
     byte "I was used "
-    uncover 1
+    swap
     concat
     byte " time(s) before I died"
     concat
@@ -138,7 +142,7 @@ main_after_if_else@14:
     // msg, result = self.call(method_name, num_app_args)
     dig 3
     callsub call
-    cover 1
+    swap
     bury 7
     bury 1
     b main_after_if_else@23
@@ -155,7 +159,7 @@ main_else_body@16:
     dig 4
     int 0
     asset_holding_get AssetBalance
-    cover 1
+    swap
     bury 5
     // simplish/contract.py:55
     // if not asset_exists:
@@ -172,7 +176,7 @@ main_else_body@19:
     dig 3
     callsub itoa
     byte "You have asset balance: "
-    uncover 1
+    swap
     concat
     bury 6
 
@@ -222,11 +226,11 @@ itoa:
     // radix = digits.length
     len
     dup
-    cover 1
+    swap
     // simplish/contract.py:122
     // if i < radix:
     frame_dig -1
-    uncover 1
+    swap
     <
     bz itoa_after_if_else@2
     // simplish/contract.py:123
@@ -242,7 +246,7 @@ itoa:
     frame_dig -1
     uncover 2
     substring3
-    uncover 1
+    swap
     retsub
 
 itoa_after_if_else@2:
@@ -254,9 +258,9 @@ itoa_after_if_else@2:
     cover 2
     /
     callsub itoa
-    cover 1
+    swap
     frame_dig -1
-    uncover 1
+    swap
     %
     dup
     int 1
@@ -270,7 +274,7 @@ itoa_after_if_else@2:
     uncover 2
     substring3
     concat
-    uncover 1
+    swap
     retsub
 
 
@@ -283,7 +287,11 @@ set_sender_nickname:
     // simplish/base_class.py:17
     // self.name[0] = nickname
     int 0
+    // simplish/base_class.py:9
+    // self.name = LocalState(Bytes)
     byte "name"
+    // simplish/base_class.py:17
+    // self.name[0] = nickname
     frame_dig -1
     app_local_put
     retsub
@@ -354,7 +362,7 @@ call_else_body@4:
     frame_dig 1
     dup
     callsub circle_area
-    cover 1
+    swap
     dup
     callsub circle_circumference
     cover 2
@@ -367,7 +375,7 @@ call_else_body@4:
     // simplish/contract.py:85-86
     // Bytes(b"Approximate area and circumference of circle with radius ")
     // + itoa(radius)
-    uncover 1
+    swap
     concat
     // simplish/contract.py:87
     // + b" = "
@@ -379,7 +387,7 @@ call_else_body@4:
     concat
     // simplish/contract.py:88
     // + itoa(area)
-    uncover 1
+    swap
     callsub itoa
     // simplish/contract.py:85-88
     // Bytes(b"Approximate area and circumference of circle with radius ")
@@ -399,7 +407,7 @@ call_else_body@4:
     concat
     // simplish/contract.py:90
     // + itoa(circumference)
-    uncover 1
+    swap
     callsub itoa
     // simplish/contract.py:85-90
     // Bytes(b"Approximate area and circumference of circle with radius ")
@@ -481,7 +489,7 @@ circle_circumference:
     // simplish/contract.py:107
     // return radius * two_pi // SCALE
     frame_dig -1
-    uncover 1
+    swap
     *
     int 100000
     /
@@ -513,13 +521,21 @@ CallCounter.increment_counter:
     // simplish/base_class.py:13
     // self.counter += 1
     int 0
+    // simplish/base_class.py:8
+    // self.counter = UInt64(0)
     byte "counter"
+    // simplish/base_class.py:13
+    // self.counter += 1
     app_global_get_ex
     assert // check counter exists
     int 1
     +
+    // simplish/base_class.py:8
+    // self.counter = UInt64(0)
     byte "counter"
-    uncover 1
+    // simplish/base_class.py:13
+    // self.counter += 1
+    swap
     app_global_put
     retsub
 
