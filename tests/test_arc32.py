@@ -650,7 +650,7 @@ def test_inner_transactions_c2c(algod_client: AlgodClient, account: algokit_util
         algod_client,
         algokit_utils.EnsureBalanceParameters(
             account_to_fund=app_client.app_address,
-            min_spending_balance_micro_algos=200_000,
+            min_spending_balance_micro_algos=100_000,
         ),
     )
     inner_app_id = app_client.call("bootstrap").return_value

@@ -137,7 +137,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         apps: tuple[Application, ...] = ...,
         ## shared
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ): ...
@@ -196,7 +196,7 @@ class InnerTransaction(_InnerTransaction[InnerTransactionResult]):
         apps: tuple[Application, ...] = ...,
         ## shared
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None:
@@ -212,7 +212,7 @@ class Payment(_InnerTransaction[PaymentInnerTransaction]):
         amount: UInt64 | int = ...,
         close_remainder_to: Account | str = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ): ...
@@ -223,7 +223,7 @@ class Payment(_InnerTransaction[PaymentInnerTransaction]):
         amount: UInt64 | int = ...,
         close_remainder_to: Account | str = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None:
@@ -243,7 +243,7 @@ class KeyRegistration(_InnerTransaction[KeyRegistrationInnerTransaction]):
         non_participation: UInt64 | int | bool = ...,
         state_proof_key: Bytes | bytes = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ): ...
@@ -258,7 +258,7 @@ class KeyRegistration(_InnerTransaction[KeyRegistrationInnerTransaction]):
         non_participation: UInt64 | int | bool = ...,
         state_proof_key: Bytes | bytes = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None:
@@ -283,7 +283,7 @@ class AssetConfig(_InnerTransaction[AssetConfigInnerTransaction]):
         freeze: Account | str = ...,
         clawback: Account | str = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None: ...
@@ -303,7 +303,7 @@ class AssetConfig(_InnerTransaction[AssetConfigInnerTransaction]):
         freeze: Account | str = ...,
         clawback: Account | str = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None:
@@ -321,7 +321,7 @@ class AssetTransfer(_InnerTransaction[AssetTransferInnerTransaction]):
         asset_sender: Account | str = ...,
         asset_close_to: Account | str = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None: ...
@@ -334,7 +334,7 @@ class AssetTransfer(_InnerTransaction[AssetTransferInnerTransaction]):
         asset_receiver: Account | str = ...,
         asset_close_to: Account | str = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None:
@@ -350,7 +350,7 @@ class AssetFreeze(_InnerTransaction[AssetFreezeInnerTransaction]):
         freeze_account: Account | str,
         frozen: bool,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None: ...
@@ -361,7 +361,7 @@ class AssetFreeze(_InnerTransaction[AssetFreezeInnerTransaction]):
         freeze_account: Account | str = ...,
         frozen: bool = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None:
@@ -387,7 +387,7 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
         assets: tuple[Asset, ...] = ...,
         apps: tuple[Application, ...] = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None: ...
@@ -408,7 +408,7 @@ class ApplicationCall(_InnerTransaction[ApplicationCallInnerTransaction]):
         assets: tuple[Asset, ...] = ...,
         apps: tuple[Application, ...] = ...,
         sender: Account | str = ...,
-        fee: UInt64 | int = ...,
+        fee: UInt64 | int = 0,
         note: String | Bytes | str | bytes = ...,
         rekey_to: Account | str = ...,
     ) -> None:

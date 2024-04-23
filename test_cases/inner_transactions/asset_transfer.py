@@ -19,7 +19,6 @@ class CreateAndTransferContract(ARC4Contract):
                 decimals=0,
                 manager=op.Global.current_application_address,
                 clawback=op.Global.current_application_address,
-                fee=0,
             )
             .submit()
             .created_asset
@@ -31,5 +30,4 @@ class CreateAndTransferContract(ARC4Contract):
             asset_receiver=Global.current_application_address,
             asset_amount=1000,
             xfer_asset=new_asset,
-            fee=0,
         ).submit()

@@ -30,7 +30,7 @@ contract Auction
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
     assert(reinterpret_cast<algopy.UInt64>(this.asa) == 0u, comment="ASA already opted in")
     this.asa: algopy.Asset = asset
-    submit_txn(create_inner_transaction(TypeEnum=axfer, AssetReceiver=global<CurrentApplicationAddress>(), XferAsset=asset, Fee=0u))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, AssetReceiver=global<CurrentApplicationAddress>(), XferAsset=asset))
   }
   
   abimethod start_auction(starting_price: algopy.UInt64, length: algopy.UInt64, axfer: algopy.gtxn.AssetTransferTransaction): None
@@ -64,18 +64,18 @@ contract Auction
     if (txn<Sender>() == this.previous_bidder) {
       amount -= this.previous_bid
     }
-    submit_txn(create_inner_transaction(TypeEnum=pay, Fee=0u, Amount=amount, Receiver=txn<Sender>()))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Amount=amount, Receiver=txn<Sender>()))
     this.claimable_amount[txn<Sender>()]: algopy.UInt64 = original_amount - amount
   }
   
   abimethod claim_asset(asset: algopy.Asset): None
   {
     assert(global<LatestTimestamp>() > this.auction_end, comment="auction has not ended")
-    submit_txn(create_inner_transaction(TypeEnum=axfer, Fee=0u, XferAsset=asset, AssetCloseTo=this.previous_bidder, AssetReceiver=this.previous_bidder, AssetAmount=this.asa_amount))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetCloseTo=this.previous_bidder, AssetReceiver=this.previous_bidder, AssetAmount=this.asa_amount))
   }
   
   subroutine delete_application(): None
   {
-    submit_txn(create_inner_transaction(TypeEnum=pay, Fee=0u, Receiver=global<CreatorAddress>(), CloseRemainderTo=global<CreatorAddress>()))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=global<CreatorAddress>(), CloseRemainderTo=global<CreatorAddress>()))
   }
 }

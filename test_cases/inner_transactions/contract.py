@@ -49,7 +49,6 @@ class MyContract(Contract):
             decimals=3,
             manager=op.Global.current_application_address,
             reserve=op.Global.current_application_address,
-            fee=0,
         )
         self.name = Bytes(b"AST2")
         asset1_txn = asset_params.submit()
@@ -96,7 +95,6 @@ class MyContract(Contract):
                 app_args=args,
                 on_completion=OnCompleteAction.NoOp,
                 note=b"with args param set",
-                fee=0,
             )
         else:
             create_app_params = itxn.ApplicationCall(
@@ -104,7 +102,6 @@ class MyContract(Contract):
                 clear_state_program=ALWAYS_APPROVE,
                 app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
                 note=b"no args param set",
-                fee=0,
             )
         create_app_txn = create_app_params.submit()
         assert create_app_txn.app_args(0) == b"1", "correct args used 1"
@@ -116,7 +113,6 @@ class MyContract(Contract):
                 clear_state_program=ALWAYS_APPROVE,
                 on_completion=OnCompleteAction.DeleteApplication,
                 app_args=(Bytes(b"42"),),
-                fee=0,
             ).submit()
             assert create_app_txn2.app_args(0) == b"42", "correct args used 2"
             assert create_app_txn.note == b"with args param set"
@@ -128,7 +124,6 @@ class MyContract(Contract):
             clear_state_program=ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,
             app_args=(Bytes(b"1"),),
-            fee=0,
         )
 
         app_p_2 = app_p_1.copy().copy()
@@ -246,7 +241,6 @@ class MyContract(Contract):
             on_completion=OnCompleteAction.DeleteApplication,
             app_args=(Bytes(b"1"),),
             extra_program_pages=3,
-            fee=0,
         )
         app_1 = app_p_1.submit()
         assert app_1.extra_program_pages == 3, "extra_pages == 3"

@@ -23,7 +23,6 @@ class MyContract(Contract, name="itxn_loop"):
             clear_state_program=programs.ALWAYS_APPROVE,
             on_completion=OnCompleteAction.DeleteApplication,
             note=b"",
-            fee=0,
         )
         for i in urange(4):
             i_note = op.extract(note, 0, i)

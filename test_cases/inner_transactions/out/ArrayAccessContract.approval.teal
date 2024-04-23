@@ -53,18 +53,13 @@ test_branching_array_call:
     !=
     dup
     bz test_branching_array_call_else_body@3
-    // inner_transactions/array_access.py:24-29
+    // inner_transactions/array_access.py:24-28
     // create_app_txn = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
     //     clear_state_program=ALWAYS_APPROVE,
     //     app_args=(Bytes(b"1"), Bytes(b"2")),
-    //     fee=0,
     // ).submit()
     itxn_begin
-    // inner_transactions/array_access.py:28
-    // fee=0,
-    int 0
-    itxn_field Fee
     // inner_transactions/array_access.py:27
     // app_args=(Bytes(b"1"), Bytes(b"2")),
     byte "1"
@@ -83,35 +78,31 @@ test_branching_array_call:
     // create_app_txn = itxn.ApplicationCall(
     int appl
     itxn_field TypeEnum
-    // inner_transactions/array_access.py:24-29
+    int 0
+    itxn_field Fee
+    // inner_transactions/array_access.py:24-28
     // create_app_txn = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
     //     clear_state_program=ALWAYS_APPROVE,
     //     app_args=(Bytes(b"1"), Bytes(b"2")),
-    //     fee=0,
     // ).submit()
     itxn_submit
     b test_branching_array_call_after_if_else@5
 
 test_branching_array_call_else_body@3:
-    // inner_transactions/array_access.py:31-37
+    // inner_transactions/array_access.py:30-35
     // create_app_txn = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
     //     clear_state_program=ALWAYS_APPROVE,
     //     app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
     //     note=b"different param set",
-    //     fee=0,
     // ).submit()
     itxn_begin
-    // inner_transactions/array_access.py:36
-    // fee=0,
-    int 0
-    itxn_field Fee
-    // inner_transactions/array_access.py:35
+    // inner_transactions/array_access.py:34
     // note=b"different param set",
     byte "different param set"
     itxn_field Note
-    // inner_transactions/array_access.py:34
+    // inner_transactions/array_access.py:33
     // app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
     byte "3"
     itxn_field ApplicationArgs
@@ -119,40 +110,41 @@ test_branching_array_call_else_body@3:
     itxn_field ApplicationArgs
     byte "5"
     itxn_field ApplicationArgs
-    // inner_transactions/array_access.py:33
+    // inner_transactions/array_access.py:32
     // clear_state_program=ALWAYS_APPROVE,
     byte 0x098101
     itxn_field ClearStateProgramPages
-    // inner_transactions/array_access.py:32
+    // inner_transactions/array_access.py:31
     // approval_program=ALWAYS_APPROVE,
     byte 0x098101
     itxn_field ApprovalProgramPages
-    // inner_transactions/array_access.py:31
+    // inner_transactions/array_access.py:30
     // create_app_txn = itxn.ApplicationCall(
     int appl
     itxn_field TypeEnum
-    // inner_transactions/array_access.py:31-37
+    int 0
+    itxn_field Fee
+    // inner_transactions/array_access.py:30-35
     // create_app_txn = itxn.ApplicationCall(
     //     approval_program=ALWAYS_APPROVE,
     //     clear_state_program=ALWAYS_APPROVE,
     //     app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
     //     note=b"different param set",
-    //     fee=0,
     // ).submit()
     itxn_submit
 
 test_branching_array_call_after_if_else@5:
-    // inner_transactions/array_access.py:38
+    // inner_transactions/array_access.py:36
     // if maybe:
     frame_dig 0
     bz test_branching_array_call_else_body@7
-    // inner_transactions/array_access.py:39
+    // inner_transactions/array_access.py:37
     // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
     itxna ApplicationArgs 0
     byte "1"
     ==
     assert // correct args used 1
-    // inner_transactions/array_access.py:40
+    // inner_transactions/array_access.py:38
     // assert create_app_txn.app_args(1) == b"2", "correct args used 2"
     itxna ApplicationArgs 1
     byte "2"
@@ -161,19 +153,19 @@ test_branching_array_call_after_if_else@5:
     b test_branching_array_call_after_if_else@8
 
 test_branching_array_call_else_body@7:
-    // inner_transactions/array_access.py:42
+    // inner_transactions/array_access.py:40
     // assert create_app_txn.app_args(0) == b"3", "correct args used 1"
     itxna ApplicationArgs 0
     byte "3"
     ==
     assert // correct args used 1
-    // inner_transactions/array_access.py:43
+    // inner_transactions/array_access.py:41
     // assert create_app_txn.app_args(1) == b"4", "correct args used 2"
     itxna ApplicationArgs 1
     byte "4"
     ==
     assert // correct args used 2
-    // inner_transactions/array_access.py:44
+    // inner_transactions/array_access.py:42
     // assert create_app_txn.app_args(2) == b"5", "correct args used 3"
     itxna ApplicationArgs 2
     byte "5"

@@ -15,7 +15,7 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 (assert tmp%4#0) // is not creating
                 test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple()
                 return 1u
-            block@3: // test_assign_tuple_mixed_route_L71
+            block@3: // test_assign_tuple_mixed_route_L69
                 let tmp%5#0: uint64 = (txn OnCompletion)
                 let tmp%6#0: bool = (== tmp%5#0 NoOp)
                 (assert tmp%6#0) // OnCompletion is NoOp
@@ -41,6 +41,8 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
         subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple() -> void:
             block@0: // L22
                 let create_txns.0#0: itxn_field_set = itxn_field_set(0)
+                let create_txns.0%%param_Fee_idx_0#0: uint64 = 0u
+                let create_txns.0%%Fee_length#0: uint64 = 1u
                 let create_txns.0%%param_TypeEnum_idx_0#0: uint64 = appl
                 let create_txns.0%%TypeEnum_length#0: uint64 = 1u
                 let create_txns.0%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
@@ -52,8 +54,6 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 let create_txns.0%%param_ApplicationArgs_idx_0#0: bytes = "1a"
                 let create_txns.0%%param_ApplicationArgs_idx_1#0: bytes = "2a"
                 let create_txns.0%%ApplicationArgs_length#0: uint64 = 2u
-                let create_txns.0%%param_Fee_idx_0#0: uint64 = 0u
-                let create_txns.0%%Fee_length#0: uint64 = 1u
                 let create_txns.0%%Sender_length#0: uint64 = 0u
                 let create_txns.0%%Note_length#0: uint64 = 0u
                 let create_txns.0%%Receiver_length#0: uint64 = 0u
@@ -100,6 +100,8 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 let create_txns.0%%Assets_length#0: uint64 = 0u
                 let create_txns.0%%Applications_length#0: uint64 = 0u
                 let create_txns.1#0: itxn_field_set = itxn_field_set(1)
+                let create_txns.1%%param_Fee_idx_0#0: uint64 = 0u
+                let create_txns.1%%Fee_length#0: uint64 = 1u
                 let create_txns.1%%param_TypeEnum_idx_0#0: uint64 = appl
                 let create_txns.1%%TypeEnum_length#0: uint64 = 1u
                 let create_txns.1%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
@@ -114,8 +116,6 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 let create_txns.1%%ApplicationArgs_length#0: uint64 = 3u
                 let create_txns.1%%param_Note_idx_0#0: bytes = "different param set"
                 let create_txns.1%%Note_length#0: uint64 = 1u
-                let create_txns.1%%param_Fee_idx_0#0: uint64 = 0u
-                let create_txns.1%%Fee_length#0: uint64 = 1u
                 let create_txns.1%%Sender_length#0: uint64 = 0u
                 let create_txns.1%%Receiver_length#0: uint64 = 0u
                 let create_txns.1%%Amount_length#0: uint64 = 0u
@@ -161,17 +161,16 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 let create_txns.1%%Assets_length#0: uint64 = 0u
                 let create_txns.1%%Applications_length#0: uint64 = 0u
                 itxn_begin
-                ((itxn_field Fee) create_txns.0%%param_Fee_idx_0#0)
                 ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_1#0)
                 ((itxn_field OnCompletion) create_txns.0%%param_OnCompletion_idx_0#0)
                 ((itxn_field ClearStateProgramPages) create_txns.0%%param_ClearStateProgramPages_idx_0#0)
                 ((itxn_field ApprovalProgramPages) create_txns.0%%param_ApprovalProgramPages_idx_0#0)
                 ((itxn_field TypeEnum) create_txns.0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) create_txns.0%%param_Fee_idx_0#0)
                 goto block@1
-            block@1: // next_txn_L41
+            block@1: // next_txn_L39
                 itxn_next
-                ((itxn_field Fee) create_txns.1%%param_Fee_idx_0#0)
                 ((itxn_field Note) create_txns.1%%param_Note_idx_0#0)
                 ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_1#0)
@@ -180,8 +179,9 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 ((itxn_field ClearStateProgramPages) create_txns.1%%param_ClearStateProgramPages_idx_0#0)
                 ((itxn_field ApprovalProgramPages) create_txns.1%%param_ApprovalProgramPages_idx_0#0)
                 ((itxn_field TypeEnum) create_txns.1%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) create_txns.1%%param_Fee_idx_0#0)
                 goto block@2
-            block@2: // next_txn_L41
+            block@2: // next_txn_L39
                 itxn_submit
                 let txn_1#0: itxn_group_idx = itxn_group_idx(0)
                 let txn_1._is_last#0: bool = 0u
@@ -334,7 +334,6 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 let create_txns.1%%param_ApplicationArgs_idx_2#1: bytes = "5b"
                 let create_txns.1%%ApplicationArgs_length#1: uint64 = 3u
                 itxn_begin
-                ((itxn_field Fee) create_txns.1%%param_Fee_idx_0#0)
                 ((itxn_field Note) create_txns.1%%param_Note_idx_0#0)
                 ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_0#1)
                 ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_1#1)
@@ -343,18 +342,19 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 ((itxn_field ClearStateProgramPages) create_txns.1%%param_ClearStateProgramPages_idx_0#0)
                 ((itxn_field ApprovalProgramPages) create_txns.1%%param_ApprovalProgramPages_idx_0#0)
                 ((itxn_field TypeEnum) create_txns.1%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) create_txns.1%%param_Fee_idx_0#0)
                 goto block@3
-            block@3: // next_txn_L52
+            block@3: // next_txn_L50
                 itxn_next
-                ((itxn_field Fee) create_txns.0%%param_Fee_idx_0#0)
                 ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_0#1)
                 ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_1#1)
                 ((itxn_field OnCompletion) create_txns.0%%param_OnCompletion_idx_0#0)
                 ((itxn_field ClearStateProgramPages) create_txns.0%%param_ClearStateProgramPages_idx_0#0)
                 ((itxn_field ApprovalProgramPages) create_txns.0%%param_ApprovalProgramPages_idx_0#0)
                 ((itxn_field TypeEnum) create_txns.0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) create_txns.0%%param_Fee_idx_0#0)
                 goto block@4
-            block@4: // next_txn_L52
+            block@4: // next_txn_L50
                 itxn_submit
                 let txn_1#1: itxn_group_idx = itxn_group_idx(0)
                 let txn_1._is_last#1: bool = 0u
@@ -507,17 +507,16 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 let create_txns.1%%param_ApplicationArgs_idx_2#2: bytes = "5c"
                 let create_txns.1%%ApplicationArgs_length#2: uint64 = 3u
                 itxn_begin
-                ((itxn_field Fee) create_txns.0%%param_Fee_idx_0#0)
                 ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_0#2)
                 ((itxn_field ApplicationArgs) create_txns.0%%param_ApplicationArgs_idx_1#2)
                 ((itxn_field OnCompletion) create_txns.0%%param_OnCompletion_idx_0#0)
                 ((itxn_field ClearStateProgramPages) create_txns.0%%param_ClearStateProgramPages_idx_0#0)
                 ((itxn_field ApprovalProgramPages) create_txns.0%%param_ApprovalProgramPages_idx_0#0)
                 ((itxn_field TypeEnum) create_txns.0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) create_txns.0%%param_Fee_idx_0#0)
                 goto block@5
-            block@5: // next_txn_L63
+            block@5: // next_txn_L61
                 itxn_next
-                ((itxn_field Fee) create_txns.1%%param_Fee_idx_0#0)
                 ((itxn_field Note) create_txns.1%%param_Note_idx_0#0)
                 ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_0#2)
                 ((itxn_field ApplicationArgs) create_txns.1%%param_ApplicationArgs_idx_1#2)
@@ -526,8 +525,9 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 ((itxn_field ClearStateProgramPages) create_txns.1%%param_ClearStateProgramPages_idx_0#0)
                 ((itxn_field ApprovalProgramPages) create_txns.1%%param_ApprovalProgramPages_idx_0#0)
                 ((itxn_field TypeEnum) create_txns.1%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) create_txns.1%%param_Fee_idx_0#0)
                 goto block@6
-            block@6: // next_txn_L63
+            block@6: // next_txn_L61
                 itxn_submit
                 let txn_tuple.0#0: itxn_group_idx = itxn_group_idx(0)
                 let txn_tuple.0._is_last#0: bool = 0u
@@ -673,8 +673,10 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 return 
         
         subroutine test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract.test_assign_tuple_mixed() -> void:
-            block@0: // L71
+            block@0: // L69
                 let tuple_with_txn_fields.0#0: itxn_field_set = itxn_field_set(0)
+                let tuple_with_txn_fields.0%%param_Fee_idx_0#0: uint64 = 0u
+                let tuple_with_txn_fields.0%%Fee_length#0: uint64 = 1u
                 let tuple_with_txn_fields.0%%param_TypeEnum_idx_0#0: uint64 = appl
                 let tuple_with_txn_fields.0%%TypeEnum_length#0: uint64 = 1u
                 let tuple_with_txn_fields.0%%param_ApprovalProgramPages_idx_0#0: bytes = 0x098101
@@ -686,8 +688,6 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 let tuple_with_txn_fields.0%%param_ApplicationArgs_idx_0#0: bytes = "1a"
                 let tuple_with_txn_fields.0%%param_ApplicationArgs_idx_1#0: bytes = "2a"
                 let tuple_with_txn_fields.0%%ApplicationArgs_length#0: uint64 = 2u
-                let tuple_with_txn_fields.0%%param_Fee_idx_0#0: uint64 = 0u
-                let tuple_with_txn_fields.0%%Fee_length#0: uint64 = 1u
                 let tuple_with_txn_fields.0%%Sender_length#0: uint64 = 0u
                 let tuple_with_txn_fields.0%%Note_length#0: uint64 = 0u
                 let tuple_with_txn_fields.0%%Receiver_length#0: uint64 = 0u
@@ -735,15 +735,15 @@ contract test_cases.inner_transactions.field_tuple_assignment.FieldTupleContract
                 let tuple_with_txn_fields.0%%Applications_length#0: uint64 = 0u
                 let tuple_with_txn_fields.1#0: bytes = "some other value"
                 itxn_begin
-                ((itxn_field Fee) tuple_with_txn_fields.0%%param_Fee_idx_0#0)
                 ((itxn_field ApplicationArgs) tuple_with_txn_fields.0%%param_ApplicationArgs_idx_0#0)
                 ((itxn_field ApplicationArgs) tuple_with_txn_fields.0%%param_ApplicationArgs_idx_1#0)
                 ((itxn_field OnCompletion) tuple_with_txn_fields.0%%param_OnCompletion_idx_0#0)
                 ((itxn_field ClearStateProgramPages) tuple_with_txn_fields.0%%param_ClearStateProgramPages_idx_0#0)
                 ((itxn_field ApprovalProgramPages) tuple_with_txn_fields.0%%param_ApprovalProgramPages_idx_0#0)
                 ((itxn_field TypeEnum) tuple_with_txn_fields.0%%param_TypeEnum_idx_0#0)
+                ((itxn_field Fee) tuple_with_txn_fields.0%%param_Fee_idx_0#0)
                 goto block@1
-            block@1: // next_txn_L83
+            block@1: // next_txn_L80
                 itxn_submit
                 let result_with_txn.0#0: itxn_group_idx = itxn_group_idx(0)
                 let result_with_txn.0._is_last#0: bool = 1u

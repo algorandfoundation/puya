@@ -97,7 +97,12 @@ class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        transaction_fields = dict[TxnField, Expression]()
+        transaction_fields: dict[TxnField, Expression] = {
+            TxnFields.fee: UInt64Constant(
+                source_location=self.source_location,
+                value=0,
+            )
+        }
         transaction_type = self.wtype.transaction_type
         if transaction_type:
             transaction_fields[TxnFields.type] = UInt64Constant(

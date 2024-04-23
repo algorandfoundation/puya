@@ -27,7 +27,6 @@ class FieldTupleContract(ARC4Contract):
                 clear_state_program=ALWAYS_APPROVE,
                 on_completion=OnCompleteAction.DeleteApplication,
                 app_args=(Bytes(b"1a"), Bytes(b"2a")),
-                fee=0,
             ),
             itxn.ApplicationCall(
                 approval_program=ALWAYS_APPROVE,
@@ -35,7 +34,6 @@ class FieldTupleContract(ARC4Contract):
                 on_completion=OnCompleteAction.DeleteApplication,
                 app_args=(Bytes(b"3a"), Bytes(b"4a"), Bytes(b"5a")),
                 note=b"different param set",
-                fee=0,
             ),
         )
         txn_1, txn_2 = itxn.submit_txns(create_txns[0], create_txns[1])
@@ -76,7 +74,6 @@ class FieldTupleContract(ARC4Contract):
                 clear_state_program=ALWAYS_APPROVE,
                 on_completion=OnCompleteAction.DeleteApplication,
                 app_args=(Bytes(b"1a"), Bytes(b"2a")),
-                fee=0,
             ),
             Bytes(b"some other value"),
         )

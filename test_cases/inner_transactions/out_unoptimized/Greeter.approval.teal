@@ -36,7 +36,7 @@ main_bootstrap_route@4:
     return
 
 main_log_greetings_route@5:
-    // inner_transactions/c2c.py:24
+    // inner_transactions/c2c.py:23
     // @arc4.abimethod()
     txn OnCompletion
     int NoOp
@@ -47,7 +47,7 @@ main_log_greetings_route@5:
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     txna ApplicationArgs 1
-    // inner_transactions/c2c.py:24
+    // inner_transactions/c2c.py:23
     // @arc4.abimethod()
     callsub log_greetings
     int 1
@@ -96,18 +96,13 @@ bootstrap:
     assert // check hello_app exists
     !
     assert // already bootstrapped
-    // inner_transactions/c2c.py:14-19
+    // inner_transactions/c2c.py:14-18
     // itxn.ApplicationCall(
     //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
     //     clear_state_program=HELLO_WORLD_CLEAR,
-    //     fee=0,
     // )
     // .submit()
     itxn_begin
-    // inner_transactions/c2c.py:17
-    // fee=0,
-    int 0
-    itxn_field Fee
     // inner_transactions/c2c.py:16
     // clear_state_program=HELLO_WORLD_CLEAR,
     byte 0x0a8101
@@ -120,19 +115,19 @@ bootstrap:
     // itxn.ApplicationCall(
     int appl
     itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // inner_transactions/c2c.py:14-18
+    // itxn.ApplicationCall(
+    //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
+    //     clear_state_program=HELLO_WORLD_CLEAR,
+    // )
+    // .submit()
+    itxn_submit
     // inner_transactions/c2c.py:14-19
     // itxn.ApplicationCall(
     //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
     //     clear_state_program=HELLO_WORLD_CLEAR,
-    //     fee=0,
-    // )
-    // .submit()
-    itxn_submit
-    // inner_transactions/c2c.py:14-20
-    // itxn.ApplicationCall(
-    //     approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
-    //     clear_state_program=HELLO_WORLD_CLEAR,
-    //     fee=0,
     // )
     // .submit()
     // .created_app
@@ -140,19 +135,18 @@ bootstrap:
     // inner_transactions/c2c.py:13
     // self.hello_app = (
     byte "hello_app"
-    // inner_transactions/c2c.py:13-21
+    // inner_transactions/c2c.py:13-20
     // self.hello_app = (
     //     itxn.ApplicationCall(
     //         approval_program=Bytes.from_hex(HELLO_WORLD_APPROVAL_HEX),
     //         clear_state_program=HELLO_WORLD_CLEAR,
-    //         fee=0,
     //     )
     //     .submit()
     //     .created_app
     // )
     swap
     app_global_put
-    // inner_transactions/c2c.py:22
+    // inner_transactions/c2c.py:21
     // return self.hello_app.id
     int 0
     byte "hello_app"
@@ -163,43 +157,45 @@ bootstrap:
 
 // test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
 log_greetings:
-    // inner_transactions/c2c.py:24-25
+    // inner_transactions/c2c.py:23-24
     // @arc4.abimethod()
     // def log_greetings(self, name: arc4.String) -> None:
     proto 1 0
-    // inner_transactions/c2c.py:26-29
+    // inner_transactions/c2c.py:25-28
     // hello_call = itxn.ApplicationCall(
     //     app_id=self.hello_app,
     //     app_args=(arc4.arc4_signature("hello(string)string"), name),
     // ).submit()
     itxn_begin
-    // inner_transactions/c2c.py:27
+    // inner_transactions/c2c.py:26
     // app_id=self.hello_app,
     int 0
     byte "hello_app"
     app_global_get_ex
     assert // check hello_app exists
-    // inner_transactions/c2c.py:25
+    // inner_transactions/c2c.py:24
     // def log_greetings(self, name: arc4.String) -> None:
     frame_dig -1
-    // inner_transactions/c2c.py:28
+    // inner_transactions/c2c.py:27
     // app_args=(arc4.arc4_signature("hello(string)string"), name),
     method "hello(string)string"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     itxn_field ApplicationID
-    // inner_transactions/c2c.py:26
+    // inner_transactions/c2c.py:25
     // hello_call = itxn.ApplicationCall(
     int appl
     itxn_field TypeEnum
-    // inner_transactions/c2c.py:26-29
+    int 0
+    itxn_field Fee
+    // inner_transactions/c2c.py:25-28
     // hello_call = itxn.ApplicationCall(
     //     app_id=self.hello_app,
     //     app_args=(arc4.arc4_signature("hello(string)string"), name),
     // ).submit()
     itxn_submit
     itxn LastLog
-    // inner_transactions/c2c.py:30
+    // inner_transactions/c2c.py:29
     // greeting = arc4.String.from_log(hello_call.last_log)
     dup
     extract 4 0
@@ -208,7 +204,7 @@ log_greetings:
     byte 0x151f7c75
     ==
     assert // ARC4 prefix is valid
-    // inner_transactions/c2c.py:31
+    // inner_transactions/c2c.py:30
     // log("HelloWorld returned: ", greeting.native)
     byte "HelloWorld returned: "
     byte ""

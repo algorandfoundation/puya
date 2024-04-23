@@ -351,7 +351,7 @@ _create_pool_token:
     // @subroutine
     // def _create_pool_token(self) -> Asset:
     proto 0 1
-    // amm/contract.py:271-280
+    // amm/contract.py:271-279
     // itxn.AssetConfig(
     //     asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
     //     unit_name=b"dbt",
@@ -359,7 +359,6 @@ _create_pool_token:
     //     decimals=3,
     //     manager=Global.current_application_address,
     //     reserve=Global.current_application_address,
-    //     fee=0,
     // )
     // .submit()
     itxn_begin
@@ -389,10 +388,6 @@ _create_pool_token:
     // amm/contract.py:277
     // reserve=Global.current_application_address,
     dup
-    // amm/contract.py:278
-    // fee=0,
-    int 0
-    itxn_field Fee
     itxn_field ConfigAssetReserve
     itxn_field ConfigAssetManager
     // amm/contract.py:275
@@ -412,6 +407,19 @@ _create_pool_token:
     // itxn.AssetConfig(
     int acfg
     itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    // amm/contract.py:271-279
+    // itxn.AssetConfig(
+    //     asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
+    //     unit_name=b"dbt",
+    //     total=TOTAL_SUPPLY,
+    //     decimals=3,
+    //     manager=Global.current_application_address,
+    //     reserve=Global.current_application_address,
+    // )
+    // .submit()
+    itxn_submit
     // amm/contract.py:271-280
     // itxn.AssetConfig(
     //     asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
@@ -420,24 +428,11 @@ _create_pool_token:
     //     decimals=3,
     //     manager=Global.current_application_address,
     //     reserve=Global.current_application_address,
-    //     fee=0,
-    // )
-    // .submit()
-    itxn_submit
-    // amm/contract.py:271-281
-    // itxn.AssetConfig(
-    //     asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
-    //     unit_name=b"dbt",
-    //     total=TOTAL_SUPPLY,
-    //     decimals=3,
-    //     manager=Global.current_application_address,
-    //     reserve=Global.current_application_address,
-    //     fee=0,
     // )
     // .submit()
     // .created_asset
     itxn CreatedAssetID
-    // amm/contract.py:270-282
+    // amm/contract.py:270-281
     // return (
     //     itxn.AssetConfig(
     //         asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
@@ -446,7 +441,6 @@ _create_pool_token:
     //         decimals=3,
     //         manager=Global.current_application_address,
     //         reserve=Global.current_application_address,
-    //         fee=0,
     //     )
     //     .submit()
     //     .created_asset
@@ -456,24 +450,24 @@ _create_pool_token:
 
 // examples.amm.contract.ConstantProductAMM._do_opt_in(asset: uint64) -> void:
 _do_opt_in:
-    // amm/contract.py:284-285
+    // amm/contract.py:283-284
     // @subroutine
     // def _do_opt_in(self, asset: Asset) -> None:
     proto 1 0
-    // amm/contract.py:287
+    // amm/contract.py:286
     // receiver=Global.current_application_address,
     global CurrentApplicationAddress
-    // amm/contract.py:286-290
+    // amm/contract.py:285-289
     // do_asset_transfer(
     //     receiver=Global.current_application_address,
     //     asset=asset,
     //     amount=UInt64(0),
     // )
     frame_dig -1
-    // amm/contract.py:289
+    // amm/contract.py:288
     // amount=UInt64(0),
     int 0
-    // amm/contract.py:286-290
+    // amm/contract.py:285-289
     // do_asset_transfer(
     //     receiver=Global.current_application_address,
     //     asset=asset,
@@ -485,38 +479,34 @@ _do_opt_in:
 
 // examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:
 do_asset_transfer:
-    // amm/contract.py:357-358
+    // amm/contract.py:356-357
     // @subroutine
     // def do_asset_transfer(*, receiver: Account, asset: Asset, amount: UInt64) -> None:
     proto 3 0
-    // amm/contract.py:359-364
+    // amm/contract.py:358-362
     // itxn.AssetTransfer(
     //     xfer_asset=asset,
     //     asset_amount=amount,
     //     asset_receiver=receiver,
-    //     fee=0,
     // ).submit()
     itxn_begin
-    // amm/contract.py:363
-    // fee=0,
-    int 0
-    itxn_field Fee
     frame_dig -3
     itxn_field AssetReceiver
     frame_dig -1
     itxn_field AssetAmount
     frame_dig -2
     itxn_field XferAsset
-    // amm/contract.py:359
+    // amm/contract.py:358
     // itxn.AssetTransfer(
     int axfer
     itxn_field TypeEnum
-    // amm/contract.py:359-364
+    int 0
+    itxn_field Fee
+    // amm/contract.py:358-362
     // itxn.AssetTransfer(
     //     xfer_asset=asset,
     //     asset_amount=amount,
     //     asset_receiver=receiver,
-    //     fee=0,
     // ).submit()
     itxn_submit
     retsub
@@ -700,11 +690,11 @@ _check_bootstrapped:
 
 // examples.amm.contract.ConstantProductAMM._current_pool_balance() -> uint64:
 _current_pool_balance:
-    // amm/contract.py:292-293
+    // amm/contract.py:291-292
     // @subroutine
     // def _current_pool_balance(self) -> UInt64:
     proto 0 1
-    // amm/contract.py:294
+    // amm/contract.py:293
     // return self.pool_token.balance(Global.current_application_address)
     global CurrentApplicationAddress
     int 0
@@ -718,11 +708,11 @@ _current_pool_balance:
 
 // examples.amm.contract.ConstantProductAMM._current_a_balance() -> uint64:
 _current_a_balance:
-    // amm/contract.py:296-297
+    // amm/contract.py:295-296
     // @subroutine
     // def _current_a_balance(self) -> UInt64:
     proto 0 1
-    // amm/contract.py:298
+    // amm/contract.py:297
     // return self.asset_a.balance(Global.current_application_address)
     global CurrentApplicationAddress
     int 0
@@ -736,11 +726,11 @@ _current_a_balance:
 
 // examples.amm.contract.ConstantProductAMM._current_b_balance() -> uint64:
 _current_b_balance:
-    // amm/contract.py:300-301
+    // amm/contract.py:299-300
     // @subroutine
     // def _current_b_balance(self) -> UInt64:
     proto 0 1
-    // amm/contract.py:302
+    // amm/contract.py:301
     // return self.asset_b.balance(Global.current_application_address)
     global CurrentApplicationAddress
     int 0
@@ -754,7 +744,7 @@ _current_b_balance:
 
 // examples.amm.contract.tokens_to_mint(pool_balance: uint64, a_balance: uint64, b_balance: uint64, a_amount: uint64, b_amount: uint64) -> uint64:
 tokens_to_mint:
-    // amm/contract.py:323-331
+    // amm/contract.py:322-330
     // @subroutine
     // def tokens_to_mint(
     //     *,
@@ -767,7 +757,7 @@ tokens_to_mint:
     proto 5 1
     byte ""
     dup
-    // amm/contract.py:332
+    // amm/contract.py:331
     // is_initial_mint = a_balance == a_amount and b_balance == b_amount
     frame_dig -4
     frame_dig -2
@@ -784,10 +774,10 @@ tokens_to_mint_bool_false@3:
     int 0
 
 tokens_to_mint_bool_merge@4:
-    // amm/contract.py:333
+    // amm/contract.py:332
     // if is_initial_mint:
     bz tokens_to_mint_after_if_else@6
-    // amm/contract.py:334
+    // amm/contract.py:333
     // return op.sqrt(a_amount * b_amount) - SCALE
     frame_dig -2
     frame_dig -1
@@ -799,12 +789,12 @@ tokens_to_mint_bool_merge@4:
     retsub
 
 tokens_to_mint_after_if_else@6:
-    // amm/contract.py:335
+    // amm/contract.py:334
     // issued = TOTAL_SUPPLY - pool_balance
     int 10000000000
     frame_dig -5
     -
-    // amm/contract.py:336
+    // amm/contract.py:335
     // a_ratio = SCALE * a_amount // (a_balance - a_amount)
     int 1000
     frame_dig -2
@@ -815,7 +805,7 @@ tokens_to_mint_after_if_else@6:
     /
     dup
     frame_bury 0
-    // amm/contract.py:337
+    // amm/contract.py:336
     // b_ratio = SCALE * b_amount // (b_balance - b_amount)
     int 1000
     frame_dig -1
@@ -826,11 +816,11 @@ tokens_to_mint_after_if_else@6:
     /
     dup
     frame_bury 1
-    // amm/contract.py:338
+    // amm/contract.py:337
     // if a_ratio < b_ratio:
     <
     bz tokens_to_mint_else_body@8
-    // amm/contract.py:339
+    // amm/contract.py:338
     // return a_ratio * issued // SCALE
     frame_dig 0
     *
@@ -840,7 +830,7 @@ tokens_to_mint_after_if_else@6:
     retsub
 
 tokens_to_mint_else_body@8:
-    // amm/contract.py:341
+    // amm/contract.py:340
     // return b_ratio * issued // SCALE
     frame_dig 1
     *
@@ -1016,18 +1006,18 @@ burn:
 
 // examples.amm.contract.tokens_to_burn(pool_balance: uint64, supply: uint64, amount: uint64) -> uint64:
 tokens_to_burn:
-    // amm/contract.py:344-345
+    // amm/contract.py:343-344
     // @subroutine
     // def tokens_to_burn(*, pool_balance: UInt64, supply: UInt64, amount: UInt64) -> UInt64:
     proto 3 1
-    // amm/contract.py:346
+    // amm/contract.py:345
     // issued = TOTAL_SUPPLY - pool_balance - amount
     int 10000000000
     frame_dig -3
     -
     frame_dig -1
     -
-    // amm/contract.py:347
+    // amm/contract.py:346
     // return supply * amount // issued
     frame_dig -2
     frame_dig -1
@@ -1184,11 +1174,11 @@ swap_switch_case_next@4:
 
 // examples.amm.contract.tokens_to_swap(in_amount: uint64, in_supply: uint64, out_supply: uint64) -> uint64:
 tokens_to_swap:
-    // amm/contract.py:350-351
+    // amm/contract.py:349-350
     // @subroutine
     // def tokens_to_swap(*, in_amount: UInt64, in_supply: UInt64, out_supply: UInt64) -> UInt64:
     proto 3 1
-    // amm/contract.py:352
+    // amm/contract.py:351
     // in_total = SCALE * (in_supply - in_amount) + (in_amount * FACTOR)
     frame_dig -2
     frame_dig -3
@@ -1202,11 +1192,11 @@ tokens_to_swap:
     cover 2
     +
     swap
-    // amm/contract.py:353
+    // amm/contract.py:352
     // out_total = in_amount * FACTOR * out_supply
     frame_dig -1
     *
-    // amm/contract.py:354
+    // amm/contract.py:353
     // return out_total // in_total
     swap
     /

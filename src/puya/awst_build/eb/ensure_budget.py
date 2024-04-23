@@ -66,7 +66,7 @@ class EnsureBudgetBuilder(IntermediateExpressionBuilder):
                     value=fee_source_value, source_location=fee_source_loc
                 )
             case None:
-                fee_source_expr = UInt64Constant(value=2, source_location=location)
+                fee_source_expr = UInt64Constant(value=0, source_location=location)
             case _:
                 raise CodeError(f"Invalid argument value for {fee_source_arg_name}", location)
         call_args.append(

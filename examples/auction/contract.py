@@ -35,7 +35,6 @@ class Auction(ARC4Contract):
         itxn.AssetTransfer(
             asset_receiver=Global.current_application_address,
             xfer_asset=asset,
-            fee=0,
         ).submit()
 
     @arc4.abimethod
@@ -89,7 +88,6 @@ class Auction(ARC4Contract):
             amount -= self.previous_bid
 
         itxn.Payment(
-            fee=0,
             amount=amount,
             receiver=Txn.sender,
         ).submit()
@@ -101,7 +99,6 @@ class Auction(ARC4Contract):
         assert Global.latest_timestamp > self.auction_end, "auction has not ended"
         # Send ASA to previous bidder
         itxn.AssetTransfer(
-            fee=0,
             xfer_asset=asset,
             asset_close_to=self.previous_bidder,
             asset_receiver=self.previous_bidder,
@@ -111,7 +108,6 @@ class Auction(ARC4Contract):
     @subroutine
     def delete_application(self) -> None:
         itxn.Payment(
-            fee=0,
             receiver=Global.creator_address,
             close_remainder_to=Global.creator_address,
         ).submit()
