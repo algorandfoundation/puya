@@ -1260,26 +1260,33 @@ class FunctionASTConverter(
                 self._location(super_expr.call),
             )
         for base in iterate_user_bases(self.contract_method_info.type_info):
-            if (base_method := base.get_method(super_expr.name)) is not None:
-                cref = qualified_class_name(base)
-                if not isinstance(base_method.type, mypy.types.CallableType):
-                    # this shouldn't be hit unless there's typing.overload of weird
-                    # decorators going on, both of which we don't allow
+            base_sym = base.get(super_expr.name)
+            if base_sym is None:
+                continue
+            match base_sym.node:
+                case None:
                     raise CodeError(
-                        f"Unable to retrieve type of {cref.full_name}.{super_expr.name}",
-                        super_loc,
+                        f"Unable to resolve type of member {super_expr.name!r}", super_loc
                     )
-                return SubroutineInvokerExpressionBuilder(
-                    context=self.context,
-                    target=BaseClassSubroutineTarget(base_class=cref, name=super_expr.name),
-                    location=super_loc,
-                    func_type=base_method.type,
-                )
+                # matching types taken from mypy.nodes.TypeInfo.get_method
+                case (mypy.nodes.FuncBase() | mypy.nodes.Decorator()) as base_method:
+                    cref = qualified_class_name(base)
+                    if not isinstance(base_method.type, mypy.types.CallableType):
+                        # this shouldn't be hit unless there's typing.overload or weird
+                        # decorators going on, both of which we don't allow
+                        raise CodeError(
+                            f"Unable to retrieve type of {cref.full_name}.{super_expr.name}",
+                            super_loc,
+                        )
+                    return SubroutineInvokerExpressionBuilder(
+                        context=self.context,
+                        target=BaseClassSubroutineTarget(base_class=cref, name=super_expr.name),
+                        location=super_loc,
+                        func_type=base_method.type,
+                    )
+                case _:
+                    raise CodeError("super() is only supported for method calls", super_loc)
 
-        if super_expr.name in self.contract_method_info.app_storage:
-            raise CodeError(
-                "super() is only supported for method calls, not member access", super_loc
-            )
         raise CodeError(
             f"Unable to locate method {super_expr.name}"
             f" in bases of {self.contract_method_info.cref.full_name}",
