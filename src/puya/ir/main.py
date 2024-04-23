@@ -400,17 +400,30 @@ def fold_state_and_special_methods(
         if result.clear_program is None:
             result.clear_program = c.clear_program
         for state in c.app_state.values():
-            translated = ContractState(
-                name=state.member_name,
-                source_location=state.source_location,
-                key=state.key,
-                storage_type=wtype_to_avm_type(state.storage_wtype),
-                description=state.description,
-            )
             if state.kind == awst_nodes.AppStateKind.app_global:
+                translated = ContractState(
+                    name=state.member_name,
+                    source_location=state.source_location,
+                    key=state.key.value,  # TODO: pass encoding?
+                    storage_type=wtype_to_avm_type(state.storage_wtype),
+                    description=state.description,
+                )
                 result.global_state[translated.name] = translated
             elif state.kind == awst_nodes.AppStateKind.account_local:
+                translated = ContractState(
+                    name=state.member_name,
+                    source_location=state.source_location,
+                    key=state.key.value,  # TODO: pass encoding?
+                    storage_type=wtype_to_avm_type(state.storage_wtype),
+                    description=state.description,
+                )
                 result.local_state[translated.name] = translated
+            elif state.kind in (
+                awst_nodes.AppStateKind.box,
+                awst_nodes.AppStateKind.box_ref,
+                awst_nodes.AppStateKind.box_map,
+            ):
+                pass
             else:
                 raise InternalError(f"Unhandled state kind: {state.kind}", state.source_location)
         for cm in c.subroutines:

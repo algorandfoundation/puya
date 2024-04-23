@@ -26,13 +26,13 @@ main_new_game_route@1:
     int 0
     int 8
     extract3 // on error: Index access is out of bounds
-    cover 1
+    swap
     int 8
     int 8
     extract3 // on error: Index access is out of bounds
-    cover 1
+    swap
     btoi
-    cover 1
+    swap
     btoi
     // tictactoe/tictactoe.py:20
     // @arc4.abimethod(create="allow")
@@ -56,13 +56,13 @@ main_join_game_route@2:
     int 0
     int 8
     extract3 // on error: Index access is out of bounds
-    cover 1
+    swap
     int 8
     int 8
     extract3 // on error: Index access is out of bounds
-    cover 1
+    swap
     btoi
-    cover 1
+    swap
     btoi
     // tictactoe/tictactoe.py:37
     // @arc4.abimethod
@@ -81,7 +81,7 @@ main_whose_turn_route@3:
     assert // is not creating
     callsub whose_turn
     byte 0x151f7c75
-    uncover 1
+    swap
     concat
     log
     int 1
@@ -103,13 +103,13 @@ main_play_route@4:
     int 0
     int 8
     extract3 // on error: Index access is out of bounds
-    cover 1
+    swap
     int 8
     int 8
     extract3 // on error: Index access is out of bounds
-    cover 1
+    swap
     btoi
-    cover 1
+    swap
     btoi
     // tictactoe/tictactoe.py:47
     // @arc4.abimethod
@@ -140,29 +140,43 @@ new_game:
     // # until this one is complete
     // if self.challenger:
     int 0
+    // tictactoe/tictactoe.py:17
+    // self.challenger = GlobalState(Account)
     byte "challenger"
+    // tictactoe/tictactoe.py:23-25
+    // # if a challenger has joined, don't allow starting a new game
+    // # until this one is complete
+    // if self.challenger:
     app_global_get_ex
-    cover 1
+    swap
     pop
     bz new_game_after_if_else@3
     // tictactoe/tictactoe.py:26
     // assert self.winner, "Game isn't over"
     int 0
+    // tictactoe/tictactoe.py:18
+    // self.winner = GlobalState(arc4.UInt8)
     byte "winner"
+    // tictactoe/tictactoe.py:26
+    // assert self.winner, "Game isn't over"
     app_global_get_ex
-    cover 1
+    swap
     pop
     assert // Game isn't over
 
 new_game_after_if_else@3:
+    // tictactoe/tictactoe.py:17
+    // self.challenger = GlobalState(Account)
+    byte "challenger"
     // tictactoe/tictactoe.py:27-28
     // # reset challenger and winner
     // del self.challenger.value
-    byte "challenger"
     app_global_del
+    // tictactoe/tictactoe.py:18
+    // self.winner = GlobalState(arc4.UInt8)
+    byte "winner"
     // tictactoe/tictactoe.py:29
     // del self.winner.value
-    byte "winner"
     app_global_del
 
 new_game_after_if_else@4:
@@ -170,14 +184,14 @@ new_game_after_if_else@4:
     // self.host = Txn.sender
     txn Sender
     byte "host"
-    uncover 1
+    swap
     app_global_put
     // tictactoe/tictactoe.py:31
     // self.game = Game.from_bytes(op.bzero(9))
     int 9
     bzero
     byte "game"
-    uncover 1
+    swap
     app_global_put
     // tictactoe/tictactoe.py:32
     // column, row = move
@@ -208,7 +222,11 @@ new_game_bool_merge@8:
     // tictactoe/tictactoe.py:34
     // self.game[row][column] = arc4.UInt8(HOST)
     int 0
+    // tictactoe/tictactoe.py:31
+    // self.game = Game.from_bytes(op.bzero(9))
     byte "game"
+    // tictactoe/tictactoe.py:34
+    // self.game[row][column] = arc4.UInt8(HOST)
     app_global_get_ex
     assert // check game exists
     frame_dig 1
@@ -228,9 +246,13 @@ new_game_bool_merge@8:
     byte 0x01
     replace3
     int 0
+    // tictactoe/tictactoe.py:31
+    // self.game = Game.from_bytes(op.bzero(9))
     byte "game"
+    // tictactoe/tictactoe.py:34
+    // self.game[row][column] = arc4.UInt8(HOST)
     app_global_get_ex
-    cover 1
+    swap
     cover 2
     assert // check game exists
     dig 2
@@ -241,11 +263,15 @@ new_game_bool_merge@8:
     int 3
     *
     uncover 2
-    uncover 1
+    swap
     uncover 2
     replace3
+    // tictactoe/tictactoe.py:31
+    // self.game = Game.from_bytes(op.bzero(9))
     byte "game"
-    uncover 1
+    // tictactoe/tictactoe.py:34
+    // self.game[row][column] = arc4.UInt8(HOST)
+    swap
     app_global_put
     // tictactoe/tictactoe.py:35
     // self.turns = UInt64(0)
@@ -264,17 +290,25 @@ join_game:
     // tictactoe/tictactoe.py:39
     // assert not self.challenger, "Host already has a challenger"
     int 0
+    // tictactoe/tictactoe.py:17
+    // self.challenger = GlobalState(Account)
     byte "challenger"
+    // tictactoe/tictactoe.py:39
+    // assert not self.challenger, "Host already has a challenger"
     app_global_get_ex
-    cover 1
+    swap
     pop
     !
     assert // Host already has a challenger
     // tictactoe/tictactoe.py:40
     // self.challenger.value = Txn.sender
     txn Sender
+    // tictactoe/tictactoe.py:17
+    // self.challenger = GlobalState(Account)
     byte "challenger"
-    uncover 1
+    // tictactoe/tictactoe.py:40
+    // self.challenger.value = Txn.sender
+    swap
     app_global_put
     // tictactoe/tictactoe.py:41
     // self.make_move(arc4.UInt8(CHALLENGER), move)
@@ -295,9 +329,9 @@ make_move:
     // column, row = move
     frame_dig -2
     dup
-    cover 1
+    swap
     frame_dig -1
-    cover 1
+    swap
     // tictactoe/tictactoe.py:63
     // assert column < 3 and row < 3, "Move must be in range"
     int 3
@@ -320,7 +354,11 @@ make_move_bool_merge@4:
     // tictactoe/tictactoe.py:64
     // assert self.game[row][column] == EMPTY, "Square is already taken"
     int 0
+    // tictactoe/tictactoe.py:31
+    // self.game = Game.from_bytes(op.bzero(9))
     byte "game"
+    // tictactoe/tictactoe.py:64
+    // assert self.game[row][column] == EMPTY, "Square is already taken"
     app_global_get_ex
     assert // check game exists
     frame_dig 1
@@ -343,7 +381,11 @@ make_move_bool_merge@4:
     // tictactoe/tictactoe.py:65
     // self.game[row][column] = player
     int 0
+    // tictactoe/tictactoe.py:31
+    // self.game = Game.from_bytes(op.bzero(9))
     byte "game"
+    // tictactoe/tictactoe.py:65
+    // self.game[row][column] = player
     app_global_get_ex
     assert // check game exists
     dig 1
@@ -352,7 +394,7 @@ make_move_bool_merge@4:
     int 3
     extract3 // on error: Index access is out of bounds
     frame_dig -3
-    cover 1
+    swap
     dig 3
     int 3
     <
@@ -363,9 +405,13 @@ make_move_bool_merge@4:
     uncover 2
     replace3
     int 0
+    // tictactoe/tictactoe.py:31
+    // self.game = Game.from_bytes(op.bzero(9))
     byte "game"
+    // tictactoe/tictactoe.py:65
+    // self.game[row][column] = player
     app_global_get_ex
-    cover 1
+    swap
     cover 2
     assert // check game exists
     dig 2
@@ -376,22 +422,34 @@ make_move_bool_merge@4:
     int 3
     *
     uncover 2
-    uncover 1
+    swap
     uncover 2
     replace3
+    // tictactoe/tictactoe.py:31
+    // self.game = Game.from_bytes(op.bzero(9))
     byte "game"
-    uncover 1
+    // tictactoe/tictactoe.py:65
+    // self.game[row][column] = player
+    swap
     app_global_put
     // tictactoe/tictactoe.py:66
     // self.turns += 1
     int 0
+    // tictactoe/tictactoe.py:35
+    // self.turns = UInt64(0)
     byte "turns"
+    // tictactoe/tictactoe.py:66
+    // self.turns += 1
     app_global_get_ex
     assert // check turns exists
     int 1
     +
+    // tictactoe/tictactoe.py:35
+    // self.turns = UInt64(0)
     byte "turns"
-    uncover 1
+    // tictactoe/tictactoe.py:66
+    // self.turns += 1
+    swap
     app_global_put
     // tictactoe/tictactoe.py:67
     // if self.did_win(player, column=column, row=row):
@@ -400,9 +458,11 @@ make_move_bool_merge@4:
     uncover 2
     callsub did_win
     bz make_move_else_body@6
+    // tictactoe/tictactoe.py:18
+    // self.winner = GlobalState(arc4.UInt8)
+    byte "winner"
     // tictactoe/tictactoe.py:68
     // self.winner.value = player
-    byte "winner"
     frame_dig -3
     app_global_put
     b make_move_after_if_else@9
@@ -411,15 +471,21 @@ make_move_else_body@6:
     // tictactoe/tictactoe.py:69
     // elif self.turns == 9:
     int 0
+    // tictactoe/tictactoe.py:35
+    // self.turns = UInt64(0)
     byte "turns"
+    // tictactoe/tictactoe.py:69
+    // elif self.turns == 9:
     app_global_get_ex
     assert // check turns exists
     int 9
     ==
     bz make_move_after_if_else@8
+    // tictactoe/tictactoe.py:18
+    // self.winner = GlobalState(arc4.UInt8)
+    byte "winner"
     // tictactoe/tictactoe.py:70
     // self.winner.value = arc4.UInt8(DRAW)
-    byte "winner"
     byte 0x03
     app_global_put
 
@@ -439,11 +505,15 @@ did_win:
     // tictactoe/tictactoe.py:74
     // g = self.game.copy()
     int 0
+    // tictactoe/tictactoe.py:31
+    // self.game = Game.from_bytes(op.bzero(9))
     byte "game"
+    // tictactoe/tictactoe.py:74
+    // g = self.game.copy()
     app_global_get_ex
     assert // check game exists
     dup
-    cover 1
+    swap
     // tictactoe/tictactoe.py:76
     // if g[row][0] == g[row][1] == g[row][2]:
     dup
@@ -457,7 +527,7 @@ did_win:
     *
     int 1
     extract3 // on error: Index access is out of bounds
-    cover 1
+    swap
     frame_dig -1
     int 3
     *
@@ -507,7 +577,7 @@ did_win_after_if_else@3:
     *
     int 1
     extract3 // on error: Index access is out of bounds
-    cover 1
+    swap
     int 1
     int 3
     *
@@ -652,7 +722,11 @@ whose_turn:
     // tictactoe/tictactoe.py:45
     // return arc4.UInt8(HOST) if self.turns % 2 else arc4.UInt8(CHALLENGER)
     int 0
+    // tictactoe/tictactoe.py:35
+    // self.turns = UInt64(0)
     byte "turns"
+    // tictactoe/tictactoe.py:45
+    // return arc4.UInt8(HOST) if self.turns % 2 else arc4.UInt8(CHALLENGER)
     app_global_get_ex
     assert // check turns exists
     int 2
@@ -681,16 +755,24 @@ play:
     // tictactoe/tictactoe.py:49
     // assert not self.winner, "Game is already finished"
     int 0
+    // tictactoe/tictactoe.py:18
+    // self.winner = GlobalState(arc4.UInt8)
     byte "winner"
+    // tictactoe/tictactoe.py:49
+    // assert not self.winner, "Game is already finished"
     app_global_get_ex
-    cover 1
+    swap
     pop
     !
     assert // Game is already finished
     // tictactoe/tictactoe.py:50
     // if self.turns % 2:
     int 0
+    // tictactoe/tictactoe.py:35
+    // self.turns = UInt64(0)
     byte "turns"
+    // tictactoe/tictactoe.py:50
+    // if self.turns % 2:
     app_global_get_ex
     assert // check turns exists
     int 2
@@ -700,7 +782,11 @@ play:
     // assert Txn.sender == self.host, "It is the host's turn"
     txn Sender
     int 0
+    // tictactoe/tictactoe.py:30
+    // self.host = Txn.sender
     byte "host"
+    // tictactoe/tictactoe.py:51
+    // assert Txn.sender == self.host, "It is the host's turn"
     app_global_get_ex
     assert // check host exists
     ==
@@ -720,15 +806,17 @@ play_else_body@2:
     // tictactoe/tictactoe.py:54
     // assert Txn.sender == self.challenger.get(
     int 0
+    // tictactoe/tictactoe.py:17
+    // self.challenger = GlobalState(Account)
     byte "challenger"
     // tictactoe/tictactoe.py:54-56
     // assert Txn.sender == self.challenger.get(
     //     default=Account()
     // ), "It is the challenger's turn"
     app_global_get_ex
-    cover 1
+    swap
     uncover 2
-    uncover 1
+    swap
     uncover 2
     select
     ==

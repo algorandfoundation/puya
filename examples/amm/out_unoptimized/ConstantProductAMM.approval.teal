@@ -73,7 +73,7 @@ main_bootstrap_route@5:
     callsub bootstrap
     itob
     byte 0x151f7c75
-    uncover 1
+    swap
     concat
     log
     int 1
@@ -242,7 +242,7 @@ main_bare_routing@11:
     // class ConstantProductAMM(ARC4Contract):
     txn OnCompletion
     int 0
-    uncover 1
+    swap
     match main_create@12
     b main_reject_bare_on_completion@13
 
@@ -270,9 +270,12 @@ set_governor:
     // amm/contract.py:46
     // self._check_is_governor()
     callsub _check_is_governor
+    // amm/contract.py:36-37
+    // # The current governor of this contract, allowed to do admin type actions
+    // self.governor = Txn.sender
+    byte "governor"
     // amm/contract.py:47
     // self.governor = new_governor
-    byte "governor"
     frame_dig -1
     app_global_put
     retsub
@@ -288,7 +291,12 @@ _check_is_governor:
     // Txn.sender == self.governor
     txn Sender
     int 0
+    // amm/contract.py:36-37
+    // # The current governor of this contract, allowed to do admin type actions
+    // self.governor = Txn.sender
     byte "governor"
+    // amm/contract.py:265
+    // Txn.sender == self.governor
     app_global_get_ex
     assert // check governor exists
     ==
@@ -309,7 +317,12 @@ bootstrap:
     // amm/contract.py:66
     // assert not self.pool_token, "application has already been bootstrapped"
     int 0
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
     byte "pool_token"
+    // amm/contract.py:66
+    // assert not self.pool_token, "application has already been bootstrapped"
     app_global_get_ex
     assert // check pool_token exists
     !
@@ -343,40 +356,66 @@ bootstrap:
     frame_dig -1
     <
     assert // asset a must be less than asset b
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
+    byte "asset_a"
     // amm/contract.py:73
     // self.asset_a = a_asset
-    byte "asset_a"
     frame_dig -2
     app_global_put
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
+    byte "asset_b"
     // amm/contract.py:74
     // self.asset_b = b_asset
-    byte "asset_b"
     frame_dig -1
     app_global_put
     // amm/contract.py:75
     // self.pool_token = self._create_pool_token()
     callsub _create_pool_token
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
     byte "pool_token"
-    uncover 1
+    // amm/contract.py:75
+    // self.pool_token = self._create_pool_token()
+    swap
     app_global_put
     // amm/contract.py:77
     // self._do_opt_in(self.asset_a)
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:77
+    // self._do_opt_in(self.asset_a)
     app_global_get_ex
     assert // check asset_a exists
     callsub _do_opt_in
     // amm/contract.py:78
     // self._do_opt_in(self.asset_b)
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:78
+    // self._do_opt_in(self.asset_b)
     app_global_get_ex
     assert // check asset_b exists
     callsub _do_opt_in
     // amm/contract.py:79
     // return self.pool_token.id
     int 0
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
     byte "pool_token"
+    // amm/contract.py:79
+    // return self.pool_token.id
     app_global_get_ex
     assert // check pool_token exists
     retsub
@@ -402,18 +441,28 @@ _create_pool_token:
     // amm/contract.py:272
     // asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:272
+    // asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
     app_global_get_ex
     assert // check asset_a exists
     asset_params_get AssetUnitName
     assert // asset exists
     byte "DPT-"
-    uncover 1
+    swap
     concat
     byte "-"
     concat
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:272
+    // asset_name=b"DPT-" + self.asset_a.unit_name + b"-" + self.asset_b.unit_name,
     app_global_get_ex
     assert // check asset_b exists
     asset_params_get AssetUnitName
@@ -577,31 +626,47 @@ mint:
     // # well-formed mint
     // assert pool_asset == self.pool_token, "asset pool incorrect"
     int 0
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
     byte "pool_token"
+    // amm/contract.py:113-114
+    // # well-formed mint
+    // assert pool_asset == self.pool_token, "asset pool incorrect"
     app_global_get_ex
     assert // check pool_token exists
     frame_dig -3
-    uncover 1
+    swap
     ==
     assert // asset pool incorrect
     // amm/contract.py:115
     // assert a_asset == self.asset_a, "asset a incorrect"
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:115
+    // assert a_asset == self.asset_a, "asset a incorrect"
     app_global_get_ex
     assert // check asset_a exists
     frame_dig -2
-    uncover 1
+    swap
     ==
     assert // asset a incorrect
     // amm/contract.py:116
     // assert b_asset == self.asset_b, "asset b incorrect"
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:116
+    // assert b_asset == self.asset_b, "asset b incorrect"
     app_global_get_ex
     assert // check asset_b exists
     frame_dig -1
-    uncover 1
+    swap
     ==
     assert // asset b incorrect
     // amm/contract.py:117
@@ -635,7 +700,12 @@ mint:
     frame_dig -5
     gtxns XferAsset
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:124
+    // assert a_xfer.xfer_asset == self.asset_a, "asset a incorrect"
     app_global_get_ex
     assert // check asset_a exists
     ==
@@ -664,7 +734,12 @@ mint:
     frame_dig -4
     gtxns XferAsset
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:131
+    // assert b_xfer.xfer_asset == self.asset_b, "asset b incorrect"
     app_global_get_ex
     assert // check asset_b exists
     ==
@@ -718,7 +793,13 @@ mint:
     // do_asset_transfer(receiver=Txn.sender, asset=self.pool_token, amount=to_mint)
     txn Sender
     int 0
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
     byte "pool_token"
+    // amm/contract.py:143-144
+    // # mint tokens
+    // do_asset_transfer(receiver=Txn.sender, asset=self.pool_token, amount=to_mint)
     app_global_get_ex
     assert // check pool_token exists
     uncover 2
@@ -738,7 +819,12 @@ _check_bootstrapped:
     // amm/contract.py:253
     // assert self.pool_token, "bootstrap method needs to be called first"
     int 0
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
     byte "pool_token"
+    // amm/contract.py:253
+    // assert self.pool_token, "bootstrap method needs to be called first"
     app_global_get_ex
     assert // check pool_token exists
     assert // bootstrap method needs to be called first
@@ -755,7 +841,12 @@ _current_pool_balance:
     // return self.pool_token.balance(Global.current_application_address)
     global CurrentApplicationAddress
     int 0
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
     byte "pool_token"
+    // amm/contract.py:293
+    // return self.pool_token.balance(Global.current_application_address)
     app_global_get_ex
     assert // check pool_token exists
     asset_holding_get AssetBalance
@@ -773,7 +864,12 @@ _current_a_balance:
     // return self.asset_a.balance(Global.current_application_address)
     global CurrentApplicationAddress
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:297
+    // return self.asset_a.balance(Global.current_application_address)
     app_global_get_ex
     assert // check asset_a exists
     asset_holding_get AssetBalance
@@ -791,7 +887,12 @@ _current_b_balance:
     // return self.asset_b.balance(Global.current_application_address)
     global CurrentApplicationAddress
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:301
+    // return self.asset_b.balance(Global.current_application_address)
     app_global_get_ex
     assert // check asset_b exists
     asset_holding_get AssetBalance
@@ -880,7 +981,7 @@ tokens_to_mint_after_if_else@6:
     // amm/contract.py:338
     // return a_ratio * issued // SCALE
     frame_dig 0
-    uncover 1
+    swap
     *
     int 1000
     /
@@ -891,7 +992,7 @@ tokens_to_mint_else_body@8:
     // amm/contract.py:340
     // return b_ratio * issued // SCALE
     frame_dig 1
-    uncover 1
+    swap
     *
     int 1000
     /
@@ -911,15 +1012,20 @@ _update_ratio:
     // amm/contract.py:258
     // b_balance = self._current_b_balance()
     callsub _current_b_balance
-    cover 1
+    swap
     // amm/contract.py:260
     // self.ratio = a_balance * SCALE // b_balance
     int 1000
     *
-    uncover 1
+    swap
     /
+    // amm/contract.py:40-41
+    // # The ratio between assets (A*Scale/B)
+    // self.ratio = UInt64(0)
     byte "ratio"
-    uncover 1
+    // amm/contract.py:260
+    // self.ratio = a_balance * SCALE // b_balance
+    swap
     app_global_put
     retsub
 
@@ -948,31 +1054,46 @@ burn:
     // amm/contract.py:172
     // assert pool_asset == self.pool_token, "asset pool incorrect"
     int 0
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
     byte "pool_token"
+    // amm/contract.py:172
+    // assert pool_asset == self.pool_token, "asset pool incorrect"
     app_global_get_ex
     assert // check pool_token exists
     frame_dig -3
-    uncover 1
+    swap
     ==
     assert // asset pool incorrect
     // amm/contract.py:173
     // assert a_asset == self.asset_a, "asset a incorrect"
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:173
+    // assert a_asset == self.asset_a, "asset a incorrect"
     app_global_get_ex
     assert // check asset_a exists
     frame_dig -2
-    uncover 1
+    swap
     ==
     assert // asset a incorrect
     // amm/contract.py:174
     // assert b_asset == self.asset_b, "asset b incorrect"
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:174
+    // assert b_asset == self.asset_b, "asset b incorrect"
     app_global_get_ex
     assert // check asset_b exists
     frame_dig -1
-    uncover 1
+    swap
     ==
     assert // asset b incorrect
     // amm/contract.py:177
@@ -998,7 +1119,12 @@ burn:
     frame_dig -4
     gtxns XferAsset
     int 0
+    // amm/contract.py:38-39
+    // # The asset id of the Pool Token, used to track share of pool the holder may recover
+    // self.pool_token = Asset()
     byte "pool_token"
+    // amm/contract.py:180
+    // assert pool_xfer.xfer_asset == self.pool_token, "asset pool incorrect"
     app_global_get_ex
     assert // check pool_token exists
     ==
@@ -1032,7 +1158,7 @@ burn:
     uncover 2
     uncover 2
     callsub tokens_to_burn
-    cover 1
+    swap
     // amm/contract.py:193
     // supply=self._current_b_balance(),
     callsub _current_b_balance
@@ -1050,13 +1176,19 @@ burn:
     uncover 2
     uncover 2
     callsub tokens_to_burn
-    cover 1
+    swap
     // amm/contract.py:197-198
     // # Send back commensurate amt of a
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_a, amount=a_amt)
     txn Sender
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:197-198
+    // # Send back commensurate amt of a
+    // do_asset_transfer(receiver=Txn.sender, asset=self.asset_a, amount=a_amt)
     app_global_get_ex
     assert // check asset_a exists
     uncover 2
@@ -1066,7 +1198,13 @@ burn:
     // do_asset_transfer(receiver=Txn.sender, asset=self.asset_b, amount=b_amt)
     txn Sender
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:200-201
+    // # Send back commensurate amt of b
+    // do_asset_transfer(receiver=Txn.sender, asset=self.asset_b, amount=b_amt)
     app_global_get_ex
     assert // check asset_b exists
     uncover 2
@@ -1095,7 +1233,7 @@ tokens_to_burn:
     frame_dig -2
     frame_dig -1
     *
-    uncover 1
+    swap
     /
     retsub
 
@@ -1124,21 +1262,31 @@ swap:
     // amm/contract.py:225
     // assert a_asset == self.asset_a, "asset a incorrect"
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:225
+    // assert a_asset == self.asset_a, "asset a incorrect"
     app_global_get_ex
     assert // check asset_a exists
     frame_dig -2
-    uncover 1
+    swap
     ==
     assert // asset a incorrect
     // amm/contract.py:226
     // assert b_asset == self.asset_b, "asset b incorrect"
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:226
+    // assert b_asset == self.asset_b, "asset b incorrect"
     app_global_get_ex
     assert // check asset_b exists
     frame_dig -1
-    uncover 1
+    swap
     ==
     assert // asset b incorrect
     // amm/contract.py:228
@@ -1158,13 +1306,23 @@ swap:
     // amm/contract.py:232
     // case self.asset_a:
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:232
+    // case self.asset_a:
     app_global_get_ex
     assert // check asset_a exists
     // amm/contract.py:236
     // case self.asset_b:
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:236
+    // case self.asset_b:
     app_global_get_ex
     assert // check asset_b exists
     // amm/contract.py:231
@@ -1202,7 +1360,12 @@ swap_switch_case_0@1:
     // amm/contract.py:235
     // out_asset = self.asset_a
     int 0
+    // amm/contract.py:32-33
+    // # The asset id of asset A
+    // self.asset_a = Asset()
     byte "asset_a"
+    // amm/contract.py:235
+    // out_asset = self.asset_a
     app_global_get_ex
     assert // check asset_a exists
     frame_bury 1
@@ -1219,7 +1382,12 @@ swap_switch_case_1@2:
     // amm/contract.py:239
     // out_asset = self.asset_b
     int 0
+    // amm/contract.py:34-35
+    // # The asset id of asset B
+    // self.asset_b = Asset()
     byte "asset_b"
+    // amm/contract.py:239
+    // out_asset = self.asset_b
     app_global_get_ex
     assert // check asset_b exists
     frame_bury 1
@@ -1272,7 +1440,7 @@ tokens_to_swap:
     frame_dig -3
     -
     int 1000
-    uncover 1
+    swap
     *
     frame_dig -3
     int 995
@@ -1287,7 +1455,7 @@ tokens_to_swap:
     *
     // amm/contract.py:353
     // return out_total // in_total
-    uncover 1
+    swap
     /
     retsub
 
@@ -1314,7 +1482,7 @@ __init__:
     // self.governor = Txn.sender
     txn Sender
     byte "governor"
-    uncover 1
+    swap
     app_global_put
     // amm/contract.py:38-39
     // # The asset id of the Pool Token, used to track share of pool the holder may recover

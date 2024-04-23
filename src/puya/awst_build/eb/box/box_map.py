@@ -27,6 +27,7 @@ from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
     expect_operand_wtype,
     get_arg_mapping,
+    require_expression_builder,
     require_type_class_eb,
 )
 from puya.errors import CodeError, InternalError
@@ -54,10 +55,10 @@ class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder):
                 TypeClassExpressionBuilder() as key_eb,
                 TypeClassExpressionBuilder() as contents_eb,
             ]:
-                key_wtype = key_eb.produces()
+                _key_wtype = key_eb.produces()
                 content_wtype = contents_eb.produces()
                 self.wtype = wtypes.WBoxMapProxy.from_key_and_content_type(
-                    key_wtype=key_wtype, content_wtype=content_wtype
+                    content_wtype=content_wtype
                 )
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
@@ -78,11 +79,9 @@ class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder):
             args=zip(arg_names, args, strict=True),
             location=location,
         )
-        key_wtype = require_type_class_eb(arg_map.pop("key_type")).produces()
+        _key_wtype = require_type_class_eb(arg_map.pop("key_type")).produces()
         content_wtype = require_type_class_eb(arg_map.pop("_type")).produces()
-        wtype = wtypes.WBoxMapProxy.from_key_and_content_type(
-            key_wtype=key_wtype, content_wtype=content_wtype
-        )
+        wtype = wtypes.WBoxMapProxy.from_key_and_content_type(content_wtype)
         if not self.wtype:
             self.wtype = wtype
         elif self.wtype != wtype:
@@ -111,7 +110,7 @@ def _box_key_expr(
 ) -> BoxKeyExpression:
     if not isinstance(box_map_proxy.wtype, wtypes.WBoxMapProxy):
         raise InternalError(f"box_map_proxy must be wtype of {wtypes.WBoxMapProxy}", location)
-    item_key: Expression = expect_operand_wtype(key, box_map_proxy.wtype.key_wtype)
+    item_key: Expression = require_expression_builder(key).rvalue()
 
     if wtypes.is_uint64_on_stack(item_key.wtype):
         item_key = intrinsic_factory.itob(
@@ -131,7 +130,7 @@ def _box_value_expr(
 ) -> BoxValueExpression:
     if not isinstance(box_map_proxy.wtype, wtypes.WBoxMapProxy):
         raise InternalError(f"box_map_proxy must be wtype of {wtypes.WBoxMapProxy}", location)
-    item_key: Expression = expect_operand_wtype(key, box_map_proxy.wtype.key_wtype)
+    item_key: Expression = require_expression_builder(key).rvalue()
 
     if wtypes.is_uint64_on_stack(item_key.wtype):
         item_key = intrinsic_factory.itob(

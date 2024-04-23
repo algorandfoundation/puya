@@ -1624,14 +1624,6 @@ class BoxProxyField(Expression):
 
 
 @attrs.frozen
-class BoxProxyDefinition(Node):
-    member_name: str
-    key: bytes
-    proxy_wtype: WType
-    source_location: SourceLocation
-
-
-@attrs.frozen
 class BoxProxyExpression(Expression):
     """
     An expression representing the box proxy class 'instance'
@@ -1758,16 +1750,28 @@ class ContractMethod(Function):
 class AppStateKind(enum.Enum):
     app_global = enum.auto()
     account_local = enum.auto()
+    box = enum.auto()
+    box_ref = enum.auto()
+    box_map = enum.auto()
 
 
 @attrs.frozen
 class AppStateDefinition(Node):
     member_name: str
     kind: AppStateKind
-    key: bytes
-    key_encoding: BytesEncoding
     storage_wtype: WType
+    key_override: BytesConstant | None
     description: str | None
+
+    @property
+    def key(self) -> BytesConstant:
+        if self.key_override is not None:
+            return self.key_override
+        return BytesConstant(
+            value=self.member_name.encode("utf8"),
+            encoding=BytesEncoding.utf8,
+            source_location=self.source_location,
+        )
 
 
 @attrs.frozen
@@ -1818,23 +1822,17 @@ class ContractFragment(ModuleStatement):
     clear_program: ContractMethod | None = attrs.field()
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
     app_state: Mapping[str, AppStateDefinition]
-    static_boxes: Mapping[str, BoxProxyDefinition]
     reserved_scratch_space: StableSet[int]
     state_totals: StateTotals | None
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
-    symtable: Mapping[str, ContractMethod | AppStateDefinition | BoxProxyDefinition] = attrs.field(
-        init=False
-    )
+    symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)
 
     @symtable.default
     def _symtable_factory(
         self,
-    ) -> Mapping[str, ContractMethod | AppStateDefinition | BoxProxyDefinition]:
-        result: dict[str, ContractMethod | AppStateDefinition | BoxProxyDefinition] = {
-            **self.app_state,
-            **self.static_boxes,
-        }
+    ) -> Mapping[str, ContractMethod | AppStateDefinition]:
+        result: dict[str, ContractMethod | AppStateDefinition] = {**self.app_state}
         all_subs = itertools.chain(
             filter(None, (self.init, self.approval_program, self.clear_program)),
             self.subroutines,

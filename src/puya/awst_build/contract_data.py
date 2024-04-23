@@ -3,7 +3,7 @@ import typing
 
 import attrs
 
-from puya.awst.nodes import AppStateKind, StateTotals
+from puya.awst.nodes import AppStateKind, BytesConstant, ContractReference, StateTotals
 from puya.awst.wtypes import WType
 from puya.parse import SourceLocation
 from puya.utils import StableSet
@@ -14,6 +14,9 @@ class AppStateDeclType(enum.Enum):
     local_proxy = enum.auto()
     global_proxy = enum.auto()
     global_direct = enum.auto()
+    box = enum.auto()
+    box_ref = enum.auto()
+    box_map = enum.auto()
 
 
 @attrs.frozen
@@ -21,8 +24,11 @@ class AppStateDeclaration:
     member_name: str
     kind: AppStateKind
     storage_wtype: WType
+    key_override: BytesConstant | None
     decl_type: AppStateDeclType
     source_location: SourceLocation
+    defined_in: ContractReference
+    description: str | None
 
 
 @attrs.define
@@ -32,11 +38,4 @@ class ContractClassOptions:
     state_totals: StateTotals | None
 
 
-@attrs.frozen
-class BoxDeclaration:
-    member_name: str
-    wtype: WType
-    source_location: SourceLocation
-
-
-AppStorageDeclaration: typing.TypeAlias = AppStateDeclaration | BoxDeclaration
+AppStorageDeclaration: typing.TypeAlias = AppStateDeclaration

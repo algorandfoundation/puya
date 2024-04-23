@@ -13,13 +13,9 @@ from puya.ir.builder._utils import assign
 from puya.ir.builder.box import handle_box_assign
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
-    BytesConstant,
     Intrinsic,
     Value,
     ValueProvider,
-)
-from puya.ir.types_ import (
-    bytes_enc_to_avm_bytes_enc,
 )
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
@@ -89,11 +85,7 @@ def handle_assignment(
                 Intrinsic(
                     op=AVMOp.app_global_put,
                     args=[
-                        BytesConstant(
-                            value=state_def.key,
-                            source_location=key_loc,
-                            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
-                        ),
+                        context.visitor.visit_bytes_constant(state_def.key),
                         source[0],
                     ],
                     source_location=assignment_location,
@@ -117,11 +109,7 @@ def handle_assignment(
                     op=AVMOp.app_local_put,
                     args=[
                         account,
-                        BytesConstant(
-                            value=state_def.key,
-                            source_location=key_loc,
-                            encoding=bytes_enc_to_avm_bytes_enc(state_def.key_encoding),
-                        ),
+                        context.visitor.visit_bytes_constant(state_def.key),
                         source[0],
                     ],
                     source_location=assignment_location,

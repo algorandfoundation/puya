@@ -191,24 +191,24 @@ class ToCodeVisitor(
             state_by_kind = dict[AppStateKind, list[nodes.AppStateDefinition]]()
             for state in c.app_state.values():
                 state_by_kind.setdefault(state.kind, []).append(state)
-            global_state = state_by_kind.pop(AppStateKind.app_global, [])
-            if global_state:
-                body.extend(
-                    [
-                        "globals {",
-                        *_indent(f"[{bytes_str(s.key)}]: {s.storage_wtype}" for s in global_state),
-                        "}",
-                    ]
-                )
-            local_state = state_by_kind.pop(AppStateKind.account_local, [])
-            if local_state:
-                body.extend(
-                    [
-                        "locals {",
-                        *_indent(f"[{bytes_str(s.key)}]: {s.storage_wtype}" for s in local_state),
-                        "}",
-                    ]
-                )
+            for kind_name, kind in (
+                ("globals", AppStateKind.app_global),
+                ("locals", AppStateKind.account_local),
+                ("boxes", AppStateKind.box),
+                ("box_refs", AppStateKind.box_ref),
+                ("box_maps", AppStateKind.box_map),
+            ):
+                state_of_kind = state_by_kind.pop(kind, [])
+                if state_of_kind:
+                    body.extend(
+                        [
+                            f"{kind_name} {{",
+                            *_indent(
+                                f"[{s.key.accept(self)}]: {s.storage_wtype}" for s in state_of_kind
+                            ),
+                            "}",
+                        ]
+                    )
             if state_by_kind:
                 raise InternalError(
                     f"Unhandled app state kinds: {', '.join(map(str, state_by_kind.keys()))}",
