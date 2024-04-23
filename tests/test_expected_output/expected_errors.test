@@ -257,3 +257,15 @@ def unsupported_biguint_operator() -> None:
 def unsupported_uint64_operator() -> None:
     assert UInt64() @ 2 # type: ignore[operator,misc] ## E: Unsupported UInt64 math operator '@'
 
+
+## case: super_with_data_member
+from algopy import *
+
+class Base(ARC4Contract):
+    def __init__(self) -> None:
+        self.foo = UInt64(1)
+
+
+class Derived(Base):
+    def __init__(self) -> None:
+        self.foo2 = 2 * super().foo ## E: super() is only supported for method calls
