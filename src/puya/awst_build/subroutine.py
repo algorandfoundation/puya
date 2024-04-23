@@ -1,6 +1,6 @@
 import contextlib
 import typing
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterator, Sequence
 from functools import partialmethod
 
 import attrs
@@ -52,7 +52,6 @@ from puya.awst.wtypes import WType
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
@@ -112,7 +111,6 @@ logger = log.get_logger(__name__)
 class ContractMethodInfo:
     type_info: mypy.nodes.TypeInfo
     cref: ContractReference
-    app_storage: Mapping[str, AppStorageDeclaration]
     arc4_method_config: ARC4MethodConfig | None
 
 
@@ -720,7 +718,6 @@ class FunctionASTConverter(
                 )
                 return ContractSelfExpressionBuilder(
                     context=self.context,
-                    app_storage=self.contract_method_info.app_storage,
                     type_info=self.contract_method_info.type_info,
                     location=expr_loc,
                 )
