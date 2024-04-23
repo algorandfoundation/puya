@@ -34,6 +34,7 @@ from puya.awst_build.utils import (
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig, OnCompletionAction
 from puya.parse import SourceLocation
+from puya.utils import unique
 
 ALLOWABLE_OCA = frozenset(
     [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
@@ -61,13 +62,21 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         this_app_state = list(_gather_app_storage(context, class_def.info))
         self.app_state = _gather_app_storage_recursive(context, class_def, this_app_state)
 
+        # if the class has an __init__ method, we need to visit it first, so any storage
+        # fields cane be resolved to a (static) key
+        match class_def.info.names.get("__init__"):
+            case mypy.nodes.SymbolTableNode(node=mypy.nodes.Statement() as init_node):
+                stmts = unique((init_node, *class_def.defs.body))
+            case _:
+                stmts = class_def.defs.body
         # note: we iterate directly and catch+log code errors here,
         #       since each statement should be somewhat independent given
         #       the constraints we place (e.g. if one function fails to convert,
         #       we can still keep trying to convert other functions to produce more valid errors)
-        for stmt in class_def.defs.body:
+        for stmt in stmts:
             with context.log_exceptions(fallback_location=stmt):
                 stmt.accept(self)
+        # TODO: validation for state proxies being non-conditional
 
         collected_app_state_definitions = {
             app_state_defn.member_name: app_state_defn
