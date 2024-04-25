@@ -12,7 +12,7 @@ def get_artifact_folders(root_dir: str) -> Iterator[Path]:
 
 def compile_contract(folder: Path) -> None:
     contract_path = folder / "contract.py"
-    (folder / "avm").mkdir(exist_ok=True)
+    (folder / "data").mkdir(exist_ok=True)
     subprocess.run(
         ["algokit", "compile", "python", str(contract_path), "--out-dir", "data"], check=True
     )
