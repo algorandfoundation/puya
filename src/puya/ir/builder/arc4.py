@@ -758,9 +758,11 @@ def _read_nth_item_of_arc4_homogeneous_container(
             args=[
                 index,
                 UInt64Constant(
-                    value=item_bit_size
-                    if item_wtype == wtypes.arc4_bool_wtype
-                    else (item_bit_size // 8),
+                    value=(
+                        item_bit_size
+                        if item_wtype == wtypes.arc4_bool_wtype
+                        else (item_bit_size // 8)
+                    ),
                     source_location=source_location,
                 ),
             ],

@@ -101,22 +101,18 @@ class ExpressionBuilder(abc.ABC):
         """Handle boolean-ness evaluation, possibly inverted (ie "not" unary operator)"""
 
     @abc.abstractmethod
-    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
-        ...
+    def unary_plus(self, location: SourceLocation) -> ExpressionBuilder: ...
 
     @abc.abstractmethod
-    def unary_minus(self, location: SourceLocation) -> ExpressionBuilder:
-        ...
+    def unary_minus(self, location: SourceLocation) -> ExpressionBuilder: ...
 
     @abc.abstractmethod
-    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
-        ...
+    def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder: ...
 
     @abc.abstractmethod
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        ...
+    ) -> ExpressionBuilder: ...
 
     @property
     def value_type(self) -> wtypes.WType | None:
@@ -331,8 +327,7 @@ class TypeClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
     # TODO: better error messages for rvalue/lvalue/delete
 
     @abc.abstractmethod
-    def produces(self) -> wtypes.WType:
-        ...
+    def produces(self) -> wtypes.WType: ...
 
 
 class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
@@ -344,8 +339,7 @@ class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
     @abc.abstractmethod
     def index_multiple(
         self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> TypeClassExpressionBuilder:
-        ...
+    ) -> TypeClassExpressionBuilder: ...
 
     @abc.abstractmethod
     def call(
@@ -354,8 +348,7 @@ class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> ExpressionBuilder:
-        ...
+    ) -> ExpressionBuilder: ...
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         raise CodeError(

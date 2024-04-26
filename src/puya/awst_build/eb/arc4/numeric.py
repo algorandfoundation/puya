@@ -84,8 +84,7 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
                 )
 
     @abc.abstractmethod
-    def zero_literal(self) -> ConstantValue:
-        ...
+    def zero_literal(self) -> ConstantValue: ...
 
 
 class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
@@ -107,8 +106,7 @@ class _UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
         return self
 
     @abc.abstractmethod
-    def check_bitsize(self, n: int, location: SourceLocation) -> None:
-        ...
+    def check_bitsize(self, n: int, location: SourceLocation) -> None: ...
 
     def zero_literal(self) -> ConstantValue:
         return 0
@@ -150,8 +148,7 @@ class _UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
         return self
 
     @abc.abstractmethod
-    def check_bitsize(self, n: int, location: SourceLocation) -> None:
-        ...
+    def check_bitsize(self, n: int, location: SourceLocation) -> None: ...
 
     def zero_literal(self) -> ConstantValue:
         return "0.0"

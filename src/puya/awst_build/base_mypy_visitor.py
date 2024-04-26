@@ -55,8 +55,7 @@ class BaseMyPyStatementVisitor(
         return self.empty_statement(o)
 
     @abc.abstractmethod
-    def empty_statement(self, stmt: mypy.nodes.Statement) -> _TStatement:
-        ...
+    def empty_statement(self, stmt: mypy.nodes.Statement) -> _TStatement: ...
 
     # ~~~ simplify function (decorated, overloaded, normal) visitation ~~~ #
 
@@ -139,8 +138,7 @@ class BaseMyPyStatementVisitor(
         self,
         fdef: mypy.nodes.FuncDef,
         decorator: mypy.nodes.Decorator | None,
-    ) -> _TStatement:
-        ...
+    ) -> _TStatement: ...
 
     # ~~~ unsupported scope modifiers ~~~ #
     def visit_global_decl(self, stmt: mypy.nodes.GlobalDecl) -> typing.Never:

@@ -32,11 +32,9 @@ class MemoryReplacerWithRedundantAssignmentRemoval(MemoryReplacer):
 
 
 class CoalesceGroupStrategy(t.Protocol):
-    def get_group_key(self, reg: models.Register) -> object:
-        ...
+    def get_group_key(self, reg: models.Register) -> object: ...
 
-    def determine_group_replacement(self, regs: Iterable[models.Register]) -> models.Register:
-        ...
+    def determine_group_replacement(self, regs: Iterable[models.Register]) -> models.Register: ...
 
 
 def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subroutine) -> int:

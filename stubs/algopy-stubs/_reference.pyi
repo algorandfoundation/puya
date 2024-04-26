@@ -16,13 +16,16 @@ class Account(BytesBacked):
         check, use `Address.from_bytes(...)` instead.
         Defaults to the zero-address.
         """
+
     def __eq__(self, other: Account | str) -> bool:  # type: ignore[override]
         """Account equality is determined by the address of another `Account` or `str`"""
+
     def __ne__(self, other: Account | str) -> bool:  # type: ignore[override]
         """Account equality is determined by the address of another `Account` or `str`"""
     # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero-address"""
+
     @property
     def balance(self) -> UInt64:
         """Account balance in microalgos
@@ -31,6 +34,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def min_balance(self) -> UInt64:
         """Minimum required balance for account, in microalgos
@@ -39,6 +43,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def auth_address(self) -> Account:
         """Address the account is rekeyed to
@@ -47,6 +52,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def total_num_uint(self) -> UInt64:
         """The total number of uint64 values allocated by this account in Global and Local States.
@@ -55,6 +61,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def total_num_byte_slice(self) -> Bytes:
         """The total number of byte array values allocated by this account in Global and Local States.
@@ -63,6 +70,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def total_extra_app_pages(self) -> UInt64:
         """The number of extra app code pages used by this account.
@@ -71,6 +79,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def total_apps_created(self) -> UInt64:
         """The number of existing apps created by this account.
@@ -79,6 +88,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def total_apps_opted_in(self) -> UInt64:
         """The number of apps this account is opted into.
@@ -87,6 +97,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def total_assets_created(self) -> UInt64:
         """The number of existing ASAs created by this account.
@@ -95,6 +106,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def total_assets(self) -> UInt64:
         """The numbers of ASAs held by this account (including ASAs this account created).
@@ -103,6 +115,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def total_boxes(self) -> UInt64:
         """The number of existing boxes created by this account's app.
@@ -111,6 +124,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     @property
     def total_box_bytes(self) -> UInt64:
         """The total number of bytes used by this account's app's box keys and values.
@@ -119,6 +133,7 @@ class Account(BytesBacked):
         Account must be an available resource
         ```
         """
+
     def is_opted_in(self, asset_or_app: Asset | Application, /) -> bool:
         """Returns true if this account is opted in to the specified Asset or Application.
 
@@ -132,16 +147,20 @@ class Asset:
 
     def __init__(self, asset_id: UInt64 | int = 0, /):
         """Initialized with the id of an asset. Defaults to zero (an invalid ID)."""
+
     @property
     def id(self) -> UInt64:
         """Returns the id of the Asset"""
+
     def __eq__(self, other: Asset) -> bool:  # type: ignore[override]
         """Asset equality is determined by the equality of an Asset's id"""
+
     def __ne__(self, other: Asset) -> bool:  # type: ignore[override]
         """Asset equality is determined by the equality of an Asset's id"""
     # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if `asset_id` is not `0`"""
+
     @property
     def total(self) -> UInt64:
         """Total number of units of this asset
@@ -150,6 +169,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def decimals(self) -> UInt64:
         """See AssetParams.Decimals
@@ -158,6 +178,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def default_frozen(self) -> bool:
         """Frozen by default or not
@@ -166,6 +187,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def unit_name(self) -> Bytes:
         """Asset unit name
@@ -174,6 +196,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def name(self) -> Bytes:
         """Asset name
@@ -182,6 +205,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def url(self) -> Bytes:
         """URL with additional info about the asset
@@ -190,6 +214,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def metadata_hash(self) -> Bytes:
         """Arbitrary commitment
@@ -198,6 +223,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def manager(self) -> Account:
         """Manager address
@@ -206,6 +232,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def reserve(self) -> Account:
         """Reserve address
@@ -214,6 +241,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def freeze(self) -> Account:
         """Freeze address
@@ -222,6 +250,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def clawback(self) -> Account:
         """Clawback address
@@ -230,6 +259,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     @property
     def creator(self) -> Account:
         """Creator address
@@ -238,6 +268,7 @@ class Asset:
         Asset must be an available resource
         ```
         """
+
     def balance(self, account: Account, /) -> UInt64:
         """Amount of the asset unit held by this account. Fails if the account has not
         opted in to the asset.
@@ -246,6 +277,7 @@ class Asset:
         Asset and supplied Account must be an available resource
         ```
         """
+
     def frozen(self, account: Account, /) -> bool:
         """Is the asset frozen or not. Fails if the account has not
         opted in to the asset.
@@ -260,16 +292,20 @@ class Application:
 
     def __init__(self, application_id: UInt64 | int = 0, /):
         """Initialized with the id of an application. Defaults to zero (an invalid ID)."""
+
     @property
     def id(self) -> UInt64:
         """Returns the id of the application"""
+
     def __eq__(self, other: Application) -> bool:  # type: ignore[override]
         """Application equality is determined by the equality of an Application's id"""
+
     def __ne__(self, other: Application) -> bool:  # type: ignore[override]
         """Application equality is determined by the equality of an Application's id"""
     # truthiness
     def __bool__(self) -> bool:
         """Returns `True` if `application_id` is not `0`"""
+
     @property
     def approval_program(self) -> Bytes:
         """Bytecode of Approval Program
@@ -278,6 +314,7 @@ class Application:
         Application must be an available resource
         ```
         """
+
     @property
     def clear_state_program(self) -> Bytes:
         """Bytecode of Clear State Program
@@ -286,6 +323,7 @@ class Application:
         Application must be an available resource
         ```
         """
+
     @property
     def global_num_uint(self) -> UInt64:
         """Number of uint64 values allowed in Global State
@@ -294,6 +332,7 @@ class Application:
         Application must be an available resource
         ```
         """
+
     @property
     def global_num_bytes(self) -> UInt64:
         """Number of byte array values allowed in Global State
@@ -302,6 +341,7 @@ class Application:
         Application must be an available resource
         ```
         """
+
     @property
     def local_num_uint(self) -> UInt64:
         """Number of uint64 values allowed in Local State
@@ -310,6 +350,7 @@ class Application:
         Application must be an available resource
         ```
         """
+
     @property
     def local_num_bytes(self) -> UInt64:
         """Number of byte array values allowed in Local State
@@ -318,6 +359,7 @@ class Application:
         Application must be an available resource
         ```
         """
+
     @property
     def extra_program_pages(self) -> UInt64:
         """Number of Extra Program Pages of code space
@@ -326,6 +368,7 @@ class Application:
         Application must be an available resource
         ```
         """
+
     @property
     def creator(self) -> Account:
         """Creator address
@@ -334,6 +377,7 @@ class Application:
         Application must be an available resource
         ```
         """
+
     @property
     def address(self) -> Account:
         """Address for which this application has authority

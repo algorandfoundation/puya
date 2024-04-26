@@ -81,10 +81,12 @@ class Contract(abc.ABC):
          constructor, like so `state_totals=StateTotals()`, in which case all values will be
          automatically calculated.
         """
+
     @abc.abstractmethod
     def approval_program(self) -> UInt64 | bool:
         """Represents the program called for all transactions
         where `OnCompletion` != `ClearState`"""
+
     @abc.abstractmethod
     def clear_state_program(self) -> UInt64 | bool:
         """Represents the program called when `OnCompletion` == `ClearState`"""

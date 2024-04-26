@@ -94,12 +94,10 @@ class AlignedWriter:
 
 class OpAnnotater(abc.ABC):
     @abc.abstractmethod
-    def annotate(self, writer: AlignedWriter, op: models.BaseOp) -> None:
-        ...
+    def annotate(self, writer: AlignedWriter, op: models.BaseOp) -> None: ...
 
     @abc.abstractmethod
-    def begin_block(self, writer: AlignedWriter, block: models.MemoryBasicBlock) -> None:
-        ...
+    def begin_block(self, writer: AlignedWriter, block: models.MemoryBasicBlock) -> None: ...
 
 
 @attrs.frozen
@@ -131,12 +129,10 @@ class EmitSubroutineContext(EmitProgramContext):
 
 class MIRAnnotater(abc.ABC):
     @abc.abstractmethod
-    def header(self, writer: AlignedWriter) -> None:
-        ...
+    def header(self, writer: AlignedWriter) -> None: ...
 
     @abc.abstractmethod
-    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater:
-        ...
+    def create_op_annotater(self, context: EmitSubroutineContext) -> OpAnnotater: ...
 
 
 class BeginCommentsAnnotater(MIRAnnotater):

@@ -27,8 +27,7 @@ class Context(t.Protocol):
 
 class IRVisitable(Context, abc.ABC):
     @abc.abstractmethod
-    def accept(self, visitor: IRVisitor[T]) -> T:
-        ...
+    def accept(self, visitor: IRVisitor[T]) -> T: ...
 
     def __str__(self) -> str:
         from puya.ir.to_text_visitor import ToTextVisitor
@@ -45,8 +44,7 @@ class _Freezable(abc.ABC):
         return self.__class__, data
 
     @abc.abstractmethod
-    def _frozen_data(self) -> object:
-        ...
+    def _frozen_data(self) -> object: ...
 
 
 # NOTE! we don't want structural equality in the IR, everything needs to have eq=False
@@ -61,8 +59,7 @@ class ValueProvider(IRVisitable, _Freezable, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def types(self) -> Sequence[IRType]:
-        ...
+    def types(self) -> Sequence[IRType]: ...
 
     @property
     @t.final

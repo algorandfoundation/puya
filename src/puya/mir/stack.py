@@ -171,9 +171,11 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         if self.use_frame:
             return [teal.FrameDig(frame_dig, source_location=load.source_location)]
         return [
-            teal.Dig(dig, source_location=load.source_location)
-            if dig
-            else teal.Dup(source_location=load.source_location)
+            (
+                teal.Dig(dig, source_location=load.source_location)
+                if dig
+                else teal.Dup(source_location=load.source_location)
+            )
         ]
 
     def visit_store_x_stack(self, store: models.StoreXStack) -> list[teal.TealOp]:
@@ -232,9 +234,11 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         if load.copy:
             self.l_stack.append(local_id)
             return [
-                teal.Dup(source_location=load.source_location)
-                if uncover == 0
-                else teal.Dig(uncover, source_location=load.source_location)
+                (
+                    teal.Dup(source_location=load.source_location)
+                    if uncover == 0
+                    else teal.Dig(uncover, source_location=load.source_location)
+                )
             ]
         else:
             self.l_stack.pop(index)
@@ -294,9 +298,11 @@ class Stack(MIRVisitor[list[teal.TealOp]]):
         for _ in range(pop.n):
             self.l_stack.pop()
         return [
-            teal.PopN(pop.n, source_location=pop.source_location)
-            if pop.n > 1
-            else teal.Pop(source_location=pop.source_location)
+            (
+                teal.PopN(pop.n, source_location=pop.source_location)
+                if pop.n > 1
+                else teal.Pop(source_location=pop.source_location)
+            )
         ]
 
     def visit_callsub(self, callsub: models.CallSub) -> list[teal.TealOp]:

@@ -186,9 +186,11 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
                 result = BooleanBinaryOperation(
                     left=result,
                     right=compare_one(get_index(self.expr, i), get_index(other_expr, i)),
-                    op=BinaryBooleanOperator.and_
-                    if op == BuilderComparisonOp.eq
-                    else BinaryBooleanOperator.or_,
+                    op=(
+                        BinaryBooleanOperator.and_
+                        if op == BuilderComparisonOp.eq
+                        else BinaryBooleanOperator.or_
+                    ),
                     source_location=location,
                 )
                 i += 1

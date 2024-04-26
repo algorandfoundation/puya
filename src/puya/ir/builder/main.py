@@ -86,9 +86,11 @@ class FunctionIRBuilder(
             if not result[-1].terminated:
                 raise CodeError(
                     "Expected a return statement",
-                    function.body.body[-1].source_location
-                    if function.body.body
-                    else function.source_location,
+                    (
+                        function.body.body[-1].source_location
+                        if function.body.body
+                        else function.source_location
+                    ),
                 )
             subroutine.body = result
             subroutine.validate_with_ssa()

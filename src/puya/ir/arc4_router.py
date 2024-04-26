@@ -218,9 +218,11 @@ def assert_create_state(
     existing_app = has_app_id(location)
     return (
         awst_nodes.AssertStatement(
-            condition=awst_nodes.Not(expr=existing_app, source_location=location)
-            if config.require_create
-            else existing_app,
+            condition=(
+                awst_nodes.Not(expr=existing_app, source_location=location)
+                if config.require_create
+                else existing_app
+            ),
             comment="is creating" if config.require_create else "is not creating",
             source_location=location,
         ),

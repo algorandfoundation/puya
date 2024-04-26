@@ -184,15 +184,13 @@ def expect_operand_wtype(
 @typing.overload
 def convert_literal(
     literal_or_expr: Literal | Expression, target_wtype: wtypes.WType
-) -> Expression:
-    ...
+) -> Expression: ...
 
 
 @typing.overload
 def convert_literal(
     literal_or_expr: ExpressionBuilder, target_wtype: wtypes.WType
-) -> ExpressionBuilder:
-    ...
+) -> ExpressionBuilder: ...
 
 
 def convert_literal(

@@ -233,9 +233,9 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
 @attrs.define
 class UnusedRegisterCollector(visitor.IRTraverser):
     used: set[models.Register] = attrs.field(factory=set)
-    assigned: dict[
-        models.Register, tuple[models.BasicBlock, models.Assignment | models.Phi]
-    ] = attrs.field(factory=dict)
+    assigned: dict[models.Register, tuple[models.BasicBlock, models.Assignment | models.Phi]] = (
+        attrs.field(factory=dict)
+    )
 
     @classmethod
     def collect(

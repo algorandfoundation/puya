@@ -210,8 +210,7 @@ class FunctionASTConverter(
         context: ASTConversionModuleContext,
         func_def: mypy.nodes.FuncDef,
         source_location: SourceLocation,
-    ) -> Subroutine:
-        ...
+    ) -> Subroutine: ...
 
     @classmethod
     @typing.overload
@@ -221,8 +220,7 @@ class FunctionASTConverter(
         func_def: mypy.nodes.FuncDef,
         source_location: SourceLocation,
         contract_method_info: ContractMethodInfo,
-    ) -> ContractMethod:
-        ...
+    ) -> ContractMethod: ...
 
     @classmethod
     def convert(
@@ -532,10 +530,13 @@ class FunctionASTConverter(
                     )
                     case_block = self.visit_block(block)
                     case_block_map[case_value] = case_block
-                case mypy.patterns.ClassPattern(
-                    positionals=[mypy.patterns.ValuePattern(expr=inner_literal_expr)],
-                    class_ref=mypy.nodes.RefExpr(fullname=fullname),
-                ), None if fullname in (
+                case (
+                    mypy.patterns.ClassPattern(
+                        positionals=[mypy.patterns.ValuePattern(expr=inner_literal_expr)],
+                        class_ref=mypy.nodes.RefExpr(fullname=fullname),
+                    ),
+                    None,
+                ) if fullname in (
                     constants.CLS_UINT64,
                     constants.CLS_BIGUINT,
                     constants.CLS_BYTES,
@@ -697,11 +698,9 @@ class FunctionASTConverter(
                     ) from ex
                 else:
                     return Literal(source_location=expr_loc, value=constant_value)
-            case (
-                mypy.nodes.NameExpr(
-                    kind=mypy.nodes.LDEF, node=mypy.nodes.Var(), name=var_name
-                ) as name_expr
-            ):
+            case mypy.nodes.NameExpr(
+                kind=mypy.nodes.LDEF, node=mypy.nodes.Var(), name=var_name
+            ) as name_expr:
                 self._precondition(
                     not name_expr.is_special_form,
                     "special form lvalues should only appear"
@@ -1232,20 +1231,17 @@ class FunctionASTConverter(
 
 
 @typing.overload
-def temporary_assignment_if_required(operand: Literal) -> Literal:
-    ...
+def temporary_assignment_if_required(operand: Literal) -> Literal: ...
 
 
 @typing.overload
-def temporary_assignment_if_required(operand: Expression) -> ExpressionBuilder:
-    ...
+def temporary_assignment_if_required(operand: Expression) -> ExpressionBuilder: ...
 
 
 @typing.overload
 def temporary_assignment_if_required(
     operand: ExpressionBuilder,
-) -> ExpressionBuilder:
-    ...
+) -> ExpressionBuilder: ...
 
 
 def temporary_assignment_if_required(

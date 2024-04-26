@@ -50,9 +50,11 @@ class ApplicationCallInnerTransaction(
 
     def logs(self, index: UInt64 | int) -> Bytes:
         """Log messages emitted by an application call"""
+
     @property
     def num_logs(self) -> UInt64:
         """Number of logs"""
+
     @property
     def created_app(self) -> Application:
         """ApplicationID allocated by the creation of an application"""
@@ -76,6 +78,7 @@ _TResult_co = typing.TypeVar(
 class _InnerTransaction(typing.Protocol[_TResult_co]):
     def submit(self) -> _TResult_co:
         """Submits inner transaction parameters and returns the resulting inner transaction"""
+
     def copy(self) -> typing.Self:
         """Copies a set of inner transaction parameters"""
 
