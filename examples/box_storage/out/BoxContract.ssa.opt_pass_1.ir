@@ -149,35 +149,35 @@ contract examples.box_storage.contract.BoxContract:
         subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: bytes, c: bytes) -> void:
             block@0: // L15
                 let new_box_value%0#0: bytes = (itob a#0)
-                (box_put 0x424f585f41 new_box_value%0#0)
-                let box_del_res%0#0: bool = (box_del 0x62)
-                (box_put 0x62 b#0)
-                let box_del_res%1#0: bool = (box_del 0x424f585f43)
-                (box_put 0x424f585f43 c#0)
-                let (box_value%0#0: bytes, box_exists%0#0: bool) = (box_get 0x424f585f41)
+                (box_put "BOX_A" new_box_value%0#0)
+                let box_del_res%0#0: bool = (box_del "b")
+                (box_put "b" b#0)
+                let box_del_res%1#0: bool = (box_del "BOX_C")
+                (box_put "BOX_C" c#0)
+                let (box_value%0#0: bytes, box_exists%0#0: bool) = (box_get "BOX_A")
                 let box_value_uint64%0#0: uint64 = (btoi box_value%0#0)
                 (assert box_exists%0#0) // Box must exist
                 let new_box_value%1#0: uint64 = (+ box_value_uint64%0#0 3u)
                 let new_box_value%2#0: bytes = (itob new_box_value%1#0)
-                (box_put 0x424f585f41 new_box_value%2#0)
+                (box_put "BOX_A" new_box_value%2#0)
                 return 
         
         subroutine examples.box_storage.contract.BoxContract.read_boxes() -> <uint64, bytes, bytes>:
             block@0: // L23
-                let (box_value%0#0: bytes, box_exists%0#0: bool) = (box_get 0x424f585f41)
+                let (box_value%0#0: bytes, box_exists%0#0: bool) = (box_get "BOX_A")
                 let box_value_uint64%0#0: uint64 = (btoi box_value%0#0)
                 (assert box_exists%0#0) // Box must exist
-                let (box_value%1#0: bytes, box_exists%1#0: bool) = (box_get 0x62)
+                let (box_value%1#0: bytes, box_exists%1#0: bool) = (box_get "b")
                 (assert box_exists%1#0) // Box must exist
-                let (box_value%2#0: bytes, box_exists%2#0: bool) = (box_get 0x424f585f43)
+                let (box_value%2#0: bytes, box_exists%2#0: bool) = (box_get "BOX_C")
                 (assert box_exists%2#0) // Box must exist
                 return box_value_uint64%0#0 box_value%1#0 box_value%2#0
         
         subroutine examples.box_storage.contract.BoxContract.boxes_exist() -> <bool, bool, bool>:
             block@0: // L27
-                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len 0x424f585f41)
-                let (box_len%1#0: uint64, box_exists%1#0: bool) = (box_len 0x62)
-                let (box_len%2#0: uint64, box_exists%2#0: bool) = (box_len 0x424f585f43)
+                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len "BOX_A")
+                let (box_len%1#0: uint64, box_exists%1#0: bool) = (box_len "b")
+                let (box_len%2#0: uint64, box_exists%2#0: bool) = (box_len "BOX_C")
                 return box_exists%0#0 box_exists%1#0 box_exists%2#0
         
         subroutine examples.box_storage.contract.BoxContract.slice_box() -> void:
@@ -193,16 +193,16 @@ contract examples.box_storage.contract.BoxContract:
                 let tmp%7#0: bytes = (box_extract "0" tmp%1#0 tmp%6#0)
                 let tmp%8#0: bool = (== tmp%7#0 "Testing")
                 (assert tmp%8#0)
-                let box_del_res%1#0: bool = (box_del 0x424f585f43)
-                (box_put 0x424f585f43 "\x00\x05Hello")
-                let (box_len%1#0: uint64, box_exists%1#0: bool) = (box_len 0x424f585f43)
+                let box_del_res%1#0: bool = (box_del "BOX_C")
+                (box_put "BOX_C" "\x00\x05Hello")
+                let (box_len%1#0: uint64, box_exists%1#0: bool) = (box_len "BOX_C")
                 (assert box_exists%1#0) // Box must exist
                 let tmp%9#0: bool = (< 2u box_len%1#0)
                 let tmp%10#0: uint64 = (select box_len%1#0 2u tmp%9#0)
                 let tmp%11#0: bool = (< 10u box_len%1#0)
                 let tmp%12#0: uint64 = (select box_len%1#0 10u tmp%11#0)
                 let tmp%15#0: uint64 = (- tmp%12#0 tmp%10#0)
-                let tmp%16#0: bytes = (box_extract 0x424f585f43 tmp%10#0 tmp%15#0)
+                let tmp%16#0: bytes = (box_extract "BOX_C" tmp%10#0 tmp%15#0)
                 let tmp%17#0: bool = (== tmp%16#0 "Hello")
                 (assert tmp%17#0)
                 return 

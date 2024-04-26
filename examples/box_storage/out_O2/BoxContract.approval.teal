@@ -227,22 +227,22 @@ set_boxes:
     proto 3 0
     frame_dig -3
     itob
-    byte 0x424f585f41
+    byte "BOX_A"
     swap
     box_put
-    byte 0x62
+    byte "b"
     box_del
     pop
-    byte 0x62
+    byte "b"
     frame_dig -2
     box_put
-    byte 0x424f585f43
+    byte "BOX_C"
     box_del
     pop
-    byte 0x424f585f43
+    byte "BOX_C"
     frame_dig -1
     box_put
-    byte 0x424f585f41
+    byte "BOX_A"
     box_get
     swap
     btoi
@@ -251,7 +251,7 @@ set_boxes:
     int 3
     +
     itob
-    byte 0x424f585f41
+    byte "BOX_A"
     swap
     box_put
     retsub
@@ -260,16 +260,16 @@ set_boxes:
 // examples.box_storage.contract.BoxContract.read_boxes() -> uint64, bytes, bytes:
 read_boxes:
     proto 0 3
-    byte 0x424f585f41
+    byte "BOX_A"
     box_get
     swap
     btoi
     swap
     assert // Box must exist
-    byte 0x62
+    byte "b"
     box_get
     assert // Box must exist
-    byte 0x424f585f43
+    byte "BOX_C"
     box_get
     assert // Box must exist
     retsub
@@ -278,13 +278,13 @@ read_boxes:
 // examples.box_storage.contract.BoxContract.boxes_exist() -> uint64, uint64, uint64:
 boxes_exist:
     proto 0 3
-    byte 0x424f585f41
+    byte "BOX_A"
     box_len
     bury 1
-    byte 0x62
+    byte "b"
     box_len
     bury 1
-    byte 0x424f585f43
+    byte "BOX_C"
     box_len
     bury 1
     retsub
@@ -321,13 +321,13 @@ slice_box:
     byte "Testing"
     ==
     assert
-    byte 0x424f585f43
+    byte "BOX_C"
     box_del
     pop
-    byte 0x424f585f43
+    byte "BOX_C"
     byte "\x00\x05Hello"
     box_put
-    byte 0x424f585f43
+    byte "BOX_C"
     box_len
     assert // Box must exist
     int 2
@@ -347,7 +347,7 @@ slice_box:
     select
     dig 1
     -
-    byte 0x424f585f43
+    byte "BOX_C"
     cover 2
     box_extract
     byte "Hello"

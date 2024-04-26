@@ -20,12 +20,18 @@ main_entrypoint@2:
     // augmented_assignment/contract.py:23
     // self.my_uint[me] = UInt64(0)
     dupn 2
+    // augmented_assignment/contract.py:14
+    // self.my_uint = LocalState(UInt64)
     byte "my_uint"
+    // augmented_assignment/contract.py:23
+    // self.my_uint[me] = UInt64(0)
     int 0
     app_local_put
+    // augmented_assignment/contract.py:15
+    // self.my_bytes = LocalState(Bytes)
+    byte "my_bytes"
     // augmented_assignment/contract.py:24
     // self.my_bytes[me] = Bytes(b"")
-    byte "my_bytes"
     byte ""
     app_local_put
 
@@ -51,48 +57,86 @@ main_after_if_else@4:
     dup
     cover 2
     int 0
+    // augmented_assignment/contract.py:14
+    // self.my_uint = LocalState(UInt64)
     byte "my_uint"
+    // augmented_assignment/contract.py:30-32
+    // # local augmented assignment
+    // # this works, but need to silence mypy
+    // self.my_uint[me] += n
     app_local_get_ex
     assert // check my_uint exists for account
     dig 1
     +
     dig 2
+    // augmented_assignment/contract.py:14
+    // self.my_uint = LocalState(UInt64)
     byte "my_uint"
+    // augmented_assignment/contract.py:30-32
+    // # local augmented assignment
+    // # this works, but need to silence mypy
+    // self.my_uint[me] += n
     uncover 2
     app_local_put
     // augmented_assignment/contract.py:33
     // self.my_bytes[me] += bytes_to_add
     dig 1
     int 0
+    // augmented_assignment/contract.py:15
+    // self.my_bytes = LocalState(Bytes)
     byte "my_bytes"
+    // augmented_assignment/contract.py:33
+    // self.my_bytes[me] += bytes_to_add
     app_local_get_ex
     assert // check my_bytes exists for account
     dig 3
     concat
     uncover 2
+    // augmented_assignment/contract.py:15
+    // self.my_bytes = LocalState(Bytes)
     byte "my_bytes"
+    // augmented_assignment/contract.py:33
+    // self.my_bytes[me] += bytes_to_add
     uncover 2
     app_local_put
     // augmented_assignment/contract.py:35-36
     // # global augmented assignment
     // self.global_uint += n
     int 0
+    // augmented_assignment/contract.py:16
+    // self.global_uint = UInt64(0)
     byte "global_uint"
+    // augmented_assignment/contract.py:35-36
+    // # global augmented assignment
+    // self.global_uint += n
     app_global_get_ex
     assert // check global_uint exists
     +
+    // augmented_assignment/contract.py:16
+    // self.global_uint = UInt64(0)
     byte "global_uint"
+    // augmented_assignment/contract.py:35-36
+    // # global augmented assignment
+    // self.global_uint += n
     swap
     app_global_put
     // augmented_assignment/contract.py:37
     // self.global_bytes += bytes_to_add
     int 0
+    // augmented_assignment/contract.py:17
+    // self.global_bytes = Bytes(b"")
     byte "global_bytes"
+    // augmented_assignment/contract.py:37
+    // self.global_bytes += bytes_to_add
     app_global_get_ex
     assert // check global_bytes exists
     swap
     concat
+    // augmented_assignment/contract.py:17
+    // self.global_bytes = Bytes(b"")
     byte "global_bytes"
+    // augmented_assignment/contract.py:37
+    // self.global_bytes += bytes_to_add
     swap
     app_global_put
 

@@ -32,7 +32,7 @@ main_register_route@2:
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     txn OnCompletion
     int 1
-    uncover 1
+    swap
     shl
     int 3
     &
@@ -59,7 +59,7 @@ main_say_hello_route@3:
     assert // is not creating
     callsub say_hello
     byte 0x151f7c75
-    uncover 1
+    swap
     concat
     log
     int 1
@@ -82,7 +82,7 @@ main_calculate_route@4:
     // @abimethod
     callsub calculate
     byte 0x151f7c75
-    uncover 1
+    swap
     concat
     log
     int 1
@@ -166,7 +166,7 @@ remember_creator:
     // self.creator = op.Txn.sender
     txn Sender
     byte "creator"
-    uncover 1
+    swap
     app_global_put
     retsub
 
@@ -190,9 +190,13 @@ register:
     // sender_name, sender_name_existed = self.name.maybe(account=0)
     int 0
     int 0
+    // everything/contract.py:39
+    // self.name = LocalState(String)
     byte "name"
+    // everything/contract.py:51
+    // sender_name, sender_name_existed = self.name.maybe(account=0)
     app_local_get_ex
-    cover 1
+    swap
     pop
     // everything/contract.py:52
     // if not sender_name_existed:
@@ -200,13 +204,21 @@ register:
     // everything/contract.py:53
     // self.counter += multiplicative_identity()  # has full FuncDef
     int 0
+    // everything/contract.py:45
+    // self.counter = UInt64(ZERO)
     byte "counter"
+    // everything/contract.py:53
+    // self.counter += multiplicative_identity()  # has full FuncDef
     app_global_get_ex
     assert // check counter exists
     callsub multiplicative_identity
     +
+    // everything/contract.py:45
+    // self.counter = UInt64(ZERO)
     byte "counter"
-    uncover 1
+    // everything/contract.py:53
+    // self.counter += multiplicative_identity()  # has full FuncDef
+    swap
     app_global_put
 
 register_after_if_else@3:
@@ -215,7 +227,11 @@ register_after_if_else@4:
     // everything/contract.py:54
     // self.name[0] = name
     int 0
+    // everything/contract.py:39
+    // self.name = LocalState(String)
     byte "name"
+    // everything/contract.py:54
+    // self.name[0] = name
     frame_dig -1
     app_local_put
     retsub
@@ -246,7 +262,11 @@ say_hello:
     // name, exists = self.name.maybe(account=0)
     int 0
     int 0
+    // everything/contract.py:39
+    // self.name = LocalState(String)
     byte "name"
+    // everything/contract.py:59
+    // name, exists = self.name.maybe(account=0)
     app_local_get_ex
     // everything/contract.py:60
     // if not exists:
@@ -259,7 +279,7 @@ say_hello:
     extract 6 2
     byte "Howdy stranger!"
     concat
-    uncover 1
+    swap
     retsub
 
 say_hello_after_if_else@2:
@@ -279,7 +299,7 @@ say_hello_after_if_else@2:
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
     extract 2 0
     byte "!"
@@ -294,9 +314,9 @@ say_hello_after_if_else@2:
     len
     itob
     extract 6 2
-    uncover 1
+    swap
     concat
-    uncover 1
+    swap
     retsub
 
 
@@ -359,13 +379,21 @@ _remove_sender:
     // everything/contract.py:83
     // self.counter -= positive_one()
     int 0
+    // everything/contract.py:45
+    // self.counter = UInt64(ZERO)
     byte "counter"
+    // everything/contract.py:83
+    // self.counter -= positive_one()
     app_global_get_ex
     assert // check counter exists
     callsub positive_one
     -
+    // everything/contract.py:45
+    // self.counter = UInt64(ZERO)
     byte "counter"
-    uncover 1
+    // everything/contract.py:83
+    // self.counter -= positive_one()
+    swap
     app_global_put
     retsub
 

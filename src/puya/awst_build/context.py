@@ -1,5 +1,4 @@
 import contextlib
-from collections import defaultdict
 from collections.abc import Iterator, Sequence
 
 import attrs
@@ -9,13 +8,12 @@ import mypy.types
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    AppStateDefinition,
-    BoxProxyDefinition,
     ConstantValue,
     ContractReference,
     Literal as AWSTLiteral,
 )
 from puya.awst_build import constants
+from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.base import TypeClassExpressionBuilder
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, log_exceptions
@@ -37,11 +35,8 @@ class ASTConversionContext(CompileContext):
 @attrs.frozen(kw_only=True)
 class ASTConversionModuleContext(ASTConversionContext):
     current_module: mypy.nodes.MypyFile
-    state_defs: defaultdict[ContractReference, list[AppStateDefinition]] = attrs.field(
-        factory=lambda: defaultdict(list)
-    )
-    static_box_defs: defaultdict[ContractReference, list[BoxProxyDefinition]] = attrs.field(
-        factory=lambda: defaultdict(list)
+    state_defs: dict[ContractReference, dict[str, AppStorageDeclaration]] = attrs.field(
+        factory=dict
     )
 
     @property

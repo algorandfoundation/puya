@@ -9,7 +9,6 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateDefinition,
     AppStateKind,
-    BytesEncoding,
     ContractFragment,
     ContractMethod,
     ContractReference,
@@ -22,7 +21,6 @@ from puya.awst_build.contract_data import (
     AppStateDeclaration,
     AppStateDeclType,
     AppStorageDeclaration,
-    BoxDeclaration,
     ContractClassOptions,
 )
 from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
@@ -59,8 +57,22 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._clear_program: ContractMethod | None = None
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
-        this_app_state = list(_gather_app_storage(context, class_def.info))
-        self.app_state = _gather_app_storage_recursive(context, class_def, this_app_state)
+        self.context.state_defs[self.cref] = _gather_app_storage_recursive(context, class_def)
+        # this_app_state = list(_gather_app_storage(context, class_def.info))
+        # for decl in this_app_state:
+        #     if (
+        #         isinstance(decl, AppStateDeclaration)
+        #         and decl.decl_type is AppStateDeclType.global_direct
+        #     ):
+        #         context.state_defs[self.cref][decl.member_name] = AppStateDefinition(
+        #             member_name=decl.member_name,
+        #             storage_wtype=decl.storage_wtype,
+        #             key_override=None,
+        #             description=None,
+        #             source_location=decl.source_location,
+        #             kind=decl.kind,
+        #         )
+        # _combined_app_state = _gather_app_storage_recursive(context, class_def, this_app_state)
 
         # if the class has an __init__ method, we need to visit it first, so any storage
         # fields cane be resolved to a (static) key
@@ -78,27 +90,18 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 stmt.accept(self)
         # TODO: validation for state proxies being non-conditional
 
-        collected_app_state_definitions = {
-            app_state_defn.member_name: app_state_defn
-            for app_state_defn in context.state_defs[self.cref]
-        }
-        for decl in this_app_state:
-            if (
-                isinstance(decl, AppStateDeclaration)
-                and decl.decl_type is AppStateDeclType.global_direct
-            ):
-                collected_app_state_definitions[decl.member_name] = AppStateDefinition(
-                    member_name=decl.member_name,
-                    storage_wtype=decl.storage_wtype,
-                    key=decl.member_name.encode("utf8"),
-                    key_encoding=BytesEncoding.utf8,
-                    description=None,
-                    source_location=decl.source_location,
-                    kind=decl.kind,
+        app_state = {}
+        for name, state_decl in context.state_defs[self.cref].items():
+            if state_decl.defined_in == self.cref:
+                app_state[name] = AppStateDefinition(
+                    key_override=state_decl.key_override,
+                    description=state_decl.description,
+                    storage_wtype=state_decl.storage_wtype,
+                    source_location=state_decl.source_location,
+                    kind=state_decl.kind,
+                    member_name=name,
                 )
-        collected_box_definitions = {
-            box_def.member_name: box_def for box_def in context.static_box_defs[self.cref]
-        }
+
         self.result_ = ContractFragment(
             module_name=self.cref.module_name,
             name=self.cref.class_name,
@@ -110,8 +113,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             approval_program=self._approval_program,
             clear_program=self._clear_program,
             subroutines=self._subroutines,
-            app_state=collected_app_state_definitions,
-            static_boxes=collected_box_definitions,
+            app_state=app_state,
             docstring=class_def.docstring,
             source_location=self._location(class_def),
             reserved_scratch_space=class_options.scratch_slot_reservations,
@@ -380,146 +382,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._unsupported_stmt("match", stmt)
 
 
-def _gather_app_storage(
-    context: ASTConversionModuleContext,
-    class_info: mypy.nodes.TypeInfo,
-    *,
-    report_errors: bool = True,
-) -> Iterator[AppStorageDeclaration]:
-    for name, sym in class_info.names.items():
-        if isinstance(sym.node, mypy.nodes.Var):
-            var_loc = context.node_location(sym.node)
-            typ = mypy.types.get_proper_type(sym.type)
-            if typ is None:
-                raise InternalError(
-                    f"symbol table for class {class_info.fullname}"
-                    f" contains Var node entry for {name} without type",
-                    var_loc,
-                )
-            match typ:
-                case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_LOCAL_STATE),
-                    args=args,
-                ):
-                    kind = AppStateKind.account_local
-                    decl_type = AppStateDeclType.local_proxy
-                    try:
-                        (storage_type,) = args
-                    except ValueError:
-                        if report_errors:
-                            context.error(
-                                f"{constants.CLS_LOCAL_STATE_ALIAS}"
-                                f" requires exactly one type parameter",
-                                var_loc,
-                            )
-                        continue
-                case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_GLOBAL_STATE),
-                    args=args,
-                ):
-                    kind = AppStateKind.app_global
-                    decl_type = AppStateDeclType.global_proxy
-                    try:
-                        (storage_type,) = args
-                    except ValueError:
-                        if report_errors:
-                            context.error(
-                                f"{constants.CLS_GLOBAL_STATE_ALIAS}"
-                                f" requires exactly one type parameter",
-                                var_loc,
-                            )
-                        continue
-                case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_PROXY),
-                    args=args,
-                ):
-                    try:
-                        (content_type,) = args
-                        wtype: wtypes.WType = wtypes.WBoxProxy.from_content_type(
-                            context.type_to_wtype(content_type, source_location=var_loc)
-                        )
-                    except ValueError:
-                        if report_errors:
-                            context.error(
-                                f"{constants.CLS_BOX_PROXY}"
-                                f" requires exactly one type parameter",
-                                var_loc,
-                            )
-                        continue
-                    yield BoxDeclaration(
-                        wtype=wtype,
-                        member_name=name,
-                        source_location=var_loc,
-                    )
-                    continue
-                case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_MAP_PROXY),
-                    args=args,
-                ):
-                    try:
-                        (
-                            key_type,
-                            content_type,
-                        ) = args
-                        wtype = wtypes.WBoxMapProxy.from_key_and_content_type(
-                            key_wtype=context.type_to_wtype(key_type, source_location=var_loc),
-                            content_wtype=context.type_to_wtype(
-                                content_type, source_location=var_loc
-                            ),
-                        )
-                    except ValueError:
-                        if report_errors:
-                            context.error(
-                                f"{constants.CLS_BOX_MAP_PROXY}"
-                                f" requires exactly two type parameters",
-                                var_loc,
-                            )
-                        continue
-                    yield BoxDeclaration(
-                        wtype=wtype,
-                        member_name=name,
-                        source_location=var_loc,
-                    )
-                    continue
-
-                case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_BLOB_PROXY),
-                    args=args,
-                ):
-                    if args and report_errors:
-                        context.error(
-                            f"{constants.CLS_BOX_BLOB_PROXY} requires has no type parameters",
-                            var_loc,
-                        )
-                        continue
-                    yield BoxDeclaration(
-                        wtype=wtypes.box_blob_proxy_wtype,
-                        member_name=name,
-                        source_location=var_loc,
-                    )
-                    continue
-                case _:
-                    kind = AppStateKind.app_global
-                    decl_type = AppStateDeclType.global_direct
-                    storage_type = typ
-            storage_wtype = context.type_to_wtype(storage_type, source_location=var_loc)
-            if not storage_wtype.lvalue:
-                if report_errors:
-                    context.error(
-                        f"Invalid type for Local storage - must be assignable,"
-                        f" which type {storage_wtype} is not",
-                        var_loc,
-                    )
-            else:
-                yield AppStateDeclaration(
-                    member_name=name,
-                    kind=kind,
-                    storage_wtype=storage_wtype,
-                    decl_type=decl_type,
-                    source_location=var_loc,
-                )
-
-
 def _gather_bases(
     context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
 ) -> list[ContractReference]:
@@ -561,17 +423,17 @@ def _gather_bases(
 
 
 def _gather_app_storage_recursive(
-    context: ASTConversionModuleContext,
-    class_def: mypy.nodes.ClassDef,
-    this_app_state: list[AppStorageDeclaration],
+    context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
 ) -> dict[str, AppStorageDeclaration]:
-    combined_app_state = {defn.member_name: defn for defn in this_app_state}
+    combined_app_state = {
+        defn.member_name: defn for defn in _gather_global_direct_storages(context, class_def.info)
+    }
     for base in iterate_user_bases(class_def.info):
+        base_cref = qualified_class_name(base)
         base_app_state = {
-            defn.member_name: defn
-            # NOTE: we don't report errors for the decls themselves here,
-            #       they should already have been reported when analysing the base type
-            for defn in _gather_app_storage(context, base, report_errors=False)
+            name: defn
+            for name, defn in context.state_defs[base_cref].items()
+            if defn.defined_in == base_cref
         }
         for redefined_member in combined_app_state.keys() & base_app_state.keys():
             member_redef = combined_app_state[redefined_member]
@@ -588,6 +450,54 @@ def _gather_app_storage_recursive(
         # definition in case of redefinitions
         combined_app_state = base_app_state | combined_app_state
     return combined_app_state
+
+
+def _gather_global_direct_storages(
+    context: ASTConversionModuleContext, class_info: mypy.nodes.TypeInfo
+) -> Iterator[AppStorageDeclaration]:
+    cref = qualified_class_name(class_info)
+    for name, sym in class_info.names.items():
+        if isinstance(sym.node, mypy.nodes.Var):
+            var_loc = context.node_location(sym.node)
+            typ = mypy.types.get_proper_type(sym.type)
+            if typ is None:
+                raise InternalError(
+                    f"symbol table for class {class_info.fullname}"
+                    f" contains Var node entry for {name} without type",
+                    var_loc,
+                )
+            match typ:
+                case mypy.types.Instance(
+                    type=mypy.nodes.TypeInfo(
+                        fullname=(
+                            constants.CLS_LOCAL_STATE
+                            | constants.CLS_GLOBAL_STATE
+                            | constants.CLS_BOX_PROXY
+                            | constants.CLS_BOX_BLOB_PROXY
+                            | constants.CLS_BOX_MAP_PROXY
+                        )
+                    ),
+                ):
+                    pass
+                case _:
+                    storage_wtype = context.type_to_wtype(typ, source_location=var_loc)
+                    if not storage_wtype.lvalue:
+                        context.error(
+                            f"Invalid type for Local storage - must be assignable,"
+                            f" which type {storage_wtype} is not",
+                            var_loc,
+                        )
+                    else:
+                        yield AppStateDeclaration(
+                            member_name=name,
+                            kind=AppStateKind.app_global,
+                            storage_wtype=storage_wtype,
+                            decl_type=AppStateDeclType.global_direct,
+                            source_location=var_loc,
+                            defined_in=cref,
+                            key_override=None,
+                            description=None,
+                        )
 
 
 def _check_class_abstractness(

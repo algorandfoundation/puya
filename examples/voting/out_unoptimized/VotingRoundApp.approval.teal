@@ -321,14 +321,20 @@ bootstrap:
     // voting/voting.py:84
     // assert not self.is_bootstrapped, "Must not be already bootstrapped"
     int 0
+    // voting/voting.py:51
+    // self.is_bootstrapped = False
     byte "is_bootstrapped"
+    // voting/voting.py:84
+    // assert not self.is_bootstrapped, "Must not be already bootstrapped"
     app_global_get_ex
     assert // check is_bootstrapped exists
     !
     assert // Must not be already bootstrapped
+    // voting/voting.py:51
+    // self.is_bootstrapped = False
+    byte "is_bootstrapped"
     // voting/voting.py:85
     // self.is_bootstrapped = True
-    byte "is_bootstrapped"
     int 1
     app_global_put
     // voting/voting.py:88
@@ -345,7 +351,11 @@ bootstrap:
     // voting/voting.py:91
     // tally_box_size = self.total_options * VOTE_COUNT_BYTES
     int 0
+    // voting/voting.py:228
+    // self.total_options = total_options
     byte "total_options"
+    // voting/voting.py:91
+    // tally_box_size = self.total_options * VOTE_COUNT_BYTES
     app_global_get_ex
     assert // check total_options exists
     int 8
@@ -410,7 +420,7 @@ bootstrap:
     assert // Payment must be for the exact min balance requirement
     // voting/voting.py:55
     // self.tally_box = BoxBlob(key=b"V")
-    byte 0x56
+    byte "V"
     // voting/voting.py:108
     // assert self.tally_box.create(size=tally_box_size)
     swap
@@ -437,7 +447,11 @@ close:
     // voting/voting.py:113
     // assert not self.close_time, "Already closed"
     int 0
+    // voting/voting.py:54
+    // self.close_time = GlobalState(UInt64)
     byte "close_time"
+    // voting/voting.py:113
+    // assert not self.close_time, "Already closed"
     app_global_get_ex
     swap
     pop
@@ -446,13 +460,21 @@ close:
     // voting/voting.py:114
     // self.close_time.value = Global.latest_timestamp
     global LatestTimestamp
+    // voting/voting.py:54
+    // self.close_time = GlobalState(UInt64)
     byte "close_time"
+    // voting/voting.py:114
+    // self.close_time.value = Global.latest_timestamp
     swap
     app_global_put
     // voting/voting.py:119
     // + self.vote_id
     int 0
+    // voting/voting.py:73
+    // self.vote_id = vote_id
     byte "vote_id"
+    // voting/voting.py:119
+    // + self.vote_id
     app_global_get_ex
     assert // check vote_id exists
     // voting/voting.py:117-118
@@ -477,7 +499,11 @@ close:
     // voting/voting.py:121
     // + self.metadata_ipfs_cid
     int 0
+    // voting/voting.py:75
+    // self.metadata_ipfs_cid = metadata_ipfs_cid
     byte "metadata_ipfs_cid"
+    // voting/voting.py:121
+    // + self.metadata_ipfs_cid
     app_global_get_ex
     assert // check metadata_ipfs_cid exists
     // voting/voting.py:117-121
@@ -501,7 +527,11 @@ close:
     // voting/voting.py:123
     // + self.vote_id
     int 0
+    // voting/voting.py:73
+    // self.vote_id = vote_id
     byte "vote_id"
+    // voting/voting.py:123
+    // + self.vote_id
     app_global_get_ex
     assert // check vote_id exists
     // voting/voting.py:117-123
@@ -529,7 +559,11 @@ close:
     // voting/voting.py:125
     // + itoa(self.quorum)
     int 0
+    // voting/voting.py:78
+    // self.quorum = quorum
     byte "quorum"
+    // voting/voting.py:125
+    // + itoa(self.quorum)
     app_global_get_ex
     assert // check quorum exists
     callsub itoa
@@ -562,7 +596,12 @@ close:
     // voting/voting.py:127
     // + itoa(self.voter_count)
     int 0
+    // voting/voting.py:52-53
+    // # The minimum number of voters who have voted
+    // self.voter_count = UInt64(0)
     byte "voter_count"
+    // voting/voting.py:127
+    // + itoa(self.voter_count)
     app_global_get_ex
     assert // check voter_count exists
     callsub itoa
@@ -602,7 +641,11 @@ close:
     // voting/voting.py:132
     // for question_index, question_options in uenumerate(self.option_counts):
     int 0
+    // voting/voting.py:227
+    // self.option_counts = option_counts.copy()
     byte "option_counts"
+    // voting/voting.py:132
+    // for question_index, question_options in uenumerate(self.option_counts):
     app_global_get_ex
     assert // check option_counts exists
     dup
@@ -767,7 +810,11 @@ close_after_for@15:
     // voting/voting.py:150
     // asset_name="[VOTE RESULT] " + self.vote_id,
     int 0
+    // voting/voting.py:73
+    // self.vote_id = vote_id
     byte "vote_id"
+    // voting/voting.py:150
+    // asset_name="[VOTE RESULT] " + self.vote_id,
     app_global_get_ex
     assert // check vote_id exists
     byte "[VOTE RESULT] "
@@ -776,7 +823,11 @@ close_after_for@15:
     // voting/voting.py:152
     // url=self.nft_image_url,
     int 0
+    // voting/voting.py:79
+    // self.nft_image_url = nft_image_url
     byte "nft_image_url"
+    // voting/voting.py:152
+    // url=self.nft_image_url,
     app_global_get_ex
     assert // check nft_image_url exists
     // voting/voting.py:144
@@ -991,7 +1042,7 @@ get_vote_from_box:
     proto 1 1
     // voting/voting.py:55
     // self.tally_box = BoxBlob(key=b"V")
-    byte 0x56
+    byte "V"
     // voting/voting.py:241
     // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
     frame_dig -1
@@ -1053,7 +1104,11 @@ voting_open:
     // voting/voting.py:208
     // self.is_bootstrapped
     int 0
+    // voting/voting.py:51
+    // self.is_bootstrapped = False
     byte "is_bootstrapped"
+    // voting/voting.py:208
+    // self.is_bootstrapped
     app_global_get_ex
     assert // check is_bootstrapped exists
     // voting/voting.py:208-210
@@ -1064,7 +1119,11 @@ voting_open:
     // voting/voting.py:209
     // and not self.close_time
     int 0
+    // voting/voting.py:54
+    // self.close_time = GlobalState(UInt64)
     byte "close_time"
+    // voting/voting.py:209
+    // and not self.close_time
     app_global_get_ex
     swap
     pop
@@ -1072,7 +1131,11 @@ voting_open:
     // voting/voting.py:210
     // and self.start_time <= Global.latest_timestamp <= self.end_time
     int 0
+    // voting/voting.py:76
+    // self.start_time = start_time
     byte "start_time"
+    // voting/voting.py:210
+    // and self.start_time <= Global.latest_timestamp <= self.end_time
     app_global_get_ex
     assert // check start_time exists
     global LatestTimestamp
@@ -1081,7 +1144,11 @@ voting_open:
     <=
     bz voting_open_bool_false@5
     int 0
+    // voting/voting.py:77
+    // self.end_time = end_time
     byte "end_time"
+    // voting/voting.py:210
+    // and self.start_time <= Global.latest_timestamp <= self.end_time
     app_global_get_ex
     assert // check end_time exists
     frame_dig 0
@@ -1122,7 +1189,11 @@ allowed_to_vote:
     // voting/voting.py:236
     // self.snapshot_public_key,
     int 0
+    // voting/voting.py:74
+    // self.snapshot_public_key = snapshot_public_key
     byte "snapshot_public_key"
+    // voting/voting.py:236
+    // self.snapshot_public_key,
     app_global_get_ex
     assert // check snapshot_public_key exists
     // voting/voting.py:233-237
@@ -1149,7 +1220,7 @@ already_voted:
     txn Sender
     // voting/voting.py:56
     // self.votes_by_account = BoxMap(Account, VoteIndexArray)
-    byte 0x
+    byte ""
     // voting/voting.py:56-215
     //     self.votes_by_account = BoxMap(Account, VoteIndexArray)
     // 
@@ -1355,7 +1426,11 @@ vote:
     // voting/voting.py:181
     // questions_count = self.option_counts.length
     int 0
+    // voting/voting.py:227
+    // self.option_counts = option_counts.copy()
     byte "option_counts"
+    // voting/voting.py:181
+    // questions_count = self.option_counts.length
     app_global_get_ex
     assert // check option_counts exists
     int 0
@@ -1457,7 +1532,11 @@ vote_for_header@1:
     // voting/voting.py:198
     // options_count = self.option_counts[question_index].native
     int 0
+    // voting/voting.py:227
+    // self.option_counts = option_counts.copy()
     byte "option_counts"
+    // voting/voting.py:198
+    // options_count = self.option_counts[question_index].native
     app_global_get_ex
     assert // check option_counts exists
     dup
@@ -1498,7 +1577,7 @@ vote_for_header@1:
     txn Sender
     // voting/voting.py:56
     // self.votes_by_account = BoxMap(Account, VoteIndexArray)
-    byte 0x
+    byte ""
     // voting/voting.py:202
     // self.votes_by_account[Txn.sender] = answer_ids.copy()
     swap
@@ -1511,12 +1590,22 @@ vote_for_header@1:
     // voting/voting.py:203
     // self.voter_count += 1
     int 0
+    // voting/voting.py:52-53
+    // # The minimum number of voters who have voted
+    // self.voter_count = UInt64(0)
     byte "voter_count"
+    // voting/voting.py:203
+    // self.voter_count += 1
     app_global_get_ex
     assert // check voter_count exists
     int 1
     +
+    // voting/voting.py:52-53
+    // # The minimum number of voters who have voted
+    // self.voter_count = UInt64(0)
     byte "voter_count"
+    // voting/voting.py:203
+    // self.voter_count += 1
     swap
     app_global_put
     // voting/voting.py:195
@@ -1548,7 +1637,7 @@ increment_vote_in_box:
     itob
     // voting/voting.py:55
     // self.tally_box = BoxBlob(key=b"V")
-    byte 0x56
+    byte "V"
     // voting/voting.py:246
     // self.tally_box.replace(index, op.itob(current_vote + 1))
     frame_dig -1

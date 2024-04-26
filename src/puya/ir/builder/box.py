@@ -13,8 +13,7 @@ from puya.ir import (
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import assert_value, assign, assign_intrinsic_op
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import BytesConstant
-from puya.ir.types_ import AVMBytesEncoding, wtype_to_ir_type
+from puya.ir.types_ import wtype_to_ir_type
 from puya.parse import SourceLocation
 
 
@@ -225,12 +224,8 @@ def _is_fixed_byte_size(wtype: wtypes.WType) -> bool:
 def visit_field_box(
     context: IRFunctionBuildContext, field_box: awst_nodes.BoxProxyField
 ) -> ops.Value:
-    definition = context.resolve_box(field_box.field_name, field_box.source_location)
-    return BytesConstant(
-        value=definition.key,
-        source_location=definition.source_location,
-        encoding=AVMBytesEncoding.unknown,
-    )
+    state_def = context.resolve_state(field_box.field_name, field_box.source_location)
+    return context.visitor.visit_bytes_constant(state_def.key)
 
 
 def visit_box_proxy_expression(

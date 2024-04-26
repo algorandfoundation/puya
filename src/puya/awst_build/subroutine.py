@@ -21,7 +21,6 @@ from puya.awst.nodes import (
     Block,
     BoolConstant,
     BooleanBinaryOperation,
-    BoxProxyDefinition,
     BoxProxyExpression,
     BreakStatement,
     BytesConstant,
@@ -52,6 +51,7 @@ from puya.awst.wtypes import WType
 from puya.awst_build import constants
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
+from puya.awst_build.contract_data import AppStateDeclType, AppStorageDeclaration
 from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
@@ -389,15 +389,28 @@ class FunctionASTConverter(
             )
         key = rvalue_eb.rvalue()
         match key:
-            case BoxProxyExpression(
-                key=BytesConstant(value=key_bytes),
-            ):
-                self.context.static_box_defs[self.contract_method_info.cref].append(
-                    BoxProxyDefinition(
+            case BoxProxyExpression(key=BytesConstant() as key_override, wtype=expr_wtype):
+                if expr_wtype is wtypes.box_blob_proxy_wtype:
+                    kind = AppStateKind.box_ref
+                    decl_type = AppStateDeclType.box_ref
+                elif isinstance(expr_wtype, wtypes.WBoxProxy):
+                    kind = AppStateKind.box
+                    decl_type = AppStateDeclType.box
+                elif isinstance(expr_wtype, wtypes.WBoxMapProxy):
+                    kind = AppStateKind.box_map
+                    decl_type = AppStateDeclType.box_map
+                else:
+                    raise InternalError("Unexpected")
+                self.context.state_defs[self.contract_method_info.cref][member_name] = (
+                    AppStorageDeclaration(
                         member_name=member_name,
-                        key=key_bytes,
+                        key_override=key_override,
                         source_location=key.source_location,
-                        proxy_wtype=key.wtype,
+                        storage_wtype=key.wtype,
+                        description=None,
+                        decl_type=decl_type,
+                        kind=kind,
+                        defined_in=self.contract_method_info.cref,
                     )
                 )
                 return []
@@ -439,9 +452,13 @@ class FunctionASTConverter(
         ):
             raise CodeError("Incompatible types on assignment", stmt_loc)
         defn = rvalue.build_definition(
-            lvalue_builder.state_decl.member_name, lvalue_builder.source_location
+            lvalue_builder.state_decl.member_name,
+            self.contract_method_info.cref,
+            lvalue_builder.source_location,
         )
-        self.context.state_defs[self.contract_method_info.cref].append(defn)
+        self.context.state_defs[self.contract_method_info.cref][
+            lvalue_builder.state_decl.member_name
+        ] = defn
         if rvalue.initial_value is None:
             return []
         elif defn.kind != AppStateKind.app_global:

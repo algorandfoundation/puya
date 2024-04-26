@@ -5,9 +5,9 @@ import enum
 import typing
 
 from puya.awst.nodes import (
-    AppStateDefinition,
     AppStateKind,
-    BytesEncoding,
+    BytesConstant,
+    ContractReference,
     Expression,
     FieldExpression,
     IndexExpression,
@@ -19,8 +19,8 @@ from puya.awst.nodes import (
     TupleExpression,
     TupleItemExpression,
 )
+from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.errors import CodeError, InternalError
-from puya.utils import coalesce
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -29,7 +29,7 @@ if typing.TYPE_CHECKING:
     import mypy.types
 
     from puya.awst import wtypes
-    from puya.awst_build.contract_data import AppStateDeclaration
+    from puya.awst_build.contract_data import AppStateDeclaration, AppStateDeclType
     from puya.parse import SourceLocation
 
 __all__ = [
@@ -256,36 +256,34 @@ class StateProxyMemberBuilder(IntermediateExpressionBuilder):
 class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
     kind: AppStateKind
     python_name: str
+    decl_type: AppStateDeclType
 
     def __init__(
         self,
         location: SourceLocation,
         storage: wtypes.WType,
-        key: bytes | None,
-        key_encoding: BytesEncoding | None,
+        key_override: BytesConstant | None,
         description: str | None,
         initial_value: Expression | None = None,
     ):
         super().__init__(location)
-        if (key is None) != (key_encoding is None):
-            raise InternalError(
-                "either key and key_encoding should be specified or neither", location
-            )
         self.storage = storage
-        self.key = key
-        self.key_encoding = key_encoding
+        self.key_override = key_override
         self.description = description
         self.initial_value = initial_value
 
-    def build_definition(self, member_name: str, location: SourceLocation) -> AppStateDefinition:
-        return AppStateDefinition(
+    def build_definition(
+        self, member_name: str, defined_in: ContractReference, location: SourceLocation
+    ) -> AppStorageDeclaration:
+        return AppStorageDeclaration(
             description=self.description,
-            key=coalesce(self.key, member_name.encode("utf8")),
-            key_encoding=self.key_encoding or BytesEncoding.utf8,
-            source_location=location,
             member_name=member_name,
+            key_override=self.key_override,
+            source_location=location,
             storage_wtype=self.storage,
             kind=self.kind,
+            defined_in=defined_in,
+            decl_type=self.decl_type,
         )
 
     def rvalue(self) -> Expression:
