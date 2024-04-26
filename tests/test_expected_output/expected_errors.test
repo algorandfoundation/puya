@@ -151,11 +151,11 @@ class Baddie(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def not_okay1(self) -> None:
-        self.global_c = GlobalState(UInt64) ## E: algopy.GlobalState can only be used in the __init__ method
+        self.global_c = GlobalState(UInt64) ## E: algopy.GlobalState can only be assigned to a member variable in the __init__ method
 
     @arc4.abimethod()
     def not_okay2(self) -> None:
-        self.local_d = LocalState(UInt64) ## E: algopy.LocalState can only be used in the __init__ method
+        self.local_d = LocalState(UInt64) ## E: algopy.LocalState can only be assigned to a member variable in the __init__ method
 
 
 ## case: bad_intrinsic_call
@@ -269,3 +269,34 @@ class Base(ARC4Contract):
 class Derived(Base):
     def __init__(self) -> None:
         self.foo2 = 2 * super().foo ## E: super() is only supported for method calls
+
+
+## case: redefinition
+from algopy import *
+
+class Base(ARC4Contract):
+    def __init__(self) -> None:
+        self.foo = UInt64(1)
+        self.bar = UInt64(2)
+        self.foo_p = GlobalState(UInt64(1))
+        self.bar_p = GlobalState(UInt64(2))
+
+class Derived1(Base):
+    def __init__(self) -> None:
+        super().__init__()
+        self.foo = UInt64(2) # ok
+
+class Derived2(Base):
+    def __init__(self) -> None:
+        super().__init__()
+        self.bar = Bytes(b"bbb") # type: ignore[assignment] ## E: Assignment target type algopy.UInt64 differs from expression value type algopy.Bytes
+
+class Derived3(Base):
+    def __init__(self) -> None:
+        super().__init__()
+        self.foo_p = GlobalState(UInt64(3)) ## E: some error message here about redefining proxies
+
+class Derived4(Base):
+    def __init__(self) -> None:
+        super().__init__()
+        self.bar_p = GlobalState(Bytes(b"bbb")) # type: ignore[arg-type] ## E: some error message here about redefining proxies

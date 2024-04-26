@@ -60,7 +60,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
         this_app_state = list(_gather_app_storage(context, class_def.info))
-        # self.app_state = _gather_app_storage_recursive(context, class_def, this_app_state)
+        self.app_state = _gather_app_storage_recursive(context, class_def, this_app_state)
 
         # if the class has an __init__ method, we need to visit it first, so any storage
         # fields cane be resolved to a (static) key
