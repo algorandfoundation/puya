@@ -1,4 +1,3 @@
-import os
 import subprocess
 from pathlib import Path
 from typing import Iterator
@@ -14,7 +13,12 @@ def compile_contract(folder: Path) -> None:
     contract_path = folder / "contract.py"
     (folder / "data").mkdir(exist_ok=True)
     subprocess.run(
-        ["algokit", "compile", "python", str(contract_path), "--out-dir", "data"], check=True
+        ["poetry", "run", "puyapy", str(contract_path), "--out-dir", "data"],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
     )
 
 
