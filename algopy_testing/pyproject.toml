@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "algorand-python-testing"
+version = "0.0.1"
+description = "Algorand Python Testing library"
+authors = ["Algorand Foundation <contact@algorand.foundation>"]
+readme = "README.md"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Testing",
+]
+packages = [
+    { include = "algopy", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+puyapy = { path="..", develop=true }
+poethepoet = "^0.24.4"
+
+[tool.poetry.group.testing.dependencies]
+pytest = "^7.4.0"
+pytest-xdist = {extras = ["psutil"], version = "^3.3.1"}
+py-algorand-sdk = "^2.4.0"
+algokit-utils = "^2.2.1"
+pytest-cov = "^4.1.0"
+prettytable = "^3.9.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 99
+
+[tool.poe.tasks]
+gen_stub_cov = "poetry run python scripts/check_stubs_cov.py"
+gen_test_artifacts = "poetry run python scripts/refresh_test_artifacts.py"
+
