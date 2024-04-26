@@ -26,8 +26,7 @@ class BaseOp(abc.ABC):
     source_location: SourceLocation | None = None
 
     @abc.abstractmethod
-    def accept(self, visitor: MIRVisitor[_T]) -> _T:
-        ...
+    def accept(self, visitor: MIRVisitor[_T]) -> _T: ...
 
 
 @attrs.frozen(eq=False)
@@ -374,8 +373,7 @@ class IntrinsicOp(BaseOp):
 
 class BranchingOp(IntrinsicOp, abc.ABC):
     @abc.abstractmethod
-    def targets(self) -> Sequence[str]:
-        ...
+    def targets(self) -> Sequence[str]: ...
 
 
 @attrs.frozen(eq=False)

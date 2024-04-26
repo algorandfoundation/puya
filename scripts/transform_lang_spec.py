@@ -472,9 +472,11 @@ def transform_immediates(
         result.append(
             Immediate(
                 name=immediate["Name"],
-                immediate_type=transform_encoding(immediate["Encoding"])
-                if arg_enum_reference is None
-                else ImmediateKind.arg_enum,
+                immediate_type=(
+                    transform_encoding(immediate["Encoding"])
+                    if arg_enum_reference is None
+                    else ImmediateKind.arg_enum
+                ),
                 modifies_stack_input=modifies_stack_input,
                 modifies_stack_output=modifies_stack_output,
                 arg_enum=arg_enum_reference,

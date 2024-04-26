@@ -41,9 +41,7 @@ class BruteForceRotationSearch(Contract):
 
 
 @subroutine
-def do_some_ops(
-    a: UInt64, b: UInt64
-) -> tuple[
+def do_some_ops(a: UInt64, b: UInt64) -> tuple[
     UInt64,
     UInt64,
     UInt64,

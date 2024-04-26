@@ -21,6 +21,7 @@ class LocalState(typing.Generic[_TState]):
         self.names = LocalState(algopy.Bytes)
         ```
         """
+
     def __getitem__(self, account: Account | UInt64 | int) -> _TState:
         """Data can be accessed by an `Account` reference or foreign account index
 
@@ -28,6 +29,7 @@ class LocalState(typing.Generic[_TState]):
         account_name = self.names[account]
         ```
         """
+
     def __setitem__(self, account: Account | UInt64 | int, value: _TState) -> None:
         """Data can be stored by using an `Account` reference or foreign account index
 
@@ -35,6 +37,7 @@ class LocalState(typing.Generic[_TState]):
         self.names[account] = account_name
         ```
         """
+
     def __delitem__(self, account: Account | UInt64 | int) -> None:
         """Data can be removed by using an `Account` reference or foreign account index
 
@@ -42,6 +45,7 @@ class LocalState(typing.Generic[_TState]):
         del self.names[account]
         ```
         """
+
     def __contains__(self, account: Account | UInt64 | int) -> bool:
         """Can test if data exists by using an `Account` reference or foreign account index
 
@@ -49,6 +53,7 @@ class LocalState(typing.Generic[_TState]):
         assert account in self.names
         ```
         """
+
     def get(self, account: Account | UInt64 | int, default: _TState) -> _TState:
         """Can retrieve value using an `Account` reference or foreign account index,
         and a fallback default value.
@@ -57,6 +62,7 @@ class LocalState(typing.Generic[_TState]):
         name = self.names.get(account, Bytes(b"no name")
         ```
         """
+
     def maybe(self, account: Account | UInt64 | int) -> tuple[_TState, bool]:
         """Can retrieve value, and a bool indicating if the value was present
         using an `Account` reference or foreign account index.
@@ -90,6 +96,7 @@ class GlobalState(typing.Generic[_TState]):
         description: str | None = None,
     ) -> None:
         """Declare the global state key and its type without initializing its value"""
+
     @typing.overload
     def __init__(
         self,
@@ -99,6 +106,7 @@ class GlobalState(typing.Generic[_TState]):
         description: str | None = None,
     ) -> None:
         """Declare the global state key and initialize its value"""
+
     @property
     def value(self) -> _TState:
         """Returns the value or and error if the value is not set
@@ -107,6 +115,7 @@ class GlobalState(typing.Generic[_TState]):
         name = self.name.value
         ```
         """
+
     @value.setter
     def value(self, value: _TState) -> None:
         """Sets the value
@@ -115,6 +124,7 @@ class GlobalState(typing.Generic[_TState]):
         self.name.value = Bytes(b"Alice")
         ```
         """
+
     @value.deleter
     def value(self) -> None:
         """Removes the value
@@ -123,8 +133,10 @@ class GlobalState(typing.Generic[_TState]):
         del self.name.value
         ```
         """
+
     def __bool__(self) -> bool:
         """Returns `True` if the key has a value set, regardless of the truthiness of that value"""
+
     def get(self, default: _TState) -> _TState:
         """Returns the value or `default` if no value is set
 
@@ -132,6 +144,7 @@ class GlobalState(typing.Generic[_TState]):
         name = self.name.get(Bytes(b"no name")
         ```
         """
+
     def maybe(self) -> tuple[_TState, bool]:
         """Returns the value, and a bool
 

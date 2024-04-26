@@ -62,8 +62,7 @@ class _Namespace(IntermediateExpressionBuilder, abc.ABC):
     @abc.abstractmethod
     def _member_access(
         self, name: str, node: mypy.nodes.SymbolNode, location: SourceLocation
-    ) -> ExpressionBuilder | Literal:
-        ...
+    ) -> ExpressionBuilder | Literal: ...
 
 
 class IntrinsicEnumClassExpressionBuilder(_Namespace):

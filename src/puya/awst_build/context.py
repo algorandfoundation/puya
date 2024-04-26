@@ -184,9 +184,11 @@ class ASTConversionModuleContext(ASTConversionContext):
             raise CodeError(f"Unresolved generic type parameter for {type_fullname}", loc)
 
         type_args_resolved: list[TypeClassExpressionBuilder | AWSTLiteral] = [
-            AWSTLiteral(value=ta.value, source_location=loc)  # type: ignore[arg-type]
-            if isinstance(ta, mypy.types.LiteralType)
-            else self._type_to_builder(ta, source_location=loc)
+            (
+                AWSTLiteral(value=ta.value, source_location=loc)  # type: ignore[arg-type]
+                if isinstance(ta, mypy.types.LiteralType)
+                else self._type_to_builder(ta, source_location=loc)
+            )
             for ta in inst_args
         ]
         if len(type_args_resolved) == 1:

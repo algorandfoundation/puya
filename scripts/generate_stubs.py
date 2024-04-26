@@ -82,8 +82,7 @@ ALGORAND_OP_URL = "https://developer.algorand.org/docs/get-details/dapps/avm/tea
 
 
 class OpCodeGroup(typing.Protocol):
-    def includes_op(self, op: str) -> bool:
-        ...
+    def includes_op(self, op: str) -> bool: ...
 
 
 @attrs.define(kw_only=True)
@@ -669,9 +668,11 @@ def map_typed_names(
     yield from (
         TypedName(
             name=arg.name.lower(),
-            type=replace_any_with
-            if arg.stack_type == StackType.any and replace_any_with
-            else arg.stack_type,
+            type=(
+                replace_any_with
+                if arg.stack_type == StackType.any and replace_any_with
+                else arg.stack_type
+            ),
             doc=arg.doc,
         )
         for arg in values
@@ -746,11 +747,13 @@ def build_function_op_mapping(
     return FunctionOpMapping(
         op_code=op.name,
         immediates=[
-            const_immediate_value[1].name
-            if const_immediate_value and const_immediate_value[0] == arg
-            else ImmediateArgMapping(
-                arg_name=arg_name_map[arg.name],
-                literal_type=immediate_kind_to_type(arg.immediate_type),
+            (
+                const_immediate_value[1].name
+                if const_immediate_value and const_immediate_value[0] == arg
+                else ImmediateArgMapping(
+                    arg_name=arg_name_map[arg.name],
+                    literal_type=immediate_kind_to_type(arg.immediate_type),
+                )
             )
             for arg in op.immediate_args
         ],

@@ -102,61 +102,81 @@ class ApplicationProtocol(typing.Protocol):
     @property
     def app_id(self) -> Application:
         """ApplicationID from ApplicationCall transaction"""
+
     @property
     def on_completion(self) -> OnCompleteAction:
         """ApplicationCall transaction on completion action"""
+
     @property
     def num_app_args(self) -> UInt64:
         """Number of ApplicationArgs"""
+
     @property
     def num_accounts(self) -> UInt64:
         """Number of ApplicationArgs"""
+
     @property
     def approval_program(self) -> Bytes:
         """Approval program"""
+
     @property
     def clear_state_program(self) -> Bytes:
         """Clear State program"""
+
     @property
     def num_assets(self) -> UInt64:
         """Number of Assets"""
+
     @property
     def num_apps(self) -> UInt64:
         """Number of Applications"""
+
     @property
     def global_num_uint(self) -> UInt64:
         """Number of global state integers in ApplicationCall"""
+
     @property
     def global_num_bytes(self) -> UInt64:
         """Number of global state byteslices in ApplicationCall"""
+
     @property
     def local_num_uint(self) -> UInt64:
         """Number of local state integers in ApplicationCall"""
+
     @property
     def local_num_bytes(self) -> UInt64:
         """Number of local state byteslices in ApplicationCall"""
+
     @property
     def extra_program_pages(self) -> UInt64:
         """Number of additional pages for each of the application's approval and clear state programs. An ExtraProgramPages of 1 means 2048 more total bytes, or 1024 for each program."""
+
     @property
     def last_log(self) -> Bytes:
         """The last message emitted. Empty bytes if none were emitted. Application mode only"""
+
     @property
     def num_approval_program_pages(self) -> UInt64:
         """Number of Approval Program pages"""
+
     @property
     def num_clear_state_program_pages(self) -> UInt64:
         """Number of Clear State Program pages"""
     # TODO: make the following sequences instead?
     def app_args(self, index: UInt64 | int, /) -> Bytes:
         """Arguments passed to the application in the ApplicationCall transaction"""
+
     def accounts(self, index: UInt64 | int, /) -> Account:
         """Accounts listed in the ApplicationCall transaction"""
+
     def assets(self, index: UInt64 | int, /) -> Asset:
         """Foreign Assets listed in the ApplicationCall transaction"""
+
     def apps(self, index: UInt64 | int, /) -> Application:
         """Foreign Apps listed in the ApplicationCall transaction"""
+
     def approval_program_pages(self, index: UInt64 | int, /) -> Bytes:
         """Approval Program as an array of pages"""
+
     def clear_state_program_pages(self, index: UInt64 | int, /) -> Bytes:
         """Clear State Program as an array of pages"""

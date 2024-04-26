@@ -20,7 +20,7 @@ from puya import log
 from puya.arc32 import create_arc32_json, write_arc32_client
 from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
-from puya.errors import CodeError, InternalError, log_exceptions
+from puya.errors import InternalError, log_exceptions
 from puya.ir.main import build_module_irs, optimize_and_destructure_ir
 from puya.ir.models import (
     Contract as ContractIR,

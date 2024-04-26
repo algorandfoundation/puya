@@ -22,12 +22,10 @@ _PYTHON_MEMBER_FIELD_MAP = {get_field_python_name(f): f for f in TXN_FIELDS}
 
 class BaseTransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
     @abc.abstractmethod
-    def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression:
-        ...
+    def get_field_value(self, field: TxnField, location: SourceLocation) -> Expression: ...
 
     @abc.abstractmethod
-    def get_array_member(self, field: TxnField, location: SourceLocation) -> ExpressionBuilder:
-        ...
+    def get_array_member(self, field: TxnField, location: SourceLocation) -> ExpressionBuilder: ...
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         try:

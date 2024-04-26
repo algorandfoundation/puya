@@ -35,7 +35,10 @@ def abimethod(
     name: str | None = None,
     readonly: bool = False,
     default_args: Mapping[str, str | _TABIDefaultArgSource] | None = None,
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
+) -> Callable[
+    [Callable[_P, _R]],
+    Callable[_P, _R],
+]:
     """Decorator that indicates a method is an ARC4 ABI method"""
 
 @typing.overload
@@ -45,7 +48,10 @@ def baremethod(
     *,
     allow_actions: AllowedOnCompletes | None = None,
     create: typing.Literal["allow", "require", "disallow"] = "disallow",
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R],]:
+) -> Callable[
+    [Callable[_P, _R]],
+    Callable[_P, _R],
+]:
     """Decorator that indicates a method is an ARC4 bare method"""
 
 def arc4_signature(signature: str, /) -> algopy.Bytes:
@@ -76,6 +82,7 @@ class String(_ABIEncoded):
     @property
     def native(self) -> algopy.String:
         """Return the String representation of the UTF8 string after ARC4 decoding"""
+
     def __add__(self, other: String | str) -> String: ...
     def __iadd__(self, other: String | str) -> String: ...
     def __radd__(self, other: String | str) -> String: ...
@@ -148,6 +155,7 @@ class UFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
         """
+
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
 
@@ -161,6 +169,7 @@ class BigUFixedNxM(_ABIEncoded, typing.Generic[_TBitSize, _TDecimalPlaces]):
         Construct an instance of UFixedNxM where value (v) is determined from the original
         decimal value (d) by the formula v = round(d * (10^M))
         """
+
     def __bool__(self) -> bool:
         """Returns `True` if not equal to zero"""
 
@@ -313,11 +322,14 @@ class StaticArray(
     def __init__(self, *items: _TArrayItem): ...
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
+
     def __reversed__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array, in reverse order"""
+
     @property
     def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
+
     def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem: ...
     def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
     def copy(self) -> typing.Self:
@@ -329,21 +341,27 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
     def __init__(self, *items: _TArrayItem): ...
     def __iter__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array"""
+
     def __reversed__(self) -> typing.Iterator[_TArrayItem]:
         """Returns an iterator for the items in the array, in reverse order"""
+
     @property
     def length(self) -> algopy.UInt64:
         """Returns the current length of the array"""
+
     def __getitem__(self, index: algopy.UInt64 | int | slice) -> _TArrayItem: ...
     def append(self, item: _TArrayItem, /) -> None:
         """Append items to this array"""
+
     def extend(self, other: Iterable[_TArrayItem], /) -> None:
         """Extend this array with the contents of another array"""
+
     def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem: ...
     def __add__(self, other: Iterable[_TArrayItem]) -> DynamicArray[_TArrayItem]: ...
     def pop(self) -> _TArrayItem: ...
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
+
     def __bool__(self) -> bool:
         """Returns `True` if not an empty array"""
 
@@ -358,14 +376,18 @@ class Address(StaticArray[Byte, typing.Literal[32]]):
         check, use `Address.from_bytes(...)` instead.
         Defaults to the zero-address.
         """
+
     @property
     def native(self) -> algopy.Account:
         """Return the Account representation of the address after ARC4 decoding"""
+
     def __bool__(self) -> bool:
         """Returns `True` if not equal to the zero address"""
+
     def __eq__(self, other: Address | algopy.Account | str) -> bool:  # type: ignore[override]
         """Address equality is determined by the address of another
         `arc4.Address`, `Account` or `str`"""
+
     def __ne__(self, other: Address | algopy.Account | str) -> bool:  # type: ignore[override]
         """Address equality is determined by the address of another
         `arc4.Address`, `Account` or `str`"""
@@ -388,6 +410,7 @@ class Tuple(_ABIEncoded, tuple[typing.Unpack[_TTuple]]):
 
     def __init__(self, items: tuple[typing.Unpack[_TTuple]], /):
         """Construct an ARC4 tuple from a python tuple"""
+
     @property
     def native(self) -> tuple[typing.Unpack[_TTuple]]:
         """Return the Bytes representation of the address after ARC4 decoding"""
@@ -411,12 +434,15 @@ class Struct(metaclass=_StructMeta):
     @classmethod
     def from_bytes(cls, value: algopy.Bytes | bytes, /) -> typing.Self:
         """Construct an instance from the underlying bytes[] (no validation)"""
+
     @property
     def bytes(self) -> algopy.Bytes:
         """Get the underlying bytes[]"""
+
     @classmethod
     def from_log(cls, log: algopy.Bytes, /) -> typing.Self:
         """Load an ABI type from application logs, checking for the ABI return prefix `0x151f7c75`"""
+
     def copy(self) -> typing.Self:
         """Create a copy of this struct"""
 

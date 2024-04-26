@@ -41,9 +41,11 @@ def _lower_sub(mir_sub: mir.MemorySubroutine) -> teal_models.TealSubroutine:
         if block_idx == 0 or mir_block.block_name in referenced_labels:
             sub.blocks.append(
                 teal_models.TealBlock(
-                    label=mir_block.block_name
-                    if not (mir_sub.is_main and block_idx == 0)
-                    else mir_sub.signature.name,
+                    label=(
+                        mir_block.block_name
+                        if not (mir_sub.is_main and block_idx == 0)
+                        else mir_sub.signature.name
+                    ),
                     ops=[],
                     entry_stack_height=mir_block.entry_stack_height,
                     exit_stack_height=-1,

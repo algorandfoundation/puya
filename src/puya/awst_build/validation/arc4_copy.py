@@ -48,7 +48,7 @@ class ARC4CopyValidator(AWSTTraverser):
                     # Var expressions don't need copy as we implicitly return the latest value and
                     # update the var
                     continue
-                case (awst_nodes.AppStateExpression() | awst_nodes.AppAccountStateExpression()):
+                case awst_nodes.AppStateExpression() | awst_nodes.AppAccountStateExpression():
                     message = "being passed to a subroutine from state"
                 case _:
                     message = "being passed to a subroutine"

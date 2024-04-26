@@ -112,15 +112,13 @@ class SourceLocation:
                     line=line,
                     end_line=end_line,
                 )
-            case (
-                mypy.nodes.WhileStmt(body=compound_body) | mypy.nodes.ForStmt(body=compound_body)
-            ):
+            case mypy.nodes.WhileStmt(body=compound_body) | mypy.nodes.ForStmt(body=compound_body):
                 return cls(
                     file=file,
                     line=node.line,
                     end_line=compound_body.line - 1,
                 )
-            case (mypy.nodes.IfStmt(body=[*bodies], else_body=else_body)):
+            case mypy.nodes.IfStmt(body=[*bodies], else_body=else_body):
                 body_start: int | None = None
                 if else_body is not None:
                     bodies.append(else_body)
