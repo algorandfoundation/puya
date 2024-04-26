@@ -232,18 +232,15 @@ def biguint_bytes_eval(value: int) -> bytes:
 
 
 @typing.overload
-def coalesce(arg1: T | None, arg2: T, /) -> T:
-    ...
+def coalesce(arg1: T | None, arg2: T, /) -> T: ...
 
 
 @typing.overload
-def coalesce(arg1: T | None, arg2: T | None, arg3: T, /) -> T:
-    ...
+def coalesce(arg1: T | None, arg2: T | None, arg3: T, /) -> T: ...
 
 
 @typing.overload
-def coalesce(*args: T | None) -> T | None:
-    ...
+def coalesce(*args: T | None) -> T | None: ...
 
 
 def coalesce(*args: T | None) -> T | None:

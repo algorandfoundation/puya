@@ -261,9 +261,11 @@ class InnerTransactionBuilder:
         return InnerTransactionField(
             group_index=itxn,
             is_last_in_group=is_last_in_group,
-            array_index=self.context.visitor.visit_and_materialise_single(itxn_field.array_index)
-            if itxn_field.array_index
-            else None,
+            array_index=(
+                self.context.visitor.visit_and_materialise_single(itxn_field.array_index)
+                if itxn_field.array_index
+                else None
+            ),
             field=field.immediate,
             type=wtype_to_ir_type(field.wtype),
             source_location=src_loc,

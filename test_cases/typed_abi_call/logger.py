@@ -63,5 +63,4 @@ class Logger(ARC4Contract):
 
 class LoggerClient(arc4.ARC4Client, typing.Protocol):
     @arc4.abimethod
-    def echo(self, value: arc4.String) -> arc4.String:
-        ...
+    def echo(self, value: arc4.String) -> arc4.String: ...

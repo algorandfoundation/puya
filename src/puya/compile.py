@@ -20,7 +20,7 @@ from puya import log
 from puya.arc32 import create_arc32_json, write_arc32_client
 from puya.awst_build.main import transform_ast
 from puya.context import CompileContext
-from puya.errors import CodeError, InternalError, log_exceptions
+from puya.errors import InternalError, log_exceptions
 from puya.ir.main import build_module_irs, optimize_and_destructure_ir
 from puya.ir.models import (
     Contract as ContractIR,
@@ -240,8 +240,11 @@ def _get_prefix() -> str | None:
     return None
 
 
+_STUBS_PACKAGE_NAME = "algorand-python"
+
+
 def _check_algopy_version(site_packages: Path) -> None:
-    pkgs = metadata.Distribution.discover(name="algorand-python", path=[str(site_packages)])
+    pkgs = metadata.Distribution.discover(name=_STUBS_PACKAGE_NAME, path=[str(site_packages)])
     try:
         (algopy,) = pkgs
     except ValueError:
@@ -251,9 +254,14 @@ def _check_algopy_version(site_packages: Path) -> None:
     logger.debug(f"Found algopy: {algopy_version}")
 
     if not (MIN_SUPPORTED_ALGOPY_VERSION <= algopy_version < MAX_SUPPORTED_ALGOPY_VERSION_EX):
-        raise CodeError(
-            f"algopy version {algopy_version} is outside the supported range:"
-            f" >={MIN_SUPPORTED_ALGOPY_VERSION}, <{MAX_SUPPORTED_ALGOPY_VERSION_EX}"
+        logger.warning(
+            f"{_STUBS_PACKAGE_NAME} version {algopy_version} is outside the supported range:"
+            f" >={MIN_SUPPORTED_ALGOPY_VERSION}, <{MAX_SUPPORTED_ALGOPY_VERSION_EX}",
+            important=True,
+            related_lines=[
+                "This will cause typing errors if there are incompatibilities in the API used.",
+                "Please update your algorand-python package to be in the supported range.",
+            ],
         )
 
 

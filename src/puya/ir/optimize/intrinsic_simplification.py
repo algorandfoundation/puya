@@ -275,20 +275,19 @@ def _try_fold_intrinsic(
                 return left_arg
     elif intrinsic.op.code.startswith("extract"):
         match intrinsic:
-            case (
-                models.Intrinsic(
-                    immediates=[int(S), int(L)],
-                    args=[byte_arg],
-                )
-                | models.Intrinsic(
-                    immediates=[],
-                    args=[
-                        byte_arg,
-                        models.UInt64Constant(value=S),
-                        models.UInt64Constant(value=L),
-                    ],
-                )
-            ) if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
+            case models.Intrinsic(
+                immediates=[int(S), int(L)],
+                args=[byte_arg],
+            ) | models.Intrinsic(
+                immediates=[],
+                args=[
+                    byte_arg,
+                    models.UInt64Constant(value=S),
+                    models.UInt64Constant(value=L),
+                ],
+            ) if (
+                byte_const := _get_byte_constant(subroutine, byte_arg)
+            ) is not None:
                 # note there is a difference of behaviour between extract with stack args
                 # and with immediates - zero is to the end with immediates,
                 # and zero length with stacks
@@ -301,20 +300,19 @@ def _try_fold_intrinsic(
                 )
     elif intrinsic.op.code.startswith("substring"):
         match intrinsic:
-            case (
-                models.Intrinsic(
-                    immediates=[int(S), int(E)],
-                    args=[byte_arg],
-                )
-                | models.Intrinsic(
-                    immediates=[],
-                    args=[
-                        byte_arg,
-                        models.UInt64Constant(value=S),
-                        models.UInt64Constant(value=E),
-                    ],
-                )
-            ) if (byte_const := _get_byte_constant(subroutine, byte_arg)) is not None:
+            case models.Intrinsic(
+                immediates=[int(S), int(E)],
+                args=[byte_arg],
+            ) | models.Intrinsic(
+                immediates=[],
+                args=[
+                    byte_arg,
+                    models.UInt64Constant(value=S),
+                    models.UInt64Constant(value=E),
+                ],
+            ) if (
+                byte_const := _get_byte_constant(subroutine, byte_arg)
+            ) is not None:
                 if E < S:
                     return None  # would fail at runtime, lets hope this is unreachable 😬
                 extracted = byte_const.value[S:E]

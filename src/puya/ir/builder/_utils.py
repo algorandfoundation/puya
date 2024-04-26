@@ -30,8 +30,7 @@ def assign(
     *,
     names: Sequence[tuple[str, SourceLocation | None]],
     source_location: SourceLocation | None,
-) -> Sequence[Register]:
-    ...
+) -> Sequence[Register]: ...
 
 
 @typing.overload
@@ -41,8 +40,7 @@ def assign(
     *,
     temp_description: str | Sequence[str],
     source_location: SourceLocation | None,
-) -> Sequence[Register]:
-    ...
+) -> Sequence[Register]: ...
 
 
 def assign(

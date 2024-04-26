@@ -243,8 +243,8 @@ class InnerTransactionFieldsValidator(AWSTTraverser):
         match value:
             case awst_nodes.CreateInnerTransaction() | awst_nodes.Copy():
                 self._check_itxn_params_not_submitted_in_loop(stmt.target)
-            case (
-                awst_nodes.VarExpression(wtype=wtype) | awst_nodes.TupleItemExpression(wtype=wtype)
+            case awst_nodes.VarExpression(wtype=wtype) | awst_nodes.TupleItemExpression(
+                wtype=wtype
             ) if wtypes.is_inner_transaction_field_type(wtype):
                 logger.error(
                     f"{value.wtype} must be copied using .copy() when "

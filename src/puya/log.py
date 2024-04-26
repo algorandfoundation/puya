@@ -114,12 +114,17 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
         if related_errors:
             assert isinstance(related_errors, list)
             lines.extend(related_errors)
+        important: bool = event_dict.pop("important", False)
         location: SourceLocation | None = event_dict.pop("location", None)
         location_as_link = self._location_as_link(location) if location else ""
-        level = event_dict.pop("level", "")
+        level = event_dict.pop("level", "info")
 
         align_related_lines = " " * (len(location_as_link) + 1 + len(level) + 1)
         sio = StringIO()
+        reset_colour = self._styles.reset
+        if important:
+            sio.write(self._styles.bright)
+            reset_colour += self._styles.bright
         for idx, line in enumerate(lines):
             if idx:
                 sio.write("\n")
@@ -130,14 +135,14 @@ class PuyaConsoleRender(structlog.dev.ConsoleRenderer):
                     location_link = self._location_as_link(location)
                     sio.write(location_link)
                     sio.write(" ")
-                    sio.write(self._styles.reset)
+                    sio.write(reset_colour)
 
-                if level:
-                    sio.write(self.level_to_color.get(level, ""))
-                    sio.write(level)
-                    sio.write(": ")
-                    sio.write(self._styles.reset)
+                sio.write(self.level_to_color.get(level, ""))
+                sio.write(level)
+                sio.write(": ")
+                sio.write(reset_colour)
             sio.write(line)
+        sio.write(self._styles.reset)
 
         stack = event_dict.pop("stack", None)
         exc = event_dict.pop("exception", None)

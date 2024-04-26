@@ -322,8 +322,7 @@ def test_abc() -> None:
                 return id(self)
 
             @abstractmethod
-            def explicit_abstract_ellipsis(self) -> int:
-                ...
+            def explicit_abstract_ellipsis(self) -> int: ...
 
             @abstractmethod
             def explicit_abstract_raise_not_implemented(self) -> int:
@@ -590,8 +589,7 @@ def test_special_decorators() -> None:
                 return b""
 
             @abc.abstractmethod
-            def abstract_method(self, x: str) -> str:
-                ...
+            def abstract_method(self, x: str) -> str: ...
 
             @staticmethod
             def static() -> int:
@@ -602,12 +600,10 @@ def test_special_decorators() -> None:
                 return cls().static()
 
             @typing.overload
-            def overloaded(self, x: int) -> None:
-                ...
+            def overloaded(self, x: int) -> None: ...
 
             @typing.overload
-            def overloaded(self, x: str) -> None:
-                ...
+            def overloaded(self, x: str) -> None: ...
 
             def overloaded(self, x: int | str) -> None:
                 if isinstance(x, int):

@@ -419,6 +419,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_min_balance(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -426,6 +427,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_auth_addr(a: Account | UInt64 | int, /) -> tuple[Account, bool]:
         """
@@ -433,6 +435,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_total_num_uint(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -440,6 +443,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_total_num_byte_slice(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -447,6 +451,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_total_extra_app_pages(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -454,6 +459,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_total_apps_created(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -461,6 +467,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_total_apps_opted_in(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -468,6 +475,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_total_assets_created(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -475,6 +483,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_total_assets(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -482,6 +491,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_total_boxes(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -489,6 +499,7 @@ class AcctParamsGet:
 
         Native TEAL opcode: [`acct_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#acct_params_get)
         """
+
     @staticmethod
     def acct_total_box_bytes(a: Account | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -511,6 +522,7 @@ class AppGlobal:
 
         Native TEAL opcode: [`app_global_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get)
         """
+
     @staticmethod
     def get_uint64(a: Bytes | bytes, /) -> UInt64:
         """
@@ -519,6 +531,7 @@ class AppGlobal:
 
         Native TEAL opcode: [`app_global_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get)
         """
+
     @staticmethod
     def get_ex_bytes(a: Application | UInt64 | int, b: Bytes | bytes, /) -> tuple[Bytes, bool]:
         """
@@ -527,6 +540,7 @@ class AppGlobal:
 
         Native TEAL opcode: [`app_global_get_ex`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get_ex)
         """
+
     @staticmethod
     def get_ex_uint64(a: Application | UInt64 | int, b: Bytes | bytes, /) -> tuple[UInt64, bool]:
         """
@@ -535,6 +549,7 @@ class AppGlobal:
 
         Native TEAL opcode: [`app_global_get_ex`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_get_ex)
         """
+
     @staticmethod
     def delete(a: Bytes | bytes, /) -> None:
         """
@@ -545,6 +560,7 @@ class AppGlobal:
 
         Native TEAL opcode: [`app_global_del`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_global_del)
         """
+
     @staticmethod
     def put(a: Bytes | bytes, b: Bytes | UInt64 | bytes | int, /) -> None:
         """
@@ -567,6 +583,7 @@ class AppLocal:
 
         Native TEAL opcode: [`app_local_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_get)
         """
+
     @staticmethod
     def get_uint64(a: Account | UInt64 | int, b: Bytes | bytes, /) -> UInt64:
         """
@@ -575,6 +592,7 @@ class AppLocal:
 
         Native TEAL opcode: [`app_local_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_get)
         """
+
     @staticmethod
     def get_ex_bytes(
         a: Account | UInt64 | int, b: Application | UInt64 | int, c: Bytes | bytes, /
@@ -585,6 +603,7 @@ class AppLocal:
 
         Native TEAL opcode: [`app_local_get_ex`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_get_ex)
         """
+
     @staticmethod
     def get_ex_uint64(
         a: Account | UInt64 | int, b: Application | UInt64 | int, c: Bytes | bytes, /
@@ -595,6 +614,7 @@ class AppLocal:
 
         Native TEAL opcode: [`app_local_get_ex`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_get_ex)
         """
+
     @staticmethod
     def delete(a: Account | UInt64 | int, b: Bytes | bytes, /) -> None:
         """
@@ -605,6 +625,7 @@ class AppLocal:
 
         Native TEAL opcode: [`app_local_del`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_local_del)
         """
+
     @staticmethod
     def put(
         a: Account | UInt64 | int, b: Bytes | bytes, c: Bytes | UInt64 | bytes | int, /
@@ -629,6 +650,7 @@ class AppParamsGet:
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
+
     @staticmethod
     def app_clear_state_program(a: Application | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
@@ -636,6 +658,7 @@ class AppParamsGet:
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
+
     @staticmethod
     def app_global_num_uint(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -643,6 +666,7 @@ class AppParamsGet:
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
+
     @staticmethod
     def app_global_num_byte_slice(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -650,6 +674,7 @@ class AppParamsGet:
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
+
     @staticmethod
     def app_local_num_uint(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -657,6 +682,7 @@ class AppParamsGet:
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
+
     @staticmethod
     def app_local_num_byte_slice(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -664,6 +690,7 @@ class AppParamsGet:
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
+
     @staticmethod
     def app_extra_program_pages(a: Application | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -671,6 +698,7 @@ class AppParamsGet:
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
+
     @staticmethod
     def app_creator(a: Application | UInt64 | int, /) -> tuple[Account, bool]:
         """
@@ -678,6 +706,7 @@ class AppParamsGet:
 
         Native TEAL opcode: [`app_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#app_params_get)
         """
+
     @staticmethod
     def app_address(a: Application | UInt64 | int, /) -> tuple[Account, bool]:
         """
@@ -701,6 +730,7 @@ class AssetHoldingGet:
 
         Native TEAL opcode: [`asset_holding_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_holding_get)
         """
+
     @staticmethod
     def asset_frozen(a: Account | UInt64 | int, b: Asset | UInt64 | int, /) -> tuple[bool, bool]:
         """
@@ -722,6 +752,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_decimals(a: Asset | UInt64 | int, /) -> tuple[UInt64, bool]:
         """
@@ -729,6 +760,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_default_frozen(a: Asset | UInt64 | int, /) -> tuple[bool, bool]:
         """
@@ -736,6 +768,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_unit_name(a: Asset | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
@@ -743,6 +776,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_name(a: Asset | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
@@ -750,6 +784,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_url(a: Asset | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
@@ -757,6 +792,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_metadata_hash(a: Asset | UInt64 | int, /) -> tuple[Bytes, bool]:
         """
@@ -764,6 +800,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_manager(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
@@ -771,6 +808,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_reserve(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
@@ -778,6 +816,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_freeze(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
@@ -785,6 +824,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_clawback(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
@@ -792,6 +832,7 @@ class AssetParamsGet:
 
         Native TEAL opcode: [`asset_params_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#asset_params_get)
         """
+
     @staticmethod
     def asset_creator(a: Asset | UInt64 | int, /) -> tuple[Account, bool]:
         """
@@ -812,6 +853,7 @@ class Block:
 
         Native TEAL opcode: [`block`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#block)
         """
+
     @staticmethod
     def blk_timestamp(a: UInt64 | int, /) -> UInt64:
         """
@@ -833,6 +875,7 @@ class Box:
 
         Native TEAL opcode: [`box_create`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_create)
         """
+
     @staticmethod
     def delete(a: Bytes | bytes, /) -> bool:
         """
@@ -840,6 +883,7 @@ class Box:
 
         Native TEAL opcode: [`box_del`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_del)
         """
+
     @staticmethod
     def extract(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, /) -> Bytes:
         """
@@ -847,6 +891,7 @@ class Box:
 
         Native TEAL opcode: [`box_extract`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_extract)
         """
+
     @staticmethod
     def get(a: Bytes | bytes, /) -> tuple[Bytes, bool]:
         """
@@ -855,6 +900,7 @@ class Box:
 
         Native TEAL opcode: [`box_get`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_get)
         """
+
     @staticmethod
     def length(a: Bytes | bytes, /) -> tuple[UInt64, bool]:
         """
@@ -862,6 +908,7 @@ class Box:
 
         Native TEAL opcode: [`box_len`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_len)
         """
+
     @staticmethod
     def put(a: Bytes | bytes, b: Bytes | bytes, /) -> None:
         """
@@ -870,6 +917,7 @@ class Box:
 
         Native TEAL opcode: [`box_put`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_put)
         """
+
     @staticmethod
     def replace(a: Bytes | bytes, b: UInt64 | int, c: Bytes | bytes, /) -> None:
         """
@@ -877,6 +925,7 @@ class Box:
 
         Native TEAL opcode: [`box_replace`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_replace)
         """
+
     @staticmethod
     def resize(a: Bytes | bytes, b: UInt64 | int, /) -> None:
         """
@@ -884,6 +933,7 @@ class Box:
 
         Native TEAL opcode: [`box_resize`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#box_resize)
         """
+
     @staticmethod
     def splice(a: Bytes | bytes, b: UInt64 | int, c: UInt64 | int, d: Bytes | bytes, /) -> None:
         """
@@ -917,6 +967,7 @@ class EllipticCurve:
 
         Native TEAL opcode: [`ec_add`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_add)
         """
+
     @staticmethod
     def map_to(g: EC, a: Bytes | bytes, /) -> Bytes:
         """
@@ -927,6 +978,7 @@ class EllipticCurve:
 
         Native TEAL opcode: [`ec_map_to`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_map_to)
         """
+
     @staticmethod
     def scalar_mul_multi(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
         """
@@ -937,6 +989,7 @@ class EllipticCurve:
 
         Native TEAL opcode: [`ec_multi_scalar_mul`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_multi_scalar_mul)
         """
+
     @staticmethod
     def pairing_check(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> bool:
         """
@@ -946,6 +999,7 @@ class EllipticCurve:
 
         Native TEAL opcode: [`ec_pairing_check`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_pairing_check)
         """
+
     @staticmethod
     def scalar_mul(g: EC, a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
         """
@@ -955,6 +1009,7 @@ class EllipticCurve:
 
         Native TEAL opcode: [`ec_scalar_mul`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#ec_scalar_mul)
         """
+
     @staticmethod
     def subgroup_check(g: EC, a: Bytes | bytes, /) -> bool:
         """
@@ -978,6 +1033,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def fee(t: int, /) -> UInt64:
         """
@@ -986,6 +1042,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def first_valid(t: int, /) -> UInt64:
         """
@@ -994,6 +1051,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def first_valid_time(t: int, /) -> UInt64:
         """
@@ -1002,6 +1060,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def last_valid(t: int, /) -> UInt64:
         """
@@ -1010,6 +1069,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def note(t: int, /) -> Bytes:
         """
@@ -1018,6 +1078,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def lease(t: int, /) -> Bytes:
         """
@@ -1026,6 +1087,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def receiver(t: int, /) -> Account:
         """
@@ -1034,6 +1096,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def amount(t: int, /) -> UInt64:
         """
@@ -1042,6 +1105,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def close_remainder_to(t: int, /) -> Account:
         """
@@ -1050,6 +1114,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def vote_pk(t: int, /) -> Bytes:
         """
@@ -1058,6 +1123,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def selection_pk(t: int, /) -> Bytes:
         """
@@ -1066,6 +1132,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def vote_first(t: int, /) -> UInt64:
         """
@@ -1074,6 +1141,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def vote_last(t: int, /) -> UInt64:
         """
@@ -1082,6 +1150,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def vote_key_dilution(t: int, /) -> UInt64:
         """
@@ -1090,6 +1159,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def type(t: int, /) -> Bytes:
         """
@@ -1098,6 +1168,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def type_enum(t: int, /) -> UInt64:
         """
@@ -1106,6 +1177,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def xfer_asset(t: int, /) -> Asset:
         """
@@ -1114,6 +1186,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def asset_amount(t: int, /) -> UInt64:
         """
@@ -1122,6 +1195,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def asset_sender(t: int, /) -> Account:
         """
@@ -1130,6 +1204,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def asset_receiver(t: int, /) -> Account:
         """
@@ -1138,6 +1213,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def asset_close_to(t: int, /) -> Account:
         """
@@ -1146,6 +1222,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def group_index(t: int, /) -> UInt64:
         """
@@ -1154,6 +1231,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def tx_id(t: int, /) -> Bytes:
         """
@@ -1162,6 +1240,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def application_id(t: int, /) -> Application:
         """
@@ -1170,6 +1249,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def on_completion(t: int, /) -> UInt64:
         """
@@ -1178,6 +1258,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def application_args(t: int, a: UInt64 | int, /) -> Bytes:
         """
@@ -1186,6 +1267,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxna), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
         """
+
     @staticmethod
     def num_app_args(t: int, /) -> UInt64:
         """
@@ -1194,6 +1276,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def accounts(t: int, a: UInt64 | int, /) -> Account:
         """
@@ -1202,6 +1285,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxna), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
         """
+
     @staticmethod
     def num_accounts(t: int, /) -> UInt64:
         """
@@ -1210,6 +1294,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def approval_program(t: int, /) -> Bytes:
         """
@@ -1218,6 +1303,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def clear_state_program(t: int, /) -> Bytes:
         """
@@ -1226,6 +1312,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def rekey_to(t: int, /) -> Account:
         """
@@ -1234,6 +1321,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset(t: int, /) -> Asset:
         """
@@ -1242,6 +1330,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_total(t: int, /) -> UInt64:
         """
@@ -1250,6 +1339,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_decimals(t: int, /) -> UInt64:
         """
@@ -1258,6 +1348,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_default_frozen(t: int, /) -> bool:
         """
@@ -1266,6 +1357,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_unit_name(t: int, /) -> Bytes:
         """
@@ -1274,6 +1366,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_name(t: int, /) -> Bytes:
         """
@@ -1282,6 +1375,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_url(t: int, /) -> Bytes:
         """
@@ -1290,6 +1384,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_metadata_hash(t: int, /) -> Bytes:
         """
@@ -1298,6 +1393,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_manager(t: int, /) -> Account:
         """
@@ -1306,6 +1402,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_reserve(t: int, /) -> Account:
         """
@@ -1314,6 +1411,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_freeze(t: int, /) -> Account:
         """
@@ -1322,6 +1420,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def config_asset_clawback(t: int, /) -> Account:
         """
@@ -1330,6 +1429,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def freeze_asset(t: int, /) -> Asset:
         """
@@ -1338,6 +1438,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def freeze_asset_account(t: int, /) -> Account:
         """
@@ -1346,6 +1447,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def freeze_asset_frozen(t: int, /) -> bool:
         """
@@ -1354,6 +1456,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def assets(t: int, a: UInt64 | int, /) -> Asset:
         """
@@ -1362,6 +1465,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxna), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
         """
+
     @staticmethod
     def num_assets(t: int, /) -> UInt64:
         """
@@ -1370,6 +1474,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def applications(t: int, a: UInt64 | int, /) -> Application:
         """
@@ -1378,6 +1483,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxna), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
         """
+
     @staticmethod
     def num_applications(t: int, /) -> UInt64:
         """
@@ -1386,6 +1492,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def global_num_uint(t: int, /) -> UInt64:
         """
@@ -1394,6 +1501,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def global_num_byte_slice(t: int, /) -> UInt64:
         """
@@ -1402,6 +1510,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def local_num_uint(t: int, /) -> UInt64:
         """
@@ -1410,6 +1519,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def local_num_byte_slice(t: int, /) -> UInt64:
         """
@@ -1418,6 +1528,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def extra_program_pages(t: int, /) -> UInt64:
         """
@@ -1426,6 +1537,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def nonparticipation(t: int, /) -> bool:
         """
@@ -1434,6 +1546,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def logs(t: int, a: UInt64 | int, /) -> Bytes:
         """
@@ -1442,6 +1555,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxna), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
         """
+
     @staticmethod
     def num_logs(t: int, /) -> UInt64:
         """
@@ -1450,6 +1564,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def created_asset_id(t: int, /) -> Asset:
         """
@@ -1458,6 +1573,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def created_application_id(t: int, /) -> Application:
         """
@@ -1466,6 +1582,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def last_log(t: int, /) -> Bytes:
         """
@@ -1474,6 +1591,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def state_proof_pk(t: int, /) -> Bytes:
         """
@@ -1482,6 +1600,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def approval_program_pages(t: int, a: UInt64 | int, /) -> Bytes:
         """
@@ -1490,6 +1609,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxna), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
         """
+
     @staticmethod
     def num_approval_program_pages(t: int, /) -> UInt64:
         """
@@ -1498,6 +1618,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxn)
         """
+
     @staticmethod
     def clear_state_program_pages(t: int, a: UInt64 | int, /) -> Bytes:
         """
@@ -1506,6 +1627,7 @@ class GITxn:
 
         Native TEAL opcode: [`gitxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxna), [`gitxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gitxnas)
         """
+
     @staticmethod
     def num_clear_state_program_pages(t: int, /) -> UInt64:
         """
@@ -1528,6 +1650,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def fee(a: UInt64 | int, /) -> UInt64:
         """
@@ -1535,6 +1658,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def first_valid(a: UInt64 | int, /) -> UInt64:
         """
@@ -1542,6 +1666,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def first_valid_time(a: UInt64 | int, /) -> UInt64:
         """
@@ -1549,6 +1674,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def last_valid(a: UInt64 | int, /) -> UInt64:
         """
@@ -1556,6 +1682,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def note(a: UInt64 | int, /) -> Bytes:
         """
@@ -1563,6 +1690,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def lease(a: UInt64 | int, /) -> Bytes:
         """
@@ -1570,6 +1698,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def receiver(a: UInt64 | int, /) -> Account:
         """
@@ -1577,6 +1706,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def amount(a: UInt64 | int, /) -> UInt64:
         """
@@ -1584,6 +1714,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def close_remainder_to(a: UInt64 | int, /) -> Account:
         """
@@ -1591,6 +1722,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def vote_pk(a: UInt64 | int, /) -> Bytes:
         """
@@ -1598,6 +1730,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def selection_pk(a: UInt64 | int, /) -> Bytes:
         """
@@ -1605,6 +1738,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def vote_first(a: UInt64 | int, /) -> UInt64:
         """
@@ -1612,6 +1746,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def vote_last(a: UInt64 | int, /) -> UInt64:
         """
@@ -1619,6 +1754,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def vote_key_dilution(a: UInt64 | int, /) -> UInt64:
         """
@@ -1626,6 +1762,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def type(a: UInt64 | int, /) -> Bytes:
         """
@@ -1633,6 +1770,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def type_enum(a: UInt64 | int, /) -> UInt64:
         """
@@ -1640,6 +1778,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def xfer_asset(a: UInt64 | int, /) -> Asset:
         """
@@ -1647,6 +1786,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def asset_amount(a: UInt64 | int, /) -> UInt64:
         """
@@ -1654,6 +1794,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def asset_sender(a: UInt64 | int, /) -> Account:
         """
@@ -1661,6 +1802,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def asset_receiver(a: UInt64 | int, /) -> Account:
         """
@@ -1668,6 +1810,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def asset_close_to(a: UInt64 | int, /) -> Account:
         """
@@ -1675,6 +1818,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def group_index(a: UInt64 | int, /) -> UInt64:
         """
@@ -1682,6 +1826,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def tx_id(a: UInt64 | int, /) -> Bytes:
         """
@@ -1689,6 +1834,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def application_id(a: UInt64 | int, /) -> Application:
         """
@@ -1696,6 +1842,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def on_completion(a: UInt64 | int, /) -> UInt64:
         """
@@ -1703,6 +1850,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def application_args(a: UInt64 | int, b: UInt64 | int, /) -> Bytes:
         """
@@ -1710,6 +1858,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxna), [`gtxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnas), [`gtxnsa`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsa), [`gtxnsas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsas)
         """
+
     @staticmethod
     def num_app_args(a: UInt64 | int, /) -> UInt64:
         """
@@ -1717,6 +1866,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def accounts(a: UInt64 | int, b: UInt64 | int, /) -> Account:
         """
@@ -1724,6 +1874,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxna), [`gtxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnas), [`gtxnsa`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsa), [`gtxnsas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsas)
         """
+
     @staticmethod
     def num_accounts(a: UInt64 | int, /) -> UInt64:
         """
@@ -1731,6 +1882,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def approval_program(a: UInt64 | int, /) -> Bytes:
         """
@@ -1738,6 +1890,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def clear_state_program(a: UInt64 | int, /) -> Bytes:
         """
@@ -1745,6 +1898,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def rekey_to(a: UInt64 | int, /) -> Account:
         """
@@ -1752,6 +1906,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset(a: UInt64 | int, /) -> Asset:
         """
@@ -1759,6 +1914,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_total(a: UInt64 | int, /) -> UInt64:
         """
@@ -1766,6 +1922,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_decimals(a: UInt64 | int, /) -> UInt64:
         """
@@ -1773,6 +1930,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_default_frozen(a: UInt64 | int, /) -> bool:
         """
@@ -1780,6 +1938,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_unit_name(a: UInt64 | int, /) -> Bytes:
         """
@@ -1787,6 +1946,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_name(a: UInt64 | int, /) -> Bytes:
         """
@@ -1794,6 +1954,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_url(a: UInt64 | int, /) -> Bytes:
         """
@@ -1801,6 +1962,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_metadata_hash(a: UInt64 | int, /) -> Bytes:
         """
@@ -1808,6 +1970,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_manager(a: UInt64 | int, /) -> Account:
         """
@@ -1815,6 +1978,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_reserve(a: UInt64 | int, /) -> Account:
         """
@@ -1822,6 +1986,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_freeze(a: UInt64 | int, /) -> Account:
         """
@@ -1829,6 +1994,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def config_asset_clawback(a: UInt64 | int, /) -> Account:
         """
@@ -1836,6 +2002,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def freeze_asset(a: UInt64 | int, /) -> Asset:
         """
@@ -1843,6 +2010,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def freeze_asset_account(a: UInt64 | int, /) -> Account:
         """
@@ -1850,6 +2018,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def freeze_asset_frozen(a: UInt64 | int, /) -> bool:
         """
@@ -1857,6 +2026,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def assets(a: UInt64 | int, b: UInt64 | int, /) -> Asset:
         """
@@ -1864,6 +2034,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxna), [`gtxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnas), [`gtxnsa`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsa), [`gtxnsas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsas)
         """
+
     @staticmethod
     def num_assets(a: UInt64 | int, /) -> UInt64:
         """
@@ -1871,6 +2042,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def applications(a: UInt64 | int, b: UInt64 | int, /) -> Application:
         """
@@ -1878,6 +2050,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxna), [`gtxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnas), [`gtxnsa`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsa), [`gtxnsas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsas)
         """
+
     @staticmethod
     def num_applications(a: UInt64 | int, /) -> UInt64:
         """
@@ -1885,6 +2058,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def global_num_uint(a: UInt64 | int, /) -> UInt64:
         """
@@ -1892,6 +2066,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def global_num_byte_slice(a: UInt64 | int, /) -> UInt64:
         """
@@ -1899,6 +2074,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def local_num_uint(a: UInt64 | int, /) -> UInt64:
         """
@@ -1906,6 +2082,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def local_num_byte_slice(a: UInt64 | int, /) -> UInt64:
         """
@@ -1913,6 +2090,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def extra_program_pages(a: UInt64 | int, /) -> UInt64:
         """
@@ -1920,6 +2098,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def nonparticipation(a: UInt64 | int, /) -> bool:
         """
@@ -1927,6 +2106,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def logs(a: UInt64 | int, b: UInt64 | int, /) -> Bytes:
         """
@@ -1934,6 +2114,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxna), [`gtxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnas), [`gtxnsa`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsa), [`gtxnsas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsas)
         """
+
     @staticmethod
     def num_logs(a: UInt64 | int, /) -> UInt64:
         """
@@ -1941,6 +2122,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def created_asset_id(a: UInt64 | int, /) -> Asset:
         """
@@ -1948,6 +2130,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def created_application_id(a: UInt64 | int, /) -> Application:
         """
@@ -1955,6 +2138,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def last_log(a: UInt64 | int, /) -> Bytes:
         """
@@ -1962,6 +2146,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def state_proof_pk(a: UInt64 | int, /) -> Bytes:
         """
@@ -1969,6 +2154,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def approval_program_pages(a: UInt64 | int, b: UInt64 | int, /) -> Bytes:
         """
@@ -1976,6 +2162,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxna), [`gtxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnas), [`gtxnsa`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsa), [`gtxnsas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsas)
         """
+
     @staticmethod
     def num_approval_program_pages(a: UInt64 | int, /) -> UInt64:
         """
@@ -1983,6 +2170,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxn), [`gtxns`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxns)
         """
+
     @staticmethod
     def clear_state_program_pages(a: UInt64 | int, b: UInt64 | int, /) -> Bytes:
         """
@@ -1990,6 +2178,7 @@ class GTxn:
 
         Native TEAL opcode: [`gtxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxna), [`gtxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnas), [`gtxnsa`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsa), [`gtxnsas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#gtxnsas)
         """
+
     @staticmethod
     def num_clear_state_program_pages(a: UInt64 | int, /) -> UInt64:
         """
@@ -2109,6 +2298,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def fee() -> UInt64:
         """
@@ -2116,6 +2306,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def first_valid() -> UInt64:
         """
@@ -2123,6 +2314,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def first_valid_time() -> UInt64:
         """
@@ -2130,6 +2322,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def last_valid() -> UInt64:
         """
@@ -2137,6 +2330,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def note() -> Bytes:
         """
@@ -2144,6 +2338,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def lease() -> Bytes:
         """
@@ -2151,6 +2346,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def receiver() -> Account:
         """
@@ -2158,6 +2354,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def amount() -> UInt64:
         """
@@ -2165,6 +2362,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def close_remainder_to() -> Account:
         """
@@ -2172,6 +2370,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def vote_pk() -> Bytes:
         """
@@ -2179,6 +2378,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def selection_pk() -> Bytes:
         """
@@ -2186,6 +2386,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def vote_first() -> UInt64:
         """
@@ -2193,6 +2394,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def vote_last() -> UInt64:
         """
@@ -2200,6 +2402,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def vote_key_dilution() -> UInt64:
         """
@@ -2207,6 +2410,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def type() -> Bytes:
         """
@@ -2214,6 +2418,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def type_enum() -> UInt64:
         """
@@ -2221,6 +2426,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def xfer_asset() -> Asset:
         """
@@ -2228,6 +2434,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def asset_amount() -> UInt64:
         """
@@ -2235,6 +2442,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def asset_sender() -> Account:
         """
@@ -2242,6 +2450,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def asset_receiver() -> Account:
         """
@@ -2249,6 +2458,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def asset_close_to() -> Account:
         """
@@ -2256,6 +2466,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def group_index() -> UInt64:
         """
@@ -2263,6 +2474,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def tx_id() -> Bytes:
         """
@@ -2270,6 +2482,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def application_id() -> Application:
         """
@@ -2277,6 +2490,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def on_completion() -> UInt64:
         """
@@ -2284,6 +2498,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def application_args(a: UInt64 | int, /) -> Bytes:
         """
@@ -2291,6 +2506,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxna), [`itxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxnas)
         """
+
     @staticmethod
     def num_app_args() -> UInt64:
         """
@@ -2298,6 +2514,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def accounts(a: UInt64 | int, /) -> Account:
         """
@@ -2305,6 +2522,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxna), [`itxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxnas)
         """
+
     @staticmethod
     def num_accounts() -> UInt64:
         """
@@ -2312,6 +2530,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def approval_program() -> Bytes:
         """
@@ -2319,6 +2538,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def clear_state_program() -> Bytes:
         """
@@ -2326,6 +2546,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def rekey_to() -> Account:
         """
@@ -2333,6 +2554,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset() -> Asset:
         """
@@ -2340,6 +2562,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_total() -> UInt64:
         """
@@ -2347,6 +2570,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_decimals() -> UInt64:
         """
@@ -2354,6 +2578,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_default_frozen() -> bool:
         """
@@ -2361,6 +2586,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_unit_name() -> Bytes:
         """
@@ -2368,6 +2594,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_name() -> Bytes:
         """
@@ -2375,6 +2602,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_url() -> Bytes:
         """
@@ -2382,6 +2610,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_metadata_hash() -> Bytes:
         """
@@ -2389,6 +2618,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_manager() -> Account:
         """
@@ -2396,6 +2626,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_reserve() -> Account:
         """
@@ -2403,6 +2634,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_freeze() -> Account:
         """
@@ -2410,6 +2642,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def config_asset_clawback() -> Account:
         """
@@ -2417,6 +2650,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def freeze_asset() -> Asset:
         """
@@ -2424,6 +2658,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def freeze_asset_account() -> Account:
         """
@@ -2431,6 +2666,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def freeze_asset_frozen() -> bool:
         """
@@ -2438,6 +2674,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def assets(a: UInt64 | int, /) -> Asset:
         """
@@ -2445,6 +2682,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxna), [`itxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxnas)
         """
+
     @staticmethod
     def num_assets() -> UInt64:
         """
@@ -2452,6 +2690,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def applications(a: UInt64 | int, /) -> Application:
         """
@@ -2459,6 +2698,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxna), [`itxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxnas)
         """
+
     @staticmethod
     def num_applications() -> UInt64:
         """
@@ -2466,6 +2706,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def global_num_uint() -> UInt64:
         """
@@ -2473,6 +2714,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def global_num_byte_slice() -> UInt64:
         """
@@ -2480,6 +2722,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def local_num_uint() -> UInt64:
         """
@@ -2487,6 +2730,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def local_num_byte_slice() -> UInt64:
         """
@@ -2494,6 +2738,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def extra_program_pages() -> UInt64:
         """
@@ -2501,6 +2746,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def nonparticipation() -> bool:
         """
@@ -2508,6 +2754,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def logs(a: UInt64 | int, /) -> Bytes:
         """
@@ -2515,6 +2762,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxna), [`itxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxnas)
         """
+
     @staticmethod
     def num_logs() -> UInt64:
         """
@@ -2522,6 +2770,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def created_asset_id() -> Asset:
         """
@@ -2529,6 +2778,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def created_application_id() -> Application:
         """
@@ -2536,6 +2786,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def last_log() -> Bytes:
         """
@@ -2543,6 +2794,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def state_proof_pk() -> Bytes:
         """
@@ -2550,6 +2802,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def approval_program_pages(a: UInt64 | int, /) -> Bytes:
         """
@@ -2557,6 +2810,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxna), [`itxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxnas)
         """
+
     @staticmethod
     def num_approval_program_pages() -> UInt64:
         """
@@ -2564,6 +2818,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxn`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn)
         """
+
     @staticmethod
     def clear_state_program_pages(a: UInt64 | int, /) -> Bytes:
         """
@@ -2571,6 +2826,7 @@ class ITxn:
 
         Native TEAL opcode: [`itxna`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxna), [`itxnas`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxnas)
         """
+
     @staticmethod
     def num_clear_state_program_pages() -> UInt64:
         """
@@ -2593,6 +2849,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_begin`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_begin)
         """
+
     @staticmethod
     def next() -> None:
         """
@@ -2601,6 +2858,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_next`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_next)
         """
+
     @staticmethod
     def submit() -> None:
         """
@@ -2609,6 +2867,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_submit`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_submit)
         """
+
     @staticmethod
     def set_sender(a: Account, /) -> None:
         """
@@ -2616,6 +2875,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_fee(a: UInt64 | int, /) -> None:
         """
@@ -2623,6 +2883,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_note(a: Bytes | bytes, /) -> None:
         """
@@ -2630,6 +2891,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_receiver(a: Account, /) -> None:
         """
@@ -2637,6 +2899,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_amount(a: UInt64 | int, /) -> None:
         """
@@ -2644,6 +2907,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_close_remainder_to(a: Account, /) -> None:
         """
@@ -2651,6 +2915,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_vote_pk(a: Bytes | bytes, /) -> None:
         """
@@ -2658,6 +2923,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_selection_pk(a: Bytes | bytes, /) -> None:
         """
@@ -2665,6 +2931,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_vote_first(a: UInt64 | int, /) -> None:
         """
@@ -2672,6 +2939,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_vote_last(a: UInt64 | int, /) -> None:
         """
@@ -2679,6 +2947,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_vote_key_dilution(a: UInt64 | int, /) -> None:
         """
@@ -2686,6 +2955,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_type(a: Bytes | bytes, /) -> None:
         """
@@ -2693,6 +2963,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_type_enum(a: UInt64 | int, /) -> None:
         """
@@ -2700,6 +2971,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_xfer_asset(a: Asset | UInt64 | int, /) -> None:
         """
@@ -2707,6 +2979,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_asset_amount(a: UInt64 | int, /) -> None:
         """
@@ -2714,6 +2987,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_asset_sender(a: Account, /) -> None:
         """
@@ -2721,6 +2995,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_asset_receiver(a: Account, /) -> None:
         """
@@ -2728,6 +3003,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_asset_close_to(a: Account, /) -> None:
         """
@@ -2735,6 +3011,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_application_id(a: Application | UInt64 | int, /) -> None:
         """
@@ -2742,6 +3019,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_on_completion(a: UInt64 | int, /) -> None:
         """
@@ -2749,6 +3027,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_application_args(a: Bytes | bytes, /) -> None:
         """
@@ -2756,6 +3035,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_accounts(a: Account, /) -> None:
         """
@@ -2763,6 +3043,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_approval_program(a: Bytes | bytes, /) -> None:
         """
@@ -2770,6 +3051,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_clear_state_program(a: Bytes | bytes, /) -> None:
         """
@@ -2777,6 +3059,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_rekey_to(a: Account, /) -> None:
         """
@@ -2784,6 +3067,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset(a: Asset | UInt64 | int, /) -> None:
         """
@@ -2791,6 +3075,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_total(a: UInt64 | int, /) -> None:
         """
@@ -2798,6 +3083,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_decimals(a: UInt64 | int, /) -> None:
         """
@@ -2805,6 +3091,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_default_frozen(a: bool | UInt64 | int, /) -> None:
         """
@@ -2812,6 +3099,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_unit_name(a: Bytes | bytes, /) -> None:
         """
@@ -2819,6 +3107,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_name(a: Bytes | bytes, /) -> None:
         """
@@ -2826,6 +3115,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_url(a: Bytes | bytes, /) -> None:
         """
@@ -2833,6 +3123,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_metadata_hash(a: Bytes | bytes, /) -> None:
         """
@@ -2840,6 +3131,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_manager(a: Account, /) -> None:
         """
@@ -2847,6 +3139,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_reserve(a: Account, /) -> None:
         """
@@ -2854,6 +3147,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_freeze(a: Account, /) -> None:
         """
@@ -2861,6 +3155,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_config_asset_clawback(a: Account, /) -> None:
         """
@@ -2868,6 +3163,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_freeze_asset(a: Asset | UInt64 | int, /) -> None:
         """
@@ -2875,6 +3171,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_freeze_asset_account(a: Account, /) -> None:
         """
@@ -2882,6 +3179,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_freeze_asset_frozen(a: bool | UInt64 | int, /) -> None:
         """
@@ -2889,6 +3187,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_assets(a: UInt64 | int, /) -> None:
         """
@@ -2896,6 +3195,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_applications(a: UInt64 | int, /) -> None:
         """
@@ -2903,6 +3203,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_global_num_uint(a: UInt64 | int, /) -> None:
         """
@@ -2910,6 +3211,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_global_num_byte_slice(a: UInt64 | int, /) -> None:
         """
@@ -2917,6 +3219,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_local_num_uint(a: UInt64 | int, /) -> None:
         """
@@ -2924,6 +3227,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_local_num_byte_slice(a: UInt64 | int, /) -> None:
         """
@@ -2931,6 +3235,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_extra_program_pages(a: UInt64 | int, /) -> None:
         """
@@ -2938,6 +3243,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_nonparticipation(a: bool | UInt64 | int, /) -> None:
         """
@@ -2945,6 +3251,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_state_proof_pk(a: Bytes | bytes, /) -> None:
         """
@@ -2952,6 +3259,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_approval_program_pages(a: Bytes | bytes, /) -> None:
         """
@@ -2959,6 +3267,7 @@ class ITxnCreate:
 
         Native TEAL opcode: [`itxn_field`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#itxn_field)
         """
+
     @staticmethod
     def set_clear_state_program_pages(a: Bytes | bytes, /) -> None:
         """
@@ -2979,12 +3288,14 @@ class JsonRef:
 
         Native TEAL opcode: [`json_ref`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#json_ref)
         """
+
     @staticmethod
     def json_uint64(a: Bytes | bytes, b: Bytes | bytes, /) -> UInt64:
         """
 
         Native TEAL opcode: [`json_ref`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#json_ref)
         """
+
     @staticmethod
     def json_object(a: Bytes | bytes, b: Bytes | bytes, /) -> Bytes:
         """
@@ -3005,6 +3316,7 @@ class Scratch:
 
         Native TEAL opcode: [`loads`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#loads)
         """
+
     @staticmethod
     def load_uint64(a: UInt64 | int, /) -> UInt64:
         """
@@ -3012,6 +3324,7 @@ class Scratch:
 
         Native TEAL opcode: [`loads`](https://developer.algorand.org/docs/get-details/dapps/avm/teal/opcodes/v10/#loads)
         """
+
     @staticmethod
     def store(a: UInt64 | int, b: Bytes | UInt64 | bytes | int, /) -> None:
         """

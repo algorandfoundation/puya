@@ -39,8 +39,7 @@ class Node:
 @attrs.frozen
 class Statement(Node, ABC):
     @abstractmethod
-    def accept(self, visitor: StatementVisitor[T]) -> T:
-        ...
+    def accept(self, visitor: StatementVisitor[T]) -> T: ...
 
 
 @attrs.frozen
@@ -48,8 +47,7 @@ class Expression(Node, ABC):
     wtype: WType
 
     @abstractmethod
-    def accept(self, visitor: ExpressionVisitor[T]) -> T:
-        ...
+    def accept(self, visitor: ExpressionVisitor[T]) -> T: ...
 
 
 @attrs.frozen(init=False)
@@ -1573,8 +1571,7 @@ class ModuleStatement(Node, ABC):
     name: str
 
     @abstractmethod
-    def accept(self, visitor: ModuleStatementVisitor[T]) -> T:
-        ...
+    def accept(self, visitor: ModuleStatementVisitor[T]) -> T: ...
 
 
 @attrs.frozen
@@ -1601,8 +1598,7 @@ class Function(ModuleStatement, ABC):
 
     @property
     @abstractmethod
-    def full_name(self) -> str:
-        ...
+    def full_name(self) -> str: ...
 
 
 @attrs.frozen
