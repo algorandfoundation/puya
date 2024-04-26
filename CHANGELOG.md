@@ -1,106 +1,61 @@
 # CHANGELOG
 ## v2.0.0 (2024-04-26)
 
-### Breaking
+### 🚨 BREAKING CHANGES 🚨
 
-* support inner transactions being assigned to unpacked tuples ([`0915c5c`](https://github.com/algorandfoundation/puya/commit/0915c5cb513be0f897be3d1aef59f7e853b393e5))
+#### Support inner transactions being assigned to unpacked tuples
+Accessing an array field of an inner transaction result after it may no longer be available (i.e. after another inner transaction submission) is now a compile error, to resolve this move the array field access before the statement that causes this.
 
-  BREAKING CHANGE: Accessing an array field of an inner transaction result after it may no longer be available (i.e. after another inner transaction submission) is now a compile error, to resolve this move the array field access before the statement that causes this 
+Commit: [`0915c5c`](https://github.com/algorandfoundation/puya/commit/0915c5cb513be0f897be3d1aef59f7e853b393e5)
 
-* prevent usage of state proxies (GlobalState, LocalState) outside __init__ method ([`d354d4e`](https://github.com/algorandfoundation/puya/commit/d354d4e14a88b68f25782a74e48bd8d30d81690e))
+#### Prevent usage of state proxies (GlobalState, LocalState) outside `__init__` method 
+Using state proxies (GlobalState, LocalState) outside of an `__init__` method may not give the behaviour expected, so prevent their usage in those scenarios.
 
-  BREAKING CHANGE: Using state proxies (GlobalState, LocalState) outside of an __init__ method may not give the behaviour expected, so prevent their usage in those scenarios 
+Commit: [`d354d4e`](https://github.com/algorandfoundation/puya/commit/d354d4e14a88b68f25782a74e48bd8d30d81690e)
+
+#### Default transaction fees to `0` (#202) 
+The default fee for inner transactions is now 0 unless explicitly specified. 
+
+Commit: [`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2b65706452e8543b4227fd467b2ed5d)
 
 ### Feature
 
 * Allow wider range of algorand-python versions as long as no incompatible definitions are used. Instead of an error, a prominent warning is displayed if there is a potential mismatch. ([`bf84501`](https://github.com/algorandfoundation/puya/commit/bf84501d0c3dfa5f88f0bb2c2730f4abc91f7f04))
-
-* default transaction fees to 0 (#202) ([`519957f`](https://github.com/algorandfoundation/puya/commit/519957f3e2b65706452e8543b4227fd467b2ed5d))
-
-  
-   BREAKING CHANGE: the default fee for inner transactions is now 0 unless explicitly specified
-
-* allow raw `select` op usage, since it&#39;s a very efficient way to do a ternary operator if greedy argument evaluation is acceptable ([`e91a157`](https://github.com/algorandfoundation/puya/commit/e91a157c9dc887421a54c32b020d78c398baccb6))
-
-* constant optimisation for algopy.op.sqrt and algopy.op.bsqrt ([`bb8f03b`](https://github.com/algorandfoundation/puya/commit/bb8f03bb32fcb2ab9fa3204ebf0ec970537ff7b1))
-
-* allow int literals with algopy.op functions that take a BigUInt (currently just bsqrt) ([`a8e14c3`](https://github.com/algorandfoundation/puya/commit/a8e14c382db18b1e311ceff700e43c6661582015))
-
-* add missing constant folding optimization for b% ([`9536d59`](https://github.com/algorandfoundation/puya/commit/9536d597891dc6c2e911c2c2b435f6253731908b))
-
-  tests: make biguint_binary_ops use a large tuple return, this also allow for testing bigint binary ops are constant folded. Add a test that mimics the previous incarnation in new &#34;stress_tests&#34;, which are marked as slow. 
-
-* Add support bool types in state proxies and remove generic type constraint. ([`c9a7224`](https://github.com/algorandfoundation/puya/commit/c9a7224862db8ee7682aded0cb66e71d455c84c8))
-
-* allow module constants to be used as assert statement messages ([`328ee55`](https://github.com/algorandfoundation/puya/commit/328ee5548749a8ffe66780df60164f910264e6cd))
+* Allow raw `select` op usage, since it&#39;s a very efficient way to do a ternary operator if greedy argument evaluation is acceptable ([`e91a157`](https://github.com/algorandfoundation/puya/commit/e91a157c9dc887421a54c32b020d78c398baccb6))
+* Constant optimisation for `algopy.op.sqrt` and `algopy.op.bsqrt` ([`bb8f03b`](https://github.com/algorandfoundation/puya/commit/bb8f03bb32fcb2ab9fa3204ebf0ec970537ff7b1))
+* Allow int literals with `algopy.op` functions that take a `BigUInt` (currently just `bsqrt`) ([`a8e14c3`](https://github.com/algorandfoundation/puya/commit/a8e14c382db18b1e311ceff700e43c6661582015))
+* Add missing constant folding optimization for b% ([`9536d59`](https://github.com/algorandfoundation/puya/commit/9536d597891dc6c2e911c2c2b435f6253731908b))
+* Add support for `bool` types in state proxies (e.g. `GlobalState`) and remove generic type constraint. ([`c9a7224`](https://github.com/algorandfoundation/puya/commit/c9a7224862db8ee7682aded0cb66e71d455c84c8))
+* Allow module constants to be used as `assert` statement messages ([`328ee55`](https://github.com/algorandfoundation/puya/commit/328ee5548749a8ffe66780df60164f910264e6cd))
 
 ### Fix
 
-* add missing asset_sender to inner transactions ([`fd6bba3`](https://github.com/algorandfoundation/puya/commit/fd6bba390d43e3fcf8e270321e2571545fea3220))
-
-* treat unassigned &amp; unsubmitted inner-transaction field-sets as a code error, not an in internal error ([`b86bfa6`](https://github.com/algorandfoundation/puya/commit/b86bfa6def104a59d9307200e14f463726ea31d7))
-
-* use return type of method signature as return type for an abi_call without an indexed type param ([`1318459`](https://github.com/algorandfoundation/puya/commit/1318459d268ff0f2fc59189c89c9294522a40724))
-
+* Add missing `asset_sender` field to inner transactions ([`fd6bba3`](https://github.com/algorandfoundation/puya/commit/fd6bba390d43e3fcf8e270321e2571545fea3220))
+* Treat unassigned &amp; unsubmitted inner-transaction field-sets as a code error, not an internal error ([`b86bfa6`](https://github.com/algorandfoundation/puya/commit/b86bfa6def104a59d9307200e14f463726ea31d7))
+* Use return type of method signature as return type for an `abi_call` without an indexed type param ([`1318459`](https://github.com/algorandfoundation/puya/commit/1318459d268ff0f2fc59189c89c9294522a40724))
 * Fix issue #195 where certain state comparisons could fail to compile. ([`b8efcc3`](https://github.com/algorandfoundation/puya/commit/b8efcc36112abdf6fc18c74524f99c0b8628419a))
-
-* add missing arc4-copy-checks of .get() and .maybe() methods in state proxies ([`49da224`](https://github.com/algorandfoundation/puya/commit/49da224ef40623b099453aac0b67c8c7a9f4a34a))
-
-  test: add missing test cases for arc4 copies involving structs 
-
-* allow negative arc4.Tuple indexing ([`67ff876`](https://github.com/algorandfoundation/puya/commit/67ff8766e683f53a06f8cac8caa0af634f4787b2))
-
-  refactor: use TupleItemExpression for arc4.Tuple, and FieldExpression for arc4.Struct
-
-  refactor: replace TodoError with specific InternalErrors
-
-  refactor: Fix bug (which was worked around) where a generic class expression builder would cause a compilation failure during constructor invocation. Remove workaround class duplications. 
-
-* add missing stub indicators for unary-+ operator to BigUInt and UInt64 ([`caa98dc`](https://github.com/algorandfoundation/puya/commit/caa98dc484d44c4a7bbaf647cf26141029b84ffa))
-
-* improve error message with invalid String() comparisons ([`f340c86`](https://github.com/algorandfoundation/puya/commit/f340c866b08e7aa84ac53659e9c7822247aed22f))
-
-* improve source location for Asset(&lt;int&gt;) ([`7c89ad7`](https://github.com/algorandfoundation/puya/commit/7c89ad7bbb74ce777e57de777db2e2974edb770f))
-
-  test: cover bad constructor calls to basic types 
-
-* correct input value types for setbit ([`c8fda82`](https://github.com/algorandfoundation/puya/commit/c8fda82149e322884150557e744893a5617ada3b))
-
-* handle arc4.Address.native ([`6dcb55d`](https://github.com/algorandfoundation/puya/commit/6dcb55df852248663f0bbcb886359aa48d776533))
-
-* raise a CodeError rather than InternalError for missing symbol ([`eb802d3`](https://github.com/algorandfoundation/puya/commit/eb802d3fdd0243fa191e47e8826fee0545be5847))
-
-* Flip the arc4 copy logc so we look for specific nodes rather than exclude an ever growing list of &#39;safe&#39; nodes ([`5a56041`](https://github.com/algorandfoundation/puya/commit/5a560419f73978375f7855cf61745bed0843a8f6))
-
-* Ensure arc4 router generation works with minimal contracts that don&#39;t have any explicit abimethods ([`936f378`](https://github.com/algorandfoundation/puya/commit/936f3780eb2fe1ba60e1b6a9ddb8ee6338715283))
-
-* handle intrinsic op that produces values that are not assigned ([`33d961a`](https://github.com/algorandfoundation/puya/commit/33d961a285f404288f282c89d3a528bf426a303a))
-
-* prevent multiline assert messsages from breaking TEAL output ([`4ea5ae6`](https://github.com/algorandfoundation/puya/commit/4ea5ae68e3149d1a0bda0be20ff739df4f6af299))
-
-* fix incorrect error message on unsupported class declaration ([`8eb5a78`](https://github.com/algorandfoundation/puya/commit/8eb5a78c2887039a0920efa7a0e6ba053068c1de))
-
-* add colorama as a dependency on windows ([`0acb4b2`](https://github.com/algorandfoundation/puya/commit/0acb4b2d2a8a6429924774005acce8ff2b3aec8a))
+* Add missing ARC4-copy-checks of `.get()` and `.maybe()` methods in state proxies ([`49da224`](https://github.com/algorandfoundation/puya/commit/49da224ef40623b099453aac0b67c8c7a9f4a34a))
+* Allow negative `arc4.Tuple` indexing ([`67ff876`](https://github.com/algorandfoundation/puya/commit/67ff8766e683f53a06f8cac8caa0af634f4787b2))
+* Add missing stub indicators for unary `+` operator to `BigUInt` and `UInt64` ([`caa98dc`](https://github.com/algorandfoundation/puya/commit/caa98dc484d44c4a7bbaf647cf26141029b84ffa))
+* Improve error message with invalid `String()` comparisons ([`f340c86`](https://github.com/algorandfoundation/puya/commit/f340c866b08e7aa84ac53659e9c7822247aed22f))
+* Improve source location for `Asset(&lt;int&gt;)` ([`7c89ad7`](https://github.com/algorandfoundation/puya/commit/7c89ad7bbb74ce777e57de777db2e2974edb770f))
+* Correct input value types for `algopy.op.setbit` ([`c8fda82`](https://github.com/algorandfoundation/puya/commit/c8fda82149e322884150557e744893a5617ada3b))
+* Handle `arc4.Address.native` ([`6dcb55d`](https://github.com/algorandfoundation/puya/commit/6dcb55df852248663f0bbcb886359aa48d776533))
+* References to unknown symbols are now correctly treated as code errors rather than fatal errors ([`eb802d3`](https://github.com/algorandfoundation/puya/commit/eb802d3fdd0243fa191e47e8826fee0545be5847))
+* Fix unnecessary `.copy()` requirement when providing an ARC4 encoded initial value to `GlobalState` ([`5a56041`](https://github.com/algorandfoundation/puya/commit/5a560419f73978375f7855cf61745bed0843a8f6))
+* Ensure ARC router generation works with minimal contracts that don&#39;t have any explicit abimethods ([`936f378`](https://github.com/algorandfoundation/puya/commit/936f3780eb2fe1ba60e1b6a9ddb8ee6338715283))
+* Fix bug with failing to discard unassigned results from `algopy.op.*` functions ([`33d961a`](https://github.com/algorandfoundation/puya/commit/33d961a285f404288f282c89d3a528bf426a303a))
+* Prevent multiline assert messages from breaking TEAL output ([`4ea5ae6`](https://github.com/algorandfoundation/puya/commit/4ea5ae68e3149d1a0bda0be20ff739df4f6af299))
+* Fix incorrect error message on unsupported class declaration ([`8eb5a78`](https://github.com/algorandfoundation/puya/commit/8eb5a78c2887039a0920efa7a0e6ba053068c1de))
+* Add colorama as a dependency on Windows, this is required when using PowerShell ([`0acb4b2`](https://github.com/algorandfoundation/puya/commit/0acb4b2d2a8a6429924774005acce8ff2b3aec8a))
 
 ### Documentation
 
-* fix some typos (#190) ([`44eb0e4`](https://github.com/algorandfoundation/puya/commit/44eb0e44ff2dcfeb543d514a3bf80b7e40d9fb24))
-
-* Improve formatting of arc4 docs with line breaks ([`8c662f2`](https://github.com/algorandfoundation/puya/commit/8c662f2e890c58743a73787caaaa11800600961b))
-
 * Add note about method behaviour for accounts which have not opted in ([`12282b9`](https://github.com/algorandfoundation/puya/commit/12282b9e599b131f41772a4617006d07735e163a))
-
-* typo in url in readme ([`c06348c`](https://github.com/algorandfoundation/puya/commit/c06348c091aaad466605923466c452db0dcc21ff))
-
-* fix typo in String examples ([`6beb29d`](https://github.com/algorandfoundation/puya/commit/6beb29da8d45a2bff7966f78b5ec182c9fad285a))
-
-* use best practices in arc4 examples of dealing with native types and letting the router do encode/decode, which generally saves at least one op. ([`7504ed5`](https://github.com/algorandfoundation/puya/commit/7504ed580bc920d364037819cf2ba0482abfdf72))
-
-* simplify Quick start steps ([`01a9f95`](https://github.com/algorandfoundation/puya/commit/01a9f95552ab815cf3b62c8adf034158e18614ac))
-
+* Use best practices in ARC-4 examples of dealing with native types and letting the router do encode/decode, which generally saves at least one op. ([`7504ed5`](https://github.com/algorandfoundation/puya/commit/7504ed580bc920d364037819cf2ba0482abfdf72))
+* Simplify "Quick start" steps ([`01a9f95`](https://github.com/algorandfoundation/puya/commit/01a9f95552ab815cf3b62c8adf034158e18614ac))
 * Adding missing install step to install algorand-python ([`c08f753`](https://github.com/algorandfoundation/puya/commit/c08f7532b255d175d207d2062afb88a2a07e4308))
-
-* BigUInt type docs ([`7e20261`](https://github.com/algorandfoundation/puya/commit/7e20261c5eddffdba3411842b6c9df8de3226a3f))
+* Corrections & improvements to `BigUInt` type docs ([`7e20261`](https://github.com/algorandfoundation/puya/commit/7e20261c5eddffdba3411842b6c9df8de3226a3f))
 
 
 ## v1.0.1 (2024-03-27)
