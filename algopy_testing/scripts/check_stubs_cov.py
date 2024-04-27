@@ -1,89 +1,143 @@
 import ast
-import os
+from collections.abc import Iterator
 from pathlib import Path
+from typing import NamedTuple
 
 from prettytable import PrettyTable
 
 
-def list_python_files(directory: Path) -> list[str]:
-    return [
-        f
-        for f in os.listdir(directory)
-        if f.endswith(".py") or f.endswith(".pyi") and not f.startswith("_")
-    ]
+def get_python_files(directory: Path) -> Iterator[Path]:
+    """Yield Python file paths in the given directory recursively."""
+    for entry in directory.rglob("*.py"):
+        yield entry
+    for entry in directory.rglob("*.pyi"):
+        yield entry
 
 
 def parse_python_file(filepath: Path) -> ast.Module:
+    """Parse a Python file and return its AST."""
     with filepath.open() as file:
-        tree = ast.parse(file.read(), filename=filepath)
+        tree = ast.parse(file.read(), filename=str(filepath))
     return tree
 
 
-def extract_definitions(tree: ast.Module) -> list[str]:
-    return list(
-        {node.name for node in tree.body if isinstance(node, ast.FunctionDef | ast.ClassDef)}
-    )
+class ASTNodeDefinition(NamedTuple):
+    name: str
+    object_type: str
 
 
-def compare_definitions(stubs_dir: Path, impl_dir: Path):
-    stubs_files = list_python_files(stubs_dir)
-    impl_files = list_python_files(impl_dir)
+def extract_definitions(tree: ast.Module) -> set[ASTNodeDefinition]:
+    def get_node_type(node: ast.AST) -> str:
+        if isinstance(node, ast.ClassDef):
+            return "Class"
+        elif isinstance(node, ast.FunctionDef):
+            return "Function"
+        return ""
 
+    return {
+        ASTNodeDefinition(node.name, get_node_type(node))
+        for node in tree.body
+        if isinstance(node, ast.ClassDef | ast.FunctionDef)
+    }
+
+
+class CoverageResult(NamedTuple):
+    abstraction_node: ASTNodeDefinition
+    impl_file: str
+    stub_file: str
+    coverage: float
+
+
+def compare_definitions(stubs_dir: Path, impl_dir: Path) -> list[CoverageResult]:
+    results = []
+
+    for stub_file in get_python_files(stubs_dir):
+        stub_tree = parse_python_file(stub_file)
+        stub_defs = extract_definitions(stub_tree)
+
+        if stub_file.name.startswith("_") and stub_file.suffix == ".pyi":
+            for impl_file, impl_defs in get_impl_defs(impl_dir, stub_defs):
+                for stub_def in stub_defs:
+                    coverage = calculate_coverage(stub_def, impl_defs)
+                    results.append(
+                        CoverageResult(
+                            abstraction_node=stub_def,
+                            impl_file=impl_file.name,
+                            stub_file=stub_file.name,
+                            coverage=coverage,
+                        )
+                    )
+        else:
+            impl_file = impl_dir / stub_file.with_suffix(".py").name
+            impl_tree = parse_python_file(impl_file) if impl_file.exists() else None
+            impl_defs = extract_definitions(impl_tree) if impl_tree else set()
+            for stub_def in stub_defs:
+                coverage = calculate_coverage(stub_def, impl_defs)
+                results.append(
+                    CoverageResult(
+                        abstraction_node=stub_def,
+                        impl_file=impl_file.name,
+                        stub_file=stub_file.name,
+                        coverage=coverage,
+                    )
+                )
+
+    return results
+
+
+def get_impl_defs(
+    impl_dir: Path, stub_defs: set[ASTNodeDefinition]
+) -> Iterator[tuple[Path, set[ASTNodeDefinition]]]:
+    for impl_file in get_python_files(impl_dir):
+        impl_tree = parse_python_file(impl_file)
+        impl_defs = extract_definitions(impl_tree)
+        if stub_defs & impl_defs:
+            yield impl_file, impl_defs
+
+
+def calculate_coverage(stub_def: ASTNodeDefinition, impl_defs: set[ASTNodeDefinition]) -> float:
+    if stub_def not in impl_defs:
+        return 0.0
+    # TODO: extend to outline actual coverage
+    # (# of implemented items in a stub/ total number of items in a stub)
+    return 100.0
+
+
+def print_results(results: list[CoverageResult]) -> None:
     table = PrettyTable(
-        field_names=["File", "Status", "Missing Definitions", "Coverage"],
+        field_names=["Abstraction", "Type", "Implementation", "Source Stub", "Coverage"],
         sortby="Coverage",
         header=True,
         border=True,
         padding_width=2,
+        reversesort=True,
         left_padding_width=0,
         right_padding_width=1,
         align="l",
         max_width=100,
     )
 
-    for stub_file in stubs_files:
-        stub_tree = parse_python_file(stubs_dir / stub_file)
-        stub_defs = extract_definitions(stub_tree)
+    for result in results:
+        table.add_row(
+            [
+                result.abstraction_node.name,
+                result.abstraction_node.object_type,
+                result.impl_file,
+                result.stub_file,
+                f"{result.coverage:.2f}%",
+            ],
+            divider=True,
+        )
 
-        impl_file_name = stub_file.replace(".pyi", ".py")
-        if impl_file_name in impl_files:
-            impl_tree = parse_python_file(impl_dir / impl_file_name)
-            impl_defs = extract_definitions(impl_tree)
-
-            missing_in_impl = set(stub_defs) - set(impl_defs)
-            # Calculate coverage
-            coverage = (
-                ((len(stub_defs) - len(missing_in_impl)) / len(stub_defs)) * 100
-                if stub_defs
-                else 0
-            )
-            coverage_str = f"{coverage:.2f}%"
-
-            if missing_in_impl:
-                table.add_row(
-                    [
-                        impl_file_name,
-                        "Missing definitions",
-                        ", ".join(missing_in_impl),
-                        coverage_str,
-                    ],
-                    divider=True,
-                )
-            else:
-                # If there are no missing definitions, coverage is 100%
-                table.add_row([impl_file_name, "Full coverage", "None", "100.00%"], divider=True)
-        else:
-            table.add_row([stub_file, "Implementation not found", "N/A", "0.00%"], divider=True)
-
-    # Print the table
-    print(table)  # noqa: T201
+    print(table)
 
 
-def main():
+def main() -> None:
     project_root = Path(__file__).resolve().parents[2]
     stubs_path = project_root / "stubs/algopy-stubs"
     impl_path = project_root / "algopy_testing/src/algopy"
-    compare_definitions(stubs_path, impl_path)
+    results = compare_definitions(stubs_path, impl_path)
+    print_results(results)
 
 
 if __name__ == "__main__":
