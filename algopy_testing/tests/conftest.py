@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 from algokit_utils import (
     get_algod_client,
@@ -9,11 +7,10 @@ from algokit_utils import (
 )
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.indexer import IndexerClient
-from hypothesis import settings
 
-# Apply global settings for all Hypothesis-driven tests
-settings.register_profile("dev", max_examples=10)
-settings.load_profile("dev")
+from tests.utils import prioritize_local_algopy_over_stubs
+
+prioritize_local_algopy_over_stubs()
 
 
 @pytest.fixture(scope="session")

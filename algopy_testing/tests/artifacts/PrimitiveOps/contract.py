@@ -1,5 +1,4 @@
-from ast import Bytes
-from algopy import ARC4Contract, UInt64, arc4, op
+from algopy import ARC4Contract, Bytes, UInt64, arc4, op
 
 
 class PrimitiveOpsContract(ARC4Contract):

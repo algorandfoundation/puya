@@ -1,6 +1,12 @@
+import os
 import subprocess
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
+
+ENV_WITH_NO_COLOR = dict(os.environ) | {
+    "NO_COLOR": "1",  # disable colour output
+    "PYTHONUTF8": "1",  # force utf8 on windows
+}
 
 
 def get_artifact_folders(root_dir: str) -> Iterator[Path]:
@@ -12,12 +18,21 @@ def get_artifact_folders(root_dir: str) -> Iterator[Path]:
 def compile_contract(folder: Path) -> None:
     contract_path = folder / "contract.py"
     (folder / "data").mkdir(exist_ok=True)
+    compile_cmd = [
+        "poetry",
+        "run",
+        "puyapy",
+        str(contract_path),
+        "--out-dir",
+        "data",
+    ]
     subprocess.run(
-        ["poetry", "run", "puyapy", str(contract_path), "--out-dir", "data"],
+        compile_cmd,  # noqa: S603
         check=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        env=ENV_WITH_NO_COLOR,
         encoding="utf-8",
     )
 
@@ -25,18 +40,24 @@ def compile_contract(folder: Path) -> None:
 def generate_client(folder: Path) -> None:
     avm_dir = folder / "data"
     client_path = folder / "client.py"
+    generate_cmd = [
+        "algokit",
+        "generate",
+        "client",
+        str(avm_dir),
+        "--language",
+        "python",
+        "--output",
+        str(client_path),
+    ]
     subprocess.run(
-        [
-            "algokit",
-            "generate",
-            "client",
-            str(avm_dir),
-            "--language",
-            "python",
-            "--output",
-            str(client_path),
-        ],
-        check=True,
+        generate_cmd,  # noqa: S603
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        env=ENV_WITH_NO_COLOR,
+        encoding="utf-8",
     )
 
 

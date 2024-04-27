@@ -9,20 +9,28 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Testing",
 ]
-packages = [
-    { include = "algopy", from = "src" }
-]
+packages = [{ include = "algopy", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
-puyapy = { path="..", develop=true }
+puyapy = { path = "..", develop = true }
+algorand-python = { path = "../stubs", develop = true }
 poethepoet = "^0.24.4"
+black = [
+    { extras = [
+        "d",
+    ], version = "^24.4.2", markers = "sys_platform != 'win32'" },
+    { version = "^24.4.2", markers = "sys_platform == 'win32'" },
+]
+mypy = "1.10.0"
+ruff = "^0.4.2"
+ruff-lsp = "*"
 
 [tool.poetry.group.testing.dependencies]
 pytest = "^7.4.0"
-pytest-xdist = {extras = ["psutil"], version = "^3.3.1"}
+pytest-xdist = { extras = ["psutil"], version = "^3.3.1" }
 py-algorand-sdk = "^2.4.0"
 algokit-utils = "^2.2.1"
 pytest-cov = "^4.1.0"
@@ -36,7 +44,116 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
 line-length = 99
 
+[tool.ruff]
+target-version = "py312"
+line-length = 99
+
+[tool.ruff.lint]
+select = [
+    "F",     # pyflakes
+    "E",
+    "W",     # pycodestyle
+    "C90",   # mccabe
+    "I",     # isort
+    "N",     # PEP8 naming
+    "UP",    # pyupgrade
+    "YTT",   # flake8-2020
+    "ANN",   # flake8-annotations
+    "ASYNC", # flake8-async
+    "S",     # flake8-bandit
+    "FBT",   # flake8-boolean-trap
+    "B",     # flake8-bugbear
+    "A",     # flake8-builtins
+    "C4",    # flake8-comprehensions
+    "DTZ",   # flake8-datetimez
+    "T10",   # flake8-debugger
+    "EXE",   # flake8-executable
+    "FA",    # flake8-future-annotations
+    "ISC",   # flake8-implicit-str-concat
+    "ICN",   # flake8-import-conventions
+    "INP",   # flake8-no-pep420
+    "PIE",   # flake8-pie
+    "T20",   # flake8-print
+    "PYI",   # flake8-pyi
+    "PT",    # flake8-pytest-style
+    "Q",     # flake8-quotes
+    "RSE",   # flake8-raise
+    "RET",   # flake8-return
+    "SLF",   # flake8-self
+    "SLOT",  # flake8-slots
+    "SIM",   # flake8-simplify
+    "TID",   # flake8-tidy-imports
+    "TCH",   # flake8-type-checking
+    "INT",   # flake8-gettext
+    "ARG",   # flake8-unused-arguments
+    "PTH",   # flake8-use-pathlib
+    "PGH",   # pygrep-hooks
+    "PL",    # pylint
+    "TRY",   # tryceratops
+    "PERF",  # Perflint
+    "LOG",   # flake8-logging
+    "RUF",   # Ruff-specific rules
+]
+ignore = [
+    "ANN101",  # no type for self
+    "ANN102",  # no type for cls
+    "SIM108",  # allow if-else in place of ternary
+    "PLR2004", # magic values... can't configure to ignore simple low value ints like 2
+    "PLW2901", # allow updating loop value...
+    "PYI025",  # I can tell the difference between set and Set thank you very much
+    "UP040",   # TypeAlias -> type keyword, waiting for mypy support
+    "TRY003",  # allow long exception messages in Exception constructor
+    "RET503",  # false negatives when involving typing.Never, covered by mypy anyway
+    "RET504",
+    "RET505",  # stylistic choices for readability
+    "S101",    # allow asserts
+]
+unfixable = [
+    "F841", # don't delete unused local variables automatically
+]
+[tool.ruff.lint.per-file-ignores]
+"**/*.pyi" = ["SLOT"]
+"src/**" = [
+    "PT", # no pytest rules
+]
+"scripts/**/*.py" = ["T201"]
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+suppress-none-returning = true
+mypy-init-return = true
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-wrap-aliases = true
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["id"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+untyped_calls_exclude = [
+    "algosdk",
+]
+files = ["src/algopy"]
+exclude = ["dist", "tests"] #   reintroduce.
+
+[[tool.mypy.overrides]]
+module = ["algopy", "algopy.*"]
+disallow_any_unimported = true
+disallow_any_expr = true
+disallow_any_decorated = true
+disallow_any_explicit = true
+
+[[tool.mypy.overrides]]
+module = ["algosdk", "algosdk.*"]
+disallow_untyped_calls = false
+
 [tool.poe.tasks]
 gen_stub_cov = "poetry run python scripts/check_stubs_cov.py"
 gen_test_artifacts = "poetry run python scripts/refresh_test_artifacts.py"
-
+run_black = "poetry run black ."
+run_ruff = "poetry run ruff check --fix --no-cache"
+run_mypy = "poetry run mypy . --exclude tests/artifacts"
+pre_commit = ["run_black", "run_ruff", "run_mypy"]
