@@ -13,6 +13,7 @@ class Box(Generic[_TContent]):
     it.
     """
 
+    # TODO: support String | str for key
     def __init__(self, type_: type[_TContent], /, *, key: Bytes | bytes = ...) -> None: ...
     def __bool__(self) -> bool:
         """
@@ -59,6 +60,7 @@ class BoxRef:
     value.
     """
 
+    # TODO: support String | str for key
     def __init__(self, /, *, key: Bytes | bytes = ...) -> None: ...
     def __bool__(self) -> bool:
         """Returns True if the box has a value set, regardless of the truthiness of that value"""
@@ -158,6 +160,7 @@ class BoxMap(Generic[_TKey, _TContent]):
     `boxes` property of the Transaction.
     """
 
+    # TODO: support String | str for key_prefix
     def __init__(
         self, key_type: type[_TKey], type_: type[_TContent], /, *, key_prefix: Bytes | bytes = ...
     ) -> None: ...
