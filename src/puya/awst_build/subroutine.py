@@ -350,7 +350,7 @@ class FunctionASTConverter(
 
     def _handle_box_proxy_assignment(
         self,
-        rvalue_eb: (
+        rvalue: (
             BoxBlobProxyExpressionBuilder
             | BoxProxyExpressionBuilder
             | BoxMapProxyExpressionBuilder
@@ -360,7 +360,7 @@ class FunctionASTConverter(
     ) -> Sequence[Statement]:
         if len(lvalues) != 1:
             raise CodeError(
-                f"{rvalue_eb.python_name} can only be assigned to a single member variable",
+                f"{rvalue.python_name} can only be assigned to a single variable",
                 stmt_loc,
             )
         (lvalue,) = lvalues
@@ -373,21 +373,20 @@ class FunctionASTConverter(
             case _:
                 return [
                     AssignmentStatement(
-                        value=rvalue_eb.build_assignment_source(),
+                        value=rvalue.build_assignment_source(),
                         target=self.resolve_lvalue(lvalue),
                         source_location=stmt_loc,
                     )
                 ]
         if self.contract_method_info is None:
-            raise CodeError(
-                f"{rvalue_eb.python_name} should only be used inside a contract class", stmt_loc
-            )
+            raise InternalError("Assignment to self outside of a contract class", stmt_loc)
+
         if self.func_def.name != "__init__":
             raise CodeError(
-                f"{rvalue_eb.python_name} can only be used in the __init__ method",
+                f"{rvalue.python_name} can only be assigned to a member variable in the __init__ method",
                 stmt_loc,
             )
-        key = rvalue_eb.rvalue()
+        key = rvalue.rvalue()
         match key:
             case BoxProxyExpression(key=BytesConstant() as key_override, wtype=expr_wtype):
                 if expr_wtype is wtypes.box_blob_proxy_wtype:
@@ -415,7 +414,7 @@ class FunctionASTConverter(
                 )
                 return []
         raise CodeError(
-            f"{rvalue_eb.python_name} must be declared with compile time static keys"
+            f"{rvalue.python_name} must be declared with compile time static keys"
             f" when assigned to 'self'",
             stmt_loc,
         )
@@ -426,39 +425,34 @@ class FunctionASTConverter(
         lvalues: list[mypy.nodes.Expression],
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
-        if self.contract_method_info is None:
-            raise CodeError(
-                f"{rvalue.python_name} should only be used inside a contract class", stmt_loc
-            )
-        if self.func_def.name != "__init__":
-            raise CodeError(
-                f"{rvalue.python_name} can only be used in the __init__ method",
-                stmt_loc,
-            )
         if len(lvalues) != 1:
             raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a single member variable",
+                f"{rvalue.python_name} can only be assigned to a single variable",
                 stmt_loc,
             )
-        # note: we don't use resolve_lvalue here, because
-        # these types shouldn't be a valid lvalue target in any other instance
-        # except initial assignment
         (lvalue,) = lvalues
-        lvalue_builder = require_expression_builder(lvalue.accept(self))
-        if not (
-            isinstance(lvalue_builder, StateProxyMemberBuilder)
-            and rvalue.kind == lvalue_builder.state_decl.kind
-            and rvalue.storage == lvalue_builder.state_decl.storage_wtype
-        ):
-            raise CodeError("Incompatible types on assignment", stmt_loc)
-        defn = rvalue.build_definition(
-            lvalue_builder.state_decl.member_name,
-            self.contract_method_info.cref,
-            lvalue_builder.source_location,
-        )
-        self.context.state_defs[self.contract_method_info.cref][
-            lvalue_builder.state_decl.member_name
-        ] = defn
+        match lvalue:
+            case mypy.nodes.MemberExpr(
+                name=member_name, expr=mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True))
+            ):
+                pass
+            case _:
+                return [
+                    AssignmentStatement(
+                        value=rvalue.build_assignment_source(),
+                        target=self.resolve_lvalue(lvalue),
+                        source_location=stmt_loc,
+                    )
+                ]
+        if self.contract_method_info is None:
+            raise InternalError("Assignment to self outside of a contract class", stmt_loc)
+        if self.func_def.name != "__init__":
+            raise CodeError(
+                f"{rvalue.python_name} can only be assigned to a member variable in the __init__ method",
+                stmt_loc,
+            )
+        defn = rvalue.build_definition(member_name, self.contract_method_info.cref, stmt_loc)
+        self.context.state_defs[self.contract_method_info.cref][member_name] = defn
         if rvalue.initial_value is None:
             return []
         elif defn.kind != AppStateKind.app_global:
