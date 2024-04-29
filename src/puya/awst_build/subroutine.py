@@ -326,134 +326,71 @@ class FunctionASTConverter(
                 )
                 return []
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
-        if isinstance(rvalue, StateProxyDefinitionBuilder):
-            return self._handle_state_proxy_assignment(rvalue, stmt.lvalues, stmt_loc)
-        elif isinstance(
+        if isinstance(
             rvalue,
-            BoxProxyExpressionBuilder
+            StateProxyDefinitionBuilder
+            | BoxProxyExpressionBuilder
             | BoxRefProxyExpressionBuilder
             | BoxMapProxyExpressionBuilder,
         ):
-            return self._handle_box_proxy_assignment(rvalue, stmt.lvalues, stmt_loc)
-        else:
-            if len(stmt.lvalues) > 1:
-                rvalue = temporary_assignment_if_required(rvalue)
-            return [
-                AssignmentStatement(
-                    value=rvalue.build_assignment_source(),
-                    target=self.resolve_lvalue(lvalue),
-                    source_location=stmt_loc,
-                )
-                for lvalue in reversed(stmt.lvalues)
-            ]
+            try:
+                (lvalue,) = stmt.lvalues
+            except ValueError:
+                # this is true regardless of whether it's a self assignment or not,
+                # these are objects so aliasing is an issue in terms of semantic compatibility
+                raise CodeError(
+                    f"{rvalue.python_name} can only be assigned to a single variable", stmt_loc
+                ) from None
+            if is_self_member(lvalue):
+                return self._handle_proxy_assignment(lvalue, rvalue, stmt_loc)
+        elif len(stmt.lvalues) > 1:
+            rvalue = temporary_assignment_if_required(rvalue)
 
-    def _handle_box_proxy_assignment(
+        return [
+            AssignmentStatement(
+                value=rvalue.build_assignment_source(),
+                target=self.resolve_lvalue(lvalue),
+                source_location=stmt_loc,
+            )
+            for lvalue in reversed(stmt.lvalues)
+        ]
+
+    def _handle_proxy_assignment(
         self,
+        lvalue: mypy.nodes.MemberExpr,
         rvalue: (
-            BoxRefProxyExpressionBuilder | BoxProxyExpressionBuilder | BoxMapProxyExpressionBuilder
+            StateProxyDefinitionBuilder
+            | BoxProxyExpressionBuilder
+            | BoxRefProxyExpressionBuilder
+            | BoxMapProxyExpressionBuilder
         ),
-        lvalues: list[mypy.nodes.Expression],
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
-        try:
-            (lvalue,) = lvalues
-        except ValueError:
-            raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a single variable", stmt_loc
-            ) from None
-
-        match lvalue:
-            case mypy.nodes.MemberExpr(
-                name=member_name, expr=mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True))
-            ):
-                pass
-            case _:
-                return [
-                    AssignmentStatement(
-                        value=rvalue.build_assignment_source(),
-                        target=self.resolve_lvalue(lvalue),
-                        source_location=stmt_loc,
-                    )
-                ]
         if self.contract_method_info is None:
             raise InternalError("Assignment to self outside of a contract class", stmt_loc)
-
         if self.func_def.name != "__init__":
             raise CodeError(
                 f"{rvalue.python_name} can only be assigned to a member variable"
                 " in the __init__ method",
                 stmt_loc,
             )
-        key = rvalue.rvalue()
-        match key:
-            case BoxProxyExpression(key=BytesConstant() as key_override, wtype=expr_wtype):
-                if expr_wtype is wtypes.box_ref_proxy_type:
-                    kind = AppStateKind.box_ref
-                    decl_type = AppStateDeclType.box_ref
-                elif isinstance(expr_wtype, wtypes.WBoxProxy):
-                    kind = AppStateKind.box
-                    decl_type = AppStateDeclType.box
-                elif isinstance(expr_wtype, wtypes.WBoxMapProxy):
-                    kind = AppStateKind.box_map
-                    decl_type = AppStateDeclType.box_map
-                else:
-                    raise InternalError("Unexpected")
-                self.context.state_defs[self.contract_method_info.cref][member_name] = (
-                    AppStorageDeclaration(
-                        member_name=member_name,
-                        key_override=key_override,
-                        source_location=key.source_location,
-                        storage_wtype=key.wtype,
-                        description=None,
-                        decl_type=decl_type,
-                        kind=kind,
-                        defined_in=self.contract_method_info.cref,
-                    )
-                )
-                return []
-        raise CodeError(
-            f"{rvalue.python_name} must be declared with compile time static keys"
-            f" when assigned to 'self'",
-            stmt_loc,
-        )
+        cref = self.contract_method_info.cref
+        if isinstance(rvalue, StateProxyDefinitionBuilder):
+            return self._handle_state_proxy_assignment(cref, lvalue, rvalue, stmt_loc)
+        else:
+            return self._handle_box_proxy_assignment(cref, lvalue, rvalue, stmt_loc)
 
     def _handle_state_proxy_assignment(
         self,
+        cref: ContractReference,
+        lvalue: mypy.nodes.MemberExpr,
         rvalue: StateProxyDefinitionBuilder,
-        lvalues: list[mypy.nodes.Expression],
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
-        try:
-            (lvalue,) = lvalues
-        except ValueError:
-            raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a single variable", stmt_loc
-            ) from None
-        match lvalue:
-            case mypy.nodes.MemberExpr(
-                name=member_name, expr=mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True))
-            ):
-                pass
-            case _:
-                return [
-                    AssignmentStatement(
-                        value=rvalue.build_assignment_source(),
-                        target=self.resolve_lvalue(lvalue),
-                        source_location=stmt_loc,
-                    )
-                ]
-        if self.contract_method_info is None:
-            raise InternalError("Assignment to self outside of a contract class", stmt_loc)
-        if self.func_def.name != "__init__":
-            raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a member variable"
-                " in the __init__ method",
-                stmt_loc,
-            )
-        defn = rvalue.build_definition(
-            member_name, self.contract_method_info.cref, self._location(lvalue)
-        )
-        self.context.state_defs[self.contract_method_info.cref][member_name] = defn
+        member_name = lvalue.name
+        member_loc = self._location(lvalue)
+        defn = rvalue.build_definition(member_name, cref, member_loc)
+        self.context.state_defs[cref][member_name] = defn
         if rvalue.initial_value is None:
             return []
         elif defn.kind != AppStateKind.app_global:
@@ -475,6 +412,47 @@ class FunctionASTConverter(
                     source_location=stmt_loc,
                 )
             ]
+
+    def _handle_box_proxy_assignment(
+        self,
+        cref: ContractReference,
+        lvalue: mypy.nodes.MemberExpr,
+        rvalue: (
+            BoxRefProxyExpressionBuilder | BoxProxyExpressionBuilder | BoxMapProxyExpressionBuilder
+        ),
+        stmt_loc: SourceLocation,
+    ) -> Sequence[Statement]:
+        member_name = lvalue.name
+        key = rvalue.rvalue()
+        match key:
+            case BoxProxyExpression(key=BytesConstant() as key_override, wtype=expr_wtype):
+                if expr_wtype is wtypes.box_ref_proxy_type:
+                    kind = AppStateKind.box_ref
+                    decl_type = AppStateDeclType.box_ref
+                elif isinstance(expr_wtype, wtypes.WBoxProxy):
+                    kind = AppStateKind.box
+                    decl_type = AppStateDeclType.box
+                elif isinstance(expr_wtype, wtypes.WBoxMapProxy):
+                    kind = AppStateKind.box_map
+                    decl_type = AppStateDeclType.box_map
+                else:
+                    raise InternalError("Unexpected")
+                self.context.state_defs[cref][member_name] = AppStorageDeclaration(
+                    member_name=member_name,
+                    key_override=key_override,
+                    source_location=key.source_location,
+                    storage_wtype=key.wtype,
+                    description=None,
+                    decl_type=decl_type,
+                    kind=kind,
+                    defined_in=cref,
+                )
+                return []
+        raise CodeError(
+            f"{rvalue.python_name} must be declared with compile time static keys"
+            f" when assigned to 'self'",
+            stmt_loc,
+        )
 
     def resolve_lvalue(self, lvalue: mypy.nodes.Expression) -> Lvalue:
         builder_or_literal = lvalue.accept(self)
@@ -1247,6 +1225,7 @@ class FunctionASTConverter(
             "Python doesn't support tuple unpacking in assignment expressions",
             expr_loc,
         )
+        # TODO: test if self. assignment?
         with self._leave_bool_context():
             source = require_expression_builder(expr.value.accept(self))
         value = source.build_assignment_source()
@@ -1318,6 +1297,15 @@ class FunctionASTConverter(
 
     def visit_list_expr(self, expr: mypy.nodes.ListExpr) -> ExpressionBuilder:
         raise CodeError("Python lists are not supported", self._location(expr))
+
+
+def is_self_member(
+    expr: mypy.nodes.Expression,
+) -> typing.TypeGuard[mypy.nodes.MemberExpr]:
+    match expr:
+        case mypy.nodes.MemberExpr(expr=mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True))):
+            return True
+    return False
 
 
 @typing.overload
