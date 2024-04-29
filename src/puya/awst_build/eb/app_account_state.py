@@ -27,6 +27,8 @@ from puya.awst_build.eb.base import (
     StateProxyMemberBuilder,
     TypeClassExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype, get_arg_mapping
@@ -52,7 +54,7 @@ class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
         exists_expr = StateExists(
             field=_build_field(self.state_decl, item, location), source_location=location
         )
-        return var_expression(exists_expr)
+        return BoolExpressionBuilder(exists_expr)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
@@ -109,7 +111,7 @@ class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):
             case [item]:
                 field = _build_field(self.state_decl, item, location)
                 app_local_get_ex = StateGetEx(field=field, source_location=location)
-                return var_expression(app_local_get_ex)
+                return TupleExpressionBuilder(app_local_get_ex)
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
 

@@ -61,13 +61,13 @@ class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
         # TODO: type check fully, not just num args... requires matching keyword positions
         if len(args) != len(expected_arg_types):
             logger.error("incorrect number of arguments to subroutine call", location=location)
-        result_wtype = self.context.type_to_wtype(func_type.ret_type, source_location=location)
+        result_pytyp = self.context.type_to_pytype(func_type.ret_type, source_location=location)
 
         call_expr = SubroutineCallExpression(
             source_location=location,
             target=self.target,
             args=call_args,
-            wtype=result_wtype,
+            wtype=result_pytyp.wtype,
         )
         return var_expression(call_expr)
 

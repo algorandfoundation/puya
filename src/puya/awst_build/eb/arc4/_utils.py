@@ -174,7 +174,7 @@ def _arg_to_arc4_wtype(
         case Literal(value=bytes()):
             return wtypes.arc4_dynamic_bytes
         case Literal(value=int()):
-            return wtypes.ARC4UIntN.from_scale(64)
+            return wtypes.ARC4UIntN(64, source_location=None)
         case Literal(value=str()):
             return wtypes.arc4_string_wtype
         case Literal(value=bool()):

@@ -18,9 +18,9 @@ from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilde
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.box import (
-    BoxBlobProxyExpressionBuilder,
     BoxMapProxyExpressionBuilder,
     BoxProxyExpressionBuilder,
+    BoxRefProxyExpressionBuilder,
 )
 from puya.awst_build.eb.subroutine import (
     BaseClassSubroutineInvokerExpressionBuilder,
@@ -88,109 +88,16 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
                     f"Non-storage member {name!r} has unsupported function type", location
                 )
 
-    # def _get_storage_decl(
-    #     self,
-    #     name: str,
-    #     typ: mypy.types.Type,
-    #     defined_in: ContractReference,
-    #     var_loc: SourceLocation,
-    # ) -> AppStateDeclaration:
-    #     match typ:
-    #         case mypy.types.Instance(
-    #             type=mypy.nodes.TypeInfo(fullname=constants.CLS_LOCAL_STATE),
-    #             args=args,
-    #         ):
-    #             kind = AppStateKind.account_local
-    #             decl_type = AppStateDeclType.local_proxy
-    #             try:
-    #                 (storage_type,) = args
-    #             except ValueError:
-    #                 raise CodeError(
-    #                     f"{constants.CLS_LOCAL_STATE_ALIAS}"
-    #                     f" requires exactly one type parameter",
-    #                     var_loc,
-    #                 ) from None
-    #         case mypy.types.Instance(
-    #             type=mypy.nodes.TypeInfo(fullname=constants.CLS_GLOBAL_STATE),
-    #             args=args,
-    #         ):
-    #             kind = AppStateKind.app_global
-    #             decl_type = AppStateDeclType.global_proxy
-    #             try:
-    #                 (storage_type,) = args
-    #             except ValueError:
-    #                 raise CodeError(
-    #                     f"{constants.CLS_GLOBAL_STATE_ALIAS}"
-    #                     f" requires exactly one type parameter",
-    #                     var_loc,
-    #                 ) from None
-    #         case mypy.types.Instance(
-    #             type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_PROXY),
-    #             args=args,
-    #         ):
-    #             kind = AppStateKind.box
-    #             decl_type = AppStateDeclType.box
-    #             try:
-    #                 (storage_type,) = args
-    #             except ValueError:
-    #                 raise CodeError(
-    #                     f"{constants.CLS_BOX_PROXY} requires exactly one type parameter",
-    #                     var_loc,
-    #                 ) from None
-    #         case mypy.types.Instance(
-    #             type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_MAP_PROXY),
-    #             args=args,
-    #         ):
-    #             kind = AppStateKind.box_map
-    #             decl_type = AppStateDeclType.box_map
-    #             try:
-    #                 (key_type, storage_type) = args
-    #             except ValueError:
-    #                 raise CodeError(
-    #                     f"{constants.CLS_BOX_MAP_PROXY} requires exactly two type parameters",
-    #                     var_loc,
-    #                 ) from None
-    #         case mypy.types.Instance(
-    #             type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_BLOB_PROXY),
-    #             args=args,
-    #         ):
-    #             kind = AppStateKind.box_ref
-    #             decl_type = AppStateDeclType.box_ref
-    #             if args:
-    #                 raise CodeError(
-    #                     f"{constants.CLS_BOX_BLOB_PROXY} requires has no type parameters",
-    #                     var_loc,
-    #                 )
-    #         case _:
-    #             kind = AppStateKind.app_global
-    #             decl_type = AppStateDeclType.global_direct
-    #             storage_type = typ
-    #     storage_wtype = self.context.type_to_wtype(storage_type, source_location=var_loc)
-    #     if not storage_wtype.lvalue:
-    #         raise CodeError(
-    #             f"Invalid type for Local storage - must be assignable,"
-    #             f" which type {storage_wtype} is not",
-    #             var_loc,
-    #         )
-    #     return AppStateDeclaration(
-    #         member_name=name,
-    #         kind=kind,
-    #         storage_wtype=storage_wtype,
-    #         decl_type=decl_type,
-    #         source_location=var_loc,
-    #         defined_in=defined_in,
-    #     )
-
 
 def _builder_for_storage_access(
     storage_decl: AppStorageDeclaration, location: SourceLocation
 ) -> ExpressionBuilder:
     match storage_decl:
         case AppStateDeclaration(decl_type=AppStateDeclType.box_ref):
-            return BoxBlobProxyExpressionBuilder(
+            return BoxRefProxyExpressionBuilder(
                 BoxProxyField(
                     source_location=storage_decl.source_location,
-                    wtype=wtypes.box_blob_proxy_wtype,
+                    wtype=wtypes.box_ref_proxy_type,
                     field_name=storage_decl.member_name,
                 )
             )

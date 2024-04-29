@@ -13,6 +13,7 @@ class Box(Generic[_TContent]):
     it.
     """
 
+    # TODO: support String | str for key
     def __init__(self, type_: type[_TContent], /, *, key: Bytes | bytes = ...) -> None: ...
     def __bool__(self) -> bool:
         """
@@ -52,25 +53,18 @@ class Box(Generic[_TContent]):
         Get the length of this Box. Fails if the box does not exist
         """
 
-class BoxBlob:
+class BoxRef:
     """
-    BoxBlob abstracts the reading and writing of boxes containing raw binary data. The size is
+    BoxRef abstracts the reading and writing of boxes containing raw binary data. The size is
     configured manually, and can be set to values larger than what the AVM can handle in a single
     value.
     """
 
+    # TODO: support String | str for key
     def __init__(self, /, *, key: Bytes | bytes = ...) -> None: ...
     def __bool__(self) -> bool:
         """Returns True if the box has a value set, regardless of the truthiness of that value"""
 
-    @typing.overload
-    def create(self, data: Bytes | bytes) -> None:
-        """
-        Creates a box with the specified value. Fails if the box already exists with a
-        different size to `len(value)`
-        """
-
-    @typing.overload
     def create(self, *, size: UInt64 | int) -> bool:
         """
         Creates a box with the specified size, setting all bits to zero. Fails if the box already
@@ -158,6 +152,7 @@ class BoxMap(Generic[_TKey, _TContent]):
     `boxes` property of the Transaction.
     """
 
+    # TODO: support String | str for key_prefix
     def __init__(
         self, key_type: type[_TKey], type_: type[_TContent], /, *, key_prefix: Bytes | bytes = ...
     ) -> None: ...

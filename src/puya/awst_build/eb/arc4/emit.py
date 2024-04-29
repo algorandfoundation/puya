@@ -19,7 +19,7 @@ from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.errors import CodeError
 
 if TYPE_CHECKING:
@@ -63,4 +63,4 @@ class EmitBuilder(IntermediateExpressionBuilder):
         log_value = intrinsic_factory.concat(
             MethodConstant(value=event_sig, source_location=location), event_arg, location
         )
-        return var_expression(intrinsic_factory.log(log_value, location))
+        return VoidExpressionBuilder(intrinsic_factory.log(log_value, location))

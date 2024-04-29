@@ -8,21 +8,24 @@ from puya.awst.nodes import (
     BoxLength,
     BoxProxyExpression,
     BoxValueExpression,
+    BytesRaw,
     Expression,
     Literal,
-    ReinterpretCast,
     StateExists,
     StateGet,
     StateGetEx,
 )
-from puya.awst_build import constants, intrinsic_factory
+from puya.awst_build import constants
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box.box import BoxValueExpressionBuilder
+from puya.awst_build.eb.tuple import TupleExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
     expect_operand_wtype,
@@ -110,19 +113,9 @@ def _box_key_expr(
 ) -> BoxKeyExpression:
     if not isinstance(box_map_proxy.wtype, wtypes.WBoxMapProxy):
         raise InternalError(f"box_map_proxy must be wtype of {wtypes.WBoxMapProxy}", location)
-    item_key: Expression = require_expression_builder(key).rvalue()
-
-    if wtypes.is_uint64_on_stack(item_key.wtype):
-        item_key = intrinsic_factory.itob(
-            ReinterpretCast(expr=item_key, wtype=wtypes.uint64_wtype, source_location=location),
-            location,
-        )
-
-    return BoxKeyExpression(
-        proxy=box_map_proxy,
-        item_key=item_key,
-        source_location=location,
-    )
+    key_eb = require_expression_builder(key).rvalue()
+    item_key = BytesRaw(expr=key_eb, source_location=location)
+    return BoxKeyExpression(proxy=box_map_proxy, item_key=item_key, source_location=location)
 
 
 def _box_value_expr(
@@ -130,14 +123,8 @@ def _box_value_expr(
 ) -> BoxValueExpression:
     if not isinstance(box_map_proxy.wtype, wtypes.WBoxMapProxy):
         raise InternalError(f"box_map_proxy must be wtype of {wtypes.WBoxMapProxy}", location)
-    item_key: Expression = require_expression_builder(key).rvalue()
-
-    if wtypes.is_uint64_on_stack(item_key.wtype):
-        item_key = intrinsic_factory.itob(
-            ReinterpretCast(expr=item_key, wtype=wtypes.uint64_wtype, source_location=location),
-            location,
-        )
-
+    key_eb = require_expression_builder(key).rvalue()
+    item_key = BytesRaw(expr=key_eb, source_location=location)
     return BoxValueExpression(
         proxy=box_map_proxy,
         wtype=box_map_proxy.wtype.content_wtype,
@@ -186,7 +173,7 @@ class BoxMapProxyExpressionBuilder(ValueExpressionBuilder):
             field=_box_key_expr(self.expr, item, location),
             source_location=location,
         )
-        return var_expression(box_exists)
+        return BoolExpressionBuilder(box_exists)
 
 
 class BoxMapMethodExpressionBuilder(IntermediateExpressionBuilder):
@@ -212,7 +199,7 @@ class BoxMapLengthMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         item_key = args_map.pop("key")
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
-        return var_expression(
+        return UInt64ExpressionBuilder(
             BoxLength(
                 box_key=_box_key_expr(self.box_map_expr, item_key, location),
                 source_location=location,
@@ -233,6 +220,7 @@ class BoxMapGetMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         default_value = expect_operand_wtype(args_map.pop("default"), self.box_wtype.content_wtype)
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
+        # TODO: use pytype
         return var_expression(
             StateGet(
                 default=default_value,
@@ -254,7 +242,7 @@ class BoxMapMaybeMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         item_key = args_map.pop("key")
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
-        return var_expression(
+        return TupleExpressionBuilder(
             StateGetEx(
                 field=_box_key_expr(self.box_map_expr, item_key, location),
                 source_location=location,

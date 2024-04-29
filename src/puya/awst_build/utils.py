@@ -32,7 +32,6 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, intrinsic_factory
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -155,18 +154,24 @@ def fold_binary_expr(
 
 
 def require_expression_builder(
-    builder_or_expr_or_literal: ExpressionBuilder | Expression | Literal,
+    builder_or_literal: ExpressionBuilder | Literal,
     *,
     msg: str = "A Python literal is not valid at this location",
 ) -> ExpressionBuilder:
-    match builder_or_expr_or_literal:
+    from puya.awst_build.eb.bool import BoolExpressionBuilder
+
+    match builder_or_literal:
         case Literal(value=bool(value), source_location=literal_location):
-            return var_expression(BoolConstant(value=value, source_location=literal_location))
+            # TODO: PyType known as bool
+            return BoolExpressionBuilder(
+                BoolConstant(value=value, source_location=literal_location)
+            )
         case Literal(source_location=literal_location):
             raise CodeError(msg, literal_location)
-        case Expression() as expr:
-            return var_expression(expr)
-    return builder_or_expr_or_literal
+        case ExpressionBuilder() as builder:
+            return builder
+        case _:
+            typing.assert_never(builder_or_literal)
 
 
 def require_type_class_eb(
@@ -262,12 +267,15 @@ def convert_literal_to_expr(
 def bool_eval(
     builder_or_literal: ExpressionBuilder | Literal, loc: SourceLocation, *, negate: bool = False
 ) -> ExpressionBuilder:
+    from puya.awst_build.eb.bool import BoolExpressionBuilder
+
     if isinstance(builder_or_literal, ExpressionBuilder):
         return builder_or_literal.bool_eval(location=loc, negate=negate)
     constant_value = bool(builder_or_literal.value)
     if negate:
         constant_value = not constant_value
-    return var_expression(BoolConstant(value=constant_value, source_location=loc))
+    # TODO: PyType known as bool
+    return BoolExpressionBuilder(BoolConstant(value=constant_value, source_location=loc))
 
 
 def iterate_user_bases(type_info: mypy.nodes.TypeInfo) -> Iterator[mypy.nodes.TypeInfo]:

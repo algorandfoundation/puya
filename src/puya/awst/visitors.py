@@ -272,3 +272,6 @@ class ExpressionVisitor(t.Generic[T], ABC):
 
     @abstractmethod
     def visit_box_key_expression(self, expr: puya.awst.nodes.BoxKeyExpression) -> T: ...
+
+    @abstractmethod
+    def visit_bytes_raw(self, expr: puya.awst.nodes.BytesRaw) -> T: ...

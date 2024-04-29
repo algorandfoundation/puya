@@ -37,7 +37,8 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import (
     convert_literal,
     convert_literal_to_expr,
@@ -76,7 +77,7 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
                 value = BytesConstant(value=b"", source_location=location)
-        return var_expression(value)
+        return BytesExpressionBuilder(value)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         """Handle self.name"""
@@ -134,7 +135,7 @@ class BytesFromEncodedStrBuilder(IntermediateExpressionBuilder):
             value=bytes_value,
             encoding=self.encoding,
         )
-        return var_expression(expr)
+        return BytesExpressionBuilder(expr)
 
 
 class BytesExpressionBuilder(ValueExpressionBuilder):
@@ -144,7 +145,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         match name:
             case "length":
                 len_call = intrinsic_factory.bytes_len(expr=self.expr, loc=location)
-                return var_expression(len_call)
+                return UInt64ExpressionBuilder(len_call)
         return super().member_access(name, location)
 
     def index(
@@ -157,7 +158,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
             index=index_expr,
             wtype=self.wtype,
         )
-        return var_expression(expr)
+        return BytesExpressionBuilder(expr)
 
     def slice_index(
         self,
@@ -176,14 +177,14 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
             wtype=self.wtype,
             source_location=location,
         )
-        return var_expression(slice_expr)
+        return BytesExpressionBuilder(slice_expr)
 
     def iterate(self) -> Iteration:
         return self.rvalue()
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         len_expr = intrinsic_factory.bytes_len(self.expr, location)
-        len_builder = var_expression(len_expr)
+        len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
     def bitwise_invert(self, location: SourceLocation) -> ExpressionBuilder:
@@ -205,7 +206,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
             wtype=wtypes.bool_wtype,
             source_location=location,
         )
-        return var_expression(is_substring_expr)
+        return BoolExpressionBuilder(is_substring_expr)
 
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
@@ -219,7 +220,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
             operator=EqualityComparison(op.value),
             rhs=other_expr,
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)
 
     def binary_op(
         self,
@@ -238,7 +239,7 @@ class BytesExpressionBuilder(ValueExpressionBuilder):
         bin_op_expr = BytesBinaryOperation(
             source_location=location, left=lhs, right=rhs, op=bytes_op
         )
-        return var_expression(bin_op_expr)
+        return BytesExpressionBuilder(bin_op_expr)
 
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation

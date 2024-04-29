@@ -88,7 +88,7 @@ any [generated typed clients](https://github.com/algorandfoundation/algokit-cli/
 
 ## Box storage
 
-We provide 3 different types for accessing box storage: [Box](./api-algopy.md#algopy.Box), [BoxMap](./api-algopy.md#algopy.BoxMap), and [BoxBlob](./api-algopy.md#algopy.BoxBlob). We also expose raw operations via the [AVM ops](./lg-ops.md) module.
+We provide 3 different types for accessing box storage: [Box](./api-algopy.md#algopy.Box), [BoxMap](./api-algopy.md#algopy.BoxMap), and [BoxRef](./api-algopy.md#algopy.BoxBlob). We also expose raw operations via the [AVM ops](./lg-ops.md) module.
 
 Before using box storage, be sure to familiarise yourself with the [requirements and restrictions](https://developer.algorand.org/articles/smart-contract-storage-boxes/) of the underlying API.
 
@@ -144,17 +144,16 @@ class MyContract(Contract):
         return self.my_map[Txn.sender] == String("Hello World")
 ```
 
-`BoxBlob` is a specialised type for interacting with boxes which contain binary data. In addition to being able to set and read the box value, there are operations for extracting and replacing just a portion of the box data which 
-is useful for minimizing the amount of reads and writes required, but also allows you to interact with byte arrays which are longer than the AVM can support (currently 4096). 
+`BoxRef` is a specialised type for interacting with boxes which contain binary data. In addition to being able to set and read the box value, there are operations for extracting and replacing just a portion of the box data which 
+is useful for minimizing the amount of reads and writes required, but also allows you to interact with byte arrays which are longer than the AVM can support (currently 4096).
 
 ```python
-from algopy import BoxBlob, Contract, Global, Txn
-
+from algopy import BoxRef, Contract, Global, Txn
 
 
 class MyContract(Contract):
     def approval_program(self) -> bool:
-        my_blob = BoxBlob(key=b"blob")
+        my_blob = BoxRef(key=b"blob")
 
         sender_bytes = Txn.sender.bytes
         app_address = Global.current_application_address.bytes

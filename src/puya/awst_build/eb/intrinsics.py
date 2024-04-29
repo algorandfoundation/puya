@@ -10,6 +10,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.intrinsic_data import ENUM_CLASSES, STUB_TO_AST_MAPPER
 from puya.awst_build.intrinsic_models import FunctionOpMapping, ImmediateArgMapping
@@ -38,7 +39,7 @@ class Arc4SignatureBuilder(IntermediateExpressionBuilder):
             case _:
                 logger.error(f"Unexpected args for {ARC4_SIGNATURE_ALIAS}", location=location)
                 str_value = ""  # dummy value to keep evaluating
-        return var_expression(
+        return BytesExpressionBuilder(
             MethodConstant(
                 value=str_value,
                 source_location=location,
@@ -157,13 +158,15 @@ def _best_op_mapping(
     return op_mappings[0]
 
 
-def _return_types_to_wtype(types: Sequence[wtypes.WType]) -> wtypes.WType:
+def _return_types_to_wtype(
+    types: Sequence[wtypes.WType], source_location: SourceLocation
+) -> wtypes.WType:
     if not types:
         return wtypes.void_wtype
     elif len(types) == 1:
         return types[0]
     else:
-        return wtypes.WTuple.from_types(types)
+        return wtypes.WTuple(types, source_location)
 
 
 def _map_call(
@@ -235,7 +238,7 @@ def _map_call(
 
     return IntrinsicCall(
         source_location=node_location,
-        wtype=_return_types_to_wtype(op_mapping.stack_outputs),
+        wtype=_return_types_to_wtype(op_mapping.stack_outputs, node_location),
         op_code=op_mapping.op_code,
         immediates=immediates,
         stack_args=stack_args,
