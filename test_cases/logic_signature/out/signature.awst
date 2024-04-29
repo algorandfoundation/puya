@@ -1,8 +1,10 @@
 logicsig pre_approved_sale
 {
-  test_cases.logic_signature.signature::assert_correct_payment(txn_offset=0u)
-  test_cases.logic_signature.signature::assert_correct_asset(txn_offset=1u)
-  assert(gtxns<Sender>(0u) == gtxns<AssetReceiver>(1u))
+  pay_txn: algopy.gtxn.PaymentTransaction = reinterpret_cast<algopy.gtxn.PaymentTransaction>(checked_maybe((SINGLE_EVAL(id=0, source=0u), gtxns<TypeEnum>(SINGLE_EVAL(id=0, source=0u)) == pay)))
+  asset_txn: algopy.gtxn.AssetTransferTransaction = reinterpret_cast<algopy.gtxn.AssetTransferTransaction>(checked_maybe((SINGLE_EVAL(id=1, source=1u), gtxns<TypeEnum>(SINGLE_EVAL(id=1, source=1u)) == axfer)))
+  test_cases.logic_signature.signature::assert_correct_payment(pay_txn)
+  test_cases.logic_signature.signature::assert_correct_asset(asset_txn)
+  assert(gtxns<Sender>(pay_txn) == gtxns<AssetReceiver>(asset_txn))
   assert(global<GroupSize>() == 2u)
   return true
 }
@@ -12,12 +14,12 @@ logicsig always_allow
   return true
 }
 
-subroutine assert_correct_payment(txn_offset: algopy.UInt64): None
+subroutine assert_correct_payment(txn: algopy.gtxn.PaymentTransaction): None
 {
-  assert(gtxns<TypeEnum>(txn_offset) == pay and reinterpret_cast<algopy.Bytes>(gtxns<Receiver>(txn_offset)) == TemplateVar[algopy.Bytes](TMPL_SELLER) and gtxns<Amount>(txn_offset) == TemplateVar[algopy.UInt64](TMPL_PRICE))
+  assert(reinterpret_cast<algopy.Bytes>(gtxns<Receiver>(txn)) == TemplateVar[algopy.Bytes](TMPL_SELLER) and gtxns<Amount>(txn) == TemplateVar[algopy.UInt64](TMPL_PRICE))
 }
 
-subroutine assert_correct_asset(txn_offset: algopy.UInt64): None
+subroutine assert_correct_asset(txn: algopy.gtxn.AssetTransferTransaction): None
 {
-  assert(gtxns<TypeEnum>(txn_offset) == axfer and gtxns<AssetAmount>(txn_offset) == 1u and reinterpret_cast<algopy.Bytes>(gtxns<Sender>(txn_offset)) == TemplateVar[algopy.Bytes](TMPL_SELLER) and reinterpret_cast<algopy.UInt64>(gtxns<XferAsset>(txn_offset)) == TemplateVar[algopy.UInt64](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn_offset) == global<ZeroAddress>() and gtxns<RekeyTo>(txn_offset) == global<ZeroAddress>())
+  assert(gtxns<AssetAmount>(txn) == 1u and reinterpret_cast<algopy.Bytes>(gtxns<Sender>(txn)) == TemplateVar[algopy.Bytes](TMPL_SELLER) and reinterpret_cast<algopy.UInt64>(gtxns<XferAsset>(txn)) == TemplateVar[algopy.UInt64](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn) == global<ZeroAddress>() and gtxns<RekeyTo>(txn) == global<ZeroAddress>())
 }
