@@ -5,13 +5,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 import attrs
 from immutabledict import immutabledict
 
-from puya.algo_constants import (
-    ADDRESS_CHECKSUM_LENGTH,
-    ENCODED_ADDRESS_LENGTH,
-    MAX_BIGUINT_BITS,
-    MAX_BYTES_LENGTH,
-    PUBLIC_KEY_HASH_LENGTH,
-)
+from puya import algo_constants
 from puya.awst_build import constants
 from puya.errors import InternalError
 from puya.utils import sha512_256_hash
@@ -54,11 +48,19 @@ def _uint_literal_validator(*, max_bits: int) -> Callable[[object], typing.TypeG
 is_valid_uint64_literal = _uint_literal_validator(max_bits=64)
 
 
-is_valid_biguint_literal = _uint_literal_validator(max_bits=MAX_BIGUINT_BITS)
+is_valid_biguint_literal = _uint_literal_validator(max_bits=algo_constants.MAX_BIGUINT_BITS)
 
 
-def is_valid_bytes_literal(value: object) -> typing.TypeGuard[bytes]:
-    return isinstance(value, bytes) and len(value) <= MAX_BYTES_LENGTH
+def _bytes_literal_validator(
+    *, min_size: int = 0, max_size: int = algo_constants.MAX_BYTES_LENGTH
+) -> Callable[[object], typing.TypeGuard[bytes]]:
+    def validator(value: object) -> typing.TypeGuard[bytes]:
+        return isinstance(value, bytes) and min_size <= len(value) <= max_size
+
+    return validator
+
+
+is_valid_bytes_literal = _bytes_literal_validator()
 
 
 def is_valid_account_literal(value: object) -> typing.TypeGuard[str]:
@@ -107,6 +109,18 @@ asset_wtype: typing.Final = WType(
     name="asset",
     stub_name=constants.CLS_ASSET_ALIAS,
     is_valid_literal=is_valid_uint64_literal,
+)
+state_key: typing.Final = WType(
+    name="state_key",
+    stub_name="n/a",  # TODO: seperation
+    is_valid_literal=_bytes_literal_validator(max_size=algo_constants.MAX_STATE_KEY_LENGTH),
+)
+box_key: typing.Final = WType(
+    name="box_key",
+    stub_name="n/a",  # TODO: seperation
+    is_valid_literal=_bytes_literal_validator(
+        min_size=algo_constants.MIN_BOX_KEY_LENGTH, max_size=algo_constants.MAX_BOX_KEY_LENGTH
+    ),
 )
 
 account_wtype: typing.Final = WType(
@@ -503,15 +517,22 @@ def valid_address(address: str) -> bool:
     """check if address is a valid address with checksum"""
     # Pad address so it's a valid b32 string
     padded_address = address + (6 * "=")
-    if not (len(address) == ENCODED_ADDRESS_LENGTH and valid_base32(padded_address)):
+    if not (
+        len(address) == algo_constants.ENCODED_ADDRESS_LENGTH and valid_base32(padded_address)
+    ):
         return False
     address_bytes = base64.b32decode(padded_address)
-    if len(address_bytes) != PUBLIC_KEY_HASH_LENGTH + ADDRESS_CHECKSUM_LENGTH:
+    if (
+        len(address_bytes)
+        != algo_constants.PUBLIC_KEY_HASH_LENGTH + algo_constants.ADDRESS_CHECKSUM_LENGTH
+    ):
         return False
 
-    public_key_hash = address_bytes[:PUBLIC_KEY_HASH_LENGTH]
-    check_sum = address_bytes[PUBLIC_KEY_HASH_LENGTH:]
-    verified_check_sum = sha512_256_hash(public_key_hash)[-ADDRESS_CHECKSUM_LENGTH:]
+    public_key_hash = address_bytes[: algo_constants.PUBLIC_KEY_HASH_LENGTH]
+    check_sum = address_bytes[algo_constants.PUBLIC_KEY_HASH_LENGTH :]
+    verified_check_sum = sha512_256_hash(public_key_hash)[
+        -algo_constants.ADDRESS_CHECKSUM_LENGTH :
+    ]
     return check_sum == verified_check_sum
 
 
