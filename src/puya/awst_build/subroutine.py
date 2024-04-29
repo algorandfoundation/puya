@@ -451,7 +451,9 @@ class FunctionASTConverter(
                 f"{rvalue.python_name} can only be assigned to a member variable in the __init__ method",
                 stmt_loc,
             )
-        defn = rvalue.build_definition(member_name, self.contract_method_info.cref, stmt_loc)
+        defn = rvalue.build_definition(
+            member_name, self.contract_method_info.cref, self._location(lvalue)
+        )
         self.context.state_defs[self.contract_method_info.cref][member_name] = defn
         if rvalue.initial_value is None:
             return []
