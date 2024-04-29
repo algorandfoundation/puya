@@ -355,12 +355,12 @@ class FunctionASTConverter(
         lvalues: list[mypy.nodes.Expression],
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
-        if len(lvalues) != 1:
+        try:
+            (lvalue,) = lvalues
+        except ValueError:
             raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a single variable",
-                stmt_loc,
-            )
-        (lvalue,) = lvalues
+                f"{rvalue.python_name} can only be assigned to a single variable", stmt_loc
+            ) from None
 
         match lvalue:
             case mypy.nodes.MemberExpr(
@@ -423,12 +423,12 @@ class FunctionASTConverter(
         lvalues: list[mypy.nodes.Expression],
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
-        if len(lvalues) != 1:
+        try:
+            (lvalue,) = lvalues
+        except ValueError:
             raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a single variable",
-                stmt_loc,
-            )
-        (lvalue,) = lvalues
+                f"{rvalue.python_name} can only be assigned to a single variable", stmt_loc
+            ) from None
         match lvalue:
             case mypy.nodes.MemberExpr(
                 name=member_name, expr=mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True))
