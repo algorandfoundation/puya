@@ -18,6 +18,7 @@ from puya.awst_build.eb.base import (
     ExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal_to_expr
 
@@ -51,7 +52,7 @@ class ReferenceValueExpressionBuilder(ValueExpressionBuilder):
             immediate, wtype = self.field_mapping[name]
             acct_params_get = IntrinsicCall(
                 source_location=location,
-                wtype=wtypes.WTuple.from_types((wtype, wtypes.bool_wtype)),
+                wtype=wtypes.WTuple((wtype, wtypes.bool_wtype), location),
                 op_code=self.field_op_code,
                 immediates=[immediate],
                 stack_args=[self.expr],
@@ -74,7 +75,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
             expr: Expression = Not(location, as_bool)
         else:
             expr = as_bool
-        return var_expression(expr)
+        return BoolExpressionBuilder(expr)
 
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
@@ -91,4 +92,4 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
             operator=NumericComparison(op.value),
             rhs=other_expr,
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)

@@ -766,6 +766,14 @@ def lvalue_expr_validator(_instance: object, _attribute: object, value: Expressi
         )
 
 
+def scalar_expr_validator(_instance: object, _attribute: object, value: Expression) -> None:
+    if not value.wtype.scalar:
+        raise CodeError(
+            f'expression with type "{value.wtype}" is not a scalar',
+            value.source_location,
+        )
+
+
 @attrs.frozen
 class TupleExpression(Expression):
     items: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
@@ -775,7 +783,7 @@ class TupleExpression(Expression):
     def from_items(cls, items: Sequence[Expression], location: SourceLocation) -> TupleExpression:
         return cls(
             items=items,
-            wtype=wtypes.WTuple.from_types(i.wtype for i in items),
+            wtype=wtypes.WTuple((i.wtype for i in items), location),
             source_location=location,
         )
 
@@ -1461,7 +1469,7 @@ class Enumeration(Expression):
 
     def __init__(self, expr: Expression | Range, source_location: SourceLocation):
         item_wtype = expr.wtype if isinstance(expr, Expression) else wtypes.uint64_wtype
-        wtype = wtypes.WTuple.from_types([wtypes.uint64_wtype, item_wtype])
+        wtype = wtypes.WTuple((wtypes.uint64_wtype, item_wtype), source_location)
         self.__attrs_init__(
             expr=expr,
             source_location=source_location,
@@ -1510,7 +1518,7 @@ def _get_state_expression_value_wtype(expr: StateExpression) -> wtypes.WType:
             return content_wtype
         case BoxKeyExpression(proxy=proxy):
             match proxy.wtype:
-                case wtypes.box_blob_proxy_wtype:
+                case wtypes.box_ref_proxy_type:
                     return wtypes.bytes_wtype
                 case wtypes.WBoxProxy(content_wtype=content_wtype):
                     return content_wtype
@@ -1553,8 +1561,9 @@ class StateGetEx(Expression):
 
     @wtype.default
     def _wtype_factory(self) -> wtypes.WTuple:
-        return wtypes.WTuple.from_types(
-            (_get_state_expression_value_wtype(self.field), wtypes.bool_wtype)
+        return wtypes.WTuple(
+            (_get_state_expression_value_wtype(self.field), wtypes.bool_wtype),
+            self.source_location,
         )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -1609,14 +1618,12 @@ class BoxProxyField(Expression):
     """
     An expression representing a box proxy class instance stored on a contract field.
 
-    wtype will be WBoxProxy or wtypes.box_blob_proxy_wtype
+    wtype will be WBoxProxy or wtypes.box_ref_proxy_type
     """
 
     field_name: str
     wtype: wtypes.WType = attrs.field(
-        validator=wtype_is_one_of(
-            wtypes.box_blob_proxy_wtype, wtypes.WBoxProxy, wtypes.WBoxMapProxy
-        )
+        validator=wtype_is_one_of(wtypes.box_ref_proxy_type, wtypes.WBoxProxy, wtypes.WBoxMapProxy)
     )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -1628,18 +1635,29 @@ class BoxProxyExpression(Expression):
     """
     An expression representing the box proxy class 'instance'
 
-    wtype will be WBoxProxy or wtypes.box_blob_proxy_wtype
+    wtype will be WBoxProxy or wtypes.box_ref_proxy_type
     """
 
     key: Expression
     wtype: wtypes.WType = attrs.field(
-        validator=wtype_is_one_of(
-            wtypes.box_blob_proxy_wtype, wtypes.WBoxProxy, wtypes.WBoxMapProxy
-        )
+        validator=wtype_is_one_of(wtypes.box_ref_proxy_type, wtypes.WBoxProxy, wtypes.WBoxMapProxy)
     )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_proxy_expression(self)
+
+
+@attrs.frozen
+class BytesRaw(Expression):
+    """Get the raw bytes of a scalar expression.
+    Will use `itob` in case it's uint64 backed.
+    """
+
+    expr: Expression = attrs.field(validator=scalar_expr_validator)
+    wtype: wtypes.WType = attrs.field(default=wtypes.bytes_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_bytes_raw(self)
 
 
 @attrs.frozen

@@ -48,12 +48,13 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
+from puya.awst_build.eb.reference_types.account import AccountExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import (
-    expect_operand_wtype,
-    require_expression_builder,
-)
+from puya.awst_build.eb.void import VoidExpressionBuilder
+from puya.awst_build.utils import expect_operand_wtype, require_expression_builder
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -119,7 +120,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         for a in non_literal_args:
             expect_operand_wtype(a, wtype.element_type)
 
-        return var_expression(
+        return DynamicArrayExpressionBuilder(
             NewArray(
                 source_location=location,
                 values=tuple(non_literal_args),
@@ -194,7 +195,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         for a in non_literal_args:
             expect_operand_wtype(a, wtype.element_type)
 
-        return var_expression(
+        return StaticArrayExpressionBuilder(
             NewArray(
                 source_location=location,
                 values=tuple(non_literal_args),
@@ -219,7 +220,7 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
         match args:
             case []:
                 const_op = intrinsic_factory.zero_address(location, as_type=self.wtype)
-                return var_expression(const_op)
+                return AddressExpressionBuilder(const_op)
             case [ExpressionBuilder(value_type=wtypes.account_wtype) as eb]:
                 address_bytes: Expression = get_bytes_expr(eb.rvalue())
             case [Literal(value=str(addr_value))]:
@@ -252,7 +253,7 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
                     location=location,
                 )
         assert self.wtype, "wtype should not be None"
-        return var_expression(
+        return StaticArrayExpressionBuilder(
             ReinterpretCast(expr=address_bytes, wtype=self.wtype, source_location=location)
         )
 
@@ -324,9 +325,10 @@ class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
         super().__init__(expr)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
+
         match name:
             case "length":
-                return var_expression(
+                return UInt64ExpressionBuilder(
                     IntrinsicCall(
                         op_code="extract_uint16",
                         stack_args=[self.expr, UInt64Constant(value=0, source_location=location)],
@@ -386,7 +388,7 @@ class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
 
                 if reverse:
                     (lhs, rhs) = (rhs, lhs)
-                return var_expression(
+                return DynamicArrayExpressionBuilder(
                     ArrayConcat(
                         left=lhs,
                         right=rhs,
@@ -424,9 +426,10 @@ class AppendExpressionBuilder(IntermediateExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
+
         args_expr = [expect_arc4_operand_wtype(a, self.wtype.element_type) for a in args]
         args_tuple = TupleExpression.from_items(args_expr, location)
-        return var_expression(
+        return VoidExpressionBuilder(
             ArrayExtend(
                 base=self.expr,
                 other=args_tuple,
@@ -488,7 +491,7 @@ class ExtendExpressionBuilder(IntermediateExpressionBuilder):
             msg="Extend expects an arc4.StaticArray or arc4.DynamicArray of the same element "
             f"type. Expected array or tuple of {self.wtype.element_type}",
         )
-        return var_expression(
+        return VoidExpressionBuilder(
             ArrayExtend(
                 base=self.expr,
                 other=other,
@@ -527,7 +530,7 @@ class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "length":
-                return var_expression(
+                return UInt64ExpressionBuilder(
                     UInt64Constant(value=self.wtype.array_size, source_location=location)
                 )
             case _:
@@ -546,7 +549,7 @@ class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
                 source_location=location,
             )
 
-            return var_expression(cmp_with_zero_expr)
+            return BoolExpressionBuilder(cmp_with_zero_expr)
 
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
@@ -566,14 +569,14 @@ class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
             operator=EqualityComparison(op.value),
             rhs=rhs,
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)
 
 
 class AddressExpressionBuilder(StaticArrayExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "native":
-                return var_expression(
+                return AccountExpressionBuilder(
                     ReinterpretCast(
                         expr=self.expr, wtype=wtypes.account_wtype, source_location=location
                     )

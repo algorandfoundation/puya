@@ -987,6 +987,21 @@ class FunctionIRBuilder(
     def visit_box_key_expression(self, expr: puya.awst.nodes.BoxKeyExpression) -> TExpression:
         return box.visit_box_key_expression(self.context, expr)
 
+    def visit_bytes_raw(self, expr: puya.awst.nodes.BytesRaw) -> TExpression:
+        value = self.visit_and_materialise_single(expr.expr)
+        backing = value.ir_type.maybe_avm_type
+        match backing:
+            case AVMType.bytes:
+                return value
+            case AVMType.uint64:
+                return Intrinsic(op=AVMOp.itob, args=[value], source_location=expr.source_location)
+            case str(type_name):
+                raise CodeError(
+                    f"Unable to extract raw bytes for type {type_name}", expr.source_location
+                )
+            case _:
+                typing.assert_never(backing)
+
 
 def create_uint64_binary_op(
     op: UInt64BinaryOperator, left: Value, right: Value, source_location: SourceLocation

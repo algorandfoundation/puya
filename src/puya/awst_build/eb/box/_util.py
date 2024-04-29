@@ -7,14 +7,10 @@ from puya.awst.nodes import (
     SingleEvaluation,
     UInt64Constant,
 )
-from puya.awst_build.eb.base import (
-    BuilderBinaryOp,
-    ExpressionBuilder,
-)
-from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import (
-    eval_slice_component,
-)
+from puya.awst_build.eb.base import BuilderBinaryOp, ExpressionBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
+from puya.awst_build.utils import eval_slice_component
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -28,7 +24,7 @@ def index_box_bytes(
 
     begin_index_expr = eval_slice_component(len_expr, index, location)
     assert begin_index_expr, "Index expression cannot evaluate to None"
-    return var_expression(
+    return BytesExpressionBuilder(
         IntrinsicCall(
             op_code="box_extract",
             stack_args=[
@@ -58,12 +54,14 @@ def slice_box_bytes(
     )
     end_index_expr = eval_slice_component(len_expr, end_index, location) or len_expr
     length_expr = (
-        var_expression(end_index_expr)
-        .binary_op(var_expression(begin_index_expr), BuilderBinaryOp.sub, location, reverse=False)
+        UInt64ExpressionBuilder(end_index_expr)
+        .binary_op(
+            UInt64ExpressionBuilder(begin_index_expr), BuilderBinaryOp.sub, location, reverse=False
+        )
         .rvalue()
     )
 
-    return var_expression(
+    return BytesExpressionBuilder(
         IntrinsicCall(
             op_code="box_extract",
             stack_args=[

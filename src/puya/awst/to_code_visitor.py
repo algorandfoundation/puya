@@ -56,8 +56,8 @@ class ToCodeVisitor(
         return f"{expr.proxy.accept(self)}.value"
 
     def visit_box_proxy_expression(self, expr: nodes.BoxProxyExpression) -> str:
-        if expr.wtype == wtypes.box_blob_proxy_wtype:
-            return f"BoxBlob({expr.key.accept(self)})"
+        if expr.wtype == wtypes.box_ref_proxy_type:
+            return f"BoxRef({expr.key.accept(self)})"
         return f"Box({expr.key.accept(self)})"
 
     def visit_box_key_expression(self, expr: nodes.BoxKeyExpression) -> str:
@@ -580,6 +580,9 @@ class ToCodeVisitor(
 
     def visit_template_var(self, expr: nodes.TemplateVar) -> str:
         return f"TemplateVar[{expr.wtype}]({expr.name})"
+
+    def visit_bytes_raw(self, expr: nodes.BytesRaw) -> str:
+        return f"BytesRaw({expr.expr.accept(self)})"
 
 
 def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:

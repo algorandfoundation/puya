@@ -25,7 +25,7 @@ from puya.awst_build.eb.arc4.base import (
     arc4_bool_bytes,
 )
 from puya.awst_build.eb.base import BuilderBinaryOp, BuilderComparisonOp, ExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
@@ -50,11 +50,11 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
         location: SourceLocation,
     ) -> ExpressionBuilder:
         if not args:
-            return var_expression(
+            return StringExpressionBuilder(
                 arc4_encode_bytes(StringConstant(value="", source_location=location), location)
             )
         if len(args) == 1:
-            return var_expression(expect_string_or_bytes(args[0], location))
+            return StringExpressionBuilder(expect_string_or_bytes(args[0], location))
         raise CodeError("Invalid/unhandled arguments", location)
 
 
@@ -120,7 +120,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
                 rhs = expect_string_or_bytes(other, other.source_location)
                 if reverse:
                     (lhs, rhs) = (rhs, lhs)
-                return var_expression(
+                return StringExpressionBuilder(
                     ArrayConcat(
                         left=lhs,
                         right=rhs,
@@ -151,7 +151,7 @@ class StringExpressionBuilder(ARC4EncodedExpressionBuilder):
             case _:
                 raise CodeError("Expected arc4.String or str literal")
 
-        return var_expression(
+        return BoolExpressionBuilder(
             BytesComparisonExpression(
                 source_location=location,
                 lhs=get_bytes_expr(self.expr),

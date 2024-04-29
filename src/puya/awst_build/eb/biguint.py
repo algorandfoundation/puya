@@ -26,8 +26,9 @@ from puya.awst_build.eb.base import (
     ExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal_to_expr
 from puya.errors import CodeError
 
@@ -63,7 +64,7 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
                 value = BigUIntConstant(value=0, source_location=location)
-        return var_expression(value)
+        return BigUIntExpressionBuilder(value)
 
 
 class BigUIntExpressionBuilder(ValueExpressionBuilder):
@@ -72,7 +73,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "bytes":
-                return var_expression(
+                return BytesExpressionBuilder(
                     ReinterpretCast(
                         source_location=location, wtype=wtypes.bytes_wtype, expr=self.expr
                     )
@@ -87,7 +88,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
             rhs=BigUIntConstant(value=0, source_location=location),
             source_location=location,
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)
 
     def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
         # unary + is allowed, but for the current types it has no real impact
@@ -110,7 +111,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
             operator=NumericComparison(op.value),
             rhs=other_expr,
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)
 
     def binary_op(
         self,
@@ -135,7 +136,7 @@ class BigUIntExpressionBuilder(ValueExpressionBuilder):
         bin_op_expr = BigUIntBinaryOperation(
             source_location=location, left=lhs, op=biguint_op, right=rhs
         )
-        return var_expression(bin_op_expr)
+        return BigUIntExpressionBuilder(bin_op_expr)
 
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation

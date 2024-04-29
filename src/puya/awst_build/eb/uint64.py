@@ -29,7 +29,7 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.utils import convert_literal_to_expr
 from puya.errors import CodeError
 
@@ -63,7 +63,7 @@ class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
                 const = UInt64Constant(value=0, source_location=location)
-        return var_expression(const)
+        return UInt64ExpressionBuilder(const)
 
 
 class UInt64ExpressionBuilder(ValueExpressionBuilder):
@@ -79,7 +79,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
             expr: Expression = Not(location, as_bool)
         else:
             expr = as_bool
-        return var_expression(expr)
+        return BoolExpressionBuilder(expr)
 
     def unary_plus(self, location: SourceLocation) -> ExpressionBuilder:
         # unary + is allowed, but for the current types it has no real impact
@@ -109,7 +109,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
             operator=NumericComparison(op.value),
             rhs=other_expr,
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)
 
     def binary_op(
         self,
@@ -132,7 +132,7 @@ class UInt64ExpressionBuilder(ValueExpressionBuilder):
         bin_op_expr = UInt64BinaryOperation(
             source_location=location, left=lhs, op=uint64_op, right=rhs
         )
-        return var_expression(bin_op_expr)
+        return UInt64ExpressionBuilder(bin_op_expr)
 
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: ExpressionBuilder | Literal, location: SourceLocation

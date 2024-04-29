@@ -16,7 +16,6 @@ from puya.awst.nodes import (
     Expression,
     FreeSubroutineTarget,
     Literal,
-    ReinterpretCast,
     SingleEvaluation,
     Statement,
     StringConstant,
@@ -25,6 +24,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import intrinsic_factory
+from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -32,8 +32,10 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype
 from puya.errors import CodeError
 
@@ -68,7 +70,7 @@ class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                 # dummy value to continue with
                 value = ""
         str_const = StringConstant(value=value, source_location=location)
-        return var_expression(str_const)
+        return StringExpressionBuilder(str_const)
 
 
 class StringExpressionBuilder(ValueExpressionBuilder):
@@ -77,7 +79,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
             case "bytes":
-                return _get_bytes_expr_builder(self.expr)
+                return get_bytes_expr_builder(self.expr)
             case "startswith":
                 return _StringStartsOrEndsWith(self.expr, location, at_start=True)
             case "endswith":
@@ -118,7 +120,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
                 rhs = expect_operand_wtype(other, self.wtype)
                 if reverse:
                     (lhs, rhs) = (rhs, lhs)
-                return var_expression(
+                return StringExpressionBuilder(
                     BytesBinaryOperation(
                         left=lhs,
                         op=BytesBinaryOperator.add,
@@ -143,19 +145,19 @@ class StringExpressionBuilder(ValueExpressionBuilder):
             operator=EqualityComparison(op.value),
             rhs=other_expr,
         )
-        return var_expression(cmp)
+        return BoolExpressionBuilder(cmp)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
-        bytes_expr = _get_bytes_expr(self.expr)
+        bytes_expr = get_bytes_expr(self.expr)
         len_expr = intrinsic_factory.bytes_len(bytes_expr, location)
-        len_builder = var_expression(len_expr)
+        len_builder = UInt64ExpressionBuilder(len_expr)
         return len_builder.bool_eval(location, negate=negate)
 
     def contains(
         self, item: ExpressionBuilder | Literal, location: SourceLocation
     ) -> ExpressionBuilder:
-        item_expr = _get_bytes_expr(expect_operand_wtype(item, wtypes.string_wtype))
-        this_expr = _get_bytes_expr(self.expr)
+        item_expr = get_bytes_expr(expect_operand_wtype(item, wtypes.string_wtype))
+        this_expr = get_bytes_expr(self.expr)
         is_substring_expr = SubroutineCallExpression(
             target=FreeSubroutineTarget(module_name="algopy_lib_bytes", name="is_substring"),
             args=[
@@ -165,7 +167,7 @@ class StringExpressionBuilder(ValueExpressionBuilder):
             wtype=wtypes.bool_wtype,
             source_location=location,
         )
-        return var_expression(is_substring_expr)
+        return BoolExpressionBuilder(is_substring_expr)
 
 
 class _StringStartsOrEndsWith(IntermediateExpressionBuilder):
@@ -183,10 +185,10 @@ class _StringStartsOrEndsWith(IntermediateExpressionBuilder):
     ) -> ExpressionBuilder:
         if len(args) != 1:
             raise CodeError(f"Expected 1 argument, got {len(args)}", location)
-        arg = _get_bytes_expr_builder(
+        arg = get_bytes_expr_builder(
             SingleEvaluation(expect_operand_wtype(args[0], wtypes.string_wtype))
         )
-        this = _get_bytes_expr_builder(SingleEvaluation(self._base))
+        this = get_bytes_expr_builder(SingleEvaluation(self._base))
 
         this_length = this.member_access("length", location)
         assert isinstance(this_length, ExpressionBuilder)
@@ -211,7 +213,7 @@ class _StringStartsOrEndsWith(IntermediateExpressionBuilder):
                 ).rvalue(),
                 length=arg_length.rvalue(),
             )
-        this_substr = var_expression(extracted)
+        this_substr = BytesExpressionBuilder(extracted)
 
         cond = ConditionalExpression(
             condition=arg_length_gt_this_length.rvalue(),
@@ -220,7 +222,7 @@ class _StringStartsOrEndsWith(IntermediateExpressionBuilder):
             wtype=wtypes.bool_wtype,
             source_location=location,
         )
-        return var_expression(cond)
+        return BoolExpressionBuilder(cond)
 
 
 class _StringJoin(IntermediateExpressionBuilder):
@@ -242,11 +244,11 @@ class _StringJoin(IntermediateExpressionBuilder):
                 tuple_arg = SingleEvaluation(eb.rvalue())
             case _:
                 raise CodeError("Invalid/unhandled arguments", location)
-        sep = _get_bytes_expr_builder(SingleEvaluation(self._base))
+        sep = get_bytes_expr_builder(SingleEvaluation(self._base))
         joined_value: Expression | None = None
         for idx, _ in enumerate(tuple_item_types):
             item_expr = TupleItemExpression(tuple_arg, index=idx, source_location=location)
-            bytes_expr = _get_bytes_expr(item_expr)
+            bytes_expr = get_bytes_expr(item_expr)
             if joined_value is None:
                 joined_value = bytes_expr
             else:
@@ -257,16 +259,4 @@ class _StringJoin(IntermediateExpressionBuilder):
                 )
         if joined_value is None:
             joined_value = StringConstant(value="", source_location=location)
-        return StringExpressionBuilder(
-            ReinterpretCast(expr=joined_value, wtype=wtypes.string_wtype, source_location=location)
-        )
-
-
-def _get_bytes_expr(expr: Expression) -> ReinterpretCast:
-    return ReinterpretCast(
-        expr=expr, wtype=wtypes.bytes_wtype, source_location=expr.source_location
-    )
-
-
-def _get_bytes_expr_builder(expr: Expression) -> ExpressionBuilder:
-    return var_expression(_get_bytes_expr(expr))
+        return StringExpressionBuilder(joined_value)

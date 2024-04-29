@@ -19,7 +19,6 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import bool_eval, convert_literal_to_expr
 from puya.errors import CodeError
 
@@ -47,7 +46,7 @@ class BoolClassExpressionBuilder(TypeClassExpressionBuilder):
         match args:
             case []:
                 false = BoolConstant(value=False, source_location=location)
-                return var_expression(false)
+                return BoolExpressionBuilder(false)
             case [arg]:
                 return bool_eval(arg, location)
             case _:
@@ -76,4 +75,4 @@ class BoolExpressionBuilder(ValueExpressionBuilder):
             operator=NumericComparison(op.value),
             rhs=other_expr,
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)

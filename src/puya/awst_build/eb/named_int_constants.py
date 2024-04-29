@@ -3,7 +3,7 @@ import enum
 from puya.awst import wtypes
 from puya.awst.nodes import UInt64Constant
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -24,7 +24,7 @@ class NamedIntegerConstsTypeBuilder(TypeClassExpressionBuilder):
             raise CodeError(
                 f"Unable to resolve constant value for {self.enum_name}.{name}", location
             ) from ex
-        return var_expression(
+        return UInt64ExpressionBuilder(
             UInt64Constant(
                 value=int_enum.value, source_location=location, teal_alias=int_enum.name
             )

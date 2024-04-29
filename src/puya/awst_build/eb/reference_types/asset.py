@@ -78,7 +78,7 @@ class AssetHoldingExpressionBuilder(IntermediateExpressionBuilder):
                 immediate, wtype = ASSET_HOLDING_FIELD_MAPPING[self.holding_field]
                 asset_params_get = IntrinsicCall(
                     source_location=location,
-                    wtype=wtypes.WTuple.from_types((wtype, wtypes.bool_wtype)),
+                    wtype=wtypes.WTuple((wtype, wtypes.bool_wtype), location),
                     op_code="asset_holding_get",
                     immediates=[immediate],
                     stack_args=[account_expr, self.asset],

@@ -19,7 +19,7 @@ from puya.awst.nodes import (
     StructureDefinition,
     StructureField,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionContext, ASTConversionModuleContext
 from puya.awst_build.contract import ContractASTConverter
@@ -611,7 +611,7 @@ def _process_contract_class_options(
 def _process_struct(
     context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
 ) -> StatementResult:
-    field_types = dict[str, wtypes.WType]()
+    fields = dict[str, pytypes.PyType]()
     field_decls = list[StructureField]()
     docstring = cdef.docstring
     has_error = False
@@ -626,13 +626,14 @@ def _process_struct(
                 rvalue=mypy.nodes.TempNode(),
                 type=mypy.types.Type() as mypy_type,
             ):
-                wtype = context.type_to_wtype(mypy_type, source_location=stmt)
-                field_types[field_name] = wtype
+                stmt_loc = context.node_location(stmt)
+                pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
+                fields[field_name] = pytype
                 field_decls.append(
                     StructureField(
-                        source_location=context.node_location(stmt),
+                        source_location=stmt_loc,
                         name=field_name,
-                        wtype=wtype,
+                        wtype=pytype.wtype,
                     )
                 )
             case mypy.nodes.SymbolNode(name=symbol_name) if (
@@ -644,14 +645,21 @@ def _process_struct(
                 has_error = True
     if has_error:
         return []
-    struct_wtype = wtypes.WStructType.from_name_and_fields(cdef.fullname, field_types)
-    context.type_map[cdef.info.fullname] = struct_wtype
+    cls_loc = context.node_location(cdef)
+    frozen = cdef.info.metadata["dataclass"]["frozen"]
+    assert isinstance(frozen, bool)
+    struct_typ = pytypes.StructType.native(
+        name=cdef.fullname,
+        fields=fields,
+        frozen=frozen,
+        source_location=cls_loc,
+    )
     return [
         StructureDefinition(
             name=cdef.name,
-            source_location=context.node_location(cdef),
+            source_location=cls_loc,
             fields=field_decls,
-            wtype=struct_wtype,
+            wtype=struct_typ.wtype,
             docstring=docstring,
         )
     ]
@@ -660,7 +668,7 @@ def _process_struct(
 def _process_arc4_struct(
     context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
 ) -> StatementResult:
-    field_types = dict[str, wtypes.ARC4Type]()
+    fields = dict[str, pytypes.PyType]()
     field_decls = list[StructureField]()
     docstring = cdef.docstring
 
@@ -676,17 +684,18 @@ def _process_arc4_struct(
                 rvalue=mypy.nodes.TempNode(),
                 type=mypy.types.Type() as mypy_type,
             ):
-                wtype = context.type_to_wtype(mypy_type, source_location=stmt)
-                if not wtypes.is_arc4_encoded_type(wtype):
-                    context.error(f"Invalid field type for arc4.Struct: {wtype}", stmt)
+                stmt_loc = context.node_location(stmt)
+                pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
+                if not wtypes.is_arc4_encoded_type(pytype.wtype):
+                    context.error(f"Invalid field type for arc4.Struct: {pytype}", stmt_loc)
                     has_error = True
                 else:
-                    field_types[field_name] = wtype
+                    fields[field_name] = pytype
                     field_decls.append(
                         StructureField(
-                            source_location=context.node_location(stmt),
+                            source_location=stmt_loc,
                             name=field_name,
-                            wtype=wtype,
+                            wtype=pytype.wtype,
                         )
                     )
             case mypy.nodes.SymbolNode(name=symbol_name) if (
@@ -698,19 +707,24 @@ def _process_arc4_struct(
                 has_error = True
     if has_error:
         return []
-    if not field_types:
+    if not fields:
         context.error("arc4.Struct requires at least one field", cdef)
         return []
-    tuple_wtype = wtypes.ARC4Struct.from_name_and_fields(
-        python_name=cdef.fullname, fields=field_types
+    cls_loc = context.node_location(cdef)
+    frozen = cdef.info.metadata["dataclass"]["frozen"]
+    assert isinstance(frozen, bool)
+    struct_typ = pytypes.StructType.arc4(
+        name=cdef.fullname,
+        fields=fields,
+        frozen=frozen,
+        source_location=cls_loc,
     )
-    context.type_map[cdef.info.fullname] = tuple_wtype
     return [
         StructureDefinition(
             name=cdef.name,
-            source_location=context.node_location(cdef),
+            source_location=cls_loc,
             fields=field_decls,
-            wtype=tuple_wtype,
+            wtype=struct_typ.wtype,
             docstring=docstring,
         )
     ]
