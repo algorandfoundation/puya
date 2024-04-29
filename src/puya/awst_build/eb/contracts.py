@@ -18,9 +18,9 @@ from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilde
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.box import (
-    BoxRefProxyExpressionBuilder,
     BoxMapProxyExpressionBuilder,
     BoxProxyExpressionBuilder,
+    BoxRefProxyExpressionBuilder,
 )
 from puya.awst_build.eb.subroutine import (
     BaseClassSubroutineInvokerExpressionBuilder,

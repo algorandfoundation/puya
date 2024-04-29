@@ -62,13 +62,12 @@ from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
     StateProxyDefinitionBuilder,
-    StateProxyMemberBuilder,
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
 from puya.awst_build.eb.box import (
-    BoxRefProxyExpressionBuilder,
     BoxMapProxyExpressionBuilder,
     BoxProxyExpressionBuilder,
+    BoxRefProxyExpressionBuilder,
 )
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
@@ -381,7 +380,8 @@ class FunctionASTConverter(
 
         if self.func_def.name != "__init__":
             raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a member variable in the __init__ method",
+                f"{rvalue.python_name} can only be assigned to a member variable"
+                " in the __init__ method",
                 stmt_loc,
             )
         key = rvalue.rvalue()
@@ -446,7 +446,8 @@ class FunctionASTConverter(
             raise InternalError("Assignment to self outside of a contract class", stmt_loc)
         if self.func_def.name != "__init__":
             raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a member variable in the __init__ method",
+                f"{rvalue.python_name} can only be assigned to a member variable"
+                " in the __init__ method",
                 stmt_loc,
             )
         defn = rvalue.build_definition(
