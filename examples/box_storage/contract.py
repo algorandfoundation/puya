@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Box, BoxBlob, BoxMap, Bytes, Global, String, Txn, UInt64, arc4
+from algopy import Box, BoxMap, BoxRef, Bytes, Global, String, Txn, UInt64, arc4
 
 StaticInts: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[4]]
 
@@ -49,7 +49,7 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def box_blob(self) -> None:
-        box_blob = BoxBlob(key=b"blob")
+        box_blob = BoxRef(key=b"blob")
         sender_bytes = Txn.sender.bytes
         app_address = Global.current_application_address.bytes
         assert box_blob.create(size=8000)
