@@ -51,7 +51,7 @@ class ReferenceValueExpressionBuilder(ValueExpressionBuilder):
             immediate, wtype = self.field_mapping[name]
             acct_params_get = IntrinsicCall(
                 source_location=location,
-                wtype=wtypes.WTuple.from_types((wtype, wtypes.bool_wtype)),
+                wtype=wtypes.WTuple((wtype, wtypes.bool_wtype), location),
                 op_code=self.field_op_code,
                 immediates=[immediate],
                 stack_args=[self.expr],

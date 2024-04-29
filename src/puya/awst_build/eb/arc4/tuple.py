@@ -60,7 +60,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
                     tuple_item_types.append(wtype)
                 case _:
                     raise CodeError("Invalid type parameter", index.source_location)
-        self.wtype = wtypes.ARC4Tuple.from_types(tuple_item_types)
+        self.wtype = wtypes.ARC4Tuple(tuple_item_types, location)
         return self
 
     def call(
@@ -78,7 +78,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
                 if wtype is None:
                     wtype = arc4_util.make_tuple_wtype(tuple_wtype.types, location)
                 else:
-                    expected_type = wtypes.WTuple.from_types(wtype.types)
+                    expected_type = wtypes.WTuple(wtype.types, location)
                     if tuple_ex.wtype != expected_type:
                         raise CodeError(
                             f"Invalid arg type: expected {expected_type}, got {tuple_ex.wtype}",

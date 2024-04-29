@@ -58,7 +58,7 @@ class TupleTypeExpressionBuilder(TypeClassExpressionBuilder):
                     tuple_item_types.append(wtype)
                 case _:
                     raise CodeError("Expected a type", index.source_location)
-        self.wtype = wtypes.WTuple.from_types(tuple_item_types)
+        self.wtype = wtypes.WTuple(tuple_item_types, location)
         return self
 
 
@@ -111,7 +111,7 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
         if not slice_types:
             raise CodeError("Empty slices are not supported", location)
 
-        updated_wtype = wtypes.WTuple.from_types(slice_types)
+        updated_wtype = wtypes.WTuple(slice_types, location)
         return var_expression(
             SliceExpression(
                 source_location=location,

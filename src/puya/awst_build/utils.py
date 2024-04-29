@@ -155,18 +155,20 @@ def fold_binary_expr(
 
 
 def require_expression_builder(
-    builder_or_expr_or_literal: ExpressionBuilder | Expression | Literal,
+    builder_or_literal: ExpressionBuilder | Literal,
     *,
     msg: str = "A Python literal is not valid at this location",
 ) -> ExpressionBuilder:
-    match builder_or_expr_or_literal:
+    match builder_or_literal:
         case Literal(value=bool(value), source_location=literal_location):
+            # TODO: PyType known as bool
             return var_expression(BoolConstant(value=value, source_location=literal_location))
         case Literal(source_location=literal_location):
             raise CodeError(msg, literal_location)
-        case Expression() as expr:
-            return var_expression(expr)
-    return builder_or_expr_or_literal
+        case ExpressionBuilder() as builder:
+            return builder
+        case _:
+            typing.assert_never(builder_or_literal)
 
 
 def require_type_class_eb(
@@ -267,6 +269,7 @@ def bool_eval(
     constant_value = bool(builder_or_literal.value)
     if negate:
         constant_value = not constant_value
+    # TODO: PyType known as bool
     return var_expression(BoolConstant(value=constant_value, source_location=loc))
 
 

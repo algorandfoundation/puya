@@ -26,6 +26,13 @@ def get_assignment_var_named(mypy_file: mypy.nodes.MypyFile, name: str) -> mypy.
     raise Exception(f"Assignment to '{name}' not found")
 
 
+def get_class_by_name(mypy_file: mypy.nodes.MypyFile, name: str) -> mypy.nodes.ClassDef:
+    for cls_def in (stmt for stmt in mypy_file.defs if isinstance(stmt, mypy.nodes.ClassDef)):
+        if cls_def.name == name:
+            return cls_def
+    raise Exception(f"Assignment to '{name}' not found")
+
+
 def decompile(function: typing.Callable) -> str:
     source = inspect.getsource(function)
     return dedent("\n".join(source.splitlines()[1:]))
@@ -847,3 +854,54 @@ def test_annotated_metadata() -> None:
     assert len(ass.unanalyzed_type.args) == 2
     _, ann_arg = ass.unanalyzed_type.args
     assert isinstance(ann_arg, mypy.types.RawExpressionType) and ann_arg.literal_value is None
+
+
+def test_dataclass_transform_frozen() -> None:
+    def test() -> None:
+        import typing
+
+        @typing.dataclass_transform(
+            eq_default=False, order_default=False, kw_only_default=False, field_specifiers=()
+        )
+        class _StructMeta(type):
+            def __new__(
+                cls,
+                name: str,
+                bases: tuple[type, ...],
+                namespace: dict[str, object],
+                *,
+                kw_only: bool = False,
+            ) -> "_StructMeta":
+                raise NotImplementedError
+
+        class StructBase(metaclass=_StructMeta):
+            pass
+
+        class Struct(StructBase):
+            field: int
+
+        class FrozenStruct(StructBase, frozen=True):
+            field: int
+
+        class UnfrozenStruct(StructBase, frozen=False):
+            field: int
+
+        f1 = Struct(1)
+        f2 = FrozenStruct(1)
+        f3 = UnfrozenStruct(1)
+        f1.field = 1
+        f2.field = 2
+        f3.field = 3
+
+    result = mypy_parse_and_type_check(test)
+    assert strip_error_prefixes(result) == [
+        'error: Property "field" defined in "FrozenStruct" is read-only  [misc]',
+    ]
+    tree = result.graph[TEST_MODULE].tree
+    assert isinstance(tree, mypy.nodes.MypyFile)
+    struct_cls_def = get_class_by_name(tree, "Struct")
+    assert struct_cls_def.info.metadata["dataclass"]["frozen"] is False
+    frozen_struct_cls_def = get_class_by_name(tree, "FrozenStruct")
+    assert frozen_struct_cls_def.info.metadata["dataclass"]["frozen"] is True
+    unfrozen_struct_cls_def = get_class_by_name(tree, "UnfrozenStruct")
+    assert unfrozen_struct_cls_def.info.metadata["dataclass"]["frozen"] is False

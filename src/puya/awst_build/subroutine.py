@@ -47,8 +47,7 @@ from puya.awst.nodes import (
     VarExpression,
     WhileLoop,
 )
-from puya.awst.wtypes import WType
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStateDeclType, AppStorageDeclaration
@@ -146,7 +145,7 @@ class FunctionASTConverter(
             func_loc,
         )
         # convert the return type
-        self._return_type = self.context.type_to_wtype(
+        self._return_type = self.context.type_to_pytype(
             type_info.ret_type, source_location=func_loc
         )
         # check & convert the arguments
@@ -168,19 +167,20 @@ class FunctionASTConverter(
                 func_loc,
             )
         # TODO: this should be more than just type?
-        self._symtable = dict[str, WType]()
+        self._symtable = dict[str, pytypes.PyType]()
         args = list[SubroutineArgument]()
         for arg, arg_type in zip(mypy_args, mypy_arg_types, strict=True):
+            arg_loc = self._location(arg)
             if arg.kind.is_star():
-                raise CodeError("variadic functions are not supported", self._location(arg))
+                raise CodeError("variadic functions are not supported", arg_loc)
             if arg.initializer is not None:
                 self._error(
                     "default function argument values are not supported yet", arg.initializer
                 )
-            wtype = self.context.type_to_wtype(arg_type, source_location=arg)
+            pytyp = self.context.type_to_pytype(arg_type, source_location=arg_loc)
             arg_name = arg.variable.name
-            args.append(SubroutineArgument(self._location(arg), arg_name, wtype))
-            self._symtable[arg_name] = wtype
+            args.append(SubroutineArgument(arg_loc, arg_name, pytyp.wtype))
+            self._symtable[arg_name] = pytyp
         # translate body
         translated_body = self.visit_block(func_def.body)
         # build result
@@ -191,7 +191,7 @@ class FunctionASTConverter(
                 name=func_def.name,
                 source_location=source_location,
                 args=args,
-                return_type=self._return_type,
+                return_type=self._return_type.wtype,
                 body=translated_body,
                 docstring=func_def.docstring,
             )
@@ -202,7 +202,7 @@ class FunctionASTConverter(
                 name=func_def.name,
                 source_location=source_location,
                 args=args,
-                return_type=self._return_type,
+                return_type=self._return_type.wtype,
                 body=translated_body,
                 docstring=func_def.docstring,
                 abimethod_config=self.contract_method_info.arc4_method_config,
@@ -344,6 +344,7 @@ class FunctionASTConverter(
             if is_self_member(lvalue):
                 return self._handle_proxy_assignment(lvalue, rvalue, stmt_loc)
         elif len(stmt.lvalues) > 1:
+            # TODO: PyType from rvalue, since it's guaranteed to be EB
             rvalue = temporary_assignment_if_required(rvalue)
 
         return [
@@ -559,14 +560,15 @@ class FunctionASTConverter(
         loc = self._location(stmt)
         return_expr = stmt.expr
         if return_expr is None:
-            if self._return_type != wtypes.void_wtype:
+            if self._return_type is pytypes.NoneType:
                 self._error(
                     "function is typed as returning a value, so a value must be returned", loc
                 )
             return ReturnStatement(source_location=loc, value=None)
 
         returning = require_expression_builder(return_expr.accept(self)).rvalue()
-        if returning.wtype != self._return_type:
+        # TODO: compare pytypes instead
+        if returning.wtype != self._return_type.wtype:
             self._error(
                 f"invalid return type of {returning.wtype}, expected {self._return_type}", loc
             )
@@ -574,6 +576,7 @@ class FunctionASTConverter(
 
     def visit_match_stmt(self, stmt: mypy.nodes.MatchStmt) -> Switch | None:
         loc = self._location(stmt)
+        # TODO: PyType from EB
         subject = require_expression_builder(
             temporary_assignment_if_required(stmt.subject.accept(self))
         ).rvalue()
@@ -684,17 +687,19 @@ class FunctionASTConverter(
                 if typ.has_base(constants.CLS_ARC4_CLIENT):  # provides type info only
                     return ARC4ClientClassExpressionBuilder(self.context, expr_loc, typ.defn.info)
                 if typ.has_base(constants.STRUCT_BASE) or typ.has_base(constants.CLS_ARC4_STRUCT):
-                    try:
-                        wtype = self.context.type_map[fullname]
-                    except KeyError:
-                        raise CodeError(
-                            f"Unknown struct subclass {fullname}",
-                            expr_loc,
-                        ) from None
+                    pytyp = pytypes.lookup(fullname)
+                    if pytyp is None:
+                        raise CodeError(f"Unknown struct subclass {fullname}", expr_loc)
+                    # TODO: use PyType directly
+                    wtype = pytyp.wtype
                     if isinstance(wtype, wtypes.WStructType):
                         return StructSubclassExpressionBuilder(wtype, expr_loc)
-                    else:
+                    elif isinstance(wtype, wtypes.ARC4Struct):
                         return ARC4StructClassExpressionBuilder(wtype, expr_loc)
+                    else:
+                        raise InternalError(
+                            f"Unhandled struct sub-type: {type(wtype).__name__}", expr_loc
+                        )
             case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True) as self_var):
                 if self.contract_method_info is None:
                     raise InternalError(
@@ -776,7 +781,10 @@ class FunctionASTConverter(
                     key=var_name,
                     default=lambda _: self.context.mypy_expr_node_type(name_expr),
                 )
-                var_expr = VarExpression(name=var_name, wtype=local_type, source_location=expr_loc)
+                # TODO: map via PyType instead
+                var_expr = VarExpression(
+                    name=var_name, wtype=local_type.wtype, source_location=expr_loc
+                )
                 return var_expression(var_expr)
         scope = {
             mypy.nodes.LDEF: "local",
@@ -980,6 +988,7 @@ class FunctionASTConverter(
         # mypy combines ast.BoolOp and ast.BinOp, but they're kinda different...
         if node.op in ("and", "or"):
             bool_op = BinaryBooleanOperator(node.op)
+            # TODO use PyType
             result_mypy_type = self.context.get_mypy_expr_type(node)
             bool_expr = self._visit_bool_op_expr(
                 bool_op, result_mypy_type, lhs=lhs, rhs=rhs, location=node_loc
@@ -1038,15 +1047,17 @@ class FunctionASTConverter(
                     " which isn't supported unless evaluating a boolean condition",
                     location,
                 )
-            target_wtype = wtypes.bool_wtype
+            target_pytyp = pytypes.BoolType
             lhs_expr = bool_eval(lhs, location).rvalue()
             rhs_expr = bool_eval(rhs, location).rvalue()
         else:
-            target_wtype = self.context.type_to_wtype(result_mypy_type, source_location=location)
+            target_pytyp = self.context.type_to_pytype(result_mypy_type, source_location=location)
+            # TODO: use to PyType instead
+            target_wtype = target_pytyp.wtype
             lhs_expr = expect_operand_wtype(lhs, target_wtype)
             rhs_expr = expect_operand_wtype(rhs, target_wtype)
 
-        if target_wtype == wtypes.bool_wtype:
+        if target_pytyp is pytypes.BoolType:
             return BooleanBinaryOperation(
                 source_location=location, left=lhs_expr, op=op, right=rhs_expr
             )
@@ -1062,7 +1073,7 @@ class FunctionASTConverter(
             condition=condition,
             true_expr=lhs_builder.rvalue(),
             false_expr=rhs_expr,
-            wtype=target_wtype,
+            wtype=target_pytyp.wtype,
         )
 
     def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> ExpressionBuilder | Literal:
@@ -1101,7 +1112,8 @@ class FunctionASTConverter(
         condition = self._eval_condition(expr.cond)
         true_expr = require_expression_builder(expr.if_expr.accept(self)).rvalue()
         false_expr = require_expression_builder(expr.else_expr.accept(self)).rvalue()
-        expr_wtype = self.context.mypy_expr_node_type(expr)
+        # TODO: use PyType, and that type can be used to get result EB
+        expr_wtype = self.context.mypy_expr_node_type(expr).wtype
         if expr_wtype != true_expr.wtype:
             self._error(
                 "Incompatible result type for 'true' expression", true_expr.source_location
@@ -1116,7 +1128,7 @@ class FunctionASTConverter(
             condition=condition,
             true_expr=true_expr,
             false_expr=false_expr,
-            wtype=expr_wtype,
+            wtype=true_expr.wtype,
         )
         return var_expression(cond_expr)
 
@@ -1137,6 +1149,7 @@ class FunctionASTConverter(
         #       compile time, but it would always result in a constant ...
 
         operands = [o.accept(self) for o in expr.operands]
+        # TODO: operands are Literal or EB, so can get PyType
         operands[1:-1] = [temporary_assignment_if_required(operand) for operand in operands[1:-1]]
 
         comparisons = [
@@ -1153,6 +1166,7 @@ class FunctionASTConverter(
                 right=curr,
             )
             prev = curr
+        # TODO: PyType known as bool (at least with our current stubs)
         return var_expression(result)
 
     def _build_compare(
@@ -1203,19 +1217,20 @@ class FunctionASTConverter(
             require_expression_builder(
                 mypy_item.accept(self),
                 msg="Python literals (other than True/False) are not valid as tuple elements",
+                # TODO: grab item types from EB
             ).rvalue()
             for mypy_item in mypy_expr.items
         ]
+        location = self._location(mypy_expr)
         if not items:
-            raise CodeError(
-                "Empty tuples are not supported", self.context.node_location(mypy_expr)
-            )
-        wtype = wtypes.WTuple.from_types(i.wtype for i in items)
+            raise CodeError("Empty tuples are not supported", location)
+        wtype = wtypes.WTuple((i.wtype for i in items), location)
         tuple_expr = TupleExpression(
-            source_location=self._location(mypy_expr),
+            source_location=location,
             wtype=wtype,
             items=items,
         )
+        # TODO: PyType known, tuple. item types above
         return var_expression(tuple_expr)
 
     def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> ExpressionBuilder:
@@ -1231,6 +1246,7 @@ class FunctionASTConverter(
         value = source.build_assignment_source()
         target = self.resolve_lvalue(expr.target)
         result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
+        # TODO: take PyType from source ExpressionBuilder
         return var_expression(result)
 
     def visit_super_expr(self, super_expr: mypy.nodes.SuperExpr) -> ExpressionBuilder:

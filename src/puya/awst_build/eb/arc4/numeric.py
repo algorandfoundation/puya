@@ -102,7 +102,7 @@ class _UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
     ) -> ExpressionBuilder:
         n = get_integer_literal_value(index, "UIntN scale")
         self.check_bitsize(n, location)
-        self.wtype = wtypes.ARC4UIntN.from_scale(n)
+        self.wtype = wtypes.ARC4UIntN(n, location)
         return self
 
     @abc.abstractmethod
@@ -138,13 +138,13 @@ class _UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
             scale_expr, precision_expr = indexes
         except ValueError as ex:
             raise CodeError(f"Expected two type arguments, got {len(indexes)}", location) from ex
-        n = get_integer_literal_value(scale_expr, "UFixedNxM scale")
-        m = get_integer_literal_value(precision_expr, "UFixedNxM precision")
+        bits = get_integer_literal_value(scale_expr, "UFixedNxM scale")
+        precision = get_integer_literal_value(precision_expr, "UFixedNxM precision")
 
-        self.check_bitsize(n, location)
-        if not (1 <= m < 160):
+        self.check_bitsize(bits, location)
+        if not (1 <= precision < 160):
             raise CodeError("UFixedNxM precision must be between 1 and 160.")
-        self.wtype = wtypes.ARC4UFixedNxM.from_scale_and_precision(n=n, m=m)
+        self.wtype = wtypes.ARC4UFixedNxM(bits=bits, precision=precision, source_location=location)
         return self
 
     @abc.abstractmethod

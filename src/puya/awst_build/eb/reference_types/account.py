@@ -112,8 +112,8 @@ class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
                             op_code="asset_holding_get",
                             immediates=["AssetBalance"],
                             stack_args=[self.expr, asset.rvalue()],
-                            wtype=wtypes.WTuple.from_types(
-                                (wtypes.uint64_wtype, wtypes.bool_wtype)
+                            wtype=wtypes.WTuple(
+                                (wtypes.uint64_wtype, wtypes.bool_wtype), location
                             ),
                             source_location=location,
                         ),

@@ -157,13 +157,15 @@ def _best_op_mapping(
     return op_mappings[0]
 
 
-def _return_types_to_wtype(types: Sequence[wtypes.WType]) -> wtypes.WType:
+def _return_types_to_wtype(
+    types: Sequence[wtypes.WType], source_location: SourceLocation
+) -> wtypes.WType:
     if not types:
         return wtypes.void_wtype
     elif len(types) == 1:
         return types[0]
     else:
-        return wtypes.WTuple.from_types(types)
+        return wtypes.WTuple(types, source_location)
 
 
 def _map_call(
@@ -235,7 +237,7 @@ def _map_call(
 
     return IntrinsicCall(
         source_location=node_location,
-        wtype=_return_types_to_wtype(op_mapping.stack_outputs),
+        wtype=_return_types_to_wtype(op_mapping.stack_outputs, node_location),
         op_code=op_mapping.op_code,
         immediates=immediates,
         stack_args=stack_args,

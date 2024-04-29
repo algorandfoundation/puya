@@ -127,8 +127,9 @@ class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
             transaction_types = {a: _get_transaction_type_from_arg(a) for a in args}
             return var_expression(
                 SubmitInnerTransaction(
-                    wtype=wtypes.WTuple.from_types(
-                        wtypes.WInnerTransaction.from_type(transaction_types[a]) for a in args
+                    wtype=wtypes.WTuple(
+                        (wtypes.WInnerTransaction.from_type(transaction_types[a]) for a in args),
+                        location,
                     ),
                     itxns=tuple(
                         expect_operand_wtype(

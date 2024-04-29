@@ -83,7 +83,7 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
         checked_arc4_value = CheckedMaybe(
             expr=TupleExpression(
                 items=(arc4_value, arc4_prefix_is_valid),
-                wtype=wtypes.WTuple.from_types((arc4_value.wtype, wtypes.bool_wtype)),
+                wtype=wtypes.WTuple((arc4_value.wtype, wtypes.bool_wtype), location),
                 source_location=location,
             ),
             comment="ARC4 prefix is valid",
@@ -140,7 +140,7 @@ def native_eb(expr: Expression, location: SourceLocation) -> ExpressionBuilder:
         ARC4Decode(
             source_location=location,
             value=expr,
-            wtype=wtypes.arc4_to_avm_equivalent_wtype(expr.wtype),
+            wtype=wtypes.arc4_to_avm_equivalent_wtype(expr.wtype, location),
         )
     )
 

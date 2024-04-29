@@ -13,7 +13,7 @@ from puya.awst.nodes import (
     ContractMethod,
     ContractReference,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
@@ -459,45 +459,33 @@ def _gather_global_direct_storages(
     for name, sym in class_info.names.items():
         if isinstance(sym.node, mypy.nodes.Var):
             var_loc = context.node_location(sym.node)
-            typ = mypy.types.get_proper_type(sym.type)
-            if typ is None:
+            if sym.type is None:
                 raise InternalError(
                     f"symbol table for class {class_info.fullname}"
                     f" contains Var node entry for {name} without type",
                     var_loc,
                 )
-            match typ:
-                case mypy.types.Instance(
-                    type=mypy.nodes.TypeInfo(
-                        fullname=(
-                            constants.CLS_LOCAL_STATE
-                            | constants.CLS_GLOBAL_STATE
-                            | constants.CLS_BOX_PROXY
-                            | constants.CLS_BOX_REF_PROXY
-                            | constants.CLS_BOX_MAP_PROXY
-                        )
-                    ),
-                ):
-                    pass
-                case _:
-                    storage_wtype = context.type_to_wtype(typ, source_location=var_loc)
-                    if not storage_wtype.lvalue:
-                        context.error(
-                            f"Invalid type for Local storage - must be assignable,"
-                            f" which type {storage_wtype} is not",
-                            var_loc,
-                        )
-                    else:
-                        yield AppStateDeclaration(
-                            member_name=name,
-                            kind=AppStateKind.app_global,
-                            storage_wtype=storage_wtype,
-                            decl_type=AppStateDeclType.global_direct,
-                            source_location=var_loc,
-                            defined_in=cref,
-                            key_override=None,
-                            description=None,
-                        )
+            pytyp = context.type_to_pytype(sym.type, source_location=sym.node)
+            storage_wtype = pytyp.wtype
+            if storage_wtype in (wtypes.box_key, wtypes.state_key):
+                pass  # these are handled on declaration, need to collect constructor arguments too
+            elif not storage_wtype.lvalue:
+                context.error(
+                    f"Invalid type for Local storage - must be assignable,"
+                    f" which type {storage_wtype} is not",
+                    var_loc,
+                )
+            else:
+                yield AppStateDeclaration(
+                    member_name=name,
+                    kind=AppStateKind.app_global,
+                    storage_wtype=storage_wtype,
+                    decl_type=AppStateDeclType.global_direct,
+                    source_location=var_loc,
+                    defined_in=cref,
+                    key_override=None,
+                    description=None,
+                )
 
 
 def _check_class_abstractness(

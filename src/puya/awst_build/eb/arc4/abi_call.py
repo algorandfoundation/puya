@@ -160,8 +160,8 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
         self.result_wtype = result_wtype
         app_itxn_wtype = wtypes.WInnerTransaction.from_type(constants.TransactionType.appl)
         if _is_typed(result_wtype):
-            self.wtype: wtypes.WInnerTransaction | wtypes.WTuple = wtypes.WTuple.from_types(
-                (result_wtype, app_itxn_wtype)
+            self.wtype: wtypes.WInnerTransaction | wtypes.WTuple = wtypes.WTuple(
+                (result_wtype, app_itxn_wtype), source_location
             )
         else:
             self.wtype = app_itxn_wtype

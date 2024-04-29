@@ -29,7 +29,7 @@ class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
     def produces(self) -> wtypes.WType:
         if self._storage is None:
             raise CodeError("A type parameter is required at this location", self.source_location)
-        return wtypes.WArray.from_element_type(self._storage)
+        return wtypes.WArray(self._storage, self.source_location)
 
     def index(
         self, index: ExpressionBuilder | Literal, location: SourceLocation
@@ -65,7 +65,7 @@ class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
             raise CodeError("Empy arrays require a type annotation to be instantiated", location)
         for a in non_literal_args:
             expect_operand_wtype(a, expected_type)
-        array_wtype = wtypes.WArray.from_element_type(expected_type)
+        array_wtype = wtypes.WArray(expected_type, location)
         array_expr = NewArray(
             source_location=location, values=tuple(non_literal_args), wtype=array_wtype
         )
