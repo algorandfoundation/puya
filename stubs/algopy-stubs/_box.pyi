@@ -52,9 +52,9 @@ class Box(Generic[_TContent]):
         Get the length of this Box. Fails if the box does not exist
         """
 
-class BoxBlob:
+class BoxRef:
     """
-    BoxBlob abstracts the reading and writing of boxes containing raw binary data. The size is
+    BoxRef abstracts the reading and writing of boxes containing raw binary data. The size is
     configured manually, and can be set to values larger than what the AVM can handle in a single
     value.
     """

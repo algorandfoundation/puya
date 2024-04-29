@@ -201,8 +201,8 @@ class WBoxMapProxy(WType):
         )
 
 
-box_blob_proxy_wtype: typing.Final = WType(
-    name="box_blob_proxy", stub_name=constants.CLS_BOX_BLOB_PROXY_ALIAS
+box_ref_proxy_type: typing.Final = WType(
+    name="box_ref_proxy", stub_name=constants.CLS_BOX_REF_PROXY_ALIAS
 )
 
 

@@ -88,7 +88,7 @@ def wtype_to_ir_type(
             | wtypes.account_wtype
             | wtypes.string_wtype
             | wtypes.ARC4Type()
-            | wtypes.box_blob_proxy_wtype
+            | wtypes.box_ref_proxy_type
             | wtypes.WBoxProxy()
         ):
             return IRType.bytes
@@ -144,7 +144,7 @@ def wtype_to_avm_type(
             | wtypes.account_wtype
             | wtypes.ARC4Type()
             | wtypes.string_wtype
-            | wtypes.box_blob_proxy_wtype
+            | wtypes.box_ref_proxy_type
             | wtypes.WBoxProxy()
         ):
             return AVMType.bytes

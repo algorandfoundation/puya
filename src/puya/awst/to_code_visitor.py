@@ -56,8 +56,8 @@ class ToCodeVisitor(
         return f"{expr.proxy.accept(self)}.value"
 
     def visit_box_proxy_expression(self, expr: nodes.BoxProxyExpression) -> str:
-        if expr.wtype == wtypes.box_blob_proxy_wtype:
-            return f"BoxBlob({expr.key.accept(self)})"
+        if expr.wtype == wtypes.box_ref_proxy_type:
+            return f"BoxRef({expr.key.accept(self)})"
         return f"Box({expr.key.accept(self)})"
 
     def visit_box_key_expression(self, expr: nodes.BoxKeyExpression) -> str:

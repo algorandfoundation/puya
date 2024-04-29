@@ -66,7 +66,7 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
 from puya.awst_build.eb.box import (
-    BoxBlobProxyExpressionBuilder,
+    BoxRefProxyExpressionBuilder,
     BoxMapProxyExpressionBuilder,
     BoxProxyExpressionBuilder,
 )
@@ -332,7 +332,7 @@ class FunctionASTConverter(
         elif isinstance(
             rvalue,
             BoxProxyExpressionBuilder
-            | BoxBlobProxyExpressionBuilder
+            | BoxRefProxyExpressionBuilder
             | BoxMapProxyExpressionBuilder,
         ):
             return self._handle_box_proxy_assignment(rvalue, stmt.lvalues, stmt_loc)
@@ -351,9 +351,7 @@ class FunctionASTConverter(
     def _handle_box_proxy_assignment(
         self,
         rvalue: (
-            BoxBlobProxyExpressionBuilder
-            | BoxProxyExpressionBuilder
-            | BoxMapProxyExpressionBuilder
+            BoxRefProxyExpressionBuilder | BoxProxyExpressionBuilder | BoxMapProxyExpressionBuilder
         ),
         lvalues: list[mypy.nodes.Expression],
         stmt_loc: SourceLocation,
@@ -389,7 +387,7 @@ class FunctionASTConverter(
         key = rvalue.rvalue()
         match key:
             case BoxProxyExpression(key=BytesConstant() as key_override, wtype=expr_wtype):
-                if expr_wtype is wtypes.box_blob_proxy_wtype:
+                if expr_wtype is wtypes.box_ref_proxy_type:
                     kind = AppStateKind.box_ref
                     decl_type = AppStateDeclType.box_ref
                 elif isinstance(expr_wtype, wtypes.WBoxProxy):

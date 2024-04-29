@@ -1510,7 +1510,7 @@ def _get_state_expression_value_wtype(expr: StateExpression) -> wtypes.WType:
             return content_wtype
         case BoxKeyExpression(proxy=proxy):
             match proxy.wtype:
-                case wtypes.box_blob_proxy_wtype:
+                case wtypes.box_ref_proxy_type:
                     return wtypes.bytes_wtype
                 case wtypes.WBoxProxy(content_wtype=content_wtype):
                     return content_wtype
@@ -1609,14 +1609,12 @@ class BoxProxyField(Expression):
     """
     An expression representing a box proxy class instance stored on a contract field.
 
-    wtype will be WBoxProxy or wtypes.box_blob_proxy_wtype
+    wtype will be WBoxProxy or wtypes.box_ref_proxy_type
     """
 
     field_name: str
     wtype: wtypes.WType = attrs.field(
-        validator=wtype_is_one_of(
-            wtypes.box_blob_proxy_wtype, wtypes.WBoxProxy, wtypes.WBoxMapProxy
-        )
+        validator=wtype_is_one_of(wtypes.box_ref_proxy_type, wtypes.WBoxProxy, wtypes.WBoxMapProxy)
     )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
@@ -1628,14 +1626,12 @@ class BoxProxyExpression(Expression):
     """
     An expression representing the box proxy class 'instance'
 
-    wtype will be WBoxProxy or wtypes.box_blob_proxy_wtype
+    wtype will be WBoxProxy or wtypes.box_ref_proxy_type
     """
 
     key: Expression
     wtype: wtypes.WType = attrs.field(
-        validator=wtype_is_one_of(
-            wtypes.box_blob_proxy_wtype, wtypes.WBoxProxy, wtypes.WBoxMapProxy
-        )
+        validator=wtype_is_one_of(wtypes.box_ref_proxy_type, wtypes.WBoxProxy, wtypes.WBoxMapProxy)
     )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:

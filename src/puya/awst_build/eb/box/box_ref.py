@@ -32,13 +32,13 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 
-class BoxBlobClassExpressionBuilder(TypeClassExpressionBuilder):
+class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
     def produces(self) -> wtypes.WType:
         return self.wtype
 
     def __init__(self, location: SourceLocation) -> None:
         super().__init__(location)
-        self.wtype = wtypes.box_blob_proxy_wtype
+        self.wtype = wtypes.box_ref_proxy_type
 
     def call(
         self,
@@ -57,23 +57,23 @@ class BoxBlobClassExpressionBuilder(TypeClassExpressionBuilder):
         if arg_map:
             raise CodeError("Invalid/unhandled arguments", location)
 
-        return BoxBlobProxyExpressionBuilder(
+        return BoxRefProxyExpressionBuilder(
             expr=BoxProxyExpression(key=key, wtype=self.wtype, source_location=location)
         )
 
 
-class BoxBlobProxyExpressionBuilder(ValueExpressionBuilder):
+class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
     def __init__(self, expr: Expression) -> None:
-        if expr.wtype != wtypes.box_blob_proxy_wtype:
+        if expr.wtype != wtypes.box_ref_proxy_type:
             raise InternalError(
-                "BoxBlobProxyExpressionBuilder can only be created with expressions of "
-                f"wtype {wtypes.box_blob_proxy_wtype}",
+                "BoxRefProxyExpressionBuilder can only be created with expressions of "
+                f"wtype {wtypes.box_ref_proxy_type}",
                 expr.source_location,
             )
         self.wtype = expr.wtype
 
         super().__init__(expr)
-        self.python_name = constants.CLS_BOX_BLOB_PROXY
+        self.python_name = constants.CLS_BOX_REF_PROXY
 
     def _box_key_expr(self, location: SourceLocation) -> BoxKeyExpression:
         return BoxKeyExpression(
@@ -93,9 +93,9 @@ class BoxBlobProxyExpressionBuilder(ValueExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "create":
-                return BoxBlobCreateExpressionBuilder(location, box_proxy=self.expr)
+                return BoxRefCreateExpressionBuilder(location, box_proxy=self.expr)
             case "replace":
-                return BoxBlobIntrinsicMethodExpressionBuilder(
+                return BoxRefIntrinsicMethodExpressionBuilder(
                     location,
                     box_proxy=self.expr,
                     op_code="box_replace",
@@ -104,7 +104,7 @@ class BoxBlobProxyExpressionBuilder(ValueExpressionBuilder):
                     return_wtype=wtypes.void_wtype,
                 )
             case "splice":
-                return BoxBlobIntrinsicMethodExpressionBuilder(
+                return BoxRefIntrinsicMethodExpressionBuilder(
                     location,
                     box_proxy=self.expr,
                     op_code="box_splice",
@@ -113,7 +113,7 @@ class BoxBlobProxyExpressionBuilder(ValueExpressionBuilder):
                     return_wtype=wtypes.void_wtype,
                 )
             case "extract":
-                return BoxBlobIntrinsicMethodExpressionBuilder(
+                return BoxRefIntrinsicMethodExpressionBuilder(
                     location,
                     box_proxy=self.expr,
                     op_code="box_extract",
@@ -122,7 +122,7 @@ class BoxBlobProxyExpressionBuilder(ValueExpressionBuilder):
                     return_wtype=wtypes.bytes_wtype,
                 )
             case "delete":
-                return BoxBlobIntrinsicMethodExpressionBuilder(
+                return BoxRefIntrinsicMethodExpressionBuilder(
                     location,
                     box_proxy=self.expr,
                     op_code="box_del",
@@ -143,7 +143,7 @@ class BoxBlobProxyExpressionBuilder(ValueExpressionBuilder):
                 return super().member_access(name, location)
 
 
-class BoxBlobIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
+class BoxRefIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(
         self,
         location: SourceLocation,
@@ -188,7 +188,7 @@ class BoxBlobIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
         )
 
 
-class BoxBlobCreateExpressionBuilder(IntermediateExpressionBuilder):
+class BoxRefCreateExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(self, location: SourceLocation, *, box_proxy: Expression) -> None:
         super().__init__(location)
         self.box_proxy = box_proxy

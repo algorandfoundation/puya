@@ -18,7 +18,7 @@ from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilde
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.box import (
-    BoxBlobProxyExpressionBuilder,
+    BoxRefProxyExpressionBuilder,
     BoxMapProxyExpressionBuilder,
     BoxProxyExpressionBuilder,
 )
@@ -151,14 +151,14 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
     #                     var_loc,
     #                 ) from None
     #         case mypy.types.Instance(
-    #             type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_BLOB_PROXY),
+    #             type=mypy.nodes.TypeInfo(fullname=constants.CLS_BOX_REF_PROXY),
     #             args=args,
     #         ):
     #             kind = AppStateKind.box_ref
     #             decl_type = AppStateDeclType.box_ref
     #             if args:
     #                 raise CodeError(
-    #                     f"{constants.CLS_BOX_BLOB_PROXY} requires has no type parameters",
+    #                     f"{constants.CLS_BOX_REF_PROXY} requires has no type parameters",
     #                     var_loc,
     #                 )
     #         case _:
@@ -187,10 +187,10 @@ def _builder_for_storage_access(
 ) -> ExpressionBuilder:
     match storage_decl:
         case AppStateDeclaration(decl_type=AppStateDeclType.box_ref):
-            return BoxBlobProxyExpressionBuilder(
+            return BoxRefProxyExpressionBuilder(
                 BoxProxyField(
                     source_location=storage_decl.source_location,
-                    wtype=wtypes.box_blob_proxy_wtype,
+                    wtype=wtypes.box_ref_proxy_type,
                     field_name=storage_decl.member_name,
                 )
             )

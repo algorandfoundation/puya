@@ -473,7 +473,7 @@ def _gather_global_direct_storages(
                             constants.CLS_LOCAL_STATE
                             | constants.CLS_GLOBAL_STATE
                             | constants.CLS_BOX_PROXY
-                            | constants.CLS_BOX_BLOB_PROXY
+                            | constants.CLS_BOX_REF_PROXY
                             | constants.CLS_BOX_MAP_PROXY
                         )
                     ),
