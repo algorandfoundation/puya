@@ -113,12 +113,13 @@ def parse_with_mypy(puya_options: PuyaOptions) -> tuple[CompileContext, ParseRes
     return context, parse_result
 
 
-def get_mypy_options() -> mypy.options.Options:
+def get_mypy_options(*, use_custom_type_shed: bool = True) -> mypy.options.Options:
     mypy_opts = mypy.options.Options()
 
-    # improve mypy parsing performance by using a cut-down typeshed
-    mypy_opts.custom_typeshed_dir = str(TYPESHED_PATH)
-    mypy_opts.abs_custom_typeshed_dir = str(TYPESHED_PATH.resolve())
+    if use_custom_type_shed:
+        # improve mypy parsing performance by using a cut-down typeshed
+        mypy_opts.custom_typeshed_dir = str(TYPESHED_PATH)
+        mypy_opts.abs_custom_typeshed_dir = str(TYPESHED_PATH.resolve())
 
     # set python_executable so third-party packages can be found
     mypy_opts.python_executable = _get_python_executable()
