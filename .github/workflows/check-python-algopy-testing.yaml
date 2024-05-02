@@ -1,0 +1,69 @@
+name: Check Python Code (algopy_testing)
+
+on:
+  workflow_call:
+  pull_request:
+
+jobs:
+  check-python:
+    runs-on: "ubuntu-latest"
+    defaults:
+      run:
+        working-directory: algopy_testing
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install hatch
+        run: pipx install hatch
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Check pre-commits
+        run: hatch run pre_commits
+
+      - name: Check wheels can be built
+        run: hatch build
+
+  tests:
+    defaults:
+      run:
+        working-directory: algopy_testing
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with cicd
+
+      - name: Start LocalNet
+        run: poetry run algokit localnet start
+
+      - name: pytest + coverage
+        shell: bash
+        env:
+          COVERAGE_CORE: sysmon
+        run: |
+          set -o pipefail
+          poetry run pytest --junitxml=pytest-junit.xml --cov | tee pytest-coverage.txt
+
+      - name: pytest coverage comment
+        continue-on-error: true # forks fail to add a comment, so continue any way
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest-junit.xml
