@@ -8,10 +8,6 @@ from algokit_utils import (
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.indexer import IndexerClient
 
-from tests.utils import prioritize_local_algopy_over_stubs
-
-prioritize_local_algopy_over_stubs()
-
 
 @pytest.fixture(scope="session")
 def algod_client() -> AlgodClient:
