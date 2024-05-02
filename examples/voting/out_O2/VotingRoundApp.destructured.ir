@@ -1,0 +1,462 @@
+contract examples.voting.voting.VotingRoundApp:
+    program approval:
+        subroutine examples.voting.voting.VotingRoundApp.approval_program() -> bool:
+            block@0: // L49
+                let app_id%0#0: uint64 = (txn ApplicationID)
+                goto app_id%0#0 ? block@2 : block@1
+            block@1: // on_create_L50
+                examples.voting.voting.VotingRoundApp.__init__()
+                goto block@2
+            block@2: // entrypoint_L50
+                let tmp%0#0: bytes = (txna ApplicationArgs 0)
+                switch tmp%0#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@3, method "bootstrap(pay)void" => block@4, method "close()void" => block@5, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@6, method "vote(pay,byte[],uint8[])void" => block@7, * => fail // reject transaction}
+            block@3: // create_route_L58
+                let tmp%1#0: uint64 = (txn OnCompletion)
+                let tmp%2#0: bool = (! tmp%1#0)
+                (assert tmp%2#0) // OnCompletion is NoOp
+                let tmp%3#0: bool = (txn ApplicationID)
+                let tmp%4#0: bool = (! tmp%3#0)
+                (assert tmp%4#0) // is creating
+                let tmp%5#0: bytes = (txna ApplicationArgs 1)
+                let tmp%6#0: bytes = ((extract 2 0) tmp%5#0)
+                let tmp%7#0: bytes = (txna ApplicationArgs 2)
+                let tmp%8#0: bytes = ((extract 2 0) tmp%7#0)
+                let tmp%9#0: bytes = (txna ApplicationArgs 3)
+                let tmp%10#0: bytes = ((extract 2 0) tmp%9#0)
+                let tmp%11#0: bytes = (txna ApplicationArgs 4)
+                let tmp%12#0: uint64 = (btoi tmp%11#0)
+                let tmp%13#0: bytes = (txna ApplicationArgs 5)
+                let tmp%14#0: uint64 = (btoi tmp%13#0)
+                let tmp%15#0: bytes = (txna ApplicationArgs 6)
+                let tmp%16#0: bytes = (txna ApplicationArgs 7)
+                let tmp%17#0: uint64 = (btoi tmp%16#0)
+                let tmp%18#0: bytes = (txna ApplicationArgs 8)
+                let tmp%19#0: bytes = ((extract 2 0) tmp%18#0)
+                examples.voting.voting.VotingRoundApp.create(tmp%6#0, tmp%8#0, tmp%10#0, tmp%12#0, tmp%14#0, tmp%15#0, tmp%17#0, tmp%19#0)
+                return 1u
+            block@4: // bootstrap_route_L82
+                let tmp%20#0: uint64 = (txn OnCompletion)
+                let tmp%21#0: bool = (! tmp%20#0)
+                (assert tmp%21#0) // OnCompletion is NoOp
+                let tmp%22#0: bool = (txn ApplicationID)
+                (assert tmp%22#0) // is not creating
+                let tmp%23#0: uint64 = (txn GroupIndex)
+                let awst_tmp%0#0: uint64 = (- tmp%23#0 1u)
+                let tmp%24#0: uint64 = ((gtxns TypeEnum) awst_tmp%0#0)
+                let tmp%25#0: bool = (== tmp%24#0 pay)
+                (assert tmp%25#0) // transaction type is pay
+                examples.voting.voting.VotingRoundApp.bootstrap(awst_tmp%0#0)
+                return 1u
+            block@5: // close_route_L110
+                let tmp%26#0: uint64 = (txn OnCompletion)
+                let tmp%27#0: bool = (! tmp%26#0)
+                (assert tmp%27#0) // OnCompletion is NoOp
+                let tmp%28#0: bool = (txn ApplicationID)
+                (assert tmp%28#0) // is not creating
+                examples.voting.voting.VotingRoundApp.close()
+                return 1u
+            block@6: // get_preconditions_route_L160
+                let tmp%29#0: uint64 = (txn OnCompletion)
+                let tmp%30#0: bool = (! tmp%29#0)
+                (assert tmp%30#0) // OnCompletion is NoOp
+                let tmp%31#0: bool = (txn ApplicationID)
+                (assert tmp%31#0) // is not creating
+                let tmp%32#0: bytes = (txna ApplicationArgs 1)
+                let tmp%33#0: bytes = ((extract 2 0) tmp%32#0)
+                let tmp%34#0: bytes = examples.voting.voting.VotingRoundApp.get_preconditions(tmp%33#0)
+                let tmp%35#0: bytes = (concat 0x151f7c75 tmp%34#0)
+                (log tmp%35#0)
+                return 1u
+            block@7: // vote_route_L169
+                let tmp%36#0: uint64 = (txn OnCompletion)
+                let tmp%37#0: bool = (! tmp%36#0)
+                (assert tmp%37#0) // OnCompletion is NoOp
+                let tmp%38#0: bool = (txn ApplicationID)
+                (assert tmp%38#0) // is not creating
+                let tmp%39#0: uint64 = (txn GroupIndex)
+                let awst_tmp%1#0: uint64 = (- tmp%39#0 1u)
+                let tmp%40#0: uint64 = ((gtxns TypeEnum) awst_tmp%1#0)
+                let tmp%41#0: bool = (== tmp%40#0 pay)
+                (assert tmp%41#0) // transaction type is pay
+                let tmp%42#0: bytes = (txna ApplicationArgs 1)
+                let tmp%43#0: bytes = ((extract 2 0) tmp%42#0)
+                let tmp%44#0: bytes = (txna ApplicationArgs 2)
+                examples.voting.voting.VotingRoundApp.vote(awst_tmp%1#0, tmp%43#0, tmp%44#0)
+                return 1u
+        
+        subroutine examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot_public_key: bytes, metadata_ipfs_cid: bytes, start_time: uint64, end_time: uint64, option_counts: bytes, quorum: uint64, nft_image_url: bytes) -> void:
+            block@0: // L58
+                let tmp%0#0: bool = (< start_time#0 end_time#0)
+                (assert tmp%0#0) // End time should be after start time
+                let tmp%1#0: uint64 = (global LatestTimestamp)
+                let tmp%2#0: bool = (>= end_time#0 tmp%1#0)
+                (assert tmp%2#0) // End time should be in the future
+                (app_global_put "vote_id" vote_id#0)
+                (app_global_put "snapshot_public_key" snapshot_public_key#0)
+                (app_global_put "metadata_ipfs_cid" metadata_ipfs_cid#0)
+                (app_global_put "start_time" start_time#0)
+                (app_global_put "end_time" end_time#0)
+                (app_global_put "quorum" quorum#0)
+                (app_global_put "nft_image_url" nft_image_url#0)
+                let store_option_counts%0#0: bytes = examples.voting.voting.VotingRoundApp.store_option_counts(option_counts#0)
+                return 
+        
+        subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> bytes:
+            block@0: // L217
+                let tmp%0#0: uint64 = (extract_uint16 option_counts#0 0u)
+                (assert tmp%0#0) // option_counts should be non-empty
+                let tmp%2#0: bool = (<= tmp%0#0 112u)
+                (assert tmp%2#0) // Can't have more than 112 questions
+                let total_options#0: uint64 = 0u
+                let array_value%0#0: bytes = ((extract 2 0) option_counts#0)
+                let item_index_internal%0#0: uint64 = 0u
+                goto block@1
+            block@1: // for_header_L223
+                let continue_looping%0#0: bool = (< item_index_internal%0#0 tmp%0#0)
+                goto continue_looping%0#0 ? block@2 : block@4
+            block@2: // for_body_L223
+                let item#0: bytes = (extract3 array_value%0#0 item_index_internal%0#0 1u)
+                let tmp%3#0: uint64 = (btoi item#0)
+                let total_options#0: uint64 = (+ total_options#0 tmp%3#0)
+                let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
+                goto block@1
+            block@4: // after_for_L223
+                let tmp%4#0: bool = (<= total_options#0 128u)
+                (assert tmp%4#0) // Can't have more than 128 vote options
+                (app_global_put "option_counts" option_counts#0)
+                (app_global_put "total_options" total_options#0)
+                return option_counts#0
+        
+        subroutine examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uint64) -> void:
+            block@0: // L82
+                let (is_bootstrapped_value%0#0: bool, is_bootstrapped_exists%0#0: bool) = (app_global_get_ex 0u "is_bootstrapped")
+                (assert is_bootstrapped_exists%0#0) // check is_bootstrapped exists
+                let tmp%0#0: bool = (! is_bootstrapped_value%0#0)
+                (assert tmp%0#0) // Must not be already bootstrapped
+                (app_global_put "is_bootstrapped" 1u)
+                let tmp%1#0: bytes = ((gtxns Receiver) fund_min_bal_req#0)
+                let tmp%2#0: bytes = (global CurrentApplicationAddress)
+                let tmp%3#0: bool = (== tmp%1#0 tmp%2#0)
+                (assert tmp%3#0) // Payment must be to app address
+                let (total_options_value%0#0: uint64, total_options_exists%0#0: bool) = (app_global_get_ex 0u "total_options")
+                (assert total_options_exists%0#0) // check total_options exists
+                let tally_box_size#0: uint64 = (* total_options_value%0#0 8u)
+                let tmp%4#0: uint64 = (* tally_box_size#0 400u)
+                let min_balance_req#0: uint64 = (+ 203900u tmp%4#0)
+                let tmp%5#0: bytes = (itob min_balance_req#0)
+                (log tmp%5#0)
+                let tmp%6#0: uint64 = ((gtxns Amount) fund_min_bal_req#0)
+                let tmp%7#0: bool = (== tmp%6#0 min_balance_req#0)
+                (assert tmp%7#0) // Payment must be for the exact min balance requirement
+                let tmp%8#0: bool = (box_create "V" tally_box_size#0)
+                (assert tmp%8#0)
+                return 
+        
+        subroutine examples.voting.voting.VotingRoundApp.close() -> void:
+            block@0: // L110
+                algopy.ensure_budget(20000u, 0u)
+                let (close_time_exists%0#0: uint64, close_time_exists%1#0: bool) = (app_global_get_ex 0u "close_time")
+                let tmp%0#0: bool = (! close_time_exists%1#0)
+                (assert tmp%0#0) // Already closed
+                let new_state_value%0#0: uint64 = (global LatestTimestamp)
+                (app_global_put "close_time" new_state_value%0#0)
+                let (vote_id_value%0#0: bytes, vote_id_exists%0#0: bool) = (app_global_get_ex 0u "vote_id")
+                (assert vote_id_exists%0#0) // check vote_id exists
+                let tmp%1#0: bytes = (concat "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID " vote_id_value%0#0)
+                let tmp%2#0: bytes = (concat tmp%1#0 ".\",\"properties\":{\"metadata\":\"ipfs://")
+                let (metadata_ipfs_cid_value%0#0: bytes, metadata_ipfs_cid_exists%0#0: bool) = (app_global_get_ex 0u "metadata_ipfs_cid")
+                (assert metadata_ipfs_cid_exists%0#0) // check metadata_ipfs_cid exists
+                let tmp%3#0: bytes = (concat tmp%2#0 metadata_ipfs_cid_value%0#0)
+                let tmp%4#0: bytes = (concat tmp%3#0 "\",\"id\":\"")
+                let (vote_id_value%1#0: bytes, vote_id_exists%1#0: bool) = (app_global_get_ex 0u "vote_id")
+                (assert vote_id_exists%1#0) // check vote_id exists
+                let tmp%5#0: bytes = (concat tmp%4#0 vote_id_value%1#0)
+                let tmp%6#0: bytes = (concat tmp%5#0 "\",\"quorum\":")
+                let (quorum_value%0#0: uint64, quorum_exists%0#0: bool) = (app_global_get_ex 0u "quorum")
+                (assert quorum_exists%0#0) // check quorum exists
+                let tmp%7#0: bytes = examples.voting.voting.itoa(quorum_value%0#0)
+                let tmp%8#0: bytes = (concat tmp%6#0 tmp%7#0)
+                let tmp%9#0: bytes = (concat tmp%8#0 ",\"voterCount\":")
+                let (voter_count_value%0#0: uint64, voter_count_exists%0#0: bool) = (app_global_get_ex 0u "voter_count")
+                (assert voter_count_exists%0#0) // check voter_count exists
+                let tmp%10#0: bytes = examples.voting.voting.itoa(voter_count_value%0#0)
+                let tmp%11#0: bytes = (concat tmp%9#0 tmp%10#0)
+                let note#0: bytes = (concat tmp%11#0 ",\"tallies\":[")
+                let current_index#0: uint64 = 0u
+                let (option_counts_value%0#0: bytes, option_counts_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
+                (assert option_counts_exists%0#0) // check option_counts exists
+                let array_length%0#0: uint64 = (extract_uint16 option_counts_value%0#0 0u)
+                let array_value%0#0: bytes = ((extract 2 0) option_counts_value%0#0)
+                let item_index_internal%0#0: uint64 = 0u
+                let question_index#0: uint64 = item_index_internal%0#0
+                goto block@1
+            block@1: // for_header_L132
+                let continue_looping%0#0: bool = (< question_index#0 array_length%0#0)
+                goto continue_looping%0#0 ? block@2 : block@15
+            block@2: // for_body_L132
+                let question_options#0: bytes = (extract3 array_value%0#0 question_index#0 1u)
+                let note#18: bytes = note#0
+                goto question_index#0 ? block@3 : block@4
+            block@3: // if_body_L133
+                let note#0: bytes = (concat note#0 ",")
+                let note#18: bytes = note#0
+                goto block@4
+            block@4: // after_if_else_L133
+                let note#0: bytes = note#18
+                let tmp%13#0: bool = (b> question_options#0 0x00)
+                let current_index#16: uint64 = current_index#0
+                let note#18: bytes = note#0
+                goto tmp%13#0 ? block@5 : block@13
+            block@5: // if_body_L135
+                let note#0: bytes = (concat note#0 "[")
+                let tmp%14#0: uint64 = (btoi question_options#0)
+                let range_item%0#0: uint64 = 0u
+                let option_index#0: uint64 = range_item%0#0
+                goto block@6
+            block@6: // for_header_L137
+                let continue_looping%1#0: bool = (< option_index#0 tmp%14#0)
+                goto continue_looping%1#0 ? block@7 : block@12
+            block@7: // for_body_L137
+                let note#18: bytes = note#0
+                goto option_index#0 ? block@8 : block@9
+            block@8: // if_body_L138
+                let note#0: bytes = (concat note#0 ",")
+                let note#18: bytes = note#0
+                goto block@9
+            block@9: // after_if_else_L138
+                let note#0: bytes = note#18
+                let votes_for_option#0: uint64 = examples.voting.voting.VotingRoundApp.get_vote_from_box(current_index#0)
+                let tmp%16#0: bytes = examples.voting.voting.itoa(votes_for_option#0)
+                let note#0: bytes = (concat note#0 tmp%16#0)
+                let current_index#0: uint64 = (+ current_index#0 1u)
+                let range_item%0#0: uint64 = (+ option_index#0 1u)
+                let option_index#0: uint64 = range_item%0#0
+                goto block@6
+            block@12: // after_for_L137
+                let note#0: bytes = (concat note#0 "]")
+                let current_index#16: uint64 = current_index#0
+                let note#18: bytes = note#0
+                goto block@13
+            block@13: // after_if_else_L135
+                let current_index#0: uint64 = current_index#16
+                let note#0: bytes = note#18
+                let item_index_internal%0#0: uint64 = (+ question_index#0 1u)
+                let question_index#0: uint64 = item_index_internal%0#0
+                goto block@1
+            block@15: // after_for_L132
+                let note#0: bytes = (concat note#0 "]}}")
+                itxn_begin
+                let inner_txn_params%0%%param_Fee_idx_0#0: uint64 = (global MinTxnFee)
+                let (vote_id_value%2#0: bytes, vote_id_exists%2#0: bool) = (app_global_get_ex 0u "vote_id")
+                (assert vote_id_exists%2#0) // check vote_id exists
+                let inner_txn_params%0%%param_ConfigAssetName_idx_0#0: bytes = (concat "[VOTE RESULT] " vote_id_value%2#0)
+                let (nft_image_url_value%0#0: bytes, nft_image_url_exists%0#0: bool) = (app_global_get_ex 0u "nft_image_url")
+                (assert nft_image_url_exists%0#0) // check nft_image_url exists
+                ((itxn_field Note) note#0)
+                ((itxn_field ConfigAssetURL) nft_image_url_value%0#0)
+                ((itxn_field ConfigAssetUnitName) "VOTERSLT")
+                ((itxn_field ConfigAssetName) inner_txn_params%0%%param_ConfigAssetName_idx_0#0)
+                ((itxn_field ConfigAssetDefaultFrozen) 0u)
+                ((itxn_field ConfigAssetDecimals) 0u)
+                ((itxn_field ConfigAssetTotal) 1u)
+                ((itxn_field TypeEnum) acfg)
+                ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
+                itxn_submit
+                let new_state_value%1#0: uint64 = (itxn CreatedAssetID)
+                (app_global_put "nft_asset_id" new_state_value%1#0)
+                return 
+        
+        subroutine algopy.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+            block@0: // L11
+                let required_budget_with_buffer#0: uint64 = (+ required_budget#0 10u)
+                goto block@1
+            block@1: // while_top_L19
+                let tmp%0#0: uint64 = (global OpcodeBudget)
+                let tmp%1#0: bool = (> required_budget_with_buffer#0 tmp%0#0)
+                goto tmp%1#0 ? block@2 : block@7
+            block@2: // while_body_L19
+                itxn_begin
+                ((itxn_field TypeEnum) appl)
+                ((itxn_field OnCompletion) DeleteApplication)
+                ((itxn_field ApprovalProgram) 0x068101)
+                ((itxn_field ClearStateProgram) 0x068101)
+                goto_nth [block@3, block@4][fee_source#0] else goto block@6
+            block@3: // switch_case_0_L27
+                ((itxn_field Fee) 0u)
+                goto block@6
+            block@4: // switch_case_1_L29
+                let tmp%2#0: uint64 = (global MinTxnFee)
+                ((itxn_field Fee) tmp%2#0)
+                goto block@6
+            block@6: // switch_case_next_L25
+                itxn_submit
+                goto block@1
+            block@7: // after_while_L19
+                return 
+        
+        subroutine examples.voting.voting.itoa(i: uint64) -> bytes:
+            block@0: // L249
+                let tmp%0#0: bool = (< i#0 10u)
+                goto tmp%0#0 ? block@1 : block@2
+            block@1: // if_body_L253
+                let index_plus_1%0#0: uint64 = (+ i#0 1u)
+                let tmp%1#0: bytes = (substring3 "0123456789" i#0 index_plus_1%0#0)
+                return tmp%1#0
+            block@2: // after_if_else_L253
+                let tmp%2#0: uint64 = (/ i#0 10u)
+                let tmp%3#0: bytes = examples.voting.voting.itoa(tmp%2#0)
+                let tmp%4#0: uint64 = (% i#0 10u)
+                let index_plus_1%1#0: uint64 = (+ tmp%4#0 1u)
+                let tmp%5#0: bytes = (substring3 "0123456789" tmp%4#0 index_plus_1%1#0)
+                let tmp%6#0: bytes = (concat tmp%3#0 tmp%5#0)
+                return tmp%6#0
+        
+        subroutine examples.voting.voting.VotingRoundApp.get_vote_from_box(index: uint64) -> uint64:
+            block@0: // L239
+                let tmp%0#0: bytes = (box_extract "V" index#0 8u)
+                let tmp%1#0: uint64 = (btoi tmp%0#0)
+                return tmp%1#0
+        
+        subroutine examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> bytes:
+            block@0: // L160
+                let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
+                let val_as_bytes%0#0: bytes = (itob tmp%0#0)
+                let tmp%1#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
+                let val_as_bytes%1#0: bytes = (itob tmp%1#0)
+                let tmp%2#0: bool = examples.voting.voting.VotingRoundApp.already_voted()
+                let val_as_bytes%2#0: bytes = (itob tmp%2#0)
+                let tmp%3#0: uint64 = (global LatestTimestamp)
+                let val_as_bytes%3#0: bytes = (itob tmp%3#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat val_as_bytes%0#0 val_as_bytes%1#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat encoded_tuple_buffer%0#2 val_as_bytes%2#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat encoded_tuple_buffer%0#2 val_as_bytes%3#0)
+                return encoded_tuple_buffer%0#2
+        
+        subroutine examples.voting.voting.VotingRoundApp.voting_open() -> bool:
+            block@0: // L205
+                let (is_bootstrapped_value%0#0: bool, is_bootstrapped_exists%0#0: bool) = (app_global_get_ex 0u "is_bootstrapped")
+                (assert is_bootstrapped_exists%0#0) // check is_bootstrapped exists
+                goto is_bootstrapped_value%0#0 ? block@1 : block@5
+            block@1: // and_contd_L208
+                let (close_time_exists%0#0: uint64, close_time_exists%1#0: bool) = (app_global_get_ex 0u "close_time")
+                goto close_time_exists%1#0 ? block@5 : block@2
+            block@2: // and_contd_L208
+                let (start_time_value%0#0: uint64, start_time_exists%0#0: bool) = (app_global_get_ex 0u "start_time")
+                (assert start_time_exists%0#0) // check start_time exists
+                let awst_tmp%0#0: uint64 = (global LatestTimestamp)
+                let tmp%0#0: bool = (<= start_time_value%0#0 awst_tmp%0#0)
+                goto tmp%0#0 ? block@3 : block@5
+            block@3: // and_contd_L210
+                let (end_time_value%0#0: uint64, end_time_exists%0#0: bool) = (app_global_get_ex 0u "end_time")
+                (assert end_time_exists%0#0) // check end_time exists
+                let tmp%1#0: bool = (<= awst_tmp%0#0 end_time_value%0#0)
+                goto tmp%1#0 ? block@4 : block@5
+            block@4: // bool_true_L208
+                let and_result%0#0: bool = 1u
+                goto block@6
+            block@5: // bool_false_L208
+                let and_result%0#0: bool = 0u
+                goto block@6
+            block@6: // bool_merge_L208
+                return and_result%0#0
+        
+        subroutine examples.voting.voting.VotingRoundApp.allowed_to_vote(signature: bytes) -> bool:
+            block@0: // L230
+                algopy.ensure_budget(2000u, 0u)
+                let tmp%0#0: bytes = (txn Sender)
+                let (snapshot_public_key_value%0#0: bytes, snapshot_public_key_exists%0#0: bool) = (app_global_get_ex 0u "snapshot_public_key")
+                (assert snapshot_public_key_exists%0#0) // check snapshot_public_key exists
+                let tmp%1#0: bool = (ed25519verify_bare tmp%0#0 signature#0 snapshot_public_key_value%0#0)
+                return tmp%1#0
+        
+        subroutine examples.voting.voting.VotingRoundApp.already_voted() -> bool:
+            block@0: // L213
+                let tmp%0#0: bytes = (txn Sender)
+                let (box_len%0#0: uint64, box_exists%0#0: bool) = (box_len tmp%0#0)
+                return box_exists%0#0
+        
+        subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: bytes) -> void:
+            block@0: // L169
+                algopy.ensure_budget(7700u, 0u)
+                let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
+                (assert tmp%0#0) // Not allowed to vote
+                let tmp%1#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
+                (assert tmp%1#0) // Voting not open
+                let tmp%2#0: bool = examples.voting.voting.VotingRoundApp.already_voted()
+                let tmp%3#0: bool = (! tmp%2#0)
+                (assert tmp%3#0) // Already voted
+                let (option_counts_value%0#0: bytes, option_counts_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
+                (assert option_counts_exists%0#0) // check option_counts exists
+                let questions_count#0: uint64 = (extract_uint16 option_counts_value%0#0 0u)
+                let tmp%4#0: uint64 = (extract_uint16 answer_ids#0 0u)
+                let tmp%5#0: bool = (== tmp%4#0 questions_count#0)
+                (assert tmp%5#0) // Number of answers incorrect
+                let tmp%8#0: uint64 = (+ 34u tmp%4#0)
+                let tmp%9#0: uint64 = (* tmp%8#0 400u)
+                let min_bal_req#0: uint64 = (+ 2500u tmp%9#0)
+                let tmp%10#0: bytes = ((gtxns Receiver) fund_min_bal_req#0)
+                let tmp%11#0: bytes = (global CurrentApplicationAddress)
+                let tmp%12#0: bool = (== tmp%10#0 tmp%11#0)
+                (assert tmp%12#0) // Payment must be to app address
+                let tmp%13#0: bytes = (itob min_bal_req#0)
+                (log tmp%13#0)
+                let tmp%14#0: uint64 = ((gtxns Amount) fund_min_bal_req#0)
+                let tmp%15#0: bool = (== tmp%14#0 min_bal_req#0)
+                (assert tmp%15#0) // Payment must be the exact min balance
+                let cumulative_offset#0: uint64 = 0u
+                let range_item%0#0: uint64 = 0u
+                let question_index#0: uint64 = range_item%0#0
+                goto block@1
+            block@1: // for_header_L195
+                let continue_looping%0#0: bool = (< question_index#0 questions_count#0)
+                goto continue_looping%0#0 ? block@2 : block@5
+            block@2: // for_body_L195
+                let index_is_in_bounds%0#0: bool = (< question_index#0 tmp%4#0)
+                (assert index_is_in_bounds%0#0) // Index access is out of bounds
+                let array_data_sans_header%0#0: bytes = ((extract 2 0) answer_ids#0)
+                let tmp%16#0: bytes = (extract3 array_data_sans_header%0#0 question_index#0 1u)
+                let answer_option_index#0: uint64 = (btoi tmp%16#0)
+                let (option_counts_value%1#0: bytes, option_counts_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
+                (assert option_counts_exists%1#0) // check option_counts exists
+                let array_length%1#0: uint64 = (extract_uint16 option_counts_value%1#0 0u)
+                let index_is_in_bounds%1#0: bool = (< question_index#0 array_length%1#0)
+                (assert index_is_in_bounds%1#0) // Index access is out of bounds
+                let array_data_sans_header%1#0: bytes = ((extract 2 0) option_counts_value%1#0)
+                let tmp%17#0: bytes = (extract3 array_data_sans_header%1#0 question_index#0 1u)
+                let options_count#0: uint64 = (btoi tmp%17#0)
+                let tmp%18#0: bool = (< answer_option_index#0 options_count#0)
+                (assert tmp%18#0) // Answer option index invalid
+                let tmp%19#0: uint64 = (+ cumulative_offset#0 answer_option_index#0)
+                examples.voting.voting.VotingRoundApp.increment_vote_in_box(tmp%19#0)
+                let cumulative_offset#0: uint64 = (+ cumulative_offset#0 options_count#0)
+                let tmp%20#0: bytes = (txn Sender)
+                let box_del_res%0#0: bool = (box_del tmp%20#0)
+                (box_put tmp%20#0 answer_ids#0)
+                let (voter_count_value%0#0: uint64, voter_count_exists%0#0: bool) = (app_global_get_ex 0u "voter_count")
+                (assert voter_count_exists%0#0) // check voter_count exists
+                let new_state_value%0#0: uint64 = (+ voter_count_value%0#0 1u)
+                (app_global_put "voter_count" new_state_value%0#0)
+                let range_item%0#0: uint64 = (+ question_index#0 1u)
+                let question_index#0: uint64 = range_item%0#0
+                goto block@1
+            block@5: // after_for_L195
+                return 
+        
+        subroutine examples.voting.voting.VotingRoundApp.increment_vote_in_box(index: uint64) -> void:
+            block@0: // L243
+                let current_vote#0: uint64 = examples.voting.voting.VotingRoundApp.get_vote_from_box(index#0)
+                let tmp%0#0: uint64 = (+ current_vote#0 1u)
+                let tmp%1#0: bytes = (itob tmp%0#0)
+                (box_replace "V" index#0 tmp%1#0)
+                return 
+        
+        subroutine examples.voting.voting.VotingRoundApp.__init__() -> void:
+            block@0: // L50
+                (app_global_put "is_bootstrapped" 0u)
+                (app_global_put "voter_count" 0u)
+                return 
+    
+    program clear-state:
+        subroutine examples.voting.voting.VotingRoundApp.clear_state_program() -> bool:
+            block@0: // L49
+                return 1u

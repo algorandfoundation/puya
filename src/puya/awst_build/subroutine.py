@@ -430,19 +430,22 @@ class FunctionASTConverter(
                 if expr_wtype is wtypes.box_ref_proxy_type:
                     kind = AppStateKind.box_ref
                     decl_type = AppStateDeclType.box_ref
+                    storage_wtype = wtypes.bytes_wtype
                 elif isinstance(expr_wtype, wtypes.WBoxProxy):
                     kind = AppStateKind.box
                     decl_type = AppStateDeclType.box
+                    storage_wtype = expr_wtype.content_wtype
                 elif isinstance(expr_wtype, wtypes.WBoxMapProxy):
                     kind = AppStateKind.box_map
                     decl_type = AppStateDeclType.box_map
+                    storage_wtype = expr_wtype.content_wtype
                 else:
                     raise InternalError("Unexpected")
                 self.context.state_defs[cref][member_name] = AppStorageDeclaration(
                     member_name=member_name,
                     key_override=key_override,
                     source_location=key.source_location,
-                    storage_wtype=key.wtype,
+                    storage_wtype=storage_wtype,
                     description=None,
                     decl_type=decl_type,
                     kind=kind,
