@@ -19,20 +19,17 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.12",
 ]
-# add dependency on stubs when building wheel via hatch_build.py
-[tool.hatch.build.hooks.custom]
 
 [project.urls]
 Documentation = "https://github.com/algorandfoundation/puya/tree/main/algopy_testing#README.md"
 Issues = "https://github.com/algorandfoundation/puya/issues"
 Source = "https://github.com/algorandfoundation/puya/tree/main/algopy_testing"
 
+# adds dependency on stubs when building wheel via hatch_build.py
+[tool.hatch.build.hooks.custom]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/algopy"]
-
-[tool.hatch.metadata]
-allow-direct-references = true
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.12"]
@@ -55,18 +52,25 @@ dependencies = [
     "hypothesis>=6.100.1",
 ]
 
+[tool.hatch.envs.default.env-vars]
+COVERAGE_CORE = "sysmon"
 
 [tool.hatch.envs.default.scripts]
 check_stubs_cov = "python scripts/check_stubs_cov.py"
 refresh_test_artifacts = "python scripts/refresh_test_artifacts.py"
-run_black = "hatch run lint:black ."
-run_ruff = "hatch run lint:ruff check --fix --no-cache"
-run_mypy = "hatch run typing:mypy ."
-pre_commit = ["run_black", "run_ruff", "run_mypy"]
+pre_commit = [
+    "hatch run lint:fix",
+    "hatch run typing:check",
+]
+check = [
+    "hatch run lint:check",
+    "hatch run typing:check",
+]
+
 tests = "pytest"
 
+# isolated environments for dev tooling
 [tool.hatch.envs.lint]
-path = ".venv.lint"
 detached = true
 dependencies = [
     "black",
@@ -74,18 +78,38 @@ dependencies = [
     "ruff-lsp",
 ]
 
+[tool.hatch.envs.lint.scripts]
+check = [
+  "black --check .",
+  "ruff check",
+]
+fix = [
+  "black .",
+  "ruff check --fix",
+]
+
 [tool.hatch.envs.typing]
-path = ".venv.typing"
 skip-install = true
 extra-dependencies = [
     "mypy==1.10",
 ]
 
+[tool.hatch.envs.typing.scripts]
+check = [
+  "mypy .",
+]
+
+# cicd environment
 [tool.hatch.envs.cicd]
 dependencies = [
     "algokit",
 ]
+[tool.hatch.envs.cicd.scripts]
+localnet_start = [
+    "algokit localnet start",
+]
 
+# tool configurations
 [tool.black]
 line-length = 99
 
@@ -157,7 +181,6 @@ unfixable = [
     "F841", # don't delete unused local variables automatically
 ]
 [tool.ruff.lint.per-file-ignores]
-"**/*.pyi" = ["SLOT"]
 "src/**" = [
     "PT", # no pytest rules
 ]
