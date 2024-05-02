@@ -1,45 +1,90 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
 name = "algorand-python-testing"
 version = "0.0.1"
-description = "Algorand Python Testing library"
-authors = ["Algorand Foundation <contact@algorand.foundation>"]
+description = 'Algorand Python testing library'
 readme = "README.md"
+requires-python = ">=3.12"
+license = "AGPL-3.0-or-later"
+authors = [
+  { name = "Algorand Foundation", email = "contact@algorand.foundation" },
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Testing",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.12",
 ]
-packages = [{ include = "algopy", from = "src" }]
+# add dependency on stubs when building wheel via hatch_build.py
+[tool.hatch.build.hooks.custom]
 
-[tool.poetry.dependencies]
-python = "^3.12"
+[project.urls]
+Documentation = "https://github.com/algorandfoundation/puya/tree/main/algopy_testing#README.md"
+Issues = "https://github.com/algorandfoundation/puya/issues"
+Source = "https://github.com/algorandfoundation/puya/tree/main/algopy_testing"
 
-[tool.poetry.group.dev.dependencies]
-puyapy = { path = "..", develop = true }
-algorand-python = { path = "../stubs", develop = true }
-poethepoet = "^0.24.4"
-black = [
-    { extras = [
-        "d",
-    ], version = "^24.4.2", markers = "sys_platform != 'win32'" },
-    { version = "^24.4.2", markers = "sys_platform == 'win32'" },
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/algopy"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.12"]
+
+# default dev environment
+[tool.hatch.envs.default]
+type = "virtual"
+path = ".venv"
+pre-install-commands = [
+    "pip install -e ..", # add puyapy compiler as an editable path
 ]
-mypy = "1.10.0"
-ruff = "^0.4.2"
-ruff-lsp = "*"
+dependencies = [
+    "pytest>=7.4",
+    "pytest-xdist[psutil]>=3.3",
+    "py-algorand-sdk>=2.4.0",
+    "algokit-utils>=2.2.1",
+    "pytest-cov>=4.1.0",
+    "prettytable>=3.9.0",
+    "hatchling", # used for hatch_build.py
+    "hypothesis>=6.100.1",
+]
 
-[tool.poetry.group.testing.dependencies]
-pytest = "^7.4.0"
-pytest-xdist = { extras = ["psutil"], version = "^3.3.1" }
-py-algorand-sdk = "^2.4.0"
-algokit-utils = "^2.2.1"
-pytest-cov = "^4.1.0"
-prettytable = "^3.9.0"
-hypothesis = "^6.100.1"
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.hatch.envs.default.scripts]
+check_stubs_cov = "python scripts/check_stubs_cov.py"
+refresh_test_artifacts = "python scripts/refresh_test_artifacts.py"
+run_black = "hatch run lint:black ."
+run_ruff = "hatch run lint:ruff check --fix --no-cache"
+run_mypy = "hatch run typing:mypy ."
+pre_commit = ["run_black", "run_ruff", "run_mypy"]
+tests = "pytest"
+
+[tool.hatch.envs.lint]
+path = ".venv.lint"
+detached = true
+dependencies = [
+    "black",
+    "ruff==0.4.2",
+    "ruff-lsp",
+]
+
+[tool.hatch.envs.typing]
+path = ".venv.typing"
+skip-install = true
+extra-dependencies = [
+    "mypy==1.10",
+]
+
+[tool.hatch.envs.cicd]
+dependencies = [
+    "algokit",
+]
 
 [tool.black]
 line-length = 99
@@ -136,24 +181,11 @@ strict = true
 untyped_calls_exclude = [
     "algosdk",
 ]
-files = ["src/algopy"]
-exclude = ["dist", "tests"] #   reintroduce.
+files = ["src", "tests"]
+exclude = ["tests/artifacts"]
 
 [[tool.mypy.overrides]]
-module = ["algopy", "algopy.*"]
-disallow_any_unimported = true
-disallow_any_expr = true
-disallow_any_decorated = true
-disallow_any_explicit = true
-
-[[tool.mypy.overrides]]
-module = ["algosdk", "algosdk.*"]
-disallow_untyped_calls = false
-
-[tool.poe.tasks]
-gen_stub_cov = "poetry run python scripts/check_stubs_cov.py"
-gen_test_artifacts = "poetry run python scripts/refresh_test_artifacts.py"
-run_black = "poetry run black ."
-run_ruff = "poetry run ruff check --fix --no-cache"
-run_mypy = "poetry run mypy . --exclude tests/artifacts"
-pre_commit = ["run_black", "run_ruff", "run_mypy"]
+module = [
+  "tests.artifacts.*",
+]
+follow_imports = "skip"
