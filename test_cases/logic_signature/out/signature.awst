@@ -16,10 +16,10 @@ logicsig always_allow
 
 subroutine assert_correct_payment(txn: algopy.gtxn.PaymentTransaction): None
 {
-  assert(reinterpret_cast<algopy.Bytes>(gtxns<Receiver>(txn)) == TemplateVar[algopy.Bytes](TMPL_SELLER) and gtxns<Amount>(txn) == TemplateVar[algopy.UInt64](TMPL_PRICE))
+  assert(gtxns<Receiver>(txn) == TemplateVar[algopy.Account](TMPL_SELLER) and gtxns<Amount>(txn) == TemplateVar[algopy.UInt64](TMPL_PRICE))
 }
 
 subroutine assert_correct_asset(txn: algopy.gtxn.AssetTransferTransaction): None
 {
-  assert(gtxns<AssetAmount>(txn) == 1u and reinterpret_cast<algopy.Bytes>(gtxns<Sender>(txn)) == TemplateVar[algopy.Bytes](TMPL_SELLER) and reinterpret_cast<algopy.UInt64>(gtxns<XferAsset>(txn)) == TemplateVar[algopy.UInt64](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn) == global<ZeroAddress>() and gtxns<RekeyTo>(txn) == global<ZeroAddress>())
+  assert(gtxns<AssetAmount>(txn) == 1u and gtxns<Sender>(txn) == TemplateVar[algopy.Account](TMPL_SELLER) and gtxns<XferAsset>(txn) == TemplateVar[algopy.Asset](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn) == global<ZeroAddress>() and gtxns<RekeyTo>(txn) == global<ZeroAddress>())
 }

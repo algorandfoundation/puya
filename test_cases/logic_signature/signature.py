@@ -1,4 +1,4 @@
-from algopy import Bytes, TemplateVar, UInt64, gtxn, logicsig, subroutine
+from algopy import Account, Asset, TemplateVar, UInt64, gtxn, logicsig, subroutine
 from algopy.op import Global
 
 
@@ -26,7 +26,7 @@ def some_sig() -> bool:
 
 @subroutine
 def assert_correct_payment(txn: gtxn.PaymentTransaction) -> None:
-    assert txn.receiver.bytes == TemplateVar[Bytes]("SELLER") and (
+    assert txn.receiver == TemplateVar[Account]("SELLER") and (
         txn.amount == TemplateVar[UInt64]("PRICE")
     )
 
@@ -35,8 +35,8 @@ def assert_correct_payment(txn: gtxn.PaymentTransaction) -> None:
 def assert_correct_asset(txn: gtxn.AssetTransferTransaction) -> None:
     assert (
         txn.asset_amount == 1
-        and txn.sender.bytes == TemplateVar[Bytes]("SELLER")
-        and txn.xfer_asset.id == TemplateVar[UInt64]("ASSET_ID")
+        and txn.sender == TemplateVar[Account]("SELLER")
+        and txn.xfer_asset == TemplateVar[Asset]("ASSET_ID")
         and txn.asset_close_to == Global.zero_address
         and txn.rekey_to == Global.zero_address
     )
