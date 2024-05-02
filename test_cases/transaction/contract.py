@@ -136,6 +136,6 @@ class TransactionContract(arc4.ARC4Contract):
         txn3: gtxn.Transaction,
     ) -> None:
         for txn in (txn1, txn2, txn3):
-            txn2 = gtxn.Transaction(txn.group_index)
-            assert txn.txn_id == txn2.txn_id
+            txn_from_index = gtxn.Transaction(txn.group_index)
+            assert txn.txn_id == txn_from_index.txn_id
         assert txn1.txn_id == gtxn.Transaction(0).txn_id
