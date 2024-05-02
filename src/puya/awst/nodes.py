@@ -766,6 +766,14 @@ def lvalue_expr_validator(_instance: object, _attribute: object, value: Expressi
         )
 
 
+def scalar_expr_validator(_instance: object, _attribute: object, value: Expression) -> None:
+    if not value.wtype.scalar:
+        raise CodeError(
+            f'expression with type "{value.wtype}" is not a scalar',
+            value.source_location,
+        )
+
+
 @attrs.frozen
 class TupleExpression(Expression):
     items: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
@@ -1637,6 +1645,19 @@ class BoxProxyExpression(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_proxy_expression(self)
+
+
+@attrs.frozen
+class BytesRaw(Expression):
+    """Get the raw bytes of a scalar expression.
+    Will use `itob` in case it's uint64 backed.
+    """
+
+    expr: Expression = attrs.field(validator=scalar_expr_validator)
+    wtype: wtypes.WType = attrs.field(default=wtypes.bytes_wtype, init=False)
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_bytes_raw(self)
 
 
 @attrs.frozen

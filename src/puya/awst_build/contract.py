@@ -13,7 +13,7 @@ from puya.awst.nodes import (
     ContractMethod,
     ContractReference,
 )
-from puya.awst_build import constants, pytypes
+from puya.awst_build import constants
 from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext

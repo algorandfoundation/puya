@@ -26,6 +26,7 @@ class WType:
     stub_name: str
     lvalue: bool = True  # TODO: this is currently just used by void...
     immutable: bool = True
+    scalar: bool = True  # is this a single value on the stack?
     is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
 
     def __str__(self) -> str:
@@ -142,6 +143,7 @@ application_wtype: typing.Final = WType(
 @attrs.frozen(str=False, kw_only=True)
 class WGroupTransaction(WType):
     transaction_type: constants.TransactionType | None
+    scalar: bool = attrs.field(default=False, init=False)
 
     @classmethod
     def from_type(cls, transaction_type: constants.TransactionType | None) -> "WGroupTransaction":
@@ -160,6 +162,7 @@ class WGroupTransaction(WType):
 @attrs.define
 class WInnerTransactionFields(WType):
     transaction_type: constants.TransactionType | None
+    scalar: bool = attrs.field(default=False, init=False)
 
     @classmethod
     def from_type(
@@ -178,6 +181,7 @@ class WInnerTransactionFields(WType):
 @attrs.define
 class WInnerTransaction(WType):
     transaction_type: constants.TransactionType | None
+    scalar: bool = attrs.field(default=False, init=False)
 
     @classmethod
     def from_type(cls, transaction_type: constants.TransactionType | None) -> "WInnerTransaction":
@@ -226,6 +230,7 @@ box_ref_proxy_type: typing.Final = WType(
 @attrs.frozen(str=False, kw_only=True, init=False)
 class WStructType(WType):
     fields: Mapping[str, WType] = attrs.field(converter=immutabledict)
+    scalar: bool = attrs.field(default=False, init=False)
 
     def __init__(
         self,
@@ -257,6 +262,7 @@ class WStructType(WType):
 @attrs.frozen(str=False, kw_only=True, init=False)
 class WArray(WType):
     element_type: WType
+    scalar: bool = attrs.field(default=False, init=False)
 
     def __init__(self, element_type: WType, source_location: SourceLocation | None):
         if element_type == void_wtype:
@@ -274,6 +280,7 @@ class WArray(WType):
 @attrs.frozen(str=False, kw_only=True, init=False)
 class WTuple(WType):
     types: tuple[WType, ...] = attrs.field(validator=[attrs.validators.min_len(1)])
+    scalar: bool = attrs.field(default=False, init=False)
 
     def __init__(self, types: Iterable[WType], source_location: SourceLocation | None):
         types = tuple(types)

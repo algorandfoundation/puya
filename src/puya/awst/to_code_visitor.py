@@ -581,6 +581,9 @@ class ToCodeVisitor(
     def visit_template_var(self, expr: nodes.TemplateVar) -> str:
         return f"TemplateVar[{expr.wtype}]({expr.name})"
 
+    def visit_bytes_raw(self, expr: nodes.BytesRaw) -> str:
+        return f"BytesRaw({expr.expr.accept(self)})"
+
 
 def _indent(lines: t.Iterable[str], indent_size: str = "  ") -> t.Iterator[str]:
     yield from (f"{indent_size}{line}" for line in lines)

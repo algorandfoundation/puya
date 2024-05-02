@@ -8,14 +8,14 @@ from puya.awst.nodes import (
     BoxLength,
     BoxProxyExpression,
     BoxValueExpression,
+    BytesRaw,
     Expression,
     Literal,
-    ReinterpretCast,
     StateExists,
     StateGet,
     StateGetEx,
 )
-from puya.awst_build import constants, intrinsic_factory
+from puya.awst_build import constants
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -110,19 +110,9 @@ def _box_key_expr(
 ) -> BoxKeyExpression:
     if not isinstance(box_map_proxy.wtype, wtypes.WBoxMapProxy):
         raise InternalError(f"box_map_proxy must be wtype of {wtypes.WBoxMapProxy}", location)
-    item_key: Expression = require_expression_builder(key).rvalue()
-
-    if wtypes.is_uint64_on_stack(item_key.wtype):
-        item_key = intrinsic_factory.itob(
-            ReinterpretCast(expr=item_key, wtype=wtypes.uint64_wtype, source_location=location),
-            location,
-        )
-
-    return BoxKeyExpression(
-        proxy=box_map_proxy,
-        item_key=item_key,
-        source_location=location,
-    )
+    key_eb = require_expression_builder(key).rvalue()
+    item_key = BytesRaw(expr=key_eb, source_location=location)
+    return BoxKeyExpression(proxy=box_map_proxy, item_key=item_key, source_location=location)
 
 
 def _box_value_expr(
@@ -130,14 +120,8 @@ def _box_value_expr(
 ) -> BoxValueExpression:
     if not isinstance(box_map_proxy.wtype, wtypes.WBoxMapProxy):
         raise InternalError(f"box_map_proxy must be wtype of {wtypes.WBoxMapProxy}", location)
-    item_key: Expression = require_expression_builder(key).rvalue()
-
-    if wtypes.is_uint64_on_stack(item_key.wtype):
-        item_key = intrinsic_factory.itob(
-            ReinterpretCast(expr=item_key, wtype=wtypes.uint64_wtype, source_location=location),
-            location,
-        )
-
+    key_eb = require_expression_builder(key).rvalue()
+    item_key = BytesRaw(expr=key_eb, source_location=location)
     return BoxValueExpression(
         proxy=box_map_proxy,
         wtype=box_map_proxy.wtype.content_wtype,
