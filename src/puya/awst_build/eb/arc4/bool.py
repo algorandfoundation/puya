@@ -10,7 +10,6 @@ from puya.awst_build.eb.arc4.base import (
     ARC4EncodedExpressionBuilder,
     arc4_bool_bytes,
 )
-from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
@@ -47,7 +46,7 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
                 raise CodeError(
                     f"arc4.Bool expects exactly one parameter of type {wtypes.bool_wtype}"
                 )
-        return var_expression(
+        return ARC4BoolExpressionBuilder(
             ARC4Encode(
                 value=native_bool,
                 source_location=location,

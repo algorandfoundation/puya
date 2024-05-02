@@ -28,9 +28,9 @@ from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import ReferenceValueExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import convert_literal_to_expr, expect_operand_wtype
 from puya.errors import CodeError
 
@@ -89,7 +89,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
                 value = intrinsic_factory.zero_address(location)
-        return var_expression(value)
+        return AccountExpressionBuilder(value)
 
 
 class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
@@ -106,7 +106,7 @@ class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
     ) -> ExpressionBuilder:
         match args:
             case [ExpressionBuilder(value_type=wtypes.asset_wtype) as asset]:
-                return var_expression(
+                return BoolExpressionBuilder(
                     TupleItemExpression(
                         base=IntrinsicCall(
                             op_code="asset_holding_get",
@@ -122,7 +122,7 @@ class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
                     )
                 )
             case [ExpressionBuilder(value_type=wtypes.application_wtype) as app]:
-                return var_expression(
+                return BoolExpressionBuilder(
                     IntrinsicCall(
                         op_code="app_opted_in",
                         stack_args=[self.expr, app.rvalue()],
@@ -169,7 +169,7 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
             rhs=intrinsic_factory.zero_address(location),
         )
 
-        return var_expression(cmp_with_zero_expr)
+        return BoolExpressionBuilder(cmp_with_zero_expr)
 
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
@@ -186,4 +186,4 @@ class AccountExpressionBuilder(ReferenceValueExpressionBuilder):
             operator=EqualityComparison(op.value),
             rhs=other_expr,
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)

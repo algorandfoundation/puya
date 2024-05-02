@@ -85,7 +85,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
                             location,
                         )
 
-                return var_expression(
+                return ARC4TupleExpressionBuilder(
                     ARC4Encode(value=tuple_ex, wtype=wtype, source_location=location)
                 )
 
@@ -110,6 +110,7 @@ class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
                     raise CodeError(
                         "Tuple index out of bounds", index_literal.source_location
                     ) from ex
+                # TODO: use pytype
                 return var_expression(
                     TupleItemExpression(
                         base=self.expr,

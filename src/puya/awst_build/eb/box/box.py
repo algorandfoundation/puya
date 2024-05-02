@@ -22,13 +22,11 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
-from puya.awst_build.eb.box._util import (
-    index_box_bytes,
-    slice_box_bytes,
-)
+from puya.awst_build.eb.box._util import index_box_bytes, slice_box_bytes
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.value_proxy import ValueProxyExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
     expect_operand_wtype,
     get_arg_mapping,
@@ -149,7 +147,7 @@ class BoxProxyExpressionBuilder(ValueExpressionBuilder):
             field=self._box_key_expr(location),
             source_location=location,
         )
-        return var_expression(
+        return BoolExpressionBuilder(
             Not(expr=box_exists, source_location=location) if negate else box_exists
         )
 
@@ -167,7 +165,9 @@ class BoxValueExpressionBuilder(ValueProxyExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "length":
-                return var_expression(BoxLength(box_key=self.box_key, source_location=location))
+                return UInt64ExpressionBuilder(
+                    BoxLength(box_key=self.box_key, source_location=location)
+                )
             case "bytes":
                 return BoxValueBytesExpressionBuilder(
                     box_key=self.box_key, box_value=self.box_value
@@ -205,7 +205,9 @@ class BoxValueBytesExpressionBuilder(ValueProxyExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "length":
-                return var_expression(BoxLength(box_key=self.box_key, source_location=location))
+                return UInt64ExpressionBuilder(
+                    BoxLength(box_key=self.box_key, source_location=location)
+                )
             case _:
                 return super().member_access(name, location)
 

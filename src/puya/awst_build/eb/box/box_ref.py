@@ -22,7 +22,9 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box._common import BoxGetExpressionBuilder, BoxMaybeExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
     expect_operand_wtype,
@@ -86,7 +88,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
             field=self._box_key_expr(location),
             source_location=location,
         )
-        return var_expression(
+        return BoolExpressionBuilder(
             Not(expr=box_exists, source_location=location) if negate else box_exists
         )
 
@@ -135,7 +137,7 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
             case "get":
                 return BoxGetExpressionBuilder(self._box_key_expr(location))
             case "length":
-                return var_expression(
+                return UInt64ExpressionBuilder(
                     BoxLength(box_key=self._box_key_expr(location), source_location=location)
                 )
 

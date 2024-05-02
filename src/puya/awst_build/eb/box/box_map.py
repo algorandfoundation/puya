@@ -22,7 +22,10 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.box.box import BoxValueExpressionBuilder
+from puya.awst_build.eb.tuple import TupleExpressionBuilder
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import (
     expect_operand_wtype,
@@ -170,7 +173,7 @@ class BoxMapProxyExpressionBuilder(ValueExpressionBuilder):
             field=_box_key_expr(self.expr, item, location),
             source_location=location,
         )
-        return var_expression(box_exists)
+        return BoolExpressionBuilder(box_exists)
 
 
 class BoxMapMethodExpressionBuilder(IntermediateExpressionBuilder):
@@ -196,7 +199,7 @@ class BoxMapLengthMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         item_key = args_map.pop("key")
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
-        return var_expression(
+        return UInt64ExpressionBuilder(
             BoxLength(
                 box_key=_box_key_expr(self.box_map_expr, item_key, location),
                 source_location=location,
@@ -217,6 +220,7 @@ class BoxMapGetMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         default_value = expect_operand_wtype(args_map.pop("default"), self.box_wtype.content_wtype)
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
+        # TODO: use pytype
         return var_expression(
             StateGet(
                 default=default_value,
@@ -238,7 +242,7 @@ class BoxMapMaybeMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
         item_key = args_map.pop("key")
         if args_map:
             raise CodeError("Invalid/unexpected args", location)
-        return var_expression(
+        return TupleExpressionBuilder(
             StateGetEx(
                 field=_box_key_expr(self.box_map_expr, item_key, location),
                 source_location=location,

@@ -70,7 +70,9 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         if field_mapping:
             raise CodeError(f"Unexpected keyword arguments: {' '.join(field_mapping)}", location)
 
-        return var_expression(NewStruct(wtype=self.wtype, values=values, source_location=location))
+        return ARC4StructExpressionBuilder(
+            NewStruct(wtype=self.wtype, values=values, source_location=location)
+        )
 
 
 class ARC4StructExpressionBuilder(ValueExpressionBuilder):
@@ -82,6 +84,7 @@ class ARC4StructExpressionBuilder(ValueExpressionBuilder):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case field_name if field_name in self.wtype.fields:
+                # TODO: use pytype
                 return var_expression(
                     FieldExpression(
                         source_location=location,

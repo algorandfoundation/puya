@@ -27,6 +27,7 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError, InternalError
@@ -129,6 +130,7 @@ class CopyBuilder(IntermediateExpressionBuilder):
 
 
 def native_eb(expr: Expression, location: SourceLocation) -> ExpressionBuilder:
+    # TODO: could determine EB here instead of using var_expression
     match expr.wtype:
         case wtypes.arc4_string_wtype | wtypes.arc4_dynamic_bytes | wtypes.arc4_bool_wtype:
             pass
@@ -185,13 +187,13 @@ def arc4_compare_bytes(
         operator=EqualityComparison(op.value),
         rhs=get_bytes_expr(other_expr),
     )
-    return var_expression(cmp_expr)
+    return BoolExpressionBuilder(cmp_expr)
 
 
 def arc4_bool_bytes(
     expr: Expression, false_bytes: bytes, location: SourceLocation, *, negate: bool
 ) -> ExpressionBuilder:
-    return var_expression(
+    return BoolExpressionBuilder(
         BytesComparisonExpression(
             operator=EqualityComparison.eq if negate else EqualityComparison.ne,
             lhs=get_bytes_expr(expr),

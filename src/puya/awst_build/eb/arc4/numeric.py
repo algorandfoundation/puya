@@ -23,7 +23,7 @@ from puya.awst_build.eb.arc4.base import (
     get_integer_literal_value,
 )
 from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -37,6 +37,7 @@ logger = log.get_logger(__name__)
 
 
 class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
+
     def __init__(self, location: SourceLocation):
         super().__init__(location)
         self.wtype: wtypes.ARC4UIntN | wtypes.ARC4UFixedNxM | None = None
@@ -60,9 +61,9 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
         match args:
             case []:
                 zero_literal = Literal(value=self.zero_literal(), source_location=location)
-                return var_expression(convert_arc4_literal(zero_literal, wtype, location))
+                expr = convert_arc4_literal(zero_literal, wtype, location)
             case [Literal() as lit]:
-                return var_expression(convert_arc4_literal(lit, wtype, location))
+                expr = convert_arc4_literal(lit, wtype, location)
             case [ExpressionBuilder(value_type=wtypes.WType() as value_type) as eb]:
                 value = eb.rvalue()
                 if value_type not in (
@@ -74,26 +75,36 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
                         f"{wtype} constructor expects an int literal or a "
                         "uint64 expression or a biguint expression"
                     )
-                return var_expression(
-                    ARC4Encode(value=value, source_location=location, wtype=wtype)
-                )
+                expr = ARC4Encode(value=value, source_location=location, wtype=wtype)
             case _:
                 raise CodeError(
                     "Invalid/unhandled arguments",
                     location,
                 )
+        return self._value_builder()(expr)
 
+    @classmethod
     @abc.abstractmethod
-    def zero_literal(self) -> ConstantValue: ...
+    def zero_literal(cls) -> ConstantValue: ...
+
+    @classmethod
+    @abc.abstractmethod
+    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]: ...
 
 
 class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
+
     def __init__(self, location: SourceLocation):
         super().__init__(location)
         self.wtype = wtypes.arc4_byte_type
 
-    def zero_literal(self) -> ConstantValue:
+    @classmethod
+    def zero_literal(cls) -> ConstantValue:
         return 0
+
+    @classmethod
+    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
+        return UIntNExpressionBuilder
 
 
 class _UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
@@ -108,8 +119,13 @@ class _UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
     @abc.abstractmethod
     def check_bitsize(self, n: int, location: SourceLocation) -> None: ...
 
-    def zero_literal(self) -> ConstantValue:
+    @classmethod
+    def zero_literal(cls) -> ConstantValue:
         return 0
+
+    @classmethod
+    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
+        return UIntNExpressionBuilder
 
 
 class UIntNClassExpressionBuilder(_UIntNClassExpressionBuilder):
@@ -150,8 +166,13 @@ class _UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     @abc.abstractmethod
     def check_bitsize(self, n: int, location: SourceLocation) -> None: ...
 
-    def zero_literal(self) -> ConstantValue:
+    @classmethod
+    def zero_literal(cls) -> ConstantValue:
         return "0.0"
+
+    @classmethod
+    def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
+        return UFixedNxMExpressionBuilder
 
 
 class UFixedNxMClassExpressionBuilder(_UFixedNxMClassExpressionBuilder):
@@ -216,7 +237,7 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
             operator=NumericComparison(op.value),
             rhs=other_expr,
         )
-        return var_expression(cmp_expr)
+        return BoolExpressionBuilder(cmp_expr)
 
 
 class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder):

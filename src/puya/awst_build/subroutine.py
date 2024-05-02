@@ -1136,6 +1136,8 @@ class FunctionASTConverter(
         return var_expression(cond_expr)
 
     def visit_comparison_expr(self, expr: mypy.nodes.ComparisonExpr) -> ExpressionBuilder:
+        from puya.awst_build.eb.bool import BoolExpressionBuilder
+
         expr_loc = self._location(expr)
         self._precondition(
             len(expr.operands) == (len(expr.operators) + 1),
@@ -1170,7 +1172,7 @@ class FunctionASTConverter(
             )
             prev = curr
         # TODO: PyType known as bool (at least with our current stubs)
-        return var_expression(result)
+        return BoolExpressionBuilder(result)
 
     def _build_compare(
         self,
@@ -1216,6 +1218,8 @@ class FunctionASTConverter(
         return Literal(self._location(expr), value=bytes_const)
 
     def visit_tuple_expr(self, mypy_expr: mypy.nodes.TupleExpr) -> ExpressionBuilder:
+        from puya.awst_build.eb.tuple import TupleExpressionBuilder
+
         items = [
             require_expression_builder(
                 mypy_item.accept(self),
@@ -1233,8 +1237,8 @@ class FunctionASTConverter(
             wtype=wtype,
             items=items,
         )
-        # TODO: PyType known, tuple. item types above
-        return var_expression(tuple_expr)
+
+        return TupleExpressionBuilder(tuple_expr)
 
     def visit_assignment_expr(self, expr: mypy.nodes.AssignmentExpr) -> ExpressionBuilder:
         expr_loc = self._location(expr)
