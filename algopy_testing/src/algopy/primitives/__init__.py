@@ -1,3 +1,5 @@
-# ruff: noqa: F403
-from .constants import *
-from .uint64 import *
+from algopy.primitives.uint64 import UInt64
+
+__all__ = [
+    "UInt64",
+]

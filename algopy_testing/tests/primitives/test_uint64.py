@@ -1,29 +1,46 @@
+import operator
+import re
+from collections.abc import Callable
+
 import algokit_utils
-import algosdk
-import hypothesis.strategies as st
 import pytest
 from algokit_utils import get_localnet_default_account
 from algokit_utils.config import config
 from algopy import UInt64
-from algopy.error.uint64 import UInt64OverflowError, UInt64UnderflowError
-from algopy.primitives.constants import MAX_UINT64, MAX_UINT64_BIT_SHIFT
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.indexer import IndexerClient
-from hypothesis import example, given, settings
 
 from tests.artifacts.PrimitiveOps.client import PrimitiveOpsContractClient
 
-EXAMPLES_PER_AVM_TEST = 5
+MAX_UINT64 = 2**64 - 1
+
+_negative_value_error = "expected positive value"
+_too_big_error = re.escape(f"expected value <= {MAX_UINT64}")
+_shift_error = "expected shift <= 63"
+
+_undefined_error = re.escape("UInt64(0)**UInt64(0) is undefined")
+_underflow_error = "- underflows"
+
+_avm_underflow_error = "- would result negative"
+_avm_zero_division_error = "/ 0"
+_avm_zero_mod_error = "% 0"
+_avm_undefined_error = re.escape("0^0 is undefined")
+_avm_shift_right_too_big = "shr arg too big"
+_avm_shift_left_too_big = "shl arg too big"
+
+
+def _avm_overflow_error(op: str) -> str:
+    return re.escape(f"'{op} overflowed'")
+
+
+def _avm_pow_overflow_error(a: int, b: int) -> str:
+    return re.escape(f"'{a}^{b} overflow'")
 
 
 @pytest.fixture(scope="session")
 def primitive_ops_client(
     algod_client: AlgodClient, indexer_client: IndexerClient
 ) -> PrimitiveOpsContractClient:
-    """
-    Fixture for the PrimitiveOpsContractClient.
-    """
-
     config.configure(
         debug=True,
     )
@@ -41,227 +58,483 @@ def primitive_ops_client(
     return client
 
 
-@given(st.integers(min_value=MAX_UINT64 + 1, max_value=2 * MAX_UINT64))
-def test_uint64_overflow(value: int) -> None:
-    """
-    Test that the python implementation of UInt64 raise an error when
-    given a value greater than the maximum value for UInt64.
-
-    NOTE: this scenario does not evaluate against AVM since algod validated parameters prior
-    to passing for evaluation in AVM.
-    Hence, it will always throw encoding errors (in cases of algosdk) OR http errors in case
-    of direct invocation. Refer to other scenarios
-    testing conditions when an overflow can happen as a result of a dynamic computation with
-    in AVM.
-    """
-
-    # Test against the direct implementation
-    with pytest.raises(UInt64OverflowError):
-        UInt64(value)
-
-
-@given(st.integers(min_value=-2 * MAX_UINT64, max_value=-1))
-def test_uint64_underflow(value: int) -> None:
-    """Test that underflow exceptions are raised for invalid negative values."""
-    # Test against the direct implementation
-    with pytest.raises(UInt64UnderflowError):
-        UInt64(value)
-
-
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64), st.integers(min_value=0, max_value=MAX_UINT64)
+@pytest.mark.parametrize(
+    "value",
+    [
+        MAX_UINT64 + 1,
+        MAX_UINT64 * 2,
+    ],
 )
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
+def test_uint64_too_big(value: int) -> None:
+    # just test the implementation as there is no AVM equivalent
+    with pytest.raises(ValueError, match=_too_big_error):
+        UInt64(value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        -MAX_UINT64,
+        -MAX_UINT64 * 2,
+    ],
+)
+def test_uint64_negative(value: int) -> None:
+    # just test the implementation as there is no AVM equivalent
+    with pytest.raises(ValueError, match=_negative_value_error):
+        UInt64(value)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 0),
+        (0, MAX_UINT64),
+        (MAX_UINT64, 0),
+        (1, 0),
+        (0, 1),
+        (1, 1),
+        (1, MAX_UINT64 - 1),
+        (MAX_UINT64 - 1, 1),
+    ],
+)
 def test_uint64_addition(primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int) -> None:
-    """Test the addition operation for UInt64 instances."""
-    if a + b > MAX_UINT64:
-        with pytest.raises(algokit_utils.LogicError):
-            result = primitive_ops_client.verify_uint64_add(a=a, b=b)
-    else:
-        result = primitive_ops_client.verify_uint64_add(a=a, b=b)
-        assert result.return_value == UInt64(a) + UInt64(b)
-        assert result.return_value == UInt64(a + b)
-        assert result.return_value == UInt64(a) + b
-        assert result.return_value == a + UInt64(b)
+    result = primitive_ops_client.verify_uint64_add(a=a, b=b)
+    assert result.return_value == UInt64(a) + UInt64(b)
+    assert result.return_value == UInt64(a) + b
+    assert result.return_value == a + UInt64(b)
 
 
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64), st.integers(min_value=0, max_value=MAX_UINT64)
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (MAX_UINT64, 1),
+        (1, MAX_UINT64),
+        (MAX_UINT64, MAX_UINT64),
+    ],
 )
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
+def test_uint64_addition_overflow(
+    primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
+) -> None:
+    with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error("+")):
+        primitive_ops_client.verify_uint64_add(a=a, b=b)
+
+    with pytest.raises(OverflowError):
+        UInt64(a) + UInt64(b)
+
+    with pytest.raises(OverflowError):
+        UInt64(a) + b
+
+    with pytest.raises(OverflowError):
+        a + UInt64(b)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 0),
+        (1, 0),
+        (1, 1),
+        (MAX_UINT64, 0),
+        (MAX_UINT64, 1),
+        (MAX_UINT64, MAX_UINT64),
+    ],
+)
 def test_uint64_subtraction(
     primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
 ) -> None:
-    """Test the subtraction operation for UInt64 instances."""
-    if a - b < 0:
-        with pytest.raises(algokit_utils.LogicError):
-            result = primitive_ops_client.verify_uint64_sub(a=a, b=b)
-    else:
-        result = primitive_ops_client.verify_uint64_sub(a=a, b=b)
-        assert result.return_value == UInt64(a) - UInt64(b)
-        assert result.return_value == UInt64(a - b)
-        assert result.return_value == UInt64(a) - b
-        assert result.return_value == a - UInt64(b)
+    result = primitive_ops_client.verify_uint64_sub(a=a, b=b)
+    assert result.return_value == UInt64(a) - UInt64(b)
+    assert result.return_value == UInt64(a) - b
+    assert result.return_value == a - UInt64(b)
 
 
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64), st.integers(min_value=0, max_value=MAX_UINT64)
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 1),
+        (1, 2),
+        (0, MAX_UINT64),
+        (1, MAX_UINT64),
+    ],
 )
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
+def test_uint64_subtraction_underflow(
+    primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
+) -> None:
+    with pytest.raises(algokit_utils.LogicError, match=_avm_underflow_error):
+        primitive_ops_client.verify_uint64_sub(a=a, b=b)
+
+    with pytest.raises(ArithmeticError, match=_underflow_error):
+        UInt64(a) - UInt64(b)
+
+    with pytest.raises(ArithmeticError, match=_underflow_error):
+        UInt64(a) - b
+
+    with pytest.raises(ArithmeticError, match=_underflow_error):
+        a - UInt64(b)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 0),
+        (0, 1),
+        (0, MAX_UINT64),
+        (1, MAX_UINT64),
+        (2, 2),
+    ],
+)
 def test_uint64_multiplication(
     primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
 ) -> None:
-    """Test the multiplication operation for UInt64 instances."""
-    if a * b > MAX_UINT64:
-        with pytest.raises(algokit_utils.LogicError):
-            result = primitive_ops_client.verify_uint64_mul(a=a, b=b)
-    else:
-        result = primitive_ops_client.verify_uint64_mul(a=a, b=b)
-        assert result.return_value == UInt64(a) * UInt64(b)
-        assert result.return_value == UInt64(a * b)
-        assert result.return_value == UInt64(a) * b
-        assert result.return_value == a * UInt64(b)
+    result = primitive_ops_client.verify_uint64_mul(a=a, b=b)
+    assert result.return_value == UInt64(a) * UInt64(b)
+    assert result.return_value == UInt64(a) * b
+    assert result.return_value == a * UInt64(b)
 
 
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64), st.integers(min_value=0, max_value=MAX_UINT64)
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (MAX_UINT64, 2),
+        (MAX_UINT64, MAX_UINT64),
+        (MAX_UINT64 // 2, 3),
+    ],
 )
-@example(10, 0)  # Explicit example to test division by zero
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
+def test_uint64_multiplication_overflow(
+    primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
+) -> None:
+    with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error("*")):
+        primitive_ops_client.verify_uint64_mul(a=a, b=b)
+
+    with pytest.raises(OverflowError):
+        UInt64(a) * UInt64(b)
+
+    with pytest.raises(OverflowError):
+        UInt64(a) * b
+
+    with pytest.raises(OverflowError):
+        a * UInt64(b)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (MAX_UINT64, 1),
+        (MAX_UINT64, 2),
+        (MAX_UINT64, MAX_UINT64),
+        (0, MAX_UINT64),
+        (1, MAX_UINT64),
+        (3, 2),
+    ],
+)
 def test_uint64_division(primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int) -> None:
-    """Test that division by zero throws an error for UInt64 instances."""
-    if b == 0:
-        with pytest.raises(algokit_utils.LogicError, match="/ 0"):
-            result = primitive_ops_client.verify_uint64_div(a=a, b=b)
-    elif a / b > MAX_UINT64:
-        with pytest.raises(algosdk.error.ABIEncodingError):
-            result = primitive_ops_client.verify_uint64_div(a=a, b=b)
-    else:
-        result = primitive_ops_client.verify_uint64_div(a=a, b=b)
-        assert result.return_value == UInt64(a) // UInt64(b)
-        assert result.return_value == UInt64(a // b)
-        assert result.return_value == UInt64(a) // b
-        assert result.return_value == a // UInt64(b)
+    result = primitive_ops_client.verify_uint64_div(a=a, b=b)
+    assert result.return_value == UInt64(a) // UInt64(b)
+    assert result.return_value == UInt64(a) // b
+    assert result.return_value == a // UInt64(b)
 
 
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64), st.integers(min_value=0, max_value=MAX_UINT64)
+@pytest.mark.parametrize(
+    "value",
+    [
+        0,
+        1,
+        MAX_UINT64,
+    ],
 )
-@example(1, 0)
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
-def test_uint64_modulus(primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int) -> None:
-    """Test the modulus operation for UInt64 instances."""
-    if b == 0:
-        with pytest.raises(algokit_utils.LogicError, match="% 0"):
-            result = primitive_ops_client.verify_uint64_mod(a=a, b=b)
-    else:
-        result = primitive_ops_client.verify_uint64_mod(a=a, b=b)
-        assert result.return_value == UInt64(a) % UInt64(b)
-        assert result.return_value == UInt64(a % b)
-        assert result.return_value == UInt64(a) % b
-        assert result.return_value == a % UInt64(b)
+def test_uint64_zero_division(
+    primitive_ops_client: PrimitiveOpsContractClient, value: int
+) -> None:
+    with pytest.raises(algokit_utils.LogicError, match=_avm_zero_division_error):
+        primitive_ops_client.verify_uint64_div(a=value, b=0)
+
+    with pytest.raises(ZeroDivisionError):
+        UInt64(value) // UInt64(0)
+
+    with pytest.raises(ZeroDivisionError):
+        UInt64(value) // 0
+
+    with pytest.raises(ZeroDivisionError):
+        value // UInt64(0)
 
 
-@given(st.integers(min_value=0, max_value=MAX_UINT64), st.integers(min_value=0, max_value=64))
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (MAX_UINT64, 1),
+        (MAX_UINT64, 2),
+        (MAX_UINT64, MAX_UINT64),
+        (0, MAX_UINT64),
+        (1, MAX_UINT64),
+        (3, 2),
+    ],
+)
+def test_uint64_mod(primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int) -> None:
+    result = primitive_ops_client.verify_uint64_mod(a=a, b=b)
+    assert result.return_value == UInt64(a) % UInt64(b)
+    assert result.return_value == UInt64(a) % b
+    assert result.return_value == a % UInt64(b)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        0,
+        1,
+        MAX_UINT64,
+    ],
+)
+def test_uint64_zero_mod(primitive_ops_client: PrimitiveOpsContractClient, value: int) -> None:
+    with pytest.raises(algokit_utils.LogicError, match=_avm_zero_mod_error):
+        primitive_ops_client.verify_uint64_mod(a=value, b=0)
+
+    with pytest.raises(ZeroDivisionError):
+        UInt64(value) % UInt64(0)
+
+    with pytest.raises(ZeroDivisionError):
+        UInt64(value) % 0
+
+    with pytest.raises(ZeroDivisionError):
+        value % UInt64(0)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (1, 1),
+        (1, 0),
+        (1, MAX_UINT64),
+        (MAX_UINT64, 0),
+        (MAX_UINT64, 1),
+        (3, 4),
+        (2**31, 2),
+    ],
+)
 def test_uint64_power(primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int) -> None:
-    """Test the power operation for UInt64 instances."""
-    if a**b > MAX_UINT64 or a == b == 0:
-        with pytest.raises(algokit_utils.LogicError):
-            result = primitive_ops_client.verify_uint64_pow(a=a, b=b)
-    else:
-        result = primitive_ops_client.verify_uint64_pow(a=a, b=b)
-        assert result.return_value == UInt64(a) ** UInt64(b)
-        assert result.return_value == UInt64(a**b)
-        assert result.return_value == UInt64(a) ** b
-        assert result.return_value == a ** UInt64(b)
+    result = primitive_ops_client.verify_uint64_pow(a=a, b=b)
+    assert result.return_value == UInt64(a) ** UInt64(b)
+    assert result.return_value == UInt64(a) ** b
+    assert result.return_value == a ** UInt64(b)
 
 
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64), st.integers(min_value=0, max_value=MAX_UINT64)
+def test_uint64_power_undefined(primitive_ops_client: PrimitiveOpsContractClient) -> None:
+    a = b = 0
+    with pytest.raises(algokit_utils.LogicError, match=_avm_undefined_error):
+        primitive_ops_client.verify_uint64_pow(a=a, b=b)
+
+    with pytest.raises(ValueError, match=_undefined_error):
+        UInt64(a) ** UInt64(b)
+
+    with pytest.raises(ValueError, match=_undefined_error):
+        UInt64(a) ** b
+
+    with pytest.raises(ValueError, match=_undefined_error):
+        a ** UInt64(b)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (MAX_UINT64, 2),
+        (2, 64),
+        (2**32, 32),
+    ],
 )
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
+def test_uint64_power_overflow(
+    primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
+) -> None:
+    with pytest.raises(algokit_utils.LogicError, match=_avm_pow_overflow_error(a, b)):
+        primitive_ops_client.verify_uint64_pow(a=a, b=b)
+
+    with pytest.raises(OverflowError):
+        UInt64(a) ** UInt64(b)
+
+    with pytest.raises(OverflowError):
+        UInt64(a) ** b
+
+    with pytest.raises(OverflowError):
+        a ** UInt64(b)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 0),
+        (MAX_UINT64, MAX_UINT64),
+        (0, MAX_UINT64),
+        (MAX_UINT64, 0),
+        (42, MAX_UINT64),
+        (MAX_UINT64, 42),
+    ],
+)
 def test_uint64_bitwise_and(
     primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
 ) -> None:
-    """Test the bitwise and operation for UInt64 instances."""
     result = primitive_ops_client.verify_uint64_and(a=a, b=b)
     assert result.return_value == UInt64(a) & UInt64(b)
-    assert result.return_value == UInt64(a & b)
     assert result.return_value == UInt64(a) & b
     assert result.return_value == a & UInt64(b)
 
 
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64), st.integers(min_value=0, max_value=MAX_UINT64)
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 0),
+        (MAX_UINT64, MAX_UINT64),
+        (0, MAX_UINT64),
+        (MAX_UINT64, 0),
+        (42, MAX_UINT64),
+        (MAX_UINT64, 42),
+    ],
 )
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
 def test_uint64_bitwise_or(
     primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
 ) -> None:
-    """Test the bitwise or operation for UInt64 instances."""
     result = primitive_ops_client.verify_uint64_or(a=a, b=b)
     assert result.return_value == UInt64(a) | UInt64(b)
-    assert result.return_value == UInt64(a | b)
     assert result.return_value == UInt64(a) | b
     assert result.return_value == a | UInt64(b)
 
 
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64), st.integers(min_value=0, max_value=MAX_UINT64)
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 0),
+        (MAX_UINT64, MAX_UINT64),
+        (0, MAX_UINT64),
+        (MAX_UINT64, 0),
+        (42, MAX_UINT64),
+        (MAX_UINT64, 42),
+    ],
 )
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
 def test_uint64_bitwise_xor(
     primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
 ) -> None:
-    """Test the bitwise xor operation for UInt64 instances."""
     result = primitive_ops_client.verify_uint64_xor(a=a, b=b)
     assert result.return_value == UInt64(a) ^ UInt64(b)
-    assert result.return_value == UInt64(a ^ b)
     assert result.return_value == UInt64(a) ^ b
     assert result.return_value == a ^ UInt64(b)
 
 
-@given(st.integers(min_value=0, max_value=MAX_UINT64))
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
-def test_uint64_bitwise_not(primitive_ops_client: PrimitiveOpsContractClient, a: int) -> None:
-    """Test the bitwise not operation for UInt64 instances."""
-    result = primitive_ops_client.verify_uint64_not(a=a)
-    assert result.return_value == ~UInt64(a)
-
-
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64),
-    st.integers(min_value=0, max_value=MAX_UINT64_BIT_SHIFT),
+@pytest.mark.parametrize(
+    "value",
+    [
+        0,
+        1,
+        42,
+        MAX_UINT64,
+    ],
 )
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
+def test_uint64_not(primitive_ops_client: PrimitiveOpsContractClient, value: int) -> None:
+    result = primitive_ops_client.verify_uint64_not(a=value)
+    assert result.return_value == ~UInt64(value)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 0),
+        (1, 0),
+        (1, 1),
+        (1, 63),
+        (42, 42),
+        (MAX_UINT64, 0),
+        (MAX_UINT64, 1),
+        (MAX_UINT64, 63),
+    ],
+)
 def test_uint64_bitwise_shift_left(
     primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
 ) -> None:
-    """Test the bitwise shift left operation for UInt64 instances."""
-    if b >= MAX_UINT64_BIT_SHIFT:
-        with pytest.raises(algokit_utils.LogicError, match="shl arg too big"):
-            result = primitive_ops_client.verify_uint64_lshift(a=a, b=b)
-    else:
-        result = primitive_ops_client.verify_uint64_lshift(a=a, b=b)
-        assert result.return_value == UInt64(a) << UInt64(b)
-        assert result.return_value == UInt64(a) << b
+    result = primitive_ops_client.verify_uint64_lshift(a=a, b=b)
+
+    assert result.return_value == UInt64(a) << UInt64(b)
+    assert result.return_value == a << UInt64(b)
+    assert result.return_value == UInt64(a) << b
 
 
-@given(
-    st.integers(min_value=0, max_value=MAX_UINT64),
-    st.integers(min_value=0, max_value=MAX_UINT64_BIT_SHIFT),
+def test_uint64_invalid_lshift(primitive_ops_client: PrimitiveOpsContractClient) -> None:
+    a = 0
+    with pytest.raises(algokit_utils.LogicError, match=_avm_shift_left_too_big):
+        primitive_ops_client.verify_uint64_lshift(a=a, b=64)
+
+    with pytest.raises(ValueError, match=_shift_error):
+        UInt64(a) << 64
+
+    with pytest.raises(ValueError, match=_shift_error):
+        UInt64(a) << UInt64(64)
+
+    with pytest.raises(ValueError, match=_too_big_error):
+        MAX_UINT64 + 1 << UInt64(1)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 0),
+        (1, 0),
+        (1, 1),
+        (1, 63),
+        (42, 42),
+        (MAX_UINT64, 0),
+        (MAX_UINT64, 1),
+        (MAX_UINT64, 63),
+    ],
 )
-@settings(max_examples=EXAMPLES_PER_AVM_TEST)
 def test_uint64_bitwise_shift_right(
     primitive_ops_client: PrimitiveOpsContractClient, a: int, b: int
 ) -> None:
-    """Test the bitwise shift right operation for UInt64 instances."""
-    if b >= MAX_UINT64_BIT_SHIFT:
-        with pytest.raises(algokit_utils.LogicError, match="shr arg too big"):
-            result = primitive_ops_client.verify_uint64_rshift(a=a, b=b)
-    else:
-        result = primitive_ops_client.verify_uint64_rshift(a=a, b=b)
-        assert result.return_value == UInt64(a) >> UInt64(b)
-        assert result.return_value == UInt64(a >> b)
-        assert result.return_value == UInt64(a) >> b
+    result = primitive_ops_client.verify_uint64_rshift(a=a, b=b)
+
+    assert result.return_value == UInt64(a) >> UInt64(b)
+    assert result.return_value == a >> UInt64(b)
+    assert result.return_value == UInt64(a) >> b
+
+
+def test_uint64_invalid_rshift(primitive_ops_client: PrimitiveOpsContractClient) -> None:
+    a = 0
+    with pytest.raises(algokit_utils.LogicError, match=_avm_shift_right_too_big):
+        primitive_ops_client.verify_uint64_rshift(a=a, b=64)
+
+    with pytest.raises(ValueError, match=_shift_error):
+        UInt64(a) >> 64
+
+    with pytest.raises(ValueError, match=_shift_error):
+        UInt64(a) >> UInt64(64)
+
+    with pytest.raises(ValueError, match=_too_big_error):
+        MAX_UINT64 + 1 >> UInt64(1)
+
+
+@pytest.mark.parametrize(
+    "valid",
+    [0, 1, MAX_UINT64],
+)
+@pytest.mark.parametrize(
+    "invalid",
+    [-1, MAX_UINT64 + 1],
+)
+@pytest.mark.parametrize(
+    "op",
+    [
+        operator.add,
+        operator.sub,
+        operator.mul,
+        operator.floordiv,
+        operator.mod,
+        operator.and_,
+        operator.or_,
+        operator.xor,
+    ],
+)
+def test_uint64_invalid_pairs(
+    valid: int, invalid: int, op: Callable[[object, object], object]
+) -> None:
+    valid_uint64 = UInt64(valid)
+    invalid_uint64_error = f"({_negative_value_error}|{_too_big_error})"
+    with pytest.raises(ValueError, match=invalid_uint64_error):
+        op(valid_uint64, invalid)
+
+    with pytest.raises(ValueError, match=invalid_uint64_error):
+        op(invalid, valid_uint64)
