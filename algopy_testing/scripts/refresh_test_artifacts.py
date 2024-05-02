@@ -1,7 +1,11 @@
+import logging
 import os
 import subprocess
 from collections.abc import Iterator
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
@@ -16,10 +20,11 @@ def get_artifact_folders(root_dir: str) -> Iterator[Path]:
 
 
 def compile_contract(folder: Path) -> None:
+    logger.info(f"Compiling: {folder}")
     contract_path = folder / "contract.py"
     (folder / "data").mkdir(exist_ok=True)
     compile_cmd = [
-        "poetry",
+        "hatch",
         "run",
         "puyapy",
         str(contract_path),
@@ -28,16 +33,14 @@ def compile_contract(folder: Path) -> None:
     ]
     subprocess.run(
         compile_cmd,  # noqa: S603
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
+        check=True,
         env=ENV_WITH_NO_COLOR,
         encoding="utf-8",
     )
 
 
 def generate_client(folder: Path) -> None:
+    logger.info(f"Generating typed client for: {folder}")
     avm_dir = folder / "data"
     client_path = folder / "client.py"
     generate_cmd = [
@@ -52,10 +55,7 @@ def generate_client(folder: Path) -> None:
     ]
     subprocess.run(
         generate_cmd,  # noqa: S603
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
+        check=True,
         env=ENV_WITH_NO_COLOR,
         encoding="utf-8",
     )
