@@ -4,6 +4,9 @@ import functools
 
 from algopy._constants import MAX_UINT64
 
+# TypeError, ValueError are used for operations that are compile time errors
+# ArithmeticError and subclasses are used for operations that would fail during AVM execution
+
 
 @functools.total_ordering
 class UInt64:
@@ -14,7 +17,7 @@ class UInt64:
     value: int  # underlying 'int' value representing the UInt64
 
     def __init__(self, value: int = 0) -> None:
-        self.value = as_int64(value)
+        self.value = _as_int64(value)
 
     def __repr__(self) -> str:
         return f"{self.value}u"
@@ -63,7 +66,7 @@ class UInt64:
         return _checked_result(self.value - maybe_int, "-")
 
     def __rsub__(self, other: int) -> UInt64:
-        return as_uint64(other) - self
+        return _as_uint64(other) - self
 
     def __mul__(self, other: int | UInt64) -> UInt64:
         maybe_int = _as_maybe_uint64(other)
@@ -81,7 +84,7 @@ class UInt64:
         return _checked_result(self.value // maybe_int, "//")
 
     def __rfloordiv__(self, numerator: int) -> UInt64:
-        return as_uint64(numerator) // self
+        return _as_uint64(numerator) // self
 
     def __mod__(self, denominator: int | UInt64) -> UInt64:
         maybe_int = _as_maybe_uint64(denominator)
@@ -91,7 +94,7 @@ class UInt64:
         return _checked_result(self.value % maybe_int, "%")
 
     def __rmod__(self, numerator: int) -> UInt64:
-        return as_uint64(numerator) % self
+        return _as_uint64(numerator) % self
 
     def __pow__(self, exp: int | UInt64, modulo: int | UInt64 | None = None) -> UInt64:
         exp_int = _as_maybe_uint64(exp)
@@ -100,11 +103,11 @@ class UInt64:
         if modulo is not None:
             return NotImplemented
         if self.value == 0 and exp_int == 0:
-            raise ValueError("UInt64(0)**UInt64(0) is undefined")
+            raise ArithmeticError("UInt64(0)**UInt64(0) is undefined")
         return _checked_result(self.value**exp_int, "**")
 
     def __rpow__(self, base: int, modulo: int | UInt64 | None = None) -> UInt64:
-        return pow(as_uint64(base), self, modulo)
+        return pow(_as_uint64(base), self, modulo)
 
     def __and__(self, other: int | UInt64) -> UInt64:
         maybe_int = _as_maybe_uint64(other)
@@ -134,22 +137,22 @@ class UInt64:
         return self ^ other
 
     def __lshift__(self, other: int | UInt64) -> UInt64:
-        shift = as_int64(other)
+        shift = _as_int64(other)
         if shift > 63:
-            raise ValueError("expected shift <= 63")
+            raise ArithmeticError("expected shift <= 63")
         return UInt64((self.value << shift) & MAX_UINT64)
 
     def __rlshift__(self, other: int | UInt64) -> UInt64:
-        return as_uint64(other) << self
+        return _as_uint64(other) << self
 
     def __rshift__(self, other: int | UInt64) -> UInt64:
-        shift = as_int64(other)
+        shift = _as_int64(other)
         if shift > 63:
-            raise ValueError("expected shift <= 63")
+            raise ArithmeticError("expected shift <= 63")
         return UInt64((self.value >> shift) & MAX_UINT64)
 
     def __rrshift__(self, other: int | UInt64) -> UInt64:
-        return as_uint64(other) >> self
+        return _as_uint64(other) >> self
 
     def __invert__(self) -> UInt64:
         """
@@ -179,15 +182,11 @@ class UInt64:
         return UInt64(+self.value)
 
 
-def _wrong_type_error(value: object) -> Exception:
-    return TypeError(f"value must be a numeric type, not {type(value).__name__!r}")
-
-
 def _as_maybe_uint64(value: object) -> int | None:
     """Returns int value if `value` is an int or UInt64, otherwise None"""
     match value:
         case int(int_value):
-            return as_int64(int_value)
+            return _as_int64(int_value)
         case UInt64(value=int_value):
             return int_value
         case _:
@@ -206,33 +205,11 @@ def _checked_result(result: int, op: str) -> UInt64:
     return UInt64(result)
 
 
-def as_int(value: object, *, max: int) -> int:  # noqa: A002
-    """
-    Returns the underlying int value for any numeric type up to UInt512
+def _as_int64(value: object) -> int:
+    from algopy.primitives.util import as_int
 
-    Raises:
-        TypeError: If `value` is not a numeric type
-        ValueError: If not 0 <= `value` <= max
-    """
-    # TODO: move this somewhere common for other numeric types to use
-    match value:
-        case int(int_value):
-            pass
-        case UInt64(value=int_value):
-            pass
-        # TODO: add BigUInt and arc4 numerics
-        case _:
-            raise _wrong_type_error(value)
-    if int_value < 0:
-        raise ValueError(f"expected positive value, got {int_value}")
-    if int_value > max:
-        raise ValueError(f"expected value <= {max}, got: {int_value}")
-    return int_value
-
-
-def as_int64(value: object) -> int:
     return as_int(value, max=MAX_UINT64)
 
 
-def as_uint64(value: object) -> UInt64:
-    return UInt64(as_int64(value))
+def _as_uint64(value: object) -> UInt64:
+    return UInt64(_as_int64(value))

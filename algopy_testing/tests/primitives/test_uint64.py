@@ -88,33 +88,6 @@ def get_avm_result(primitive_ops_client: ApplicationClient) -> AVMInvoker:
 @pytest.mark.parametrize(
     "value",
     [
-        MAX_UINT64 + 1,
-        MAX_UINT64 * 2,
-    ],
-)
-def test_uint64_too_big(value: int) -> None:
-    # just test the implementation as there is no AVM equivalent
-    with pytest.raises(ValueError, match=_too_big64_error):
-        UInt64(value)
-
-
-@pytest.mark.parametrize(
-    "value",
-    [
-        -1,
-        -MAX_UINT64,
-        -MAX_UINT64 * 2,
-    ],
-)
-def test_uint64_negative(value: int) -> None:
-    # just test the implementation as there is no AVM equivalent
-    with pytest.raises(ValueError, match=_negative_value_error):
-        UInt64(value)
-
-
-@pytest.mark.parametrize(
-    "value",
-    [
         0,
         1,
         MAX_UINT64,
@@ -231,6 +204,9 @@ def test_uint64_subtraction(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     assert avm_result == UInt64(a) - UInt64(b)
     assert avm_result == UInt64(a) - b
     assert avm_result == a - UInt64(b)
+    i = UInt64(a)
+    i -= b
+    assert avm_result == i
 
 
 @pytest.mark.parametrize(
@@ -271,6 +247,9 @@ def test_uint64_multiplication(get_avm_result: AVMInvoker, a: int, b: int) -> No
     assert avm_result == UInt64(a) * UInt64(b)
     assert avm_result == UInt64(a) * b
     assert avm_result == a * UInt64(b)
+    i = UInt64(a)
+    i *= b
+    assert avm_result == i
 
 
 @pytest.mark.parametrize(
@@ -311,6 +290,9 @@ def test_uint64_division(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     assert avm_result == UInt64(a) // UInt64(b)
     assert avm_result == UInt64(a) // b
     assert avm_result == a // UInt64(b)
+    i = UInt64(a)
+    i //= b
+    assert avm_result == i
 
 
 @pytest.mark.parametrize(
@@ -351,6 +333,9 @@ def test_uint64_mod(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     assert avm_result == UInt64(a) % UInt64(b)
     assert avm_result == UInt64(a) % b
     assert avm_result == a % UInt64(b)
+    i = UInt64(a)
+    i %= b
+    assert avm_result == i
 
 
 @pytest.mark.parametrize(
@@ -392,6 +377,9 @@ def test_uint64_power(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     assert avm_result == UInt64(a) ** UInt64(b)
     assert avm_result == UInt64(a) ** b
     assert avm_result == a ** UInt64(b)
+    i = UInt64(a)
+    i **= b
+    assert avm_result == i
 
 
 def test_uint64_power_undefined(get_avm_result: AVMInvoker) -> None:
@@ -399,13 +387,13 @@ def test_uint64_power_undefined(get_avm_result: AVMInvoker) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_undefined_error):
         get_avm_result("verify_uint64_pow", a=a, b=b)
 
-    with pytest.raises(ValueError, match=_undefined_error):
+    with pytest.raises(ArithmeticError, match=_undefined_error):
         UInt64(a) ** UInt64(b)
 
-    with pytest.raises(ValueError, match=_undefined_error):
+    with pytest.raises(ArithmeticError, match=_undefined_error):
         UInt64(a) ** b
 
-    with pytest.raises(ValueError, match=_undefined_error):
+    with pytest.raises(ArithmeticError, match=_undefined_error):
         a ** UInt64(b)
 
 
@@ -447,6 +435,9 @@ def test_uint64_bitwise_and(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     assert avm_result == UInt64(a) & UInt64(b)
     assert avm_result == UInt64(a) & b
     assert avm_result == a & UInt64(b)
+    i = UInt64(a)
+    i &= b
+    assert avm_result == i
 
 
 @pytest.mark.parametrize(
@@ -465,6 +456,9 @@ def test_uint64_bitwise_or(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     assert avm_result == UInt64(a) | UInt64(b)
     assert avm_result == UInt64(a) | b
     assert avm_result == a | UInt64(b)
+    i = UInt64(a)
+    i |= b
+    assert avm_result == i
 
 
 @pytest.mark.parametrize(
@@ -483,6 +477,9 @@ def test_uint64_bitwise_xor(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     assert avm_result == UInt64(a) ^ UInt64(b)
     assert avm_result == UInt64(a) ^ b
     assert avm_result == a ^ UInt64(b)
+    i = UInt64(a)
+    i ^= b
+    assert avm_result == i
 
 
 @pytest.mark.parametrize(
@@ -518,6 +515,9 @@ def test_uint64_bitwise_shift_left(get_avm_result: AVMInvoker, a: int, b: int) -
     assert avm_result == UInt64(a) << UInt64(b)
     assert avm_result == a << UInt64(b)
     assert avm_result == UInt64(a) << b
+    i = UInt64(a)
+    i <<= b
+    assert avm_result == i
 
 
 def test_uint64_invalid_lshift(get_avm_result: AVMInvoker) -> None:
@@ -525,12 +525,13 @@ def test_uint64_invalid_lshift(get_avm_result: AVMInvoker) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_shift_left_too_big):
         get_avm_result("verify_uint64_lshift", a=a, b=64)
 
-    with pytest.raises(ValueError, match=_shift_error):
+    with pytest.raises(ArithmeticError, match=_shift_error):
         UInt64(a) << 64
 
-    with pytest.raises(ValueError, match=_shift_error):
+    with pytest.raises(ArithmeticError, match=_shift_error):
         UInt64(a) << UInt64(64)
 
+    # this would be a compile error
     with pytest.raises(ValueError, match=_too_big64_error):
         MAX_UINT64 + 1 << UInt64(1)
 
@@ -554,6 +555,9 @@ def test_uint64_bitwise_shift_right(get_avm_result: AVMInvoker, a: int, b: int) 
     assert avm_result == UInt64(a) >> UInt64(b)
     assert avm_result == a >> UInt64(b)
     assert avm_result == UInt64(a) >> b
+    i = UInt64(a)
+    i >>= b
+    assert avm_result == i
 
 
 def test_uint64_invalid_rshift(get_avm_result: AVMInvoker) -> None:
@@ -561,14 +565,55 @@ def test_uint64_invalid_rshift(get_avm_result: AVMInvoker) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_shift_right_too_big):
         get_avm_result("verify_uint64_rshift", a=a, b=64)
 
-    with pytest.raises(ValueError, match=_shift_error):
+    with pytest.raises(ArithmeticError, match=_shift_error):
         UInt64(a) >> 64
 
-    with pytest.raises(ValueError, match=_shift_error):
+    with pytest.raises(ArithmeticError, match=_shift_error):
         UInt64(a) >> UInt64(64)
 
+    # this would be a compile error
+    with pytest.raises(ValueError, match=_too_big64_error):
+        MAX_UINT64 + 1 << UInt64(1)
     with pytest.raises(ValueError, match=_too_big64_error):
         MAX_UINT64 + 1 >> UInt64(1)
+
+
+# operations that are equivalent to compile time errors
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        MAX_UINT64 + 1,
+        MAX_UINT64 * 2,
+    ],
+)
+def test_uint64_too_big(value: int) -> None:
+    # just test the implementation as there is no AVM equivalent
+    with pytest.raises(ValueError, match=_too_big64_error):
+        UInt64(value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        -MAX_UINT64,
+        -MAX_UINT64 * 2,
+    ],
+)
+def test_uint64_negative(value: int) -> None:
+    # just test the implementation as there is no AVM equivalent
+    with pytest.raises(ValueError, match=_negative_value_error):
+        UInt64(value)
+
+
+def test_uint64_type_error() -> None:
+    with pytest.raises(TypeError):
+        UInt64(3.0)  # type: ignore[arg-type]
+
+    with pytest.raises(TypeError):
+        UInt64(0) + 3.0  # type: ignore[operator]
 
 
 @pytest.mark.parametrize(
@@ -610,21 +655,12 @@ def test_uint64_invalid_pairs(
         op(invalid, valid_uint64)
 
 
-def test_uint64_index() -> None:
-    # TODO: test indexing once we have a type to index
-    pass
+# NON AVM functionality
+# these don't have an AVM equivalent, but are very useful when executing in a python context
 
 
 def test_uint64_str() -> None:
     value = 42
-    # these don't have an AVM equivalent, but are very useful when executing in a python context
+
     assert str(UInt64(value)) == str(value)
     assert repr(UInt64(value)) == f"{value}u"
-
-
-def test_uint64_type_error() -> None:
-    with pytest.raises(TypeError):
-        UInt64(3.0)  # type: ignore[arg-type]
-
-    with pytest.raises(TypeError):
-        UInt64(0) + 3.0  # type: ignore[operator]
