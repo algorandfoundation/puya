@@ -118,15 +118,17 @@ class ASTConversionModuleContext(ASTConversionContext):
         else:
             proper_type_or_alias = mypy.types.get_proper_type(mypy_type)
         match proper_type_or_alias:
-            case mypy.types.TypeAliasType(alias=alias):
+            case mypy.types.TypeAliasType(alias=alias, args=args):
                 if alias is None:
                     raise InternalError("mypy type alias type missing alias reference", loc)
                 result = pytypes.lookup(alias.fullname)
-                if result is not None:
-                    return result
-                return self.type_to_pytype(
-                    mypy.types.get_proper_type(proper_type_or_alias), source_location=loc
-                )
+                if result is None:
+                    return self.type_to_pytype(
+                        mypy.types.get_proper_type(proper_type_or_alias), source_location=loc
+                    )
+                if args:
+                    result = self._parameterise_pytype(result, args, loc)
+                return result
             case mypy.types.NoneType() | mypy.types.PartialType(type=None):
                 return pytypes.NoneType
             case mypy.types.LiteralType(fallback=fallback):
@@ -137,12 +139,13 @@ class ASTConversionModuleContext(ASTConversionContext):
                 if generic is None:
                     raise CodeError(f"Unknown tuple base type: {true_type.type.fullname}", loc)
                 return generic.parameterise(types, loc)
-            case mypy.types.Instance() as inst:
-                return self._resolve_type_from_name_and_args(
-                    type_fullname=inst.type.fullname,
-                    inst_args=inst.args,
-                    loc=loc,
-                )
+            case mypy.types.Instance(args=args) as inst:
+                result = pytypes.lookup(inst.type.fullname)
+                if result is None:
+                    raise CodeError(f"Unknown type: {inst.type.fullname}", loc)
+                if args:
+                    result = self._parameterise_pytype(result, args, loc)
+                return result
             case mypy.types.UninhabitedType():
                 raise CodeError("Cannot resolve empty type", loc)
             case mypy.types.UnionType(items=items):
@@ -161,29 +164,23 @@ class ASTConversionModuleContext(ASTConversionContext):
                     f"Unable to resolve mypy type {mypy_type!r} to known algopy type", loc
                 )
 
-    def _resolve_type_from_name_and_args(
-        self, type_fullname: str, inst_args: Sequence[mypy.types.Type] | None, loc: SourceLocation
+    def _parameterise_pytype(
+        self, generic: pytypes.PyType, inst_args: Sequence[mypy.types.Type], loc: SourceLocation
     ) -> pytypes.PyType:
-        result = pytypes.lookup(type_fullname)
-        if result is None:
-            raise CodeError(f"Unknown type: {type_fullname}", loc)
-        if inst_args:
-            type_args_resolved = list[pytypes.TypeArg]()
-            for idx, ta in enumerate(inst_args):
-                if isinstance(ta, mypy.types.AnyType):
-                    raise CodeError(
-                        f"Unresolved generic type parameter for {type_fullname} at index {idx}",
-                        loc,
-                    )
-                if isinstance(ta, mypy.types.NoneType):
-                    type_args_resolved.append(None)
-                elif isinstance(ta, mypy.types.LiteralType):
-                    if isinstance(ta.value, float):
-                        raise CodeError(
-                            f"float value encountered in typing.Literal: {ta.value}", loc
-                        )
-                    type_args_resolved.append(ta.value)
-                else:
-                    type_args_resolved.append(self.type_to_pytype(ta, source_location=loc))
-            result = result.parameterise(type_args_resolved, loc)
+        type_args_resolved = list[pytypes.TypeArg]()
+        for idx, ta in enumerate(inst_args):
+            if isinstance(ta, mypy.types.AnyType):
+                raise CodeError(
+                    f"Unresolved generic type parameter for {generic.alias} at index {idx}",
+                    loc,
+                )
+            if isinstance(ta, mypy.types.NoneType):
+                type_args_resolved.append(None)
+            elif isinstance(ta, mypy.types.LiteralType):
+                if isinstance(ta.value, float):
+                    raise CodeError(f"float value encountered in typing.Literal: {ta.value}", loc)
+                type_args_resolved.append(ta.value)
+            else:
+                type_args_resolved.append(self.type_to_pytype(ta, source_location=loc))
+        result = generic.parameterise(type_args_resolved, loc)
         return result
