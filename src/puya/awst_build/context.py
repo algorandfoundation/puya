@@ -171,8 +171,7 @@ class ASTConversionModuleContext(ASTConversionContext):
         for idx, ta in enumerate(inst_args):
             if isinstance(ta, mypy.types.AnyType):
                 raise CodeError(
-                    f"Unresolved generic type parameter for {generic.alias} at index {idx}",
-                    loc,
+                    f"Unresolved generic type parameter for {generic} at index {idx}", loc
                 )
             if isinstance(ta, mypy.types.NoneType):
                 type_args_resolved.append(None)
