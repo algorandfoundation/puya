@@ -538,14 +538,14 @@ arc4_bool_wtype: typing.Final = ARC4Type(
     alias="bool",
     is_valid_literal=is_valid_bool_literal,
 )
-arc4_byte_type: typing.Final = ARC4UIntN(
+arc4_byte_type: typing.Final = ARC4UIntN(  # TODO: REMOVE ME
     n=8,
     name="arc4.byte",
     alias="byte",
     source_location=None,
     stub_name=constants.CLS_ARC4_BYTE,
 )
-arc4_dynamic_bytes: typing.Final = ARC4DynamicArray(
+arc4_dynamic_bytes: typing.Final = ARC4DynamicArray(  # TODO: REMOVE ME
     name="arc4.dynamic_bytes",
     element_type=arc4_byte_type,
     is_valid_literal=is_valid_bytes_literal,
