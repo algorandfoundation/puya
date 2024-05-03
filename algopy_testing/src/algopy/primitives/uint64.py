@@ -2,19 +2,19 @@ from __future__ import annotations
 
 import functools
 
-from algopy._constants import MAX_UINT64, MAX_UINT512
+from algopy._constants import MAX_UINT64
 
 
 @functools.total_ordering
 class UInt64:
     """
-    A 64-bit unsigned integer, one of the primary data types on the AVM.
+    A python implementation of an AVM 64-bit unsigned integer
     """
 
-    value: int  # Raw 'int' value representing the UInt64
+    value: int  # underlying 'int' value representing the UInt64
 
     def __init__(self, value: int = 0) -> None:
-        self.value = as_uint64(value)
+        self.value = as_int64(value)
 
     def __repr__(self) -> str:
         return f"{self.value}u"
@@ -27,11 +27,15 @@ class UInt64:
     # however will raise a TypeError if compared to something that is not a numeric value
     # as this would be a compile error when compiled to TEAL
     def __eq__(self, other: object) -> bool:
-        return self.value == as_uint512(other)
+        maybe_int = _as_maybe_uint64(other)
+        # returning NotImplemented here will allow BigUInt to handle larger comparisons
+        if maybe_int is None:
+            return NotImplemented
+        return self.value == maybe_int
 
     def __lt__(self, other: int | UInt64) -> bool:
         maybe_int = _as_maybe_uint64(other)
-        # returning NotImplemented here will allow BigUInt to handle
+        # returning NotImplemented here will allow BigUInt to handle larger comparisons
         if maybe_int is None:
             return NotImplemented
         return self.value < maybe_int
@@ -59,7 +63,7 @@ class UInt64:
         return _checked_result(self.value - maybe_int, "-")
 
     def __rsub__(self, other: int) -> UInt64:
-        return as_uint64_uint64(other) - self
+        return as_uint64(other) - self
 
     def __mul__(self, other: int | UInt64) -> UInt64:
         maybe_int = _as_maybe_uint64(other)
@@ -77,7 +81,7 @@ class UInt64:
         return _checked_result(self.value // maybe_int, "//")
 
     def __rfloordiv__(self, numerator: int) -> UInt64:
-        return as_uint64_uint64(numerator) // self
+        return as_uint64(numerator) // self
 
     def __mod__(self, denominator: int | UInt64) -> UInt64:
         maybe_int = _as_maybe_uint64(denominator)
@@ -87,7 +91,7 @@ class UInt64:
         return _checked_result(self.value % maybe_int, "%")
 
     def __rmod__(self, numerator: int) -> UInt64:
-        return as_uint64_uint64(numerator) % self
+        return as_uint64(numerator) % self
 
     def __pow__(self, exp: int | UInt64, modulo: int | UInt64 | None = None) -> UInt64:
         exp_int = _as_maybe_uint64(exp)
@@ -100,7 +104,7 @@ class UInt64:
         return _checked_result(self.value**exp_int, "**")
 
     def __rpow__(self, base: int, modulo: int | UInt64 | None = None) -> UInt64:
-        return pow(as_uint64_uint64(base), self, modulo)
+        return pow(as_uint64(base), self, modulo)
 
     def __and__(self, other: int | UInt64) -> UInt64:
         maybe_int = _as_maybe_uint64(other)
@@ -130,22 +134,22 @@ class UInt64:
         return self ^ other
 
     def __lshift__(self, other: int | UInt64) -> UInt64:
-        shift = as_uint64(other)
+        shift = as_int64(other)
         if shift > 63:
             raise ValueError("expected shift <= 63")
         return UInt64((self.value << shift) & MAX_UINT64)
 
     def __rlshift__(self, other: int | UInt64) -> UInt64:
-        return as_uint64_uint64(other) << self
+        return as_uint64(other) << self
 
     def __rshift__(self, other: int | UInt64) -> UInt64:
-        shift = as_uint64(other)
+        shift = as_int64(other)
         if shift > 63:
             raise ValueError("expected shift <= 63")
         return UInt64((self.value >> shift) & MAX_UINT64)
 
     def __rrshift__(self, other: int | UInt64) -> UInt64:
-        return as_uint64_uint64(other) >> self
+        return as_uint64(other) >> self
 
     def __invert__(self) -> UInt64:
         """
@@ -183,7 +187,7 @@ def _as_maybe_uint64(value: object) -> int | None:
     """Returns int value if `value` is an int or UInt64, otherwise None"""
     match value:
         case int(int_value):
-            return as_uint64(int_value)
+            return as_int64(int_value)
         case UInt64(value=int_value):
             return int_value
         case _:
@@ -202,7 +206,7 @@ def _checked_result(result: int, op: str) -> UInt64:
     return UInt64(result)
 
 
-def as_uint(value: object, *, max: int) -> int:  # noqa: A002
+def as_int(value: object, *, max: int) -> int:  # noqa: A002
     """
     Returns the underlying int value for any numeric type up to UInt512
 
@@ -226,13 +230,9 @@ def as_uint(value: object, *, max: int) -> int:  # noqa: A002
     return int_value
 
 
-def as_uint64(value: object) -> int:
-    return as_uint(value, max=MAX_UINT64)
+def as_int64(value: object) -> int:
+    return as_int(value, max=MAX_UINT64)
 
 
-def as_uint512(value: object) -> int:
-    return as_uint(value, max=MAX_UINT512)
-
-
-def as_uint64_uint64(value: object) -> UInt64:  # TODO: a better name
-    return UInt64(as_uint64(value))
+def as_uint64(value: object) -> UInt64:
+    return UInt64(as_int64(value))
