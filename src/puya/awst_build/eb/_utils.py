@@ -6,7 +6,8 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import BoolConstant, Expression, Literal, ReinterpretCast
 from puya.awst_build import intrinsic_factory
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
 
 if typing.TYPE_CHECKING:
@@ -23,7 +24,7 @@ def bool_eval_to_constant(
         value = not value
     logger.warning(f"expression is always {value}", location=location)
     const = BoolConstant(value=value, source_location=location)
-    return var_expression(const)
+    return BoolExpressionBuilder(const)
 
 
 def uint64_to_biguint(
@@ -45,4 +46,4 @@ def get_bytes_expr(expr: Expression) -> ReinterpretCast:
 
 
 def get_bytes_expr_builder(expr: Expression) -> ExpressionBuilder:
-    return var_expression(get_bytes_expr(expr))
+    return BytesExpressionBuilder(get_bytes_expr(expr))

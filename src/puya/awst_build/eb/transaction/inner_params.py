@@ -24,6 +24,7 @@ from puya.awst_build.eb.base import (
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
 from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
@@ -117,7 +118,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
                 )
             field, expression = get_field_expr(arg_name, arg)
             transaction_fields[field] = expression
-        return var_expression(
+        return InnerTxnParamsExpressionBuilder(
             CreateInnerTransaction(
                 wtype=self.produces(),
                 fields=transaction_fields,
@@ -139,15 +140,17 @@ class ParamsSubmitExpressionBuilder(IntermediateExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        if not args:
-            return var_expression(
-                SubmitInnerTransaction(
-                    wtype=wtypes.WInnerTransaction.from_type(self.wtype.transaction_type),
-                    itxns=(self.expr,),
-                    source_location=location,
-                )
+        from puya.awst_build.eb.transaction import InnerTransactionExpressionBuilder
+
+        if args:
+            raise CodeError(f"Unexpected arguments for {self.expr}", location)
+        return InnerTransactionExpressionBuilder(
+            SubmitInnerTransaction(
+                wtype=wtypes.WInnerTransaction.from_type(self.wtype.transaction_type),
+                itxns=(self.expr,),
+                source_location=location,
             )
-        raise CodeError(f"Unexpected arguments for {self.expr}", location)
+        )
 
 
 class CopyInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
@@ -196,7 +199,7 @@ class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
             assert arg_name is not None
             field, expression = get_field_expr(arg_name, arg)
             transaction_fields[field] = expression
-        return var_expression(
+        return VoidExpressionBuilder(
             UpdateInnerTransaction(
                 itxn=self.expr,
                 fields=transaction_fields,
