@@ -280,6 +280,18 @@ ApplicationType: typing.Final[PyType] = _SimpleType(
     alias=constants.CLS_APPLICATION_ALIAS,
     wtype=wtypes.application_wtype,
 )
+
+OnCompleteActionType: typing.Final[PyType] = _SimpleType(
+    name=constants.ENUM_CLS_ON_COMPLETE_ACTION,
+    alias=constants.ENUM_CLS_ON_COMPLETE_ACTION.replace("_constants.", ""),  # TODO: fixme
+    wtype=wtypes.uint64_wtype,
+)
+TransactionType: typing.Final[PyType] = _SimpleType(
+    name=constants.ENUM_CLS_TRANSACTION_TYPE,
+    alias=constants.ENUM_CLS_TRANSACTION_TYPE.replace("_constants.", ""),  # TODO: fixme
+    wtype=wtypes.uint64_wtype,
+)
+
 ARC4StringType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_ARC4_STRING,
     wtype=wtypes.arc4_string_wtype,
