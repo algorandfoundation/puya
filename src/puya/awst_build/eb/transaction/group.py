@@ -73,19 +73,18 @@ class GroupTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        match args:
-            case [(ExpressionBuilder() | Literal(value=int())) as eb]:
-                index_expr = expect_operand_wtype(eb, wtypes.uint64_wtype)
-                expr = IntrinsicCall(
-                    source_location=location,
-                    wtype=self.field.wtype,
-                    op_code="gtxnsas",
-                    immediates=[self.field.immediate],
-                    stack_args=[self.transaction, index_expr],
-                )
-                return var_expression(expr)
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
+        if len(args) != 1:
+            raise CodeError(f"Expected 1 argument, got {len(args)}", location)
+        (arg,) = args
+        index_expr = expect_operand_wtype(arg, wtypes.uint64_wtype)
+        expr = IntrinsicCall(
+            source_location=location,
+            wtype=self.field.wtype,
+            op_code="gtxnsas",
+            immediates=[self.field.immediate],
+            stack_args=[self.transaction, index_expr],
+        )
+        return var_expression(expr)
 
 
 def check_transaction_type(
