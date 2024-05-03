@@ -66,3 +66,33 @@ class PrimitiveOpsContract(ARC4Contract):
     def verify_uint64_pow(self, a: UInt64, b: UInt64) -> UInt64:
         result = a**b
         return result
+
+    @arc4.abimethod()
+    def verify_uint64_eq(self, a: UInt64, b: UInt64) -> bool:
+        result = a == b
+        return result
+
+    @arc4.abimethod()
+    def verify_uint64_ne(self, a: UInt64, b: UInt64) -> bool:
+        result = a != b
+        return result
+
+    @arc4.abimethod()
+    def verify_uint64_lt(self, a: UInt64, b: UInt64) -> bool:
+        result = a < b
+        return result
+
+    @arc4.abimethod()
+    def verify_uint64_le(self, a: UInt64, b: UInt64) -> bool:
+        result = a <= b
+        return result
+
+    @arc4.abimethod()
+    def verify_uint64_gt(self, a: UInt64, b: UInt64) -> bool:
+        result = a > b
+        return result
+
+    @arc4.abimethod()
+    def verify_uint64_ge(self, a: UInt64, b: UInt64) -> bool:
+        result = a >= b
+        return result

@@ -28,6 +28,9 @@ Source = "https://github.com/algorandfoundation/puya/tree/main/algopy_testing"
 # adds dependency on stubs when building wheel via hatch_build.py
 [tool.hatch.build.hooks.custom]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/algopy"]
 
@@ -38,10 +41,8 @@ python = ["3.12"]
 [tool.hatch.envs.default]
 type = "virtual"
 path = ".venv"
-pre-install-commands = [
-    "pip install -e ..", # add puyapy compiler as an editable path
-]
 dependencies = [
+    "puyapy@{root:uri}/..",
     "pytest>=7.4",
     "pytest-xdist[psutil]>=3.3",
     "py-algorand-sdk>=2.4.0",
@@ -56,8 +57,8 @@ dependencies = [
 COVERAGE_CORE = "sysmon"
 
 [tool.hatch.envs.default.scripts]
-check_stubs_cov = "python scripts/check_stubs_cov.py"
 refresh_test_artifacts = "python scripts/refresh_test_artifacts.py"
+check_stubs_cov = "python scripts/check_stubs_cov.py"
 pre_commit = [
     "hatch run lint:fix",
     "hatch run typing:check",
@@ -66,12 +67,12 @@ check = [
     "hatch run lint:check",
     "hatch run typing:check",
 ]
-
-tests = "pytest"
+tests = "pytest --cov --cov-report xml"
 
 # isolated environments for dev tooling
 [tool.hatch.envs.lint]
 detached = true
+path = ".venv.lint"
 dependencies = [
     "black",
     "ruff==0.4.2",
@@ -89,6 +90,7 @@ fix = [
 ]
 
 [tool.hatch.envs.typing]
+path = ".venv.typing"
 skip-install = true
 extra-dependencies = [
     "mypy==1.10",
@@ -101,6 +103,7 @@ check = [
 
 # cicd environment
 [tool.hatch.envs.cicd]
+path = ".venv.cicd"
 dependencies = [
     "algokit",
 ]
@@ -212,3 +215,6 @@ module = [
   "tests.artifacts.*",
 ]
 follow_imports = "skip"
+
+[tool.pytest.ini_options]
+addopts = "-n auto --cov-config=.coveragerc"
