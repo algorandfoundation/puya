@@ -1,12 +1,12 @@
 contract BoxContract
 {
   boxes {
-    ['BOX_A']: algopy.Box
-    ['b']: algopy.Box
-    ['BOX_C']: algopy.Box
+    ['BOX_A']: algopy.UInt64
+    ['b']: algopy.Bytes
+    ['BOX_C']: algopy.arc4.String
   }
   box_maps {
-    ['']: algopy.BoxMap
+    ['']: algopy.String
   }
   
   constructor()
@@ -52,7 +52,7 @@ contract BoxContract
   
   abimethod box_blob(): None
   {
-    box_blob: algopy.BoxBlob = BoxBlob('blob')
+    box_blob: algopy.BoxRef = BoxRef('blob')
     sender_bytes: algopy.Bytes = reinterpret_cast<algopy.Bytes>(txn<Sender>())
     app_address: algopy.Bytes = reinterpret_cast<algopy.Bytes>(global<CurrentApplicationAddress>())
     assert(box_create(box_blob, 8000u))

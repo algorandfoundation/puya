@@ -165,5 +165,10 @@ def var_expression(expr: Expression) -> ExpressionBuilder:
     try:
         builder = WTYPE_TO_BUILDER[expr.wtype]
     except KeyError:
-        builder = WTYPE_TO_BUILDER[type(expr.wtype)]
+        try:
+            builder = WTYPE_TO_BUILDER[type(expr.wtype)]
+        except KeyError:
+            raise InternalError(
+                f"Unable to map wtype {expr.wtype!r} to expression builder", expr.source_location
+            ) from None
     return builder(expr)

@@ -557,6 +557,36 @@ def _make_storage_parameterise(key_type: wtypes.WType) -> Parameterise:
     return parameterise
 
 
+def _make_storage_parameterise_todo_remove_me(
+    key_type: Callable[[wtypes.WType], wtypes.WType]
+) -> Parameterise:
+    def parameterise(
+        self: GenericType, args: TypeArgs, source_location: SourceLocation | None
+    ) -> StorageProxyType:
+        try:
+            (arg,) = args
+        except ValueError:
+            raise CodeError(
+                f"Expected a single type parameter, got {len(args)} parameters", source_location
+            ) from None
+        if not isinstance(arg, PyType):
+            raise CodeError(
+                f"typing.Literal cannot be used to parameterise {self.alias}", source_location
+            )
+
+        name = f"{self.name}[{arg.name}]"
+        alias = f"{self.alias}[{arg.alias}]"
+        return StorageProxyType(
+            generic=self,
+            name=name,
+            alias=alias,
+            content=arg,
+            wtype=key_type(arg.wtype),
+        )
+
+    return parameterise
+
+
 def _parameterise_storage_map(
     self: GenericType, args: TypeArgs, source_location: SourceLocation | None
 ) -> StorageMapProxyType:
@@ -585,7 +615,9 @@ def _parameterise_storage_map(
         content=content,
         # TODO: maybe bytes since it will just be the prefix?
         #       would have to change strategy in _gather_global_direct_storages if so
-        wtype=wtypes.box_key,
+        # wtype=wtypes.box_key,
+        # TODO: FIXME
+        wtype=wtypes.WBoxMapProxy.from_key_and_content_type(content.wtype),
     )
 
 
@@ -602,13 +634,16 @@ GenericLocalStateType: typing.Final = GenericType(
 GenericBoxType: typing.Final = GenericType(
     name=constants.CLS_BOX_PROXY,
     alias=constants.CLS_BOX_PROXY_ALIAS,
-    parameterise=_make_storage_parameterise(wtypes.box_key),
+    # TODO: FIXME
+    # parameterise=_make_storage_parameterise(wtypes.box_key),
+    parameterise=_make_storage_parameterise_todo_remove_me(wtypes.WBoxProxy.from_content_type),
 )
 BoxRefType: typing.Final = StorageProxyType(
     name=constants.CLS_BOX_REF_PROXY,
     alias=constants.CLS_BOX_REF_PROXY_ALIAS,
     content=BytesType,
-    wtype=wtypes.box_key,
+    # wtype=wtypes.box_key,
+    wtype=wtypes.box_ref_proxy_type,  # TODO: fixme
     generic=None,
 )
 _register(BoxRefType)
