@@ -22,6 +22,7 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
+from puya.awst_build.eb.bool import BoolExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import require_expression_builder
 from puya.errors import CodeError
@@ -112,7 +113,7 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
             raise CodeError("Empty slices are not supported", location)
 
         updated_wtype = wtypes.WTuple(slice_types, location)
-        return var_expression(
+        return TupleExpressionBuilder(
             SliceExpression(
                 source_location=location,
                 base=self.expr,
@@ -151,7 +152,7 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
             )
         item_expr = item.rvalue()
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
-        return var_expression(contains_expr)
+        return BoolExpressionBuilder(contains_expr)
 
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> ExpressionBuilder:
         return bool_eval_to_constant(value=True, location=location, negate=negate)
@@ -159,41 +160,37 @@ class TupleExpressionBuilder(ValueExpressionBuilder):
     def compare(
         self, other: ExpressionBuilder | Literal, op: BuilderComparisonOp, location: SourceLocation
     ) -> ExpressionBuilder:
-        if op in (BuilderComparisonOp.eq, BuilderComparisonOp.ne):
-            other_expr = require_expression_builder(other).rvalue()
-            if self.wtype != other_expr.wtype:
-                return var_expression(
-                    BoolConstant(value=op == BuilderComparisonOp.ne, source_location=location)
-                )
+        match op:
+            case BuilderComparisonOp.eq:
+                chain_op = BinaryBooleanOperator.and_
+                result_if_types_differ = False
+            case BuilderComparisonOp.ne:
+                chain_op = BinaryBooleanOperator.or_
+                result_if_types_differ = True
+            case _:
+                raise CodeError(f"The {op} operator on the tuple type is not supported", location)
 
-            def get_index(expr: Expression, index: int) -> Expression:
-                return TupleItemExpression(
-                    index=index,
-                    source_location=location,
-                    base=expr,
-                )
+        other_expr = require_expression_builder(other).rvalue()
+        if self.wtype != other_expr.wtype:
+            return BoolExpressionBuilder(
+                BoolConstant(value=result_if_types_differ, source_location=location)
+            )
 
-            def compare_one(left: Expression, right: Expression) -> Expression:
-                return (
-                    var_expression(left)
-                    .compare(var_expression(right), op=op, location=location)
-                    .rvalue()
-                )
+        def get_index(expr: Expression, idx: int) -> ExpressionBuilder:
+            item = TupleItemExpression(base=expr, index=idx, source_location=location)
+            return var_expression(item)
 
-            result = compare_one(get_index(self.expr, 0), get_index(other_expr, 0))
-            i = 1
-            while i < len(self.wtype.types):
-                result = BooleanBinaryOperation(
-                    left=result,
-                    right=compare_one(get_index(self.expr, i), get_index(other_expr, i)),
-                    op=(
-                        BinaryBooleanOperator.and_
-                        if op == BuilderComparisonOp.eq
-                        else BinaryBooleanOperator.or_
-                    ),
-                    source_location=location,
-                )
-                i += 1
-            return var_expression(result)
+        def compare_at_index(idx: int) -> Expression:
+            left = get_index(self.expr, idx)
+            right = get_index(other_expr, idx)
+            return left.compare(right, op=op, location=location).rvalue()
 
-        raise CodeError(f"The {op} operator on the tuple type is not supported", location)
+        result = compare_at_index(0)
+        for i in range(1, len(self.wtype.types)):
+            result = BooleanBinaryOperation(
+                left=result,
+                right=compare_at_index(i),
+                op=chain_op,
+                source_location=location,
+            )
+        return BoolExpressionBuilder(result)

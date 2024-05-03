@@ -23,7 +23,6 @@ from puya.awst_build.eb.base import (
 )
 from puya.awst_build.eb.transaction import get_field_python_name
 from puya.awst_build.eb.transaction.base import expect_wtype
-from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
@@ -166,15 +165,15 @@ class CopyInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        if not args:
-            return var_expression(
-                Copy(
-                    wtype=self.wtype,
-                    value=self.expr,
-                    source_location=location,
-                )
+        if args:
+            raise CodeError(f"Unexpected arguments for {self.expr}", location)
+        return InnerTxnParamsExpressionBuilder(
+            Copy(
+                wtype=self.wtype,
+                value=self.expr,
+                source_location=location,
             )
-        raise CodeError(f"Unexpected arguments for {self.expr}", location)
+        )
 
 
 class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):

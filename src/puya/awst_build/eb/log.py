@@ -17,7 +17,7 @@ from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
 
@@ -93,4 +93,4 @@ class LogBuilder(IntermediateExpressionBuilder):
                 )
         if log_value is None:
             log_value = BytesConstant(value=b"", source_location=location)
-        return var_expression(intrinsic_factory.log(log_value, location))
+        return VoidExpressionBuilder(intrinsic_factory.log(log_value, location))

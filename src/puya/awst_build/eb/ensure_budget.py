@@ -17,7 +17,7 @@ from puya.awst_build.eb.base import (
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping
 from puya.errors import CodeError
 
@@ -83,7 +83,7 @@ class EnsureBudgetBuilder(IntermediateExpressionBuilder):
             args=call_args,
             wtype=wtypes.void_wtype,
         )
-        return var_expression(call_expr)
+        return VoidExpressionBuilder(call_expr)
 
 
 class OpUpFeeSourceClassBuilder(TypeClassExpressionBuilder):

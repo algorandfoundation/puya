@@ -19,6 +19,7 @@ from puya.awst_build.eb.transaction.base import (
     BaseTransactionExpressionBuilder,
     expect_wtype,
 )
+from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import expect_operand_wtype
 from puya.errors import CodeError
@@ -125,7 +126,7 @@ class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
     ) -> ExpressionBuilder:
         if len(args) > 1:
             transaction_types = {a: _get_transaction_type_from_arg(a) for a in args}
-            return var_expression(
+            return TupleExpressionBuilder(
                 SubmitInnerTransaction(
                     wtype=wtypes.WTuple(
                         (wtypes.WInnerTransaction.from_type(transaction_types[a]) for a in args),

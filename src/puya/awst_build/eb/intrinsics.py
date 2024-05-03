@@ -10,6 +10,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
+from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.intrinsic_data import ENUM_CLASSES, STUB_TO_AST_MAPPER
 from puya.awst_build.intrinsic_models import FunctionOpMapping, ImmediateArgMapping
@@ -38,7 +39,7 @@ class Arc4SignatureBuilder(IntermediateExpressionBuilder):
             case _:
                 logger.error(f"Unexpected args for {ARC4_SIGNATURE_ALIAS}", location=location)
                 str_value = ""  # dummy value to keep evaluating
-        return var_expression(
+        return BytesExpressionBuilder(
             MethodConstant(
                 value=str_value,
                 source_location=location,

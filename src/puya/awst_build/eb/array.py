@@ -12,7 +12,8 @@ from puya.awst_build.eb.base import (
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
-from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.eb.bool import BoolExpressionBuilder
+from puya.awst_build.eb.void import VoidExpressionBuilder
 from puya.awst_build.utils import (
     expect_operand_wtype,
     require_expression_builder,
@@ -69,7 +70,7 @@ class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
         array_expr = NewArray(
             source_location=location, values=tuple(non_literal_args), wtype=array_wtype
         )
-        return var_expression(array_expr)
+        return ArrayExpressionBuilder(array_expr)
 
 
 class ArrayExpressionBuilder(ValueExpressionBuilder):
@@ -92,7 +93,7 @@ class ArrayExpressionBuilder(ValueExpressionBuilder):
     ) -> ExpressionBuilder:
         item_expr = expect_operand_wtype(item, self.wtype.element_type)
         contains_expr = Contains(source_location=location, item=item_expr, sequence=self.expr)
-        return var_expression(contains_expr)
+        return BoolExpressionBuilder(contains_expr)
 
 
 class ArrayAppenderExpressionBuilder(IntermediateExpressionBuilder):
@@ -120,4 +121,4 @@ class ArrayAppenderExpressionBuilder(IntermediateExpressionBuilder):
             other=TupleExpression.from_items([elem_expr], location),
             wtype=wtypes.void_wtype,
         )
-        return var_expression(append_expr)
+        return VoidExpressionBuilder(append_expr)
