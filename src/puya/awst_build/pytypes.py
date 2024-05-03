@@ -82,9 +82,6 @@ TypeArg: typing.TypeAlias = PyType | TypingLiteralValue
 TypeArgs: typing.TypeAlias = tuple[TypeArg, ...]
 Parameterise: typing.TypeAlias = Callable[["GenericType", TypeArgs, SourceLocation | None], PyType]
 
-# Just a cache. Would be better as a class-var on GenericType, but see note on _type_registry
-_generic_instances: typing.Final = dict[TypeArgs, PyType]()
-
 
 @typing.final
 @attrs.frozen
@@ -92,6 +89,7 @@ class GenericType(PyType, abc.ABC):
     """Represents a typing.Generic type with unknown parameters"""
 
     _parameterise: Parameterise
+    _instance_cache: dict[TypeArgs, PyType] = attrs.field(factory=dict, eq=False)
 
     def __attrs_post_init__(self) -> None:
         self.register()
@@ -106,7 +104,7 @@ class GenericType(PyType, abc.ABC):
         self, args: Sequence[PyType | TypingLiteralValue], source_location: SourceLocation | None
     ) -> PyType:
         return lazy_setdefault(
-            _generic_instances,
+            self._instance_cache,
             key=tuple(args),
             default=lambda args_: self._parameterise(self, args_, source_location),
         )
@@ -347,7 +345,7 @@ GenericARC4UIntNType: typing.Final = GenericType(
 )
 GenericARC4BigUIntNType: typing.Final = GenericType(
     name=constants.CLS_ARC4_BIG_UINTN,
-    parameterise=_make_arc4_unsigned_int_parameterise(max_bits=512),
+    parameterise=_make_arc4_unsigned_int_parameterise(),
 )
 
 
