@@ -16,6 +16,7 @@ from puya.awst.nodes import (
     Expression,
     FreeSubroutineTarget,
     Literal,
+    ReinterpretCast,
     SingleEvaluation,
     Statement,
     StringConstant,
@@ -259,4 +260,6 @@ class _StringJoin(IntermediateExpressionBuilder):
                 )
         if joined_value is None:
             joined_value = StringConstant(value="", source_location=location)
-        return StringExpressionBuilder(joined_value)
+        return StringExpressionBuilder(
+            ReinterpretCast(expr=joined_value, wtype=wtypes.string_wtype, source_location=location)
+        )
