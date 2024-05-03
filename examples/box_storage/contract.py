@@ -62,7 +62,7 @@ class BoxContract(arc4.ARC4Contract):
         value, exists = box_blob.maybe()
         assert not exists
         assert box_blob.get(default=sender_bytes) == sender_bytes
-        box_blob.create(sender_bytes + app_address)
+        box_blob.put(sender_bytes + app_address)
         assert box_blob, "Blob exists"
         assert box_blob.length == 64
 

@@ -65,14 +65,6 @@ class BoxRef:
     def __bool__(self) -> bool:
         """Returns True if the box has a value set, regardless of the truthiness of that value"""
 
-    @typing.overload
-    def create(self, data: Bytes | bytes) -> None:  # TODO: replace this override with put
-        """
-        Creates a box with the specified value. Fails if the box already exists with a
-        different size to `len(value)`
-        """
-
-    @typing.overload
     def create(self, *, size: UInt64 | int) -> bool:
         """
         Creates a box with the specified size, setting all bits to zero. Fails if the box already
