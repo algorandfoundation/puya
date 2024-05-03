@@ -66,7 +66,7 @@ def main() -> None:
     try:
         for folder in get_artifact_folders(artifacts_dir):
             compile_contract(folder)
-            generate_client(folder)
+            # generate_client(folder)
     except subprocess.CalledProcessError as e:
         print(f"Error: {e}")
 

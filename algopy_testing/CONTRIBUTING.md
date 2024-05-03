@@ -8,4 +8,4 @@ test: `hatch run tests`
 build: `hatch build`
 open shell: `hatch shell`
 
-reset environments: `hatch env prune`
+reset environments: `hatch env prune`, useful to resync compiler/stub changes with environment
