@@ -564,7 +564,7 @@ class FunctionASTConverter(
         loc = self._location(stmt)
         return_expr = stmt.expr
         if return_expr is None:
-            if self._return_type is pytypes.NoneType:
+            if self._return_type is not pytypes.NoneType:
                 self._error(
                     "function is typed as returning a value, so a value must be returned", loc
                 )
@@ -574,7 +574,8 @@ class FunctionASTConverter(
         # TODO: compare pytypes instead
         if returning.wtype != self._return_type.wtype:
             self._error(
-                f"invalid return type of {returning.wtype}, expected {self._return_type}", loc
+                f"invalid return type of {returning.wtype}, expected {self._return_type.wtype}",
+                loc,
             )
         return ReturnStatement(source_location=loc, value=returning)
 
