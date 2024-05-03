@@ -47,6 +47,10 @@ class PyType(abc.ABC):
             raise CodeError(f"Type already has parameters: {self.alias}", source_location)
         raise CodeError(f"Not a generic type: {self.alias}", source_location)
 
+    def register(self) -> typing.Self:
+        _register(self)
+        return self
+
 
 # Registry used for lookups from mypy types.
 _type_registry: typing.Final = dict[str, PyType]()
@@ -68,7 +72,7 @@ def lookup(name: str) -> PyType | None:
 
 
 # https://typing.readthedocs.io/en/latest/spec/literal.html#legal-and-illegal-parameterizations
-# We don't support enums as typing.Literal parameters. MyPy encodes these as str values with
+# We don't support enums as typing.Literal parameters. mypy encodes these as str values with
 # an additional "fallback" data member, but we don't need that complication.
 # mypy.types.LiteralValue also includes float, noting its invalid as a parameterization, but
 # we exclude this here.
@@ -90,7 +94,7 @@ class GenericType(PyType, abc.ABC):
     _parameterise: Parameterise
 
     def __attrs_post_init__(self) -> None:
-        _register(self)
+        self.register()
 
     @typing.override
     @property
@@ -185,7 +189,7 @@ class StructType(PyType):
             frozen=frozen,
             source_location=source_location,
         )
-        _register(self)
+        self.register()
 
     @classmethod
     def native(
@@ -230,7 +234,7 @@ class _SimpleType(PyType):
     wtype: wtypes.WType
 
     def __attrs_post_init__(self) -> None:
-        _register(self)
+        self.register()
 
 
 NoneType: typing.Final[PyType] = _SimpleType(
@@ -285,10 +289,6 @@ ARC4StringType: typing.Final[PyType] = _SimpleType(
 ARC4BoolType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_ARC4_BOOL,
     wtype=wtypes.arc4_bool_wtype,
-)
-ARC4ByteType: typing.Final[PyType] = _SimpleType(
-    name=constants.CLS_ARC4_BYTE,
-    wtype=wtypes.arc4_byte_type,
 )
 ARC4DynamicBytesType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_ARC4_DYNAMIC_BYTES,
@@ -349,6 +349,35 @@ GenericARC4BigUIntNType: typing.Final = GenericType(
     name=constants.CLS_ARC4_BIG_UINTN,
     parameterise=_make_arc4_unsigned_int_parameterise(max_bits=512),
 )
+
+
+ARC4ByteType: typing.Final[PyType] = ARC4UIntNType(
+    generic=GenericARC4UIntNType,
+    name=constants.CLS_ARC4_BYTE,
+    wtype=wtypes.arc4_byte_type,
+    bits=8,
+).register()
+ARC4UInt8Type: typing.Final[PyType] = GenericARC4UIntNType.parameterise(
+    [8], source_location=None
+).register()
+ARC4UInt16Type: typing.Final[PyType] = GenericARC4UIntNType.parameterise(
+    [16], source_location=None
+).register()
+ARC4UInt32Type: typing.Final[PyType] = GenericARC4UIntNType.parameterise(
+    [32], source_location=None
+).register()
+ARC4UInt64Type: typing.Final[PyType] = GenericARC4UIntNType.parameterise(
+    [64], source_location=None
+).register()
+ARC4UInt128Type: typing.Final[PyType] = GenericARC4BigUIntNType.parameterise(
+    [128], source_location=None
+).register()
+ARC4UInt256Type: typing.Final[PyType] = GenericARC4BigUIntNType.parameterise(
+    [256], source_location=None
+).register()
+ARC4UInt512Type: typing.Final[PyType] = GenericARC4BigUIntNType.parameterise(
+    [512], source_location=None
+).register()
 
 
 @attrs.frozen
@@ -645,8 +674,7 @@ BoxRefType: typing.Final = StorageProxyType(
     # wtype=wtypes.box_key,
     wtype=wtypes.box_ref_proxy_type,  # TODO: fixme
     generic=None,
-)
-_register(BoxRefType)
+).register()
 
 GenericBoxMapType: typing.Final = GenericType(
     name=constants.CLS_BOX_MAP_PROXY,

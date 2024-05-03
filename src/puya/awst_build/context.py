@@ -9,6 +9,7 @@ from puya import log
 from puya.awst.nodes import ConstantValue, ContractReference
 from puya.awst_build import pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.exceptions import TypeUnionError
 from puya.context import CompileContext
 from puya.errors import CodeError, InternalError, log_exceptions
 from puya.parse import SourceLocation
@@ -101,25 +102,31 @@ class ASTConversionModuleContext(ASTConversionContext):
             yield
 
     def mypy_expr_node_type(self, expr: mypy.nodes.Expression) -> pytypes.PyType:
-        mypy_type = self.get_mypy_expr_type(expr)
         expr_loc = self.node_location(expr)
+        mypy_type = self.parse_result.manager.all_types.get(expr)
+        if mypy_type is None:
+            raise InternalError(f"mypy expression not present in type table: {expr}", expr_loc)
         return self.type_to_pytype(mypy_type, source_location=expr_loc)
 
-    def get_mypy_expr_type(self, expr: mypy.nodes.Expression) -> mypy.types.Type:
-        try:
-            typ = self.parse_result.manager.all_types[expr]
-        except KeyError as ex:
-            raise InternalError(
-                "MyPy Expression to MyPy Type lookup failed", self.node_location(expr)
-            ) from ex
-        return mypy.types.get_proper_type(typ)
-
     def type_to_pytype(
-        self, typ: mypy.types.Type, *, source_location: SourceLocation | mypy.nodes.Context
+        self, mypy_type: mypy.types.Type, *, source_location: SourceLocation | mypy.nodes.Context
     ) -> pytypes.PyType:
         loc = self._maybe_convert_location(source_location)
-        proper_type = mypy.types.get_proper_type(typ)
-        match proper_type:
+        proper_type_or_alias: mypy.types.ProperType | mypy.types.TypeAliasType
+        if isinstance(mypy_type, mypy.types.TypeAliasType):
+            proper_type_or_alias = mypy_type
+        else:
+            proper_type_or_alias = mypy.types.get_proper_type(mypy_type)
+        match proper_type_or_alias:
+            case mypy.types.TypeAliasType(alias=alias):
+                if alias is None:
+                    raise InternalError("mypy type alias type missing alias reference", loc)
+                result = pytypes.lookup(alias.fullname)
+                if result is not None:
+                    return result
+                return self.type_to_pytype(
+                    mypy.types.get_proper_type(proper_type_or_alias), source_location=loc
+                )
             case mypy.types.NoneType() | mypy.types.PartialType(type=None):
                 return pytypes.NoneType
             case mypy.types.LiteralType(fallback=fallback):
@@ -139,16 +146,20 @@ class ASTConversionModuleContext(ASTConversionContext):
             case mypy.types.UninhabitedType():
                 raise CodeError("Cannot resolve empty type", loc)
             case mypy.types.UnionType(items=items):
-                if not items:
+                types = [self.type_to_pytype(it, source_location=loc) for it in items]
+                if not types:
                     raise CodeError("Cannot resolve empty type", loc)
-                if len(items) > 1:
-                    raise CodeError("Type unions are unsupported at this location", loc)
-                return self.type_to_pytype(items[0], source_location=loc)
+                if len(types) == 1:
+                    return types[0]
+                else:
+                    raise TypeUnionError(types, loc)
             case mypy.types.AnyType():
                 # TODO: look at type_of_any to improve error message
                 raise CodeError("Any type is not supported", loc)
             case _:
-                raise CodeError(f"Unable to resolve mypy type {typ!r} to known algopy type", loc)
+                raise CodeError(
+                    f"Unable to resolve mypy type {mypy_type!r} to known algopy type", loc
+                )
 
     def _resolve_type_from_name_and_args(
         self, type_fullname: str, inst_args: Sequence[mypy.types.Type] | None, loc: SourceLocation

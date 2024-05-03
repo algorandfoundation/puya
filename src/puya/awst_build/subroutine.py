@@ -85,6 +85,7 @@ from puya.awst_build.eb.unsigned_builtins import (
     ReversedFunctionExpressionBuilder,
 )
 from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
     bool_eval,
     expect_operand_wtype,
@@ -991,10 +992,14 @@ class FunctionASTConverter(
         # mypy combines ast.BoolOp and ast.BinOp, but they're kinda different...
         if node.op in ("and", "or"):
             bool_op = BinaryBooleanOperator(node.op)
-            # TODO use PyType
-            result_mypy_type = self.context.get_mypy_expr_type(node)
+            try:
+                result_pytype = self.context.mypy_expr_node_type(node)
+            except TypeUnionError as union_ex:
+                result_pytypes = union_ex.types
+            else:
+                result_pytypes = [result_pytype]
             bool_expr = self._visit_bool_op_expr(
-                bool_op, result_mypy_type, lhs=lhs, rhs=rhs, location=node_loc
+                bool_op, result_pytypes, lhs=lhs, rhs=rhs, location=node_loc
             )
             return var_expression(bool_expr)
 
@@ -1015,7 +1020,7 @@ class FunctionASTConverter(
     def _visit_bool_op_expr(
         self,
         op: BinaryBooleanOperator,
-        result_mypy_type: mypy.types.Type,
+        result_pytypes: Sequence[pytypes.PyType],
         lhs: ExpressionBuilder | Literal,
         rhs: ExpressionBuilder | Literal,
         location: SourceLocation,
@@ -1043,7 +1048,7 @@ class FunctionASTConverter(
         # this would fail to compile, due to (a and b) being wtype of bool.
         # this is fine and expected, there's no issues of semantic compatibility since we
         # reject compiling the program altogether.
-        if isinstance(result_mypy_type, mypy.types.UnionType) and len(result_mypy_type.items) > 1:
+        if len(result_pytypes) > 1:
             if not self._is_bool_context:
                 raise CodeError(
                     "expression would produce a union type,"
@@ -1054,7 +1059,7 @@ class FunctionASTConverter(
             lhs_expr = bool_eval(lhs, location).rvalue()
             rhs_expr = bool_eval(rhs, location).rvalue()
         else:
-            target_pytyp = self.context.type_to_pytype(result_mypy_type, source_location=location)
+            (target_pytyp,) = result_pytypes
             # TODO: use to PyType instead
             target_wtype = target_pytyp.wtype
             lhs_expr = expect_operand_wtype(lhs, target_wtype)
