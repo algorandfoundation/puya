@@ -66,13 +66,21 @@ def test(a: UInt64, b: UInt64) -> UInt64:
 
 ## case: no_type_alias
 import typing
-from algopy import UInt64, subroutine
+from algopy import *
 
 @subroutine
 def test() -> UInt64:
     Foo: typing.TypeAlias = UInt64 ## E: type aliases, type vars, and type constructors are not supported inside functions
     one: Foo = UInt64(1)
     return one
+
+class MyContract(ARC4Contract):
+    Foo: typing.TypeAlias = UInt64 ## E: assignment statements are not supported in the class body
+
+    def __init__(self) -> None:
+        Bar: typing.TypeAlias = UInt64 ## E: type aliases, type vars, and type constructors are not supported inside functions
+        self.bar = Bar(1)
+
 
 ## case: no_assign_void
 from algopy import UInt64, subroutine

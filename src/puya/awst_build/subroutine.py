@@ -154,13 +154,16 @@ class FunctionASTConverter(
         mypy_arg_types = type_info.arg_types
         if func_def.info is not mypy.nodes.FUNC_NO_INFO:  # why god why
             # function is a method
-            self._precondition(
-                bool(mypy_args) and mypy_args[0].variable.is_self,
-                "if function is a method, first variable should be self-like",
-                func_loc,
-            )
-            mypy_args = mypy_args[1:]
-            mypy_arg_types = mypy_arg_types[1:]
+            if not mypy_args:
+                context.error("Method declaration is missing 'self' argument", func_loc)
+            else:
+                self._precondition(
+                    mypy_args[0].variable.is_self,
+                    "if function is a method, first variable should be self-like",
+                    func_loc,
+                )
+                mypy_args = mypy_args[1:]
+                mypy_arg_types = mypy_arg_types[1:]
         elif mypy_args:
             self._precondition(
                 not mypy_args[0].variable.is_self,
