@@ -8,7 +8,6 @@ import mypy.visitor
 
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
-from puya.awst import wtypes
 from puya.awst.nodes import (
     ConstantDeclaration,
     ConstantValue,
@@ -49,6 +48,18 @@ StatementResult: t.TypeAlias = list[ModuleStatement | DeferredModuleStatement]
 @attrs.frozen(kw_only=True)
 class _LogicSigDecoratorInfo:
     name_override: str | None
+
+
+def value_or_error(callback: Callable[[], object]) -> object:
+    try:
+        return callback()
+    except Exception as ex:
+        return ex
+
+
+_BUILTIN_INHERITABLE: t.Final = frozenset(
+    ("builtins.object", "abc.ABC", *mypy.types.PROTOCOL_NAMES)
+)
 
 
 class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
@@ -163,6 +174,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
 
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
         self.check_fatal_decorators(cdef.decorators)
+        cdef_loc = self._location(cdef)
         match cdef.analyzed:
             case None:
                 pass
@@ -175,7 +187,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     "Analyzed class expression of type"
                     f" {type(unrecognised_analysis_expression).__name__},"
                     " please report this issue and check the compilation results carefully",
-                    cdef,
+                    cdef_loc,
                 )
         for decorator in cdef.decorators:
             self._error(
@@ -185,64 +197,73 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 ),
                 location=decorator,
             )
-        if cdef.info.bad_mro:
-            self._error("Bad MRO", location=cdef)
-        elif cdef.info.has_base(constants.CLS_ARC4_STRUCT):
-            if [ti.fullname for ti in cdef.info.direct_base_classes()] != [
-                constants.CLS_ARC4_STRUCT
-            ]:
-                # TODO: allow inheritance of arc4.Struct?
+        info: mypy.nodes.TypeInfo = cdef.info
+        if info.bad_mro:
+            self._error("Bad MRO", location=cdef_loc)
+            return []
+        if info.metaclass_type and info.metaclass_type.type.fullname not in (
+            "abc.ABCMeta",
+            "typing._ProtocolMeta",
+            "typing_extensions._ProtocolMeta",
+            constants.CLS_ARC4_STRUCT_META,
+            constants.STRUCT_META,
+        ):
+            self._error(
+                f"Unsupported metaclass: {info.metaclass_type.type.fullname}",
+                location=cdef_loc,
+            )
+            return []
+
+        direct_base_types = [
+            self.context.require_ptype(ti.fullname, cdef_loc)
+            for ti in info.direct_base_classes()
+            if ti.fullname not in _BUILTIN_INHERITABLE
+        ]
+        mro_types = [
+            self.context.require_ptype(ti.fullname, cdef_loc)
+            for ti in info.mro[1:]
+            if ti.fullname not in _BUILTIN_INHERITABLE
+        ]
+        for struct_base in (pytypes.StructBaseType, pytypes.ARC4StructBaseType):
+            # note that since these struct bases aren't protocols, any subclasses
+            # cannot be protocols
+            if direct_base_types == [struct_base]:
+                return _process_struct(self.context, struct_base, cdef)
+            if struct_base in mro_types:
                 self._error(
-                    "arc4.Struct classes must only inherit directly from arc4.Struct", cdef
+                    f"{struct_base} classes must only inherit directly from {struct_base}",
+                    cdef_loc,
                 )
-            else:
-                return _process_arc4_struct(self.context, cdef)
-        elif cdef.info.has_base(constants.STRUCT_BASE):
-            if [ti.fullname for ti in cdef.info.direct_base_classes()] != [constants.STRUCT_BASE]:
-                # TODO: allow inheritance of Structs?
-                self._error("Struct classes must only inherit directly from Struct", cdef)
-            else:
-                return _process_struct(self.context, cdef)
-        elif cdef.info.has_base(constants.CLS_ARC4_CLIENT):
-            if [ti.fullname for ti in cdef.info.direct_base_classes()] != [
-                constants.CLS_ARC4_CLIENT
-            ]:
-                self._error("ARC4Client classes must only inherit directly from ARC4Client", cdef)
-            else:
-                # nothing to do, ARC4Client classes are used for type info only
-                pass
-        elif cdef.info.has_base(constants.CONTRACT_BASE):
-            # TODO: mypyc also checks for typing.TypingMeta and typing.GenericMeta equivalently
-            #       in a similar check - I can't find many references to these, should we include
-            #       them?
-            if (
-                cdef.info.metaclass_type
-                and cdef.info.metaclass_type.type.fullname != "abc.ABCMeta"
-            ):
-                self._error(
-                    f"Unsupported metaclass: {cdef.info.metaclass_type.type.fullname}",
-                    location=cdef,
+                return []
+
+        self.context.register_pytype(
+            pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
+        )
+        if info.is_protocol:
+            if pytypes.ARC4ClientBaseType not in direct_base_types:
+                logger.debug(
+                    f"Skipping further processing of protocol class {cdef.fullname}",
+                    location=cdef_loc,
                 )
-            # TODO: other checks above?
-            else:
-                class_options = _process_contract_class_options(self.context, self, cdef)
-                return [lambda ctx: ContractASTConverter.convert(ctx, cdef, class_options)]
-        else:
+            return []
+
+        if pytypes.ContractBaseType not in mro_types:
             self._error(
                 f"Unsupported class declaration."
                 f" Contract classes must inherit either directly"
                 f" or indirectly from {constants.CONTRACT_BASE_ALIAS}.",
-                location=cdef,
+                location=cdef_loc,
             )
-        return []
+            return []
+
+        class_options = _process_contract_class_options(self.context, self, cdef)
+        return [lambda ctx: ContractASTConverter.convert(ctx, cdef, class_options)]
 
     def visit_operator_assignment_stmt(
         self, stmt: mypy.nodes.OperatorAssignmentStmt
     ) -> StatementResult:
         match stmt.lvalue:
             case mypy.nodes.NameExpr(name="__all__"):
-                # TODO: this value is technically usable at runtime in Python,
-                #       any references to it in the method bodies should fail
                 return self.empty_statement(stmt)
             case _:
                 self._unsupported(stmt)
@@ -259,66 +280,101 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             return []
 
     def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> StatementResult:
+        stmt_loc = self._location(stmt)
         self._precondition(
-            bool(stmt.lvalues), "assignment statements should have at least one lvalue", stmt
+            bool(stmt.lvalues), "assignment statements should have at least one lvalue", stmt_loc
         )
         self._precondition(
             not stmt.invalid_recursive_alias,
             "assignment statement with invalid_recursive_alias",
-            stmt,
+            stmt_loc,
         )
-        if stmt.is_alias_def:  # ie is this a typing.TypeAlias
-            return []  # skip it
-        match stmt.lvalues:
-            case [mypy.nodes.NameExpr(name="__all__")]:
-                # TODO: this value is technically usable at runtime in Python,
-                #       any references to it in the method bodies should fail
-                return []  # skip it
-            # mypy comments here indicate if this is a special form,
-            # it will be a single lvalue of type NameExpr
-            # https://github.com/python/mypy/blob/d2022a0007c0eb176ccaf37a9aa54c958be7fb10/mypy/semanal.py#L3508
-            case [mypy.nodes.NameExpr(is_special_form=True)]:
-                match stmt.rvalue:
-                    # is_special_form also includes functional form or Enum or TypedDict
-                    # declarations, we don't support those yet so need to exclude them from
-                    # being skipped over here, otherwise the reported error later on in compilation
-                    # could get real weird
-                    case mypy.nodes.CallExpr(
-                        analyzed=(mypy.nodes.EnumCallExpr() | mypy.nodes.TypedDictExpr())
-                    ):
-                        self._unsupported(stmt.rvalue, "unsupported type")
-                    case _:
-                        return []  # skip it
-        const_delcs = StatementResult()
-
-        for lvalue in stmt.lvalues:
-            match lvalue, stmt.rvalue:
-                case mypy.nodes.NameExpr() as name_expr, rvalue:
-                    fullname = ".".join((self.context.module_name, name_expr.name))
-                    # fullname might be unset if this is in
-                    # a conditional branch that's !TYPE_CHECKING
-                    if name_expr.fullname:
-                        self._precondition(
-                            name_expr.fullname == fullname,
-                            f"assignment to module const - expected fullname of {fullname},"
-                            f" but mypy had {name_expr.fullname}",
-                            lvalue,
+        lvalues = stmt.lvalues
+        if not self._check_assignment_lvalues(lvalues):
+            return []
+        if stmt.is_alias_def:
+            match stmt.rvalue:
+                case mypy.nodes.RefExpr(
+                    is_alias_rvalue=True, node=mypy.nodes.TypeInfo(fullname=alias_fullname)
+                ):
+                    maybe_aliased_pytype = self.context.lookup_pytype(alias_fullname)
+                    if maybe_aliased_pytype is None:
+                        self.context.error(
+                            f"Unknown type for type alias: {alias_fullname}", stmt_loc
                         )
-                    constant_value = rvalue.accept(self)
-                    self.context.constants[fullname] = constant_value
-                    const_delcs.append(
-                        ConstantDeclaration(
-                            name=name_expr.name,
-                            value=constant_value,
-                            source_location=self._location(lvalue),
-                        )
+                        return []
+                    aliased_pytype = maybe_aliased_pytype
+                case mypy.nodes.IndexExpr(
+                    analyzed=mypy.nodes.TypeAliasExpr(
+                        node=mypy.nodes.TypeAlias(alias_tvars=[], target=alias_type)
+                    )
+                ):
+                    aliased_pytype = self.context.type_to_pytype(
+                        alias_type, source_location=stmt_loc
                     )
                 case _:
-                    self._unsupported(
-                        lvalue,
-                        "only straight-forward assignment targets supported at module level",
-                    )
+                    self._error("Unsupported type-alias format", stmt_loc)
+                    return []
+            for lvalue in lvalues:
+                self.context.register_pytype(aliased_pytype, alias=lvalue.fullname)
+            # We don't include type aliases in AWST since they're Python specific
+            return []
+        if any(lvalue.is_special_form for lvalue in lvalues):
+            self._error("Unsupported type-form", stmt_loc)
+
+        const_delcs = StatementResult()
+        constant_value = stmt.rvalue.accept(self)
+        for lvalue in lvalues:
+            self.context.constants[lvalue.fullname] = constant_value
+            const_delcs.append(
+                ConstantDeclaration(
+                    name=lvalue.name, value=constant_value, source_location=stmt_loc
+                )
+            )
+
         return const_delcs
+
+    def _check_assignment_lvalues(
+        self, lvalues: list[mypy.nodes.Lvalue]
+    ) -> t.TypeGuard[list[mypy.nodes.NameExpr]]:
+        """Does some pre-condition checks, including that all lvalues are simple (ie name-exprs),
+        hence the TypeGuard return type. If it returns True, then we should try and handle the
+        assignment."""
+        result = True
+        for lvalue in lvalues:
+            if not isinstance(lvalue, mypy.nodes.NameExpr):
+                self._error(
+                    "Only straight-forward assignment targets supported at module level", lvalue
+                )
+                result = False
+            else:
+                if len(lvalues) > 1:
+                    self._precondition(
+                        not lvalue.is_special_form, "special form with multiple lvalues", lvalue
+                    )
+                if lvalue.name == "__all__":
+                    # Special notation to denote the public members of a file, we don't need to
+                    # store this as we don't validate star-imports, mypy does, hence the False.
+                    # We check inside functions if this is attempted to be referenced and produce
+                    # a specific error message.
+                    result = False
+                    if len(lvalues) > 1:
+                        self._error("Multi-assignment with __all__ not supported", lvalue)
+                    break
+                fullname = ".".join((self.context.module_name, lvalue.name))
+                # fullname might be unset if this is in
+                # a conditional branch that's !TYPE_CHECKING
+                if lvalue.fullname:
+                    self._precondition(
+                        lvalue.fullname == fullname,
+                        f"assignment to module const - expected fullname of {fullname},"
+                        f" but mypy had {lvalue.fullname}",
+                        lvalue,
+                    )
+                else:
+                    # fix it up
+                    lvalue._fullname = fullname  # noqa: SLF001
+        return result
 
     def visit_block(self, block: mypy.nodes.Block) -> StatementResult:
         result = StatementResult()
@@ -609,7 +665,7 @@ def _process_contract_class_options(
 
 
 def _process_struct(
-    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+    context: ASTConversionModuleContext, base: pytypes.PyType, cdef: mypy.nodes.ClassDef
 ) -> StatementResult:
     fields = dict[str, pytypes.PyType]()
     field_decls = list[StructureField]()
@@ -640,85 +696,24 @@ def _process_struct(
                 cdef.info.names[symbol_name].plugin_generated
             ):
                 pass
+            case mypy.nodes.PassStmt():
+                pass
             case _:
-                context.error("Unsupported Struct declaration", stmt)
+                context.error(f"Unsupported syntax for {base} member declaration", stmt)
                 has_error = True
     if has_error:
         return []
     cls_loc = context.node_location(cdef)
     frozen = cdef.info.metadata["dataclass"]["frozen"]
     assert isinstance(frozen, bool)
-    struct_typ = pytypes.StructType.native(
+    struct_typ = pytypes.StructType(
+        base=base,
         name=cdef.fullname,
         fields=fields,
         frozen=frozen,
         source_location=cls_loc,
     )
-    return [
-        StructureDefinition(
-            name=cdef.name,
-            source_location=cls_loc,
-            fields=field_decls,
-            wtype=struct_typ.wtype,
-            docstring=docstring,
-        )
-    ]
-
-
-def _process_arc4_struct(
-    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
-) -> StatementResult:
-    fields = dict[str, pytypes.PyType]()
-    field_decls = list[StructureField]()
-    docstring = cdef.docstring
-
-    has_error = False
-    for stmt in cdef.defs.body:
-        match stmt:
-            case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
-                # ignore class docstring, already extracted
-                # TODO: should we capture field "docstrings"?
-                pass
-            case mypy.nodes.AssignmentStmt(
-                lvalues=[mypy.nodes.NameExpr(name=field_name)],
-                rvalue=mypy.nodes.TempNode(),
-                type=mypy.types.Type() as mypy_type,
-            ):
-                stmt_loc = context.node_location(stmt)
-                pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
-                if not wtypes.is_arc4_encoded_type(pytype.wtype):
-                    context.error(f"Invalid field type for arc4.Struct: {pytype}", stmt_loc)
-                    has_error = True
-                else:
-                    fields[field_name] = pytype
-                    field_decls.append(
-                        StructureField(
-                            source_location=stmt_loc,
-                            name=field_name,
-                            wtype=pytype.wtype,
-                        )
-                    )
-            case mypy.nodes.SymbolNode(name=symbol_name) if (
-                cdef.info.names[symbol_name].plugin_generated
-            ):
-                pass
-            case _:
-                context.error("Unsupported arc4.Struct declaration", stmt)
-                has_error = True
-    if has_error:
-        return []
-    if not fields:
-        context.error("arc4.Struct requires at least one field", cdef)
-        return []
-    cls_loc = context.node_location(cdef)
-    frozen = cdef.info.metadata["dataclass"]["frozen"]
-    assert isinstance(frozen, bool)
-    struct_typ = pytypes.StructType.arc4(
-        name=cdef.fullname,
-        fields=fields,
-        frozen=frozen,
-        source_location=cls_loc,
-    )
+    context.register_pytype(struct_typ)
     return [
         StructureDefinition(
             name=cdef.name,

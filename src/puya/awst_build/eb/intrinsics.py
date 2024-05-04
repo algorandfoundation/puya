@@ -6,19 +6,18 @@ import typing
 import mypy.nodes
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.intrinsic_data import ENUM_CLASSES, STUB_TO_AST_MAPPER
-from puya.awst_build.intrinsic_models import FunctionOpMapping, ImmediateArgMapping
+from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 from puya.awst_build.utils import convert_literal, get_arg_mapping
 from puya.errors import InternalError
+from puya.utils import StableSet
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
 
     from puya.parse import SourceLocation
 
@@ -67,37 +66,63 @@ class _Namespace(IntermediateExpressionBuilder, abc.ABC):
 
 
 class IntrinsicEnumClassExpressionBuilder(_Namespace):
+    def __init__(
+        self, data: Mapping[str, str], type_info: mypy.nodes.TypeInfo, location: SourceLocation
+    ) -> None:
+        super().__init__(type_info, location)
+        self._data = data
+
     @typing.override
     def _member_access(
         self, name: str, node: mypy.nodes.SymbolNode, location: SourceLocation
     ) -> Literal:
-        value = ENUM_CLASSES.get(self.type_info.fullname, {}).get(name)
+        value = self._data.get(name)
         if value is None:
             raise InternalError(
-                f"Un-mapped enum value '{name}' for '{self.type_info.fullname}.{name}'", location
+                f"Un-mapped enum value {name!r} for '{self.type_info.fullname}.{name}'", location
             )
-        return Literal(
-            source_location=location,
-            # this works currently because these enums are StrEnum with auto() as their value
-            value=value,
-        )
+        return Literal(value=value, source_location=location)
 
 
 class IntrinsicNamespaceClassExpressionBuilder(_Namespace):
+    def __init__(
+        self,
+        data: Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]],
+        type_info: mypy.nodes.TypeInfo,
+        location: SourceLocation,
+    ) -> None:
+        super().__init__(type_info, location)
+        self._data = data
+
     @typing.override
     def _member_access(
         self, name: str, node: mypy.nodes.SymbolNode, location: SourceLocation
     ) -> ExpressionBuilder:
+        mapping = self._data.get(name)
+        fullname = ".".join((self.type_info.fullname, name))
+        if mapping is None:
+            raise InternalError(f"Un-mapped class member {name!r} for {fullname!r}", location)
         match node:
             # methods are either @staticmethod or @classmethod, so will be wrapped in decorator
             case mypy.nodes.Decorator(func=func_def):
-                return IntrinsicFunctionExpressionBuilder(func_def, location)
+                if isinstance(mapping, PropertyOpMapping):
+                    raise InternalError(
+                        f"Expected function mapping for {fullname!r} but got property", location
+                    )
+                return IntrinsicFunctionExpressionBuilder(func_def, mapping, location)
             # some class members in the stubs that take no arguments are typed
             # as final class vars, for these get the intrinsic expression by explicitly
             # mapping the member name as a call with no args
-            case mypy.nodes.Var(fullname=classvar_fullname):
-                intrinsic_expr = _map_call(
-                    callee=classvar_fullname, node_location=location, args={}
+            case mypy.nodes.Var():
+                if not isinstance(mapping, PropertyOpMapping):
+                    raise InternalError(
+                        f"Expected property mapping for {fullname!r} but got function", location
+                    )
+                intrinsic_expr = IntrinsicCall(
+                    op_code=mapping.op_code,
+                    immediates=[mapping.immediate],
+                    wtype=mapping.typ.wtype,
+                    source_location=location,
                 )
                 return var_expression(intrinsic_expr)
         raise InternalError(
@@ -108,7 +133,13 @@ class IntrinsicNamespaceClassExpressionBuilder(_Namespace):
 
 
 class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, func_def: mypy.nodes.FuncDef, location: SourceLocation) -> None:
+    def __init__(
+        self,
+        func_def: mypy.nodes.FuncDef,
+        mappings: Sequence[FunctionOpMapping],
+        location: SourceLocation,
+    ) -> None:
+        self._mappings = mappings
         self.func_def = func_def
         super().__init__(location)
 
@@ -124,7 +155,7 @@ class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
         ]
         arg_mapping = _get_arg_mapping_funcdef(self.func_def, resolved_args, location, arg_names)
         intrinsic_expr = _map_call(
-            callee=self.func_def.fullname, node_location=location, args=arg_mapping
+            self._mappings, callee=self.func_def.fullname, node_location=location, args=arg_mapping
         )
         return var_expression(intrinsic_expr)
 
@@ -147,7 +178,7 @@ def _get_arg_mapping_funcdef(
 
 
 def _best_op_mapping(
-    op_mappings: list[FunctionOpMapping], args: dict[str, Expression | Literal]
+    op_mappings: Sequence[FunctionOpMapping], args: dict[str, Expression | Literal]
 ) -> FunctionOpMapping:
     """Find op mapping that matches as many arguments to immediate args as possible"""
     literal_arg_names = {arg_name for arg_name, arg in args.items() if isinstance(arg, Literal)}
@@ -158,23 +189,12 @@ def _best_op_mapping(
     return op_mappings[0]
 
 
-def _return_types_to_wtype(
-    types: Sequence[wtypes.WType], source_location: SourceLocation
-) -> wtypes.WType:
-    if not types:
-        return wtypes.void_wtype
-    elif len(types) == 1:
-        return types[0]
-    else:
-        return wtypes.WTuple(types, source_location)
-
-
 def _map_call(
-    callee: str, node_location: SourceLocation, args: dict[str, Expression | Literal]
+    ast_mapper: Sequence[FunctionOpMapping],
+    callee: str,
+    node_location: SourceLocation,
+    args: dict[str, Expression | Literal],
 ) -> IntrinsicCall:
-    ast_mapper = STUB_TO_AST_MAPPER.get(callee)
-    if not ast_mapper:
-        raise InternalError(f"Un-mapped intrinsic call for {callee}", node_location)
     if len(ast_mapper) == 1:
         (op_mapping,) = ast_mapper
     else:
@@ -183,46 +203,46 @@ def _map_call(
     args = args.copy()  # make a copy since we're going to mutate
 
     immediates = list[str | int]()
-    for immediate in op_mapping.immediates:
-        if not isinstance(immediate, ImmediateArgMapping):
-            immediates.append(immediate)
-        else:
-            arg_in = args.pop(immediate.arg_name, None)
-            if arg_in is None:
-                logger.error(
-                    f"Missing expected argument {immediate.arg_name}", location=node_location
-                )
-            elif not (
-                isinstance(arg_in, Literal)
-                and isinstance(arg_value := arg_in.value, immediate.literal_type)
-            ):
-                logger.error(
-                    f"Argument must be a literal {immediate.literal_type.__name__} value",
-                    location=arg_in.source_location,
-                )
-            else:
-                assert isinstance(arg_value, int | str)
-                immediates.append(arg_value)
+    for immediate in op_mapping.immediates.items():
+        match immediate:
+            case value, None:
+                immediates.append(value)
+            case arg_name, literal_type:
+                arg_in = args.pop(arg_name, None)
+                if arg_in is None:
+                    logger.error(f"Missing expected argument {arg_name}", location=node_location)
+                elif not (
+                    isinstance(arg_in, Literal)
+                    and isinstance(arg_value := arg_in.value, literal_type)
+                ):
+                    logger.error(
+                        f"Argument must be a literal {literal_type.__name__} value",
+                        location=arg_in.source_location,
+                    )
+                else:
+                    assert isinstance(arg_value, int | str)
+                    immediates.append(arg_value)
 
     stack_args = list[Expression]()
-    for arg_mapping in op_mapping.stack_inputs:
-        arg_in = args.pop(arg_mapping.arg_name, None)
+    for arg_name, allowed_pytypes in op_mapping.stack_inputs.items():
+        allowed_types = StableSet.from_iter(  # TODO: use PyTypes instead
+            pt.wtype for pt in allowed_pytypes
+        )
+        arg_in = args.pop(arg_name, None)
         if arg_in is None:
-            logger.error(
-                f"Missing expected argument {arg_mapping.arg_name}", location=node_location
-            )
+            logger.error(f"Missing expected argument {arg_name}", location=node_location)
         elif isinstance(arg_in, Expression):
             # TODO this is identity based, match types instead?
-            if arg_in.wtype not in arg_mapping.allowed_types:
+            if arg_in.wtype not in allowed_types:
                 logger.error(
                     f'Invalid argument type "{arg_in.wtype}"'
-                    f' for argument "{arg_mapping.arg_name}" when calling {callee}',
+                    f' for argument "{arg_name}" when calling {callee}',
                     location=arg_in.source_location,
                 )
             stack_args.append(arg_in)
         else:
             literal_value = arg_in.value
-            for allowed_type in arg_mapping.allowed_types:
+            for allowed_type in allowed_types:
                 if allowed_type.is_valid_literal(literal_value):
                     literal_expr = convert_literal(arg_in, allowed_type)
                     stack_args.append(literal_expr)
@@ -238,7 +258,7 @@ def _map_call(
 
     return IntrinsicCall(
         source_location=node_location,
-        wtype=_return_types_to_wtype(op_mapping.stack_outputs, node_location),
+        wtype=op_mapping.result.wtype,
         op_code=op_mapping.op_code,
         immediates=immediates,
         stack_args=stack_args,

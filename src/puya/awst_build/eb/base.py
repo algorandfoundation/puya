@@ -5,7 +5,6 @@ import enum
 import typing
 
 from puya.awst.nodes import (
-    AppStateKind,
     BytesConstant,
     ContractReference,
     Expression,
@@ -29,7 +28,7 @@ if typing.TYPE_CHECKING:
     import mypy.types
 
     from puya.awst import wtypes
-    from puya.awst_build.contract_data import AppStateDeclaration, AppStateDeclType
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 __all__ = [
@@ -250,13 +249,11 @@ class IntermediateExpressionBuilder(ExpressionBuilder):
 
 
 class StateProxyMemberBuilder(IntermediateExpressionBuilder):
-    state_decl: AppStateDeclaration
+    state_decl: AppStorageDeclaration
 
 
 class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
-    kind: AppStateKind
     python_name: str
-    decl_type: AppStateDeclType
 
     def __init__(
         self,
@@ -273,17 +270,19 @@ class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
         self.initial_value = initial_value
 
     def build_definition(
-        self, member_name: str, defined_in: ContractReference, location: SourceLocation
+        self,
+        member_name: str,
+        defined_in: ContractReference,
+        typ: pytypes.PyType,
+        location: SourceLocation,
     ) -> AppStorageDeclaration:
         return AppStorageDeclaration(
             description=self.description,
             member_name=member_name,
             key_override=self.key_override,
             source_location=location,
-            storage_wtype=self.storage,
-            kind=self.kind,
+            typ=typ,
             defined_in=defined_in,
-            decl_type=self.decl_type,
         )
 
     def rvalue(self) -> Expression:
@@ -428,7 +427,7 @@ class ValueExpressionBuilder(ExpressionBuilder):
 def _validate_lvalue(resolved: Expression) -> Lvalue:
     if isinstance(resolved, TupleItemExpression):
         raise CodeError("Tuple items cannot be reassigned", resolved.source_location)
-    if not (isinstance(resolved, Lvalue) and resolved.wtype.lvalue):  # type: ignore[arg-type,misc]
+    if not isinstance(resolved, Lvalue):  # type: ignore[arg-type,misc]
         raise CodeError(
             f"{resolved.wtype.stub_name} expression is not valid as assignment target",
             resolved.source_location,

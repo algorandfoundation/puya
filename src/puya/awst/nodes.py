@@ -758,14 +758,6 @@ class CheckedMaybe(Expression):
         return visitor.visit_checked_maybe(self)
 
 
-def lvalue_expr_validator(_instance: object, _attribute: object, value: Expression) -> None:
-    if not value.wtype.lvalue:
-        raise CodeError(
-            f'expression with type "{value.wtype}" can not be assigned to a variable',
-            value.source_location,
-        )
-
-
 def scalar_expr_validator(_instance: object, _attribute: object, value: Expression) -> None:
     if not value.wtype.scalar:
         raise CodeError(
@@ -949,7 +941,8 @@ class IntersectionSliceExpression(Expression):
 
 @attrs.frozen
 class AppStateExpression(Expression):
-    field_name: str
+    key: Expression = attrs.field(validator=wtype_is_bytes)
+    field_name: str | None
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_state_expression(self)
@@ -957,10 +950,11 @@ class AppStateExpression(Expression):
 
 @attrs.frozen
 class AppAccountStateExpression(Expression):
-    field_name: str
+    key: Expression = attrs.field(validator=wtype_is_bytes)
     account: Expression = attrs.field(
         validator=[expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)]
     )
+    field_name: str | None
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_account_state_expression(self)
@@ -1050,7 +1044,7 @@ class AssignmentStatement(Statement):
     """
 
     target: Lvalue
-    value: Expression = attrs.field(validator=[lvalue_expr_validator])
+    value: Expression
 
     def __attrs_post_init__(self) -> None:
         if self.value.wtype != self.target.wtype:
@@ -1059,6 +1053,8 @@ class AssignmentStatement(Statement):
                 f" differs from expression value type {self.value.wtype}",
                 self.source_location,
             )
+        if self.value.wtype == wtypes.void_wtype:
+            raise CodeError("void type cannot be assigned", self.source_location)
 
     def accept(self, visitor: StatementVisitor[T]) -> T:
         return visitor.visit_assignment_statement(self)
@@ -1076,7 +1072,7 @@ class AssignmentExpression(Expression):
     """
 
     target: Lvalue  # annoyingly, we can't do Lvalue "minus" TupleExpression
-    value: Expression = attrs.field(validator=[lvalue_expr_validator])
+    value: Expression
 
     def __init__(self, value: Expression, target: Lvalue, source_location: SourceLocation):
         if isinstance(target, TupleExpression):
@@ -1090,6 +1086,8 @@ class AssignmentExpression(Expression):
                 f" differs from expression value type {value.wtype}",
                 source_location,
             )
+        if value.wtype == wtypes.void_wtype:
+            raise CodeError("void type cannot be assigned", self.source_location)
         self.__attrs_init__(
             source_location=source_location,
             target=target,
@@ -1614,7 +1612,7 @@ class ModuleStatement(Node, ABC):
 
 
 @attrs.frozen
-class BoxProxyField(Expression):
+class BoxProxyField(Expression):  # TODO: yeet me
     """
     An expression representing a box proxy class instance stored on a contract field.
 
@@ -1725,7 +1723,12 @@ class ConstantDeclaration(ModuleStatement):
 @attrs.frozen
 class SubroutineArgument(Node):
     name: str
-    wtype: WType
+    wtype: WType = attrs.field()
+
+    @wtype.validator
+    def _wtype_validator(self, _attribute: object, wtype: WType) -> None:
+        if wtype == wtypes.void_wtype:
+            raise CodeError("void type arguments are not supported", self.source_location)
 
 
 @attrs.frozen
@@ -1765,31 +1768,22 @@ class ContractMethod(Function):
 
 
 @enum.unique
-class AppStateKind(enum.Enum):
+class AppStorageKind(enum.Enum):
     app_global = enum.auto()
     account_local = enum.auto()
     box = enum.auto()
-    box_ref = enum.auto()
-    box_map = enum.auto()
 
 
 @attrs.frozen
-class AppStateDefinition(Node):
+class AppStorageDefinition(Node):
     member_name: str
-    kind: AppStateKind
+    kind: AppStorageKind
     storage_wtype: WType
-    key_override: BytesConstant | None
+    key_wtype: WType | None
+    """if not None, then this is a map rather than singular"""
+    key: BytesConstant
+    """for maps, this is the prefix"""
     description: str | None
-
-    @property
-    def key(self) -> BytesConstant:
-        if self.key_override is not None:
-            return self.key_override
-        return BytesConstant(
-            value=self.member_name.encode("utf8"),
-            encoding=BytesEncoding.utf8,
-            source_location=self.source_location,
-        )
 
 
 @attrs.frozen
@@ -1839,18 +1833,18 @@ class ContractFragment(ModuleStatement):
     approval_program: ContractMethod | None = attrs.field()
     clear_program: ContractMethod | None = attrs.field()
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
-    app_state: Mapping[str, AppStateDefinition]
+    app_state: Mapping[str, AppStorageDefinition]
     reserved_scratch_space: StableSet[int]
     state_totals: StateTotals | None
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
-    symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)
+    symtable: Mapping[str, ContractMethod | AppStorageDefinition] = attrs.field(init=False)
 
     @symtable.default
     def _symtable_factory(
         self,
-    ) -> Mapping[str, ContractMethod | AppStateDefinition]:
-        result: dict[str, ContractMethod | AppStateDefinition] = {**self.app_state}
+    ) -> Mapping[str, ContractMethod | AppStorageDefinition]:
+        result: dict[str, ContractMethod | AppStorageDefinition] = {**self.app_state}
         all_subs = itertools.chain(
             filter(None, (self.init, self.approval_program, self.clear_program)),
             self.subroutines,
