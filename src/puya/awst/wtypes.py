@@ -24,7 +24,6 @@ LiteralValidator: typing.TypeAlias = Callable[[object], bool]
 class WType:
     name: str
     stub_name: str
-    lvalue: bool = True  # TODO: this is currently just used by void...
     immutable: bool = True
     scalar: bool = True  # is this a single value on the stack?
     is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
@@ -77,7 +76,6 @@ def is_valid_utf8_literal(value: object) -> typing.TypeGuard[str]:
 void_wtype: typing.Final = WType(
     name="void",
     stub_name="None",
-    lvalue=False,
 )
 
 bool_wtype: typing.Final = WType(
@@ -203,21 +201,26 @@ class WBoxProxy(WType):
     def from_content_type(cls, content_wtype: WType) -> "WBoxProxy":
         return cls(
             content_wtype=content_wtype,
-            name="box_proxy",
-            stub_name=constants.CLS_BOX_PROXY_ALIAS,
+            name=f"box_proxy[{content_wtype.name}]",
+            stub_name=f"{constants.CLS_BOX_PROXY_ALIAS}[{content_wtype.stub_name}]",
         )
 
 
 @attrs.define
 class WBoxMapProxy(WType):
-    content_wtype: WType = attrs.field()
+    key_wtype: WType
+    content_wtype: WType
 
     @classmethod
-    def from_key_and_content_type(cls, content_wtype: WType) -> "WBoxMapProxy":
+    def from_key_and_content_type(cls, key_wtype: WType, content_wtype: WType) -> "WBoxMapProxy":
         return cls(
+            key_wtype=key_wtype,
             content_wtype=content_wtype,
-            name="box_map_proxy",
-            stub_name=constants.CLS_BOX_MAP_PROXY_ALIAS,
+            name=f"box_map_proxy[{key_wtype.name},{content_wtype.name}]",
+            stub_name=(
+                f"{constants.CLS_BOX_MAP_PROXY_ALIAS}"
+                f"[{key_wtype.stub_name}, {content_wtype.stub_name}]"
+            ),
         )
 
 
@@ -498,18 +501,24 @@ class ARC4Struct(ARC4Type):
         if not fields:
             raise CodeError("arc4.Struct needs at least one element", source_location)
         arc4_fields = {}
+        bad_field_names = []
         for field_name, field_wtype in fields.items():
             if not isinstance(field_wtype, ARC4Type):
-                raise CodeError(
-                    f"Invalid ARC4 Struct declaration: {field_name} is not an ARC4 encoded type",
-                    source_location,
-                )
+                bad_field_names.append(field_name)
+                continue
+
             arc4_fields[field_name] = field_wtype
             # this seems counterintuitive, but is necessary.
             # despite the overall collection remaining stable, since ARC4 types
             # are encoded as a single value, if items within a "frozen" struct can be mutated,
             # then the overall value is also mutable
             immutable = immutable and field_wtype.immutable
+        if bad_field_names:
+            raise CodeError(
+                "Invalid ARC4 Struct declaration,"
+                f" the following fields are not ARC4 encoded types: {', '.join(bad_field_names)}",
+                source_location,
+            )
 
         name = (
             "arc4.struct<"

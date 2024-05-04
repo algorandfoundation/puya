@@ -1,3 +1,5 @@
+import typing
+
 from puya.awst import nodes as awst_nodes
 from puya.ir import intrinsic_factory
 from puya.ir.avm_ops import AVMOp
@@ -38,23 +40,23 @@ def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.St
     match statement.field:
         case awst_nodes.BoxKeyExpression():
             return box.visit_box_state_delete(context, statement)
+        case awst_nodes.AppStateExpression(key=awst_key):
+            op = AVMOp.app_global_del
+            awst_account = None
+        case awst_nodes.AppAccountStateExpression(key=awst_key, account=awst_account):
+            op = AVMOp.app_local_del
+        case _:
+            typing.assert_never(statement.field)
 
-    subject = statement.field
-    state_def = context.resolve_state(subject.field_name, subject.source_location)
-    key = context.visitor.visit_bytes_constant(state_def.key)
-    args: list[Value] = [key]
-    if isinstance(subject, awst_nodes.AppStateExpression):
-        op = AVMOp.app_global_del
-    else:
-        op = AVMOp.app_local_del
-        account = context.visitor.visit_and_materialise_single(subject.account)
-        args.insert(0, account)
+    args = []
+    if awst_account is not None:
+        account_value = context.visitor.visit_and_materialise_single(awst_account)
+        args.append(account_value)
+    key_value = context.visitor.visit_and_materialise_single(awst_key)
+    args.append(key_value)
+
     context.block_builder.add(
-        Intrinsic(
-            op=op,
-            args=args,
-            source_location=statement.source_location,
-        )
+        Intrinsic(op=op, args=args, source_location=statement.source_location)
     )
 
 
@@ -130,9 +132,8 @@ def _build_state_get_ex(
     expr: awst_nodes.AppAccountStateExpression | awst_nodes.AppStateExpression,
     source_location: SourceLocation,
 ) -> Intrinsic:
-    state_def = context.resolve_state(expr.field_name, expr.source_location)
     current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-    key = context.visitor.visit_bytes_constant(state_def.key)
+    key = context.visitor.visit_and_materialise_single(expr.key)
     args: list[Value] = [current_app_offset, key]
     if isinstance(expr, awst_nodes.AppStateExpression):
         op = AVMOp.app_global_get_ex
@@ -144,8 +145,5 @@ def _build_state_get_ex(
         op=op,
         args=args,
         source_location=source_location,
-        types=[
-            wtype_to_ir_type(state_def.storage_wtype),
-            IRType.bool,
-        ],
+        types=[wtype_to_ir_type(expr.wtype), IRType.bool],
     )

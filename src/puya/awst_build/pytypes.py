@@ -22,10 +22,26 @@ logger = log.get_logger(__name__)
 class PyType(abc.ABC):
     name: str
     """The canonical fully qualified type name"""
-    generic: GenericType | None = None
+    generic: _GenericType | None = None
     """The generic type that this type was parameterised from, if any."""
-    metaclass: MetaclassType | None = None
-    """The metaclass for this type, if different from builtins.type"""
+    bases: Sequence[PyType] = attrs.field(default=(), converter=tuple["PyType", ...])
+    """Direct base classes. probably excluding the implicit builtins.object?"""
+    mro: Sequence[PyType] = attrs.field(default=(), converter=tuple["PyType", ...])
+    """All base cases, in Method Resolution Order"""
+
+    @bases.validator
+    def _bases_validate(self, _attribute: object, bases: Sequence[PyType]) -> None:
+        if len(set(bases)) != len(bases):
+            raise InternalError(f"Duplicate bases in {self}: [{', '.join(map(str, bases))}]")
+
+    @mro.validator
+    def _mro_validate(self, _attribute: object, mro: Sequence[PyType]) -> None:
+        bases_missing_from_mro = set(self.bases).difference(mro)
+        if bases_missing_from_mro:
+            raise InternalError(
+                f"Bases missing from MRO in {self}:"
+                f" [{', '.join(map(str, bases_missing_from_mro))}]"
+            )
 
     @cached_property
     def _friendly_name(self) -> str:
@@ -59,33 +75,28 @@ class PyType(abc.ABC):
             raise CodeError(f"Type already has parameters: {self}", source_location)
         raise CodeError(f"Not a generic type: {self}", source_location)
 
-    def register(self) -> typing.Self:
-        _register(self)
-        return self
 
-    def register_alias(self, name: str) -> typing.Self:
-        _register(self, alias=name)
-        return self
+_builtins_registry: typing.Final = dict[str, PyType]()
 
 
-# Registry used for lookups from mypy types.
-_type_registry: typing.Final = dict[str, PyType]()
+_TPyType = typing.TypeVar("_TPyType", bound=PyType)
 
 
-def _register(typ: PyType, *, alias: str | None = None) -> None:
+def _register_builtin(typ: _TPyType, *, alias: str | None = None) -> _TPyType:
     name = alias or typ.name
-    existing_entry = _type_registry.get(name)
+    existing_entry = _builtins_registry.get(name)
     if existing_entry is None:
-        _type_registry[name] = typ
+        _builtins_registry[name] = typ
     elif existing_entry is typ:
         logger.debug(f"Duplicate registration of {typ}")
     else:
         raise InternalError(f"Duplicate mapping of {name}")
+    return typ
 
 
-def lookup(name: str) -> PyType | None:
-    """Lookup type by the canonical fully qualified name"""
-    return _type_registry.get(name)
+def builtins_registry() -> dict[str, PyType]:
+    """Get a copy of the builtins registry"""
+    return _builtins_registry.copy()
 
 
 # https://typing.readthedocs.io/en/latest/spec/literal.html#legal-and-illegal-parameterizations
@@ -97,19 +108,21 @@ def lookup(name: str) -> PyType | None:
 TypingLiteralValue: typing.TypeAlias = int | bytes | str | bool | None
 TypeArg: typing.TypeAlias = PyType | TypingLiteralValue
 TypeArgs: typing.TypeAlias = tuple[TypeArg, ...]
-Parameterise: typing.TypeAlias = Callable[["GenericType", TypeArgs, SourceLocation | None], PyType]
+Parameterise: typing.TypeAlias = Callable[
+    ["_GenericType", TypeArgs, SourceLocation | None], PyType
+]
 
 
 @typing.final
 @attrs.frozen
-class GenericType(PyType, abc.ABC):
+class _GenericType(PyType, abc.ABC):
     """Represents a typing.Generic type with unknown parameters"""
 
     _parameterise: Parameterise
     _instance_cache: dict[TypeArgs, PyType] = attrs.field(factory=dict, eq=False)
 
     def __attrs_post_init__(self) -> None:
-        self.register()
+        _register_builtin(self)
 
     @typing.override
     @property
@@ -127,41 +140,16 @@ class GenericType(PyType, abc.ABC):
         )
 
 
-@typing.final
-@attrs.frozen
-class MetaclassType(PyType):
-    generic: None = None
-
-    @typing.override
-    @property
-    def wtype(self) -> typing.Never:
-        raise CodeError("Metaclass types are not valid as values")
-
-    def __attrs_post_init__(self) -> None:
-        self.register()
-
-    @typing.override
-    def parameterise(
-        self, args: Sequence[PyType | TypingLiteralValue], source_location: SourceLocation | None
-    ) -> typing.Never:
-        raise CodeError("Generic metaclass types are not supported", source_location)
-
-
-ABCMeta: typing.Final = MetaclassType(name="abc.ABCMeta")
-StructMeta: typing.Final = MetaclassType(name=constants.STRUCT_META)
-ARC4StructMeta: typing.Final = MetaclassType(name=constants.CLS_ARC4_STRUCT_META)
-
-
 @attrs.frozen
 class TupleType(PyType):
-    generic: GenericType
+    generic: _GenericType
     items: tuple[PyType, ...] = attrs.field(validator=attrs.validators.min_len(1))
     wtype: wtypes.WType
 
 
 @attrs.frozen
 class ArrayType(PyType):
-    generic: GenericType
+    generic: _GenericType
     items: PyType
     size: int | None
     wtype: wtypes.WType
@@ -175,10 +163,19 @@ class StorageProxyType(PyType):
 
 @attrs.frozen
 class StorageMapProxyType(PyType):
-    generic: GenericType
+    generic: _GenericType
     key: PyType
     content: PyType
     wtype: wtypes.WType
+
+
+@typing.final
+@attrs.frozen
+class StaticType(PyType):
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"{self} is only usable as a type and cannot be instantiated")
 
 
 @typing.final
@@ -190,6 +187,7 @@ class StructType(PyType):
     frozen: bool
     wtype: wtypes.WType
     source_location: SourceLocation | None
+    generic: None = None
 
     @cached_property
     def names(self) -> Sequence[str]:
@@ -201,59 +199,30 @@ class StructType(PyType):
 
     def __init__(
         self,
-        metaclass: MetaclassType,
-        typ: Callable[
-            [str, Mapping[str, wtypes.WType], bool, SourceLocation | None], wtypes.WType
-        ],
         *,
+        base: PyType,
         name: str,
         fields: Mapping[str, PyType],
         frozen: bool,
         source_location: SourceLocation | None,
     ):
         field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
-        wtype = typ(name, field_wtypes, frozen, source_location)
+        # TODO: this is a bit of a kludge
+        wtype_cls: Callable[
+            [str, Mapping[str, wtypes.WType], bool, SourceLocation | None], wtypes.WType
+        ]
+        if base is ARC4StructBaseType:
+            wtype_cls = wtypes.ARC4Struct
+        elif base is StructBaseType:
+            wtype_cls = wtypes.WStructType
+        else:
+            raise InternalError(f"Unknown struct base type: {base}", source_location)
+        wtype = wtype_cls(name, field_wtypes, frozen, source_location)
         self.__attrs_init__(
-            metaclass=metaclass,
+            bases=[base],
+            mro=[base],
             name=name,
             wtype=wtype,
-            fields=fields,
-            frozen=frozen,
-            source_location=source_location,
-        )
-        self.register()
-
-    @classmethod
-    def native(
-        cls,
-        *,
-        name: str,
-        fields: Mapping[str, PyType],
-        frozen: bool,
-        source_location: SourceLocation | None,
-    ) -> typing.Self:
-        return cls(
-            metaclass=StructMeta,
-            typ=wtypes.WStructType,
-            name=name,
-            fields=fields,
-            frozen=frozen,
-            source_location=source_location,
-        )
-
-    @classmethod
-    def arc4(
-        cls,
-        *,
-        name: str,
-        fields: Mapping[str, PyType],
-        frozen: bool,
-        source_location: SourceLocation | None,
-    ) -> typing.Self:
-        return cls(
-            metaclass=ARC4StructMeta,
-            typ=wtypes.ARC4Struct,
-            name=name,
             fields=fields,
             frozen=frozen,
             source_location=source_location,
@@ -266,7 +235,7 @@ class _SimpleType(PyType):
     wtype: wtypes.WType
 
     def __attrs_post_init__(self) -> None:
-        self.register()
+        _register_builtin(self)
 
 
 NoneType: typing.Final[PyType] = _SimpleType(
@@ -305,6 +274,10 @@ ApplicationType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_APPLICATION,
     wtype=wtypes.application_wtype,
 )
+BytesBackedType: typing.Final[PyType] = _SimpleType(
+    name=f"{constants.ALGOPY_PREFIX}_primitives.BytesBacked",
+    wtype=wtypes.bytes_wtype,
+)
 
 OnCompleteActionType: typing.Final[PyType] = _SimpleType(
     name=constants.ENUM_CLS_ON_COMPLETE_ACTION,
@@ -312,6 +285,10 @@ OnCompleteActionType: typing.Final[PyType] = _SimpleType(
 )
 TransactionType: typing.Final[PyType] = _SimpleType(
     name=constants.ENUM_CLS_TRANSACTION_TYPE,
+    wtype=wtypes.uint64_wtype,
+)
+OpUpFeeSourceType: typing.Final[PyType] = _SimpleType(
+    name=constants.OP_UP_FEE_SOURCE,
     wtype=wtypes.uint64_wtype,
 )
 
@@ -335,14 +312,14 @@ ARC4AddressType: typing.Final[PyType] = _SimpleType(
 
 @attrs.frozen
 class ARC4UIntNType(PyType):
-    generic: GenericType
+    generic: _GenericType
     bits: int
     wtype: wtypes.WType
 
 
 def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> Parameterise:
     def parameterise(
-        self: GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
     ) -> ARC4UIntNType:
         try:
             (bits,) = args
@@ -366,28 +343,33 @@ def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> Para
     return parameterise
 
 
-GenericARC4UIntNType: typing.Final = GenericType(
+GenericARC4UIntNType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_UINTN,
     parameterise=_make_arc4_unsigned_int_parameterise(max_bits=64),
 )
-GenericARC4BigUIntNType: typing.Final = GenericType(
+GenericARC4BigUIntNType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_BIG_UINTN,
     parameterise=_make_arc4_unsigned_int_parameterise(),
 )
 
 
-ARC4ByteType: typing.Final[PyType] = ARC4UIntNType(
-    generic=GenericARC4UIntNType,
-    name=constants.CLS_ARC4_BYTE,
-    wtype=wtypes.arc4_byte_type,
-    bits=8,
-).register()
+ARC4ByteType: typing.Final[PyType] = _register_builtin(
+    ARC4UIntNType(
+        generic=GenericARC4UIntNType,
+        name=constants.CLS_ARC4_BYTE,
+        wtype=wtypes.arc4_byte_type,
+        bits=8,
+    )
+)
 
 ARC4UIntN_Aliases: typing.Final = immutabledict[int, ARC4UIntNType](
     {
-        (_bits := 2**_exp): (GenericARC4UIntNType if _bits <= 64 else GenericARC4BigUIntNType)
-        .parameterise([_bits], source_location=None)
-        .register_alias(f"{constants.ARC4_PREFIX}UInt{_bits}")
+        (_bits := 2**_exp): _register_builtin(
+            (GenericARC4UIntNType if _bits <= 64 else GenericARC4BigUIntNType).parameterise(
+                [_bits], source_location=None
+            ),
+            alias=f"{constants.ARC4_PREFIX}UInt{_bits}",
+        )
         for _exp in range(3, 10)
     }
 )
@@ -395,7 +377,7 @@ ARC4UIntN_Aliases: typing.Final = immutabledict[int, ARC4UIntNType](
 
 @attrs.frozen
 class ARC4UFixedNxMType(PyType):
-    generic: GenericType
+    generic: _GenericType
     bits: int
     precision: int
     wtype: wtypes.WType
@@ -403,7 +385,7 @@ class ARC4UFixedNxMType(PyType):
 
 def _make_arc4_unsigned_fixed_parameterise(*, max_bits: int | None = None) -> Parameterise:
     def parameterise(
-        self: GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
     ) -> ARC4UFixedNxMType:
         try:
             bits, precision = args
@@ -428,11 +410,11 @@ def _make_arc4_unsigned_fixed_parameterise(*, max_bits: int | None = None) -> Pa
     return parameterise
 
 
-GenericARC4UFixedNxMType: typing.Final = GenericType(
+GenericARC4UFixedNxMType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_UFIXEDNXM,
     parameterise=_make_arc4_unsigned_fixed_parameterise(max_bits=64),
 )
-GenericARC4BigUFixedNxMType: typing.Final = GenericType(
+GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_BIG_UFIXEDNXM,
     parameterise=_make_arc4_unsigned_fixed_parameterise(),
 )
@@ -442,7 +424,7 @@ def _make_tuple_parameterise(
     typ: Callable[[Iterable[wtypes.WType], SourceLocation | None], wtypes.WType]
 ) -> Parameterise:
     def parameterise(
-        self: GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
     ) -> TupleType:
         py_types = []
         item_wtypes = []
@@ -468,12 +450,12 @@ def _make_tuple_parameterise(
     return parameterise
 
 
-GenericTupleType: typing.Final = GenericType(
+GenericTupleType: typing.Final = _GenericType(
     name="builtins.tuple",
     parameterise=_make_tuple_parameterise(wtypes.WTuple),
 )
 
-GenericARC4TupleType: typing.Final = GenericType(
+GenericARC4TupleType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_TUPLE,
     parameterise=_make_tuple_parameterise(wtypes.ARC4Tuple),
 )
@@ -483,7 +465,7 @@ def _make_array_parameterise(
     typ: Callable[[wtypes.WType, SourceLocation | None], wtypes.WType]
 ) -> Parameterise:
     def parameterise(
-        self: GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
     ) -> ArrayType:
         try:
             (arg,) = args
@@ -508,12 +490,12 @@ def _make_array_parameterise(
     return parameterise
 
 
-GenericArrayType: typing.Final = GenericType(
+GenericArrayType: typing.Final = _GenericType(
     name=constants.CLS_ARRAY,
     parameterise=_make_array_parameterise(wtypes.WArray),
 )
 
-GenericARC4DynamicArrayType: typing.Final = GenericType(
+GenericARC4DynamicArrayType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_DYNAMIC_ARRAY,
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
 )
@@ -523,7 +505,7 @@ def _make_fixed_array_parameterise(
     typ: Callable[[wtypes.WType, int, SourceLocation | None], wtypes.WType]
 ) -> Parameterise:
     def parameterise(
-        self: GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
     ) -> ArrayType:
         try:
             items, size = args
@@ -553,7 +535,7 @@ def _make_fixed_array_parameterise(
     return parameterise
 
 
-GenericARC4StaticArrayType: typing.Final = GenericType(
+GenericARC4StaticArrayType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_STATIC_ARRAY,
     parameterise=_make_fixed_array_parameterise(wtypes.ARC4StaticArray),
 )
@@ -561,7 +543,7 @@ GenericARC4StaticArrayType: typing.Final = GenericType(
 
 def _make_storage_parameterise(key_type: wtypes.WType) -> Parameterise:
     def parameterise(
-        self: GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
     ) -> StorageProxyType:
         try:
             (arg,) = args
@@ -589,7 +571,7 @@ def _make_storage_parameterise_todo_remove_me(
     key_type: Callable[[wtypes.WType], wtypes.WType]
 ) -> Parameterise:
     def parameterise(
-        self: GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
     ) -> StorageProxyType:
         try:
             (arg,) = args
@@ -614,7 +596,7 @@ def _make_storage_parameterise_todo_remove_me(
 
 
 def _parameterise_storage_map(
-    self: GenericType, args: TypeArgs, source_location: SourceLocation | None
+    self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
 ) -> StorageMapProxyType:
     try:
         key, content = args
@@ -637,33 +619,35 @@ def _parameterise_storage_map(
         #       would have to change strategy in _gather_global_direct_storages if so
         # wtype=wtypes.box_key,
         # TODO: FIXME
-        wtype=wtypes.WBoxMapProxy.from_key_and_content_type(content.wtype),
+        wtype=wtypes.WBoxMapProxy.from_key_and_content_type(key.wtype, content.wtype),
     )
 
 
-GenericGlobalStateType: typing.Final = GenericType(
+GenericGlobalStateType: typing.Final = _GenericType(
     name=constants.CLS_GLOBAL_STATE,
     parameterise=_make_storage_parameterise(wtypes.state_key),
 )
-GenericLocalStateType: typing.Final = GenericType(
+GenericLocalStateType: typing.Final = _GenericType(
     name=constants.CLS_LOCAL_STATE,
     parameterise=_make_storage_parameterise(wtypes.state_key),
 )
-GenericBoxType: typing.Final = GenericType(
+GenericBoxType: typing.Final = _GenericType(
     name=constants.CLS_BOX_PROXY,
     # TODO: FIXME
     # parameterise=_make_storage_parameterise(wtypes.box_key),
     parameterise=_make_storage_parameterise_todo_remove_me(wtypes.WBoxProxy.from_content_type),
 )
-BoxRefType: typing.Final = StorageProxyType(
-    name=constants.CLS_BOX_REF_PROXY,
-    content=BytesType,
-    # wtype=wtypes.box_key,
-    wtype=wtypes.box_ref_proxy_type,  # TODO: fixme
-    generic=None,
-).register()
+BoxRefType: typing.Final = _register_builtin(
+    StorageProxyType(
+        name=constants.CLS_BOX_REF_PROXY,
+        content=BytesType,
+        # wtype=wtypes.box_key,
+        wtype=wtypes.box_ref_proxy_type,  # TODO: fixme
+        generic=None,
+    )
+)
 
-GenericBoxMapType: typing.Final = GenericType(
+GenericBoxMapType: typing.Final = _GenericType(
     name=constants.CLS_BOX_MAP_PROXY,
     parameterise=_parameterise_storage_map,
 )
@@ -679,58 +663,153 @@ GroupTransactionBaseType: typing.Final[PyType] = _SimpleType(
 )
 
 
-def _make_txn_types(
-    kind: constants.TransactionType | None,
-    name: str,
-    itxn_fields: str | None = None,
-    itxn_result: str | None = None,
-) -> tuple[PyType, PyType, PyType]:
-    gtxn_name = f"{constants.ALGOPY_PREFIX}gtxn.{name}Transaction"
-    itxn_fieldset_name = itxn_fields or f"{constants.ALGOPY_PREFIX}itxn.{name}"
-    itxn_result_name = itxn_result or f"{constants.ALGOPY_PREFIX}itxn.{name}InnerTransaction"
-
-    gtxn_type = _SimpleType(
-        name=gtxn_name,
-        wtype=wtypes.WGroupTransaction(
-            stub_name=gtxn_name,
-            name="group_transaction" if not kind else f"group_transaction_{kind.name}",
-            transaction_type=kind,
-        ),
-    )
-
-    itxn_fieldset_type = _SimpleType(
-        name=itxn_fieldset_name,
-        wtype=wtypes.WInnerTransactionFields(
-            stub_name=itxn_fieldset_name,
-            name=(
-                "inner_transaction_fields" if not kind else f"inner_transaction_fields_{kind.name}"
-            ),
-            transaction_type=kind,
-        ),
-    )
-
-    itxn_result_type = _SimpleType(
-        name=itxn_result_name,
-        wtype=wtypes.WInnerTransaction(
-            stub_name=itxn_result_name,
-            name="inner_transaction" if not kind else f"inner_transaction_{kind.name}",
-            transaction_type=kind,
-        ),
-    )
-
+def _make_txn_types(kind: constants.TransactionType | None) -> tuple[PyType, PyType, PyType]:
+    gtxn_type = _make_gtxn_type(kind)
+    itxn_fieldset_type = _make_itxn_fieldset_type(kind)
+    itxn_result_type = _make_itxn_result_type(kind)
     return gtxn_type, itxn_fieldset_type, itxn_result_type
 
 
-# TODO: assign these
-_make_txn_types(constants.TransactionType.pay, "Payment")
-_make_txn_types(constants.TransactionType.keyreg, "KeyRegistration")
-_make_txn_types(constants.TransactionType.acfg, "AssetConfig")
-_make_txn_types(constants.TransactionType.axfer, "AssetTransfer")
-_make_txn_types(constants.TransactionType.afrz, "AssetFreeze")
-_make_txn_types(constants.TransactionType.appl, "ApplicationCall")
-_make_txn_types(
+def _make_gtxn_type(kind: constants.TransactionType | None) -> PyType:
+    if kind is None:
+        wtype_name = "group_transaction"
+        cls_name = "Transaction"
+    else:
+        wtype_name = f"group_transaction_{kind.name}"
+        cls_name = f"{_TXN_TYPE_NAMES[kind]}Transaction"
+    stub_name = f"{constants.ALGOPY_PREFIX}gtxn.{cls_name}"
+    return _SimpleType(
+        name=stub_name,
+        wtype=wtypes.WGroupTransaction(
+            name=wtype_name,
+            transaction_type=kind,
+            stub_name=stub_name,
+        ),
+    )
+
+
+def _make_itxn_fieldset_type(kind: constants.TransactionType | None) -> PyType:
+    if kind is None:
+        wtype_name = "inner_transaction_fields"
+        cls_name = "InnerTransaction"
+    else:
+        wtype_name = f"inner_transaction_fields_{kind.name}"
+        cls_name = _TXN_TYPE_NAMES[kind]
+    stub_name = f"{constants.ALGOPY_PREFIX}itxn.{cls_name}"
+    return _SimpleType(
+        name=stub_name,
+        wtype=wtypes.WInnerTransactionFields(
+            name=wtype_name, transaction_type=kind, stub_name=stub_name
+        ),
+    )
+
+
+def _make_itxn_result_type(kind: constants.TransactionType | None) -> PyType:
+    if kind is None:
+        wtype_name = "inner_transaction"
+        cls_name = "InnerTransactionResult"
+    else:
+        wtype_name = f"inner_transaction_{kind.name}"
+        cls_name = f"{_TXN_TYPE_NAMES[kind]}InnerTransaction"
+    stub_name = f"{constants.ALGOPY_PREFIX}itxn.{cls_name}"
+    return _SimpleType(
+        name=stub_name,
+        wtype=wtypes.WInnerTransaction(
+            name=wtype_name, transaction_type=kind, stub_name=stub_name
+        ),
+    )
+
+
+_TXN_TYPE_NAMES: typing.Final[Mapping[constants.TransactionType, str]] = {
+    constants.TransactionType.pay: "Payment",
+    constants.TransactionType.keyreg: "KeyRegistration",
+    constants.TransactionType.acfg: "AssetConfig",
+    constants.TransactionType.axfer: "AssetTransfer",
+    constants.TransactionType.afrz: "AssetFreeze",
+    constants.TransactionType.appl: "ApplicationCall",
+}
+
+_all_txn_kinds: typing.Final[Sequence[constants.TransactionType | None]] = [
     None,
-    "",
-    f"{constants.ALGOPY_PREFIX}itxn.InnerTransaction",
-    f"{constants.ALGOPY_PREFIX}itxn.InnerTransactionResult",
+    *constants.TransactionType,
+]
+GroupTransactionTypes: typing.Final[Mapping[constants.TransactionType | None, PyType]] = {
+    kind: _make_gtxn_type(kind) for kind in _all_txn_kinds
+}
+InnerTransactionFieldsetTypes: typing.Final[Mapping[constants.TransactionType | None, PyType]] = {
+    kind: _make_itxn_fieldset_type(kind) for kind in _all_txn_kinds
+}
+InnerTransactionResultTypes: typing.Final[Mapping[constants.TransactionType | None, PyType]] = {
+    kind: _make_itxn_result_type(kind) for kind in _all_txn_kinds
+}
+
+
+@attrs.frozen(kw_only=True)
+class _CompileTimeType(PyType):
+    generic: None = None
+    _wtype_error: str
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        msg = self._wtype_error.format(self=self)
+        raise CodeError(msg)
+
+    def __attrs_post_init__(self) -> None:
+        _register_builtin(self)
+
+
+def _make_op_namespace_types() -> Sequence[PyType]:
+    from itertools import chain
+
+    from puya.awst_build.intrinsic_data import ENUM_CLASSES, NAMESPACE_CLASSES
+
+    return [
+        _CompileTimeType(
+            name="".join((constants.ALGOPY_OP_PREFIX, cls_name)),
+            wtype_error="{self} is a namespace type only and not usable at runtime",
+        )
+        for cls_name in chain(ENUM_CLASSES, NAMESPACE_CLASSES)
+    ]
+
+
+OpNamespaceTypes: typing.Final = _make_op_namespace_types()
+
+StateTotalsType: typing.Final[PyType] = _CompileTimeType(
+    name=f"{constants.ALGOPY_PREFIX}_contract.StateTotals",
+    wtype_error="{self} is only usable in a class options context",
 )
+
+urangeType: typing.Final[PyType] = _CompileTimeType(  # noqa: N816
+    name=constants.URANGE,
+    wtype_error="{self} is not usable at runtime",
+)
+
+LogicSigType: typing.Final[PyType] = _CompileTimeType(
+    name=f"{constants.ALGOPY_PREFIX}_logic_sig.LogicSig",
+    wtype_error="{self} is only usable in a static context",
+)
+
+
+@attrs.frozen
+class _BaseType(PyType):
+    """Type that is only usable as a base type"""
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"{self} is only usable as a base type")
+
+    def __attrs_post_init__(self) -> None:
+        _register_builtin(self)
+
+
+ContractBaseType: typing.Final[PyType] = _BaseType(name=constants.CONTRACT_BASE)
+ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
+    name=constants.ARC4_CONTRACT_BASE,
+    bases=[ContractBaseType],
+    mro=[ContractBaseType],
+)
+ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_CLIENT)
+ARC4StructBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_STRUCT)
+StructBaseType: typing.Final[PyType] = _BaseType(name=constants.STRUCT_BASE)

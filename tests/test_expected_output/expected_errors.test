@@ -300,3 +300,18 @@ class Derived4(Base):
     def __init__(self) -> None:
         super().__init__()
         self.bar_p = GlobalState(Bytes(b"bbb")) # type: ignore[arg-type] ## E: some error message here about redefining proxies
+
+
+## case: void_state
+from algopy import *
+
+class Con(Contract):
+    x: None ## E: None is not supported as a value, only a return type
+
+    def approval_program(self) -> bool:
+        self.x = log(b"")  # type: ignore[func-returns-value] ## E: None indicates an empty return and cannot be assigned
+        return True
+
+    def clear_state_program(self) -> bool:
+        assert self.x  ## E: None does not support boolean evaluation
+        return True

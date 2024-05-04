@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import mypy.nodes
 
-from puya.arc4_util import wtype_to_arc4
+from puya.arc4_util import pytype_to_arc4, wtype_to_arc4
 from puya.awst import wtypes
 from puya.awst.nodes import (
     Literal,
@@ -47,7 +47,7 @@ class EmitBuilder(IntermediateExpressionBuilder):
             case [Literal(value=str(event_str)), *event_args]:
                 arc4_args, signature = get_arc4_args_and_signature(event_str, event_args, location)
                 if signature.return_type is not None:
-                    after_args = wtype_to_arc4(signature.return_type)
+                    after_args = pytype_to_arc4(signature.return_type)
                     raise CodeError(
                         f"Invalid event signature, type specified after args {after_args!r}",
                         location,

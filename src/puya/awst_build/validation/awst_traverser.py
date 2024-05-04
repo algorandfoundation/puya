@@ -34,7 +34,7 @@ class AWSTTraverser(FunctionTraverser, ModuleStatementVisitor[None]):
                 else:
                     self.visit_app_state_definition(node)
 
-    def visit_app_state_definition(self, state_defn: awst_nodes.AppStateDefinition) -> None:
+    def visit_app_state_definition(self, state_defn: awst_nodes.AppStorageDefinition) -> None:
         pass
 
     def visit_structure_definition(self, statement: awst_nodes.StructureDefinition) -> None:

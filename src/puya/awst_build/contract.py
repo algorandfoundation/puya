@@ -7,22 +7,15 @@ import mypy.visitor
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    AppStateDefinition,
-    AppStateKind,
     ContractFragment,
     ContractMethod,
     ContractReference,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import (
-    AppStateDeclaration,
-    AppStateDeclType,
-    AppStorageDeclaration,
-    ContractClassOptions,
-)
+from puya.awst_build.contract_data import AppStorageDeclaration, ContractClassOptions
 from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
 from puya.awst_build.utils import (
     get_decorators_by_fullname,
@@ -58,21 +51,6 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
         self.context.state_defs[self.cref] = _gather_app_storage_recursive(context, class_def)
-        # this_app_state = list(_gather_app_storage(context, class_def.info))
-        # for decl in this_app_state:
-        #     if (
-        #         isinstance(decl, AppStateDeclaration)
-        #         and decl.decl_type is AppStateDeclType.global_direct
-        #     ):
-        #         context.state_defs[self.cref][decl.member_name] = AppStateDefinition(
-        #             member_name=decl.member_name,
-        #             storage_wtype=decl.storage_wtype,
-        #             key_override=None,
-        #             description=None,
-        #             source_location=decl.source_location,
-        #             kind=decl.kind,
-        #         )
-        # _combined_app_state = _gather_app_storage_recursive(context, class_def, this_app_state)
 
         # if the class has an __init__ method, we need to visit it first, so any storage
         # fields cane be resolved to a (static) key
@@ -90,17 +68,11 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                 stmt.accept(self)
         # TODO: validation for state proxies being non-conditional
 
-        app_state = {}
-        for name, state_decl in context.state_defs[self.cref].items():
-            if state_decl.defined_in == self.cref:
-                app_state[name] = AppStateDefinition(
-                    key_override=state_decl.key_override,
-                    description=state_decl.description,
-                    storage_wtype=state_decl.storage_wtype,
-                    source_location=state_decl.source_location,
-                    kind=state_decl.kind,
-                    member_name=name,
-                )
+        app_state = {
+            name: state_decl.definition
+            for name, state_decl in context.state_defs[self.cref].items()
+            if state_decl.defined_in == self.cref
+        }
 
         self.result_ = ContractFragment(
             module_name=self.cref.module_name,
@@ -239,9 +211,11 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     self._error(
                         f"cannot be both a subroutine and {arc4_decorator_name}", subroutine_dec
                     )
-                *arg_wtypes, ret_wtype = get_func_types(
+                *arg_pytypes, ret_pytype = get_func_types(
                     self.context, func_def, location=self._location(func_def)
                 ).values()
+                ret_wtype = ret_pytype.wtype
+                arg_wtypes = [a.wtype for a in arg_pytypes]
                 arc4_method_config = get_arc4_method_config(self.context, arc4_decorator, func_def)
                 if arc4_method_config.is_bare:
                     if arg_wtypes or (ret_wtype is not wtypes.void_wtype):
@@ -466,26 +440,24 @@ def _gather_global_direct_storages(
                     var_loc,
                 )
             pytyp = context.type_to_pytype(sym.type, source_location=sym.node)
-            storage_wtype = pytyp.wtype
-            if storage_wtype in (wtypes.box_key, wtypes.state_key):
-                pass  # these are handled on declaration, need to collect constructor arguments too
-            elif not storage_wtype.lvalue:
+
+            if isinstance(pytyp, pytypes.StorageProxyType | pytypes.StorageMapProxyType):
+                # these are handled on declaration, need to collect constructor arguments too
+                continue
+
+            if pytyp is pytypes.NoneType:
                 context.error(
-                    f"Invalid type for Local storage - must be assignable,"
-                    f" which type {storage_wtype} is not",
+                    "None is not supported as a value, only a return type",
                     var_loc,
                 )
-            else:
-                yield AppStateDeclaration(
-                    member_name=name,
-                    kind=AppStateKind.app_global,
-                    storage_wtype=storage_wtype,
-                    decl_type=AppStateDeclType.global_direct,
-                    source_location=var_loc,
-                    defined_in=cref,
-                    key_override=None,
-                    description=None,
-                )
+            yield AppStorageDeclaration(
+                member_name=name,
+                typ=pytyp,
+                source_location=var_loc,
+                defined_in=cref,
+                key_override=None,
+                description=None,
+            )
 
 
 def _check_class_abstractness(

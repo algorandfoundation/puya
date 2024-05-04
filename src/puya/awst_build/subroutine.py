@@ -12,7 +12,6 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
-    AppStateKind,
     AssertStatement,
     AssignmentExpression,
     AssignmentStatement,
@@ -50,7 +49,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import AppStateDeclType, AppStorageDeclaration
+from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
@@ -63,11 +62,6 @@ from puya.awst_build.eb.base import (
     StateProxyDefinitionBuilder,
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
-from puya.awst_build.eb.box import (
-    BoxMapProxyExpressionBuilder,
-    BoxProxyExpressionBuilder,
-    BoxRefProxyExpressionBuilder,
-)
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
@@ -321,21 +315,24 @@ class FunctionASTConverter(
                 return []
         match stmt.rvalue:
             case mypy.nodes.TempNode(no_rhs=True):
-                # forward type-declaration only
-                self._precondition(
-                    len(stmt.lvalues) == 1 and isinstance(stmt.lvalues[0], mypy.nodes.RefExpr),
-                    "forward type declarations should only have one target,"
-                    " and it should be a RefExpr",
-                    stmt_loc,
-                )
-                return []
+                match stmt.lvalues:
+                    case [mypy.nodes.NameExpr(name=var_name)]:
+                        if stmt.type is not None:  # should always be the case, but ...
+                            self._symtable[var_name] = self.context.type_to_pytype(
+                                stmt.type, source_location=stmt_loc
+                            )
+                        # forward type-declaration only, no-op
+                        return []
+                    case _:
+                        raise InternalError(
+                            "Forward type declarations should only have one target,"
+                            " and it should be a NameExpr",
+                            stmt_loc,
+                        )
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
-        if isinstance(
-            rvalue,
-            StateProxyDefinitionBuilder
-            | BoxProxyExpressionBuilder
-            | BoxRefProxyExpressionBuilder
-            | BoxMapProxyExpressionBuilder,
+        rvalue_pytyp = self.context.mypy_expr_node_type(stmt.rvalue)
+        if rvalue_pytyp is pytypes.BoxRefType or isinstance(
+            rvalue_pytyp, pytypes.StorageProxyType | pytypes.StorageMapProxyType
         ):
             try:
                 (lvalue,) = stmt.lvalues
@@ -343,10 +340,10 @@ class FunctionASTConverter(
                 # this is true regardless of whether it's a self assignment or not,
                 # these are objects so aliasing is an issue in terms of semantic compatibility
                 raise CodeError(
-                    f"{rvalue.python_name} can only be assigned to a single variable", stmt_loc
+                    f"{rvalue_pytyp} can only be assigned to a single variable", stmt_loc
                 ) from None
             if is_self_member(lvalue):
-                return self._handle_proxy_assignment(lvalue, rvalue, stmt_loc)
+                return self._handle_proxy_assignment(lvalue, rvalue, rvalue_pytyp, stmt_loc)
         elif len(stmt.lvalues) > 1:
             # TODO: PyType from rvalue, since it's guaranteed to be EB
             rvalue = temporary_assignment_if_required(rvalue)
@@ -363,51 +360,49 @@ class FunctionASTConverter(
     def _handle_proxy_assignment(
         self,
         lvalue: mypy.nodes.MemberExpr,
-        rvalue: (
-            StateProxyDefinitionBuilder
-            | BoxProxyExpressionBuilder
-            | BoxRefProxyExpressionBuilder
-            | BoxMapProxyExpressionBuilder
-        ),
+        rvalue: ExpressionBuilder,
+        rvalue_pytyp: pytypes.PyType,
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
         if self.contract_method_info is None:
             raise InternalError("Assignment to self outside of a contract class", stmt_loc)
         if self.func_def.name != "__init__":
             raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a member variable"
+                f"{rvalue_pytyp} can only be assigned to a member variable"
                 " in the __init__ method",
                 stmt_loc,
             )
         cref = self.contract_method_info.cref
         if isinstance(rvalue, StateProxyDefinitionBuilder):
-            return self._handle_state_proxy_assignment(cref, lvalue, rvalue, stmt_loc)
+            return self._handle_state_proxy_assignment(
+                cref, lvalue, rvalue, rvalue_pytyp, stmt_loc
+            )
         else:
-            return self._handle_box_proxy_assignment(cref, lvalue, rvalue, stmt_loc)
+            return self._handle_box_proxy_assignment(cref, lvalue, rvalue, rvalue_pytyp, stmt_loc)
 
     def _handle_state_proxy_assignment(
         self,
         cref: ContractReference,
         lvalue: mypy.nodes.MemberExpr,
         rvalue: StateProxyDefinitionBuilder,
+        rvalue_pytyp: pytypes.PyType,
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
         member_name = lvalue.name
         member_loc = self._location(lvalue)
-        defn = rvalue.build_definition(member_name, cref, member_loc)
+        defn = rvalue.build_definition(member_name, cref, rvalue_pytyp, member_loc)
         self.context.state_defs[cref][member_name] = defn
         if rvalue.initial_value is None:
             return []
-        elif defn.kind != AppStateKind.app_global:
+        elif rvalue_pytyp.generic is not pytypes.GenericGlobalStateType:
             raise InternalError(
-                f"Don't know how to do initialise-on-declaration"
-                f" for storage of kind {defn.kind}",
-                stmt_loc,
+                f"Don't know how to do initialise-on-declaration for {rvalue_pytyp}", stmt_loc
             )
         else:
             global_state_target = AppStateExpression(
+                key=defn.key,
                 field_name=defn.member_name,
-                wtype=defn.storage_wtype,
+                wtype=defn.definition.storage_wtype,
                 source_location=defn.source_location,
             )
             return [
@@ -422,42 +417,25 @@ class FunctionASTConverter(
         self,
         cref: ContractReference,
         lvalue: mypy.nodes.MemberExpr,
-        rvalue: (
-            BoxRefProxyExpressionBuilder | BoxProxyExpressionBuilder | BoxMapProxyExpressionBuilder
-        ),
+        rvalue: ExpressionBuilder,
+        rvalue_pytyp: pytypes.PyType,
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
         member_name = lvalue.name
         key = rvalue.rvalue()
         match key:
-            case BoxProxyExpression(key=BytesConstant() as key_override, wtype=expr_wtype):
-                if expr_wtype is wtypes.box_ref_proxy_type:
-                    kind = AppStateKind.box_ref
-                    decl_type = AppStateDeclType.box_ref
-                    storage_wtype = wtypes.bytes_wtype
-                elif isinstance(expr_wtype, wtypes.WBoxProxy):
-                    kind = AppStateKind.box
-                    decl_type = AppStateDeclType.box
-                    storage_wtype = expr_wtype.content_wtype
-                elif isinstance(expr_wtype, wtypes.WBoxMapProxy):
-                    kind = AppStateKind.box_map
-                    decl_type = AppStateDeclType.box_map
-                    storage_wtype = expr_wtype.content_wtype
-                else:
-                    raise InternalError("Unexpected")
+            case BoxProxyExpression(key=BytesConstant() as key_override):
                 self.context.state_defs[cref][member_name] = AppStorageDeclaration(
                     member_name=member_name,
                     key_override=key_override,
                     source_location=key.source_location,
-                    storage_wtype=storage_wtype,
+                    typ=rvalue_pytyp,
                     description=None,
-                    decl_type=decl_type,
-                    kind=kind,
                     defined_in=cref,
                 )
                 return []
         raise CodeError(
-            f"{rvalue.python_name} must be declared with compile time static keys"
+            f"{rvalue_pytyp} must be declared with compile time static keys"
             f" when assigned to 'self'",
             stmt_loc,
         )
@@ -695,7 +673,7 @@ class FunctionASTConverter(
                 if typ.has_base(constants.CLS_ARC4_CLIENT):  # provides type info only
                     return ARC4ClientClassExpressionBuilder(self.context, expr_loc, typ.defn.info)
                 if typ.has_base(constants.STRUCT_BASE) or typ.has_base(constants.CLS_ARC4_STRUCT):
-                    pytyp = pytypes.lookup(fullname)
+                    pytyp = self.context.lookup_pytype(fullname)
                     if pytyp is None:
                         raise CodeError(f"Unknown struct subclass {fullname}", expr_loc)
                     # TODO: use PyType directly
@@ -841,20 +819,34 @@ class FunctionASTConverter(
     def _visit_ref_expr_of_algopy(
         self, fullname: str, location: SourceLocation, node: mypy.nodes.SymbolNode | None
     ) -> ExpressionBuilder:
+        from puya.awst_build.intrinsic_data import (
+            ENUM_CLASSES,
+            FUNC_TO_AST_MAPPER,
+            NAMESPACE_CLASSES,
+        )
+
         if fullname.startswith(constants.ALGOPY_OP_PREFIX):
             if isinstance(node, mypy.nodes.TypeAlias):
                 t = mypy.types.get_proper_type(node.target)
                 if isinstance(t, mypy.types.Instance):
                     node = t.type
             match node:
-                case mypy.nodes.TypeInfo() as type_info:
-                    if type_info.has_base("builtins.str"):
-                        return IntrinsicEnumClassExpressionBuilder(type_info, location=location)
-                    return IntrinsicNamespaceClassExpressionBuilder(type_info, location=location)
-                case mypy.nodes.FuncDef() as func_def:
-                    return IntrinsicFunctionExpressionBuilder(func_def, location=location)
-                case _:
-                    raise InternalError(f"Unhandled algopy name: {fullname}", location)
+                case mypy.nodes.TypeInfo(defn=mypy.nodes.ClassDef(name=class_name)) as type_info:
+                    if (enum_data := ENUM_CLASSES.get(class_name)) is not None:
+                        return IntrinsicEnumClassExpressionBuilder(
+                            enum_data, type_info, location=location
+                        )
+                    elif (cls_data := NAMESPACE_CLASSES.get(class_name)) is not None:
+                        return IntrinsicNamespaceClassExpressionBuilder(
+                            cls_data, type_info, location=location
+                        )
+                case mypy.nodes.FuncDef(name=func_name) as func_def:
+                    mappings = FUNC_TO_AST_MAPPER.get(func_name)
+                    if mappings is not None:
+                        return IntrinsicFunctionExpressionBuilder(
+                            func_def, mappings, location=location
+                        )
+            raise InternalError(f"Unhandled algopy name: {fullname}", location)
         if (
             fullname in (constants.CLS_LOCAL_STATE, constants.CLS_GLOBAL_STATE)
             and self.contract_method_info is None

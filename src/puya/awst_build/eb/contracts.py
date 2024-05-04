@@ -8,12 +8,9 @@ from puya.awst.nodes import (
     BoxProxyField,
     InstanceSubroutineTarget,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import (
-    AppStateDeclaration,
-    AppStateDeclType,
-    AppStorageDeclaration,
-)
+from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
@@ -28,7 +25,7 @@ from puya.awst_build.eb.subroutine import (
 )
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import qualified_class_name
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -92,8 +89,8 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
 def _builder_for_storage_access(
     storage_decl: AppStorageDeclaration, location: SourceLocation
 ) -> ExpressionBuilder:
-    match storage_decl:
-        case AppStateDeclaration(decl_type=AppStateDeclType.box_ref):
+    match storage_decl.typ:
+        case pytypes.BoxRefType:
             return BoxRefProxyExpressionBuilder(
                 BoxProxyField(
                     source_location=storage_decl.source_location,
@@ -101,35 +98,38 @@ def _builder_for_storage_access(
                     field_name=storage_decl.member_name,
                 )
             )
-        case AppStateDeclaration(decl_type=AppStateDeclType.box):
+        case pytypes.PyType(generic=pytypes.GenericBoxType):
             return BoxProxyExpressionBuilder(
                 BoxProxyField(
                     source_location=storage_decl.source_location,
-                    wtype=wtypes.WBoxProxy.from_content_type(storage_decl.storage_wtype),
-                    field_name=storage_decl.member_name,
-                )
-            )
-        case AppStateDeclaration(decl_type=AppStateDeclType.box_map):
-            return BoxMapProxyExpressionBuilder(
-                BoxProxyField(
-                    source_location=storage_decl.source_location,
-                    wtype=wtypes.WBoxMapProxy.from_key_and_content_type(
-                        storage_decl.storage_wtype
+                    wtype=wtypes.WBoxProxy.from_content_type(
+                        storage_decl.definition.storage_wtype
                     ),
                     field_name=storage_decl.member_name,
                 )
             )
-        case AppStateDeclaration(decl_type=AppStateDeclType.local_proxy):
+        case pytypes.PyType(generic=pytypes.GenericBoxMapType):
+            if storage_decl.definition.key_wtype is None:
+                raise InternalError("BoxMap should have key WType", location)
+            return BoxMapProxyExpressionBuilder(
+                BoxProxyField(
+                    source_location=storage_decl.source_location,
+                    wtype=wtypes.WBoxMapProxy.from_key_and_content_type(
+                        storage_decl.definition.key_wtype, storage_decl.definition.storage_wtype
+                    ),
+                    field_name=storage_decl.member_name,
+                )
+            )
+        case pytypes.PyType(generic=pytypes.GenericLocalStateType):
             return AppAccountStateExpressionBuilder(storage_decl, location)
-        case AppStateDeclaration(decl_type=AppStateDeclType.global_proxy):
+        case pytypes.PyType(generic=pytypes.GenericGlobalStateType):
             return AppStateExpressionBuilder(storage_decl, location)
-        case AppStateDeclaration(decl_type=AppStateDeclType.global_direct):
+        case _:
             return var_expression(
                 AppStateExpression(
+                    key=storage_decl.key,
                     field_name=storage_decl.member_name,
-                    wtype=storage_decl.storage_wtype,
+                    wtype=storage_decl.definition.storage_wtype,
                     source_location=location,
                 )
             )
-        case _:
-            raise ValueError(f"Unexpected storage declaration {storage_decl}")
