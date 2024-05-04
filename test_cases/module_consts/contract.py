@@ -12,10 +12,10 @@ from test_cases.module_consts.constants3 import *
 
 T = True and (1 == 1)
 
-_T = typing.TypeVar("_T")
-TruthyType = bool | typing.Literal[0, 1]
 
 if typing.TYPE_CHECKING:
+    TruthyType = bool | typing.Literal[0, 1]
+    _T = typing.TypeVar("_T")
 
     def identity(x: _T) -> _T:
         return x

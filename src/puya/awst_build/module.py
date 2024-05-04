@@ -51,6 +51,13 @@ class _LogicSigDecoratorInfo:
     name_override: str | None
 
 
+def value_or_error(callback: Callable[[], object]) -> object:
+    try:
+        return callback()
+    except Exception as ex:
+        return ex
+
+
 class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     """This does basic validation, and traversal of valid module scope elements, collecting
     and folding constants."""
@@ -259,66 +266,110 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             return []
 
     def visit_assignment_stmt(self, stmt: mypy.nodes.AssignmentStmt) -> StatementResult:
+        stmt_loc = self._location(stmt)
         self._precondition(
-            bool(stmt.lvalues), "assignment statements should have at least one lvalue", stmt
+            bool(stmt.lvalues), "assignment statements should have at least one lvalue", stmt_loc
         )
         self._precondition(
             not stmt.invalid_recursive_alias,
             "assignment statement with invalid_recursive_alias",
-            stmt,
+            stmt_loc,
         )
-        if stmt.is_alias_def:  # ie is this a typing.TypeAlias
-            return []  # skip it
-        match stmt.lvalues:
-            case [mypy.nodes.NameExpr(name="__all__")]:
-                # TODO: this value is technically usable at runtime in Python,
-                #       any references to it in the method bodies should fail
-                return []  # skip it
-            # mypy comments here indicate if this is a special form,
-            # it will be a single lvalue of type NameExpr
-            # https://github.com/python/mypy/blob/d2022a0007c0eb176ccaf37a9aa54c958be7fb10/mypy/semanal.py#L3508
-            case [mypy.nodes.NameExpr(is_special_form=True)]:
-                match stmt.rvalue:
-                    # is_special_form also includes functional form or Enum or TypedDict
-                    # declarations, we don't support those yet so need to exclude them from
-                    # being skipped over here, otherwise the reported error later on in compilation
-                    # could get real weird
-                    case mypy.nodes.CallExpr(
-                        analyzed=(mypy.nodes.EnumCallExpr() | mypy.nodes.TypedDictExpr())
-                    ):
-                        self._unsupported(stmt.rvalue, "unsupported type")
-                    case _:
-                        return []  # skip it
-        const_delcs = StatementResult()
-
-        for lvalue in stmt.lvalues:
-            match lvalue, stmt.rvalue:
-                case mypy.nodes.NameExpr() as name_expr, rvalue:
-                    fullname = ".".join((self.context.module_name, name_expr.name))
-                    # fullname might be unset if this is in
-                    # a conditional branch that's !TYPE_CHECKING
-                    if name_expr.fullname:
-                        self._precondition(
-                            name_expr.fullname == fullname,
-                            f"assignment to module const - expected fullname of {fullname},"
-                            f" but mypy had {name_expr.fullname}",
-                            lvalue,
-                        )
-                    constant_value = rvalue.accept(self)
-                    self.context.constants[fullname] = constant_value
-                    const_delcs.append(
-                        ConstantDeclaration(
-                            name=name_expr.name,
-                            value=constant_value,
-                            source_location=self._location(lvalue),
-                        )
+        lvalues = stmt.lvalues
+        if not self._check_assignment_lvalues(lvalues):
+            return []
+        if stmt.is_alias_def:
+            match stmt.rvalue:
+                case mypy.nodes.RefExpr(
+                    is_alias_rvalue=True, node=mypy.nodes.TypeInfo(fullname=alias_fullname)
+                ):
+                    maybe_aliased_pytype = pytypes.lookup(alias_fullname)
+                    if maybe_aliased_pytype is None:
+                        self.context.warning(
+                            f"Unknown type for type alias: {alias_fullname}", stmt_loc
+                        )  # TODO: error instead
+                        return []
+                    aliased_pytype = maybe_aliased_pytype
+                case mypy.nodes.IndexExpr(
+                    analyzed=mypy.nodes.TypeAliasExpr(
+                        node=mypy.nodes.TypeAlias(alias_tvars=[], target=alias_type)
                     )
+                ):
+                    try:
+                        aliased_pytype = self.context.type_to_pytype(
+                            alias_type, source_location=stmt_loc
+                        )
+                    except CodeError as ex:
+                        if "unknown" in ex.msg.lower():
+                            self.context.warning(
+                                f"Type alias lookup failed: {ex.msg}", stmt_loc
+                            )  # TODO: error instead
+                        else:
+                            raise
+                        return []
                 case _:
-                    self._unsupported(
-                        lvalue,
-                        "only straight-forward assignment targets supported at module level",
-                    )
+                    self._error("Unsupported type-alias format", stmt_loc)
+                    return []
+            for lvalue in lvalues:
+                aliased_pytype.register_alias(lvalue.fullname)
+            # We don't include type aliases in AWST since they're Python specific
+            return []
+        if any(lvalue.is_special_form for lvalue in lvalues):
+            self._error("Unsupported type-form", stmt_loc)
+
+        const_delcs = StatementResult()
+        constant_value = stmt.rvalue.accept(self)
+        for lvalue in lvalues:
+            self.context.constants[lvalue.fullname] = constant_value
+            const_delcs.append(
+                ConstantDeclaration(
+                    name=lvalue.name, value=constant_value, source_location=stmt_loc
+                )
+            )
+
         return const_delcs
+
+    def _check_assignment_lvalues(
+        self, lvalues: list[mypy.nodes.Lvalue]
+    ) -> t.TypeGuard[list[mypy.nodes.NameExpr]]:
+        """Does some pre-condition checks, including that all lvalues are simple (ie name-exprs),
+        hence the TypeGuard return type. If it returns true, then we should try and handle the
+        assignment."""
+        result = True
+        for lvalue in lvalues:
+            if not isinstance(lvalue, mypy.nodes.NameExpr):
+                self._error(
+                    "Only straight-forward assignment targets supported at module level", lvalue
+                )
+                result = False
+            else:
+                if len(lvalues) > 1:
+                    self._precondition(
+                        not lvalue.is_special_form, "special form with multiple lvalues", lvalue
+                    )
+                if lvalue.name == "__all__":
+                    # Special notation to denote the public members of a file, we don't need to
+                    # store this as it's purely indicative, hence the False return
+                    # We check inside functions if this is attempted to be referenced and produce
+                    # a specific error message.
+                    result = False
+                    if len(lvalues) > 1:
+                        self._error("Multi-assignment with __all__ not supported", lvalue)
+                    break
+                fullname = ".".join((self.context.module_name, lvalue.name))
+                # fullname might be unset if this is in
+                # a conditional branch that's !TYPE_CHECKING
+                if lvalue.fullname:
+                    self._precondition(
+                        lvalue.fullname == fullname,
+                        f"assignment to module const - expected fullname of {fullname},"
+                        f" but mypy had {lvalue.fullname}",
+                        lvalue,
+                    )
+                else:
+                    # fix it up
+                    lvalue._fullname = fullname  # noqa: SLF001
+        return result
 
     def visit_block(self, block: mypy.nodes.Block) -> StatementResult:
         result = StatementResult()

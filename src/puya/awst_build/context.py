@@ -129,25 +129,26 @@ class ASTConversionModuleContext(ASTConversionContext):
                 if args:
                     result = self._parameterise_pytype(result, args, loc)
                 return result
-            case mypy.types.NoneType() | mypy.types.PartialType(type=None):
-                return pytypes.NoneType
-            case mypy.types.LiteralType(fallback=fallback):
-                return self.type_to_pytype(fallback, source_location=loc)
+            case mypy.types.Instance(args=args) as inst:
+                fullname = inst.type.fullname
+                result = pytypes.lookup(fullname)
+                if result is None:
+                    if fullname.startswith("builtins."):
+                        msg = f"Unsupported builtin type: {fullname.removeprefix('builtins.')}"
+                    else:
+                        msg = f"Unknown type: {fullname}"
+                    raise CodeError(msg, loc)
+                if args:
+                    result = self._parameterise_pytype(result, args, loc)
+                return result
             case mypy.types.TupleType(items=items, partial_fallback=true_type):
                 types = [self.type_to_pytype(it, source_location=loc) for it in items]
                 generic = pytypes.lookup(true_type.type.fullname)
                 if generic is None:
                     raise CodeError(f"Unknown tuple base type: {true_type.type.fullname}", loc)
                 return generic.parameterise(types, loc)
-            case mypy.types.Instance(args=args) as inst:
-                result = pytypes.lookup(inst.type.fullname)
-                if result is None:
-                    raise CodeError(f"Unknown type: {inst.type.fullname}", loc)
-                if args:
-                    result = self._parameterise_pytype(result, args, loc)
-                return result
-            case mypy.types.UninhabitedType():
-                raise CodeError("Cannot resolve empty type", loc)
+            case mypy.types.LiteralType(fallback=fallback):
+                return self.type_to_pytype(fallback, source_location=loc)
             case mypy.types.UnionType(items=items):
                 types = [self.type_to_pytype(it, source_location=loc) for it in items]
                 if not types:
@@ -156,9 +157,19 @@ class ASTConversionModuleContext(ASTConversionContext):
                     return types[0]
                 else:
                     raise TypeUnionError(types, loc)
+            case mypy.types.NoneType() | mypy.types.PartialType(type=None):
+                return pytypes.NoneType
+            case mypy.types.UninhabitedType():
+                raise CodeError("Cannot resolve empty type", loc)
             case mypy.types.AnyType():
                 # TODO: look at type_of_any to improve error message
                 raise CodeError("Any type is not supported", loc)
+            case mypy.types.FunctionLike() as func_like:
+                if func_like.is_type_obj():
+                    msg = "References to type objects are not supported"
+                else:
+                    msg = "Function references are not supported"
+                raise CodeError(msg, loc)
             case _:
                 raise CodeError(
                     f"Unable to resolve mypy type {mypy_type!r} to known algopy type", loc
