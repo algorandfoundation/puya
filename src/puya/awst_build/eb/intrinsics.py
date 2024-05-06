@@ -13,13 +13,13 @@ from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBui
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.intrinsic_data import ENUM_CLASSES, STUB_TO_AST_MAPPER
-from puya.awst_build.intrinsic_models import FunctionOpMapping, ImmediateArgMapping
 from puya.awst_build.utils import convert_literal, get_arg_mapping
 from puya.errors import InternalError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from puya.awst_build.intrinsic_models import FunctionOpMapping
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -147,7 +147,7 @@ def _get_arg_mapping_funcdef(
 
 
 def _best_op_mapping(
-    op_mappings: list[FunctionOpMapping], args: dict[str, Expression | Literal]
+    op_mappings: Sequence[FunctionOpMapping], args: dict[str, Expression | Literal]
 ) -> FunctionOpMapping:
     """Find op mapping that matches as many arguments to immediate args as possible"""
     literal_arg_names = {arg_name for arg_name, arg in args.items() if isinstance(arg, Literal)}
@@ -183,46 +183,43 @@ def _map_call(
     args = args.copy()  # make a copy since we're going to mutate
 
     immediates = list[str | int]()
-    for immediate in op_mapping.immediates:
-        if not isinstance(immediate, ImmediateArgMapping):
-            immediates.append(immediate)
-        else:
-            arg_in = args.pop(immediate.arg_name, None)
-            if arg_in is None:
-                logger.error(
-                    f"Missing expected argument {immediate.arg_name}", location=node_location
-                )
-            elif not (
-                isinstance(arg_in, Literal)
-                and isinstance(arg_value := arg_in.value, immediate.literal_type)
-            ):
-                logger.error(
-                    f"Argument must be a literal {immediate.literal_type.__name__} value",
-                    location=arg_in.source_location,
-                )
-            else:
-                assert isinstance(arg_value, int | str)
-                immediates.append(arg_value)
+    for immediate in op_mapping.immediates.items():
+        match immediate:
+            case value, None:
+                immediates.append(value)
+            case arg_name, literal_type:
+                arg_in = args.pop(arg_name, None)
+                if arg_in is None:
+                    logger.error(f"Missing expected argument {arg_name}", location=node_location)
+                elif not (
+                    isinstance(arg_in, Literal)
+                    and isinstance(arg_value := arg_in.value, literal_type)
+                ):
+                    logger.error(
+                        f"Argument must be a literal {literal_type.__name__} value",
+                        location=arg_in.source_location,
+                    )
+                else:
+                    assert isinstance(arg_value, int | str)
+                    immediates.append(arg_value)
 
     stack_args = list[Expression]()
-    for arg_mapping in op_mapping.stack_inputs:
-        arg_in = args.pop(arg_mapping.arg_name, None)
+    for arg_name, allowed_types in op_mapping.stack_inputs.items():
+        arg_in = args.pop(arg_name, None)
         if arg_in is None:
-            logger.error(
-                f"Missing expected argument {arg_mapping.arg_name}", location=node_location
-            )
+            logger.error(f"Missing expected argument {arg_name}", location=node_location)
         elif isinstance(arg_in, Expression):
             # TODO this is identity based, match types instead?
-            if arg_in.wtype not in arg_mapping.allowed_types:
+            if arg_in.wtype not in allowed_types:
                 logger.error(
                     f'Invalid argument type "{arg_in.wtype}"'
-                    f' for argument "{arg_mapping.arg_name}" when calling {callee}',
+                    f' for argument "{arg_name}" when calling {callee}',
                     location=arg_in.source_location,
                 )
             stack_args.append(arg_in)
         else:
             literal_value = arg_in.value
-            for allowed_type in arg_mapping.allowed_types:
+            for allowed_type in allowed_types:
                 if allowed_type.is_valid_literal(literal_value):
                     literal_expr = convert_literal(arg_in, allowed_type)
                     stack_args.append(literal_expr)
