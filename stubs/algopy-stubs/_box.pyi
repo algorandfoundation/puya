@@ -1,12 +1,11 @@
 import typing
-from typing import Generic, TypeVar
 
 from algopy import Bytes, UInt64
 
-_TContent = TypeVar("_TContent")
-_TKey = TypeVar("_TKey")
+_TContent = typing.TypeVar("_TContent")
+_TKey = typing.TypeVar("_TKey")
 
-class Box(Generic[_TContent]):
+class Box(typing.Generic[_TContent]):
     """
     Box abstracts the reading and writing of a single value to a single box.
     The box size will be reconfigured dynamically to fit the size of the value being assigned to
@@ -145,7 +144,7 @@ class BoxRef:
         Get the length of this Box. Fails if the box does not exist
         """
 
-class BoxMap(Generic[_TKey, _TContent]):
+class BoxMap(typing.Generic[_TKey, _TContent]):
     """
     BoxMap abstracts the reading and writing of a set of boxes using a common key and content type.
     Each composite key (prefix + key) still needs to be made available to the application via the
