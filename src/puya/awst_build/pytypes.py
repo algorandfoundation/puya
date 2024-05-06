@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing
-from collections.abc import Callable, Iterable, Mapping, Sequence, Iterator
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -736,24 +736,36 @@ _make_txn_types(
 )
 
 
-class NamespaceType(PyType):
+@attrs.define(kw_only=True)
+class _CompileTimeType(PyType):
     generic: None = None
     metaclass: None = None
+    _wtype_error: Callable[[_CompileTimeType], str]
 
     @property
     def wtype(self) -> wtypes.WType:
-        raise CodeError(f"{self} is a namespace type only and not usable at runtime")
+        raise CodeError(self._wtype_error(self))
 
 
-def _make_op_namespace_types() -> Sequence[NamespaceType]:
+def _make_op_namespace_types() -> Sequence[PyType]:
     from itertools import chain
 
     from puya.awst_build.intrinsic_data import ENUM_CLASSES, NAMESPACE_CLASSES
 
+    def wtype_error(self: _CompileTimeType) -> str:
+        return f"{self} is a namespace type only and not usable at runtime"
+
     return [
-        NamespaceType(name="".join((constants.ALGOPY_OP_PREFIX, cls_name))).register()
+        _CompileTimeType(
+            name="".join((constants.ALGOPY_OP_PREFIX, cls_name)), wtype_error=wtype_error
+        ).register()
         for cls_name in chain(ENUM_CLASSES, NAMESPACE_CLASSES)
     ]
 
 
 OpNamespaceTypes: typing.Final = _make_op_namespace_types()
+
+
+urangeType: typing.Final[PyType] = _CompileTimeType(  # noqa: N816
+    name=constants.URANGE, wtype_error=lambda self: f"{self} is not usable at runtime"
+).register()
