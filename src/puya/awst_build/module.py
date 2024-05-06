@@ -248,8 +248,6 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
     ) -> StatementResult:
         match stmt.lvalue:
             case mypy.nodes.NameExpr(name="__all__"):
-                # TODO: this value is technically usable at runtime in Python,
-                #       any references to it in the method bodies should fail
                 return self.empty_statement(stmt)
             case _:
                 self._unsupported(stmt)
@@ -333,7 +331,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         self, lvalues: list[mypy.nodes.Lvalue]
     ) -> t.TypeGuard[list[mypy.nodes.NameExpr]]:
         """Does some pre-condition checks, including that all lvalues are simple (ie name-exprs),
-        hence the TypeGuard return type. If it returns true, then we should try and handle the
+        hence the TypeGuard return type. If it returns True, then we should try and handle the
         assignment."""
         result = True
         for lvalue in lvalues:
@@ -349,7 +347,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     )
                 if lvalue.name == "__all__":
                     # Special notation to denote the public members of a file, we don't need to
-                    # store this as it's purely indicative, hence the False return
+                    # store this as we don't validate star-imports, mypy does, hence the False.
                     # We check inside functions if this is attempted to be referenced and produce
                     # a specific error message.
                     result = False
