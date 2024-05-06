@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence, Iterator
 from functools import cached_property
 
 import attrs
@@ -734,3 +734,26 @@ _make_txn_types(
     f"{constants.ALGOPY_PREFIX}itxn.InnerTransaction",
     f"{constants.ALGOPY_PREFIX}itxn.InnerTransactionResult",
 )
+
+
+class NamespaceType(PyType):
+    generic: None = None
+    metaclass: None = None
+
+    @property
+    def wtype(self) -> wtypes.WType:
+        raise CodeError(f"{self} is a namespace type only and not usable at runtime")
+
+
+def _make_op_namespace_types() -> Sequence[NamespaceType]:
+    from itertools import chain
+
+    from puya.awst_build.intrinsic_data import ENUM_CLASSES, NAMESPACE_CLASSES
+
+    return [
+        NamespaceType(name="".join((constants.ALGOPY_OP_PREFIX, cls_name))).register()
+        for cls_name in chain(ENUM_CLASSES, NAMESPACE_CLASSES)
+    ]
+
+
+OpNamespaceTypes: typing.Final = _make_op_namespace_types()

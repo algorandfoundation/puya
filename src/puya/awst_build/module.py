@@ -283,9 +283,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 ):
                     maybe_aliased_pytype = pytypes.lookup(alias_fullname)
                     if maybe_aliased_pytype is None:
-                        self.context.warning(
+                        self.context.error(
                             f"Unknown type for type alias: {alias_fullname}", stmt_loc
-                        )  # TODO: error instead
+                        )
                         return []
                     aliased_pytype = maybe_aliased_pytype
                 case mypy.nodes.IndexExpr(
@@ -293,18 +293,9 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                         node=mypy.nodes.TypeAlias(alias_tvars=[], target=alias_type)
                     )
                 ):
-                    try:
-                        aliased_pytype = self.context.type_to_pytype(
-                            alias_type, source_location=stmt_loc
-                        )
-                    except CodeError as ex:
-                        if "unknown" in ex.msg.lower():
-                            self.context.warning(
-                                f"Type alias lookup failed: {ex.msg}", stmt_loc
-                            )  # TODO: error instead
-                        else:
-                            raise
-                        return []
+                    aliased_pytype = self.context.type_to_pytype(
+                        alias_type, source_location=stmt_loc
+                    )
                 case _:
                     self._error("Unsupported type-alias format", stmt_loc)
                     return []
