@@ -1026,7 +1026,9 @@ def build_awst_data(
     yield ")"
 
     yield (
-        "NAMESPACE_CLASSES: typing.Final[Mapping[str, Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]]]] = dict("
+        "NAMESPACE_CLASSES: "
+        "typing.Final[Mapping[str, Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]]]]"
+        " = dict("
     )
     for class_op in class_ops:
         yield f"{class_op.name}=dict("
