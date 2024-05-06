@@ -2624,6 +2624,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.min_txn_fee": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(MinTxnFee=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2631,6 +2632,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.min_balance": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(MinBalance=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2638,6 +2640,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.max_txn_life": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(MaxTxnLife=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2645,6 +2648,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.zero_address": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(ZeroAddress=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -2652,6 +2656,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.group_size": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(GroupSize=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2659,6 +2664,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.logic_sig_version": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(LogicSigVersion=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2666,6 +2672,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.round": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(Round=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2673,6 +2680,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.latest_timestamp": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(LatestTimestamp=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2680,6 +2688,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.current_application_id": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(CurrentApplicationID=None),
                 stack_outputs=(wtypes.application_wtype,),
             ),
@@ -2687,6 +2696,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.creator_address": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(CreatorAddress=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -2694,6 +2704,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.current_application_address": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(CurrentApplicationAddress=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -2701,6 +2712,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.group_id": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(GroupID=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -2715,6 +2727,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.caller_application_id": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(CallerApplicationID=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2722,6 +2735,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.caller_application_address": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(CallerApplicationAddress=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -2729,6 +2743,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.asset_create_min_balance": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(AssetCreateMinBalance=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2736,6 +2751,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.asset_opt_in_min_balance": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(AssetOptInMinBalance=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -2743,6 +2759,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Global.genesis_hash": (
             FunctionOpMapping(
                 "global",
+                is_property=True,
                 immediates=dict(GenesisHash=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3686,6 +3703,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.sender": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(Sender=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -3693,6 +3711,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.fee": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(Fee=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3700,6 +3719,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.first_valid": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(FirstValid=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3707,6 +3727,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.first_valid_time": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(FirstValidTime=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3714,6 +3735,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.last_valid": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(LastValid=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3721,6 +3743,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.note": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(Note=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3728,6 +3751,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.lease": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(Lease=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3735,6 +3759,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.receiver": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(Receiver=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -3742,6 +3767,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.amount": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(Amount=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3749,6 +3775,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.close_remainder_to": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(CloseRemainderTo=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -3756,6 +3783,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.vote_pk": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(VotePK=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3763,6 +3791,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.selection_pk": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(SelectionPK=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3770,6 +3799,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.vote_first": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(VoteFirst=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3777,6 +3807,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.vote_last": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(VoteLast=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3784,6 +3815,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.vote_key_dilution": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(VoteKeyDilution=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3791,6 +3823,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.type": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(Type=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3798,6 +3831,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.type_enum": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(TypeEnum=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3805,6 +3839,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.xfer_asset": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(XferAsset=None),
                 stack_outputs=(wtypes.asset_wtype,),
             ),
@@ -3812,6 +3847,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.asset_amount": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(AssetAmount=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3819,6 +3855,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.asset_sender": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(AssetSender=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -3826,6 +3863,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.asset_receiver": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(AssetReceiver=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -3833,6 +3871,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.asset_close_to": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(AssetCloseTo=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -3840,6 +3879,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.group_index": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(GroupIndex=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3847,6 +3887,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.tx_id": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(TxID=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3854,6 +3895,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.application_id": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ApplicationID=None),
                 stack_outputs=(wtypes.application_wtype,),
             ),
@@ -3861,6 +3903,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.on_completion": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(OnCompletion=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3881,6 +3924,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.num_app_args": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(NumAppArgs=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3901,6 +3945,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.num_accounts": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(NumAccounts=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3908,6 +3953,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.approval_program": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ApprovalProgram=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3915,6 +3961,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.clear_state_program": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ClearStateProgram=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3922,6 +3969,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.rekey_to": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(RekeyTo=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -3929,6 +3977,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAsset=None),
                 stack_outputs=(wtypes.asset_wtype,),
             ),
@@ -3936,6 +3985,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_total": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetTotal=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3943,6 +3993,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_decimals": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetDecimals=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -3950,6 +4001,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_default_frozen": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetDefaultFrozen=None),
                 stack_outputs=(wtypes.bool_wtype,),
             ),
@@ -3957,6 +4009,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_unit_name": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetUnitName=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3964,6 +4017,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_name": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetName=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3971,6 +4025,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_url": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetURL=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3978,6 +4033,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_metadata_hash": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetMetadataHash=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -3985,6 +4041,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_manager": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetManager=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -3992,6 +4049,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_reserve": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetReserve=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -3999,6 +4057,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_freeze": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetFreeze=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -4006,6 +4065,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.config_asset_clawback": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ConfigAssetClawback=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -4013,6 +4073,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.freeze_asset": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(FreezeAsset=None),
                 stack_outputs=(wtypes.asset_wtype,),
             ),
@@ -4020,6 +4081,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.freeze_asset_account": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(FreezeAssetAccount=None),
                 stack_outputs=(wtypes.account_wtype,),
             ),
@@ -4027,6 +4089,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.freeze_asset_frozen": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(FreezeAssetFrozen=None),
                 stack_outputs=(wtypes.bool_wtype,),
             ),
@@ -4047,6 +4110,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.num_assets": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(NumAssets=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -4067,6 +4131,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.num_applications": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(NumApplications=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -4074,6 +4139,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.global_num_uint": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(GlobalNumUint=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -4081,6 +4147,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.global_num_byte_slice": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(GlobalNumByteSlice=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -4088,6 +4155,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.local_num_uint": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(LocalNumUint=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -4095,6 +4163,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.local_num_byte_slice": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(LocalNumByteSlice=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -4102,6 +4171,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.extra_program_pages": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(ExtraProgramPages=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -4109,6 +4179,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.nonparticipation": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(Nonparticipation=None),
                 stack_outputs=(wtypes.bool_wtype,),
             ),
@@ -4129,6 +4200,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.num_logs": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(NumLogs=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -4136,6 +4208,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.created_asset_id": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(CreatedAssetID=None),
                 stack_outputs=(wtypes.asset_wtype,),
             ),
@@ -4143,6 +4216,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.created_application_id": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(CreatedApplicationID=None),
                 stack_outputs=(wtypes.application_wtype,),
             ),
@@ -4150,6 +4224,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.last_log": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(LastLog=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -4157,6 +4232,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.state_proof_pk": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(StateProofPK=None),
                 stack_outputs=(wtypes.bytes_wtype,),
             ),
@@ -4177,6 +4253,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.num_approval_program_pages": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(NumApprovalProgramPages=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),
@@ -4197,6 +4274,7 @@ STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping
         "algopy.op.Txn.num_clear_state_program_pages": (
             FunctionOpMapping(
                 "txn",
+                is_property=True,
                 immediates=dict(NumClearStateProgramPages=None),
                 stack_outputs=(wtypes.uint64_wtype,),
             ),

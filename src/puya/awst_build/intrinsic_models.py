@@ -21,6 +21,13 @@ class ImmediateArgMapping:
 
 
 @attrs.frozen
+class PropertyOpMapping:
+    op_code: str
+    immediates: Sequence[str]
+    stack_outputs: Sequence[wtypes.WType] = attrs.field(validator=attrs.validators.min_len(1))
+
+
+@attrs.frozen
 class FunctionOpMapping:
     op_code: str
     """TEAL op code for this mapping"""

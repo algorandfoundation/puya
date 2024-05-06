@@ -940,11 +940,15 @@ def build_wtype(wtype: wtypes.WType) -> str:
 
 
 def build_op_specification_body(name_suffix: str, function: FunctionDef) -> Iterable[str]:
+    if function.is_property:
+        assert len(function.op_mappings) == 1
+    else:
+        assert len(function.op_mappings) >= 1
     yield f'    "algopy.{STUB_NAMESPACE}.{name_suffix}": ('
     for op_mapping in function.op_mappings:
         yield f"FunctionOpMapping({op_mapping.op_code!r},"
-        if op_mapping.is_property:
-            yield f" is_property={op_mapping.is_property},"
+        if function.is_property:
+            yield f" is_property={function.is_property},"
         if op_mapping.immediates:
             yield " immediates=dict("
             for idx, (name_or_value, literal_type_or_none) in enumerate(
