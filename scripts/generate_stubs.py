@@ -944,49 +944,58 @@ def build_op_specification_body(name_suffix: str, function: FunctionDef) -> Iter
         assert len(function.op_mappings) == 1
     else:
         assert len(function.op_mappings) >= 1
-    yield f'    "algopy.{STUB_NAMESPACE}.{name_suffix}": ('
-    for op_mapping in function.op_mappings:
-        yield f"FunctionOpMapping({op_mapping.op_code!r},"
-        if function.is_property:
-            yield f" is_property={function.is_property},"
-        if op_mapping.immediates:
-            yield " immediates=dict("
-            for idx, (name_or_value, literal_type_or_none) in enumerate(
-                op_mapping.immediates.items()
-            ):
-                if idx:
-                    yield ", "
-                if literal_type_or_none is None:
-                    val_repr = repr(literal_type_or_none)
-                else:
-                    val_repr = literal_type_or_none.__name__
+    if function.is_property:
+        yield f'    "algopy.{STUB_NAMESPACE}.{name_suffix}": '
+        (op_mapping,) = function.op_mappings
+        yield f"PropertyOpMapping({op_mapping.op_code!r},"
+        yield f" immediates={tuple(op_mapping.immediates.keys())!r}"
+        yield ", stack_outputs=("
+        for stack_output in op_mapping.stack_outputs:
+            yield build_wtype(stack_output)
+            yield ","
+        yield "),),"
+    else:
+        yield f'    "algopy.{STUB_NAMESPACE}.{name_suffix}": ('
+        for op_mapping in function.op_mappings:
+            yield f"FunctionOpMapping({op_mapping.op_code!r},"
+            if op_mapping.immediates:
+                yield " immediates=dict("
+                for idx, (name_or_value, literal_type_or_none) in enumerate(
+                    op_mapping.immediates.items()
+                ):
+                    if idx:
+                        yield ", "
+                    if literal_type_or_none is None:
+                        val_repr = repr(literal_type_or_none)
+                    else:
+                        val_repr = literal_type_or_none.__name__
 
-                yield f"{name_or_value}={val_repr}"
-            yield "),"
-        if op_mapping.stack_inputs:
-            yield " stack_inputs=dict("
-            for idx, (arg_name, allowed_types) in enumerate(op_mapping.stack_inputs.items()):
-                if idx:
-                    yield ", "
-                yield f"{arg_name}="
-                if len(allowed_types) == 1:
-                    yield f"({build_wtype(*allowed_types)},)"
-                else:
-                    yield "("
-                    for idx2, allowed_type in enumerate(allowed_types):
-                        if idx2:
-                            yield ","
-                        yield build_wtype(allowed_type)
-                    yield ")"
-            yield "),"
-        if op_mapping.stack_outputs:
-            yield " stack_outputs=("
-            for stack_output in op_mapping.stack_outputs:
-                yield build_wtype(stack_output)
-                yield ","
+                    yield f"{name_or_value}={val_repr}"
+                yield "),"
+            if op_mapping.stack_inputs:
+                yield " stack_inputs=dict("
+                for idx, (arg_name, allowed_types) in enumerate(op_mapping.stack_inputs.items()):
+                    if idx:
+                        yield ", "
+                    yield f"{arg_name}="
+                    if len(allowed_types) == 1:
+                        yield f"({build_wtype(*allowed_types)},)"
+                    else:
+                        yield "("
+                        for idx2, allowed_type in enumerate(allowed_types):
+                            if idx2:
+                                yield ","
+                            yield build_wtype(allowed_type)
+                        yield ")"
+                yield "),"
+            if op_mapping.stack_outputs:
+                yield " stack_outputs=("
+                for stack_output in op_mapping.stack_outputs:
+                    yield build_wtype(stack_output)
+                    yield ","
+                yield "),"
             yield "),"
         yield "),"
-    yield "),"
 
 
 def build_awst_data(
@@ -998,7 +1007,10 @@ def build_awst_data(
     yield "import typing"
     yield "from collections.abc import Mapping, Sequence"
     yield "from puya.awst import wtypes"
-    yield "from puya.awst_build.intrinsic_models import FunctionOpMapping, ImmediateArgMapping"
+    yield (
+        "from puya.awst_build.intrinsic_models import"
+        " FunctionOpMapping, ImmediateArgMapping, PropertyOpMapping"
+    )
     yield "from immutabledict import immutabledict"
     yield "ENUM_CLASSES: typing.Final = immutabledict[str, Mapping[str, str]]({"
     for enum_name in enums:
@@ -1009,7 +1021,10 @@ def build_awst_data(
         yield "     },"
     yield "})"
     yield ""
-    yield "STUB_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping]]({"
+    yield (
+        "STUB_TO_AST_MAPPER: typing.Final"
+        " = immutabledict[str, PropertyOpMapping | Sequence[FunctionOpMapping]]({"
+    )
     for function_op in function_ops:
         yield "".join(build_op_specification_body(function_op.name, function_op))
 

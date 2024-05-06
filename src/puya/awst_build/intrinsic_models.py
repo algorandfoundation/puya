@@ -38,8 +38,6 @@ class FunctionOpMapping:
      in descending priority for literal conversions"""
     stack_outputs: Sequence[wtypes.WType] = attrs.field(factory=tuple)
     """Types output by TEAL op"""
-    is_property: bool = False
-    """Is this function represented as a property"""
 
     @cached_property
     def literal_arg_names(self) -> Set[str]:

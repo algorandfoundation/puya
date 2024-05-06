@@ -13,13 +13,13 @@ from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBui
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.intrinsic_data import ENUM_CLASSES, STUB_TO_AST_MAPPER
+from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 from puya.awst_build.utils import convert_literal, get_arg_mapping
 from puya.errors import InternalError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from puya.awst_build.intrinsic_models import FunctionOpMapping
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -96,9 +96,7 @@ class IntrinsicNamespaceClassExpressionBuilder(_Namespace):
             # as final class vars, for these get the intrinsic expression by explicitly
             # mapping the member name as a call with no args
             case mypy.nodes.Var(fullname=classvar_fullname):
-                intrinsic_expr = _map_call(
-                    callee=classvar_fullname, node_location=location, args={}
-                )
+                intrinsic_expr = _map_property(callee=classvar_fullname, node_location=location)
                 return var_expression(intrinsic_expr)
         raise InternalError(
             f"Unhandled intrinsic-namespace node type {type(node).__name__}"
@@ -169,12 +167,34 @@ def _return_types_to_wtype(
         return wtypes.WTuple(types, source_location)
 
 
+def _map_property(callee: str, node_location: SourceLocation) -> IntrinsicCall:
+    prop_op_mapping = STUB_TO_AST_MAPPER.get(callee)
+    if prop_op_mapping is None:
+        raise InternalError(f"Un-mapped intrinsic call for {callee}", node_location)
+    if not isinstance(prop_op_mapping, PropertyOpMapping):
+        raise InternalError(
+            f"Expected property mapping for {callee} but got function", node_location
+        )
+
+    return IntrinsicCall(
+        source_location=node_location,
+        wtype=_return_types_to_wtype(prop_op_mapping.stack_outputs, node_location),
+        op_code=prop_op_mapping.op_code,
+        immediates=prop_op_mapping.immediates,
+    )
+
+
 def _map_call(
     callee: str, node_location: SourceLocation, args: dict[str, Expression | Literal]
 ) -> IntrinsicCall:
     ast_mapper = STUB_TO_AST_MAPPER.get(callee)
-    if not ast_mapper:
+    if ast_mapper is None:
         raise InternalError(f"Un-mapped intrinsic call for {callee}", node_location)
+    if isinstance(ast_mapper, PropertyOpMapping):
+        raise InternalError(
+            f"Expected function mapping for {callee} but got property", node_location
+        )
+
     if len(ast_mapper) == 1:
         (op_mapping,) = ast_mapper
     else:
