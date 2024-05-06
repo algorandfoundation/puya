@@ -841,20 +841,34 @@ class FunctionASTConverter(
     def _visit_ref_expr_of_algopy(
         self, fullname: str, location: SourceLocation, node: mypy.nodes.SymbolNode | None
     ) -> ExpressionBuilder:
+        from puya.awst_build.intrinsic_data import (
+            ENUM_CLASSES,
+            FUNC_TO_AST_MAPPER,
+            NAMESPACE_CLASSES,
+        )
+
         if fullname.startswith(constants.ALGOPY_OP_PREFIX):
             if isinstance(node, mypy.nodes.TypeAlias):
                 t = mypy.types.get_proper_type(node.target)
                 if isinstance(t, mypy.types.Instance):
                     node = t.type
             match node:
-                case mypy.nodes.TypeInfo() as type_info:
-                    if type_info.has_base("builtins.str"):
-                        return IntrinsicEnumClassExpressionBuilder(type_info, location=location)
-                    return IntrinsicNamespaceClassExpressionBuilder(type_info, location=location)
-                case mypy.nodes.FuncDef() as func_def:
-                    return IntrinsicFunctionExpressionBuilder(func_def, location=location)
-                case _:
-                    raise InternalError(f"Unhandled algopy name: {fullname}", location)
+                case mypy.nodes.TypeInfo(defn=mypy.nodes.ClassDef(name=class_name)) as type_info:
+                    if (enum_data := ENUM_CLASSES.get(class_name)) is not None:
+                        return IntrinsicEnumClassExpressionBuilder(
+                            enum_data, type_info, location=location
+                        )
+                    elif (cls_data := NAMESPACE_CLASSES.get(class_name)) is not None:
+                        return IntrinsicNamespaceClassExpressionBuilder(
+                            cls_data, type_info, location=location
+                        )
+                case mypy.nodes.FuncDef(name=func_name) as func_def:
+                    mappings = FUNC_TO_AST_MAPPER.get(func_name)
+                    if mappings is not None:
+                        return IntrinsicFunctionExpressionBuilder(
+                            func_def, mappings, location=location
+                        )
+            raise InternalError(f"Unhandled algopy name: {fullname}", location)
         if (
             fullname in (constants.CLS_LOCAL_STATE, constants.CLS_GLOBAL_STATE)
             and self.contract_method_info is None

@@ -12,13 +12,12 @@ from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.intrinsic_data import ENUM_CLASSES, STUB_TO_AST_MAPPER
 from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 from puya.awst_build.utils import convert_literal, get_arg_mapping
 from puya.errors import InternalError
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
 
     from puya.parse import SourceLocation
 
@@ -67,36 +66,64 @@ class _Namespace(IntermediateExpressionBuilder, abc.ABC):
 
 
 class IntrinsicEnumClassExpressionBuilder(_Namespace):
+    def __init__(
+        self, data: Mapping[str, str], type_info: mypy.nodes.TypeInfo, location: SourceLocation
+    ) -> None:
+        super().__init__(type_info, location)
+        self._data = data
+
     @typing.override
     def _member_access(
         self, name: str, node: mypy.nodes.SymbolNode, location: SourceLocation
     ) -> Literal:
-        value = ENUM_CLASSES.get(self.type_info.fullname, {}).get(name)
+        value = self._data.get(name)
         if value is None:
             raise InternalError(
-                f"Un-mapped enum value '{name}' for '{self.type_info.fullname}.{name}'", location
+                f"Un-mapped enum value {name!r} for '{self.type_info.fullname}.{name}'", location
             )
-        return Literal(
-            source_location=location,
-            # this works currently because these enums are StrEnum with auto() as their value
-            value=value,
-        )
+        return Literal(value=value, source_location=location)
 
 
 class IntrinsicNamespaceClassExpressionBuilder(_Namespace):
+    def __init__(
+        self,
+        data: Mapping[str, PropertyOpMapping | Sequence[FunctionOpMapping]],
+        type_info: mypy.nodes.TypeInfo,
+        location: SourceLocation,
+    ) -> None:
+        super().__init__(type_info, location)
+        self._data = data
+
     @typing.override
     def _member_access(
         self, name: str, node: mypy.nodes.SymbolNode, location: SourceLocation
     ) -> ExpressionBuilder:
+        mapping = self._data.get(name)
+        fullname = ".".join((self.type_info.fullname, name))
+        if mapping is None:
+            raise InternalError(f"Un-mapped class member {name!r} for {fullname!r}", location)
         match node:
             # methods are either @staticmethod or @classmethod, so will be wrapped in decorator
             case mypy.nodes.Decorator(func=func_def):
-                return IntrinsicFunctionExpressionBuilder(func_def, location)
+                if isinstance(mapping, PropertyOpMapping):
+                    raise InternalError(
+                        f"Expected function mapping for {fullname!r} but got property", location
+                    )
+                return IntrinsicFunctionExpressionBuilder(func_def, mapping, location)
             # some class members in the stubs that take no arguments are typed
             # as final class vars, for these get the intrinsic expression by explicitly
             # mapping the member name as a call with no args
-            case mypy.nodes.Var(fullname=classvar_fullname):
-                intrinsic_expr = _map_property(callee=classvar_fullname, node_location=location)
+            case mypy.nodes.Var():
+                if not isinstance(mapping, PropertyOpMapping):
+                    raise InternalError(
+                        f"Expected property mapping for {fullname!r} but got function", location
+                    )
+                intrinsic_expr = IntrinsicCall(
+                    source_location=location,
+                    wtype=_return_types_to_wtype(mapping.stack_outputs, location),
+                    op_code=mapping.op_code,
+                    immediates=mapping.immediates,
+                )
                 return var_expression(intrinsic_expr)
         raise InternalError(
             f"Unhandled intrinsic-namespace node type {type(node).__name__}"
@@ -106,7 +133,13 @@ class IntrinsicNamespaceClassExpressionBuilder(_Namespace):
 
 
 class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
-    def __init__(self, func_def: mypy.nodes.FuncDef, location: SourceLocation) -> None:
+    def __init__(
+        self,
+        func_def: mypy.nodes.FuncDef,
+        mappings: Sequence[FunctionOpMapping],
+        location: SourceLocation,
+    ) -> None:
+        self._mappings = mappings
         self.func_def = func_def
         super().__init__(location)
 
@@ -122,7 +155,7 @@ class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
         ]
         arg_mapping = _get_arg_mapping_funcdef(self.func_def, resolved_args, location, arg_names)
         intrinsic_expr = _map_call(
-            callee=self.func_def.fullname, node_location=location, args=arg_mapping
+            self._mappings, callee=self.func_def.fullname, node_location=location, args=arg_mapping
         )
         return var_expression(intrinsic_expr)
 
@@ -167,34 +200,12 @@ def _return_types_to_wtype(
         return wtypes.WTuple(types, source_location)
 
 
-def _map_property(callee: str, node_location: SourceLocation) -> IntrinsicCall:
-    prop_op_mapping = STUB_TO_AST_MAPPER.get(callee)
-    if prop_op_mapping is None:
-        raise InternalError(f"Un-mapped intrinsic call for {callee}", node_location)
-    if not isinstance(prop_op_mapping, PropertyOpMapping):
-        raise InternalError(
-            f"Expected property mapping for {callee} but got function", node_location
-        )
-
-    return IntrinsicCall(
-        source_location=node_location,
-        wtype=_return_types_to_wtype(prop_op_mapping.stack_outputs, node_location),
-        op_code=prop_op_mapping.op_code,
-        immediates=prop_op_mapping.immediates,
-    )
-
-
 def _map_call(
-    callee: str, node_location: SourceLocation, args: dict[str, Expression | Literal]
+    ast_mapper: Sequence[FunctionOpMapping],
+    callee: str,
+    node_location: SourceLocation,
+    args: dict[str, Expression | Literal],
 ) -> IntrinsicCall:
-    ast_mapper = STUB_TO_AST_MAPPER.get(callee)
-    if ast_mapper is None:
-        raise InternalError(f"Un-mapped intrinsic call for {callee}", node_location)
-    if isinstance(ast_mapper, PropertyOpMapping):
-        raise InternalError(
-            f"Expected function mapping for {callee} but got property", node_location
-        )
-
     if len(ast_mapper) == 1:
         (op_mapping,) = ast_mapper
     else:

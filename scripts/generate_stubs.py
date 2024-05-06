@@ -939,13 +939,13 @@ def build_wtype(wtype: wtypes.WType) -> str:
     raise ValueError("Unexpected wtype")
 
 
-def build_op_specification_body(name_suffix: str, function: FunctionDef) -> Iterable[str]:
+def build_op_specification_body(function: FunctionDef) -> Iterable[str]:
     if function.is_property:
         assert len(function.op_mappings) == 1
     else:
         assert len(function.op_mappings) >= 1
     if function.is_property:
-        yield f'    "algopy.{STUB_NAMESPACE}.{name_suffix}": '
+        yield f"{function.name!r}: "
         (op_mapping,) = function.op_mappings
         yield f"PropertyOpMapping({op_mapping.op_code!r},"
         yield f" immediates={tuple(op_mapping.immediates.keys())!r}"
@@ -955,7 +955,7 @@ def build_op_specification_body(name_suffix: str, function: FunctionDef) -> Iter
             yield ","
         yield "),),"
     else:
-        yield f'    "algopy.{STUB_NAMESPACE}.{name_suffix}": ('
+        yield f"{function.name!r}: ("
         for op_mapping in function.op_mappings:
             yield f"FunctionOpMapping({op_mapping.op_code!r},"
             if op_mapping.immediates:
@@ -1014,24 +1014,27 @@ def build_awst_data(
     yield "from immutabledict import immutabledict"
     yield "ENUM_CLASSES: typing.Final = immutabledict[str, Mapping[str, str]]({"
     for enum_name in enums:
-        yield f'    "algopy.{STUB_NAMESPACE}.{get_python_enum_class(enum_name)}": {{'
+        yield f"    {get_python_enum_class(enum_name)!r}: {{"
         for enum_value in lang_spec.arg_enums[enum_name]:
             # enum names currently match enum immediate values
             yield f'    "{enum_value.name}": "{enum_value.name}",'
         yield "     },"
     yield "})"
     yield ""
-    yield (
-        "STUB_TO_AST_MAPPER: typing.Final"
-        " = immutabledict[str, PropertyOpMapping | Sequence[FunctionOpMapping]]({"
-    )
+    yield "FUNC_TO_AST_MAPPER: typing.Final = immutabledict[str, Sequence[FunctionOpMapping]]({"
     for function_op in function_ops:
-        yield "".join(build_op_specification_body(function_op.name, function_op))
+        yield "".join(build_op_specification_body(function_op))
+    yield "})"
 
+    yield (
+        "NAMESPACE_CLASSES: typing.Final = "
+        "immutabledict[str, immutabledict[str, PropertyOpMapping | Sequence[FunctionOpMapping]]]({"
+    )
     for class_op in class_ops:
+        yield f"{class_op.name!r}: immutabledict({{"
         for method in class_op.methods:
-            yield "".join(build_op_specification_body(f"{class_op.name}.{method.name}", method))
-
+            yield "".join(build_op_specification_body(method))
+        yield "}),"
     yield "})"
 
 
