@@ -1,111 +1,140 @@
 import ast
-from collections.abc import Iterator
+import inspect
+from collections.abc import Iterable
 from pathlib import Path
 from typing import NamedTuple
 
 from prettytable import PrettyTable
 
-
-def get_python_files(directory: Path) -> Iterator[Path]:
-    """Yield Python file paths in the given directory recursively."""
-    for entry in directory.rglob("*.py"):
-        yield entry
-    for entry in directory.rglob("*.pyi"):
-        yield entry
-
-
-def parse_python_file(filepath: Path) -> ast.Module:
-    """Parse a Python file and return its AST."""
-    with filepath.open() as file:
-        tree = ast.parse(file.read(), filename=str(filepath))
-    return tree
+PROJECT_ROOT = (Path(__file__).parent / "..").resolve()
+VCS_ROOT = (PROJECT_ROOT / "..").resolve()
+STUBS = VCS_ROOT / "stubs" / "algopy-stubs"
+IMPL = PROJECT_ROOT / "src" / "algopy"
+ROOT_MODULE = "algopy"
 
 
 class ASTNodeDefinition(NamedTuple):
+    node: ast.AST
+    path: Path
     name: str
     object_type: str
 
 
-def extract_definitions(tree: ast.Module) -> set[ASTNodeDefinition]:
-    def get_node_type(node: ast.AST) -> str:
-        if isinstance(node, ast.ClassDef):
-            return "Class"
-        elif isinstance(node, ast.FunctionDef):
-            return "Function"
-        return ""
-
-    return {
-        ASTNodeDefinition(node.name, get_node_type(node))
-        for node in tree.body
-        if isinstance(node, ast.ClassDef | ast.FunctionDef)
-    }
-
-
 class CoverageResult(NamedTuple):
-    abstraction_node: ASTNodeDefinition
-    impl_file: str
+    full_name: str
+    impl_file: str | None
     stub_file: str
     coverage: float
+    missing: str
 
 
-def compare_definitions(stubs_dir: Path, impl_dir: Path) -> list[CoverageResult]:
-    results = []
+class ImplCoverage:
 
-    for stub_file in get_python_files(stubs_dir):
-        stub_tree = parse_python_file(stub_file)
-        stub_defs = extract_definitions(stub_tree)
+    def __init__(
+        self, path: Path, defined: list[str] | None = None, missing: list[str] | None = None
+    ):
+        self.path = path
+        self.defined = defined or []
+        self.missing = missing or []
 
-        if stub_file.name.startswith("_") and stub_file.suffix == ".pyi":
-            for impl_file, impl_defs in get_impl_defs(impl_dir, stub_defs):
-                for stub_def in stub_defs:
-                    coverage = calculate_coverage(stub_def, impl_defs)
-                    results.append(
-                        CoverageResult(
-                            abstraction_node=stub_def,
-                            impl_file=impl_file.name,
-                            stub_file=stub_file.name,
-                            coverage=coverage,
-                        )
-                    )
-        else:
-            impl_file = impl_dir / stub_file.with_suffix(".py").name
-            impl_tree = parse_python_file(impl_file) if impl_file.exists() else None
-            impl_defs = extract_definitions(impl_tree) if impl_tree else set()
-            for stub_def in stub_defs:
-                coverage = calculate_coverage(stub_def, impl_defs)
-                results.append(
-                    CoverageResult(
-                        abstraction_node=stub_def,
-                        impl_file=impl_file.name,
-                        stub_file=stub_file.name,
-                        coverage=coverage,
-                    )
-                )
-
-    return results
+    @property
+    def coverage(self) -> float:
+        if not self.defined:
+            return 1
+        total = len(self.defined)
+        implemented = total - len(self.missing)
+        return implemented / total
 
 
-def get_impl_defs(
-    impl_dir: Path, stub_defs: set[ASTNodeDefinition]
-) -> Iterator[tuple[Path, set[ASTNodeDefinition]]]:
-    for impl_file in get_python_files(impl_dir):
-        impl_tree = parse_python_file(impl_file)
-        impl_defs = extract_definitions(impl_tree)
-        if stub_defs & impl_defs:
-            yield impl_file, impl_defs
+def main() -> None:
+    stubs = collect_public_stubs()
+    coverage = collect_coverage(stubs)
+    print_results(coverage)
 
 
-def calculate_coverage(stub_def: ASTNodeDefinition, impl_defs: set[ASTNodeDefinition]) -> float:
-    if stub_def not in impl_defs:
-        return 0.0
-    # TODO: extend to outline actual coverage
-    # (# of implemented items in a stub/ total number of items in a stub)
-    return 100.0
+def collect_public_stubs() -> dict[str, ASTNodeDefinition]:
+    stubs_root = STUBS / "__init__.pyi"
+    stubs_ast = _parse_python_file(stubs_root)
+    result = dict[str, ASTNodeDefinition]()
+    for stmt in stubs_ast.body:
+        if isinstance(stmt, ast.ImportFrom):
+            if stmt.module is None:
+                raise NotImplementedError
+            for name in stmt.names:
+                if isinstance(name, ast.alias):
+                    result.update(collect_imports(stmt, name))
+                else:
+                    raise NotImplementedError
+    return result
+
+
+def collect_imports(
+    stmt: ast.ImportFrom, alias: ast.alias
+) -> Iterable[tuple[str, ASTNodeDefinition]]:
+    assert stmt.module is not None
+    # remove algopy.
+    relative_module = stmt.module.split(".", maxsplit=1)[-1]
+    src = alias.name
+    dest = alias.asname
+    # from module import *
+    if src == "*" and dest is None:
+        for defn_name, defn in collect_stubs(STUBS, relative_module).items():
+            yield f"{ROOT_MODULE}.{defn_name}", defn
+    # from root import src as src
+    elif stmt.module == ROOT_MODULE and dest == src:
+        for defn_name, defn in collect_stubs(STUBS, src).items():
+            yield f"{ROOT_MODULE}.{dest}.{defn_name}", defn
+    # from foo.bar import src as src
+    elif dest == src:
+        stubs = collect_stubs(STUBS, relative_module)
+        yield f"{ROOT_MODULE}.{src}", stubs[src]
+    else:
+        raise NotImplementedError
+
+
+def collect_stubs(stubs_dir: Path, relative_module: str) -> dict[str, ASTNodeDefinition]:
+    if "." in relative_module:
+        raise NotImplementedError("Nested modules not implemented")
+    module_path = (stubs_dir / relative_module).with_suffix(".pyi")
+    stubs_ast = _parse_python_file(module_path)
+    result = dict[str, ASTNodeDefinition]()
+    for stmt in stubs_ast.body:
+        name = ""
+        node_type = ""
+        node: ast.AST | None = None
+        match stmt:
+            case ast.ClassDef(name=name) as node:
+                node_type = "Class"
+            case ast.FunctionDef(name=name) as node:
+                node_type = "Function"
+            case ast.Assign(targets=[ast.Name(id=name)], value=node) | ast.AnnAssign(
+                target=ast.Name(id=name), value=node
+            ):
+                node_type = type(node).__name__
+        if node and not name.startswith("_"):
+            result[name] = ASTNodeDefinition(node, module_path, name, node_type)
+    return result
+
+
+def collect_coverage(stubs: dict[str, ASTNodeDefinition]) -> list[CoverageResult]:
+    result = []
+    for full_name, stub in stubs.items():
+        coverage = _get_impl_coverage(full_name, stub)
+        result.append(
+            CoverageResult(
+                full_name=full_name,
+                stub_file=str(stub.path.relative_to(STUBS)),
+                impl_file=str(coverage.path.relative_to(IMPL)) if coverage else "",
+                coverage=coverage.coverage if coverage else 0,
+                missing=", ".join(coverage.missing if coverage else []),
+            )
+        )
+    return result
 
 
 def print_results(results: list[CoverageResult]) -> None:
     table = PrettyTable(
-        field_names=["Abstraction", "Type", "Implementation", "Source Stub", "Coverage"],
+        field_names=["Name", "Implementation", "Source Stub", "Coverage", "Missing"],
         sortby="Coverage",
         header=True,
         border=True,
@@ -120,11 +149,11 @@ def print_results(results: list[CoverageResult]) -> None:
     for result in results:
         table.add_row(
             [
-                result.abstraction_node.name,
-                result.abstraction_node.object_type,
+                result.full_name,
                 result.impl_file,
                 result.stub_file,
-                f"{result.coverage:.2f}%",
+                f"{result.coverage:.2%}",
+                result.missing,
             ],
             divider=True,
         )
@@ -132,12 +161,67 @@ def print_results(results: list[CoverageResult]) -> None:
     print(table)
 
 
-def main() -> None:
-    project_root = Path(__file__).resolve().parents[2]
-    stubs_path = project_root / "stubs/algopy-stubs"
-    impl_path = project_root / "algopy_testing/src/algopy"
-    results = compare_definitions(stubs_path, impl_path)
-    print_results(results)
+def _parse_python_file(filepath: Path) -> ast.Module:
+    """Parse a Python file and return its AST."""
+    with filepath.open() as file:
+        tree = ast.parse(file.read(), filename=str(filepath))
+    return tree
+
+
+def _get_impl_coverage(symbol: str, stub: ASTNodeDefinition) -> ImplCoverage | None:
+    import importlib
+
+    module, name = symbol.rsplit(".", maxsplit=1)
+    try:
+        mod = importlib.import_module(module)
+    except ImportError:
+        return None
+    try:
+        impl = getattr(mod, name)
+    except AttributeError:
+        return None
+    impl_path = Path(inspect.getfile(impl))
+    return _compare_stub_impl(stub.node, impl, impl_path)
+
+
+def _compare_stub_impl(stub: ast.AST, impl: object, impl_path: Path) -> ImplCoverage:
+    # classes are really the only types that can be "partially implemented"
+    # from a typing perspective
+    if not isinstance(stub, ast.ClassDef):
+        return ImplCoverage(impl_path)
+
+    # using vars to only get explicitly implemented members
+    # need more sophisticated approach if implementations start using inheritance
+    impl_members = set(vars(impl))
+    stub_members = set()
+    for stmt in stub.body:
+        # TODO: class vars?
+        if isinstance(stmt, ast.FunctionDef):
+            stub_members.add(stmt.name)
+
+    if not stub_members:  # no members?
+        return ImplCoverage(impl_path)
+
+    # exclude some default implementations
+    default_impls = {
+        f"__{op}__"
+        for op in (
+            "ipow",
+            "imod",
+            "ifloordiv",
+            "irshift",
+            "ilshift",
+            "ior",
+            "iand",
+            "iadd",
+            "ixor",
+            "imul",
+            "isub",
+            "ne",
+        )
+    }
+    missing = sorted(stub_members.difference({*impl_members, *default_impls}))
+    return ImplCoverage(impl_path, sorted(stub_members), missing)
 
 
 if __name__ == "__main__":
