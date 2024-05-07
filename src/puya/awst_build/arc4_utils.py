@@ -22,11 +22,12 @@ ALLOWABLE_OCA = [oca.name for oca in OnCompletionAction if oca != OnCompletionAc
 
 
 def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]:
-    if typ.metaclass is not pytypes.ARC4StructMeta:
+    if pytypes.ARC4StructBaseType not in typ.mro:
         return False
     if not isinstance(typ, pytypes.StructType):
         raise InternalError(
-            f"Metaclass type is {typ.metaclass} but structure type is of {type(typ).__name__}"
+            f"Type inherits from {pytypes.ARC4StructBaseType!r}"
+            f" but structure type is {type(typ).__name__!r}"
         )
     return True
 

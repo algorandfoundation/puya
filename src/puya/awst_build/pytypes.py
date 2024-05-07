@@ -24,8 +24,24 @@ class PyType(abc.ABC):
     """The canonical fully qualified type name"""
     generic: GenericType | None = None
     """The generic type that this type was parameterised from, if any."""
-    metaclass: MetaclassType | None = None
-    """The metaclass for this type, if different from builtins.type"""
+    bases: Sequence[PyType] = attrs.field(default=(), converter=tuple["PyType", ...])
+    """Direct base classes. probably excluding the implicit builtins.object?"""
+    mro: Sequence[PyType] = attrs.field(default=(), converter=tuple["PyType", ...])
+    """All base cases, in Method Resolution Order"""
+
+    @bases.validator
+    def _bases_validate(self, _attribute: object, bases: Sequence[PyType]) -> None:
+        if len(set(bases)) != len(bases):
+            raise InternalError(f"Duplicate bases in {self}: [{', '.join(map(str, bases))}]")
+
+    @mro.validator
+    def _mro_validate(self, _attribute: object, mro: Sequence[PyType]) -> None:
+        bases_missing_from_mro = set(self.bases).difference(mro)
+        if bases_missing_from_mro:
+            raise InternalError(
+                f"Bases missing from MRO in {self}:"
+                f" [{', '.join(map(str, bases_missing_from_mro))}]"
+            )
 
     @cached_property
     def _friendly_name(self) -> str:
@@ -127,31 +143,6 @@ class GenericType(PyType, abc.ABC):
         )
 
 
-@typing.final
-@attrs.frozen
-class MetaclassType(PyType):
-    generic: None = None
-
-    @typing.override
-    @property
-    def wtype(self) -> typing.Never:
-        raise CodeError("Metaclass types are not valid as values")
-
-    def __attrs_post_init__(self) -> None:
-        self.register()
-
-    @typing.override
-    def parameterise(
-        self, args: Sequence[PyType | TypingLiteralValue], source_location: SourceLocation | None
-    ) -> typing.Never:
-        raise CodeError("Generic metaclass types are not supported", source_location)
-
-
-ABCMeta: typing.Final = MetaclassType(name="abc.ABCMeta")
-StructMeta: typing.Final = MetaclassType(name=constants.STRUCT_META)
-ARC4StructMeta: typing.Final = MetaclassType(name=constants.CLS_ARC4_STRUCT_META)
-
-
 @attrs.frozen
 class TupleType(PyType):
     generic: GenericType
@@ -202,7 +193,7 @@ class StructType(PyType):
 
     def __init__(
         self,
-        metaclass: MetaclassType,
+        base: PyType,
         typ: Callable[
             [str, Mapping[str, wtypes.WType], bool, SourceLocation | None], wtypes.WType
         ],
@@ -215,7 +206,8 @@ class StructType(PyType):
         field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
         wtype = typ(name, field_wtypes, frozen, source_location)
         self.__attrs_init__(
-            metaclass=metaclass,
+            bases=[base],
+            mro=[base],
             name=name,
             wtype=wtype,
             fields=fields,
@@ -234,7 +226,7 @@ class StructType(PyType):
         source_location: SourceLocation | None,
     ) -> typing.Self:
         return cls(
-            metaclass=StructMeta,
+            base=StructBaseType,
             typ=wtypes.WStructType,
             name=name,
             fields=fields,
@@ -252,7 +244,7 @@ class StructType(PyType):
         source_location: SourceLocation | None,
     ) -> typing.Self:
         return cls(
-            metaclass=ARC4StructMeta,
+            base=ARC4StructBaseType,
             typ=wtypes.ARC4Struct,
             name=name,
             fields=fields,
@@ -769,14 +761,14 @@ InnerTransactionResultTypes: typing.Final[Mapping[constants.TransactionType | No
 }
 
 
-@attrs.define(kw_only=True)
+@attrs.frozen(kw_only=True)
 class _CompileTimeType(PyType):
     generic: None = None
-    metaclass: None = None
     _wtype_error: str
 
+    @typing.override
     @property
-    def wtype(self) -> wtypes.WType:
+    def wtype(self) -> typing.Never:
         msg = self._wtype_error.format(self=self)
         raise CodeError(msg)
 
@@ -815,16 +807,25 @@ LogicSigType: typing.Final[PyType] = _CompileTimeType(
     wtype_error="{self} is only usable in a static context",
 )
 
-_inheritance_context_error = "{self} is only usable in an inheritance context"
-ContractBaseType: typing.Final[PyType] = _CompileTimeType(
-    name=constants.CONTRACT_BASE, wtype_error=_inheritance_context_error
+
+class _BaseType(PyType):
+    """Type that is only usable as a base type"""
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"{self} is only usable as a base type")
+
+    def __attrs_post_init__(self) -> None:
+        self.register()
+
+
+ContractBaseType: typing.Final[PyType] = _BaseType(name=constants.CONTRACT_BASE)
+ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
+    name=constants.ARC4_CONTRACT_BASE,
+    bases=[ContractBaseType],
+    mro=[ContractBaseType],
 )
-ARC4ContractBaseType: typing.Final[PyType] = _CompileTimeType(
-    name=constants.ARC4_CONTRACT_BASE, wtype_error=_inheritance_context_error
-)
-ARC4ClientType: typing.Final[PyType] = _CompileTimeType(
-    name=constants.CLS_ARC4_CLIENT, wtype_error=_inheritance_context_error
-)
-ARC4StructBaseType: typing.Final[PyType] = _CompileTimeType(
-    name=constants.CLS_ARC4_STRUCT, wtype_error=_inheritance_context_error
-)
+ARC4ClientType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_CLIENT)
+ARC4StructBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_STRUCT)
+StructBaseType: typing.Final[PyType] = _BaseType(name=constants.STRUCT_BASE)
