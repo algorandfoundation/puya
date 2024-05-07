@@ -43,6 +43,12 @@ class ASTConversionContext(CompileContext):
         """Lookup type by the canonical fully qualified name"""
         return self._pytypes.get(name)
 
+    def require_ptype(self, name: str, source_location: SourceLocation) -> pytypes.PyType:
+        try:
+            return self._pytypes[name]
+        except KeyError:
+            raise CodeError(f"Unknown type {name}", source_location) from None
+
 
 @attrs.frozen(kw_only=True)
 class ASTConversionModuleContext(ASTConversionContext):

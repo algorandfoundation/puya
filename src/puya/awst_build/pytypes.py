@@ -170,6 +170,15 @@ class StorageMapProxyType(PyType):
 
 
 @typing.final
+@attrs.frozen
+class StaticType(PyType):
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"{self} is only usable as a type and cannot be instantiated")
+
+
+@typing.final
 @attrs.frozen(init=False)
 class StructType(PyType):
     fields: Mapping[str, PyType] = attrs.field(
@@ -190,59 +199,30 @@ class StructType(PyType):
 
     def __init__(
         self,
-        base: PyType,
-        typ: Callable[
-            [str, Mapping[str, wtypes.WType], bool, SourceLocation | None], wtypes.WType
-        ],
         *,
+        base: PyType,
         name: str,
         fields: Mapping[str, PyType],
         frozen: bool,
         source_location: SourceLocation | None,
     ):
         field_wtypes = {name: field_typ.wtype for name, field_typ in fields.items()}
-        wtype = typ(name, field_wtypes, frozen, source_location)
+        # TODO: this is a bit of a kludge
+        wtype_cls: Callable[
+            [str, Mapping[str, wtypes.WType], bool, SourceLocation | None], wtypes.WType
+        ]
+        if base is ARC4StructBaseType:
+            wtype_cls = wtypes.ARC4Struct
+        elif base is StructBaseType:
+            wtype_cls = wtypes.WStructType
+        else:
+            raise InternalError(f"Unknown struct base type: {base}", source_location)
+        wtype = wtype_cls(name, field_wtypes, frozen, source_location)
         self.__attrs_init__(
             bases=[base],
             mro=[base],
             name=name,
             wtype=wtype,
-            fields=fields,
-            frozen=frozen,
-            source_location=source_location,
-        )
-
-    @classmethod
-    def native(
-        cls,
-        *,
-        name: str,
-        fields: Mapping[str, PyType],
-        frozen: bool,
-        source_location: SourceLocation | None,
-    ) -> typing.Self:
-        return cls(
-            base=StructBaseType,
-            typ=wtypes.WStructType,
-            name=name,
-            fields=fields,
-            frozen=frozen,
-            source_location=source_location,
-        )
-
-    @classmethod
-    def arc4(
-        cls,
-        *,
-        name: str,
-        fields: Mapping[str, PyType],
-        frozen: bool,
-        source_location: SourceLocation | None,
-    ) -> typing.Self:
-        return cls(
-            base=ARC4StructBaseType,
-            typ=wtypes.ARC4Struct,
-            name=name,
             fields=fields,
             frozen=frozen,
             source_location=source_location,
@@ -830,6 +810,6 @@ ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
     bases=[ContractBaseType],
     mro=[ContractBaseType],
 )
-ARC4ClientType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_CLIENT)
+ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_CLIENT)
 ARC4StructBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_STRUCT)
 StructBaseType: typing.Final[PyType] = _BaseType(name=constants.STRUCT_BASE)

@@ -8,7 +8,6 @@ import mypy.visitor
 
 from puya import log
 from puya.algo_constants import MAX_SCRATCH_SLOT_NUMBER
-from puya.awst import wtypes
 from puya.awst.nodes import (
     ConstantDeclaration,
     ConstantValue,
@@ -56,6 +55,11 @@ def value_or_error(callback: Callable[[], object]) -> object:
         return callback()
     except Exception as ex:
         return ex
+
+
+_BUILTIN_INHERITABLE: t.Final = frozenset(
+    ("builtins.object", "abc.ABC", *mypy.types.PROTOCOL_NAMES)
+)
 
 
 class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
@@ -170,6 +174,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
 
     def visit_class_def(self, cdef: mypy.nodes.ClassDef) -> StatementResult:
         self.check_fatal_decorators(cdef.decorators)
+        cdef_loc = self._location(cdef)
         match cdef.analyzed:
             case None:
                 pass
@@ -182,7 +187,7 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                     "Analyzed class expression of type"
                     f" {type(unrecognised_analysis_expression).__name__},"
                     " please report this issue and check the compilation results carefully",
-                    cdef,
+                    cdef_loc,
                 )
         for decorator in cdef.decorators:
             self._error(
@@ -192,56 +197,64 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
                 ),
                 location=decorator,
             )
-        if cdef.info.bad_mro:
-            self._error("Bad MRO", location=cdef)
-        elif cdef.info.has_base(constants.CLS_ARC4_STRUCT):
-            if [ti.fullname for ti in cdef.info.direct_base_classes()] != [
-                constants.CLS_ARC4_STRUCT
-            ]:
-                # TODO: allow inheritance of arc4.Struct?
-                self._error(
-                    "arc4.Struct classes must only inherit directly from arc4.Struct", cdef
-                )
-            else:
-                return _process_arc4_struct(self.context, cdef)
-        elif cdef.info.has_base(constants.STRUCT_BASE):
-            if [ti.fullname for ti in cdef.info.direct_base_classes()] != [constants.STRUCT_BASE]:
-                # TODO: allow inheritance of Structs?
-                self._error("Struct classes must only inherit directly from Struct", cdef)
-            else:
-                return _process_struct(self.context, cdef)
-        elif cdef.info.has_base(constants.CLS_ARC4_CLIENT):
-            if [ti.fullname for ti in cdef.info.direct_base_classes()] != [
-                constants.CLS_ARC4_CLIENT
-            ]:
-                self._error("ARC4Client classes must only inherit directly from ARC4Client", cdef)
-            else:
-                # nothing to do, ARC4Client classes are used for type info only
-                pass
-        elif cdef.info.has_base(constants.CONTRACT_BASE):
-            # TODO: mypyc also checks for typing.TypingMeta and typing.GenericMeta equivalently
-            #       in a similar check - I can't find many references to these, should we include
-            #       them?
-            if (
-                cdef.info.metaclass_type
-                and cdef.info.metaclass_type.type.fullname != "abc.ABCMeta"
-            ):
-                self._error(
-                    f"Unsupported metaclass: {cdef.info.metaclass_type.type.fullname}",
-                    location=cdef,
-                )
-            # TODO: other checks above?
-            else:
-                class_options = _process_contract_class_options(self.context, self, cdef)
-                return [lambda ctx: ContractASTConverter.convert(ctx, cdef, class_options)]
-        else:
+        info: mypy.nodes.TypeInfo = cdef.info
+        if info.bad_mro:
+            self._error("Bad MRO", location=cdef_loc)
+            return []
+        if info.metaclass_type and info.metaclass_type.type.fullname not in (
+            "abc.ABCMeta",
+            "typing._ProtocolMeta",
+            "typing_extensions._ProtocolMeta",
+            constants.CLS_ARC4_STRUCT_META,
+            constants.STRUCT_META,
+        ):
+            self._error(
+                f"Unsupported metaclass: {info.metaclass_type.type.fullname}",
+                location=cdef_loc,
+            )
+            return []
+
+        direct_base_types = [
+            self.context.require_ptype(ti.fullname, cdef_loc)
+            for ti in info.direct_base_classes()
+            if ti.fullname not in _BUILTIN_INHERITABLE
+        ]
+        mro_types = [
+            self.context.require_ptype(ti.fullname, cdef_loc)
+            for ti in info.mro[1:]
+            if ti.fullname not in _BUILTIN_INHERITABLE
+        ]
+        if not info.is_protocol:
+            for struct_base in (pytypes.StructBaseType, pytypes.ARC4StructBaseType):
+                if struct_base in mro_types:
+                    if direct_base_types != [struct_base]:
+                        self._error(
+                            f"{struct_base} classes must only inherit directly from {struct_base}",
+                            cdef_loc,
+                        )
+                        return []
+                    return _process_struct(self.context, struct_base, cdef)
+
+        self.context.register_pytype(
+            pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
+        )
+        if info.is_protocol:
+            logger.debug(
+                f"Skipping further processing of protocol class {cdef.fullname}", location=cdef_loc
+            )
+            return []
+
+        if pytypes.ContractBaseType not in mro_types:
             self._error(
                 f"Unsupported class declaration."
                 f" Contract classes must inherit either directly"
                 f" or indirectly from {constants.CONTRACT_BASE_ALIAS}.",
-                location=cdef,
+                location=cdef_loc,
             )
-        return []
+            return []
+
+        class_options = _process_contract_class_options(self.context, self, cdef)
+        return [lambda ctx: ContractASTConverter.convert(ctx, cdef, class_options)]
 
     def visit_operator_assignment_stmt(
         self, stmt: mypy.nodes.OperatorAssignmentStmt
@@ -649,7 +662,7 @@ def _process_contract_class_options(
 
 
 def _process_struct(
-    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
+    context: ASTConversionModuleContext, base: pytypes.PyType, cdef: mypy.nodes.ClassDef
 ) -> StatementResult:
     fields = dict[str, pytypes.PyType]()
     field_decls = list[StructureField]()
@@ -688,73 +701,8 @@ def _process_struct(
     cls_loc = context.node_location(cdef)
     frozen = cdef.info.metadata["dataclass"]["frozen"]
     assert isinstance(frozen, bool)
-    struct_typ = pytypes.StructType.native(
-        name=cdef.fullname,
-        fields=fields,
-        frozen=frozen,
-        source_location=cls_loc,
-    )
-    context.register_pytype(struct_typ)
-    return [
-        StructureDefinition(
-            name=cdef.name,
-            source_location=cls_loc,
-            fields=field_decls,
-            wtype=struct_typ.wtype,
-            docstring=docstring,
-        )
-    ]
-
-
-def _process_arc4_struct(
-    context: ASTConversionModuleContext, cdef: mypy.nodes.ClassDef
-) -> StatementResult:
-    fields = dict[str, pytypes.PyType]()
-    field_decls = list[StructureField]()
-    docstring = cdef.docstring
-
-    has_error = False
-    for stmt in cdef.defs.body:
-        match stmt:
-            case mypy.nodes.ExpressionStmt(expr=mypy.nodes.StrExpr()):
-                # ignore class docstring, already extracted
-                # TODO: should we capture field "docstrings"?
-                pass
-            case mypy.nodes.AssignmentStmt(
-                lvalues=[mypy.nodes.NameExpr(name=field_name)],
-                rvalue=mypy.nodes.TempNode(),
-                type=mypy.types.Type() as mypy_type,
-            ):
-                stmt_loc = context.node_location(stmt)
-                pytype = context.type_to_pytype(mypy_type, source_location=stmt_loc)
-                if not wtypes.is_arc4_encoded_type(pytype.wtype):
-                    context.error(f"Invalid field type for arc4.Struct: {pytype}", stmt_loc)
-                    has_error = True
-                else:
-                    fields[field_name] = pytype
-                    field_decls.append(
-                        StructureField(
-                            source_location=stmt_loc,
-                            name=field_name,
-                            wtype=pytype.wtype,
-                        )
-                    )
-            case mypy.nodes.SymbolNode(name=symbol_name) if (
-                cdef.info.names[symbol_name].plugin_generated
-            ):
-                pass
-            case _:
-                context.error("Unsupported arc4.Struct declaration", stmt)
-                has_error = True
-    if has_error:
-        return []
-    if not fields:
-        context.error("arc4.Struct requires at least one field", cdef)
-        return []
-    cls_loc = context.node_location(cdef)
-    frozen = cdef.info.metadata["dataclass"]["frozen"]
-    assert isinstance(frozen, bool)
-    struct_typ = pytypes.StructType.arc4(
+    struct_typ = pytypes.StructType(
+        base=base,
         name=cdef.fullname,
         fields=fields,
         frozen=frozen,

@@ -200,7 +200,9 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
                 ARC4ClientMethodExpressionBuilder() | BaseClassSubroutineInvokerExpressionBuilder()
             ) as eb:
                 signature = get_arc4_signature(eb.context, eb.type_info, eb.name, location)
-                result_wtype = signature.return_type
+                result_wtype = (
+                    signature.return_type.wtype if signature.return_type is not None else None
+                )
                 num_args = len(abi_call_expr.abi_args)
                 num_types = len(signature.arg_types)
                 if num_types != num_args:
@@ -210,8 +212,8 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
                         location,
                     )
                 arc4_args = [
-                    expect_arc4_operand_wtype(arg, wtype)
-                    for arg, wtype in zip(abi_call_expr.abi_args, signature.arg_types, strict=True)
+                    expect_arc4_operand_wtype(arg, pt.wtype)
+                    for arg, pt in zip(abi_call_expr.abi_args, signature.arg_types, strict=True)
                 ]
             case _:
                 raise CodeError(
