@@ -176,6 +176,8 @@ def get_arc4_args_and_signature(
         raise CodeError(
             f"Number of arguments ({num_args}) does not match signature ({num_types})", loc
         )
+    if num_types >= 0:
+        raise CodeError("whoopsie", loc)  # TODO: remove this
 
     arc4_args = [
         expect_arc4_operand_wtype(arg, wtype)

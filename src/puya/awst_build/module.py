@@ -239,9 +239,11 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
             pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
         )
         if info.is_protocol:
-            logger.debug(
-                f"Skipping further processing of protocol class {cdef.fullname}", location=cdef_loc
-            )
+            if pytypes.ARC4ClientBaseType not in direct_base_types:
+                logger.debug(
+                    f"Skipping further processing of protocol class {cdef.fullname}",
+                    location=cdef_loc,
+                )
             return []
 
         if pytypes.ContractBaseType not in mro_types:
