@@ -15,6 +15,7 @@ from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.intrinsic_models import FunctionOpMapping, PropertyOpMapping
 from puya.awst_build.utils import convert_literal, get_arg_mapping
 from puya.errors import InternalError
+from puya.utils import StableSet
 
 if typing.TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -119,10 +120,10 @@ class IntrinsicNamespaceClassExpressionBuilder(_Namespace):
                         f"Expected property mapping for {fullname!r} but got function", location
                     )
                 intrinsic_expr = IntrinsicCall(
-                    source_location=location,
-                    wtype=_return_types_to_wtype(mapping.stack_outputs, location),
                     op_code=mapping.op_code,
-                    immediates=mapping.immediates,
+                    immediates=[mapping.immediate],
+                    wtype=mapping.typ.wtype,
+                    source_location=location,
                 )
                 return var_expression(intrinsic_expr)
         raise InternalError(
@@ -235,7 +236,10 @@ def _map_call(
                     immediates.append(arg_value)
 
     stack_args = list[Expression]()
-    for arg_name, allowed_types in op_mapping.stack_inputs.items():
+    for arg_name, allowed_pytypes in op_mapping.stack_inputs.items():
+        allowed_types = StableSet.from_iter(  # TODO: use PyTypes instead
+            pt.wtype for pt in allowed_pytypes
+        )
         arg_in = args.pop(arg_name, None)
         if arg_in is None:
             logger.error(f"Missing expected argument {arg_name}", location=node_location)
@@ -266,7 +270,7 @@ def _map_call(
 
     return IntrinsicCall(
         source_location=node_location,
-        wtype=_return_types_to_wtype(op_mapping.stack_outputs, node_location),
+        wtype=op_mapping.result.wtype,
         op_code=op_mapping.op_code,
         immediates=immediates,
         stack_args=stack_args,

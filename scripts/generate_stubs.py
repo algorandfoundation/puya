@@ -11,7 +11,7 @@ from pathlib import Path
 
 import attrs
 from puya import log
-from puya.awst import wtypes
+from puya.awst_build import pytypes
 from puya.awst_build.intrinsic_models import FunctionOpMapping
 from puya.awst_build.utils import snake_case
 
@@ -30,45 +30,45 @@ INDENT = " " * 4
 VCS_ROOT = Path(__file__).parent.parent
 
 
-def _get_imported_name(typ: wtypes.WType) -> str:
-    return typ.stub_name.rsplit(".")[-1]
+def _get_imported_name(typ: pytypes.PyType) -> str:
+    return typ.name.rsplit(".", maxsplit=1)[-1]
 
 
-WTYPE_REFERENCES = [
-    wtypes.account_wtype,
-    wtypes.application_wtype,
-    wtypes.asset_wtype,
-    wtypes.biguint_wtype,
-    wtypes.bytes_wtype,
-    wtypes.uint64_wtype,
+PYTYPE_REFERENCES = [
+    pytypes.AccountType,
+    pytypes.ApplicationType,
+    pytypes.AssetType,
+    pytypes.BigUIntType,
+    pytypes.BytesType,
+    pytypes.UInt64Type,
 ]
-WTYPE_TO_LITERAL: dict[wtypes.WType, type[int | str | bytes] | None] = {
-    wtypes.bytes_wtype: bytes,
-    wtypes.uint64_wtype: int,
-    wtypes.account_wtype: None,  # could be str
-    wtypes.biguint_wtype: int,
-    wtypes.bool_wtype: None,  # already a Python type
+PYTYPE_TO_LITERAL: dict[pytypes.PyType, type[int | str | bytes] | None] = {
+    pytypes.BytesType: bytes,
+    pytypes.UInt64Type: int,
+    pytypes.AccountType: None,  # could be str
+    pytypes.BigUIntType: int,
+    pytypes.BoolType: None,  # already a Python type
     # below are covered transitively with respect to STACK_TYPE_MAPPING
-    wtypes.application_wtype: None,  # maybe could be int? but also covered transitively anyway
-    wtypes.asset_wtype: None,  # same as above
+    pytypes.ApplicationType: None,  # maybe could be int? but also covered transitively anyway
+    pytypes.AssetType: None,  # same as above
 }
-STACK_TYPE_MAPPING: dict[StackType, Sequence[wtypes.WType]] = {
-    StackType.address_or_index: [wtypes.account_wtype, wtypes.uint64_wtype],
-    StackType.application: [wtypes.application_wtype, wtypes.uint64_wtype],
-    StackType.asset: [wtypes.asset_wtype, wtypes.uint64_wtype],
-    StackType.bytes: [wtypes.bytes_wtype],
-    StackType.bytes_8: [wtypes.bytes_wtype],
-    StackType.bytes_32: [wtypes.bytes_wtype],
-    StackType.bytes_33: [wtypes.bytes_wtype],
-    StackType.bytes_64: [wtypes.bytes_wtype],
-    StackType.bytes_80: [wtypes.bytes_wtype],
-    StackType.bool: [wtypes.bool_wtype, wtypes.uint64_wtype],
-    StackType.uint64: [wtypes.uint64_wtype],
-    StackType.any: [wtypes.bytes_wtype, wtypes.uint64_wtype],
-    StackType.box_name: [wtypes.bytes_wtype],
-    StackType.address: [wtypes.account_wtype],
-    StackType.bigint: [wtypes.biguint_wtype],
-    StackType.state_key: [wtypes.bytes_wtype],
+STACK_TYPE_MAPPING: dict[StackType, Sequence[pytypes.PyType]] = {
+    StackType.address_or_index: [pytypes.AccountType, pytypes.UInt64Type],
+    StackType.application: [pytypes.ApplicationType, pytypes.UInt64Type],
+    StackType.asset: [pytypes.AssetType, pytypes.UInt64Type],
+    StackType.bytes: [pytypes.BytesType],
+    StackType.bytes_8: [pytypes.BytesType],
+    StackType.bytes_32: [pytypes.BytesType],
+    StackType.bytes_33: [pytypes.BytesType],
+    StackType.bytes_64: [pytypes.BytesType],
+    StackType.bytes_80: [pytypes.BytesType],
+    StackType.bool: [pytypes.BoolType, pytypes.UInt64Type],
+    StackType.uint64: [pytypes.UInt64Type],
+    StackType.any: [pytypes.BytesType, pytypes.UInt64Type],
+    StackType.box_name: [pytypes.BytesType],  # TODO: should this be another type..?
+    StackType.address: [pytypes.AccountType],
+    StackType.bigint: [pytypes.BigUIntType],
+    StackType.state_key: [pytypes.BytesType],  # TODO: should this be another type..?
 }
 
 BYTES_LITERAL = "bytes"
@@ -417,16 +417,16 @@ def main() -> None:
     output_awst_data(lang_spec, enum_names, function_defs, class_defs)
 
 
-def sub_types(type_name: StackType, *, covariant: bool) -> Sequence[wtypes.WType]:
+def sub_types(type_name: StackType, *, covariant: bool) -> Sequence[pytypes.PyType]:
     try:
-        wtypes_ = STACK_TYPE_MAPPING[type_name]
+        typs = STACK_TYPE_MAPPING[type_name]
     except KeyError as ex:
         raise NotImplementedError(
             f"Could not map stack type {type_name} to an algopy type"
         ) from ex
     else:
         last_index = None if covariant else 1
-        return wtypes_[:last_index]
+        return typs[:last_index]
 
 
 def is_simple_op(op: Op) -> bool:
@@ -458,11 +458,11 @@ def get_python_type(
         case StackType() as stack_type:
             if any_as and stack_type == StackType.any:
                 return any_as
-            wtypes_ = sub_types(stack_type, covariant=covariant)
-            names = [_get_imported_name(wt) for wt in wtypes_]
+            ptypes_ = sub_types(stack_type, covariant=covariant)
+            names = [_get_imported_name(wt) for wt in ptypes_]
             if covariant:
-                for wt in wtypes_:
-                    lit_t = WTYPE_TO_LITERAL[wt]
+                for pt in ptypes_:
+                    lit_t = PYTYPE_TO_LITERAL[pt]
                     if lit_t is not None:
                         lit_name = lit_t.__name__
                         if lit_name not in names:
@@ -565,12 +565,12 @@ def build_stub_class(klass: ClassDef) -> Iterable[str]:
         yield ""
     if klass.has_any_methods:
         yield (
-            f"class {klass.name}Bytes(_{klass.name}[{_get_imported_name(wtypes.bytes_wtype)},"
+            f"class {klass.name}Bytes(_{klass.name}[{_get_imported_name(pytypes.BytesType)},"
             f" {BYTES_LITERAL}]):"
         )
         yield INDENT + docstring
         yield (
-            f"class {klass.name}UInt64(_{klass.name}[{_get_imported_name(wtypes.uint64_wtype)},"
+            f"class {klass.name}UInt64(_{klass.name}[{_get_imported_name(pytypes.UInt64Type)},"
             f" {UINT64_LITERAL}]):"
         )
         yield INDENT + docstring
@@ -739,6 +739,19 @@ def build_function_op_mapping(
     else:
         arg_name_map = {n.name.upper(): n.name for n in signature_args}
     # replace immediate reference to arg enum with a constant enum value
+    result_ptypes = [
+        sub_types(
+            any_as if o.stack_type == StackType.any and any_as else o.stack_type,
+            covariant=False,
+        )[0]
+        for o in op.stack_outputs
+    ]
+    if not result_ptypes:
+        result_typ = pytypes.NoneType
+    elif len(op.stack_outputs) == 1:
+        (result_typ,) = result_ptypes
+    else:
+        result_typ = pytypes.GenericTupleType.parameterise(result_ptypes, source_location=None)
 
     return FunctionOpMapping(
         op_code=op.name,
@@ -763,13 +776,7 @@ def build_function_op_mapping(
             )
             for arg in op.stack_inputs
         },
-        stack_outputs=[
-            sub_types(
-                any_as if o.stack_type == StackType.any and any_as else o.stack_type,
-                covariant=False,
-            )[0]
-            for o in op.stack_outputs
-        ],
+        result=result_typ,
     )
 
 
@@ -920,41 +927,46 @@ def build_grouped_ops(
     return class_def
 
 
-def build_wtype(wtype: wtypes.WType) -> str:
-    match wtype:
-        case wtypes.bool_wtype:
-            return "wtypes.bool_wtype"
-        case wtypes.uint64_wtype:
-            return "wtypes.uint64_wtype"
-        case wtypes.account_wtype:
-            return "wtypes.account_wtype"
-        case wtypes.application_wtype:
-            return "wtypes.application_wtype"
-        case wtypes.asset_wtype:
-            return "wtypes.asset_wtype"
-        case wtypes.bytes_wtype:
-            return "wtypes.bytes_wtype"
-        case wtypes.biguint_wtype:
-            return "wtypes.biguint_wtype"
-    raise ValueError("Unexpected wtype")
+def pytype_repr(typ: pytypes.PyType) -> str:
+    match typ:
+        case pytypes.BoolType:
+            return "pytypes.BoolType"
+        case pytypes.UInt64Type:
+            return "pytypes.UInt64Type"
+        case pytypes.AccountType:
+            return "pytypes.AccountType"
+        case pytypes.ApplicationType:
+            return "pytypes.ApplicationType"
+        case pytypes.AssetType:
+            return "pytypes.AssetType"
+        case pytypes.BytesType:
+            return "pytypes.BytesType"
+        case pytypes.BigUIntType:
+            return "pytypes.BigUIntType"
+        case pytypes.TupleType(generic=pytypes.GenericTupleType, items=tuple_items) if len(
+            tuple_items
+        ) > 1:
+            item_strs = [pytype_repr(item) for item in tuple_items]
+            return (
+                f"pytypes.GenericTupleType.parameterise("
+                f"({', '.join(item_strs)}), source_location=None)"
+            )
+    raise ValueError(f"Unexpected pytype: {typ}")
 
 
 def build_op_specification_body(function: FunctionDef) -> Iterable[str]:
     if function.is_property:
         assert len(function.op_mappings) == 1
+        (op_mapping,) = function.op_mappings
+        assert len(op_mapping.immediates) == 1
+        (immediate,) = op_mapping.immediates
+        yield (
+            f"{function.name}=PropertyOpMapping("
+            f"{op_mapping.op_code!r}, {immediate!r}, {pytype_repr(op_mapping.result)},"
+            f"),"
+        )
     else:
         assert len(function.op_mappings) >= 1
-    if function.is_property:
-        yield f"{function.name}="
-        (op_mapping,) = function.op_mappings
-        yield f"PropertyOpMapping({op_mapping.op_code!r},"
-        yield f" immediates={tuple(op_mapping.immediates.keys())!r}"
-        yield ", stack_outputs=("
-        for stack_output in op_mapping.stack_outputs:
-            yield build_wtype(stack_output)
-            yield ","
-        yield "),),"
-    else:
         yield f"{function.name}=("
         for op_mapping in function.op_mappings:
             yield f"FunctionOpMapping({op_mapping.op_code!r},"
@@ -979,21 +991,17 @@ def build_op_specification_body(function: FunctionDef) -> Iterable[str]:
                         yield ", "
                     yield f"{arg_name}="
                     if len(allowed_types) == 1:
-                        yield f"({build_wtype(*allowed_types)},)"
+                        yield f"({pytype_repr(*allowed_types)},)"
                     else:
                         yield "("
                         for idx2, allowed_type in enumerate(allowed_types):
                             if idx2:
                                 yield ","
-                            yield build_wtype(allowed_type)
+                            yield pytype_repr(allowed_type)
                         yield ")"
                 yield "),"
-            if op_mapping.stack_outputs:
-                yield " stack_outputs=("
-                for stack_output in op_mapping.stack_outputs:
-                    yield build_wtype(stack_output)
-                    yield ","
-                yield "),"
+            if op_mapping.result is not pytypes.NoneType:
+                yield f" result={pytype_repr(op_mapping.result)},"
             yield "),"
         yield "),"
 
@@ -1006,7 +1014,7 @@ def build_awst_data(
 ) -> Iterable[str]:
     yield "import typing"
     yield "from collections.abc import Mapping, Sequence"
-    yield "from puya.awst import wtypes"
+    yield "from puya.awst_build import pytypes"
     yield (
         "from puya.awst_build.intrinsic_models import"
         " FunctionOpMapping, ImmediateArgMapping, PropertyOpMapping"
@@ -1044,7 +1052,7 @@ def output_stub(
     function_ops: list[FunctionDef],
     class_ops: list[ClassDef],
 ) -> None:
-    references = ", ".join(map(_get_imported_name, WTYPE_REFERENCES))
+    references = ", ".join(map(_get_imported_name, PYTYPE_REFERENCES))
     stub: list[str] = [
         "import typing",
         "",

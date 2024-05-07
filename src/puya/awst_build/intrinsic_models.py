@@ -8,7 +8,7 @@ from functools import cached_property
 
 import attrs
 
-from puya.awst import wtypes
+from puya.awst_build import pytypes
 from puya.errors import InternalError
 
 
@@ -23,8 +23,10 @@ class ImmediateArgMapping:
 @attrs.frozen
 class PropertyOpMapping:
     op_code: str
-    immediates: Sequence[str]
-    stack_outputs: Sequence[wtypes.WType] = attrs.field(validator=attrs.validators.min_len(1))
+    immediate: str
+    typ: pytypes.PyType = attrs.field(
+        validator=attrs.validators.not_(attrs.validators.in_([pytypes.NoneType]))
+    )
 
 
 @attrs.frozen
@@ -33,10 +35,10 @@ class FunctionOpMapping:
     """TEAL op code for this mapping"""
     immediates: Mapping[str, type[str | int] | None] = attrs.field(default={})
     """A sequence of constant values or references to an algopy argument to include in immediate"""
-    stack_inputs: Mapping[str, Sequence[wtypes.WType]] = attrs.field(default={})
+    stack_inputs: Mapping[str, Sequence[pytypes.PyType]] = attrs.field(default={})
     """Mapping of stack argument names to valid types for the argument,
      in descending priority for literal conversions"""
-    stack_outputs: Sequence[wtypes.WType] = attrs.field(factory=tuple)
+    result: pytypes.PyType = pytypes.NoneType
     """Types output by TEAL op"""
 
     @cached_property
@@ -53,14 +55,14 @@ class FunctionOpMapping:
 
     @stack_inputs.validator
     def _validate_stack_inputs(
-        self, _attribute: object, value: Mapping[str, Sequence[wtypes.WType]]
+        self, _attribute: object, value: Mapping[str, Sequence[pytypes.PyType]]
     ) -> None:
         for name, types in value.items():
             if not types:
                 raise InternalError(
                     f"No stack input types provided for argument {name!r} of {self.op_code!r}"
                 )
-            if wtypes.biguint_wtype in types and wtypes.uint64_wtype in types:
+            if pytypes.BigUIntType in types and pytypes.UInt64Type in types:
                 raise InternalError(
                     f"Overlap in integral types for argument {name!r} or {self.op_code!r}"
                 )
