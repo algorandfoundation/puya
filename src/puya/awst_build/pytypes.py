@@ -306,6 +306,10 @@ ApplicationType: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_APPLICATION,
     wtype=wtypes.application_wtype,
 )
+BytesBackedType: typing.Final[PyType] = _SimpleType(
+    name=f"{constants.ALGOPY_PREFIX}_primitives.BytesBacked",
+    wtype=wtypes.bytes_wtype,
+)
 
 OnCompleteActionType: typing.Final[PyType] = _SimpleType(
     name=constants.ENUM_CLS_ON_COMPLETE_ACTION,
@@ -745,11 +749,15 @@ _make_txn_types(
 class _CompileTimeType(PyType):
     generic: None = None
     metaclass: None = None
-    _wtype_error: Callable[[_CompileTimeType], str]
+    _wtype_error: str
 
     @property
     def wtype(self) -> wtypes.WType:
-        raise CodeError(self._wtype_error(self))
+        msg = self._wtype_error.format(self=self)
+        raise CodeError(msg)
+
+    def __attrs_post_init__(self) -> None:
+        self.register()
 
 
 def _make_op_namespace_types() -> Sequence[PyType]:
@@ -757,20 +765,42 @@ def _make_op_namespace_types() -> Sequence[PyType]:
 
     from puya.awst_build.intrinsic_data import ENUM_CLASSES, NAMESPACE_CLASSES
 
-    def wtype_error(self: _CompileTimeType) -> str:
-        return f"{self} is a namespace type only and not usable at runtime"
-
     return [
         _CompileTimeType(
-            name="".join((constants.ALGOPY_OP_PREFIX, cls_name)), wtype_error=wtype_error
-        ).register()
+            name="".join((constants.ALGOPY_OP_PREFIX, cls_name)),
+            wtype_error="{self} is a namespace type only and not usable at runtime",
+        )
         for cls_name in chain(ENUM_CLASSES, NAMESPACE_CLASSES)
     ]
 
 
 OpNamespaceTypes: typing.Final = _make_op_namespace_types()
 
+StateTotalsType: typing.Final[PyType] = _CompileTimeType(
+    name=f"{constants.ALGOPY_PREFIX}_contract.StateTotals",
+    wtype_error="{self} is only usable in a class options context",
+)
 
 urangeType: typing.Final[PyType] = _CompileTimeType(  # noqa: N816
-    name=constants.URANGE, wtype_error=lambda self: f"{self} is not usable at runtime"
-).register()
+    name=constants.URANGE,
+    wtype_error="{self} is not usable at runtime",
+)
+
+LogicSigType: typing.Final[PyType] = _CompileTimeType(
+    name=f"{constants.ALGOPY_PREFIX}_logic_sig.LogicSig",
+    wtype_error="{self} is only usable in a static context",
+)
+
+_inheritance_context_error = "{self} is only usable in an inheritance context"
+ContractBaseType: typing.Final[PyType] = _CompileTimeType(
+    name=constants.CONTRACT_BASE, wtype_error=_inheritance_context_error
+)
+ARC4ContractBaseType: typing.Final[PyType] = _CompileTimeType(
+    name=constants.ARC4_CONTRACT_BASE, wtype_error=_inheritance_context_error
+)
+ARC4ClientType: typing.Final[PyType] = _CompileTimeType(
+    name=constants.CLS_ARC4_CLIENT, wtype_error=_inheritance_context_error
+)
+ARC4StructBaseType: typing.Final[PyType] = _CompileTimeType(
+    name=constants.CLS_ARC4_STRUCT, wtype_error=_inheritance_context_error
+)
