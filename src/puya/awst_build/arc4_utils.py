@@ -6,12 +6,12 @@ import mypy.visitor
 from immutabledict import immutabledict
 
 import puya.models
-from puya.arc4_util import wtype_to_arc4
+from puya.arc4_util import pytype_to_arc4
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst_build import constants, intrinsic_factory
+from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.utils import extract_bytes_literal_from_mypy
 from puya.errors import CodeError, InternalError
@@ -19,6 +19,16 @@ from puya.models import ARC4MethodConfig, ARC32StructDef, OnCompletionAction
 from puya.parse import SourceLocation
 
 ALLOWABLE_OCA = [oca.name for oca in OnCompletionAction if oca != OnCompletionAction.ClearState]
+
+
+def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]:
+    if typ.metaclass is not pytypes.ARC4StructMeta:
+        return False
+    if not isinstance(typ, pytypes.StructType):
+        raise InternalError(
+            f"Metaclass type is {typ.metaclass} but structure type is of {type(typ).__name__}"
+        )
+    return True
 
 
 def get_arc4_method_config(
@@ -70,11 +80,11 @@ def get_arc4_method_config(
 
             structs = immutabledict[str, ARC32StructDef](
                 {
-                    n: _wtype_to_struct_def(t)
-                    for n, t in get_func_types(
+                    n: _wtype_to_struct_def(pt)
+                    for n, pt in get_func_types(
                         context, func_def, context.node_location(func_def, func_def.info)
                     ).items()
-                    if isinstance(t, wtypes.ARC4Struct)
+                    if _is_arc4_struct(pt)
                 }
             )
 
@@ -181,10 +191,10 @@ class _DecoratorArgEvaluator(mypy.visitor.NodeVisitor[typing.Any]):
         return {item.accept(self) for item in o.items}
 
 
-def _wtype_to_struct_def(wtype: wtypes.ARC4Struct) -> ARC32StructDef:
+def _wtype_to_struct_def(typ: pytypes.StructType) -> ARC32StructDef:
     return ARC32StructDef(
-        name=wtype.stub_name.rsplit(".", maxsplit=1)[-1],
-        elements=[(n, wtype_to_arc4(t)) for n, t in wtype.fields.items()],
+        name=typ.name.rsplit(".", maxsplit=1)[-1],
+        elements=[(n, pytype_to_arc4(t)) for n, t in typ.fields.items()],
     )
 
 
@@ -332,7 +342,7 @@ def arc4_decode(
 
 def get_func_types(
     context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
-) -> dict[str, wtypes.WType]:
+) -> dict[str, pytypes.PyType]:
     if not (func_def.arguments and func_def.arguments[0].variable.is_self):
         raise InternalError(
             "arc4_utils.get_func_types called with non class method,"
@@ -352,9 +362,9 @@ def get_func_types(
         **{
             arg.variable.name: context.type_to_pytype(
                 t, source_location=context.node_location(arg, module_src=func_def.info)
-            ).wtype
+            )
             for t, arg in zip(func_type.arg_types, func_def.arguments, strict=True)
             if not arg.variable.is_self
         },
-        "output": context.type_to_pytype(func_type.ret_type, source_location=location).wtype,
+        "output": context.type_to_pytype(func_type.ret_type, source_location=location),
     }

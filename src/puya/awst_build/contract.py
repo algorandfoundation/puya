@@ -239,9 +239,11 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     self._error(
                         f"cannot be both a subroutine and {arc4_decorator_name}", subroutine_dec
                     )
-                *arg_wtypes, ret_wtype = get_func_types(
+                *arg_pytypes, ret_pytype = get_func_types(
                     self.context, func_def, location=self._location(func_def)
                 ).values()
+                ret_wtype = ret_pytype.wtype
+                arg_wtypes = [a.wtype for a in arg_pytypes]
                 arc4_method_config = get_arc4_method_config(self.context, arc4_decorator, func_def)
                 if arc4_method_config.is_bare:
                     if arg_wtypes or (ret_wtype is not wtypes.void_wtype):
