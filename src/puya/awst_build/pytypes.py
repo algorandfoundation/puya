@@ -190,6 +190,7 @@ class StructType(PyType):
     frozen: bool
     wtype: wtypes.WType
     source_location: SourceLocation | None
+    generic: None = None
 
     @cached_property
     def names(self) -> Sequence[str]:
@@ -312,6 +313,10 @@ OnCompleteActionType: typing.Final[PyType] = _SimpleType(
 )
 TransactionType: typing.Final[PyType] = _SimpleType(
     name=constants.ENUM_CLS_TRANSACTION_TYPE,
+    wtype=wtypes.uint64_wtype,
+)
+OpUpFeeSourceType: typing.Final[PyType] = _SimpleType(
+    name=constants.OP_UP_FEE_SOURCE,
     wtype=wtypes.uint64_wtype,
 )
 
