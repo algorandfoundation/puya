@@ -1,7 +1,5 @@
 import typing
 
-from algopy import Bytes, BytesBacked, UInt64
-
 _T_co = typing.TypeVar("_T_co", covariant=True)
 
 class _TemplateVarMethod(typing.Protocol[_T_co]):

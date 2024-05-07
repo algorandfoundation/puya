@@ -2,46 +2,46 @@ import typing
 
 from algopy import UInt64
 from algopy._transaction import (
-    ApplicationProtocol,
-    AssetConfigProtocol,
-    AssetFreezeProtocol,
-    AssetTransferProtocol,
-    KeyRegistrationProtocol,
-    PaymentProtocol,
-    TransactionBaseProtocol,
+    _ApplicationProtocol,
+    _AssetConfigProtocol,
+    _AssetFreezeProtocol,
+    _AssetTransferProtocol,
+    _KeyRegistrationProtocol,
+    _PaymentProtocol,
+    _TransactionBaseProtocol,
 )
 
 class _GroupTransaction:
     def __init__(self, group_index: UInt64 | int): ...
 
-class TransactionBase(TransactionBaseProtocol, typing.Protocol):
+class TransactionBase(_TransactionBaseProtocol, typing.Protocol):
     """Shared transaction properties"""
 
-class PaymentTransaction(PaymentProtocol, TransactionBase, _GroupTransaction):
+class PaymentTransaction(_PaymentProtocol, TransactionBase, _GroupTransaction):
     """Payment group transaction"""
 
-class KeyRegistrationTransaction(KeyRegistrationProtocol, TransactionBase, _GroupTransaction):
+class KeyRegistrationTransaction(_KeyRegistrationProtocol, TransactionBase, _GroupTransaction):
     """Key registration group transaction"""
 
-class AssetConfigTransaction(AssetConfigProtocol, TransactionBase, _GroupTransaction):
+class AssetConfigTransaction(_AssetConfigProtocol, TransactionBase, _GroupTransaction):
     """Asset config group transaction"""
 
-class AssetTransferTransaction(AssetTransferProtocol, TransactionBase, _GroupTransaction):
+class AssetTransferTransaction(_AssetTransferProtocol, TransactionBase, _GroupTransaction):
     """Asset transfer group transaction"""
 
-class AssetFreezeTransaction(AssetFreezeProtocol, TransactionBase, _GroupTransaction):
+class AssetFreezeTransaction(_AssetFreezeProtocol, TransactionBase, _GroupTransaction):
     """Asset freeze group transaction"""
 
-class ApplicationCallTransaction(ApplicationProtocol, TransactionBase, _GroupTransaction):
+class ApplicationCallTransaction(_ApplicationProtocol, TransactionBase, _GroupTransaction):
     """Application call group transaction"""
 
 class Transaction(
-    PaymentProtocol,
-    KeyRegistrationProtocol,
-    AssetConfigProtocol,
-    AssetTransferProtocol,
-    AssetFreezeProtocol,
-    ApplicationProtocol,
+    _PaymentProtocol,
+    _KeyRegistrationProtocol,
+    _AssetConfigProtocol,
+    _AssetTransferProtocol,
+    _AssetFreezeProtocol,
+    _ApplicationProtocol,
     TransactionBase,
     _GroupTransaction,
 ):

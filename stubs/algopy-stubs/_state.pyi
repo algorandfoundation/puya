@@ -12,8 +12,8 @@ class LocalState(typing.Generic[_TState]):
         type_: type[_TState],
         /,
         *,
-        key: bytes | str | None = None,
-        description: str | None = None,
+        key: bytes | str = ...,
+        description: str = "",
     ) -> None:
         """Declare the local state key and it's associated type
 
@@ -92,8 +92,8 @@ class GlobalState(typing.Generic[_TState]):
         type_: type[_TState],
         /,
         *,
-        key: bytes | str | None = None,
-        description: str | None = None,
+        key: bytes | str = ...,
+        description: str = "",
     ) -> None:
         """Declare the global state key and its type without initializing its value"""
 
@@ -102,8 +102,8 @@ class GlobalState(typing.Generic[_TState]):
         self,
         initial_value: _TState,
         /,
-        key: str | bytes | None = None,
-        description: str | None = None,
+        key: str | bytes = ...,
+        description: str = "",
     ) -> None:
         """Declare the global state key and initialize its value"""
 
