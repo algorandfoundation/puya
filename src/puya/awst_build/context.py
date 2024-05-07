@@ -21,12 +21,27 @@ logger = log.get_logger(__name__)
 @attrs.frozen(kw_only=True)
 class ASTConversionContext(CompileContext):
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
+    _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
     state_defs: dict[ContractReference, dict[str, AppStorageDeclaration]] = attrs.field(
         factory=dict
     )
 
     def for_module(self, current_module: mypy.nodes.MypyFile) -> "ASTConversionModuleContext":
         return attrs_extend(ASTConversionModuleContext, self, current_module=current_module)
+
+    def register_pytype(self, typ: pytypes.PyType, *, alias: str | None = None) -> None:
+        name = alias or typ.name
+        existing_entry = self._pytypes.get(name)
+        if existing_entry is None:
+            self._pytypes[name] = typ
+        elif existing_entry is typ:
+            logger.debug(f"Duplicate registration of {typ}")
+        else:
+            raise InternalError(f"Duplicate mapping of {name}")
+
+    def lookup_pytype(self, name: str) -> pytypes.PyType | None:
+        """Lookup type by the canonical fully qualified name"""
+        return self._pytypes.get(name)
 
 
 @attrs.frozen(kw_only=True)
@@ -121,7 +136,7 @@ class ASTConversionModuleContext(ASTConversionContext):
             case mypy.types.TypeAliasType(alias=alias, args=args):
                 if alias is None:
                     raise InternalError("mypy type alias type missing alias reference", loc)
-                result = pytypes.lookup(alias.fullname)
+                result = self._pytypes.get(alias.fullname)
                 if result is None:
                     return self.type_to_pytype(
                         mypy.types.get_proper_type(proper_type_or_alias), source_location=loc
@@ -131,7 +146,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                 return result
             case mypy.types.Instance(args=args) as inst:
                 fullname = inst.type.fullname
-                result = pytypes.lookup(fullname)
+                result = self._pytypes.get(fullname)
                 if result is None:
                     if fullname.startswith("builtins."):
                         msg = f"Unsupported builtin type: {fullname.removeprefix('builtins.')}"
@@ -143,7 +158,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                 return result
             case mypy.types.TupleType(items=items, partial_fallback=true_type):
                 types = [self.type_to_pytype(it, source_location=loc) for it in items]
-                generic = pytypes.lookup(true_type.type.fullname)
+                generic = self._pytypes.get(true_type.type.fullname)
                 if generic is None:
                     raise CodeError(f"Unknown tuple base type: {true_type.type.fullname}", loc)
                 return generic.parameterise(types, loc)

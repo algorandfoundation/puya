@@ -1,3 +1,5 @@
+from collections.abc import Mapping
+
 import pytest
 from puya.awst_build import pytypes
 
@@ -40,10 +42,17 @@ def stub_class_names_and_predefined_aliases() -> list[str]:
     return sorted(result)
 
 
+@pytest.fixture(scope="session")
+def builtins_registry() -> Mapping[str, pytypes.PyType]:
+    return pytypes.builtins_registry()
+
+
 @pytest.mark.parametrize(
     "fullname",
     stub_class_names_and_predefined_aliases(),
     ids=str,
 )
-def test_stub_class_names_lookup(fullname: str) -> None:
-    assert pytypes.lookup(fullname) is not None, f"{fullname} is missing from pytypes"
+def test_stub_class_names_lookup(
+    builtins_registry: Mapping[str, pytypes.PyType], fullname: str
+) -> None:
+    assert fullname in builtins_registry, f"{fullname} is missing from pytypes"
