@@ -226,14 +226,14 @@ class ModuleASTConverter(BaseMyPyVisitor[StatementResult, ConstantValue]):
         ]
         if not info.is_protocol:
             for struct_base in (pytypes.StructBaseType, pytypes.ARC4StructBaseType):
-                if struct_base in mro_types:
-                    if direct_base_types != [struct_base]:
-                        self._error(
-                            f"{struct_base} classes must only inherit directly from {struct_base}",
-                            cdef_loc,
-                        )
-                        return []
+                if direct_base_types == [struct_base]:
                     return _process_struct(self.context, struct_base, cdef)
+                if struct_base in mro_types:
+                    self._error(
+                        f"{struct_base} classes must only inherit directly from {struct_base}",
+                        cdef_loc,
+                    )
+                    return []
 
         self.context.register_pytype(
             pytypes.StaticType(name=cdef.fullname, bases=direct_base_types, mro=mro_types)
