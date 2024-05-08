@@ -12,6 +12,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     TXN_FIELDS,
+    ARC4Decode,
     BytesConstant,
     BytesEncoding,
     CreateInnerTransaction,
@@ -27,13 +28,12 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import constants
-from puya.awst_build.constants import TransactionType
+from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
 from puya.awst_build.eb.arc4._utils import (
     ARC4Signature,
     arc4_tuple_from_items,
     expect_arc4_operand_wtype,
     get_arc4_args_and_signature,
-    get_arc4_signature,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import (
@@ -46,6 +46,7 @@ from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBu
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
 from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.utils import get_decorators_by_fullname
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -156,7 +157,7 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(self, result_wtype: wtypes.WType | None, source_location: SourceLocation) -> None:
         super().__init__(source_location)
         self.result_wtype = result_wtype
-        app_itxn_wtype = wtypes.WInnerTransaction.from_type(TransactionType.appl)
+        app_itxn_wtype = wtypes.WInnerTransaction.from_type(constants.TransactionType.appl)
         if _is_typed(result_wtype):
             self.wtype: wtypes.WInnerTransaction | wtypes.WTuple = wtypes.WTuple.from_types(
                 (result_wtype, app_itxn_wtype)
@@ -177,16 +178,16 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
         abi_call_expr = _extract_abi_call_args(args, arg_kinds, arg_names, location)
         method = abi_call_expr.method
 
-        result_wtype = self.result_wtype
+        declared_result_wtype = self.result_wtype
         match method:
             case Literal(value=str(method_str)):
                 arc4_args, signature = get_arc4_args_and_signature(
                     method_str, abi_call_expr.abi_args, location
                 )
-                if result_wtype is not None:
+                if declared_result_wtype is not None:
                     # this will be validated against signature below, by comparing
                     # the generated method_selector against the supplied method_str
-                    signature = attrs.evolve(signature, return_type=result_wtype)
+                    signature = attrs.evolve(signature, return_type=declared_result_wtype)
                 elif signature.return_type is None:
                     signature = attrs.evolve(signature, return_type=wtypes.void_wtype)
                 if not signature.method_selector.startswith(method_str):
@@ -198,8 +199,10 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
             case (
                 ARC4ClientMethodExpressionBuilder() | BaseClassSubroutineInvokerExpressionBuilder()
             ) as eb:
-                signature = get_arc4_signature(eb.context, eb.type_info, eb.name, location)
-                result_wtype = signature.return_type
+                # in this case the arc4 signature and declared return type are inferred
+                signature, declared_result_wtype = _get_arc4_signature_and_return_wtype(
+                    eb.context, eb.type_info, eb.name, location
+                )
                 num_args = len(abi_call_expr.abi_args)
                 num_types = len(signature.arg_types)
                 if num_types != num_args:
@@ -222,11 +225,41 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
             _create_abi_call_expr(
                 signature,
                 arc4_args,
+                declared_result_wtype,
                 abi_call_expr.transaction_kwargs,
                 location,
-                return_inner_txn_only=not _is_typed(result_wtype),
             )
         )
+
+
+def _get_arc4_signature_and_return_wtype(
+    context: ASTConversionModuleContext,
+    type_info: mypy.nodes.TypeInfo,
+    member_name: str,
+    location: SourceLocation,
+) -> tuple[ARC4Signature, wtypes.WType]:
+    dec = type_info.get_method(member_name)
+    if isinstance(dec, mypy.nodes.Decorator):
+        decorators = get_decorators_by_fullname(context, dec)
+        abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
+        if abimethod_dec is not None:
+            func_def = dec.func
+            arc4_method_config = get_arc4_method_config(context, abimethod_dec, func_def)
+            func_wtypes = get_func_types(context, func_def, location).values()
+            *_, return_wtype = func_wtypes
+            *arc4_arg_types, arc4_return_type = (
+                (
+                    wtypes.avm_to_arc4_equivalent_type(func_type)
+                    if wtypes.has_arc4_equivalent_type(func_type)
+                    else func_type
+                )
+                for func_type in func_wtypes
+            )
+            return (
+                ARC4Signature(arc4_method_config.name, arc4_arg_types, arc4_return_type),
+                return_wtype,
+            )
+    raise CodeError(f"'{type_info.fullname}.{member_name}' is not a valid ARC4 method", location)
 
 
 def _is_typed(wtype: wtypes.WType | None) -> typing.TypeGuard[wtypes.WType]:
@@ -236,10 +269,9 @@ def _is_typed(wtype: wtypes.WType | None) -> typing.TypeGuard[wtypes.WType]:
 def _create_abi_call_expr(
     signature: ARC4Signature,
     abi_args: Sequence[Expression],
+    declared_result_wtype: wtypes.WType | None,
     transaction_kwargs: dict[str, ExpressionBuilder | Literal],
     location: SourceLocation,
-    *,
-    return_inner_txn_only: bool,
 ) -> Expression:
     if signature.return_type is None:
         raise InternalError("Expected ARC4Signature.return_type to be defined", location)
@@ -330,7 +362,7 @@ def _create_abi_call_expr(
         wtype=wtypes.WInnerTransaction.from_type(constants.TransactionType.appl),
     )
 
-    if return_inner_txn_only:
+    if not _is_typed(declared_result_wtype):
         return itxn
     itxn_tmp = SingleEvaluation(itxn)
     last_log = InnerTransactionField(
@@ -339,9 +371,25 @@ def _create_abi_call_expr(
         field=TxnFields.last_log,
         wtype=TxnFields.last_log.wtype,
     )
+    abi_result = ARC4FromLogBuilder.abi_expr_from_log(signature.return_type, last_log, location)
+    # the declared result wtype may be different to the arc4 signature return wtype
+    # due to automatic conversion of ARC4 -> native types
+    if declared_result_wtype != signature.return_type:
+        if (
+            wtypes.has_arc4_equivalent_type(declared_result_wtype)
+            and wtypes.avm_to_arc4_equivalent_type(declared_result_wtype) == signature.return_type
+        ):
+            abi_result = ARC4Decode(
+                value=abi_result,
+                wtype=declared_result_wtype,
+                source_location=location,
+            )
+        else:
+            raise InternalError("Return type does not match signature type", location)
+
     return TupleExpression.from_items(
         (
-            ARC4FromLogBuilder.abi_expr_from_log(signature.return_type, last_log, location),
+            abi_result,
             itxn_tmp,
         ),
         location,
