@@ -498,18 +498,24 @@ class ARC4Struct(ARC4Type):
         if not fields:
             raise CodeError("arc4.Struct needs at least one element", source_location)
         arc4_fields = {}
+        bad_field_names = []
         for field_name, field_wtype in fields.items():
             if not isinstance(field_wtype, ARC4Type):
-                raise CodeError(
-                    f"Invalid ARC4 Struct declaration: {field_name} is not an ARC4 encoded type",
-                    source_location,
-                )
+                bad_field_names.append(field_name)
+                continue
+
             arc4_fields[field_name] = field_wtype
             # this seems counterintuitive, but is necessary.
             # despite the overall collection remaining stable, since ARC4 types
             # are encoded as a single value, if items within a "frozen" struct can be mutated,
             # then the overall value is also mutable
             immutable = immutable and field_wtype.immutable
+        if bad_field_names:
+            raise CodeError(
+                "Invalid ARC4 Struct declaration,"
+                f" the following fields are not ARC4 encoded types: {', '.join(bad_field_names)}",
+                source_location,
+            )
 
         name = (
             "arc4.struct<"

@@ -2,8 +2,27 @@
 # fmt: off
 # type: ignore
 
-## case: test_emit_errors
+## case: test_invalid_arc4_struct_member_type
+from algopy import *
 
+class BadStruct(arc4.Struct):  ## E: Invalid ARC4 Struct declaration, the following fields are not ARC4 encoded types: a, c
+    a: UInt64
+    b: arc4.UInt64
+    c: bool
+
+## case: test_invalid_arc4_struct_empty
+from algopy import *
+
+class BadStruct2(arc4.Struct):  ## E: arc4.Struct needs at least one element
+    pass
+
+## case: test_invalid_arc4_member_syntax
+from algopy import *
+
+class BadStruct3(arc4.Struct):
+    x: arc4.UInt64 = arc4.UInt64(1) ## E: Unsupported syntax for algopy.arc4.Struct member declaration
+
+## case: test_emit_errors
 from algopy import arc4, subroutine
 
 class Event(arc4.Struct):

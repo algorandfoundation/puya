@@ -696,8 +696,10 @@ def _process_struct(
                 cdef.info.names[symbol_name].plugin_generated
             ):
                 pass
+            case mypy.nodes.PassStmt():
+                pass
             case _:
-                context.error("Unsupported Struct declaration", stmt)
+                context.error(f"Unsupported syntax for {base} member declaration", stmt)
                 has_error = True
     if has_error:
         return []
