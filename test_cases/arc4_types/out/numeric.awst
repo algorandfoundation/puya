@@ -9,11 +9,11 @@ contract Arc4NumericTypesContract
     int8_decoded: algopy.UInt64 = arc4_decode(int8_encoded, algopy.UInt64)
     assert(uint8 == int8_decoded)
     test_bytes: algopy.Bytes = hex<"7FFFFFFFFFFFFFFF00">
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt8>(SINGLE_EVAL(id=0, source=test_bytes)[:select(len(SINGLE_EVAL(id=0, source=test_bytes)), 1u, 1u < len(SINGLE_EVAL(id=0, source=test_bytes)))]), algopy.UInt64) == 127u)
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UIntN[typing.Literal[24]]>(SINGLE_EVAL(id=1, source=test_bytes)[:select(len(SINGLE_EVAL(id=1, source=test_bytes)), 3u, 3u < len(SINGLE_EVAL(id=1, source=test_bytes)))]), algopy.UInt64) == 8388607u)
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt16>(SINGLE_EVAL(id=2, source=test_bytes)[:select(len(SINGLE_EVAL(id=2, source=test_bytes)), 2u, 2u < len(SINGLE_EVAL(id=2, source=test_bytes)))]), algopy.UInt64) == 32767u)
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt32>(SINGLE_EVAL(id=3, source=test_bytes)[:select(len(SINGLE_EVAL(id=3, source=test_bytes)), 4u, 4u < len(SINGLE_EVAL(id=3, source=test_bytes)))]), algopy.UInt64) == 2147483647u)
-    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt64>(SINGLE_EVAL(id=4, source=test_bytes)[:select(len(SINGLE_EVAL(id=4, source=test_bytes)), 8u, 8u < len(SINGLE_EVAL(id=4, source=test_bytes)))]), algopy.UInt64) == 9223372036854775807u)
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt8>(test_bytes[:1]), algopy.UInt64) == 127u)
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UIntN[typing.Literal[24]]>(test_bytes[:3]), algopy.UInt64) == 8388607u)
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt16>(test_bytes[:2]), algopy.UInt64) == 32767u)
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt32>(test_bytes[:4]), algopy.UInt64) == 2147483647u)
+    assert(arc4_decode(reinterpret_cast<algopy.arc4.UInt64>(test_bytes[:8]), algopy.UInt64) == 9223372036854775807u)
     decimals: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 145.6853943940arc4u64x10
     assert(reinterpret_cast<algopy.Bytes>(decimals) == itob(1456853943940u))
     decimals_from_truncated_str: algopy.arc4.UFixedNxM[typing.Literal[64], typing.Literal[10]] = 145.0000000000arc4u64x10
