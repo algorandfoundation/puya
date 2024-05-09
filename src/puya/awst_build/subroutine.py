@@ -321,14 +321,20 @@ class FunctionASTConverter(
                 return []
         match stmt.rvalue:
             case mypy.nodes.TempNode(no_rhs=True):
-                # forward type-declaration only
-                self._precondition(
-                    len(stmt.lvalues) == 1 and isinstance(stmt.lvalues[0], mypy.nodes.RefExpr),
-                    "forward type declarations should only have one target,"
-                    " and it should be a RefExpr",
-                    stmt_loc,
-                )
-                return []
+                match stmt.lvalues:
+                    case [mypy.nodes.NameExpr(name=var_name)]:
+                        if stmt.type is not None:  # should always be the case, but ...
+                            self._symtable[var_name] = self.context.type_to_pytype(
+                                stmt.type, source_location=stmt_loc
+                            )
+                        # forward type-declaration only, no-op
+                        return []
+                    case _:
+                        raise InternalError(
+                            "Forward type declarations should only have one target,"
+                            " and it should be a NameExpr",
+                            stmt_loc,
+                        )
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
         if isinstance(
             rvalue,
