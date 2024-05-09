@@ -24,7 +24,6 @@ LiteralValidator: typing.TypeAlias = Callable[[object], bool]
 class WType:
     name: str
     stub_name: str
-    lvalue: bool = True  # TODO: this is currently just used by void...
     immutable: bool = True
     scalar: bool = True  # is this a single value on the stack?
     is_valid_literal: LiteralValidator = attrs.field(default=_all_literals_invalid, eq=False)
@@ -77,7 +76,6 @@ def is_valid_utf8_literal(value: object) -> typing.TypeGuard[str]:
 void_wtype: typing.Final = WType(
     name="void",
     stub_name="None",
-    lvalue=False,
 )
 
 bool_wtype: typing.Final = WType(
