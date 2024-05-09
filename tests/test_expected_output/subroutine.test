@@ -333,11 +333,17 @@ def test() -> None:
     true = False
 
 ## case: no_none_name
-from algopy import subroutine
+from algopy import *
 
 @subroutine
 def test() -> None:
     none = None ## E: None is not supported as a value, only a return type
+
+@subroutine
+def test2(x: UInt64) -> None:
+    y = test() ## E: None indicates an empty return and cannot be assigned
+    if x > 0:
+        y = x
 
 ## case: can_reference_global_defined_after
 from algopy import UInt64, subroutine
@@ -485,3 +491,11 @@ def no_op() -> None:
 def test() -> None:
     if no_op():  ## E: None does not support boolean evaluation
         pass
+
+
+## case: subroutine_taking_none
+from algopy import *
+
+@subroutine
+def naughty(foo: None) -> None:  ## E: void type arguments are not supported
+    return foo

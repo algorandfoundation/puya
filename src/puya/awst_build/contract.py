@@ -13,7 +13,7 @@ from puya.awst.nodes import (
     ContractMethod,
     ContractReference,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
@@ -468,15 +468,14 @@ def _gather_global_direct_storages(
                     var_loc,
                 )
             pytyp = context.type_to_pytype(sym.type, source_location=sym.node)
+            if pytyp is pytypes.NoneType:
+                context.error(
+                    "None is not supported as a value, only a return type",
+                    var_loc,
+                )
             storage_wtype = pytyp.wtype
             if storage_wtype in (wtypes.box_key, wtypes.state_key):
                 pass  # these are handled on declaration, need to collect constructor arguments too
-            elif not storage_wtype.lvalue:
-                context.error(
-                    f"Invalid type for Local storage - must be assignable,"
-                    f" which type {storage_wtype} is not",
-                    var_loc,
-                )
             else:
                 yield AppStateDeclaration(
                     member_name=name,
