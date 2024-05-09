@@ -190,17 +190,6 @@ def _best_op_mapping(
     return op_mappings[0]
 
 
-def _return_types_to_wtype(
-    types: Sequence[wtypes.WType], source_location: SourceLocation
-) -> wtypes.WType:
-    if not types:
-        return wtypes.void_wtype
-    elif len(types) == 1:
-        return types[0]
-    else:
-        return wtypes.WTuple(types, source_location)
-
-
 def _map_call(
     ast_mapper: Sequence[FunctionOpMapping],
     callee: str,
