@@ -187,9 +187,10 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
                 if result_wtype is not None:
                     # this will be validated against signature below, by comparing
                     # the generated method_selector against the supplied method_str
-                    raise CodeError("whoopsie", location)  # TODO: remove this
-                    # signature = attrs.evolve(signature, return_type=result_wtype)
-                elif signature.return_type is None:  # noqa: RET506
+                    if arc4_args:  # TODO: remove this
+                        raise CodeError("whoopsie", location)
+                    signature = attrs.evolve(signature, return_type=result_wtype)
+                elif signature.return_type is None:
                     signature = attrs.evolve(signature, return_type=pytypes.NoneType)
                 if not signature.method_selector.startswith(method_str):
                     raise CodeError(
