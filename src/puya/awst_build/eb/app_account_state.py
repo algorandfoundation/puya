@@ -19,7 +19,7 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import constants
-from puya.awst_build.contract_data import AppStateDeclaration, AppStateDeclType
+from puya.awst_build.contract_data import AppStorageDeclaration, AppStorageDeclType
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -37,7 +37,7 @@ from puya.parse import SourceLocation
 
 
 class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
-    def __init__(self, state_decl: AppStateDeclaration, location: SourceLocation):
+    def __init__(self, state_decl: AppStorageDeclaration, location: SourceLocation):
         assert state_decl.kind is AppStateKind.account_local
         super().__init__(location)
         self.state_decl = state_decl
@@ -66,7 +66,7 @@ class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
 
 
 class AppAccountStateGetMethodBuilder(IntermediateExpressionBuilder):
-    def __init__(self, state_decl: AppStateDeclaration, location: SourceLocation):
+    def __init__(self, state_decl: AppStorageDeclaration, location: SourceLocation):
         super().__init__(location)
         self.state_decl = state_decl
 
@@ -96,7 +96,7 @@ class AppAccountStateGetMethodBuilder(IntermediateExpressionBuilder):
 
 
 class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):
-    def __init__(self, state_decl: AppStateDeclaration, location: SourceLocation):
+    def __init__(self, state_decl: AppStorageDeclaration, location: SourceLocation):
         super().__init__(location)
         self.state_decl = state_decl
 
@@ -222,11 +222,11 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
 class AppAccountStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
     kind = AppStateKind.account_local
     python_name = constants.CLS_LOCAL_STATE_ALIAS
-    decl_type = AppStateDeclType.local_proxy
+    decl_type = AppStorageDeclType.local_proxy
 
 
 def _build_field(
-    state_decl: AppStateDeclaration, index: ExpressionBuilder | Literal, location: SourceLocation
+    state_decl: AppStorageDeclaration, index: ExpressionBuilder | Literal, location: SourceLocation
 ) -> AppAccountStateExpression:
     index_expr = convert_literal_to_expr(index, wtypes.uint64_wtype)
     match index_expr:

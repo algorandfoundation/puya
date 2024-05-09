@@ -18,9 +18,8 @@ from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import (
-    AppStateDeclaration,
-    AppStateDeclType,
     AppStorageDeclaration,
+    AppStorageDeclType,
     ContractClassOptions,
 )
 from puya.awst_build.subroutine import ContractMethodInfo, FunctionASTConverter
@@ -61,8 +60,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         # this_app_state = list(_gather_app_storage(context, class_def.info))
         # for decl in this_app_state:
         #     if (
-        #         isinstance(decl, AppStateDeclaration)
-        #         and decl.decl_type is AppStateDeclType.global_direct
+        #         isinstance(decl, AppStorageDeclaration)
+        #         and decl.decl_type is AppStorageDeclType.global_direct
         #     ):
         #         context.state_defs[self.cref][decl.member_name] = AppStateDefinition(
         #             member_name=decl.member_name,
@@ -477,11 +476,11 @@ def _gather_global_direct_storages(
             if storage_wtype in (wtypes.box_key, wtypes.state_key):
                 pass  # these are handled on declaration, need to collect constructor arguments too
             else:
-                yield AppStateDeclaration(
+                yield AppStorageDeclaration(
                     member_name=name,
                     kind=AppStateKind.app_global,
                     storage_wtype=storage_wtype,
-                    decl_type=AppStateDeclType.global_direct,
+                    decl_type=AppStorageDeclType.global_direct,
                     source_location=var_loc,
                     defined_in=cref,
                     key_override=None,

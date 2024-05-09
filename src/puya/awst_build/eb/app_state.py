@@ -21,7 +21,7 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import constants
-from puya.awst_build.contract_data import AppStateDeclType
+from puya.awst_build.contract_data import AppStorageDeclType
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -41,7 +41,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
-    from puya.awst_build.contract_data import AppStateDeclaration
+    from puya.awst_build.contract_data import AppStorageDeclaration
     from puya.parse import SourceLocation
 
 
@@ -151,11 +151,11 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
 class AppStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
     kind = AppStateKind.app_global
     python_name = constants.CLS_GLOBAL_STATE_ALIAS
-    decl_type = AppStateDeclType.global_proxy
+    decl_type = AppStorageDeclType.global_proxy
 
 
 class AppStateExpressionBuilder(StateProxyMemberBuilder):
-    def __init__(self, state_decl: AppStateDeclaration, location: SourceLocation) -> None:
+    def __init__(self, state_decl: AppStorageDeclaration, location: SourceLocation) -> None:
         self.state_decl = state_decl
         super().__init__(location)
 

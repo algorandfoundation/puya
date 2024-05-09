@@ -1,5 +1,4 @@
 import enum
-import typing
 
 import attrs
 
@@ -10,7 +9,7 @@ from puya.utils import StableSet
 
 
 @enum.unique
-class AppStateDeclType(enum.Enum):
+class AppStorageDeclType(enum.Enum):
     local_proxy = enum.auto()
     global_proxy = enum.auto()
     global_direct = enum.auto()
@@ -20,12 +19,12 @@ class AppStateDeclType(enum.Enum):
 
 
 @attrs.frozen
-class AppStateDeclaration:
+class AppStorageDeclaration:
     member_name: str
     kind: AppStateKind
     storage_wtype: WType
     key_override: BytesConstant | None
-    decl_type: AppStateDeclType
+    decl_type: AppStorageDeclType
     source_location: SourceLocation
     defined_in: ContractReference
     description: str | None
@@ -36,6 +35,3 @@ class ContractClassOptions:
     name_override: str | None
     scratch_slot_reservations: StableSet[int]
     state_totals: StateTotals | None
-
-
-AppStorageDeclaration: typing.TypeAlias = AppStateDeclaration

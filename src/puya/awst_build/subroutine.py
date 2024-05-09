@@ -50,7 +50,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import AppStateDeclType, AppStorageDeclaration
+from puya.awst_build.contract_data import AppStorageDeclaration, AppStorageDeclType
 from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
@@ -439,15 +439,15 @@ class FunctionASTConverter(
             case BoxProxyExpression(key=BytesConstant() as key_override, wtype=expr_wtype):
                 if expr_wtype is wtypes.box_ref_proxy_type:
                     kind = AppStateKind.box_ref
-                    decl_type = AppStateDeclType.box_ref
+                    decl_type = AppStorageDeclType.box_ref
                     storage_wtype = wtypes.bytes_wtype
                 elif isinstance(expr_wtype, wtypes.WBoxProxy):
                     kind = AppStateKind.box
-                    decl_type = AppStateDeclType.box
+                    decl_type = AppStorageDeclType.box
                     storage_wtype = expr_wtype.content_wtype
                 elif isinstance(expr_wtype, wtypes.WBoxMapProxy):
                     kind = AppStateKind.box_map
-                    decl_type = AppStateDeclType.box_map
+                    decl_type = AppStorageDeclType.box_map
                     storage_wtype = expr_wtype.content_wtype
                 else:
                     raise InternalError("Unexpected")

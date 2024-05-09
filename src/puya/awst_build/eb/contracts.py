@@ -10,9 +10,8 @@ from puya.awst.nodes import (
 )
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import (
-    AppStateDeclaration,
-    AppStateDeclType,
     AppStorageDeclaration,
+    AppStorageDeclType,
 )
 from puya.awst_build.eb.app_account_state import AppAccountStateExpressionBuilder
 from puya.awst_build.eb.app_state import AppStateExpressionBuilder
@@ -93,7 +92,7 @@ def _builder_for_storage_access(
     storage_decl: AppStorageDeclaration, location: SourceLocation
 ) -> ExpressionBuilder:
     match storage_decl:
-        case AppStateDeclaration(decl_type=AppStateDeclType.box_ref):
+        case AppStorageDeclaration(decl_type=AppStorageDeclType.box_ref):
             return BoxRefProxyExpressionBuilder(
                 BoxProxyField(
                     source_location=storage_decl.source_location,
@@ -101,7 +100,7 @@ def _builder_for_storage_access(
                     field_name=storage_decl.member_name,
                 )
             )
-        case AppStateDeclaration(decl_type=AppStateDeclType.box):
+        case AppStorageDeclaration(decl_type=AppStorageDeclType.box):
             return BoxProxyExpressionBuilder(
                 BoxProxyField(
                     source_location=storage_decl.source_location,
@@ -109,7 +108,7 @@ def _builder_for_storage_access(
                     field_name=storage_decl.member_name,
                 )
             )
-        case AppStateDeclaration(decl_type=AppStateDeclType.box_map):
+        case AppStorageDeclaration(decl_type=AppStorageDeclType.box_map):
             return BoxMapProxyExpressionBuilder(
                 BoxProxyField(
                     source_location=storage_decl.source_location,
@@ -119,11 +118,11 @@ def _builder_for_storage_access(
                     field_name=storage_decl.member_name,
                 )
             )
-        case AppStateDeclaration(decl_type=AppStateDeclType.local_proxy):
+        case AppStorageDeclaration(decl_type=AppStorageDeclType.local_proxy):
             return AppAccountStateExpressionBuilder(storage_decl, location)
-        case AppStateDeclaration(decl_type=AppStateDeclType.global_proxy):
+        case AppStorageDeclaration(decl_type=AppStorageDeclType.global_proxy):
             return AppStateExpressionBuilder(storage_decl, location)
-        case AppStateDeclaration(decl_type=AppStateDeclType.global_direct):
+        case AppStorageDeclaration(decl_type=AppStorageDeclType.global_direct):
             return var_expression(
                 AppStateExpression(
                     field_name=storage_decl.member_name,

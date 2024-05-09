@@ -6,7 +6,6 @@ import typing
 import mypy.nodes
 
 from puya import log
-from puya.awst import wtypes
 from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder

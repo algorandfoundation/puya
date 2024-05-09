@@ -19,7 +19,7 @@ from puya.awst.nodes import (
     TupleExpression,
     TupleItemExpression,
 )
-from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.contract_data import AppStorageDeclaration, AppStorageDeclType
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -29,7 +29,6 @@ if typing.TYPE_CHECKING:
     import mypy.types
 
     from puya.awst import wtypes
-    from puya.awst_build.contract_data import AppStateDeclaration, AppStateDeclType
     from puya.parse import SourceLocation
 
 __all__ = [
@@ -250,13 +249,13 @@ class IntermediateExpressionBuilder(ExpressionBuilder):
 
 
 class StateProxyMemberBuilder(IntermediateExpressionBuilder):
-    state_decl: AppStateDeclaration
+    state_decl: AppStorageDeclaration
 
 
 class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
     kind: AppStateKind
     python_name: str
-    decl_type: AppStateDeclType
+    decl_type: AppStorageDeclType
 
     def __init__(
         self,
