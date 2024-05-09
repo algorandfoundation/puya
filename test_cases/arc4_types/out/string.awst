@@ -7,7 +7,7 @@ contract Arc4StringTypesContract
     some_bytes_as_string: algopy.arc4.String = arc4_encode(reinterpret_cast<algopy.String>(hex<"48656C6C6F20576F726C6421">), algopy.arc4.String)
     some_bytes_as_bytes_again: algopy.Bytes = reinterpret_cast<algopy.Bytes>(arc4_decode(some_bytes_as_string, algopy.String))
     assert(reinterpret_cast<algopy.Bytes>(some_bytes_as_string) != 'Hello World!', comment="Original bytes should not match encoded bytes")
-    assert(SINGLE_EVAL(id=0, source=reinterpret_cast<algopy.Bytes>(some_bytes_as_string))[select(len(SINGLE_EVAL(id=0, source=reinterpret_cast<algopy.Bytes>(some_bytes_as_string))), 2u, 2u < len(SINGLE_EVAL(id=0, source=reinterpret_cast<algopy.Bytes>(some_bytes_as_string)))):] == 'Hello World!', comment="Original bytes should match encoded if we strip the length header")
+    assert(reinterpret_cast<algopy.Bytes>(some_bytes_as_string)[2:] == 'Hello World!', comment="Original bytes should match encoded if we strip the length header")
     assert(some_bytes_as_bytes_again == 'Hello World!')
     hello: algopy.arc4.String = arc4_encode('Hello', algopy.arc4.String)
     space: algopy.arc4.String = arc4_encode(' ', algopy.arc4.String)

@@ -902,6 +902,7 @@ class IndexExpression(Expression):
 
 @attrs.frozen
 class SliceExpression(Expression):
+
     base: Expression = attrs.field(
         validator=expression_has_wtype(
             wtypes.bytes_wtype,
@@ -914,6 +915,26 @@ class SliceExpression(Expression):
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_slice_expression(self)
+
+
+@attrs.frozen
+class IntersectionSliceExpression(Expression):
+    """
+    Returns the intersection of the slice indexes and the base
+    """
+
+    base: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.bytes_wtype,
+            wtypes.WTuple,
+        )
+    )
+
+    begin_index: Expression | int | None
+    end_index: Expression | int | None
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_intersection_slice_expression(self)
 
 
 @attrs.frozen
