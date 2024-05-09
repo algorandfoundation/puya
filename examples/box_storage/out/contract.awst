@@ -4,9 +4,7 @@ contract BoxContract
     ['BOX_A']: algopy.UInt64
     ['b']: algopy.Bytes
     ['BOX_C']: algopy.arc4.String
-  }
-  box_maps {
-    ['']: algopy.String
+    ['']: algopy.UInt64 => algopy.String
   }
   
   constructor()
@@ -33,7 +31,7 @@ contract BoxContract
   
   abimethod slice_box(): None
   {
-    box_0: algopy.Box = Box('0')
+    box_0: algopy.Box[algopy.Bytes] = Box('0')
     box_0.value: algopy.Bytes = 'Testing testing 123'
     assert(box_extract(box_0.key, select(SINGLE_EVAL(id=0, source=len(box_0.key)), 0u, 0u < SINGLE_EVAL(id=0, source=len(box_0.key))), select(SINGLE_EVAL(id=0, source=len(box_0.key)), 7u, 7u < SINGLE_EVAL(id=0, source=len(box_0.key))) - select(SINGLE_EVAL(id=0, source=len(box_0.key)), 0u, 0u < SINGLE_EVAL(id=0, source=len(box_0.key)))) == 'Testing')
     this.box_c.value: algopy.arc4.String = arc4_encode('Hello', algopy.arc4.String)
@@ -42,7 +40,7 @@ contract BoxContract
   
   abimethod arc4_box(): None
   {
-    box_d: algopy.Box = Box('d')
+    box_d: algopy.Box[algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]]] = Box('d')
     box_d.value: algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]] = new algopy.arc4.StaticArray[algopy.arc4.UInt8, typing.Literal[4]](0arc4u8, 1arc4u8, 2arc4u8, 3arc4u8)
     assert(reinterpret_cast<algopy.BigUInt>(box_d.value[0u]) == reinterpret_cast<algopy.BigUInt>(0arc4u8))
     assert(reinterpret_cast<algopy.BigUInt>(box_d.value[1u]) == reinterpret_cast<algopy.BigUInt>(1arc4u8))

@@ -201,21 +201,26 @@ class WBoxProxy(WType):
     def from_content_type(cls, content_wtype: WType) -> "WBoxProxy":
         return cls(
             content_wtype=content_wtype,
-            name="box_proxy",
-            stub_name=constants.CLS_BOX_PROXY_ALIAS,
+            name=f"box_proxy[{content_wtype.name}]",
+            stub_name=f"{constants.CLS_BOX_PROXY_ALIAS}[{content_wtype.stub_name}]",
         )
 
 
 @attrs.define
 class WBoxMapProxy(WType):
-    content_wtype: WType = attrs.field()
+    key_wtype: WType
+    content_wtype: WType
 
     @classmethod
-    def from_key_and_content_type(cls, content_wtype: WType) -> "WBoxMapProxy":
+    def from_key_and_content_type(cls, key_wtype: WType, content_wtype: WType) -> "WBoxMapProxy":
         return cls(
+            key_wtype=key_wtype,
             content_wtype=content_wtype,
-            name="box_map_proxy",
-            stub_name=constants.CLS_BOX_MAP_PROXY_ALIAS,
+            name=f"box_map_proxy[{key_wtype.name},{content_wtype.name}]",
+            stub_name=(
+                f"{constants.CLS_BOX_MAP_PROXY_ALIAS}"
+                f"[{key_wtype.stub_name}, {content_wtype.stub_name}]"
+            ),
         )
 
 

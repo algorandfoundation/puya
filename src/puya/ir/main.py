@@ -400,32 +400,37 @@ def fold_state_and_special_methods(
         if result.clear_program is None:
             result.clear_program = c.clear_program
         for state in c.app_state.values():
-            if state.kind == awst_nodes.AppStateKind.app_global:
-                translated = ContractState(
-                    name=state.member_name,
-                    source_location=state.source_location,
-                    key=state.key.value,  # TODO: pass encoding?
-                    storage_type=wtype_to_avm_type(state.storage_wtype),
-                    description=state.description,
-                )
-                result.global_state[translated.name] = translated
-            elif state.kind == awst_nodes.AppStateKind.account_local:
-                translated = ContractState(
-                    name=state.member_name,
-                    source_location=state.source_location,
-                    key=state.key.value,  # TODO: pass encoding?
-                    storage_type=wtype_to_avm_type(state.storage_wtype),
-                    description=state.description,
-                )
-                result.local_state[translated.name] = translated
-            elif state.kind in (
-                awst_nodes.AppStateKind.box,
-                awst_nodes.AppStateKind.box_ref,
-                awst_nodes.AppStateKind.box_map,
-            ):
-                pass
-            else:
-                raise InternalError(f"Unhandled state kind: {state.kind}", state.source_location)
+            match state.kind:
+                case awst_nodes.AppStorageKind.app_global:
+                    if state.key_wtype is not None:
+                        raise InternalError(
+                            f"maps of {state.kind} are not supported yet", state.source_location
+                        )
+                    translated = ContractState(
+                        name=state.member_name,
+                        source_location=state.source_location,
+                        key=state.key.value,  # TODO: pass encoding?
+                        storage_type=wtype_to_avm_type(state.storage_wtype),
+                        description=state.description,
+                    )
+                    result.global_state[translated.name] = translated
+                case awst_nodes.AppStorageKind.account_local:
+                    if state.key_wtype is not None:
+                        raise InternalError(
+                            f"maps of {state.kind} are not supported yet", state.source_location
+                        )
+                    translated = ContractState(
+                        name=state.member_name,
+                        source_location=state.source_location,
+                        key=state.key.value,  # TODO: pass encoding?
+                        storage_type=wtype_to_avm_type(state.storage_wtype),
+                        description=state.description,
+                    )
+                    result.local_state[translated.name] = translated
+                case awst_nodes.AppStorageKind.box:
+                    pass  # TODO: forward these on
+                case _:
+                    typing.assert_never(state.kind)
         for cm in c.subroutines:
             if cm.abimethod_config:
                 maybe_arc4_method_refs.setdefault(cm.name, (cm, cm.abimethod_config))

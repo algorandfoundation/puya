@@ -5,7 +5,7 @@ import enum
 import typing
 
 from puya.awst.nodes import (
-    AppStateKind,
+    AppStorageKind,
     BytesConstant,
     ContractReference,
     Expression,
@@ -253,9 +253,9 @@ class StateProxyMemberBuilder(IntermediateExpressionBuilder):
 
 
 class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
-    kind: AppStateKind
+    kind: AppStorageKind
     python_name: str
-    decl_type: AppStorageDeclType
+    decl_type: typing.Literal[AppStorageDeclType.global_proxy, AppStorageDeclType.local_proxy]
 
     def __init__(
         self,
@@ -280,6 +280,7 @@ class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
             key_override=self.key_override,
             source_location=location,
             storage_wtype=self.storage,
+            key_wtype=None,
             kind=self.kind,
             defined_in=defined_in,
             decl_type=self.decl_type,

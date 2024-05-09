@@ -2,7 +2,7 @@ import enum
 
 import attrs
 
-from puya.awst.nodes import AppStateKind, BytesConstant, ContractReference, StateTotals
+from puya.awst.nodes import AppStorageKind, BytesConstant, ContractReference, StateTotals
 from puya.awst.wtypes import WType
 from puya.parse import SourceLocation
 from puya.utils import StableSet
@@ -21,8 +21,9 @@ class AppStorageDeclType(enum.Enum):
 @attrs.frozen
 class AppStorageDeclaration:
     member_name: str
-    kind: AppStateKind
+    kind: AppStorageKind
     storage_wtype: WType
+    key_wtype: WType | None
     key_override: BytesConstant | None
     decl_type: AppStorageDeclType
     source_location: SourceLocation

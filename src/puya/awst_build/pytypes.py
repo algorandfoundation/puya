@@ -619,7 +619,7 @@ def _parameterise_storage_map(
         #       would have to change strategy in _gather_global_direct_storages if so
         # wtype=wtypes.box_key,
         # TODO: FIXME
-        wtype=wtypes.WBoxMapProxy.from_key_and_content_type(content.wtype),
+        wtype=wtypes.WBoxMapProxy.from_key_and_content_type(key.wtype, content.wtype),
     )
 
 

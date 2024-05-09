@@ -7,7 +7,7 @@ import mypy.nodes
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
-    AppStateKind,
+    AppStorageKind,
     BoolConstant,
     BytesConstant,
     BytesEncoding,
@@ -149,7 +149,7 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class AppStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
-    kind = AppStateKind.app_global
+    kind = AppStorageKind.app_global
     python_name = constants.CLS_GLOBAL_STATE_ALIAS
     decl_type = AppStorageDeclType.global_proxy
 

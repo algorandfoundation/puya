@@ -12,7 +12,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
-    AppStateKind,
+    AppStorageKind,
     AssertStatement,
     AssignmentExpression,
     AssignmentStatement,
@@ -404,7 +404,7 @@ class FunctionASTConverter(
         self.context.state_defs[cref][member_name] = defn
         if rvalue.initial_value is None:
             return []
-        elif defn.kind != AppStateKind.app_global:
+        elif defn.kind != AppStorageKind.app_global:
             raise InternalError(
                 f"Don't know how to do initialise-on-declaration"
                 f" for storage of kind {defn.kind}",
@@ -438,16 +438,16 @@ class FunctionASTConverter(
         match key:
             case BoxProxyExpression(key=BytesConstant() as key_override, wtype=expr_wtype):
                 if expr_wtype is wtypes.box_ref_proxy_type:
-                    kind = AppStateKind.box_ref
                     decl_type = AppStorageDeclType.box_ref
+                    key_wtype = None
                     storage_wtype = wtypes.bytes_wtype
                 elif isinstance(expr_wtype, wtypes.WBoxProxy):
-                    kind = AppStateKind.box
                     decl_type = AppStorageDeclType.box
+                    key_wtype = None
                     storage_wtype = expr_wtype.content_wtype
                 elif isinstance(expr_wtype, wtypes.WBoxMapProxy):
-                    kind = AppStateKind.box_map
                     decl_type = AppStorageDeclType.box_map
+                    key_wtype = expr_wtype.key_wtype
                     storage_wtype = expr_wtype.content_wtype
                 else:
                     raise InternalError("Unexpected")
@@ -455,10 +455,11 @@ class FunctionASTConverter(
                     member_name=member_name,
                     key_override=key_override,
                     source_location=key.source_location,
+                    key_wtype=key_wtype,
                     storage_wtype=storage_wtype,
                     description=None,
                     decl_type=decl_type,
-                    kind=kind,
+                    kind=AppStorageKind.box,
                     defined_in=cref,
                 )
                 return []

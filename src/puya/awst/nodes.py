@@ -1766,20 +1766,21 @@ class ContractMethod(Function):
 
 
 @enum.unique
-class AppStateKind(enum.Enum):
+class AppStorageKind(enum.Enum):
     app_global = enum.auto()
     account_local = enum.auto()
     box = enum.auto()
-    box_ref = enum.auto()
-    box_map = enum.auto()
 
 
 @attrs.frozen
-class AppStateDefinition(Node):
+class AppStorageDefinition(Node):
     member_name: str
-    kind: AppStateKind
+    kind: AppStorageKind
     storage_wtype: WType
+    key_wtype: WType | None
+    """if not None, then this is a map rather than singular"""
     key_override: BytesConstant | None
+    """for maps, this is the prefix"""
     description: str | None
 
     @property
@@ -1840,18 +1841,18 @@ class ContractFragment(ModuleStatement):
     approval_program: ContractMethod | None = attrs.field()
     clear_program: ContractMethod | None = attrs.field()
     subroutines: Sequence[ContractMethod] = attrs.field(converter=tuple[ContractMethod, ...])
-    app_state: Mapping[str, AppStateDefinition]
+    app_state: Mapping[str, AppStorageDefinition]
     reserved_scratch_space: StableSet[int]
     state_totals: StateTotals | None
     docstring: str | None
     # note: important that symtable comes last so default factory has access to all other fields
-    symtable: Mapping[str, ContractMethod | AppStateDefinition] = attrs.field(init=False)
+    symtable: Mapping[str, ContractMethod | AppStorageDefinition] = attrs.field(init=False)
 
     @symtable.default
     def _symtable_factory(
         self,
-    ) -> Mapping[str, ContractMethod | AppStateDefinition]:
-        result: dict[str, ContractMethod | AppStateDefinition] = {**self.app_state}
+    ) -> Mapping[str, ContractMethod | AppStorageDefinition]:
+        result: dict[str, ContractMethod | AppStorageDefinition] = {**self.app_state}
         all_subs = itertools.chain(
             filter(None, (self.init, self.approval_program, self.clear_program)),
             self.subroutines,

@@ -3,7 +3,7 @@ import typing as t
 from collections.abc import Iterable
 
 from puya.awst import nodes, wtypes
-from puya.awst.nodes import AppStateKind
+from puya.awst.nodes import AppStorageKind
 from puya.awst.visitors import ExpressionVisitor, ModuleStatementVisitor, StatementVisitor
 from puya.errors import InternalError
 
@@ -188,15 +188,13 @@ class ToCodeVisitor(
     def visit_contract_fragment(self, c: nodes.ContractFragment) -> list[str]:
         body = list[str]()
         if c.app_state:
-            state_by_kind = dict[AppStateKind, list[nodes.AppStateDefinition]]()
+            state_by_kind = dict[AppStorageKind, list[nodes.AppStorageDefinition]]()
             for state in c.app_state.values():
                 state_by_kind.setdefault(state.kind, []).append(state)
             for kind_name, kind in (
-                ("globals", AppStateKind.app_global),
-                ("locals", AppStateKind.account_local),
-                ("boxes", AppStateKind.box),
-                ("box_refs", AppStateKind.box_ref),
-                ("box_maps", AppStateKind.box_map),
+                ("globals", AppStorageKind.app_global),
+                ("locals", AppStorageKind.account_local),
+                ("boxes", AppStorageKind.box),
             ):
                 state_of_kind = state_by_kind.pop(kind, [])
                 if state_of_kind:
@@ -204,7 +202,12 @@ class ToCodeVisitor(
                         [
                             f"{kind_name} {{",
                             *_indent(
-                                f"[{s.key.accept(self)}]: {s.storage_wtype}" for s in state_of_kind
+                                (
+                                    f"[{s.key.accept(self)}]: {s.key_wtype} => {s.storage_wtype}"
+                                    if s.key_wtype is not None
+                                    else f"[{s.key.accept(self)}]: {s.storage_wtype}"
+                                )
+                                for s in state_of_kind
                             ),
                             "}",
                         ]

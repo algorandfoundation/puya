@@ -27,7 +27,7 @@ from puya.awst_build.eb.subroutine import (
 )
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import qualified_class_name
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -109,11 +109,13 @@ def _builder_for_storage_access(
                 )
             )
         case AppStorageDeclaration(decl_type=AppStorageDeclType.box_map):
+            if storage_decl.key_wtype is None:
+                raise InternalError("BoxMap should have key WType", location)
             return BoxMapProxyExpressionBuilder(
                 BoxProxyField(
                     source_location=storage_decl.source_location,
                     wtype=wtypes.WBoxMapProxy.from_key_and_content_type(
-                        storage_decl.storage_wtype
+                        storage_decl.key_wtype, storage_decl.storage_wtype
                     ),
                     field_name=storage_decl.member_name,
                 )
