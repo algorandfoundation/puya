@@ -84,6 +84,7 @@ class _ABICallExpr:
     method: ExpressionBuilder | Literal
     abi_args: Sequence[ExpressionBuilder | Literal]
     transaction_kwargs: dict[str, ExpressionBuilder | Literal]
+    abi_arg_typs: Sequence[pytypes.PyType]
 
 
 class ABICallGenericClassExpressionBuilder(GenericClassExpressionBuilder):
@@ -178,21 +179,24 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        abi_call_expr = _extract_abi_call_args(args, arg_kinds, arg_names, location)
+        abi_call_expr = _extract_abi_call_args(args, arg_typs, arg_kinds, arg_names, location)
         method = abi_call_expr.method
 
         result_wtype = self.result_wtype
         match method:
             case Literal(value=str(method_str)):
                 arc4_args, signature = get_arc4_args_and_signature(
-                    method_str, abi_call_expr.abi_args, location
+                    method_str, abi_call_expr.abi_arg_typs, abi_call_expr.abi_args, location
                 )
                 if result_wtype is not None:
                     # this will be validated against signature below, by comparing
                     # the generated method_selector against the supplied method_str
-                    if arc4_args:  # TODO: remove this
-                        raise CodeError("whoopsie", location)
-                    signature = attrs.evolve(signature, return_type=result_wtype)
+                    signature = attrs.evolve(
+                        signature,
+                        # TODO: remove this HACK
+                        return_type=pytypes._builtins_registry.get(result_wtype.stub_name)
+                        or pytypes.ARC4DynamicBytesType,
+                    )
                 elif signature.return_type is None:
                     signature = attrs.evolve(signature, return_type=pytypes.NoneType)
                 if not signature.method_selector.startswith(method_str):
@@ -275,8 +279,8 @@ def _create_abi_call_expr(
             )
         )
 
-    for arg_expr, wtype in zip(abi_args, signature.arg_types, strict=True):
-        match wtype:
+    for arg_expr, pytyp in zip(abi_args, signature.arg_types, strict=True):
+        match pytyp.wtype:
             case wtypes.ARC4Type():
                 abi_arg_exprs.append(arg_expr)
             case wtypes.asset_wtype:
@@ -369,6 +373,7 @@ def _combine_locs(exprs: Sequence[Expression]) -> SourceLocation:
 
 def _extract_abi_call_args(
     args: Sequence[ExpressionBuilder | Literal],
+    arg_typs: Sequence[pytypes.PyType],
     arg_kinds: list[mypy.nodes.ArgKind],
     arg_names: list[str | None],
     location: SourceLocation,
@@ -376,14 +381,17 @@ def _extract_abi_call_args(
     method: ExpressionBuilder | Literal | None = None
     abi_args = list[ExpressionBuilder | Literal]()
     kwargs = dict[str, ExpressionBuilder | Literal]()
+    abi_arg_typs = []
     for i in range(len(args)):
         arg_kind = arg_kinds[i]
         arg_name = arg_names[i]
         arg = args[i]
+
         if arg_kind == mypy.nodes.ArgKind.ARG_POS and i == 0:
             method = arg
         elif arg_kind == mypy.nodes.ArgKind.ARG_POS:
             abi_args.append(arg)
+            abi_arg_typs.append(arg_typs[i])
         elif arg_kind == mypy.nodes.ArgKind.ARG_NAMED:
             if arg_name is None:
                 raise InternalError(f"Expected named argument at pos {i}", location)
@@ -392,4 +400,6 @@ def _extract_abi_call_args(
             raise CodeError(f"Unexpected argument kind for '{arg_name}'", location)
     if method is None:
         raise CodeError("Missing required method positional argument", location)
-    return _ABICallExpr(method=method, abi_args=abi_args, transaction_kwargs=kwargs)
+    return _ABICallExpr(
+        method=method, abi_args=abi_args, transaction_kwargs=kwargs, abi_arg_typs=abi_arg_typs
+    )
