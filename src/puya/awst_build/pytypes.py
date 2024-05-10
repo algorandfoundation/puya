@@ -141,6 +141,37 @@ class _GenericType(PyType, abc.ABC):
 
 
 @attrs.frozen
+class TypeType(PyType):
+    typ: PyType
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError("type objects are not usable as values")
+
+
+def _parameterise_type_type(
+    self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
+) -> TypeType:
+    try:
+        (arg,) = args
+    except ValueError:
+        raise CodeError(
+            f"Expected a single type parameter, got {len(args)} parameters", source_location
+        ) from None
+    if not isinstance(arg, PyType):
+        raise CodeError(f"typing.Literal cannot be used to parameterise {self}", source_location)
+    name = f"{self.name}[{arg.name}]"
+    return TypeType(name=name, typ=arg, generic=self)
+
+
+GenericTypeType: typing.Final[PyType] = _GenericType(
+    name="builtins.type",
+    parameterise=_parameterise_type_type,
+)
+
+
+@attrs.frozen
 class TupleType(PyType):
     generic: _GenericType
     items: tuple[PyType, ...] = attrs.field(validator=attrs.validators.min_len(1))
@@ -756,7 +787,6 @@ InnerTransactionResultTypes: typing.Final[Mapping[constants.TransactionType | No
 
 @attrs.frozen(kw_only=True)
 class _CompileTimeType(PyType):
-    generic: None = None
     _wtype_error: str
 
     @typing.override
@@ -794,6 +824,30 @@ urangeType: typing.Final[PyType] = _CompileTimeType(  # noqa: N816
     name=constants.URANGE,
     wtype_error="{self} is not usable at runtime",
 )
+
+
+def _parameterise_any_compile_time(
+    self: _GenericType, args: TypeArgs, source_location: SourceLocation | None  # noqa: ARG001
+) -> PyType:
+    arg_names = []
+    for arg in args:
+        if isinstance(arg, PyType):
+            arg_names.append(arg.name)
+        else:
+            arg_names.append(f"typing.Literal[{arg}]")
+    name = f"{self.name}[{', '.join(arg_names)}]"
+    return _CompileTimeType(name=name, generic=self, wtype_error="{self} is not usable at runtime")
+
+
+reversedGenericType: typing.Final[PyType] = _GenericType(  # noqa: N816
+    name="builtins.reversed",
+    parameterise=_parameterise_any_compile_time,
+)
+uenumerateGenericType: typing.Final[PyType] = _GenericType(  # noqa: N816
+    name=constants.UENUMERATE,
+    parameterise=_parameterise_any_compile_time,
+)
+
 
 LogicSigType: typing.Final[PyType] = _CompileTimeType(
     name=f"{constants.ALGOPY_PREFIX}_logic_sig.LogicSig",

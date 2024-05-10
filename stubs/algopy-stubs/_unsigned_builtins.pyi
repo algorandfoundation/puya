@@ -29,7 +29,7 @@ class urange(Reversible[UInt64]):  # noqa: N801
 
 _T = typing.TypeVar("_T")
 
-def uenumerate(iterable: Iterable[_T]) -> Reversible[tuple[UInt64, _T]]:
+class uenumerate(Reversible[tuple[UInt64, _T]]):
     """Yields pairs containing a count (from zero) and a value yielded by the iterable argument.
 
     enumerate is useful for obtaining an indexed list:
@@ -37,3 +37,7 @@ def uenumerate(iterable: Iterable[_T]) -> Reversible[tuple[UInt64, _T]]:
 
     enumerate((a, b, c)) produces (0, a), (1, b), (2, c)
     """
+
+    def __init__(self, iterable: Iterable[_T]): ...
+    def __iter__(self) -> Iterator[tuple[UInt64, _T]]: ...
+    def __reversed__(self) -> Iterator[tuple[UInt64, _T]]: ...

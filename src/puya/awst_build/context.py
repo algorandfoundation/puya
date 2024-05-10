@@ -155,10 +155,18 @@ class ASTConversionModuleContext(ASTConversionContext):
 
     def mypy_expr_node_type(self, expr: mypy.nodes.Expression) -> pytypes.PyType:
         expr_loc = self.node_location(expr)
-        if isinstance(expr, mypy.nodes.TupleExpr):
-            # for some reason these don't appear in mypy type tables...
-            item_types = [self.mypy_expr_node_type(it) for it in expr.items]
-            return pytypes.GenericTupleType.parameterise(item_types, expr_loc)
+
+        match expr:
+            # for some reason the below don't usually appear in mypy type tables...
+            case mypy.nodes.TupleExpr(items=items):
+                item_types = [self.mypy_expr_node_type(it) for it in items]
+                return pytypes.GenericTupleType.parameterise(item_types, expr_loc)
+            case mypy.nodes.IntExpr():
+                return pytypes.IntLiteralType
+            case mypy.nodes.BytesExpr():
+                return pytypes.BytesLiteralType
+            case mypy.nodes.StrExpr():
+                return pytypes.StrLiteralType
         mypy_type = self.parse_result.manager.all_types.get(expr)
         if mypy_type is None:
             raise InternalError(f"mypy expression not present in type table: {expr}", expr_loc)
@@ -221,11 +229,20 @@ class ASTConversionModuleContext(ASTConversionContext):
                 msg = _type_of_any_to_error_message(type_of_any, loc)
                 raise CodeError(msg, loc)
             case mypy.types.FunctionLike() as func_like:
-                if func_like.is_type_obj():
-                    msg = "References to type objects are not supported"
+                if not func_like.is_type_obj():
+                    raise CodeError("Function references are not supported", loc)
+                if isinstance(func_like, mypy.types.CallableType):
+                    ret_type = func_like.ret_type
+                elif isinstance(func_like, mypy.types.Overloaded):
+                    # note sure if this will always work, but the only overloaded
+                    # constructor we have is arc4.StaticArray, so...
+                    ret_type = func_like.items[0].ret_type
                 else:
-                    msg = "Function references are not supported"
-                raise CodeError(msg, loc)
+                    raise InternalError(
+                        f"Unable to resolve type object from {type(func_like).__name__}", loc
+                    )
+                typ_typ = self.type_to_pytype(ret_type, source_location=loc)
+                return pytypes.GenericTypeType.parameterise([typ_typ], loc)
             case _:
                 raise CodeError(
                     f"Unable to resolve mypy type {mypy_type!r} to known algopy type", loc
