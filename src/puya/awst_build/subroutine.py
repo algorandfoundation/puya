@@ -391,7 +391,7 @@ class FunctionASTConverter(
         member_name = lvalue.name
         member_loc = self._location(lvalue)
         defn = rvalue.build_definition(member_name, cref, rvalue_pytyp, member_loc)
-        self.context.state_defs[cref][member_name] = defn
+        self.context.add_state_def(cref, defn)
         if rvalue.initial_value is None:
             return []
         elif rvalue_pytyp.generic is not pytypes.GenericGlobalStateType:
@@ -425,7 +425,7 @@ class FunctionASTConverter(
         key = rvalue.rvalue()
         match key:
             case BoxProxyExpression(key=BytesConstant() as key_override):
-                self.context.state_defs[cref][member_name] = AppStorageDeclaration(
+                defn = AppStorageDeclaration(
                     member_name=member_name,
                     key_override=key_override,
                     source_location=key.source_location,
@@ -433,6 +433,7 @@ class FunctionASTConverter(
                     description=None,
                     defined_in=cref,
                 )
+                self.context.add_state_def(cref, defn)
                 return []
         raise CodeError(
             f"{rvalue_pytyp} must be declared with compile time static keys"

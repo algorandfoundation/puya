@@ -1,5 +1,5 @@
 import contextlib
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 
 import attrs
 import mypy.nodes
@@ -22,22 +22,53 @@ logger = log.get_logger(__name__)
 class ASTConversionContext(CompileContext):
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
-    state_defs: dict[ContractReference, dict[str, AppStorageDeclaration]] = attrs.field(
+    _state_defs: dict[ContractReference, dict[str, AppStorageDeclaration]] = attrs.field(
         factory=dict
     )
 
     def for_module(self, current_module: mypy.nodes.MypyFile) -> "ASTConversionModuleContext":
         return attrs_extend(ASTConversionModuleContext, self, current_module=current_module)
 
+    def state_defs(self, cref: ContractReference) -> Mapping[str, AppStorageDeclaration]:
+        return self._state_defs[cref]
+
+    def set_state_defs(
+        self, cref: ContractReference, data: dict[str, AppStorageDeclaration]
+    ) -> None:
+        if cref in self._state_defs:
+            raise InternalError(f"Tried to reinitialise state defs for {cref.full_name}")
+        self._state_defs[cref] = data
+
+    def add_state_def(self, cref: ContractReference, decl: AppStorageDeclaration) -> None:
+        for_contract = self._state_defs.get(cref)
+        if for_contract is None:
+            logger.error(
+                f"Failed to look up state definition of {cref.full_name}",
+                location=decl.source_location,
+            )
+        else:
+            existing_def = for_contract.get(decl.member_name)
+            if existing_def:
+                logger.info(
+                    f"Previous definition of {decl.member_name} was here",
+                    location=existing_def.source_location,
+                )
+                logger.error(
+                    f"Redefinition of {decl.member_name}",
+                    location=decl.source_location,
+                )
+            for_contract[decl.member_name] = decl
+
     def register_pytype(self, typ: pytypes.PyType, *, alias: str | None = None) -> None:
         name = alias or typ.name
         existing_entry = self._pytypes.get(name)
-        if existing_entry is None:
-            self._pytypes[name] = typ
-        elif existing_entry is typ:
+
+        if existing_entry is typ:
             logger.debug(f"Duplicate registration of {typ}")
         else:
-            raise InternalError(f"Duplicate mapping of {name}")
+            if existing_entry is not None:
+                logger.error(f"Redefinition of type {name}")
+            self._pytypes[name] = typ
 
     def lookup_pytype(self, name: str) -> pytypes.PyType | None:
         """Lookup type by the canonical fully qualified name"""

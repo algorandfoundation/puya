@@ -278,8 +278,8 @@ class Base(ARC4Contract):
     def __init__(self) -> None:
         self.foo = UInt64(1)
         self.bar = UInt64(2)
-        self.foo_p = GlobalState(UInt64(1))
-        self.bar_p = GlobalState(UInt64(2))
+        self.foo_p = GlobalState(UInt64(1))  ## N: Previous definition of foo_p was here
+        self.bar_p = GlobalState(UInt64(2))  ## N: Previous definition of bar_p was here
 
 class Derived1(Base):
     def __init__(self) -> None:
@@ -294,12 +294,23 @@ class Derived2(Base):
 class Derived3(Base):
     def __init__(self) -> None:
         super().__init__()
-        self.foo_p = GlobalState(UInt64(3)) ## E: some error message here about redefining proxies
+        self.foo_p = GlobalState(UInt64(3)) ## E: Redefinition of foo_p
 
 class Derived4(Base):
     def __init__(self) -> None:
         super().__init__()
-        self.bar_p = GlobalState(Bytes(b"bbb")) # type: ignore[arg-type] ## E: Assignment target type algopy.UInt64 differs from expression value type algopy.Bytes
+        self.bar_p = GlobalState(Bytes(b"bbb")) # type: ignore[arg-type] ## E: Redefinition of bar_p \
+                                                                         ## E: Assignment target type algopy.UInt64 differs from expression value type algopy.Bytes
+
+
+class Base2(ARC4Contract):
+    def __init__(self) -> None:
+        if Txn.num_app_args:
+            self.foo = UInt64(1)
+            self.foo_p = GlobalState(UInt64(1)) ## N: Previous definition of foo_p was here
+        else:
+            self.foo = UInt64(2)
+            self.foo_p = GlobalState(UInt64(2)) ## E: Redefinition of foo_p
 
 
 ## case: void_state
