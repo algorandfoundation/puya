@@ -124,6 +124,10 @@ class ASTConversionModuleContext(ASTConversionContext):
 
     def mypy_expr_node_type(self, expr: mypy.nodes.Expression) -> pytypes.PyType:
         expr_loc = self.node_location(expr)
+        if isinstance(expr, mypy.nodes.TupleExpr):
+            # for some reason these don't appear in mypy type tables...
+            item_types = [self.mypy_expr_node_type(it) for it in expr.items]
+            return pytypes.GenericTupleType.parameterise(item_types, expr_loc)
         mypy_type = self.parse_result.manager.all_types.get(expr)
         if mypy_type is None:
             raise InternalError(f"mypy expression not present in type table: {expr}", expr_loc)
