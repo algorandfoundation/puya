@@ -19,7 +19,6 @@ from puya.awst.nodes import (
     ReinterpretCast,
     Statement,
 )
-from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -38,6 +37,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

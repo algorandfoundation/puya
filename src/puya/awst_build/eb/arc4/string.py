@@ -18,7 +18,6 @@ from puya.awst.nodes import (
     Statement,
     StringConstant,
 )
-from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
@@ -34,6 +33,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

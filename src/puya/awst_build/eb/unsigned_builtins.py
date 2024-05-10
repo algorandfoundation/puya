@@ -15,7 +15,6 @@ from puya.awst.nodes import (
     Reversed,
     UInt64Constant,
 )
-from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -32,6 +31,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

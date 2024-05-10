@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     Literal,
     NewStruct,
 )
-from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
 from puya.awst_build.eb.base import BuilderComparisonOp, ValueExpressionBuilder
@@ -24,6 +23,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.awst_build.eb.base import (
         ExpressionBuilder,
     )

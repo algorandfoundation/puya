@@ -7,7 +7,6 @@ import mypy.nodes
 
 from puya import log
 from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
-from puya.awst_build import pytypes
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
@@ -20,6 +19,7 @@ from puya.utils import StableSet
 if typing.TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

@@ -15,7 +15,6 @@ from puya.awst.nodes import (
     UInt64Constant,
     UpdateInnerTransaction,
 )
-from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -33,6 +32,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 _parameter_mapping: typing.Final = {get_field_python_name(f): f for f in INNER_PARAM_TXN_FIELDS}

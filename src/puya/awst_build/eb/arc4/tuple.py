@@ -10,7 +10,6 @@ from puya.awst.nodes import (
     Literal,
     TupleItemExpression,
 )
-from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
@@ -22,6 +21,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

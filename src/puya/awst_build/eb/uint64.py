@@ -22,7 +22,6 @@ from puya.awst.nodes import (
     UInt64UnaryOperation,
     UInt64UnaryOperator,
 )
-from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -39,6 +38,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

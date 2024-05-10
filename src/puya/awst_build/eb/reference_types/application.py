@@ -7,7 +7,6 @@ from immutabledict import immutabledict
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, Literal, UInt64Constant
-from puya.awst_build import pytypes
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
@@ -17,6 +16,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 

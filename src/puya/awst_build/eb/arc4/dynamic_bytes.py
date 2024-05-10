@@ -4,7 +4,6 @@ import typing
 
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Encode, Literal, ReinterpretCast
-from puya.awst_build import pytypes
 from puya.awst_build.eb.arc4._utils import convert_arc4_literal
 from puya.awst_build.eb.arc4.arrays import (
     DynamicArrayClassExpressionBuilder,
@@ -19,6 +18,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 
