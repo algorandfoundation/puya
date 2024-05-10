@@ -10,6 +10,7 @@ from puya.awst.nodes import (
     Literal,
     TupleItemExpression,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
@@ -66,6 +67,7 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

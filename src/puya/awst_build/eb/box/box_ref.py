@@ -13,7 +13,7 @@ from puya.awst.nodes import (
     Not,
     StateExists,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -44,6 +44,7 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -169,6 +170,7 @@ class BoxRefIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -201,6 +203,7 @@ class BoxRefCreateExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -228,6 +231,7 @@ class BoxRefPutExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

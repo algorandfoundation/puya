@@ -30,7 +30,7 @@ from puya.awst.nodes import (
     UInt64BinaryOperator,
     UInt64Constant,
 )
-from puya.awst_build import intrinsic_factory
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.arc4._utils import expect_arc4_operand_wtype
 from puya.awst_build.eb.arc4.base import (
@@ -99,6 +99,7 @@ class DynamicArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -168,6 +169,7 @@ class StaticArrayClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -213,6 +215,7 @@ class AddressClassExpressionBuilder(StaticArrayClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -422,6 +425,7 @@ class AppendExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -452,6 +456,7 @@ class PopExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -480,6 +485,7 @@ class ExtendExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

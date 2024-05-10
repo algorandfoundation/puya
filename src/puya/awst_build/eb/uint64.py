@@ -22,6 +22,7 @@ from puya.awst.nodes import (
     UInt64UnaryOperation,
     UInt64UnaryOperator,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -50,6 +51,7 @@ class UInt64ClassExpressionBuilder(TypeClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

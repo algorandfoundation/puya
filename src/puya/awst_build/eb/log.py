@@ -12,7 +12,7 @@ from puya.awst.nodes import (
     Literal,
     UInt64Constant,
 )
-from puya.awst_build import intrinsic_factory
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -33,6 +33,7 @@ class LogBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

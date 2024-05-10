@@ -7,6 +7,7 @@ import mypy.nodes
 
 from puya import log
 from puya.awst.nodes import Expression, IntrinsicCall, Literal, MethodConstant
+from puya.awst_build import pytypes
 from puya.awst_build.constants import ARC4_SIGNATURE_ALIAS
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.bytes import BytesExpressionBuilder
@@ -28,6 +29,7 @@ class Arc4SignatureBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -146,6 +148,7 @@ class IntrinsicFunctionExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

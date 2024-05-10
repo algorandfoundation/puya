@@ -14,6 +14,7 @@ from puya.awst.nodes import (
     NumericComparisonExpression,
     ReinterpretCast,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.arc4._utils import convert_arc4_literal
 from puya.awst_build.eb.arc4.base import (
@@ -53,6 +54,7 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

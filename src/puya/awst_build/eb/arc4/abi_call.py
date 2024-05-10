@@ -90,12 +90,13 @@ class ABICallGenericClassExpressionBuilder(GenericClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
         return ABICallClassExpressionBuilder(None, self.source_location).call(
-            args, arg_kinds, arg_names, location
+            args, arg_typs, arg_kinds, arg_names, location
         )
 
     def index_multiple(
@@ -144,6 +145,7 @@ class ARC4ClientMethodExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -171,6 +173,7 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

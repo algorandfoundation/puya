@@ -15,7 +15,7 @@ from puya.awst.nodes import (
     StateExists,
     Statement,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
@@ -74,6 +74,7 @@ class BoxClassExpressionBuilder(TypeClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

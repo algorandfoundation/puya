@@ -8,6 +8,7 @@ from puya.awst.nodes import (
     StateGet,
     StateGetEx,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -31,6 +32,7 @@ class BoxGetExpressionBuilder(BoxKeyExpressionIntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -49,6 +51,7 @@ class BoxMaybeExpressionBuilder(BoxKeyExpressionIntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

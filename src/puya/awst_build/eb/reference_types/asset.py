@@ -7,6 +7,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import CheckedMaybe, Expression, IntrinsicCall, Literal, UInt64Constant
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -35,6 +36,7 @@ class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -68,6 +70,7 @@ class AssetHoldingExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

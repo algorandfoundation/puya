@@ -4,6 +4,7 @@ import mypy.nodes
 
 from puya.awst import wtypes
 from puya.awst.nodes import Literal, TemplateVar
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -43,6 +44,7 @@ class TemplateVariableExpressionBuilder(TypeClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

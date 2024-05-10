@@ -5,6 +5,7 @@ import typing
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Encode, BoolConstant, Expression, Literal
+from puya.awst_build import pytypes
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
@@ -33,6 +34,7 @@ class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

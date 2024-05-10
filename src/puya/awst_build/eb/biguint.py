@@ -19,6 +19,7 @@ from puya.awst.nodes import (
     ReinterpretCast,
     Statement,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -49,6 +50,7 @@ class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

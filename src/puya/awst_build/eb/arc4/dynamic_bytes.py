@@ -4,6 +4,7 @@ import typing
 
 from puya.awst import wtypes
 from puya.awst.nodes import ARC4Encode, Literal, ReinterpretCast
+from puya.awst_build import pytypes
 from puya.awst_build.eb.arc4._utils import convert_arc4_literal
 from puya.awst_build.eb.arc4.arrays import (
     DynamicArrayClassExpressionBuilder,
@@ -30,6 +31,7 @@ class DynamicBytesClassExpressionBuilder(DynamicArrayClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -46,6 +48,7 @@ class DynamicBytesClassExpressionBuilder(DynamicArrayClassExpressionBuilder):
 
         return super().call(
             args=list(map(_coerce_to_byte, args)),
+            arg_typs=arg_typs,
             arg_kinds=arg_kinds,
             arg_names=arg_names,
             location=location,

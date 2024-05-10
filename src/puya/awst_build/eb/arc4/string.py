@@ -18,6 +18,7 @@ from puya.awst.nodes import (
     Statement,
     StringConstant,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
@@ -45,6 +46,7 @@ class StringClassExpressionBuilder(ARC4ClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

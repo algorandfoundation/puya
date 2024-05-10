@@ -7,6 +7,7 @@ from immutabledict import immutabledict
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, Literal, UInt64Constant
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
@@ -29,6 +30,7 @@ class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

@@ -10,6 +10,7 @@ from puya.awst.nodes import (
     Literal,
     NewStruct,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
 from puya.awst_build.eb.base import BuilderComparisonOp, ValueExpressionBuilder
@@ -47,6 +48,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

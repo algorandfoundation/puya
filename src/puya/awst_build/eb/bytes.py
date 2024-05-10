@@ -26,7 +26,7 @@ from puya.awst.nodes import (
     Statement,
     SubroutineCallExpression,
 )
-from puya.awst_build import intrinsic_factory
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.constants import CLS_BYTES_ALIAS
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -64,6 +64,7 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -102,6 +103,7 @@ class BytesFromEncodedStrBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
