@@ -330,7 +330,12 @@ class FunctionASTConverter(
                             stmt_loc,
                         )
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
-        rvalue_pytyp = self.context.mypy_expr_node_type(stmt.rvalue)
+        try:
+            rvalue_pytyp = self.context.mypy_expr_node_type(stmt.rvalue)
+        except CodeError as ex:
+            if ex.msg.startswith("Unknown"):  # TODO: remove hack
+                raise CodeError("expression is not assignable", stmt_loc) from ex
+            raise
         if rvalue_pytyp is pytypes.BoxRefType or isinstance(
             rvalue_pytyp, pytypes.StorageProxyType | pytypes.StorageMapProxyType
         ):
