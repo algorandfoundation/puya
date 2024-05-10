@@ -299,7 +299,7 @@ class Derived3(Base):
 class Derived4(Base):
     def __init__(self) -> None:
         super().__init__()
-        self.bar_p = GlobalState(Bytes(b"bbb")) # type: ignore[arg-type] ## E: some error message here about redefining proxies
+        self.bar_p = GlobalState(Bytes(b"bbb")) # type: ignore[arg-type] ## E: Assignment target type algopy.UInt64 differs from expression value type algopy.Bytes
 
 
 ## case: void_state
@@ -309,7 +309,7 @@ class Con(Contract):
     x: None ## E: None is not supported as a value, only a return type
 
     def approval_program(self) -> bool:
-        self.x = log(b"")  # type: ignore[func-returns-value] ## E: None indicates an empty return and cannot be assigned
+        self.x = log(b"")  # type: ignore[func-returns-value] ## E: typing error prevents type resolution
         return True
 
     def clear_state_program(self) -> bool:
