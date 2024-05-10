@@ -6,6 +6,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
+import typing_extensions
 from immutabledict import immutabledict
 
 from puya import log
@@ -15,6 +16,9 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
+if typing.TYPE_CHECKING:
+    from mypy.nodes import ArgKind
+
 logger = log.get_logger(__name__)
 
 
@@ -22,7 +26,7 @@ logger = log.get_logger(__name__)
 class PyType(abc.ABC):
     name: str
     """The canonical fully qualified type name"""
-    generic: _GenericType | None = None
+    generic: PyType | None = None
     """The generic type that this type was parameterised from, if any."""
     bases: Sequence[PyType] = attrs.field(default=(), converter=tuple["PyType", ...])
     """Direct base classes. probably excluding the implicit builtins.object?"""
@@ -54,6 +58,7 @@ class PyType(abc.ABC):
 
         result, _ = re.subn(r"\bbuiltins\.", "", self.name)
         result, _ = re.subn(r"algopy\._[^.]+", "algopy", result)
+        result = result.replace(NoneType.name, "None")
         return result
 
     def __str__(self) -> str:
@@ -66,7 +71,7 @@ class PyType(abc.ABC):
 
     def parameterise(
         self,
-        args: Sequence[PyType | TypingLiteralValue],  # noqa: ARG002
+        args: Sequence[PyType],  # noqa: ARG002
         source_location: SourceLocation | None,
     ) -> PyType:
         """Produce parameterised type.
@@ -79,7 +84,7 @@ class PyType(abc.ABC):
 _builtins_registry: typing.Final = dict[str, PyType]()
 
 
-_TPyType = typing.TypeVar("_TPyType", bound=PyType)
+_TPyType = typing_extensions.TypeVar("_TPyType", bound=PyType, default=PyType)
 
 
 def _register_builtin(typ: _TPyType, *, alias: str | None = None) -> _TPyType:
@@ -106,20 +111,21 @@ def builtins_registry() -> dict[str, PyType]:
 # we exclude this here.
 # None types are also encoded as their own type, but we have them as values here.
 TypingLiteralValue: typing.TypeAlias = int | bytes | str | bool | None
-TypeArg: typing.TypeAlias = PyType | TypingLiteralValue
-TypeArgs: typing.TypeAlias = tuple[TypeArg, ...]
-Parameterise: typing.TypeAlias = Callable[
-    ["_GenericType", TypeArgs, SourceLocation | None], PyType
-]
+_TypeArgs: typing.TypeAlias = tuple[PyType, ...]
+_Parameterise = typing_extensions.TypeAliasType(
+    "_Parameterise",
+    Callable[["_GenericType[_TPyType]", _TypeArgs, SourceLocation | None], _TPyType],
+    type_params=(_TPyType,),
+)
 
 
 @typing.final
 @attrs.frozen
-class _GenericType(PyType, abc.ABC):
+class _GenericType(PyType, abc.ABC, typing.Generic[_TPyType]):
     """Represents a typing.Generic type with unknown parameters"""
 
-    _parameterise: Parameterise
-    _instance_cache: dict[TypeArgs, PyType] = attrs.field(factory=dict, eq=False)
+    _parameterise: _Parameterise[_TPyType]
+    _instance_cache: dict[_TypeArgs, _TPyType] = attrs.field(factory=dict, eq=False)
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
@@ -131,8 +137,8 @@ class _GenericType(PyType, abc.ABC):
 
     @typing.override
     def parameterise(
-        self, args: Sequence[PyType | TypingLiteralValue], source_location: SourceLocation | None
-    ) -> PyType:
+        self, args: Sequence[PyType], source_location: SourceLocation | None
+    ) -> _TPyType:
         return lazy_setdefault(
             self._instance_cache,
             key=tuple(args),
@@ -140,13 +146,70 @@ class _GenericType(PyType, abc.ABC):
         )
 
 
+def _parameterise_type_type(
+    self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None  # noqa: ARG001
+) -> TypeType:
+    try:
+        (arg,) = args
+    except ValueError:
+        raise CodeError(
+            f"Expected a single type parameter, got {len(args)} parameters", source_location
+        ) from None
+    return TypeType(typ=arg)
+
+
+GenericTypeType: typing.Final[PyType] = _GenericType(
+    name="builtins.type",
+    parameterise=_parameterise_type_type,
+)
+
+
+@typing.final
+@attrs.frozen
+class TypeType(PyType):
+    typ: PyType
+    generic: PyType = attrs.field(default=GenericTypeType, init=False)
+    name: str = attrs.field(init=False)
+
+    @name.default
+    def _name_default(self) -> str:
+        return f"{self.generic.name}[{self.typ.name}]"
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError("type objects are not usable as values")
+
+
+@typing.final
+@attrs.frozen
+class TypingLiteralType(PyType):
+    value: TypingLiteralValue
+    source_location: SourceLocation | None
+    name: str = attrs.field(init=False)
+    generic: None = attrs.field(default=None, init=False)
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+
+    @name.default
+    def _name_default(self) -> str:
+        return f"typing.Literal[{self.value!r}]"
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"{self} is not usable as a value", self.source_location)
+
+
+@typing.final
 @attrs.frozen
 class TupleType(PyType):
-    generic: _GenericType
+    generic: _GenericType[TupleType]
     items: tuple[PyType, ...] = attrs.field(validator=attrs.validators.min_len(1))
     wtype: wtypes.WType
 
 
+@typing.final
 @attrs.frozen
 class ArrayType(PyType):
     generic: _GenericType
@@ -155,18 +218,44 @@ class ArrayType(PyType):
     wtype: wtypes.WType
 
 
+@typing.final
 @attrs.frozen
 class StorageProxyType(PyType):
     content: PyType
     wtype: wtypes.WType
 
 
+@typing.final
 @attrs.frozen
 class StorageMapProxyType(PyType):
     generic: _GenericType
     key: PyType
     content: PyType
     wtype: wtypes.WType
+
+
+@typing.final
+@attrs.frozen
+class FuncArg:
+    types: Sequence[PyType] = attrs.field(
+        converter=tuple[PyType, ...], validator=attrs.validators.min_len(1)
+    )
+    name: str | None
+    kind: ArgKind
+
+
+@typing.final
+@attrs.frozen(kw_only=True)
+class FuncType(PyType):
+    generic: None = None
+    ret_type: PyType
+    args: Sequence[FuncArg] = attrs.field(converter=tuple[FuncArg, ...])
+    bound_arg_types: Sequence[PyType] = attrs.field(converter=tuple[PyType, ...])
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError("function objects are not usable as values")
 
 
 @typing.final
@@ -238,14 +327,24 @@ class _SimpleType(PyType):
         _register_builtin(self)
 
 
-NoneType: typing.Final[PyType] = _SimpleType(
-    name="builtins.None",
-    wtype=wtypes.void_wtype,
-)
-BoolType: typing.Final[PyType] = _SimpleType(
-    name="builtins.bool",
-    wtype=wtypes.bool_wtype,
-)
+@typing.final
+@attrs.frozen
+class _LiteralOnlyType(PyType):
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"Python literals of type {self} cannot be used as runtime values")
+
+    def __attrs_post_init__(self) -> None:
+        _register_builtin(self)
+
+
+NoneType: typing.Final[PyType] = _SimpleType(name="types.NoneType", wtype=wtypes.void_wtype)
+BoolType: typing.Final[PyType] = _SimpleType(name="builtins.bool", wtype=wtypes.bool_wtype)
+IntLiteralType: typing.Final[PyType] = _LiteralOnlyType(name="builtins.int")
+StrLiteralType: typing.Final[PyType] = _LiteralOnlyType(name="builtins.str")
+BytesLiteralType: typing.Final[PyType] = _LiteralOnlyType(name="builtins.bytes")
+
 UInt64Type: typing.Final[PyType] = _SimpleType(
     name=constants.CLS_UINT64,
     wtype=wtypes.uint64_wtype,
@@ -317,22 +416,40 @@ class ARC4UIntNType(PyType):
     wtype: wtypes.WType
 
 
-def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> Parameterise:
+def _require_int_literal(
+    generic: _GenericType,
+    type_arg: PyType,
+    source_location: SourceLocation | None,
+    *,
+    position_qualifier: str = "",
+) -> int:
+
+    match type_arg:
+        case TypingLiteralType(value=int(value)):
+            return value
+    if position_qualifier:
+        position_qualifier = position_qualifier + " "
+    raise CodeError(
+        f"{generic} expects a typing.Literal[<int>] as a {position_qualifier}parameter",
+        source_location,
+    )
+
+
+def _make_arc4_unsigned_int_parameterise(*, max_bits: int | None = None) -> _Parameterise:
     def parameterise(
-        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
     ) -> ARC4UIntNType:
         try:
-            (bits,) = args
+            (bits_t,) = args
         except ValueError:
             raise CodeError(
                 f"Expected a single type parameter, got {len(args)} parameters", source_location
             ) from None
-        if not isinstance(bits, int):
-            raise CodeError(f"{self} expects a typing.Literal[int] parameter", source_location)
+        bits = _require_int_literal(self, bits_t, source_location)
         if (max_bits is not None) and bits > max_bits:
             raise CodeError(f"Max bit size of {self} is {max_bits}, got {bits}", source_location)
 
-        name = f"{self.name}[typing.Literal[{bits}]]"
+        name = f"{self.name}[{bits_t.name}]"
         return ARC4UIntNType(
             generic=self,
             name=name,
@@ -366,7 +483,7 @@ ARC4UIntN_Aliases: typing.Final = immutabledict[int, ARC4UIntNType](
     {
         (_bits := 2**_exp): _register_builtin(
             (GenericARC4UIntNType if _bits <= 64 else GenericARC4BigUIntNType).parameterise(
-                [_bits], source_location=None
+                [TypingLiteralType(value=_bits, source_location=None)], source_location=None
             ),
             alias=f"{constants.ARC4_PREFIX}UInt{_bits}",
         )
@@ -383,22 +500,24 @@ class ARC4UFixedNxMType(PyType):
     wtype: wtypes.WType
 
 
-def _make_arc4_unsigned_fixed_parameterise(*, max_bits: int | None = None) -> Parameterise:
+def _make_arc4_unsigned_fixed_parameterise(*, max_bits: int | None = None) -> _Parameterise:
     def parameterise(
-        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
     ) -> ARC4UFixedNxMType:
         try:
-            bits, precision = args
+            bits_t, precision_t = args
         except ValueError:
             raise CodeError(
                 f"Expected two type parameters, got {len(args)} parameters", source_location
             ) from None
-        if not (isinstance(bits, int) and isinstance(precision, int)):
-            raise CodeError(f"{self} expects two typing.Literal[int] parameters", source_location)
+        bits = _require_int_literal(self, bits_t, source_location, position_qualifier="first")
+        precision = _require_int_literal(
+            self, precision_t, source_location, position_qualifier="second"
+        )
         if (max_bits is not None) and bits > max_bits:
             raise CodeError(f"Max bit size of {self} is {max_bits}, got {bits}", source_location)
 
-        name = f"{self.name}[typing.Literal[{bits}], typing.Literal[{precision}]]"
+        name = f"{self.name}[{bits_t.name}, {precision_t.name}]"
         return ARC4UFixedNxMType(
             generic=self,
             name=name,
@@ -422,28 +541,16 @@ GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
 
 def _make_tuple_parameterise(
     typ: Callable[[Iterable[wtypes.WType], SourceLocation | None], wtypes.WType]
-) -> Parameterise:
+) -> _Parameterise[TupleType]:
     def parameterise(
-        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType[TupleType], args: _TypeArgs, source_location: SourceLocation | None
     ) -> TupleType:
-        py_types = []
-        item_wtypes = []
-        for arg in args:
-            if not isinstance(arg, PyType):
-                raise CodeError(
-                    "typing.Literal cannot be used as tuple type parameter", source_location
-                )
-            item_wtype = arg.wtype
-            if item_wtype is None:
-                raise CodeError(f"Type {arg} is not allowed in a tuple", source_location)
-            py_types.append(arg)
-            item_wtypes.append(item_wtype)
-
-        name = f"{self.name}[{', '.join(pyt.name for pyt in py_types)}]"
+        item_wtypes = [arg.wtype for arg in args]
+        name = f"{self.name}[{', '.join(pyt.name for pyt in args)}]"
         return TupleType(
             generic=self,
             name=name,
-            items=tuple(py_types),
+            items=tuple(args),
             wtype=typ(item_wtypes, source_location),
         )
 
@@ -461,11 +568,30 @@ GenericARC4TupleType: typing.Final = _GenericType(
 )
 
 
+@typing.final
+@attrs.frozen
+class VariadicTupleType(PyType):
+    items: PyType
+    generic: _GenericType = attrs.field(default=GenericTupleType, init=False)
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    name: str = attrs.field(init=False)
+
+    @name.default
+    def _name_factory(self) -> str:
+        return f"{self.generic.name}[{self.items.name}, ...]"
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError("variadic tuples cannot be used as runtime values")
+
+
 def _make_array_parameterise(
     typ: Callable[[wtypes.WType, SourceLocation | None], wtypes.WType]
-) -> Parameterise:
+) -> _Parameterise:
     def parameterise(
-        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
     ) -> ArrayType:
         try:
             (arg,) = args
@@ -473,11 +599,6 @@ def _make_array_parameterise(
             raise CodeError(
                 f"Expected a single type parameter, got {len(args)} parameters", source_location
             ) from None
-        if not isinstance(arg, PyType):
-            raise CodeError(
-                f"typing.Literal cannot be used to parameterise {self}", source_location
-            )
-
         name = f"{self.name}[{arg.name}]"
         return ArrayType(
             generic=self,
@@ -503,27 +624,21 @@ GenericARC4DynamicArrayType: typing.Final = _GenericType(
 
 def _make_fixed_array_parameterise(
     typ: Callable[[wtypes.WType, int, SourceLocation | None], wtypes.WType]
-) -> Parameterise:
+) -> _Parameterise:
     def parameterise(
-        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
     ) -> ArrayType:
         try:
-            items, size = args
+            items, size_t = args
         except ValueError:
             raise CodeError(
                 f"Expected a single type parameter, got {len(args)} parameters", source_location
             ) from None
-        if not isinstance(items, PyType):
-            raise CodeError(f"{self} expects first parameter to be a type", source_location)
-        if not isinstance(size, int):
-            raise CodeError(
-                f"{self} expects second parameter to be a typing.Literal[int]",
-                source_location,
-            )
+        size = _require_int_literal(self, size_t, source_location, position_qualifier="second")
         if size < 0:
             raise CodeError("Array size should be non-negative", source_location)
 
-        name = f"{self.name}[{items.name}, typing.Literal[{size}]]"
+        name = f"{self.name}[{items.name}, {size_t.name}]]"
         return ArrayType(
             generic=self,
             name=name,
@@ -541,9 +656,9 @@ GenericARC4StaticArrayType: typing.Final = _GenericType(
 )
 
 
-def _make_storage_parameterise(key_type: wtypes.WType) -> Parameterise:
+def _make_storage_parameterise(key_type: wtypes.WType) -> _Parameterise:
     def parameterise(
-        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
     ) -> StorageProxyType:
         try:
             (arg,) = args
@@ -551,11 +666,6 @@ def _make_storage_parameterise(key_type: wtypes.WType) -> Parameterise:
             raise CodeError(
                 f"Expected a single type parameter, got {len(args)} parameters", source_location
             ) from None
-        if not isinstance(arg, PyType):
-            raise CodeError(
-                f"typing.Literal cannot be used to parameterise {self}", source_location
-            )
-
         name = f"{self.name}[{arg.name}]"
         return StorageProxyType(
             generic=self,
@@ -569,9 +679,9 @@ def _make_storage_parameterise(key_type: wtypes.WType) -> Parameterise:
 
 def _make_storage_parameterise_todo_remove_me(
     key_type: Callable[[wtypes.WType], wtypes.WType]
-) -> Parameterise:
+) -> _Parameterise:
     def parameterise(
-        self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
+        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
     ) -> StorageProxyType:
         try:
             (arg,) = args
@@ -579,10 +689,6 @@ def _make_storage_parameterise_todo_remove_me(
             raise CodeError(
                 f"Expected a single type parameter, got {len(args)} parameters", source_location
             ) from None
-        if not isinstance(arg, PyType):
-            raise CodeError(
-                f"typing.Literal cannot be used to parameterise {self}", source_location
-            )
 
         name = f"{self.name}[{arg.name}]"
         return StorageProxyType(
@@ -596,7 +702,7 @@ def _make_storage_parameterise_todo_remove_me(
 
 
 def _parameterise_storage_map(
-    self: _GenericType, args: TypeArgs, source_location: SourceLocation | None
+    self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
 ) -> StorageMapProxyType:
     try:
         key, content = args
@@ -604,11 +710,6 @@ def _parameterise_storage_map(
         raise CodeError(
             f"Expected two type parameters, got {len(args)} parameters", source_location
         ) from None
-    if not isinstance(key, PyType):
-        raise CodeError(f"typing.Literal cannot be used to parameterise {self}", source_location)
-    if not isinstance(content, PyType):
-        raise CodeError(f"typing.Literal cannot be used to parameterise {self}", source_location)
-
     name = f"{self.name}[{key.name}, {content.name}]"
     return StorageMapProxyType(
         generic=self,
@@ -746,7 +847,6 @@ InnerTransactionResultTypes: typing.Final[Mapping[constants.TransactionType | No
 
 @attrs.frozen(kw_only=True)
 class _CompileTimeType(PyType):
-    generic: None = None
     _wtype_error: str
 
     @typing.override
@@ -785,6 +885,25 @@ urangeType: typing.Final[PyType] = _CompileTimeType(  # noqa: N816
     wtype_error="{self} is not usable at runtime",
 )
 
+
+def _parameterise_any_compile_time(
+    self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None  # noqa: ARG001
+) -> PyType:
+    arg_names = [arg.name for arg in args]
+    name = f"{self.name}[{', '.join(arg_names)}]"
+    return _CompileTimeType(name=name, generic=self, wtype_error="{self} is not usable at runtime")
+
+
+reversedGenericType: typing.Final[PyType] = _GenericType(  # noqa: N816
+    name="builtins.reversed",
+    parameterise=_parameterise_any_compile_time,
+)
+uenumerateGenericType: typing.Final[PyType] = _GenericType(  # noqa: N816
+    name=constants.UENUMERATE,
+    parameterise=_parameterise_any_compile_time,
+)
+
+
 LogicSigType: typing.Final[PyType] = _CompileTimeType(
     name=f"{constants.ALGOPY_PREFIX}_logic_sig.LogicSig",
     wtype_error="{self} is only usable in a static context",
@@ -813,3 +932,41 @@ ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
 ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_CLIENT)
 ARC4StructBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_STRUCT)
 StructBaseType: typing.Final[PyType] = _BaseType(name=constants.STRUCT_BASE)
+
+
+@typing.final
+@attrs.frozen
+class PseudoGenericFunctionType(PyType):
+    return_type: PyType
+    generic: _GenericType[PseudoGenericFunctionType]
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"{self} is not a value")
+
+
+def _parameterise_pseudo_generic_function_type(
+    self: _GenericType[PseudoGenericFunctionType],
+    args: _TypeArgs,
+    source_location: SourceLocation | None,
+) -> PseudoGenericFunctionType:
+    try:
+        (arg,) = args
+    except ValueError:
+        raise CodeError(
+            f"Expected a single type parameter, got {len(args)} parameters", source_location
+        ) from None
+    name = f"{self.name}[{arg.name}]"
+    return PseudoGenericFunctionType(generic=self, name=name, return_type=arg)
+
+
+GenericABICallWithReturnType: typing.Final[PyType] = _GenericType(
+    name=f"{constants.ARC4_PREFIX}_ABICallWithReturnProtocol",
+    parameterise=_parameterise_pseudo_generic_function_type,
+)
+GenericTemplateVarType: typing.Final[PyType] = _GenericType(
+    name=f"{constants.ALGOPY_PREFIX}_template_variables._TemplateVarMethod",
+    parameterise=_parameterise_pseudo_generic_function_type,
+)

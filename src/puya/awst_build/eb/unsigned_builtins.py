@@ -31,15 +31,18 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
 class UnsignedRangeBuilder(IntermediateExpressionBuilder):
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -76,14 +79,21 @@ class UnsignedRange(IntermediateExpressionBuilder):
         super().__init__(location=sequence.source_location)
         self.sequence = sequence
 
+    @typing.override
     def iterate(self) -> Iteration:
         return self.sequence
 
 
 class UnsignedEnumerateBuilder(IntermediateExpressionBuilder):
+    def __init__(self, typ: pytypes.PyType | None, location: SourceLocation):  # TODO: remove None
+        self._pytyp = typ
+        super().__init__(location)
+
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -107,6 +117,7 @@ class UnsignedEnumerate(IntermediateExpressionBuilder):
         super().__init__(location)
         self._sequence = sequence
 
+    @typing.override
     def iterate(self) -> Iteration:
         return Enumeration(
             expr=self._sequence,
@@ -115,9 +126,15 @@ class UnsignedEnumerate(IntermediateExpressionBuilder):
 
 
 class ReversedFunctionExpressionBuilder(IntermediateExpressionBuilder):
+    def __init__(self, typ: pytypes.PyType | None, location: SourceLocation):  # TODO: remove None
+        self._pytyp = typ
+        super().__init__(location)
+
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -140,6 +157,7 @@ class ReversedExpressionBuilder(IntermediateExpressionBuilder):
         super().__init__(location)
         self._sequence = sequence
 
+    @typing.override
     def iterate(self) -> Iteration:
         return Reversed(
             expr=self._sequence,

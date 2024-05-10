@@ -6,7 +6,14 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import CheckedMaybe, Expression, IntrinsicCall, Literal, UInt64Constant
+from puya.awst.nodes import (
+    CheckedMaybe,
+    Expression,
+    IntrinsicCall,
+    Literal,
+    ReinterpretCast,
+    UInt64Constant,
+)
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -22,6 +29,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 
@@ -29,12 +37,14 @@ logger = log.get_logger(__name__)
 
 
 class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.asset_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.asset_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -50,7 +60,10 @@ class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
                 uint64_expr = UInt64Constant(value=0, source_location=location)
-        return AssetExpressionBuilder(uint64_expr)
+        asset_expr = ReinterpretCast(
+            source_location=location, wtype=wtypes.asset_wtype, expr=uint64_expr
+        )
+        return AssetExpressionBuilder(asset_expr)
 
 
 ASSET_HOLDING_FIELD_MAPPING: typing.Final = {
@@ -68,6 +81,7 @@ class AssetHoldingExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

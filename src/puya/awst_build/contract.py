@@ -50,7 +50,8 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
         self._clear_program: ContractMethod | None = None
         self._init_method: ContractMethod | None = None
         self._subroutines = list[ContractMethod]()
-        self.context.state_defs[self.cref] = _gather_app_storage_recursive(context, class_def)
+        inherited_and_direct_storage = _gather_app_storage_recursive(context, class_def)
+        self.context.set_state_defs(self.cref, inherited_and_direct_storage)
 
         # if the class has an __init__ method, we need to visit it first, so any storage
         # fields cane be resolved to a (static) key
@@ -70,7 +71,7 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
 
         app_state = {
             name: state_decl.definition
-            for name, state_decl in context.state_defs[self.cref].items()
+            for name, state_decl in context.state_defs(self.cref).items()
             if state_decl.defined_in == self.cref
         }
 
@@ -399,27 +400,30 @@ def _gather_bases(
 def _gather_app_storage_recursive(
     context: ASTConversionModuleContext, class_def: mypy.nodes.ClassDef
 ) -> dict[str, AppStorageDeclaration]:
-    combined_app_state = {
+    this_global_directs = {
         defn.member_name: defn for defn in _gather_global_direct_storages(context, class_def.info)
     }
+    combined_app_state = this_global_directs.copy()
     for base in iterate_user_bases(class_def.info):
         base_cref = qualified_class_name(base)
         base_app_state = {
             name: defn
-            for name, defn in context.state_defs[base_cref].items()
+            for name, defn in context.state_defs(base_cref).items()
             if defn.defined_in == base_cref
         }
         for redefined_member in combined_app_state.keys() & base_app_state.keys():
-            member_redef = combined_app_state[redefined_member]
-            member_orig = base_app_state[redefined_member]
-            context.info(
-                f"Previous definition of {redefined_member} was here",
-                member_orig.source_location,
-            )
-            context.error(
-                f"Redefinition of {redefined_member}",
-                member_redef.source_location,
-            )
+            # only handle producing errors for direct globals here,
+            # proxies get handled on insert
+            if this_member_redef := combined_app_state.get(redefined_member):
+                member_orig = base_app_state[redefined_member]
+                context.info(
+                    f"Previous definition of {redefined_member} was here",
+                    member_orig.source_location,
+                )
+                context.error(
+                    f"Redefinition of {redefined_member}",
+                    this_member_redef.source_location,
+                )
         # we do it this way around so that we keep combined_app_state with the most-derived
         # definition in case of redefinitions
         combined_app_state = base_app_state | combined_app_state

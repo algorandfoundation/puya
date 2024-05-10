@@ -12,6 +12,7 @@ from puya.awst.nodes import (
     Literal,
     SubroutineCallExpression,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
@@ -38,6 +39,7 @@ class SubroutineInvokerExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -97,6 +99,7 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -108,4 +111,4 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
                 "First argument when calling a base class method directly should be self",
                 args[0].source_location,
             )
-        return super().call(args[1:], arg_kinds[1:], arg_names[1:], location)
+        return super().call(args[1:], arg_typs[1:], arg_kinds[1:], arg_names[1:], location)

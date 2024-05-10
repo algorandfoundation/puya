@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
@@ -5,8 +6,10 @@ import mypy.types
 
 from puya.awst import wtypes
 from puya.awst.nodes import ArrayExtend, Contains, Expression, Literal, NewArray, TupleExpression
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    GenericClassExpressionBuilder,
     IntermediateExpressionBuilder,
     Iteration,
     TypeClassExpressionBuilder,
@@ -18,38 +21,51 @@ from puya.awst_build.utils import (
     expect_operand_wtype,
     require_expression_builder,
 )
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
-    def __init__(self, location: SourceLocation):
-        super().__init__(location=location)
-        self._storage: wtypes.WType | None = None
-
-    def produces(self) -> wtypes.WType:
-        if self._storage is None:
-            raise CodeError("A type parameter is required at this location", self.source_location)
-        return wtypes.WArray(self._storage, self.source_location)
-
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        if self._storage is not None:
-            raise InternalError("Multiple indexing of Array?", location)
-        match index:
-            case TypeClassExpressionBuilder() as typ_class_eb:
-                self.source_location += location
-                self._storage = typ_class_eb.produces()
-                return self
-        raise CodeError(
-            "Invalid indexing, only a single type arg is supported",
-            location,
-        )
-
+class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        if not args:
+            raise CodeError("Empy arrays require a type annotation to be instantiated", location)
+        non_literal_args = [
+            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
+            for a in args
+        ]
+        expected_type = non_literal_args[0].wtype
+        for a in non_literal_args:
+            expect_operand_wtype(a, expected_type)
+        array_wtype = wtypes.WArray(expected_type, location)
+        array_expr = NewArray(
+            values=tuple(non_literal_args),
+            wtype=array_wtype,
+            source_location=location,
+        )
+        return ArrayExpressionBuilder(array_expr)
+
+
+class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WArray]):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.ArrayType)
+        assert typ.generic == pytypes.GenericArrayType
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.WArray)
+        super().__init__(wtype, location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -58,23 +74,21 @@ class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
             require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
             for a in args
         ]
-        if self._storage is not None:
-            expected_type = self._storage
-        elif non_literal_args:
-            expected_type = non_literal_args[0].wtype
-        else:
-            raise CodeError("Empy arrays require a type annotation to be instantiated", location)
+        array_wtype = self.produces()
+        expected_type = array_wtype.element_type
         for a in non_literal_args:
             expect_operand_wtype(a, expected_type)
-        array_wtype = wtypes.WArray(expected_type, location)
         array_expr = NewArray(
-            source_location=location, values=tuple(non_literal_args), wtype=array_wtype
+            values=tuple(non_literal_args),
+            wtype=array_wtype,
+            source_location=location,
         )
         return ArrayExpressionBuilder(array_expr)
 
 
 class ArrayExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.WArray)
         self.wtype: wtypes.WArray = expr.wtype
         super().__init__(expr)
@@ -102,9 +116,11 @@ class ArrayAppenderExpressionBuilder(IntermediateExpressionBuilder):
         super().__init__(array.source_location)
         self.array = array
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

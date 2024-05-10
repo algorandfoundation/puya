@@ -4,6 +4,7 @@ import mypy.nodes
 import mypy.types
 
 from puya.awst.nodes import Literal, Statement
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
     BuilderComparisonOp,
@@ -77,11 +78,12 @@ class ValueProxyExpressionBuilder(ValueExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        return self._proxied.call(args, arg_kinds, arg_names, location)
+        return self._proxied.call(args, arg_typs, arg_kinds, arg_names, location)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         return self._proxied.member_access(name, location)

@@ -5,6 +5,7 @@ import mypy.types
 
 from puya.awst import wtypes
 from puya.awst.nodes import Expression, FieldExpression, Literal
+from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     TypeClassExpressionBuilder,
@@ -15,17 +16,18 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class StructSubclassExpressionBuilder(TypeClassExpressionBuilder):
-    def __init__(self, wtype: wtypes.WStructType, location: SourceLocation):
-        super().__init__(location=location)
-        self.wtype = wtype
-
-    def produces(self) -> wtypes.WType:
-        return self.wtype
+class StructSubclassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WStructType]):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.StructType)
+        # assert pytypes.StructBaseType in typ.mro TODO?
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.WStructType)
+        super().__init__(wtype, location)
 
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -34,7 +36,8 @@ class StructSubclassExpressionBuilder(TypeClassExpressionBuilder):
 
 
 class StructExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.WStructType)
         self.wtype: wtypes.WStructType = expr.wtype
         super().__init__(expr)

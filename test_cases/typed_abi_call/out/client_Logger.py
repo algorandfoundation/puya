@@ -13,70 +13,37 @@ class Logger(algopy.arc4.ARC4Client, typing.Protocol):
         value: algopy.arc4.String,
     ) -> algopy.arc4.String: ...
 
-    @algopy.arc4.abimethod
-    def echo_native_string(
-        self,
-        value: algopy.arc4.String,
-    ) -> algopy.arc4.String: ...
-
-    @algopy.arc4.abimethod
-    def echo_native_bytes(
-        self,
-        value: algopy.arc4.DynamicBytes,
-    ) -> algopy.arc4.DynamicBytes: ...
-
-    @algopy.arc4.abimethod
-    def echo_native_uint64(
-        self,
-        value: algopy.arc4.UInt64,
-    ) -> algopy.arc4.UInt64: ...
-
-    @algopy.arc4.abimethod
-    def echo_native_biguint(
-        self,
-        value: algopy.arc4.UInt512,
-    ) -> algopy.arc4.UInt512: ...
-
-    @algopy.arc4.abimethod
-    def echo_native_tuple(
-        self,
-        s: algopy.arc4.String,
-        b: algopy.arc4.DynamicBytes,
-        u: algopy.arc4.UInt64,
-        bu: algopy.arc4.UInt512,
-    ) -> algopy.arc4.Tuple[algopy.arc4.String, algopy.arc4.DynamicBytes, algopy.arc4.UInt64, algopy.arc4.UInt512]: ...
-
-    @algopy.arc4.abimethod
+    @algopy.arc4.abimethod(name='log')
     def log_uint64(
         self,
         value: algopy.arc4.UInt64,
     ) -> None: ...
 
-    @algopy.arc4.abimethod
+    @algopy.arc4.abimethod(name='log')
     def log_uint512(
         self,
         value: algopy.arc4.UInt512,
     ) -> None: ...
 
-    @algopy.arc4.abimethod
+    @algopy.arc4.abimethod(name='log')
     def log_string(
         self,
         value: algopy.arc4.String,
     ) -> None: ...
 
-    @algopy.arc4.abimethod
+    @algopy.arc4.abimethod(name='log')
     def log_bool(
         self,
         value: algopy.arc4.Bool,
     ) -> None: ...
 
-    @algopy.arc4.abimethod
+    @algopy.arc4.abimethod(name='log')
     def log_bytes(
         self,
         value: algopy.arc4.DynamicBytes,
     ) -> None: ...
 
-    @algopy.arc4.abimethod
+    @algopy.arc4.abimethod(name='log')
     def log_asset_account_app(
         self,
         asset: algopy.Asset,

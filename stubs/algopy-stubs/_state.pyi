@@ -8,7 +8,7 @@ class LocalState(typing.Generic[_TState]):
     """Local state associated with the application and an account"""
 
     def __init__(
-        self,
+        self: LocalState[_TState],
         type_: type[_TState],
         /,
         *,
@@ -88,7 +88,7 @@ class GlobalState(typing.Generic[_TState]):
 
     @typing.overload
     def __init__(
-        self,
+        self: GlobalState[_TState],
         type_: type[_TState],
         /,
         *,
@@ -99,7 +99,7 @@ class GlobalState(typing.Generic[_TState]):
 
     @typing.overload
     def __init__(
-        self,
+        self: GlobalState[_TState],
         initial_value: _TState,
         /,
         key: str | bytes = ...,

@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
@@ -13,7 +14,7 @@ from puya.awst.nodes import (
     Not,
     StateExists,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -34,16 +35,14 @@ from puya.parse import SourceLocation
 
 
 class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return self.wtype
-
     def __init__(self, location: SourceLocation) -> None:
-        super().__init__(location)
-        self.wtype = wtypes.box_ref_proxy_type
+        super().__init__(wtypes.box_ref_proxy_type, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -59,7 +58,7 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
             raise CodeError("Invalid/unhandled arguments", location)
 
         return BoxRefProxyExpressionBuilder(
-            expr=BoxProxyExpression(key=key, wtype=self.wtype, source_location=location)
+            expr=BoxProxyExpression(key=key, wtype=self.produces(), source_location=location)
         )
 
 
@@ -169,6 +168,7 @@ class BoxRefIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -201,6 +201,7 @@ class BoxRefCreateExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -228,6 +229,7 @@ class BoxRefPutExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

@@ -3,6 +3,8 @@ from __future__ import annotations
 import abc
 import typing
 
+import typing_extensions
+
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -19,7 +21,7 @@ from puya.awst.nodes import (
     SingleEvaluation,
     TupleExpression,
 )
-from puya.awst_build import intrinsic_factory
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
@@ -42,7 +44,12 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder, abc.ABC):
+_TARC4Type = typing_extensions.TypeVar(
+    "_TARC4Type", bound=wtypes.ARC4Type, default=wtypes.ARC4Type
+)
+
+
+class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder[_TARC4Type], abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
             case "from_log":
@@ -98,6 +105,7 @@ class ARC4FromLogBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -117,6 +125,7 @@ class CopyBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

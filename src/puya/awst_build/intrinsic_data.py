@@ -8,6 +8,12 @@ from puya.awst_build.intrinsic_models import (
 )
 
 ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict(
+    EC=dict(
+        BN254g1="BN254g1",
+        BN254g2="BN254g2",
+        BLS12_381g1="BLS12_381g1",
+        BLS12_381g2="BLS12_381g2",
+    ),
     Base64=dict(
         URLEncoding="URLEncoding",
         StdEncoding="StdEncoding",
@@ -18,12 +24,6 @@ ENUM_CLASSES: typing.Final[Mapping[str, Mapping[str, str]]] = dict(
     ),
     VrfVerify=dict(
         VrfAlgorand="VrfAlgorand",
-    ),
-    EC=dict(
-        BN254g1="BN254g1",
-        BN254g2="BN254g2",
-        BLS12_381g1="BLS12_381g1",
-        BLS12_381g2="BLS12_381g2",
     ),
 )
 

@@ -19,9 +19,10 @@ from puya.awst.nodes import (
     StateGetEx,
     Statement,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    GenericClassExpressionBuilder,
     IntermediateExpressionBuilder,
     StateProxyDefinitionBuilder,
     StateProxyMemberBuilder,
@@ -43,18 +44,18 @@ if typing.TYPE_CHECKING:
     from puya.parse import SourceLocation
 
 
-class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
+class AppStateClassExpressionBuilder(GenericClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(location)
         self._storage: wtypes.WType | None = None
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
+    def index_multiple(
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
         if self._storage is not None:
             raise InternalError("Multiple indexing of GlobalState?", location)
-        match index:
-            case TypeClassExpressionBuilder() as typ_class_eb:
+        match indexes:
+            case [TypeClassExpressionBuilder() as typ_class_eb]:
                 self.source_location += location
                 self._storage = typ_class_eb.produces()
                 return self
@@ -67,6 +68,7 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -192,6 +194,7 @@ class AppStateMaybeExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -210,6 +213,7 @@ class AppStateGetExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
