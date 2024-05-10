@@ -127,6 +127,7 @@ def _builder_for_storage_access(
         case AppStorageDeclaration(decl_type=AppStorageDeclType.global_direct):
             return var_expression(
                 AppStateExpression(
+                    key=storage_decl.key,
                     field_name=storage_decl.member_name,
                     wtype=storage_decl.storage_wtype,
                     source_location=location,

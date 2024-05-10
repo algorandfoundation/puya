@@ -107,7 +107,7 @@ class IRBuildContext(CompileContext):
             )
         return func
 
-    def resolve_state(
+    def resolve_state(  # TODO: yeet me
         self, field_name: str, source_location: SourceLocation
     ) -> awst_nodes.AppStorageDefinition:
         node = self._resolve_contract_attribute(field_name, source_location)

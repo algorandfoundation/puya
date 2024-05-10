@@ -12,7 +12,6 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
-    AppStorageKind,
     AssertStatement,
     AssignmentExpression,
     AssignmentStatement,
@@ -404,14 +403,15 @@ class FunctionASTConverter(
         self.context.state_defs[cref][member_name] = defn
         if rvalue.initial_value is None:
             return []
-        elif defn.kind != AppStorageKind.app_global:
+        elif defn.decl_type != AppStorageDeclType.global_proxy:
             raise InternalError(
                 f"Don't know how to do initialise-on-declaration"
-                f" for storage of kind {defn.kind}",
+                f" for storage of kind {defn.decl_type}",
                 stmt_loc,
             )
         else:
             global_state_target = AppStateExpression(
+                key=defn.key,
                 field_name=defn.member_name,
                 wtype=defn.storage_wtype,
                 source_location=defn.source_location,
@@ -459,7 +459,6 @@ class FunctionASTConverter(
                     storage_wtype=storage_wtype,
                     description=None,
                     decl_type=decl_type,
-                    kind=AppStorageKind.box,
                     defined_in=cref,
                 )
                 return []

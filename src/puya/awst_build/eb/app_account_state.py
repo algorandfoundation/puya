@@ -6,7 +6,6 @@ import mypy.types
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppAccountStateExpression,
-    AppStorageKind,
     BytesConstant,
     BytesEncoding,
     Expression,
@@ -38,7 +37,7 @@ from puya.parse import SourceLocation
 
 class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
     def __init__(self, state_decl: AppStorageDeclaration, location: SourceLocation):
-        assert state_decl.kind is AppStorageKind.account_local
+        assert state_decl.decl_type is AppStorageDeclType.local_proxy
         super().__init__(location)
         self.state_decl = state_decl
 
@@ -220,7 +219,6 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class AppAccountStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
-    kind = AppStorageKind.account_local
     python_name = constants.CLS_LOCAL_STATE_ALIAS
     decl_type = AppStorageDeclType.local_proxy
 
@@ -247,6 +245,7 @@ def _build_field(
                 index.source_location,
             )
     return AppAccountStateExpression(
+        key=state_decl.key,
         field_name=state_decl.member_name,
         account=index_expr,
         wtype=state_decl.storage_wtype,

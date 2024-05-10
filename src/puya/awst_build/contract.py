@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Iterator, Mapping
 
 import mypy.nodes
@@ -91,14 +92,28 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
 
         app_state = {}
         for name, state_decl in context.state_defs[self.cref].items():
+            match state_decl.decl_type:
+                case AppStorageDeclType.global_proxy | AppStorageDeclType.global_direct:
+                    kind = AppStorageKind.app_global
+                case AppStorageDeclType.local_proxy:
+                    kind = AppStorageKind.account_local
+                case (
+                    AppStorageDeclType.box
+                    | AppStorageDeclType.box_ref
+                    | AppStorageDeclType.box_map
+                ):
+                    kind = AppStorageKind.box
+                case _:
+                    typing.assert_never(state_decl.decl_type)
+
             if state_decl.defined_in == self.cref:
                 app_state[name] = AppStorageDefinition(
-                    key_override=state_decl.key_override,
+                    key=state_decl.key,
                     description=state_decl.description,
                     storage_wtype=state_decl.storage_wtype,
                     key_wtype=state_decl.key_wtype,
                     source_location=state_decl.source_location,
-                    kind=state_decl.kind,
+                    kind=kind,
                     member_name=name,
                 )
 
@@ -479,7 +494,6 @@ def _gather_global_direct_storages(
             else:
                 yield AppStorageDeclaration(
                     member_name=name,
-                    kind=AppStorageKind.app_global,
                     storage_wtype=storage_wtype,
                     decl_type=AppStorageDeclType.global_direct,
                     source_location=var_loc,

@@ -90,10 +90,16 @@ class ToCodeVisitor(
         )
 
     def visit_app_state_expression(self, expr: nodes.AppStateExpression) -> str:
-        return f"this.{expr.field_name}"
+        if expr.field_name is not None:
+            return f"this.{expr.field_name}"
+        else:
+            return f"GlobalState[{expr.key.accept(self)}]"
 
     def visit_app_account_state_expression(self, expr: nodes.AppAccountStateExpression) -> str:
-        return f"this.{expr.field_name}[{expr.account.accept(self)}]"
+        if expr.field_name is not None:
+            return f"this.{expr.field_name}[{expr.account.accept(self)}]"
+        else:
+            return f"LocalState[{expr.key.accept}, {expr.account.accept(self)}]"
 
     def visit_box_proxy_field(self, expr: nodes.BoxProxyField) -> str:
         return f"this.{expr.field_name}"
