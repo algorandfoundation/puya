@@ -368,8 +368,8 @@ class FunctionASTConverter(
             raise InternalError("Assignment to self outside of a contract class", stmt_loc)
         if self.func_def.name != "__init__":
             raise CodeError(
-                f"{rvalue_pytyp} can only be assigned to a member variable"
-                " in the __init__ method",
+                f"{rvalue_pytyp.generic or rvalue_pytyp}"
+                " can only be assigned to a member variable in the __init__ method",
                 stmt_loc,
             )
         cref = self.contract_method_info.cref

@@ -186,9 +186,9 @@ class ASTConversionModuleContext(ASTConversionContext):
                 return pytypes.NoneType
             case mypy.types.UninhabitedType():
                 raise CodeError("Cannot resolve empty type", loc)
-            case mypy.types.AnyType():
-                # TODO: look at type_of_any to improve error message
-                raise CodeError("Any type is not supported", loc)
+            case mypy.types.AnyType(type_of_any=type_of_any):
+                msg = _type_of_any_to_error_message(type_of_any, loc)
+                raise CodeError(msg, loc)
             case mypy.types.FunctionLike() as func_like:
                 if func_like.is_type_obj():
                     msg = "References to type objects are not supported"
@@ -219,3 +219,27 @@ class ASTConversionModuleContext(ASTConversionContext):
                 type_args_resolved.append(self.type_to_pytype(ta, source_location=loc))
         result = generic.parameterise(type_args_resolved, loc)
         return result
+
+
+def _type_of_any_to_error_message(type_of_any: int, source_location: SourceLocation) -> str:
+    from mypy.types import TypeOfAny
+
+    match type_of_any:
+        case TypeOfAny.unannotated:
+            msg = "type annotation is required at this location"
+        case TypeOfAny.explicit | TypeOfAny.from_another_any:
+            msg = "Any type is not supported"
+        case TypeOfAny.from_unimported_type:
+            msg = "unknown type from import"
+        case TypeOfAny.from_omitted_generics:
+            msg = "type parameters are required at this location"
+        case TypeOfAny.from_error:
+            msg = "typing error prevents type resolution"
+        case TypeOfAny.special_form:
+            msg = "unsupported type form"
+        case TypeOfAny.implementation_artifact | TypeOfAny.suggestion_engine:
+            msg = "mypy cannot handle this type form, try providing an explicit annotation"
+        case _:
+            logger.debug(f"Unknown TypeOfAny value: {type_of_any}", location=source_location)
+            msg = "Any type is not supported"
+    return msg
