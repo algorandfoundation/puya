@@ -20,7 +20,6 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import constants
-from puya.awst_build.contract_data import AppStorageDeclType
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -149,7 +148,6 @@ class AppStateClassExpressionBuilder(IntermediateExpressionBuilder):
 
 class AppStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
     python_name = constants.CLS_GLOBAL_STATE_ALIAS
-    decl_type = AppStorageDeclType.global_proxy
 
 
 class AppStateExpressionBuilder(StateProxyMemberBuilder):
@@ -181,7 +179,7 @@ class AppStateExpressionBuilder(StateProxyMemberBuilder):
         return AppStateExpression(
             key=self.state_decl.key,
             field_name=self.state_decl.member_name,
-            wtype=self.state_decl.storage_wtype,
+            wtype=self.state_decl.definition.storage_wtype,
             source_location=location,
         )
 

@@ -17,8 +17,8 @@ from puya.awst.nodes import (
     StateGetEx,
     Statement,
 )
-from puya.awst_build import constants
-from puya.awst_build.contract_data import AppStorageDeclaration, AppStorageDeclType
+from puya.awst_build import constants, pytypes
+from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -37,7 +37,7 @@ from puya.parse import SourceLocation
 
 class AppAccountStateExpressionBuilder(StateProxyMemberBuilder):
     def __init__(self, state_decl: AppStorageDeclaration, location: SourceLocation):
-        assert state_decl.decl_type is AppStorageDeclType.local_proxy
+        assert state_decl.typ.generic is pytypes.GenericLocalStateType
         super().__init__(location)
         self.state_decl = state_decl
 
@@ -83,7 +83,7 @@ class AppAccountStateGetMethodBuilder(IntermediateExpressionBuilder):
         else:
             item, default_arg = args
         default_expr = expect_operand_wtype(
-            default_arg, target_wtype=self.state_decl.storage_wtype
+            default_arg, target_wtype=self.state_decl.definition.storage_wtype
         )
         expr = StateGet(
             field=_build_field(self.state_decl, item, location),
@@ -220,7 +220,6 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
 
 class AppAccountStateProxyDefinitionBuilder(StateProxyDefinitionBuilder):
     python_name = constants.CLS_LOCAL_STATE_ALIAS
-    decl_type = AppStorageDeclType.local_proxy
 
 
 def _build_field(
@@ -248,6 +247,6 @@ def _build_field(
         key=state_decl.key,
         field_name=state_decl.member_name,
         account=index_expr,
-        wtype=state_decl.storage_wtype,
+        wtype=state_decl.definition.storage_wtype,
         source_location=location,
     )

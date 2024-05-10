@@ -1,43 +1,29 @@
-import enum
+from functools import cached_property
 
 import attrs
 
-from puya.awst import wtypes
-from puya.awst.nodes import BytesConstant, BytesEncoding, ContractReference, StateTotals
-from puya.errors import InternalError
+from puya.awst.nodes import (
+    AppStorageDefinition,
+    AppStorageKind,
+    BytesConstant,
+    BytesEncoding,
+    ContractReference,
+    StateTotals,
+)
+from puya.awst_build import pytypes
 from puya.parse import SourceLocation
 from puya.utils import StableSet
-
-
-@enum.unique
-class AppStorageDeclType(enum.Enum):
-    local_proxy = enum.auto()
-    global_proxy = enum.auto()
-    global_direct = enum.auto()
-    box = enum.auto()
-    box_ref = enum.auto()
-    box_map = enum.auto()
 
 
 @attrs.frozen
 class AppStorageDeclaration:
     member_name: str
-    decl_type: AppStorageDeclType
-    storage_wtype: wtypes.WType
-    key_wtype: wtypes.WType | None = attrs.field()
-    """Should only be set if the storage is a map"""
+    typ: pytypes.PyType
     key_override: BytesConstant | None
     """If a map type, then this is the prefix override"""
     source_location: SourceLocation
     defined_in: ContractReference
     description: str | None
-
-    @key_wtype.validator
-    def _key_wtype_validator(self, _attribute: object, key_wtype: wtypes.WType | None) -> None:
-        has_key_type = key_wtype is not None
-        is_map_type = self.decl_type is AppStorageDeclType.box_map
-        if has_key_type != is_map_type:
-            raise InternalError("key_wtype should only be set for box_map")
 
     @property
     def key(self) -> BytesConstant:
@@ -47,6 +33,36 @@ class AppStorageDeclaration:
             value=self.member_name.encode("utf8"),
             encoding=BytesEncoding.utf8,
             source_location=self.source_location,
+        )
+
+    @cached_property
+    def definition(self) -> AppStorageDefinition:
+        key_wtype = None
+        match self.typ:
+            case pytypes.StorageProxyType(generic=pytypes.GenericLocalStateType, content=content):
+                kind = AppStorageKind.account_local
+            case pytypes.StorageProxyType(generic=pytypes.GenericGlobalStateType, content=content):
+                kind = AppStorageKind.app_global
+            case pytypes.BoxRefType:
+                kind = AppStorageKind.box
+                content = pytypes.BytesType
+            case pytypes.StorageProxyType(generic=pytypes.GenericBoxType, content=content):
+                kind = AppStorageKind.box
+            case pytypes.StorageMapProxyType(
+                generic=pytypes.GenericBoxMapType, content=content, key=key_typ
+            ):
+                kind = AppStorageKind.box
+                key_wtype = key_typ.wtype
+            case _ as content:
+                kind = AppStorageKind.app_global
+        return AppStorageDefinition(
+            key=self.key,
+            description=self.description,
+            storage_wtype=content.wtype,
+            key_wtype=key_wtype,
+            source_location=self.source_location,
+            kind=kind,
+            member_name=self.member_name,
         )
 
 

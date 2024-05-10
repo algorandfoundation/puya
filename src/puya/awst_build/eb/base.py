@@ -18,7 +18,7 @@ from puya.awst.nodes import (
     TupleExpression,
     TupleItemExpression,
 )
-from puya.awst_build.contract_data import AppStorageDeclaration, AppStorageDeclType
+from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -28,6 +28,7 @@ if typing.TYPE_CHECKING:
     import mypy.types
 
     from puya.awst import wtypes
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 __all__ = [
@@ -253,7 +254,6 @@ class StateProxyMemberBuilder(IntermediateExpressionBuilder):
 
 class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
     python_name: str
-    decl_type: typing.Literal[AppStorageDeclType.global_proxy, AppStorageDeclType.local_proxy]
 
     def __init__(
         self,
@@ -270,17 +270,19 @@ class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
         self.initial_value = initial_value
 
     def build_definition(
-        self, member_name: str, defined_in: ContractReference, location: SourceLocation
+        self,
+        member_name: str,
+        defined_in: ContractReference,
+        typ: pytypes.PyType,
+        location: SourceLocation,
     ) -> AppStorageDeclaration:
         return AppStorageDeclaration(
             description=self.description,
             member_name=member_name,
             key_override=self.key_override,
             source_location=location,
-            storage_wtype=self.storage,
-            key_wtype=None,
+            typ=typ,
             defined_in=defined_in,
-            decl_type=self.decl_type,
         )
 
     def rvalue(self) -> Expression:

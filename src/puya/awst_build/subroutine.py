@@ -49,7 +49,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.contract_data import AppStorageDeclaration, AppStorageDeclType
+from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
@@ -62,11 +62,6 @@ from puya.awst_build.eb.base import (
     StateProxyDefinitionBuilder,
 )
 from puya.awst_build.eb.bool import BoolClassExpressionBuilder
-from puya.awst_build.eb.box import (
-    BoxMapProxyExpressionBuilder,
-    BoxProxyExpressionBuilder,
-    BoxRefProxyExpressionBuilder,
-)
 from puya.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
@@ -335,12 +330,9 @@ class FunctionASTConverter(
                             stmt_loc,
                         )
         rvalue = require_expression_builder(stmt.rvalue.accept(self))
-        if isinstance(
-            rvalue,
-            StateProxyDefinitionBuilder
-            | BoxProxyExpressionBuilder
-            | BoxRefProxyExpressionBuilder
-            | BoxMapProxyExpressionBuilder,
+        rvalue_pytyp = self.context.mypy_expr_node_type(stmt.rvalue)
+        if rvalue_pytyp is pytypes.BoxRefType or isinstance(
+            rvalue_pytyp, pytypes.StorageProxyType | pytypes.StorageMapProxyType
         ):
             try:
                 (lvalue,) = stmt.lvalues
@@ -348,10 +340,10 @@ class FunctionASTConverter(
                 # this is true regardless of whether it's a self assignment or not,
                 # these are objects so aliasing is an issue in terms of semantic compatibility
                 raise CodeError(
-                    f"{rvalue.python_name} can only be assigned to a single variable", stmt_loc
+                    f"{rvalue_pytyp} can only be assigned to a single variable", stmt_loc
                 ) from None
             if is_self_member(lvalue):
-                return self._handle_proxy_assignment(lvalue, rvalue, stmt_loc)
+                return self._handle_proxy_assignment(lvalue, rvalue, rvalue_pytyp, stmt_loc)
         elif len(stmt.lvalues) > 1:
             # TODO: PyType from rvalue, since it's guaranteed to be EB
             rvalue = temporary_assignment_if_required(rvalue)
@@ -368,52 +360,49 @@ class FunctionASTConverter(
     def _handle_proxy_assignment(
         self,
         lvalue: mypy.nodes.MemberExpr,
-        rvalue: (
-            StateProxyDefinitionBuilder
-            | BoxProxyExpressionBuilder
-            | BoxRefProxyExpressionBuilder
-            | BoxMapProxyExpressionBuilder
-        ),
+        rvalue: ExpressionBuilder,
+        rvalue_pytyp: pytypes.PyType,
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
         if self.contract_method_info is None:
             raise InternalError("Assignment to self outside of a contract class", stmt_loc)
         if self.func_def.name != "__init__":
             raise CodeError(
-                f"{rvalue.python_name} can only be assigned to a member variable"
+                f"{rvalue_pytyp} can only be assigned to a member variable"
                 " in the __init__ method",
                 stmt_loc,
             )
         cref = self.contract_method_info.cref
         if isinstance(rvalue, StateProxyDefinitionBuilder):
-            return self._handle_state_proxy_assignment(cref, lvalue, rvalue, stmt_loc)
+            return self._handle_state_proxy_assignment(
+                cref, lvalue, rvalue, rvalue_pytyp, stmt_loc
+            )
         else:
-            return self._handle_box_proxy_assignment(cref, lvalue, rvalue, stmt_loc)
+            return self._handle_box_proxy_assignment(cref, lvalue, rvalue, rvalue_pytyp, stmt_loc)
 
     def _handle_state_proxy_assignment(
         self,
         cref: ContractReference,
         lvalue: mypy.nodes.MemberExpr,
         rvalue: StateProxyDefinitionBuilder,
+        rvalue_pytyp: pytypes.PyType,
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
         member_name = lvalue.name
         member_loc = self._location(lvalue)
-        defn = rvalue.build_definition(member_name, cref, member_loc)
+        defn = rvalue.build_definition(member_name, cref, rvalue_pytyp, member_loc)
         self.context.state_defs[cref][member_name] = defn
         if rvalue.initial_value is None:
             return []
-        elif defn.decl_type != AppStorageDeclType.global_proxy:
+        elif rvalue_pytyp.generic is not pytypes.GenericGlobalStateType:
             raise InternalError(
-                f"Don't know how to do initialise-on-declaration"
-                f" for storage of kind {defn.decl_type}",
-                stmt_loc,
+                f"Don't know how to do initialise-on-declaration for {rvalue_pytyp}", stmt_loc
             )
         else:
             global_state_target = AppStateExpression(
                 key=defn.key,
                 field_name=defn.member_name,
-                wtype=defn.storage_wtype,
+                wtype=defn.definition.storage_wtype,
                 source_location=defn.source_location,
             )
             return [
@@ -428,42 +417,25 @@ class FunctionASTConverter(
         self,
         cref: ContractReference,
         lvalue: mypy.nodes.MemberExpr,
-        rvalue: (
-            BoxRefProxyExpressionBuilder | BoxProxyExpressionBuilder | BoxMapProxyExpressionBuilder
-        ),
+        rvalue: ExpressionBuilder,
+        rvalue_pytyp: pytypes.PyType,
         stmt_loc: SourceLocation,
     ) -> Sequence[Statement]:
         member_name = lvalue.name
         key = rvalue.rvalue()
         match key:
-            case BoxProxyExpression(key=BytesConstant() as key_override, wtype=expr_wtype):
-                if expr_wtype is wtypes.box_ref_proxy_type:
-                    decl_type = AppStorageDeclType.box_ref
-                    key_wtype = None
-                    storage_wtype = wtypes.bytes_wtype
-                elif isinstance(expr_wtype, wtypes.WBoxProxy):
-                    decl_type = AppStorageDeclType.box
-                    key_wtype = None
-                    storage_wtype = expr_wtype.content_wtype
-                elif isinstance(expr_wtype, wtypes.WBoxMapProxy):
-                    decl_type = AppStorageDeclType.box_map
-                    key_wtype = expr_wtype.key_wtype
-                    storage_wtype = expr_wtype.content_wtype
-                else:
-                    raise InternalError("Unexpected")
+            case BoxProxyExpression(key=BytesConstant() as key_override):
                 self.context.state_defs[cref][member_name] = AppStorageDeclaration(
                     member_name=member_name,
                     key_override=key_override,
                     source_location=key.source_location,
-                    key_wtype=key_wtype,
-                    storage_wtype=storage_wtype,
+                    typ=rvalue_pytyp,
                     description=None,
-                    decl_type=decl_type,
                     defined_in=cref,
                 )
                 return []
         raise CodeError(
-            f"{rvalue.python_name} must be declared with compile time static keys"
+            f"{rvalue_pytyp} must be declared with compile time static keys"
             f" when assigned to 'self'",
             stmt_loc,
         )
