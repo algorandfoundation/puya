@@ -229,20 +229,48 @@ class ASTConversionModuleContext(ASTConversionContext):
                 msg = _type_of_any_to_error_message(type_of_any, loc)
                 raise CodeError(msg, loc)
             case mypy.types.FunctionLike() as func_like:
-                if not func_like.is_type_obj():
-                    raise CodeError("Function references are not supported", loc)
-                if isinstance(func_like, mypy.types.CallableType):
-                    ret_type = func_like.ret_type
-                elif isinstance(func_like, mypy.types.Overloaded):
-                    # note sure if this will always work, but the only overloaded
+                if func_like.is_type_obj():
+                    # note sure if this will always work for overloads, but the only overloaded
                     # constructor we have is arc4.StaticArray, so...
                     ret_type = func_like.items[0].ret_type
+                    typ_typ = self.type_to_pytype(ret_type, source_location=loc)
+                    return pytypes.GenericTypeType.parameterise([typ_typ], loc)
                 else:
-                    raise InternalError(
-                        f"Unable to resolve type object from {type(func_like).__name__}", loc
+                    if not isinstance(func_like, mypy.types.CallableType):  # vs Overloaded
+                        raise CodeError(
+                            "References to overloaded functions are not supported", loc
+                        )
+                    ret_pytype = self.type_to_pytype(func_like.ret_type, source_location=loc)
+                    func_args = []
+                    for at, name, kind in zip(
+                        func_like.arg_types, func_like.arg_names, func_like.arg_kinds, strict=True
+                    ):
+                        func_args.append(
+                            pytypes.FuncArg(
+                                typ=self.type_to_pytype(at, source_location=loc),
+                                kind=kind,
+                                name=name,
+                            )
+                        )
+                    if None in func_like.bound_args:
+                        logger.debug(
+                            "None contained in bound args for function reference", location=loc
+                        )
+                    bound_args = [
+                        self.type_to_pytype(ba, source_location=loc)
+                        for ba in func_like.bound_args
+                        if ba is not None
+                    ]
+                    if func_like.definition is not None:
+                        name = func_like.definition.fullname
+                    else:
+                        name = repr(func_like)
+                    return pytypes.FuncType(
+                        name=name,
+                        args=func_args,
+                        ret_type=ret_pytype,
+                        bound_arg_types=bound_args,
                     )
-                typ_typ = self.type_to_pytype(ret_type, source_location=loc)
-                return pytypes.GenericTypeType.parameterise([typ_typ], loc)
             case _:
                 raise CodeError(
                     f"Unable to resolve mypy type {mypy_type!r} to known algopy type", loc

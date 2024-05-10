@@ -54,7 +54,9 @@ def strip_error_prefixes(br: mypy.build.BuildResult) -> list[str]:
     return [e.split(":", maxsplit=2)[-1].strip() for e in br.errors]
 
 
-def get_revealed_types(br: mypy.build.BuildResult, tree: mypy.nodes.MypyFile) -> list[str]:
+def get_revealed_types(
+    br: mypy.build.BuildResult, tree: mypy.nodes.MypyFile
+) -> list[mypy.types.Type]:
     types = []
     for stmt in tree.defs:
         match stmt:
@@ -62,7 +64,7 @@ def get_revealed_types(br: mypy.build.BuildResult, tree: mypy.nodes.MypyFile) ->
                 expr=mypy.nodes.CallExpr(analyzed=mypy.nodes.RevealExpr(expr=expr))
             ):
                 et = br.types[expr]
-                types.append(repr(et))
+                types.append(et)
     return types
 
 
@@ -708,7 +710,7 @@ def test_if_else_expr_combined_type() -> None:
     ]
     tree = result.graph[TEST_MODULE].tree
     assert tree
-    assert get_revealed_types(result, tree) == [
+    assert list(map(repr, get_revealed_types(result, tree))) == [
         "__test__.Base",
         "builtins.object",
         "Union[builtins.str, builtins.int]",
@@ -749,7 +751,7 @@ def test_or_expr_combined_type() -> None:
     ]
     tree = result.graph[TEST_MODULE].tree
     assert tree
-    assert get_revealed_types(result, tree) == [
+    assert list(map(repr, get_revealed_types(result, tree))) == [
         "__test__.Base",
         "__test__.Base",
         "Union[Literal[True], __test__.Base]",
@@ -905,3 +907,53 @@ def test_dataclass_transform_frozen() -> None:
     assert frozen_struct_cls_def.info.metadata["dataclass"]["frozen"] is True
     unfrozen_struct_cls_def = get_class_by_name(tree, "UnfrozenStruct")
     assert unfrozen_struct_cls_def.info.metadata["dataclass"]["frozen"] is False
+
+
+def test_bound_method_types() -> None:
+    def test():
+        import typing
+
+        def func(
+            a: bool,
+            /,
+            b: int,
+            b2: None = None,
+            *args: str,
+            c: bytes,
+            d: float | None = None,
+            **kwargs: complex,
+        ) -> bool:
+            return a
+
+        class Class:
+            def __init__(self) -> None:
+                pass
+
+            @staticmethod
+            def static_method(b: int) -> int:
+                return b
+
+            @classmethod
+            def class_method(cls, c: str) -> str:
+                return c
+
+            def instance_method(self, d: bytes) -> bytes:
+                return d
+
+        typing.reveal_type(func)
+        typing.reveal_type(Class)
+        typing.reveal_type(Class.__init__)
+        typing.reveal_type(Class.static_method)
+        typing.reveal_type(Class.class_method)
+        typing.reveal_type(Class.instance_method)
+        inst = Class()
+        typing.reveal_type(inst.static_method)
+        typing.reveal_type(inst.class_method)
+        typing.reveal_type(inst.instance_method)
+
+    result = mypy_parse_and_type_check(test)
+    tree = result.graph[TEST_MODULE].tree
+    assert tree
+    reveled_types = get_revealed_types(result, tree)
+    assert len(reveled_types) == 9
+    assert all(isinstance(t, mypy.types.CallableType) for t in reveled_types)

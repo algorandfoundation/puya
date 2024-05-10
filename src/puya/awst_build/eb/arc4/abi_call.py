@@ -203,7 +203,7 @@ class ABICallClassExpressionBuilder(TypeClassExpressionBuilder):
                     )
             case (
                 ARC4ClientMethodExpressionBuilder() | BaseClassSubroutineInvokerExpressionBuilder()
-            ) as eb:
+            ) as eb: # TODO: can probably use func type from arg_typs now
                 signature = get_arc4_signature(eb.context, eb.type_info, eb.name, location)
                 result_wtype = (
                     signature.return_type.wtype if signature.return_type is not None else None

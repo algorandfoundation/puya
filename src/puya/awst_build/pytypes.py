@@ -15,6 +15,9 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
+if typing.TYPE_CHECKING:
+    from mypy.nodes import ArgKind
+
 logger = log.get_logger(__name__)
 
 
@@ -140,6 +143,7 @@ class _GenericType(PyType, abc.ABC):
         )
 
 
+@typing.final
 @attrs.frozen
 class TypeType(PyType):
     typ: PyType
@@ -171,6 +175,7 @@ GenericTypeType: typing.Final[PyType] = _GenericType(
 )
 
 
+@typing.final
 @attrs.frozen
 class TupleType(PyType):
     generic: _GenericType
@@ -178,6 +183,7 @@ class TupleType(PyType):
     wtype: wtypes.WType
 
 
+@typing.final
 @attrs.frozen
 class ArrayType(PyType):
     generic: _GenericType
@@ -186,18 +192,42 @@ class ArrayType(PyType):
     wtype: wtypes.WType
 
 
+@typing.final
 @attrs.frozen
 class StorageProxyType(PyType):
     content: PyType
     wtype: wtypes.WType
 
 
+@typing.final
 @attrs.frozen
 class StorageMapProxyType(PyType):
     generic: _GenericType
     key: PyType
     content: PyType
     wtype: wtypes.WType
+
+
+@typing.final
+@attrs.frozen
+class FuncArg:
+    typ: PyType
+    name: str | None
+    kind: ArgKind
+
+
+@typing.final
+@attrs.frozen(kw_only=True)
+class FuncType(PyType):
+    generic: None = None
+    ret_type: PyType
+    args: Sequence[FuncArg] = attrs.field(converter=tuple[FuncArg, ...])
+    bound_arg_types: Sequence[PyType] = attrs.field(converter=tuple[PyType, ...])
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError("function objects are not usable as values")
 
 
 @typing.final
@@ -834,7 +864,7 @@ def _parameterise_any_compile_time(
         if isinstance(arg, PyType):
             arg_names.append(arg.name)
         else:
-            arg_names.append(f"typing.Literal[{arg}]")
+            arg_names.append(f"typing.Literal[{arg!r}]")
     name = f"{self.name}[{', '.join(arg_names)}]"
     return _CompileTimeType(name=name, generic=self, wtype_error="{self} is not usable at runtime")
 
