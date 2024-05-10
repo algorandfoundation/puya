@@ -24,7 +24,7 @@ from puya.awst.nodes import (
     TupleItemExpression,
     UInt64Constant,
 )
-from puya.awst_build import intrinsic_factory
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb._utils import get_bytes_expr, get_bytes_expr_builder
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -51,12 +51,14 @@ logger = log.get_logger(__name__)
 
 
 class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.string_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.string_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -180,6 +182,7 @@ class _StringStartsOrEndsWith(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -234,6 +237,7 @@ class _StringJoin(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

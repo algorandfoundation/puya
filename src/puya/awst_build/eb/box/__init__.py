@@ -1,6 +1,11 @@
-from puya.awst_build.eb.box.box import BoxClassExpressionBuilder, BoxProxyExpressionBuilder
+from puya.awst_build.eb.box.box import (
+    BoxClassExpressionBuilder,
+    BoxClassGenericExpressionBuilder,
+    BoxProxyExpressionBuilder,
+)
 from puya.awst_build.eb.box.box_map import (
     BoxMapClassExpressionBuilder,
+    BoxMapClassGenericExpressionBuilder,
     BoxMapProxyExpressionBuilder,
 )
 from puya.awst_build.eb.box.box_ref import (
@@ -10,9 +15,11 @@ from puya.awst_build.eb.box.box_ref import (
 
 __all__ = [
     "BoxClassExpressionBuilder",
+    "BoxClassGenericExpressionBuilder",
     "BoxProxyExpressionBuilder",
     "BoxRefClassExpressionBuilder",
     "BoxRefProxyExpressionBuilder",
     "BoxMapClassExpressionBuilder",
+    "BoxMapClassGenericExpressionBuilder",
     "BoxMapProxyExpressionBuilder",
 ]

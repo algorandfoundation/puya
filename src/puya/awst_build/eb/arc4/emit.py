@@ -10,7 +10,7 @@ from puya.awst.nodes import (
     Literal,
     MethodConstant,
 )
-from puya.awst_build import intrinsic_factory
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.arc4._utils import (
     arc4_tuple_from_items,
     get_arc4_args_and_signature,
@@ -34,6 +34,7 @@ class EmitBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -45,7 +46,9 @@ class EmitBuilder(IntermediateExpressionBuilder):
                 event_name = struct_type.stub_name.split(".")[-1]
                 event_arg = event_arg_eb.rvalue()
             case [Literal(value=str(event_str)), *event_args]:
-                arc4_args, signature = get_arc4_args_and_signature(event_str, event_args, location)
+                arc4_args, signature = get_arc4_args_and_signature(
+                    event_str, arg_typs[1:], event_args, location
+                )
                 if signature.return_type is not None:
                     after_args = pytype_to_arc4(signature.return_type)
                     raise CodeError(

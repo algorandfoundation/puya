@@ -6,7 +6,7 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, Literal, UInt64Constant
+from puya.awst.nodes import Expression, Literal, ReinterpretCast, UInt64Constant
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
@@ -16,6 +16,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 
@@ -23,12 +24,14 @@ logger = log.get_logger(__name__)
 
 
 class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.application_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.application_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -44,7 +47,10 @@ class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
                 uint64_expr = UInt64Constant(value=0, source_location=location)
-        return ApplicationExpressionBuilder(uint64_expr)
+        app_expr = ReinterpretCast(
+            source_location=location, wtype=wtypes.application_wtype, expr=uint64_expr
+        )
+        return ApplicationExpressionBuilder(app_expr)
 
 
 class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):

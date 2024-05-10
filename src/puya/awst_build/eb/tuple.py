@@ -1,4 +1,7 @@
+import typing
 from collections.abc import Sequence
+
+import mypy.nodes
 
 from puya import log
 from puya.awst import wtypes
@@ -11,13 +14,16 @@ from puya.awst.nodes import (
     IntegerConstant,
     Literal,
     SliceExpression,
+    TupleExpression,
     TupleItemExpression,
     UInt64Constant,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
+    GenericClassExpressionBuilder,
     Iteration,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -32,39 +38,50 @@ from puya.utils import clamp, positive_index
 logger = log.get_logger(__name__)
 
 
-class TupleTypeExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        try:
-            return self.wtype
-        except AttributeError as ex:
-            raise CodeError(
-                "Unparameterized tuple class cannot be used as a type", self.source_location
-            ) from ex
-
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
+class GenericTupleTypeExpressionBuilder(GenericClassExpressionBuilder):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
     ) -> ExpressionBuilder:
-        return self.index_multiple((index,), location)
+        tuple_expr = TupleExpression.from_items(
+            [require_expression_builder(a).rvalue() for a in args], location
+        )
+        return TupleExpressionBuilder(tuple_expr)
 
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> TypeClassExpressionBuilder:
-        tuple_item_types = list[wtypes.WType]()
-        for index in indexes:
-            match index:
-                case TypeClassExpressionBuilder() as type_class:
-                    wtype = type_class.produces()
-                    if wtype is wtypes.void_wtype:
-                        raise CodeError("Tuples cannot contain None values", location)
-                    tuple_item_types.append(wtype)
-                case _:
-                    raise CodeError("Expected a type", index.source_location)
-        self.wtype = wtypes.WTuple(tuple_item_types, location)
-        return self
+
+class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[wtypes.WTuple]):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.TupleType)
+        assert typ.generic == pytypes.GenericTupleType
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.WTuple)
+        super().__init__(wtype, location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        tuple_expr = TupleExpression(
+            items=[require_expression_builder(a).rvalue() for a in args],
+            wtype=self.produces(),
+            source_location=location,
+        )
+        return TupleExpressionBuilder(tuple_expr)
 
 
 class TupleExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.WTuple)
         self.wtype: wtypes.WTuple = expr.wtype
         super().__init__(expr)

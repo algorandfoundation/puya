@@ -21,6 +21,7 @@ from puya.awst_build import constants, pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    GenericClassExpressionBuilder,
     IntermediateExpressionBuilder,
     StateProxyDefinitionBuilder,
     StateProxyMemberBuilder,
@@ -72,6 +73,7 @@ class AppAccountStateGetMethodBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -102,6 +104,7 @@ class AppAccountStateMaybeMethodBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -125,18 +128,18 @@ class AppAccountStateForAccountExpressionBuilder(ValueProxyExpressionBuilder):
         return StateDelete(field=self.__field, source_location=location)
 
 
-class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
+class AppAccountStateClassExpressionBuilder(GenericClassExpressionBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(location)
         self._storage: wtypes.WType | None = None
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
+    def index_multiple(
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
         if self._storage is not None:
             raise InternalError("Multiple indexing of Local?", location)
-        match index:
-            case TypeClassExpressionBuilder() as typ_class_eb:
+        match indexes:
+            case [TypeClassExpressionBuilder() as typ_class_eb]:
                 self.source_location += location
                 self._storage = typ_class_eb.produces()
                 return self
@@ -149,6 +152,7 @@ class AppAccountStateClassExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

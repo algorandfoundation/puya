@@ -153,21 +153,25 @@ def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.
         pass
     if uint := _UINT_REGEX.match(typ):
         n = int(uint.group("n"))
+        n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
         if n <= 64:
-            return pytypes.GenericARC4UIntNType.parameterise([n], location)
+            return pytypes.GenericARC4UIntNType.parameterise([n_typ], location)
         else:
-            return pytypes.GenericARC4BigUIntNType.parameterise([n], location)
+            return pytypes.GenericARC4BigUIntNType.parameterise([n_typ], location)
     if ufixed := _UFIXED_REGEX.match(typ):
         n, m = map(int, ufixed.group("n", "m"))
+        n_typ = pytypes.TypingLiteralType(value=n, source_location=None)
+        m_typ = pytypes.TypingLiteralType(value=n, source_location=None)
         if n <= 64:
-            return pytypes.GenericARC4UFixedNxMType.parameterise([n, m], location)
+            return pytypes.GenericARC4UFixedNxMType.parameterise([n_typ, m_typ], location)
         else:
-            return pytypes.GenericARC4BigUFixedNxMType.parameterise([n, m], location)
+            return pytypes.GenericARC4BigUFixedNxMType.parameterise([n_typ, m_typ], location)
     if fixed_array := _FIXED_ARRAY_REGEX.match(typ):
         arr_type, size_str = fixed_array.group("type", "size")
         size = int(size_str)
+        size_typ = pytypes.TypingLiteralType(value=size, source_location=None)
         element_type = arc4_to_pytype(arr_type, location)
-        return pytypes.GenericARC4StaticArrayType.parameterise([element_type, size], location)
+        return pytypes.GenericARC4StaticArrayType.parameterise([element_type, size_typ], location)
     if dynamic_array := _DYNAMIC_ARRAY_REGEX.match(typ):
         arr_type = dynamic_array.group("type")
         element_type = arc4_to_pytype(arr_type, location)

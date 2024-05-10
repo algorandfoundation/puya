@@ -2,6 +2,14 @@ import typing
 
 from algopy import Account, Application, Asset, BigUInt, Bytes, UInt64
 
+class EC(str):
+    """Available values for the `EC` enum"""
+
+    BN254g1: EC = ...
+    BN254g2: EC = ...
+    BLS12_381g1: EC = ...
+    BLS12_381g2: EC = ...
+
 class Base64(str):
     """Available values for the `base64` enum"""
 
@@ -18,14 +26,6 @@ class VrfVerify(str):
     """Available values for the `vrf_verify` enum"""
 
     VrfAlgorand: VrfVerify = ...
-
-class EC(str):
-    """Available values for the `EC` enum"""
-
-    BN254g1: EC = ...
-    BN254g2: EC = ...
-    BLS12_381g1: EC = ...
-    BLS12_381g2: EC = ...
 
 def addw(a: UInt64 | int, b: UInt64 | int, /) -> tuple[UInt64, UInt64]:
     """

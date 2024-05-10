@@ -32,6 +32,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 _parameter_mapping: typing.Final = {get_field_python_name(f): f for f in INNER_PARAM_TXN_FIELDS}
@@ -82,17 +83,17 @@ def _maybe_transform_program_field_expr(
     return field, expr
 
 
-class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
+class InnerTxnParamsClassExpressionBuilder(
+    TypeClassExpressionBuilder[wtypes.WInnerTransactionFields]
+):
     def __init__(self, source_location: SourceLocation, wtype: wtypes.WInnerTransactionFields):
-        super().__init__(source_location)
-        self.wtype = wtype
+        super().__init__(wtype, source_location)
 
-    def produces(self) -> wtypes.WInnerTransactionFields:
-        return self.wtype
-
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -103,7 +104,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
                 value=0,
             )
         }
-        transaction_type = self.wtype.transaction_type
+        transaction_type = self.produces().transaction_type
         if transaction_type:
             transaction_fields[TxnFields.type] = UInt64Constant(
                 source_location=self.source_location,
@@ -135,6 +136,7 @@ class ParamsSubmitExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -161,6 +163,7 @@ class CopyInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -184,6 +187,7 @@ class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -210,7 +214,8 @@ class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
 class InnerTxnParamsExpressionBuilder(ValueExpressionBuilder):
     wtype: wtypes.WInnerTransactionFields
 
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         self.wtype = expect_wtype(expr, wtypes.WInnerTransactionFields)
         super().__init__(expr)
 

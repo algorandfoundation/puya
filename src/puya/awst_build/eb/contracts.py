@@ -60,7 +60,7 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
         self._type_info = type_info
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
-        state_decl = self.context.state_defs[qualified_class_name(self._type_info)].get(name)
+        state_decl = self.context.state_defs(qualified_class_name(self._type_info)).get(name)
         if state_decl is not None:
             return _builder_for_storage_access(state_decl, location)
 

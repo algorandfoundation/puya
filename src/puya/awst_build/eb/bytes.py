@@ -26,7 +26,7 @@ from puya.awst.nodes import (
     Statement,
     SubroutineCallExpression,
 )
-from puya.awst_build import intrinsic_factory
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.constants import CLS_BYTES_ALIAS
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -58,12 +58,14 @@ logger = log.get_logger(__name__)
 
 
 class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.bytes_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.bytes_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -79,6 +81,7 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
                 value = BytesConstant(value=b"", source_location=location)
         return BytesExpressionBuilder(value)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         """Handle self.name"""
         match name:
@@ -102,6 +105,7 @@ class BytesFromEncodedStrBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

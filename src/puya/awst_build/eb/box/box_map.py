@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
@@ -15,9 +16,10 @@ from puya.awst.nodes import (
     StateGet,
     StateGetEx,
 )
-from puya.awst_build import constants
+from puya.awst_build import constants, pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    GenericClassExpressionBuilder,
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -37,39 +39,12 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 
-class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        if self.wtype:
-            return self.wtype
-        raise InternalError(
-            "Cannot resolve wtype of generic EB until the index method is called with the "
-            "generic type parameter."
-        )
-
-    def __init__(self, location: SourceLocation) -> None:
-        super().__init__(location)
-        self.wtype: wtypes.WBoxMapProxy | None = None
-
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> TypeClassExpressionBuilder:
-        match indexes:
-            case [
-                TypeClassExpressionBuilder() as key_eb,
-                TypeClassExpressionBuilder() as contents_eb,
-            ]:
-                key_wtype = key_eb.produces()
-                content_wtype = contents_eb.produces()
-                self.wtype = wtypes.WBoxMapProxy.from_key_and_content_type(
-                    key_wtype=key_wtype, content_wtype=content_wtype
-                )
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-        return self
-
+class BoxMapClassGenericExpressionBuilder(GenericClassExpressionBuilder):
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -85,9 +60,48 @@ class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder):
         key_wtype = require_type_class_eb(arg_map.pop("key_type")).produces()
         content_wtype = require_type_class_eb(arg_map.pop("_type")).produces()
         wtype = wtypes.WBoxMapProxy.from_key_and_content_type(key_wtype, content_wtype)
-        if not self.wtype:
-            self.wtype = wtype
-        elif self.wtype != wtype:
+        key_prefix = expect_operand_wtype(
+            arg_map.pop("key_prefix", Literal(value=b"", source_location=location)),
+            wtypes.bytes_wtype,
+        )
+
+        if arg_map:
+            raise CodeError("Invalid/unhandled arguments", location)
+
+        return BoxMapProxyExpressionBuilder(
+            expr=BoxProxyExpression(key=key_prefix, wtype=wtype, source_location=location)
+        )
+
+
+class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WBoxMapProxy]):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
+        assert isinstance(typ, pytypes.StorageMapProxyType)
+        assert typ.generic == pytypes.GenericBoxMapType
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.WBoxMapProxy)
+        super().__init__(wtype, location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        arg_map = get_arg_mapping(
+            positional_arg_names=(
+                "key_type",
+                "_type",
+            ),
+            args=zip(arg_names, args, strict=True),
+            location=location,
+        )
+        key_wtype = require_type_class_eb(arg_map.pop("key_type")).produces()
+        content_wtype = require_type_class_eb(arg_map.pop("_type")).produces()
+        wtype = self.produces()
+        if wtype != wtypes.WBoxMapProxy.from_key_and_content_type(key_wtype, content_wtype):
             raise CodeError(
                 f"{constants.CLS_BOX_MAP_PROXY} explicit type annotation"
                 f" does not match first argument - suggest to remove the explicit type annotation,"
@@ -104,7 +118,7 @@ class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder):
             raise CodeError("Invalid/unhandled arguments", location)
 
         return BoxMapProxyExpressionBuilder(
-            expr=BoxProxyExpression(key=key_prefix, wtype=self.wtype, source_location=location)
+            expr=BoxProxyExpression(key=key_prefix, wtype=wtype, source_location=location)
         )
 
 
@@ -137,7 +151,8 @@ class BoxMapProxyExpressionBuilder(ValueExpressionBuilder):
     wtype: wtypes.WBoxMapProxy
     python_name = constants.CLS_BOX_MAP_PROXY
 
-    def __init__(self, expr: Expression) -> None:
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         if not isinstance(expr.wtype, wtypes.WBoxMapProxy):
             raise InternalError(
                 "BoxMapProxyExpressionBuilder can only be created with expressions of "
@@ -191,6 +206,7 @@ class BoxMapLengthMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -211,6 +227,7 @@ class BoxMapGetMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -234,6 +251,7 @@ class BoxMapMaybeMethodExpressionBuilder(BoxMapMethodExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

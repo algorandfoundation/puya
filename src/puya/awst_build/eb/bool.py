@@ -27,18 +27,21 @@ if typing.TYPE_CHECKING:
 
     import mypy.types
 
+    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
 
 class BoolClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.bool_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.bool_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

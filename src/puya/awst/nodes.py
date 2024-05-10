@@ -769,7 +769,7 @@ def scalar_expr_validator(_instance: object, _attribute: object, value: Expressi
 @attrs.frozen
 class TupleExpression(Expression):
     items: Sequence[Expression] = attrs.field(converter=tuple[Expression, ...])
-    wtype: wtypes.WTuple
+    wtype: wtypes.WTuple = attrs.field()
 
     @classmethod
     def from_items(cls, items: Sequence[Expression], location: SourceLocation) -> TupleExpression:
@@ -778,6 +778,11 @@ class TupleExpression(Expression):
             wtype=wtypes.WTuple((i.wtype for i in items), location),
             source_location=location,
         )
+
+    @wtype.validator
+    def _wtype_validator(self, _attribute: object, wtype: wtypes.WTuple) -> None:
+        if tuple(it.wtype for it in self.items) != wtype.types:
+            raise CodeError("Tuple type mismatch", self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_tuple_expression(self)

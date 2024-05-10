@@ -22,7 +22,7 @@ from puya.awst.nodes import (
     TupleItemExpression,
     UInt64Constant,
 )
-from puya.awst_build import intrinsic_factory
+from puya.awst_build import intrinsic_factory, pytypes
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
@@ -46,12 +46,14 @@ logger = log.get_logger(__name__)
 
 
 class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.account_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.account_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -83,7 +85,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                     comment="Address length is 32 bytes",
                 )
                 value = ReinterpretCast(
-                    expr=address_bytes, wtype=self.produces(), source_location=location
+                    expr=address_bytes, wtype=wtypes.account_wtype, source_location=location
                 )
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
@@ -100,6 +102,7 @@ class AccountOptedInExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,

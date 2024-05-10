@@ -28,11 +28,7 @@ class BaseTransactionExpressionBuilder(ValueExpressionBuilder, abc.ABC):
     def get_array_member(self, field: TxnField, location: SourceLocation) -> ExpressionBuilder: ...
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        try:
-            field = _PYTHON_MEMBER_FIELD_MAP[name]
-        except KeyError:
-            pass
-        else:
+        if field := _PYTHON_MEMBER_FIELD_MAP[name]:
             if field.is_array:
                 return self.get_array_member(field, location)
             else:

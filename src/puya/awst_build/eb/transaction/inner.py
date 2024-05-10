@@ -29,6 +29,7 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
+    from puya.awst_build import pytypes
     from puya.awst_build.constants import TransactionType
     from puya.parse import SourceLocation
 
@@ -47,6 +48,7 @@ class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -67,7 +69,8 @@ class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         self.wtype = expect_wtype(expr, wtypes.WInnerTransaction)
         super().__init__(expr)
 
@@ -83,17 +86,16 @@ class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
         return InnerTransactionArrayExpressionBuilder(self.expr, field, location)
 
 
-class InnerTransactionClassExpressionBuilder(TypeClassExpressionBuilder):
+class InnerTransactionClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WInnerTransaction]):
     def __init__(self, location: SourceLocation, wtype: wtypes.WInnerTransaction):
-        super().__init__(location)
+        super().__init__(wtype, location)
         self.wtype = wtype
 
-    def produces(self) -> wtypes.WType:
-        return self.wtype
-
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
@@ -120,6 +122,7 @@ class SubmitInnerTransactionExpressionBuilder(IntermediateExpressionBuilder):
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
         arg_kinds: list[mypy.nodes.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
