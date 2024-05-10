@@ -7,7 +7,7 @@ from puya.awst.nodes import Literal, TemplateVar
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
-    IntermediateExpressionBuilder,
+    GenericClassExpressionBuilder,
     TypeClassExpressionBuilder,
 )
 from puya.awst_build.eb.var_factory import var_expression
@@ -16,7 +16,7 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class GenericTemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
+class GenericTemplateVariableExpressionBuilder(GenericClassExpressionBuilder):
     def index_multiple(
         self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
@@ -27,10 +27,15 @@ class GenericTemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
                 raise CodeError("Invalid/unhandled arguments", location)
         return TemplateVariableExpressionBuilder(location=location, wtype=wtype)
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
     ) -> ExpressionBuilder:
-        return self.index_multiple([index], location)
+        raise CodeError("TemplateVar usage requires type parameter", location)
 
 
 class TemplateVariableExpressionBuilder(TypeClassExpressionBuilder):

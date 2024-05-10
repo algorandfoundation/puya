@@ -8,6 +8,7 @@ from puya.awst.nodes import ArrayExtend, Contains, Expression, Literal, NewArray
 from puya.awst_build import pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    GenericClassExpressionBuilder,
     IntermediateExpressionBuilder,
     Iteration,
     TypeClassExpressionBuilder,
@@ -23,7 +24,9 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 
-class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
+class ArrayGenericClassExpressionBuilder(
+    GenericClassExpressionBuilder, TypeClassExpressionBuilder
+):
     def __init__(self, location: SourceLocation):
         super().__init__(location=location)
         self._storage: wtypes.WType | None = None
@@ -33,13 +36,13 @@ class ArrayGenericClassExpressionBuilder(TypeClassExpressionBuilder):
             raise CodeError("A type parameter is required at this location", self.source_location)
         return wtypes.WArray(self._storage, self.source_location)
 
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
+    def index_multiple(
+        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
     ) -> ExpressionBuilder:
         if self._storage is not None:
             raise InternalError("Multiple indexing of Array?", location)
-        match index:
-            case TypeClassExpressionBuilder() as typ_class_eb:
+        match indexes:
+            case [TypeClassExpressionBuilder() as typ_class_eb]:
                 self.source_location += location
                 self._storage = typ_class_eb.produces()
                 return self

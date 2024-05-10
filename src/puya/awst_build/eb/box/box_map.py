@@ -18,6 +18,7 @@ from puya.awst.nodes import (
 from puya.awst_build import constants, pytypes
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    GenericClassExpressionBuilder,
     IntermediateExpressionBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -37,7 +38,7 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 
-class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder):
+class BoxMapClassExpressionBuilder(GenericClassExpressionBuilder, TypeClassExpressionBuilder):
     def produces(self) -> wtypes.WType:
         if self.wtype:
             return self.wtype

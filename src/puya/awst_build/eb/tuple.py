@@ -1,5 +1,7 @@
 from collections.abc import Sequence
 
+import mypy.nodes
+
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -11,13 +13,16 @@ from puya.awst.nodes import (
     IntegerConstant,
     Literal,
     SliceExpression,
+    TupleExpression,
     TupleItemExpression,
     UInt64Constant,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.base import (
     BuilderComparisonOp,
     ExpressionBuilder,
+    GenericClassExpressionBuilder,
     Iteration,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
@@ -32,7 +37,7 @@ from puya.utils import clamp, positive_index
 logger = log.get_logger(__name__)
 
 
-class TupleTypeExpressionBuilder(TypeClassExpressionBuilder):
+class TupleTypeExpressionBuilder(GenericClassExpressionBuilder, TypeClassExpressionBuilder):
     def produces(self) -> wtypes.WType:
         try:
             return self.wtype
@@ -40,11 +45,6 @@ class TupleTypeExpressionBuilder(TypeClassExpressionBuilder):
             raise CodeError(
                 "Unparameterized tuple class cannot be used as a type", self.source_location
             ) from ex
-
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        return self.index_multiple((index,), location)
 
     def index_multiple(
         self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
@@ -61,6 +61,19 @@ class TupleTypeExpressionBuilder(TypeClassExpressionBuilder):
                     raise CodeError("Expected a type", index.source_location)
         self.wtype = wtypes.WTuple(tuple_item_types, location)
         return self
+
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        tuple_expr = TupleExpression.from_items(
+            [require_expression_builder(a).rvalue() for a in args], location
+        )
+        return TupleExpressionBuilder(tuple_expr)
 
 
 class TupleExpressionBuilder(ValueExpressionBuilder):

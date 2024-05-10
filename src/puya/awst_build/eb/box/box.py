@@ -19,6 +19,7 @@ from puya.awst_build import constants, pytypes
 from puya.awst_build.eb._utils import get_bytes_expr
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
+    GenericClassExpressionBuilder,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
@@ -36,7 +37,7 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 
-class BoxClassExpressionBuilder(TypeClassExpressionBuilder):
+class BoxClassExpressionBuilder(GenericClassExpressionBuilder, TypeClassExpressionBuilder):
     def produces(self) -> wtypes.WType:
         if self.wtype:
             return self.wtype
@@ -48,17 +49,6 @@ class BoxClassExpressionBuilder(TypeClassExpressionBuilder):
     def __init__(self, location: SourceLocation) -> None:
         super().__init__(location)
         self.wtype: wtypes.WBoxProxy | None = None
-
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        match index:
-            case TypeClassExpressionBuilder() as eb:
-                content_wtype = eb.produces()
-                self.wtype = wtypes.WBoxProxy.from_content_type(content_wtype)
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-        return self
 
     def index_multiple(
         self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
