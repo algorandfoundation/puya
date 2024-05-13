@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+from algopy._constants import MAX_BYTES_SIZE
 from algopy.primitives.uint64 import UInt64
 
 # TypeError, ValueError are used for operations that are compile time errors
@@ -19,20 +20,16 @@ class Bytes:
 
     value: bytes  # underlying bytes value representing the []byte
 
-    def __init__(self, value: bytes) -> None:
-        self.value = value
+    def __init__(self, value: bytes = b"") -> None:
+        self.value = _as_bytes(value)
 
-    @classmethod
-    def from_int(cls, value: int = 0) -> Bytes:
-        return cls(value.to_bytes(8))
+    # @classmethod
+    # def from_int(cls, value: int = 0) -> Bytes:
+    #     return cls(value.to_bytes(8))
 
-    @classmethod
-    def from_str(cls, value: str) -> Bytes:
-        return cls(str.encode(value))
-
-    @classmethod
-    def _from_int(cls, value: int = 0) -> Bytes:
-        return Bytes(value.to_bytes(8))
+    # @classmethod
+    # def from_str(cls, value: str) -> Bytes:
+    #     return cls(str.encode(value))
 
     def __repr__(self) -> str:
         return repr(bytes)
@@ -41,21 +38,21 @@ class Bytes:
         return str(self.value)
 
     def __bool__(self) -> bool:
-        return len(self.value) > 0
+        return bool(self.value)
 
     def __add__(self, other: Bytes | bytes) -> Bytes:
         """Concatenate Bytes with another Bytes or bytes literal
         e.g. `Bytes(b"Hello ") + b"World"`."""
         return (
-            Bytes(self.value + other.value)
+            _checked_result(self.value + other.value, "+")
             if isinstance(other, Bytes)
-            else Bytes(self.value + other)
+            else _checked_result(self.value + other, "+")
         )
 
     def __radd__(self, other: bytes) -> Bytes:
         """Concatenate Bytes with another Bytes or bytes literal
         e.g. `b"Hello " + Bytes(b"World")`."""
-        return self + other
+        return _checked_result(other + self.value, "+")
 
     def __len__(self) -> int:
         return len(self.value)
@@ -120,3 +117,21 @@ class _BytesIter:
 
         self.current += self.step
         return self.value[self.current - self.step]
+
+
+def _checked_result(result: bytes, op: str) -> Bytes:
+    """Ensures `result` is a valid Bytes value
+
+    Raises:
+        ArithmeticError: If `result` of `op` is out of bounds"""
+    if len(result) < 0:
+        raise ArithmeticError(f"{op} underflows")
+    if len(result) > MAX_BYTES_SIZE:
+        raise OverflowError(f"{op} overflows")
+    return Bytes(result)
+
+
+def _as_bytes(value: object) -> bytes:
+    from algopy.primitives.util import as_bytes
+
+    return as_bytes(value, max_size=MAX_BYTES_SIZE)
