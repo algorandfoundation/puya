@@ -1,0 +1,33 @@
+// Op                      //                                           Op Description                  Stack (out)         X stack                     Source code                       Source line
+
+#pragma version 10
+
+// test_cases.dup2_optimization_bug.crash.MyContract.approval_program() -> uint64:
+main_block@0:
+    txna ApplicationArgs 0 //                                                                           {txna}                                          Txn.application_args(0)           dup2_optimization_bug/crash.py:6
+    //                     virtual: store a#0 to l-stack (no copy)      a#0                                                 a = Txn.application_args(0) dup2_optimization_bug/crash.py:6
+    txna ApplicationArgs 1 //                                                                           a#0,{txna}                                      Txn.application_args(1)           dup2_optimization_bug/crash.py:7
+    //                     virtual: store b#0 to l-stack (no copy)      a#0,b#0                                             b = Txn.application_args(1) dup2_optimization_bug/crash.py:7
+    dig 1                  //                                           load a#0 from l-stack (copy)    a#0,b#0,a#0                                     a + b                             dup2_optimization_bug/crash.py:9
+    dig 1                  //                                           load b#0 from l-stack (copy)    a#0,b#0,a#0,b#0                                 a + b                             dup2_optimization_bug/crash.py:9
+    concat                 //                                                                           a#0,b#0,{concat}                                a + b                             dup2_optimization_bug/crash.py:9
+    //                     virtual: store tmp%0#0 to l-stack (no copy)  a#0,b#0,tmp%0#0                                     a + b                       dup2_optimization_bug/crash.py:9
+    //                     virtual: load tmp%0#0 from l-stack (no copy) a#0,b#0,tmp%0#0                                     a + b                       dup2_optimization_bug/crash.py:9
+    len                    //                                                                           a#0,b#0,{len}                                   a + b                             dup2_optimization_bug/crash.py:9
+    //                     virtual: store tmp%1#0 to l-stack (no copy)  a#0,b#0,tmp%1#0                                     a + b                       dup2_optimization_bug/crash.py:9
+    //                     virtual: load tmp%1#0 from l-stack (no copy) a#0,b#0,tmp%1#0                                     assert a + b                dup2_optimization_bug/crash.py:9
+    assert                 //                                                                           a#0,b#0                                         assert a + b                      dup2_optimization_bug/crash.py:9
+    //                     virtual: load b#0 from l-stack (no copy)     a#0,b#0                                             b + a                       dup2_optimization_bug/crash.py:10
+    swap                   //                                           load a#0 from l-stack (no copy) b#0,a#0                                         b + a                             dup2_optimization_bug/crash.py:10
+    concat                 //                                                                           {concat}                                        b + a                             dup2_optimization_bug/crash.py:10
+    //                     virtual: store tmp%2#0 to l-stack (no copy)  tmp%2#0                                             b + a                       dup2_optimization_bug/crash.py:10
+    //                     virtual: load tmp%2#0 from l-stack (no copy) tmp%2#0                                             (b + a).length              dup2_optimization_bug/crash.py:10
+    len                    //                                                                           {len}                                           (b + a).length                    dup2_optimization_bug/crash.py:10
+    //                     virtual: store tmp%3#0 to l-stack (no copy)  tmp%3#0                                             (b + a).length              dup2_optimization_bug/crash.py:10
+    //                     virtual: load tmp%3#0 from l-stack (no copy) tmp%3#0                                             (b + a).length > 0          dup2_optimization_bug/crash.py:10
+    int 0                  //                                                                           tmp%3#0,0                                       0                                 dup2_optimization_bug/crash.py:10
+    >                      //                                                                           {>}                                             (b + a).length > 0                dup2_optimization_bug/crash.py:10
+    //                     virtual: store tmp%4#0 to l-stack (no copy)  tmp%4#0                                             (b + a).length > 0          dup2_optimization_bug/crash.py:10
+    //                     virtual: load tmp%4#0 from l-stack (no copy) tmp%4#0                                             return (b + a).length > 0   dup2_optimization_bug/crash.py:10
+    return                 //                                                                                                                           return (b + a).length > 0         dup2_optimization_bug/crash.py:10
+
