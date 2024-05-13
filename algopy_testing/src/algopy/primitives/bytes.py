@@ -1,8 +1,10 @@
 from __future__ import annotations
-import base64
 
-import functools
-from typing import Iterator
+import base64
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 from src.algopy.primitives.uint64 import UInt64
 
@@ -10,7 +12,6 @@ from src.algopy.primitives.uint64 import UInt64
 # ArithmeticError and subclasses are used for operations that would fail during AVM execution
 
 
-@functools.total_ordering
 class Bytes:
     """
     A python implementation of an AVM []byte
@@ -18,43 +19,67 @@ class Bytes:
 
     value: bytes  # underlying bytes value representing the []byte
 
-    def __init__(self, value: int = 0) -> None:
-        self.value = value.to_bytes(8)
-
-    def __init__(self, value: str) -> None:
-        self.value = str.encode(value)
-
     def __init__(self, value: bytes) -> None:
         self.value = value
+
+    @classmethod
+    def from_int(cls, value: int = 0) -> Bytes:
+        return cls(value.to_bytes(8))
+
+    @classmethod
+    def from_str(cls, value: str) -> Bytes:
+        return cls(str.encode(value))
+
+    @classmethod
+    def _from_int(cls, value: int = 0) -> Bytes:
+        return Bytes(value.to_bytes(8))
 
     def __repr__(self) -> str:
         return repr(bytes)
 
     def __str__(self) -> str:
         return str(self.value)
-    
+
     def __bool__(self) -> bool:
         return len(self.value) > 0
-    
+
+    def __add__(self, other: Bytes | bytes) -> Bytes:
+        """Concatenate Bytes with another Bytes or bytes literal
+        e.g. `Bytes(b"Hello ") + b"World"`."""
+        return (
+            Bytes(self.value + other.value)
+            if isinstance(other, Bytes)
+            else Bytes(self.value + other)
+        )
+
+    def __radd__(self, other: bytes) -> Bytes:
+        """Concatenate Bytes with another Bytes or bytes literal
+        e.g. `b"Hello " + Bytes(b"World")`."""
+        return self + other
+
     def __len__(self) -> int:
         return len(self.value)
-    
+
     def __iter__(self) -> Iterator[Bytes]:
         """Bytes can be iterated, yielding each consecutive byte"""
-        return _Bytes_iter(self, 1)
+        return _BytesIter(self, 1)
 
     def __reversed__(self) -> Iterator[Bytes]:
         """Bytes can be iterated in reverse, yield each preceding byte starting at the end"""
-        return _Bytes_iter(self, -1)
-    
+        return _BytesIter(self, -1)
+
     def __getitem__(
         self, index: UInt64 | int | slice
     ) -> Bytes:  # maps to substring/substring3 if slice, extract/extract3 otherwise?
         """Returns a Bytes containing a single byte if indexed with UInt64 or int
         otherwise the substring o bytes described by the slice"""
-        # my_bytes[0:1] => b'j' whereas my_bytes[0] => 106        
-        return Bytes(self.value[index]) if isinstance(index, slice) else Bytes(self.value[index, index+1])
-    
+        # my_bytes[0:1] => b'j' whereas my_bytes[0] => 106
+        return (
+            Bytes(self.value[index])
+            if isinstance(index, slice)
+            else Bytes(self.value[slice(index, index + 1)])
+        )
+
     @property
     def length(self) -> UInt64:
         """Returns the length of the Bytes"""
@@ -76,21 +101,22 @@ class Bytes:
         return Bytes(base64.b16decode(value))
 
 
-class _Bytes_iter:
+class _BytesIter:
     value: Bytes
 
-    def __init__(self, sequence: Bytes, step: int=1):
+    def __init__(self, sequence: Bytes, step: int = 1):
         self.value = sequence
         self.current = 0 if step > 0 else len(sequence) - 1
         self.step = step
         self.myend = len(sequence) - 1 if step > 0 else 0
 
-    def __iter__(self):return self
+    def __iter__(self) -> _BytesIter:
+        return self
 
     def __next__(self) -> Bytes:
-        #if current is one step over the end
-        if self.current == self.myend+self.step: 
+        # if current is one step over the end
+        if self.current == self.myend + self.step:
             raise StopIteration
-        else:
-            self.current+=self.step
-            return self.value[self.current-self.step]
+
+        self.current += self.step
+        return self.value[self.current - self.step]
