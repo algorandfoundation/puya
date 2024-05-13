@@ -639,6 +639,9 @@ class FunctionASTConverter(
         self, expr: mypy.nodes.MemberExpr | mypy.nodes.NameExpr
     ) -> ExpressionBuilder | Literal:
         expr_loc = self._location(expr)
+        # py_typ = self.context.mypy_expr_node_type(expr)
+        # if isinstance(py_typ, pytypes.TypeType):
+        #     return builder_for_type(py_typ.typ, expr_loc)
         builder_or_literal = self._visit_ref_expr_maybe_aliased(expr, expr_loc)
         # as an extra step, in case the resolved item was a type through a TypeAlias,
         # we need to apply the specified arguments to the type
@@ -1078,13 +1081,20 @@ class FunctionASTConverter(
 
     def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> ExpressionBuilder | Literal:
         expr_location = self._location(expr)
-        match expr.analyzed:
-            case None:
-                pass
-            case mypy.nodes.TypeAliasExpr():
-                raise CodeError("type aliases are not supported inside subroutines", expr_location)
-            case mypy.nodes.TypeApplication():
-                pass
+        # match expr.analyzed:
+        #     case None:
+        #         pass
+        #     case mypy.nodes.TypeAliasExpr():
+        #         raise CodeError("type aliases are not supported inside subroutines", expr_location)
+        #     case mypy.nodes.TypeApplication():
+        #         type_type = self.context.mypy_expr_node_type(expr)
+        #         if not isinstance(type_type, pytypes.TypeType):
+        #             raise InternalError(
+        #                 "expected resolved PyType of and IndexExpr where analyzed"
+        #                 " is a TypeApplication to be a TypeType",
+        #                 expr_location,
+        #             )
+        #         return builder_for_type(type_type.typ, expr_location)
         # short-circuit in case of application of typing.Literal to just evaluate the args
         if (
             isinstance(expr.base, mypy.nodes.RefExpr)
@@ -1379,3 +1389,7 @@ def _maybe_index(
         else:
             return eb.index_multiple(indexes, location)
     return eb
+
+
+# def builder_for_type(typ: pytypes.PyType, loc: SourceLocation) -> ExpressionBuilder:
+#     raise NotImplementedError
