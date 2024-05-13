@@ -957,3 +957,18 @@ def test_bound_method_types() -> None:
     reveled_types = get_revealed_types(result, tree)
     assert len(reveled_types) == 9
     assert all(isinstance(t, mypy.types.CallableType) for t in reveled_types)
+
+
+def test_special_indexing() -> None:
+    def test():
+        import typing
+
+        def func(abc: typing.Literal["a", "b", "c"]) -> str:
+            X = typing.Literal[0]
+            Y = tuple[typing.Literal[0, 1, 2], str]
+            y = tuple[typing.Literal[0, 1, 2], str]((0, abc))
+            return abc
+
+    result = mypy_parse_and_type_check(test)
+    tree = result.graph[TEST_MODULE].tree
+    assert tree

@@ -1077,6 +1077,14 @@ class FunctionASTConverter(
         )
 
     def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> ExpressionBuilder | Literal:
+        expr_location = self._location(expr)
+        match expr.analyzed:
+            case None:
+                pass
+            case mypy.nodes.TypeAliasExpr():
+                raise CodeError("type aliases are not supported inside subroutines", expr_location)
+            case mypy.nodes.TypeApplication():
+                pass
         # short-circuit in case of application of typing.Literal to just evaluate the args
         if (
             isinstance(expr.base, mypy.nodes.RefExpr)
@@ -1089,7 +1097,7 @@ class FunctionASTConverter(
             raise CodeError(
                 "Python literals cannot be indexed or sliced", base_expr.source_location
             )
-        expr_location = self._location(expr)
+
         match expr.index:
             # special case handling of SliceExpr, so we don't need to handle slice Literal's
             # or some such everywhere
