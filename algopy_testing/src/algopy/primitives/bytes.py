@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -77,6 +78,22 @@ class Bytes:
             else Bytes(self.value[slice(index, index + 1)])
         )
 
+    def __eq__(self, other: object) -> bool:
+        maybe_bytes = _as_maybe_bytes(other)
+        # returning NotImplemented here will allow BigUInt to handle larger comparisons
+        if maybe_bytes is None:
+            return NotImplemented
+        return self.value == maybe_bytes
+
+    def __invert__(self) -> Bytes:
+        """
+        Compute the bitwise inversion of the Bytes.
+
+        Returns:
+            Bytes: The result of the bitwise inversion operation.
+        """
+        return Bytes(bytes(~x + 256 for x in self.value))
+
     @property
     def length(self) -> UInt64:
         """Returns the length of the Bytes"""
@@ -117,6 +134,19 @@ class _BytesIter:
 
         self.current += self.step
         return self.value[self.current - self.step]
+
+
+def _as_maybe_bytes(value: object) -> bytes | None:
+    """Returns bytes value if `value` is a bytes or Bytes, otherwise None"""
+    match value:
+        case bytes(bytes_value):
+            return _as_bytes(bytes_value)
+        case Bytes(value=bytes_value):
+            return bytes_value
+        case n if (isinstance(n, Sequence) and all(isinstance(i, int) for i in n)):
+            return _as_bytes(n)
+        case _:
+            return None
 
 
 def _checked_result(result: bytes, op: str) -> Bytes:

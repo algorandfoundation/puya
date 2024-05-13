@@ -1,22 +1,15 @@
 import operator
-import random
 import re
-import typing
 from collections.abc import Callable
-from pathlib import Path
 
 import algokit_utils
 import pytest
-from algokit_utils import ApplicationClient, get_localnet_default_account
-from algokit_utils.config import config
 from algopy import UInt64
-from algosdk.v2client.algod import AlgodClient
-from algosdk.v2client.indexer import IndexerClient
+
+from tests.primitives.conftest import AVMInvoker
 
 MAX_UINT64 = 2**64 - 1
 MAX_UINT512 = 2**512 - 1
-ARTIFACTS_DIR = Path(__file__).parent / ".." / "artifacts"
-APP_SPEC = ARTIFACTS_DIR / "PrimitiveOps" / "data" / "PrimitiveOpsContract.arc32.json"
 
 _negative_value_error = "expected positive value"
 _too_big64_error = re.escape(f"expected value <= {MAX_UINT64}")
@@ -40,49 +33,6 @@ def _avm_overflow_error(op: str) -> str:
 
 def _avm_pow_overflow_error(a: int, b: int) -> str:
     return re.escape(f"'{a}^{b} overflow'")
-
-
-@pytest.fixture(scope="session")
-def primitive_ops_client(
-    algod_client: AlgodClient, indexer_client: IndexerClient
-) -> ApplicationClient:
-    config.configure(
-        debug=True,
-    )
-
-    client = ApplicationClient(
-        algod_client,
-        APP_SPEC,
-        creator=get_localnet_default_account(algod_client),
-        indexer_client=indexer_client,
-    )
-
-    client.deploy(
-        on_schema_break=algokit_utils.OnSchemaBreak.AppendApp,
-        on_update=algokit_utils.OnUpdate.AppendApp,
-    )
-    return client
-
-
-class AVMInvoker(typing.Protocol):
-
-    def __call__(self, method: str, **kwargs: typing.Any) -> object: ...
-
-
-@pytest.fixture(scope="module")
-def get_avm_result(primitive_ops_client: ApplicationClient) -> AVMInvoker:
-
-    def wrapped(method: str, **kwargs: typing.Any) -> object:
-        return primitive_ops_client.call(
-            method,
-            transaction_parameters={
-                # random note avoids duplicate txn if tests are running concurrently
-                "note": random.randbytes(8),  # noqa: S311
-            },
-            **kwargs,
-        ).return_value
-
-    return wrapped
 
 
 @pytest.mark.parametrize(
