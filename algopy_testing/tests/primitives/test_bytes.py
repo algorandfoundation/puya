@@ -1,3 +1,4 @@
+import base64
 from hashlib import sha256
 
 import algokit_utils
@@ -158,8 +159,45 @@ def test_bytes_bitwise_xor(get_avm_result: AVMInvoker, a: bytes, b: bytes) -> No
     assert avm_result == i
 
 
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (b"0", b"0"),
+        (b"", b""),
+        (b"11", b"11"),
+        (b"011", b"11"),
+        (b"11", b"001"),
+        (b"", b"00"),
+    ],
+)
+def test_bytes_bitwise_eq(get_avm_result: AVMInvoker, a: bytes, b: bytes) -> None:
+    avm_result = get_avm_result("verify_bytes_eq", a=a, b=b)
+    assert avm_result == (Bytes(a) == Bytes(b))
+    assert avm_result == (Bytes(a) == b)
+    assert avm_result == (a == Bytes(b))
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (b"0", b"0"),
+        (b"", b""),
+        (b"11", b"11"),
+        (b"011", b"11"),
+        (b"11", b"001"),
+        (b"", b"00"),
+    ],
+)
+def test_bytes_bitwise_ne(get_avm_result: AVMInvoker, a: bytes, b: bytes) -> None:
+    avm_result = get_avm_result("verify_bytes_ne", a=a, b=b)
+    assert avm_result == (Bytes(a) != Bytes(b))
+    assert avm_result == (Bytes(a) != b)
+    assert avm_result == (a != Bytes(b))
+
+
 def get_sha256_hash(v: Bytes) -> Bytes:
     return Bytes(sha256(v.value).digest())
+
 
 # NON AVM functionality
 # these don't have an AVM equivalent, but are very useful when executing in a python context
@@ -170,3 +208,52 @@ def test_bytes_str() -> None:
 
     assert str(Bytes(value)) == str(value)
     assert repr(Bytes(value)) == repr(value)
+
+
+def test_bytes_from_encoded_string() -> None:
+    base32_str = "74======"
+    assert Bytes.from_base32(base32_str) == base64.b32decode(base32_str)
+
+    base64_str = "RkY="
+    assert Bytes.from_base64(base64_str) == base64.b64decode(base64_str)
+
+    hex_str = "FF"
+    assert Bytes.from_hex(hex_str) == base64.b16decode(hex_str)
+
+
+@pytest.mark.parametrize("value", [b"hello, world", b"", b"0110", b"0" * MAX_BYTES_SIZE])
+def test_bytes_len(value: bytes) -> None:
+    assert len(Bytes(value)) == len(value)
+
+
+@pytest.mark.parametrize("value", [b"hello, world", b"", b"0110", b"0" * MAX_BYTES_SIZE])
+def test_bytes_iter(value: bytes) -> None:
+    for x1, x2 in zip(iter(Bytes(value)), iter(value), strict=False):
+        assert x1 == _int_to_bytes(x2)
+
+
+@pytest.mark.parametrize("value", [b"hello, world", b"", b"0110", b"0" * MAX_BYTES_SIZE])
+def test_bytes_reversed(value: bytes) -> None:
+    for x1, x2 in zip(reversed(Bytes(value)), reversed(value), strict=False):
+        assert x1 == _int_to_bytes(x2)
+
+
+@pytest.mark.parametrize(
+    "index",
+    [
+        0,
+        slice(0, 2),
+        11,
+        slice(11, 1),
+    ],
+)
+def test_bytes_index(index: int | slice) -> None:
+    value = b"hello, world"
+    if isinstance(index, slice):
+        assert Bytes(value)[index] == value[index]
+    else:
+        assert Bytes(value)[index] == _int_to_bytes(value[index])
+
+
+def _int_to_bytes(x: int) -> bytes:
+    return x.to_bytes((x.bit_length() + 7) // 8, "big")
