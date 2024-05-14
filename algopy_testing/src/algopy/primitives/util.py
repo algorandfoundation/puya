@@ -45,8 +45,6 @@ def as_bytes(value: object, *, max_size: int) -> bytes:
             bytes_value = bytes(n)
         case _:
             raise TypeError(f"value must be a bytes or Bytes type, not {type(value).__name__!r}")
-    if len(bytes_value) < 0:
-        raise ValueError(f"expected non-empty value, got {len(bytes_value)}")
     if len(bytes_value) > max_size:
         raise ValueError(f"expected value length <= {max_size}, got: {len(bytes_value)}")
     return bytes_value

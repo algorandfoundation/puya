@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-from algopy._constants import MAX_BYTES_SIZE
+from algopy._constants import MAX_BYTES_SIZE, MAX_UINT64
 from algopy.primitives.uint64 import UInt64
 
 # TypeError, ValueError are used for operations that are compile time errors
@@ -44,11 +44,11 @@ class Bytes:
     def __add__(self, other: Bytes | bytes) -> Bytes:
         """Concatenate Bytes with another Bytes or bytes literal
         e.g. `Bytes(b"Hello ") + b"World"`."""
-        return (
-            _checked_result(self.value + other.value, "+")
-            if isinstance(other, Bytes)
-            else _checked_result(self.value + other, "+")
-        )
+        if isinstance(other, Bytes):
+            return _checked_result(self.value + other.value, "+")
+        else:
+            result = self.value + _as_bytes(other)
+            return _checked_result(result, "+")
 
     def __radd__(self, other: bytes) -> Bytes:
         """Concatenate Bytes with another Bytes or bytes literal
@@ -71,19 +71,15 @@ class Bytes:
     ) -> Bytes:  # maps to substring/substring3 if slice, extract/extract3 otherwise?
         """Returns a Bytes containing a single byte if indexed with UInt64 or int
         otherwise the substring o bytes described by the slice"""
-        # my_bytes[0:1] => b'j' whereas my_bytes[0] => 106
-        return (
-            Bytes(self.value[index])
-            if isinstance(index, slice)
-            else Bytes(self.value[slice(index, index + 1)])
-        )
+        if isinstance(index, slice):
+            return Bytes(self.value[index])
+        else:
+            int_index = _as_int(index)
+            # my_bytes[0:1] => b'j' whereas my_bytes[0] => 106
+            return Bytes(self.value[slice(int_index, int_index + 1)])
 
     def __eq__(self, other: object) -> bool:
-        maybe_bytes = _as_maybe_bytes(other)
-        # returning NotImplemented here will allow BigUInt to handle larger comparisons
-        if maybe_bytes is None:
-            return NotImplemented
-        return self.value == maybe_bytes
+        return self.value == _as_bytes(other)
 
     def __invert__(self) -> Bytes:
         """
@@ -136,26 +132,11 @@ class _BytesIter:
         return self.value[self.current - self.step]
 
 
-def _as_maybe_bytes(value: object) -> bytes | None:
-    """Returns bytes value if `value` is a bytes or Bytes, otherwise None"""
-    match value:
-        case bytes(bytes_value):
-            return _as_bytes(bytes_value)
-        case Bytes(value=bytes_value):
-            return bytes_value
-        case n if (isinstance(n, Sequence) and all(isinstance(i, int) for i in n)):
-            return _as_bytes(n)
-        case _:
-            return None
-
-
 def _checked_result(result: bytes, op: str) -> Bytes:
     """Ensures `result` is a valid Bytes value
 
     Raises:
         ArithmeticError: If `result` of `op` is out of bounds"""
-    if len(result) < 0:
-        raise ArithmeticError(f"{op} underflows")
     if len(result) > MAX_BYTES_SIZE:
         raise OverflowError(f"{op} overflows")
     return Bytes(result)
@@ -165,3 +146,8 @@ def _as_bytes(value: object) -> bytes:
     from algopy.primitives.util import as_bytes
 
     return as_bytes(value, max_size=MAX_BYTES_SIZE)
+
+def _as_int(value: object) -> int:
+    from algopy.primitives.util import as_int
+
+    return as_int(value, max=MAX_UINT64)
