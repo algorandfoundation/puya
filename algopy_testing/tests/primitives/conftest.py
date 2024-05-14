@@ -52,7 +52,7 @@ def get_avm_result(primitive_ops_client: ApplicationClient) -> AVMInvoker:
             },
             **kwargs,
         ).return_value
-        if (isinstance(result, list) and all(isinstance(i, int) for i in result)):
+        if isinstance(result, list) and all(isinstance(i, int) for i in result):
             result = bytes(result)
         return result
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import base64
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -146,6 +145,7 @@ def _as_bytes(value: object) -> bytes:
     from algopy.primitives.util import as_bytes
 
     return as_bytes(value, max_size=MAX_BYTES_SIZE)
+
 
 def _as_int(value: object) -> int:
     from algopy.primitives.util import as_int
