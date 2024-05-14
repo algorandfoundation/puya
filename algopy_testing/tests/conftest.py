@@ -34,14 +34,12 @@ def indexer_client() -> IndexerClient:
 def create_avm_invoker() -> typing.Callable[[ApplicationClient], AVMInvoker]:
     def _invoke_avm(client: ApplicationClient) -> AVMInvoker:
         def invoke(method: str, **kwargs: typing.Any) -> object:
-            sp = client.algod_client.suggested_params()
-            sp.fee = kwargs.pop("custom_fee", sp.fee)
             result = client.call(
                 method,
                 transaction_parameters={
                     # random note avoids duplicate txn if tests are running concurrently
                     "note": random.randbytes(8),  # noqa: S311
-                    "suggested_params": sp,
+                    "suggested_params": kwargs.pop("suggested_params", None),
                 },
                 **kwargs,
             ).return_value

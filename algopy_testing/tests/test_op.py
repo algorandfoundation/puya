@@ -125,6 +125,7 @@ def test_sha512_256(
 
 
 def test_ed25519verify_bare(
+    algod_client: AlgodClient,
     get_crypto_ops_avm_result: AVMInvoker,
 ) -> None:
     signing_key = nacl.signing.SigningKey.generate()
@@ -132,8 +133,10 @@ def test_ed25519verify_bare(
     message = b"Test message for ed25519 verification"
     signature = signing_key.sign(message).signature
 
+    sp = algod_client.suggested_params()
+    sp.fee = 2000
     avm_result = get_crypto_ops_avm_result(
-        "verify_ed25519verify_bare", a=message, b=signature, c=public_key, custom_fee=2000
+        "verify_ed25519verify_bare", a=message, b=signature, c=public_key, suggested_params=sp
     )
     result = op.ed25519verify_bare(message, signature, public_key)
 
