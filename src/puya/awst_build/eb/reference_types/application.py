@@ -6,7 +6,7 @@ from immutabledict import immutabledict
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Expression, Literal, UInt64Constant
+from puya.awst.nodes import Expression, Literal, UInt64Constant, ReinterpretCast
 from puya.awst_build.eb.base import ExpressionBuilder, TypeClassExpressionBuilder
 from puya.awst_build.eb.reference_types.base import UInt64BackedReferenceValueExpressionBuilder
 from puya.awst_build.utils import expect_operand_wtype
@@ -46,7 +46,10 @@ class ApplicationClassExpressionBuilder(TypeClassExpressionBuilder):
                 logger.error("Invalid/unhandled arguments", location=location)
                 # dummy value to continue with
                 uint64_expr = UInt64Constant(value=0, source_location=location)
-        return ApplicationExpressionBuilder(uint64_expr)
+        app_expr = ReinterpretCast(
+            source_location=location, wtype=wtypes.application_wtype, expr=uint64_expr
+        )
+        return ApplicationExpressionBuilder(app_expr)
 
 
 class ApplicationExpressionBuilder(UInt64BackedReferenceValueExpressionBuilder):

@@ -35,13 +35,6 @@ class ReferenceValueExpressionBuilder(ValueExpressionBuilder):
     field_op_code: str
     field_bool_comment: str
 
-    def __init__(self, expr: Expression) -> None:
-        if expr.wtype == self.native_wtype:
-            expr = ReinterpretCast(
-                source_location=expr.source_location, wtype=self.wtype, expr=expr
-            )
-        super().__init__(expr)
-
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         if name == self.native_access_member:
             native_cast = ReinterpretCast(

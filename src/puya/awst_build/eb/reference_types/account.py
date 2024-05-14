@@ -84,7 +84,7 @@ class AccountClassExpressionBuilder(BytesBackedClassExpressionBuilder):
                     comment="Address length is 32 bytes",
                 )
                 value = ReinterpretCast(
-                    expr=address_bytes, wtype=self.produces(), source_location=location
+                    expr=address_bytes, wtype=wtypes.account_wtype, source_location=location
                 )
             case _:
                 logger.error("Invalid/unhandled arguments", location=location)
