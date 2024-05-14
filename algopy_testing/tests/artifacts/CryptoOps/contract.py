@@ -1,18 +1,46 @@
-from algopy import ARC4Contract, Bytes, OpUpFeeSource, arc4, ensure_budget, op
+from algopy import ARC4Contract, Bytes, OpUpFeeSource, UInt64, arc4, ensure_budget, op
 
 
 class CryptoOpsContract(ARC4Contract):
     @arc4.abimethod()
-    def verify_ed25519_bare(
-        self, message: Bytes, signature: Bytes, pubkey: arc4.Address
-    ) -> arc4.Bool:
-        ensure_budget(1900, OpUpFeeSource.GroupCredit)
-        return arc4.Bool(op.ed25519verify_bare(message, signature, pubkey.bytes))
+    def verify_sha256(self, a: Bytes, pad_size: UInt64) -> Bytes:
+        ensure_budget(35, OpUpFeeSource.GroupCredit)
+        a = op.bzero(pad_size) + a
+        result = op.sha256(a)
+        return result
 
     @arc4.abimethod()
-    def verify_sha256(self, message: Bytes) -> Bytes:
-        ensure_budget(35, OpUpFeeSource.GroupCredit)
-        return op.sha256(message)
+    def verify_sha3_256(self, a: Bytes, pad_size: UInt64) -> Bytes:
+        ensure_budget(130, OpUpFeeSource.GroupCredit)
+        a = op.bzero(pad_size) + a
+        result = op.sha3_256(a)
+        return result
+
+    @arc4.abimethod()
+    def verify_keccak_256(self, a: Bytes, pad_size: UInt64) -> Bytes:
+        ensure_budget(130, OpUpFeeSource.GroupCredit)
+        a = op.bzero(pad_size) + a
+        result = op.keccak256(a)
+        return result
+
+    @arc4.abimethod()
+    def verify_sha512_256(self, a: Bytes, pad_size: UInt64) -> Bytes:
+        ensure_budget(45, OpUpFeeSource.GroupCredit)
+        a = op.bzero(pad_size) + a
+        result = op.sha512_256(a)
+        return result
+
+    @arc4.abimethod()
+    def verify_ed25519verify(self, a: Bytes, b: Bytes, c: Bytes) -> arc4.Bool:
+        ensure_budget(1900, OpUpFeeSource.GroupCredit)
+        result = op.ed25519verify(a, b, c)
+        return arc4.Bool(result)
+
+    @arc4.abimethod()
+    def verify_ed25519verify_bare(self, a: Bytes, b: Bytes, c: Bytes) -> arc4.Bool:
+        ensure_budget(1900, OpUpFeeSource.GroupCredit)
+        result = op.ed25519verify_bare(a, b, c)
+        return arc4.Bool(result)
 
     @arc4.abimethod()
     def verify_ecdsa_verify(self, hash_value: Bytes, signature: Bytes) -> bool:

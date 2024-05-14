@@ -7,7 +7,7 @@ import pytest
 from algopy import UInt64
 from algopy.constants import MAX_UINT64, MAX_UINT512
 
-from tests.primitives.conftest import AVMInvoker
+from tests.common import AVMInvoker
 
 _negative_value_error = "expected positive value"
 _too_big64_error = re.escape(f"expected value <= {MAX_UINT64}")
