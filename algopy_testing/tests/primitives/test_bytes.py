@@ -79,5 +79,84 @@ def test_bytes_addition_overflow(
         a + Bytes(b)
 
 
+@pytest.mark.parametrize(
+    ("value", "pad_size"),
+    [
+        (b"0", 0),
+        (b"1", 0),
+        (b"1010", 0),
+        (b"11100", MAX_BYTES_SIZE - 5),
+        (b"", MAX_BYTES_SIZE),
+    ],
+)
+def test_bytes_not(get_avm_result: AVMInvoker, value: bytes, pad_size: int) -> None:
+    avm_result = get_avm_result("verify_bytes_not", a=value, pad_size=pad_size)
+    value = (b"\x00" * pad_size) + value
+    assert avm_result == get_sha256_hash(~Bytes(value))
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (b"0", b"0"),
+        (b"001", b"11"),
+        (b"100", b"11"),
+        (b"00", b"111"),
+        (b"11", b"001"),
+        (b"", b"11"),
+    ],
+)
+def test_bytes_bitwise_and(get_avm_result: AVMInvoker, a: bytes, b: bytes) -> None:
+    avm_result = get_avm_result("verify_bytes_and", a=a, b=b)
+    assert avm_result == Bytes(a) & Bytes(b)
+    assert avm_result == Bytes(a) & b
+    assert avm_result == a & Bytes(b)
+    i = Bytes(a)
+    i &= b
+    assert avm_result == i
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (b"0", b"0"),
+        (b"001", b"11"),
+        (b"100", b"11"),
+        (b"00", b"111"),
+        (b"11", b"001"),
+        (b"", b"11"),
+    ],
+)
+def test_bytes_bitwise_or(get_avm_result: AVMInvoker, a: bytes, b: bytes) -> None:
+    avm_result = get_avm_result("verify_bytes_or", a=a, b=b)
+    assert avm_result == Bytes(a) | Bytes(b)
+    assert avm_result == Bytes(a) | b
+    assert avm_result == a | Bytes(b)
+    i = Bytes(a)
+    i |= b
+    assert avm_result == i
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (b"0", b"0"),
+        (b"001", b"11"),
+        (b"100", b"11"),
+        (b"00", b"111"),
+        (b"11", b"001"),
+        (b"", b"11"),
+    ],
+)
+def test_bytes_bitwise_xor(get_avm_result: AVMInvoker, a: bytes, b: bytes) -> None:
+    avm_result = get_avm_result("verify_bytes_xor", a=a, b=b)
+    assert avm_result == Bytes(a) ^ Bytes(b)
+    assert avm_result == Bytes(a) ^ b
+    assert avm_result == a ^ Bytes(b)
+    i = Bytes(a)
+    i ^= b
+    assert avm_result == i
+
+
 def get_sha256_hash(v: Bytes) -> Bytes:
     return Bytes(sha256(v.value).digest())

@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import base64
+import operator
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+from itertools import zip_longest
 
 from algopy._constants import MAX_BYTES_SIZE, MAX_UINT64
 from algopy.primitives.uint64 import UInt64
@@ -80,6 +83,24 @@ class Bytes:
     def __eq__(self, other: object) -> bool:
         return self.value == _as_bytes(other)
 
+    def __and__(self, other: bytes | Bytes) -> Bytes:
+        return self._operate_bitwise(other, "and_")
+
+    def __rand__(self, other: bytes) -> Bytes:
+        return self & other
+
+    def __or__(self, other: bytes | Bytes) -> Bytes:
+        return self._operate_bitwise(other, "or_")
+
+    def __ror__(self, other: bytes) -> Bytes:
+        return self | other
+
+    def __xor__(self, other: bytes | Bytes) -> Bytes:
+        return self._operate_bitwise(other, "xor")
+
+    def __rxor__(self, other: bytes) -> Bytes:
+        return self ^ other
+
     def __invert__(self) -> Bytes:
         """
         Compute the bitwise inversion of the Bytes.
@@ -88,6 +109,24 @@ class Bytes:
             Bytes: The result of the bitwise inversion operation.
         """
         return Bytes(bytes(~x + 256 for x in self.value))
+
+    def _operate_bitwise(self, other: bytes | Bytes, operator_name: str) -> Bytes:
+        op = getattr(operator, operator_name)
+        maybe_bytes = _as_bytes(other)
+        # pad the shorter of self.value and other bytes with leading zero
+        # by reversing them as zip_longest fills at the end
+        return Bytes(
+            bytes(
+                reversed(
+                    bytes(
+                        op(a[0], a[1])
+                        for a in zip_longest(
+                            reversed(self.value), reversed(maybe_bytes), fillvalue=0
+                        )
+                    )
+                )
+            )
+        )
 
     @property
     def length(self) -> UInt64:
