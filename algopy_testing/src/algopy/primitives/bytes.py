@@ -26,14 +26,6 @@ class Bytes:
     def __init__(self, value: bytes = b"") -> None:
         self.value = _as_bytes(value)
 
-    # @classmethod
-    # def from_int(cls, value: int = 0) -> Bytes:
-    #     return cls(value.to_bytes(8))
-
-    # @classmethod
-    # def from_str(cls, value: str) -> Bytes:
-    #     return cls(str.encode(value))
-
     def __repr__(self) -> str:
         return repr(bytes)
 
