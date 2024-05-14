@@ -36,6 +36,7 @@ def primitive_ops_client(
     return client
 
 
+@pytest.fixture(scope="module")
 def get_avm_result(
     create_avm_invoker: typing.Callable[[ApplicationClient], AVMInvoker],
     primitive_ops_client: ApplicationClient,
