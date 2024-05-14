@@ -41,8 +41,6 @@ def as_bytes(value: object, *, max_size: int) -> bytes:
             pass
         case Bytes(value=bytes_value):
             pass
-        case n if (isinstance(n, Sequence) and all(isinstance(i, int) for i in n)):
-            bytes_value = bytes(n)
         case _:
             raise TypeError(f"value must be a bytes or Bytes type, not {type(value).__name__!r}")
     if len(bytes_value) > max_size:

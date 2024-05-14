@@ -44,7 +44,7 @@ class AVMInvoker(typing.Protocol):
 def get_avm_result(primitive_ops_client: ApplicationClient) -> AVMInvoker:
 
     def wrapped(method: str, **kwargs: typing.Any) -> object:
-        return primitive_ops_client.call(
+        result = primitive_ops_client.call(
             method,
             transaction_parameters={
                 # random note avoids duplicate txn if tests are running concurrently
@@ -52,5 +52,8 @@ def get_avm_result(primitive_ops_client: ApplicationClient) -> AVMInvoker:
             },
             **kwargs,
         ).return_value
+        if (isinstance(result, list) and all(isinstance(i, int) for i in result)):
+            result = bytes(result)
+        return result
 
     return wrapped
