@@ -4,7 +4,7 @@ tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.approval_program:
     // tests/artifacts/PrimitiveOps/contract.py:4
     // class PrimitiveOpsContract(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@23
+    bz main_bare_routing@31
     method "verify_uint64_init(byte[])uint64"
     method "verify_uint64_add(uint64,uint64)uint64"
     method "verify_uint64_sub(uint64,uint64)uint64"
@@ -24,8 +24,16 @@ tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.approval_program:
     method "verify_uint64_le(uint64,uint64)bool"
     method "verify_uint64_gt(uint64,uint64)bool"
     method "verify_uint64_ge(uint64,uint64)bool"
+    method "verify_bytes_init(uint64)byte[]"
+    method "verify_bytes_add(byte[],byte[],uint64,uint64)byte[]"
+    method "verify_bytes_eq(byte[],byte[])bool"
+    method "verify_bytes_ne(byte[],byte[])bool"
+    method "verify_bytes_and(byte[],byte[])byte[]"
+    method "verify_bytes_or(byte[],byte[])byte[]"
+    method "verify_bytes_xor(byte[],byte[])byte[]"
+    method "verify_bytes_not(byte[])byte[]"
     txna ApplicationArgs 0
-    match main_verify_uint64_init_route@2 main_verify_uint64_add_route@3 main_verify_uint64_sub_route@4 main_verify_uint64_mul_route@5 main_verify_uint64_div_route@6 main_verify_uint64_mod_route@7 main_verify_uint64_and_route@8 main_verify_uint64_or_route@9 main_verify_uint64_xor_route@10 main_verify_uint64_not_route@11 main_verify_uint64_lshift_route@12 main_verify_uint64_rshift_route@13 main_verify_uint64_pow_route@14 main_verify_uint64_eq_route@15 main_verify_uint64_ne_route@16 main_verify_uint64_lt_route@17 main_verify_uint64_le_route@18 main_verify_uint64_gt_route@19 main_verify_uint64_ge_route@20
+    match main_verify_uint64_init_route@2 main_verify_uint64_add_route@3 main_verify_uint64_sub_route@4 main_verify_uint64_mul_route@5 main_verify_uint64_div_route@6 main_verify_uint64_mod_route@7 main_verify_uint64_and_route@8 main_verify_uint64_or_route@9 main_verify_uint64_xor_route@10 main_verify_uint64_not_route@11 main_verify_uint64_lshift_route@12 main_verify_uint64_rshift_route@13 main_verify_uint64_pow_route@14 main_verify_uint64_eq_route@15 main_verify_uint64_ne_route@16 main_verify_uint64_lt_route@17 main_verify_uint64_le_route@18 main_verify_uint64_gt_route@19 main_verify_uint64_ge_route@20 main_verify_bytes_init_route@21 main_verify_bytes_add_route@22 main_verify_bytes_eq_route@23 main_verify_bytes_ne_route@24 main_verify_bytes_and_route@25 main_verify_bytes_or_route@26 main_verify_bytes_xor_route@27 main_verify_bytes_not_route@28
     err // reject transaction
 
 main_verify_uint64_init_route@2:
@@ -517,7 +525,243 @@ main_verify_uint64_ge_route@20:
     int 1
     return
 
-main_bare_routing@23:
+main_verify_bytes_init_route@21:
+    // tests/artifacts/PrimitiveOps/contract.py:100
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/PrimitiveOps/contract.py:4
+    // class PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // tests/artifacts/PrimitiveOps/contract.py:100
+    // @arc4.abimethod()
+    callsub verify_bytes_init
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_bytes_add_route@22:
+    // tests/artifacts/PrimitiveOps/contract.py:105
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/PrimitiveOps/contract.py:4
+    // class PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    btoi
+    txna ApplicationArgs 4
+    btoi
+    // tests/artifacts/PrimitiveOps/contract.py:105
+    // @arc4.abimethod()
+    callsub verify_bytes_add
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_bytes_eq_route@23:
+    // tests/artifacts/PrimitiveOps/contract.py:113
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/PrimitiveOps/contract.py:4
+    // class PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    // tests/artifacts/PrimitiveOps/contract.py:113
+    // @arc4.abimethod()
+    callsub verify_bytes_eq
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_bytes_ne_route@24:
+    // tests/artifacts/PrimitiveOps/contract.py:118
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/PrimitiveOps/contract.py:4
+    // class PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    // tests/artifacts/PrimitiveOps/contract.py:118
+    // @arc4.abimethod()
+    callsub verify_bytes_ne
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_bytes_and_route@25:
+    // tests/artifacts/PrimitiveOps/contract.py:123
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/PrimitiveOps/contract.py:4
+    // class PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    // tests/artifacts/PrimitiveOps/contract.py:123
+    // @arc4.abimethod()
+    callsub verify_bytes_and
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_bytes_or_route@26:
+    // tests/artifacts/PrimitiveOps/contract.py:128
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/PrimitiveOps/contract.py:4
+    // class PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    // tests/artifacts/PrimitiveOps/contract.py:128
+    // @arc4.abimethod()
+    callsub verify_bytes_or
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_bytes_xor_route@27:
+    // tests/artifacts/PrimitiveOps/contract.py:133
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/PrimitiveOps/contract.py:4
+    // class PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    // tests/artifacts/PrimitiveOps/contract.py:133
+    // @arc4.abimethod()
+    callsub verify_bytes_xor
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_verify_bytes_not_route@28:
+    // tests/artifacts/PrimitiveOps/contract.py:138
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    // tests/artifacts/PrimitiveOps/contract.py:4
+    // class PrimitiveOpsContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // tests/artifacts/PrimitiveOps/contract.py:138
+    // @arc4.abimethod()
+    callsub verify_bytes_not
+    dup
+    len
+    itob
+    substring 6 8
+    swap
+    concat
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_bare_routing@31:
     // tests/artifacts/PrimitiveOps/contract.py:4
     // class PrimitiveOpsContract(ARC4Contract):
     txn OnCompletion
@@ -828,5 +1072,148 @@ verify_uint64_ge:
     frame_dig -1
     >=
     // tests/artifacts/PrimitiveOps/contract.py:98
+    // return result
+    retsub
+
+
+// tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.verify_bytes_init(raw_value: uint64) -> bytes:
+verify_bytes_init:
+    // tests/artifacts/PrimitiveOps/contract.py:100-101
+    // @arc4.abimethod()
+    // def verify_bytes_init(self, raw_value: UInt64) -> Bytes:
+    proto 1 1
+    // tests/artifacts/PrimitiveOps/contract.py:102
+    // result = op.itob(raw_value)
+    frame_dig -1
+    itob
+    // tests/artifacts/PrimitiveOps/contract.py:103
+    // return result
+    retsub
+
+
+// tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.verify_bytes_add(a: bytes, b: bytes, pad_a_size: uint64, pad_b_size: uint64) -> bytes:
+verify_bytes_add:
+    // tests/artifacts/PrimitiveOps/contract.py:105-106
+    // @arc4.abimethod()
+    // def verify_bytes_add(self, a: Bytes, b: Bytes, pad_a_size: UInt64, pad_b_size: UInt64) -> Bytes:
+    proto 4 1
+    // tests/artifacts/PrimitiveOps/contract.py:107
+    // a =  op.bzero(pad_a_size) + a
+    frame_dig -2
+    bzero
+    frame_dig -4
+    concat
+    frame_bury -4
+    // tests/artifacts/PrimitiveOps/contract.py:108
+    // b = op.bzero(pad_b_size) + b
+    frame_dig -1
+    bzero
+    frame_dig -3
+    concat
+    frame_bury -3
+    // tests/artifacts/PrimitiveOps/contract.py:109
+    // result = a + b
+    frame_dig -4
+    frame_dig -3
+    concat
+    // tests/artifacts/PrimitiveOps/contract.py:110
+    // result = op.sha256(result)
+    sha256
+    // tests/artifacts/PrimitiveOps/contract.py:111
+    // return result
+    retsub
+
+
+// tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.verify_bytes_eq(a: bytes, b: bytes) -> uint64:
+verify_bytes_eq:
+    // tests/artifacts/PrimitiveOps/contract.py:113-114
+    // @arc4.abimethod()
+    // def verify_bytes_eq(self, a: Bytes, b: Bytes) -> bool:
+    proto 2 1
+    // tests/artifacts/PrimitiveOps/contract.py:115
+    // result = a == b
+    frame_dig -2
+    frame_dig -1
+    ==
+    // tests/artifacts/PrimitiveOps/contract.py:116
+    // return result
+    retsub
+
+
+// tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.verify_bytes_ne(a: bytes, b: bytes) -> uint64:
+verify_bytes_ne:
+    // tests/artifacts/PrimitiveOps/contract.py:118-119
+    // @arc4.abimethod()
+    // def verify_bytes_ne(self, a: Bytes, b: Bytes) -> bool:
+    proto 2 1
+    // tests/artifacts/PrimitiveOps/contract.py:120
+    // result = a != b
+    frame_dig -2
+    frame_dig -1
+    !=
+    // tests/artifacts/PrimitiveOps/contract.py:121
+    // return result
+    retsub
+
+
+// tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.verify_bytes_and(a: bytes, b: bytes) -> bytes:
+verify_bytes_and:
+    // tests/artifacts/PrimitiveOps/contract.py:123-124
+    // @arc4.abimethod()
+    // def verify_bytes_and(self, a: Bytes, b: Bytes) -> Bytes:
+    proto 2 1
+    // tests/artifacts/PrimitiveOps/contract.py:125
+    // result = a & b
+    frame_dig -2
+    frame_dig -1
+    b&
+    // tests/artifacts/PrimitiveOps/contract.py:126
+    // return result
+    retsub
+
+
+// tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.verify_bytes_or(a: bytes, b: bytes) -> bytes:
+verify_bytes_or:
+    // tests/artifacts/PrimitiveOps/contract.py:128-129
+    // @arc4.abimethod()
+    // def verify_bytes_or(self, a: Bytes, b: Bytes) -> Bytes:
+    proto 2 1
+    // tests/artifacts/PrimitiveOps/contract.py:130
+    // result = a | b
+    frame_dig -2
+    frame_dig -1
+    b|
+    // tests/artifacts/PrimitiveOps/contract.py:131
+    // return result
+    retsub
+
+
+// tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.verify_bytes_xor(a: bytes, b: bytes) -> bytes:
+verify_bytes_xor:
+    // tests/artifacts/PrimitiveOps/contract.py:133-134
+    // @arc4.abimethod()
+    // def verify_bytes_xor(self, a: Bytes, b: Bytes) -> Bytes:
+    proto 2 1
+    // tests/artifacts/PrimitiveOps/contract.py:135
+    // result = a ^ b
+    frame_dig -2
+    frame_dig -1
+    b^
+    // tests/artifacts/PrimitiveOps/contract.py:136
+    // return result
+    retsub
+
+
+// tests.artifacts.PrimitiveOps.contract.PrimitiveOpsContract.verify_bytes_not(a: bytes) -> bytes:
+verify_bytes_not:
+    // tests/artifacts/PrimitiveOps/contract.py:138-139
+    // @arc4.abimethod()
+    // def verify_bytes_not(self, a: Bytes) -> Bytes:
+    proto 1 1
+    // tests/artifacts/PrimitiveOps/contract.py:140
+    // result = ~a
+    frame_dig -1
+    b~
+    // tests/artifacts/PrimitiveOps/contract.py:141
     // return result
     retsub
