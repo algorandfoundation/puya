@@ -27,7 +27,7 @@ class Bytes:
         self.value = _as_bytes(value)
 
     def __repr__(self) -> str:
-        return repr(bytes)
+        return repr(self.value)
 
     def __str__(self) -> str:
         return str(self.value)

@@ -160,3 +160,13 @@ def test_bytes_bitwise_xor(get_avm_result: AVMInvoker, a: bytes, b: bytes) -> No
 
 def get_sha256_hash(v: Bytes) -> Bytes:
     return Bytes(sha256(v.value).digest())
+
+# NON AVM functionality
+# these don't have an AVM equivalent, but are very useful when executing in a python context
+
+
+def test_bytes_str() -> None:
+    value = b"hello, world"
+
+    assert str(Bytes(value)) == str(value)
+    assert repr(Bytes(value)) == repr(value)
