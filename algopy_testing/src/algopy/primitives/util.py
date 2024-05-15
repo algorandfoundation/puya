@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from algopy import Bytes, UInt64
+from algopy import BigUInt, Bytes, UInt64
 
 
 def as_int(value: object, *, max: int) -> int:  # noqa: A002
@@ -15,6 +15,8 @@ def as_int(value: object, *, max: int) -> int:  # noqa: A002
         case int(int_value):
             pass
         case UInt64(value=int_value):
+            pass
+        case BigUInt(value=int_value):
             pass
         # TODO: add BigUInt and arc4 numerics
         case _:
