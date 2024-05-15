@@ -143,3 +143,73 @@ class PrimitiveOpsContract(ARC4Contract):
         result = ~a
         result = op.sha256(result)
         return result
+
+    @arc4.abimethod()
+    def verify_biguint_add(self, a: arc4.UInt512, b: arc4.UInt512) -> arc4.UInt512:
+        result = a.native + b.native
+        return arc4.UInt512(result)
+
+    @arc4.abimethod()
+    def verify_biguint_sub(self, a: arc4.UInt512, b: arc4.UInt512) -> arc4.UInt512:
+        result = a.native - b.native
+        return arc4.UInt512(result)
+
+    @arc4.abimethod()
+    def verify_biguint_mul(self, a: arc4.UInt512, b: arc4.UInt512) -> arc4.UInt512:
+        result = a.native * b.native
+        return arc4.UInt512(result)
+
+    @arc4.abimethod()
+    def verify_biguint_div(self, a: arc4.UInt512, b: arc4.UInt512) -> arc4.UInt512:
+        result = a.native // b.native
+        return arc4.UInt512(result)
+
+    @arc4.abimethod()
+    def verify_biguint_mod(self, a: arc4.UInt512, b: arc4.UInt512) -> arc4.UInt512:
+        result = a.native % b.native
+        return arc4.UInt512(result)
+
+    @arc4.abimethod()
+    def verify_biguint_and(self, a: arc4.UInt512, b: arc4.UInt512) -> arc4.UInt512:
+        result = a.native & b.native
+        return arc4.UInt512(result)
+
+    @arc4.abimethod()
+    def verify_biguint_or(self, a: arc4.UInt512, b: arc4.UInt512) -> arc4.UInt512:
+        result = a.native | b.native
+        return arc4.UInt512(result)
+
+    @arc4.abimethod()
+    def verify_biguint_xor(self, a: arc4.UInt512, b: arc4.UInt512) -> arc4.UInt512:
+        result = a.native ^ b.native
+        return arc4.UInt512(result)
+
+    @arc4.abimethod()
+    def verify_biguint_eq(self, a: arc4.UInt512, b: arc4.UInt512) -> bool:
+        result = a == b
+        return result
+
+    @arc4.abimethod()
+    def verify_biguint_ne(self, a: arc4.UInt512, b: arc4.UInt512) -> bool:
+        result = a != b
+        return result
+
+    @arc4.abimethod()
+    def verify_biguint_lt(self, a: arc4.UInt512, b: arc4.UInt512) -> bool:
+        result = a < b
+        return result
+
+    @arc4.abimethod()
+    def verify_biguint_le(self, a: arc4.UInt512, b: arc4.UInt512) -> bool:
+        result = a <= b
+        return result
+
+    @arc4.abimethod()
+    def verify_biguint_gt(self, a: arc4.UInt512, b: arc4.UInt512) -> bool:
+        result = a > b
+        return result
+
+    @arc4.abimethod()
+    def verify_biguint_ge(self, a: arc4.UInt512, b: arc4.UInt512) -> bool:
+        result = a >= b
+        return result

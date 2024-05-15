@@ -93,15 +93,6 @@ class BigUInt:
     def __rxor__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return self ^ other
 
-    def __invert__(self) -> BigUInt:
-        """
-        Compute the bitwise inversion of the BigUInt.
-
-        Returns:
-            BigUInt: The result of the bitwise inversion operation.
-        """
-        return BigUInt(~self.value & MAX_UINT512)
-
     def __index__(self) -> int:
         """
         Return the internal integer value of the BigUInt for use in indexing/slice expressions.
