@@ -1,0 +1,72 @@
+#pragma version 10
+
+test_cases.reinterpret_cast.contract.Contract.approval_program:
+    txn NumAppArgs
+    bz main_bare_routing@6
+    method "bytes_to_bool()bool"
+    method "test_bytes_to_biguint()void"
+    txna ApplicationArgs 0
+    match main_bytes_to_bool_route@2 main_test_bytes_to_biguint_route@3
+    err // reject transaction
+
+main_bytes_to_bool_route@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub bytes_to_bool
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_test_bytes_to_biguint_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_bytes_to_biguint
+    int 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    !
+    assert // reject transaction
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+
+// test_cases.reinterpret_cast.contract.Contract.bytes_to_bool() -> uint64:
+bytes_to_bool:
+    proto 0 1
+    int 0
+    retsub
+
+
+// test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint() -> void:
+test_bytes_to_biguint:
+    proto 0 0
+    callsub bytes_to_biguint
+    byte 0x
+    b!=
+    assert
+    retsub
+
+
+// test_cases.reinterpret_cast.contract.bytes_to_biguint() -> bytes:
+bytes_to_biguint:
+    proto 0 1
+    byte ""
+    retsub

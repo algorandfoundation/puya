@@ -15,8 +15,10 @@ from puya.ir.builder import arc4, flow_control, state
 from puya.ir.builder._utils import (
     assert_value,
     assign,
+    assign_targets,
     extract_const_int,
     mkblocks,
+    mktemp,
 )
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.bytes import (
@@ -697,8 +699,14 @@ class FunctionIRBuilder(
 
     def visit_reinterpret_cast(self, expr: awst_nodes.ReinterpretCast) -> TExpression:
         # should be a no-op for us, but we validate the cast here too
-        inner_avm_type = wtype_to_ir_type(expr.expr).avm_type
-        outer_avm_type = wtype_to_ir_type(expr).avm_type
+        source = self.visit_expr(expr.expr)
+        (inner_ir_type,) = source.types
+        outer_ir_type = wtype_to_ir_type(expr)
+        # don't need to do anything further if ir types are the same
+        if inner_ir_type == outer_ir_type:
+            return source
+        inner_avm_type = inner_ir_type.avm_type
+        outer_avm_type = outer_ir_type.avm_type
         if inner_avm_type != outer_avm_type:
             raise InternalError(
                 f"Tried to reinterpret {expr.expr.wtype} as {expr.wtype},"
@@ -706,7 +714,19 @@ class FunctionIRBuilder(
                 f" {inner_avm_type} and {outer_avm_type}, respectively",
                 expr.source_location,
             )
-        return expr.expr.accept(self)
+        target = mktemp(
+            self.context,
+            outer_ir_type,
+            source_location=expr.source_location,
+            description=f"reinterpret_{outer_ir_type.name}",
+        )
+        assign_targets(
+            self.context,
+            source=source,
+            targets=[target],
+            assignment_location=expr.source_location,
+        )
+        return target
 
     def visit_block(self, block: awst_nodes.Block) -> TStatement:
         for stmt in block.body:
