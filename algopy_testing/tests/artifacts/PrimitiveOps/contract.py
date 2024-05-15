@@ -138,6 +138,8 @@ class PrimitiveOpsContract(ARC4Contract):
         return result
 
     @arc4.abimethod()
-    def verify_bytes_not(self, a: Bytes) -> Bytes:
+    def verify_bytes_not(self, a: Bytes, pad_size: UInt64) -> Bytes:
+        a = op.bzero(pad_size) + a
         result = ~a
+        result = op.sha256(result)
         return result

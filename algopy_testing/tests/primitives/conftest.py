@@ -36,13 +36,11 @@ def primitive_ops_client(
 
 
 class AVMInvoker(typing.Protocol):
-
     def __call__(self, method: str, **kwargs: typing.Any) -> object: ...
 
 
 @pytest.fixture(scope="module")
 def get_avm_result(primitive_ops_client: ApplicationClient) -> AVMInvoker:
-
     def wrapped(method: str, **kwargs: typing.Any) -> object:
         result = primitive_ops_client.call(
             method,
