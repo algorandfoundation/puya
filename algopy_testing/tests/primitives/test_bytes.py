@@ -244,7 +244,8 @@ def test_bytes_reversed(value: bytes) -> None:
         0,
         slice(0, 2),
         11,
-        slice(11, 1),
+        slice(11, 12),
+        slice(10, 13),
     ],
 )
 def test_bytes_index(index: int | slice) -> None:
