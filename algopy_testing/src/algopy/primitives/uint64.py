@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import functools
 
-from algopy.constants import MAX_UINT64
+from algopy_testing.constants import MAX_UINT64
 
 # TypeError, ValueError are used for operations that are compile time errors
 # ArithmeticError and subclasses are used for operations that would fail during AVM execution
@@ -206,7 +206,7 @@ def _checked_result(result: int, op: str) -> UInt64:
 
 
 def _as_int64(value: object) -> int:
-    from algopy.primitives.util import as_int
+    from algopy.utils import as_int
 
     return as_int(value, max=MAX_UINT64)
 

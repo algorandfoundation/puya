@@ -9,7 +9,8 @@ if TYPE_CHECKING:
 
 from itertools import zip_longest
 
-from algopy.constants import MAX_BYTES_SIZE, MAX_UINT64
+from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT64
+
 from algopy.primitives.uint64 import UInt64
 
 # TypeError, ValueError are used for operations that are compile time errors
@@ -173,12 +174,12 @@ def _checked_result(result: bytes, op: str) -> Bytes:
 
 
 def _as_bytes(value: object) -> bytes:
-    from algopy.primitives.util import as_bytes
+    from algopy.utils import as_bytes
 
     return as_bytes(value, max_size=MAX_BYTES_SIZE)
 
 
 def _as_int(value: object) -> int:
-    from algopy.primitives.util import as_int
+    from algopy.utils import as_int
 
     return as_int(value, max=MAX_UINT64)
