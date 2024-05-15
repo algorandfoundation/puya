@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 from itertools import zip_longest
 
-from algopy._constants import MAX_BYTES_SIZE, MAX_UINT64
+from algopy.constants import MAX_BYTES_SIZE, MAX_UINT64
 from algopy.primitives.uint64 import UInt64
 
 # TypeError, ValueError are used for operations that are compile time errors

@@ -3,7 +3,7 @@ from hashlib import sha256
 
 import algokit_utils
 import pytest
-from algopy._constants import MAX_BYTES_SIZE
+from algopy.constants import MAX_BYTES_SIZE
 from algopy.primitives.bytes import Bytes
 
 from tests.primitives.conftest import AVMInvoker
