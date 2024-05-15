@@ -2,103 +2,182 @@ import typing
 
 from algopy import Account, Application, Asset, Bytes, OnCompleteAction, TransactionType, UInt64
 
-class TransactionBaseProtocol(typing.Protocol):
+class _TransactionBaseProtocol(typing.Protocol):
     @property
-    def sender(self) -> Account: ...
-    @property
-    def fee(self) -> UInt64: ...
-    @property
-    def first_valid(self) -> UInt64: ...
-    @property
-    def first_valid_time(self) -> UInt64: ...
-    @property
-    def last_valid(self) -> UInt64: ...
-    @property
-    def note(self) -> Bytes: ...
-    @property
-    def lease(self) -> Bytes: ...
-    @property
-    def type_bytes(self) -> Bytes: ...
-    @property
-    def type(self) -> TransactionType: ...
-    @property
-    def group_index(self) -> UInt64: ...
-    @property
-    def txn_id(self) -> Bytes: ...
-    @property
-    def rekey_to(self) -> Account: ...
+    def sender(self) -> Account:
+        """32 byte address"""
 
-class PaymentProtocol(typing.Protocol):
     @property
-    def receiver(self) -> Account: ...
-    @property
-    def amount(self) -> UInt64: ...
-    @property
-    def close_remainder_to(self) -> Account: ...
+    def fee(self) -> UInt64:
+        """microalgos"""
 
-class KeyRegistrationProtocol(typing.Protocol):
     @property
-    def vote_key(self) -> Bytes: ...
-    @property
-    def selection_key(self) -> Bytes: ...
-    @property
-    def vote_first(self) -> UInt64: ...
-    @property
-    def vote_last(self) -> UInt64: ...
-    @property
-    def vote_key_dilution(self) -> UInt64: ...
-    @property
-    def non_participation(self) -> bool: ...
-    @property
-    def state_proof_key(self) -> Bytes: ...
+    def first_valid(self) -> UInt64:
+        """round number"""
 
-class AssetConfigProtocol(typing.Protocol):
     @property
-    def config_asset(self) -> Asset: ...
-    @property
-    def total(self) -> UInt64: ...
-    @property
-    def decimals(self) -> UInt64: ...
-    @property
-    def default_frozen(self) -> bool: ...
-    @property
-    def unit_name(self) -> Bytes: ...
-    @property
-    def asset_name(self) -> Bytes: ...
-    @property
-    def url(self) -> Bytes: ...
-    @property
-    def metadata_hash(self) -> Bytes: ...
-    @property
-    def manager(self) -> Account: ...
-    @property
-    def reserve(self) -> Account: ...
-    @property
-    def freeze(self) -> Account: ...
-    @property
-    def clawback(self) -> Account: ...
+    def first_valid_time(self) -> UInt64:
+        """UNIX timestamp of block before txn.FirstValid. Fails if negative"""
 
-class AssetTransferProtocol(typing.Protocol):
     @property
-    def xfer_asset(self) -> Asset: ...
-    @property
-    def asset_amount(self) -> UInt64: ...
-    @property
-    def asset_sender(self) -> Account: ...
-    @property
-    def asset_receiver(self) -> Account: ...
-    @property
-    def asset_close_to(self) -> Account: ...
+    def last_valid(self) -> UInt64:
+        """round number"""
 
-class AssetFreezeProtocol(typing.Protocol):
     @property
-    def freeze_asset(self) -> Asset: ...
-    @property
-    def freeze_account(self) -> Account: ...
-    @property
-    def frozen(self) -> bool: ...
+    def note(self) -> Bytes:
+        """Any data up to 1024 bytes"""
 
-class ApplicationProtocol(typing.Protocol):
+    @property
+    def lease(self) -> Bytes:
+        """32 byte lease value"""
+
+    @property
+    def type_bytes(self) -> Bytes:
+        """Transaction type as bytes"""
+
+    @property
+    def type(self) -> TransactionType:
+        """Transaction type as integer"""
+
+    @property
+    def group_index(self) -> UInt64:
+        """Position of this transaction within an atomic transaction group.
+        A stand-alone transaction is implicitly element 0 in a group of 1"""
+
+    @property
+    def txn_id(self) -> Bytes:
+        """The computed ID for this transaction. 32 bytes."""
+
+    @property
+    def rekey_to(self) -> Account:
+        """32 byte Sender's new AuthAddr"""
+
+class _PaymentProtocol(typing.Protocol):
+    @property
+    def receiver(self) -> Account:
+        """32 byte address"""
+
+    @property
+    def amount(self) -> UInt64:
+        """microalgos"""
+
+    @property
+    def close_remainder_to(self) -> Account:
+        """32 byte address"""
+
+class _KeyRegistrationProtocol(typing.Protocol):
+    @property
+    def vote_key(self) -> Bytes:
+        """32 byte address"""
+
+    @property
+    def selection_key(self) -> Bytes:
+        """32 byte address"""
+
+    @property
+    def vote_first(self) -> UInt64:
+        """The first round that the participation key is valid."""
+
+    @property
+    def vote_last(self) -> UInt64:
+        """The last round that the participation key is valid."""
+
+    @property
+    def vote_key_dilution(self) -> UInt64:
+        """Dilution for the 2-level participation key"""
+
+    @property
+    def non_participation(self) -> bool:
+        """Marks an account nonparticipating for rewards"""
+
+    @property
+    def state_proof_key(self) -> Bytes:
+        """64 byte state proof public key"""
+
+class _AssetConfigProtocol(typing.Protocol):
+    @property
+    def config_asset(self) -> Asset:
+        """Asset ID in asset config transaction"""
+
+    @property
+    def total(self) -> UInt64:
+        """Total number of units of this asset created"""
+
+    @property
+    def decimals(self) -> UInt64:
+        """Number of digits to display after the decimal place when displaying the asset"""
+
+    @property
+    def default_frozen(self) -> bool:
+        """Whether the asset's slots are frozen by default or not, 0 or 1"""
+
+    @property
+    def unit_name(self) -> Bytes:
+        """Unit name of the asset"""
+
+    @property
+    def asset_name(self) -> Bytes:
+        """The asset name"""
+
+    @property
+    def url(self) -> Bytes:
+        """URL"""
+
+    @property
+    def metadata_hash(self) -> Bytes:
+        """32 byte commitment to unspecified asset metadata"""
+
+    @property
+    def manager(self) -> Account:
+        """32 byte address"""
+
+    @property
+    def reserve(self) -> Account:
+        """32 byte address"""
+
+    @property
+    def freeze(self) -> Account:
+        """32 byte address"""
+
+    @property
+    def clawback(self) -> Account:
+        """32 byte address"""
+
+class _AssetTransferProtocol(typing.Protocol):
+    @property
+    def xfer_asset(self) -> Asset:
+        """Asset ID"""
+
+    @property
+    def asset_amount(self) -> UInt64:
+        """value in Asset's units"""
+
+    @property
+    def asset_sender(self) -> Account:
+        """32 byte address. Source of assets if Sender is the Asset's Clawback address."""
+
+    @property
+    def asset_receiver(self) -> Account:
+        """32 byte address"""
+
+    @property
+    def asset_close_to(self) -> Account:
+        """32 byte address"""
+
+class _AssetFreezeProtocol(typing.Protocol):
+    @property
+    def freeze_asset(self) -> Asset:
+        """Asset ID being frozen or un-frozen"""
+
+    @property
+    def freeze_account(self) -> Account:
+        """32 byte address of the account whose asset slot is being frozen or un-frozen"""
+
+    @property
+    def frozen(self) -> bool:
+        """The new frozen value, 0 or 1"""
+
+class _ApplicationProtocol(typing.Protocol):
     @property
     def app_id(self) -> Application:
         """ApplicationID from ApplicationCall transaction"""
