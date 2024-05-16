@@ -198,6 +198,17 @@ class ASTConversionModuleContext(ASTConversionContext):
                 if result is None:
                     return recurse(mypy.types.get_proper_type(proper_type_or_alias))
                 return self._maybe_parameterise_pytype(result, args, loc)
+            # this is how variadic tuples are represented in mypy types...
+            case mypy.types.Instance(
+                type=mypy.nodes.TypeInfo(fullname="builtins.tuple"), args=args
+            ):
+                try:
+                    (arg,) = args
+                except ValueError:
+                    raise InternalError(
+                        f"mypy tuple type as instance had unrecognised args: {args}", loc
+                    ) from None
+                return pytypes.VariadicTupleType(items=recurse(arg))
             case mypy.types.Instance(args=args) as inst:
                 fullname = inst.type.fullname
                 result = self._pytypes.get(fullname)
@@ -256,8 +267,8 @@ class ASTConversionModuleContext(ASTConversionContext):
                     # note sure if this will always work for overloads, but the only overloaded
                     # constructor we have is arc4.StaticArray, so...
                     ret_type = func_like.items[0].ret_type
-                    typ_typ = recurse(ret_type)
-                    return pytypes.GenericTypeType.parameterise([typ_typ], loc)
+                    cls_typ = recurse(ret_type)
+                    return pytypes.TypeType(cls_typ)
                 else:
                     if not isinstance(func_like, mypy.types.CallableType):  # vs Overloaded
                         raise CodeError(
@@ -268,7 +279,13 @@ class ASTConversionModuleContext(ASTConversionContext):
                     for at, name, kind in zip(
                         func_like.arg_types, func_like.arg_names, func_like.arg_kinds, strict=True
                     ):
-                        func_args.append(pytypes.FuncArg(typ=recurse(at), kind=kind, name=name))
+                        try:
+                            pt = recurse(at)
+                        except TypeUnionError as union:
+                            pts = union.types
+                        else:
+                            pts = [pt]
+                        func_args.append(pytypes.FuncArg(types=pts, kind=kind, name=name))
                     if None in func_like.bound_args:
                         logger.debug(
                             "None contained in bound args for function reference", location=loc

@@ -6,6 +6,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import cached_property
 
 import attrs
+import typing_extensions
 from immutabledict import immutabledict
 
 from puya import log
@@ -25,7 +26,7 @@ logger = log.get_logger(__name__)
 class PyType(abc.ABC):
     name: str
     """The canonical fully qualified type name"""
-    generic: _GenericType | None = None
+    generic: PyType | None = None
     """The generic type that this type was parameterised from, if any."""
     bases: Sequence[PyType] = attrs.field(default=(), converter=tuple["PyType", ...])
     """Direct base classes. probably excluding the implicit builtins.object?"""
@@ -82,7 +83,7 @@ class PyType(abc.ABC):
 _builtins_registry: typing.Final = dict[str, PyType]()
 
 
-_TPyType = typing.TypeVar("_TPyType", bound=PyType)
+_TPyType = typing_extensions.TypeVar("_TPyType", bound=PyType, default=PyType)
 
 
 def _register_builtin(typ: _TPyType, *, alias: str | None = None) -> _TPyType:
@@ -110,18 +111,20 @@ def builtins_registry() -> dict[str, PyType]:
 # None types are also encoded as their own type, but we have them as values here.
 TypingLiteralValue: typing.TypeAlias = int | bytes | str | bool | None
 _TypeArgs: typing.TypeAlias = tuple[PyType, ...]
-_Parameterise: typing.TypeAlias = Callable[
-    ["_GenericType", _TypeArgs, SourceLocation | None], PyType
-]
+_Parameterise = typing_extensions.TypeAliasType(
+    "_Parameterise",
+    Callable[["_GenericType[_TPyType]", _TypeArgs, SourceLocation | None], _TPyType],
+    type_params=(_TPyType,),
+)
 
 
 @typing.final
 @attrs.frozen
-class _GenericType(PyType, abc.ABC):
+class _GenericType(PyType, abc.ABC, typing.Generic[_TPyType]):
     """Represents a typing.Generic type with unknown parameters"""
 
-    _parameterise: _Parameterise
-    _instance_cache: dict[_TypeArgs, PyType] = attrs.field(factory=dict, eq=False)
+    _parameterise: _Parameterise[_TPyType]
+    _instance_cache: dict[_TypeArgs, _TPyType] = attrs.field(factory=dict, eq=False)
 
     def __attrs_post_init__(self) -> None:
         _register_builtin(self)
@@ -134,7 +137,7 @@ class _GenericType(PyType, abc.ABC):
     @typing.override
     def parameterise(
         self, args: Sequence[PyType], source_location: SourceLocation | None
-    ) -> PyType:
+    ) -> _TPyType:
         return lazy_setdefault(
             self._instance_cache,
             key=tuple(args),
@@ -142,19 +145,8 @@ class _GenericType(PyType, abc.ABC):
         )
 
 
-@typing.final
-@attrs.frozen
-class TypeType(PyType):
-    typ: PyType
-
-    @typing.override
-    @property
-    def wtype(self) -> typing.Never:
-        raise CodeError("type objects are not usable as values")
-
-
 def _parameterise_type_type(
-    self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
+    self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None  # noqa: ARG001
 ) -> TypeType:
     try:
         (arg,) = args
@@ -162,14 +154,30 @@ def _parameterise_type_type(
         raise CodeError(
             f"Expected a single type parameter, got {len(args)} parameters", source_location
         ) from None
-    name = f"{self.name}[{arg.name}]"
-    return TypeType(name=name, typ=arg, generic=self)
+    return TypeType(typ=arg)
 
 
 GenericTypeType: typing.Final[PyType] = _GenericType(
     name="builtins.type",
     parameterise=_parameterise_type_type,
 )
+
+
+@typing.final
+@attrs.frozen
+class TypeType(PyType):
+    typ: PyType
+    generic: PyType = attrs.field(default=GenericTypeType, init=False)
+    name: str = attrs.field(init=False)
+
+    @name.default
+    def _name_default(self) -> str:
+        return f"{self.generic.name}[{self.typ.name}]"
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError("type objects are not usable as values")
 
 
 @typing.final
@@ -195,7 +203,7 @@ class TypingLiteralType(PyType):
 @typing.final
 @attrs.frozen
 class TupleType(PyType):
-    generic: _GenericType
+    generic: _GenericType[TupleType]
     items: tuple[PyType, ...] = attrs.field(validator=attrs.validators.min_len(1))
     wtype: wtypes.WType
 
@@ -228,7 +236,9 @@ class StorageMapProxyType(PyType):
 @typing.final
 @attrs.frozen
 class FuncArg:
-    typ: PyType
+    types: Sequence[PyType] = attrs.field(
+        converter=tuple[PyType, ...], validator=attrs.validators.min_len(1)
+    )
     name: str | None
     kind: ArgKind
 
@@ -328,7 +338,7 @@ class _LiteralOnlyType(PyType):
         _register_builtin(self)
 
 
-NoneType: typing.Final[PyType] = _SimpleType(name="types.NoneType", wtype=wtypes.void_wtype)
+NoneType: typing.Final[PyType] = _SimpleType(name="builtins.None", wtype=wtypes.void_wtype)
 BoolType: typing.Final[PyType] = _SimpleType(name="builtins.bool", wtype=wtypes.bool_wtype)
 IntLiteralType: typing.Final[PyType] = _LiteralOnlyType(name="builtins.int")
 StrLiteralType: typing.Final[PyType] = _LiteralOnlyType(name="builtins.str")
@@ -530,9 +540,9 @@ GenericARC4BigUFixedNxMType: typing.Final = _GenericType(
 
 def _make_tuple_parameterise(
     typ: Callable[[Iterable[wtypes.WType], SourceLocation | None], wtypes.WType]
-) -> _Parameterise:
+) -> _Parameterise[TupleType]:
     def parameterise(
-        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
+        self: _GenericType[TupleType], args: _TypeArgs, source_location: SourceLocation | None
     ) -> TupleType:
         item_wtypes = [arg.wtype for arg in args]
         name = f"{self.name}[{', '.join(pyt.name for pyt in args)}]"
@@ -555,6 +565,25 @@ GenericARC4TupleType: typing.Final = _GenericType(
     name=constants.CLS_ARC4_TUPLE,
     parameterise=_make_tuple_parameterise(wtypes.ARC4Tuple),
 )
+
+
+@typing.final
+@attrs.frozen
+class VariadicTupleType(PyType):
+    items: PyType
+    generic: _GenericType = attrs.field(default=GenericTupleType, init=False)
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+    name: str = attrs.field(init=False)
+
+    @name.default
+    def _name_factory(self) -> str:
+        return f"{self.generic.name}[{self.items.name}, ...]"
+
+    @typing.override
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError("variadic tuples cannot be used as runtime values")
 
 
 def _make_array_parameterise(
@@ -902,3 +931,41 @@ ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
 ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_CLIENT)
 ARC4StructBaseType: typing.Final[PyType] = _BaseType(name=constants.CLS_ARC4_STRUCT)
 StructBaseType: typing.Final[PyType] = _BaseType(name=constants.STRUCT_BASE)
+
+
+@typing.final
+@attrs.frozen
+class PseudoGenericFunctionType(PyType):
+    return_type: PyType
+    generic: _GenericType[PseudoGenericFunctionType]
+    bases: Sequence[PyType] = attrs.field(default=(), init=False)
+    mro: Sequence[PyType] = attrs.field(default=(), init=False)
+
+    @property
+    def wtype(self) -> typing.Never:
+        raise CodeError(f"{self} is not a value")
+
+
+def _parameterise_pseudo_generic_function_type(
+    self: _GenericType[PseudoGenericFunctionType],
+    args: _TypeArgs,
+    source_location: SourceLocation | None,
+) -> PseudoGenericFunctionType:
+    try:
+        (arg,) = args
+    except ValueError:
+        raise CodeError(
+            f"Expected a single type parameter, got {len(args)} parameters", source_location
+        ) from None
+    name = f"{self.name}[{arg.name}]"
+    return PseudoGenericFunctionType(generic=self, name=name, return_type=arg)
+
+
+GenericABICallWithReturnType: typing.Final[PyType] = _GenericType(
+    name=f"{constants.ARC4_PREFIX}_ABICallWithReturnProtocol",
+    parameterise=_parameterise_pseudo_generic_function_type,
+)
+GenericTemplateVarType: typing.Final[PyType] = _GenericType(
+    name=f"{constants.ALGOPY_PREFIX}._template_variables._TemplateVarMethod",
+    parameterise=_parameterise_pseudo_generic_function_type,
+)
