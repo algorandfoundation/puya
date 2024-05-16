@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from algopy_testing.constants import MAX_BYTES_SIZE
+
 from algopy import BigUInt, Bytes, UInt64
 
 
@@ -28,7 +30,7 @@ def as_int(value: object, *, max: int | None) -> int:  # noqa: A002
     return int_value
 
 
-def as_bytes(value: object, *, max_size: int) -> bytes:
+def as_bytes(value: object, *, max_size: int = MAX_BYTES_SIZE) -> bytes:
     """
     Returns the underlying bytes value for bytes or Bytes type up to 4096
 

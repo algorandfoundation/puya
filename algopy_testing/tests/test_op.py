@@ -1,4 +1,3 @@
-import hashlib
 import typing
 from pathlib import Path
 
@@ -6,6 +5,7 @@ import algokit_utils
 import algosdk
 import coincurve
 import ecdsa  # type: ignore  # noqa: PGH003
+import ecdsa.util  # type: ignore  # noqa: PGH003
 import nacl.signing
 import pytest
 from algokit_utils import ApplicationClient, get_localnet_default_account
@@ -15,9 +15,9 @@ from algopy_testing.contexts import state_context
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.indexer import IndexerClient
 from Cryptodome.Hash import keccak
-from ecdsa import NIST256p, SECP256k1, SigningKey, curves
+from ecdsa import SECP256k1, SigningKey, curves
 
-from tests.common import AVMInvoker
+from tests.common import AVMInvoker, create_avm_invoker
 
 ARTIFACTS_DIR = Path(__file__).parent / "artifacts"
 APP_SPEC = ARTIFACTS_DIR / "CryptoOps" / "data" / "CryptoOpsContract.arc32.json"
@@ -31,6 +31,7 @@ def _generate_ecdsa_test_data(curve: curves.Curve) -> dict[str, typing.Any]:
     vk = sk.verifying_key
     data = b"test data for ecdsa"
     message_hash = keccak.new(data=data, digest_bits=256).digest()
+
     signature = sk.sign_digest(message_hash, sigencode=ecdsa.util.sigencode_string)
     r, s = ecdsa.util.sigdecode_string(signature, sk.curve.order)
     recovery_id = 0  # Recovery ID is typically 0 or 1
@@ -70,7 +71,6 @@ def crypto_ops_client(
 
 @pytest.fixture(scope="module")
 def get_crypto_ops_avm_result(
-    create_avm_invoker: typing.Callable[[ApplicationClient], AVMInvoker],
     crypto_ops_client: ApplicationClient,
 ) -> AVMInvoker:
     return create_avm_invoker(crypto_ops_client)
@@ -174,12 +174,8 @@ def test_ed25519verify(
     crypto_ops_client: ApplicationClient,
     get_crypto_ops_avm_result: AVMInvoker,
 ) -> None:
-    with state_context() as state:
-        # Ensure the approval program is set
-        assert crypto_ops_client.approval
-        state.update_state("program_hash", crypto_ops_client.approval.raw_binary)
-        assert state.get_state("program_hash") == crypto_ops_client.approval.raw_binary
-
+    assert crypto_ops_client.approval
+    with state_context({"program_hash": crypto_ops_client.approval.raw_binary}):
         # Prepare message and signing parameters
         message = b"Test message for ed25519 verification"
         sp = algod_client.suggested_params()
@@ -201,7 +197,7 @@ def test_ed25519verify(
         assert avm_result == result, "The AVM result should match the expected result"
 
     # Ensure the function raises an error outside the state context
-    with pytest.raises(KeyError, match="Run within 'algopy_testing.contexts.state_context'"):
+    with pytest.raises(RuntimeError, match="function must be run within a 'state_context'"):
         op.ed25519verify(message, signature, public_key)
 
 
@@ -209,15 +205,21 @@ def test_ecdsa_verify_k1(
     algod_client: AlgodClient,
     get_crypto_ops_avm_result: AVMInvoker,
 ) -> None:
-    sk = SigningKey.generate(curve=SECP256k1)
-    vk = sk.verifying_key
-
-    message = b"Test message for ECDSA verification"
-    message_hash = hashlib.sha256(message).digest()
-
-    signature = sk.sign_digest(message_hash, sigencode=ecdsa.util.sigencode_string)
-    sig_r, sig_s = signature[:32], signature[32:]
-    pubkey_x, pubkey_y = vk.to_string()[:32], vk.to_string()[32:]
+    message_hash = (
+        b"\xf8\t\xfd\n\xa0\xbb\x0f \xb3T\xc6\xb2\xf8n\xa7Q\x95zN&*Tk\xd7\x16\xf3Oi\xb9Qj\xe1"
+    )
+    sig_r = (
+        b"\xf7\xf9\x13uN\\\x93?8%\xd3\xae\xf2.\x8b\xf7\\\xfe5\xa1\x8b\xed\xe1>\x15\xa6\xe4\xad"
+        b"\xcf\xe8\x16\xd2"
+    )
+    sig_s = (
+        b"\x0bU\x99\x15\x9a\xa8Y\xd7\x96w\xf32\x80\x84\x8a\xe4\xc0\x9c a\xe8\xb5\x88\x1a\xf8"
+        b"P\x7f\x81\x12\x96gT"
+    )
+    pubkey_x = b"\xa7\x10$Mbtz\xa8\xdb\x02-\xddpar@\xad\xaf\x88\x1bC\x9e_i\x998\x00\xe6\x14!@v"
+    pubkey_y = (
+        b"H\xd0\xd37pO\xe2\xc6u\x90\x9d,\x93\xf7\x99^\x19\x91V\xf3\x02\xf6<t\xa8\xb9h'\xb2\x8dw{"
+    )
 
     sp = algod_client.suggested_params()
     sp.fee = 5000
@@ -239,15 +241,25 @@ def test_ecdsa_verify_r1(
     algod_client: AlgodClient,
     get_crypto_ops_avm_result: AVMInvoker,
 ) -> None:
-    sk = SigningKey.generate(curve=NIST256p)
-    vk = sk.verifying_key
-
-    message = b"Test message for ECDSA verification"
-    message_hash = hashlib.sha256(message).digest()
-
-    signature = sk.sign_digest(message_hash, sigencode=ecdsa.util.sigencode_string)
-    sig_r, sig_s = signature[:32], signature[32:]
-    pubkey_x, pubkey_y = vk.to_string()[:32], vk.to_string()[32:]
+    message_hash = (
+        b"\xf8\t\xfd\n\xa0\xbb\x0f \xb3T\xc6\xb2\xf8n\xa7Q\x95zN&*Tk\xd7\x16\xf3Oi\xb9Qj\xe1"
+    )
+    sig_r = (
+        b"\x18\xd9l|\xdaK\xc1M\x06'u4h\x1d\xed\x8a\x94\x82\x8e\xb71\xd8\xb8B\xe0\xda\x81\x05@"
+        b"\x8c\x83\xcf"
+    )
+    sig_s = (
+        b"}3\xc6\x1a\xcf9\xcb\xb7\xa1\xd5\x1cq&\xf1q\x81\x16\x17\x9a\xde\xbd1a\x8cF\x04\xa1\xf0"
+        b";\\'J"
+    )
+    pubkey_x = (
+        b"\xf8\x14\x0e;+\x92\xf7\xcb\xdc\x81\x96\xbck\xaa\x9c\xe8l\xf1\\\x18\xe8\xad\x01E\xd5"
+        b"\x08$\xe6\xfa\x89\x02d"
+    )
+    pubkey_y = (
+        b"\xbdC{u\xd6\xf1\xdbg\x15Z\x95\xa0\xdaKA\xf2\xb6\xb3\xdc]B\xf7\xdbV#\x84I\xe4"
+        b"\x04\xa6\xc0\xa3"
+    )
 
     sp = algod_client.suggested_params()
     sp.fee = 5000
