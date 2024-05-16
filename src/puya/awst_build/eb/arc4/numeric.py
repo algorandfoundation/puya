@@ -14,6 +14,7 @@ from puya.awst.nodes import (
     NumericComparisonExpression,
     ReinterpretCast,
 )
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import uint64_to_biguint
 from puya.awst_build.eb.arc4._utils import convert_arc4_literal
 from puya.awst_build.eb.arc4.base import (
@@ -30,7 +31,6 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -100,7 +100,9 @@ class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
 
 
 class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
-    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.ARC4UIntNType)
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4UIntN)
         super().__init__(wtype, location)
 
@@ -114,7 +116,9 @@ class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
 
 
 class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
-    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.ARC4UFixedNxMType)
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4UFixedNxM)
         super().__init__(wtype, location)
 

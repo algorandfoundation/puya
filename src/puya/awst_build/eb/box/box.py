@@ -66,7 +66,10 @@ class BoxClassGenericExpressionBuilder(GenericClassExpressionBuilder):
 
 
 class BoxClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WBoxProxy]):
-    def __init__(self, wtype: wtypes.WType, location: SourceLocation) -> None:
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
+        assert isinstance(typ, pytypes.StorageProxyType)
+        assert typ.generic == pytypes.GenericBoxType
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.WBoxProxy)
         super().__init__(wtype, location)
 

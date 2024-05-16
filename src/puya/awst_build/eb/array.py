@@ -54,7 +54,10 @@ class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
 
 
 class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WArray]):
-    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.ArrayType)
+        assert typ.generic == pytypes.GenericArrayType
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.WArray)
         super().__init__(wtype, location)
 

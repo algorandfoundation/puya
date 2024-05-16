@@ -4,18 +4,11 @@ import typing
 
 from puya import arc4_util, log
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    ARC4Encode,
-    Expression,
-    Literal,
-    TupleItemExpression,
-)
+from puya.awst.nodes import ARC4Encode, Expression, Literal, TupleItemExpression
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant
 from puya.awst_build.eb.arc4.base import ARC4ClassExpressionBuilder, ARC4EncodedExpressionBuilder
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    GenericClassExpressionBuilder,
-)
+from puya.awst_build.eb.base import ExpressionBuilder, GenericClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.errors import CodeError
 
@@ -24,7 +17,6 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -50,7 +42,10 @@ class ARC4TupleGenericClassExpressionBuilder(GenericClassExpressionBuilder):
 
 
 class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[wtypes.ARC4Tuple]):
-    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.TupleType)
+        assert typ.generic == pytypes.GenericARC4TupleType
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4Tuple)
         super().__init__(wtype, location)
 

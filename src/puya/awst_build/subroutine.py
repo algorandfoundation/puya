@@ -50,10 +50,10 @@ from puya.awst_build import constants, pytypes
 from puya.awst_build.base_mypy_visitor import BaseMyPyVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb import type_registry
 from puya.awst_build.eb.arc4 import (
     ARC4BoolClassExpressionBuilder,
     ARC4ClientClassExpressionBuilder,
-    ARC4StructClassExpressionBuilder,
 )
 from puya.awst_build.eb.base import (
     BuilderBinaryOp,
@@ -71,12 +71,7 @@ from puya.awst_build.eb.intrinsics import (
     IntrinsicFunctionExpressionBuilder,
     IntrinsicNamespaceClassExpressionBuilder,
 )
-from puya.awst_build.eb.struct import StructSubclassExpressionBuilder
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
-from puya.awst_build.eb.type_registry import get_type_builder
-from puya.awst_build.eb.unsigned_builtins import (
-    ReversedFunctionExpressionBuilder,
-)
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
@@ -637,28 +632,25 @@ class FunctionASTConverter(
         self, expr: mypy.nodes.MemberExpr | mypy.nodes.NameExpr
     ) -> ExpressionBuilder | Literal:
         expr_loc = self._location(expr)
-        py_typ = self.context.mypy_expr_node_type(expr)
-        if isinstance(py_typ, pytypes.TypeType):
-            from puya.awst_build.eb import type_registry
+        # Do a straight forward lookup at the RefExpr level handle the cases of:
+        #  - type aliases
+        #  - simple (non-generic) types
+        #  - generic type that has not been parameterised
+        #    (e.g. when calling a constructor which can infer the type from its arguments)
+        # For parameterised generics, these are resolved at the IndexExpr level, without
+        # descending into IndexExpr.base.
+        # By doing a simple lookup instead of resolving the PyType of expr,
+        # we can side step complex construsts in the stubs that we don't support in user code,
+        # such as overloads.
+        if py_typ := self.context.lookup_pytype(expr.fullname):  # noqa: SIM102
+            # side step these ones for now
+            if (
+                py_typ not in pytypes.OpNamespaceTypes
+                and pytypes.ContractBaseType not in py_typ.mro
+                and pytypes.ARC4ClientBaseType not in py_typ.bases
+            ):
+                return builder_for_type(py_typ, expr_loc)
 
-            try:
-                tb = type_registry.CLS_NAME_TO_BUILDER[py_typ.typ.name]
-            except KeyError:
-                pass
-            else:
-                return tb(expr_loc)
-            t_wtype = py_typ.typ.wtype
-            try:
-                tb2 = type_registry.WTYPE_TO_TYPE_BUILDER[type(t_wtype)]
-            except KeyError:
-                raise CodeError(f"TODO: builder for {t_wtype}", expr_loc) from None
-            return tb2(t_wtype, expr_loc)
-        builder_or_literal = self._visit_ref_expr_maybe_aliased(expr, expr_loc)
-        return builder_or_literal
-
-    def _visit_ref_expr_maybe_aliased(
-        self, expr: mypy.nodes.MemberExpr | mypy.nodes.NameExpr, expr_loc: SourceLocation
-    ) -> ExpressionBuilder | Literal:
         if expr.name == "__all__":
             # special case here, we allow __all__ at the module level for it's "public vs private"
             # control implications w.r.t linting etc, but we do so by ignoring it.
@@ -672,27 +664,28 @@ class FunctionASTConverter(
         if fullname.startswith(constants.ALGOPY_PREFIX):
             if fullname.startswith(constants.ALGOPY_OP_PREFIX):
                 return self._visit_ref_expr_of_algopy_op(fullname, expr_loc, expr.node)
-            return get_type_builder(fullname, expr_loc)
+            if func_builder := type_registry.FUNC_NAME_TO_BUILDER.get(fullname):
+                return func_builder(expr_loc)
         match expr:
             case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ):
                 if typ.has_base(constants.CONTRACT_BASE):
                     return ContractTypeExpressionBuilder(self.context, typ.defn.info, expr_loc)
                 if typ.has_base(constants.CLS_ARC4_CLIENT):  # provides type info only
                     return ARC4ClientClassExpressionBuilder(self.context, expr_loc, typ.defn.info)
-                if typ.has_base(constants.STRUCT_BASE) or typ.has_base(constants.CLS_ARC4_STRUCT):
-                    pytyp = self.context.lookup_pytype(fullname)
-                    if pytyp is None:
-                        raise CodeError(f"Unknown struct subclass {fullname}", expr_loc)
-                    # TODO: use PyType directly
-                    wtype = pytyp.wtype
-                    if isinstance(wtype, wtypes.WStructType):
-                        return StructSubclassExpressionBuilder(wtype, expr_loc)
-                    elif isinstance(wtype, wtypes.ARC4Struct):
-                        return ARC4StructClassExpressionBuilder(wtype, expr_loc)
-                    else:
-                        raise InternalError(
-                            f"Unhandled struct sub-type: {type(wtype).__name__}", expr_loc
-                        )
+                # if typ.has_base(constants.STRUCT_BASE) or typ.has_base(constants.CLS_ARC4_STRUCT):
+                #     pytyp = self.context.lookup_pytype(fullname)
+                #     if pytyp is None:
+                #         raise CodeError(f"Unknown struct subclass {fullname}", expr_loc)
+                #     # TODO: use PyType directly
+                #     wtype = pytyp.wtype
+                #     if isinstance(wtype, wtypes.WStructType):
+                #         return StructSubclassExpressionBuilder(pytyp, expr_loc)
+                #     elif isinstance(wtype, wtypes.ARC4Struct):
+                #         return ARC4StructClassExpressionBuilder(pytyp, expr_loc)
+                #     else:
+                #         raise InternalError(
+                #             f"Unhandled struct sub-type: {type(wtype).__name__}", expr_loc
+                #         )
             case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True) as self_var):
                 if self.contract_method_info is None:
                     raise InternalError(
@@ -787,7 +780,7 @@ class FunctionASTConverter(
         }.get(expr.kind)
         # this can happen in otherwise well-formed code that is just missing a reference
         raise CodeError(
-            f"Unable to resolve reference to {fullname or expr.name!r}, {scope=}",
+            f"Unable to resolve reference to {expr.fullname or expr.name!r}, {scope=}",
             expr_loc,
         )
 
@@ -804,8 +797,8 @@ class FunctionASTConverter(
                 return Literal(source_location=location, value=False)
             case "None":
                 raise CodeError("None is not supported as a value, only a return type", location)
-            case "bool":
-                return BoolClassExpressionBuilder(location=location)
+            # case "bool":
+            #     return BoolClassExpressionBuilder(location=location)
             case "len":
                 raise CodeError(
                     "len() is not supported -"
@@ -818,8 +811,8 @@ class FunctionASTConverter(
                 raise CodeError(
                     "enumerate() is not supported - use algopy.uenumerate() instead", location
                 )
-            case "reversed":
-                return ReversedFunctionExpressionBuilder(location=location)
+            # case "reversed":
+            #     return ReversedFunctionExpressionBuilder(location=location)
             case _:
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
 
@@ -1053,26 +1046,23 @@ class FunctionASTConverter(
 
     def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> ExpressionBuilder | Literal:
         expr_location = self._location(expr)
-        # match expr.analyzed:
-        #     case None:
-        #         pass
-        #     case mypy.nodes.TypeAliasExpr():
-        #         raise CodeError("type aliases are not supported inside subroutines", expr_location)
-        #     case mypy.nodes.TypeApplication():
-        #         type_type = self.context.mypy_expr_node_type(expr)
-        #         if not isinstance(type_type, pytypes.TypeType):
-        #             raise InternalError(
-        #                 "expected resolved PyType of and IndexExpr where analyzed"
-        #                 " is a TypeApplication to be a TypeType",
-        #                 expr_location,
-        #             )
-        #         return builder_for_type(type_type.typ, expr_location)
-        # short-circuit in case of application of typing.Literal to just evaluate the args
-        if (
-            isinstance(expr.base, mypy.nodes.RefExpr)
-            and get_unaliased_fullname(expr.base) == "typing.Literal"
-        ):
-            return expr.index.accept(self)
+        match expr.analyzed:
+            case None:
+                with contextlib.suppress(PuyaError):
+                    result_pytyp = self.context.mypy_expr_node_type(expr)
+                    if isinstance(result_pytyp, pytypes.PseudoGenericFunctionType):
+                        return builder_for_type(result_pytyp, expr_location)
+            case mypy.nodes.TypeAliasExpr():
+                raise CodeError("type aliases are not supported inside subroutines", expr_location)
+            case mypy.nodes.TypeApplication():
+                type_type = self.context.mypy_expr_node_type(expr)
+                if not isinstance(type_type, pytypes.TypeType):
+                    raise InternalError(
+                        "expected resolved PyType of and IndexExpr where analyzed"
+                        " is a TypeApplication to be a TypeType",
+                        expr_location,
+                    )
+                return builder_for_type(type_type.typ, expr_location)
 
         base_expr = expr.base.accept(self)
         if isinstance(base_expr, Literal):
@@ -1350,3 +1340,16 @@ def temporary_assignment_if_required(
         return var_expression(operand)
     else:
         return operand
+
+
+def builder_for_type(inner_typ: pytypes.PyType, expr_loc: SourceLocation) -> ExpressionBuilder:
+    from puya.awst_build.eb import type_registry
+
+    if tb := type_registry.PYTYPE_TO_TYPE_BUILDER.get(inner_typ):
+        return tb(expr_loc)
+    if tb_param_generic := type_registry.PYTYPE_GENERIC_TO_TYPE_BUILDER.get(inner_typ.generic):
+        return tb_param_generic(inner_typ, expr_loc)
+    for base in inner_typ.mro:
+        if tb_base := type_registry.PYTYPE_BASE_TO_TYPE_BUILDER.get(base):
+            return tb_base(inner_typ, expr_loc)
+    raise InternalError(f"No builder for type: {inner_typ}", expr_loc)

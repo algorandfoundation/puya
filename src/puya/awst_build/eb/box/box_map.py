@@ -74,7 +74,10 @@ class BoxMapClassGenericExpressionBuilder(GenericClassExpressionBuilder):
 
 
 class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WBoxMapProxy]):
-    def __init__(self, wtype: wtypes.WType, location: SourceLocation) -> None:
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation) -> None:
+        assert isinstance(typ, pytypes.StorageMapProxyType)
+        assert typ.generic == pytypes.GenericBoxMapType
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.WBoxMapProxy)
         super().__init__(wtype, location)
 

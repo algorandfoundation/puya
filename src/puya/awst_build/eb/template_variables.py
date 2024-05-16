@@ -1,32 +1,19 @@
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
 
-from puya.awst import wtypes
 from puya.awst.nodes import Literal, TemplateVar
 from puya.awst_build import pytypes
-from puya.awst_build.eb.base import (
-    ExpressionBuilder,
-    GenericClassExpressionBuilder,
-    TypeClassExpressionBuilder,
-)
+from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import get_arg_mapping
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class GenericTemplateVariableExpressionBuilder(GenericClassExpressionBuilder):
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> ExpressionBuilder:
-        match indexes:
-            case [TypeClassExpressionBuilder() as eb]:
-                wtype = eb.produces()
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-        return TemplateVariableExpressionBuilder(location=location, wtype=wtype)
-
+class GenericTemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -38,14 +25,13 @@ class GenericTemplateVariableExpressionBuilder(GenericClassExpressionBuilder):
         raise CodeError("TemplateVar usage requires type parameter", location)
 
 
-class TemplateVariableExpressionBuilder(TypeClassExpressionBuilder):
-    def __init__(self, location: SourceLocation, wtype: wtypes.WType):
+class TemplateVariableExpressionBuilder(IntermediateExpressionBuilder):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.PseudoGenericFunctionType)
+        self._wtype = typ.return_type.wtype
         super().__init__(location)
-        self.wtype = wtype
 
-    def produces(self) -> wtypes.WType:
-        return self.wtype
-
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -83,7 +69,9 @@ class TemplateVariableExpressionBuilder(TypeClassExpressionBuilder):
             case Literal(value=str(str_value)):
                 return var_expression(
                     TemplateVar(
-                        name=prefix_value + str_value, source_location=location, wtype=self.wtype
+                        name=prefix_value + str_value,
+                        wtype=self._wtype,
+                        source_location=location,
                     )
                 )
             case _:

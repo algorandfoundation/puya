@@ -71,7 +71,10 @@ class GenericTupleTypeExpressionBuilder(GenericClassExpressionBuilder):
 
 
 class TupleTypeExpressionBuilder(TypeClassExpressionBuilder[wtypes.WTuple]):
-    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.TupleType)
+        assert typ.generic == pytypes.GenericTupleType
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.WTuple)
         super().__init__(wtype, location)
 

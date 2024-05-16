@@ -16,7 +16,14 @@ from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class StructSubclassExpressionBuilder(TypeClassExpressionBuilder):
+class StructSubclassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WStructType]):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.StructType)
+        # assert pytypes.StructBaseType in typ.mro TODO?
+        wtype = typ.wtype
+        assert isinstance(wtype, wtypes.WStructType)
+        super().__init__(wtype, location)
+
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

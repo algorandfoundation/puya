@@ -4,15 +4,11 @@ import typing
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import (
-    Expression,
-    FieldExpression,
-    Literal,
-    NewStruct,
-)
+from puya.awst.nodes import Expression, FieldExpression, Literal, NewStruct
+from puya.awst_build import pytypes
 from puya.awst_build.eb._utils import bool_eval_to_constant, get_bytes_expr_builder
 from puya.awst_build.eb.arc4.base import CopyBuilder, arc4_compare_bytes
-from puya.awst_build.eb.base import BuilderComparisonOp, ValueExpressionBuilder
+from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder, ValueExpressionBuilder
 from puya.awst_build.eb.bytes_backed import BytesBackedClassExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.utils import get_arg_mapping, require_expression_builder
@@ -23,10 +19,6 @@ if typing.TYPE_CHECKING:
 
     import mypy.nodes
 
-    from puya.awst_build import pytypes
-    from puya.awst_build.eb.base import (
-        ExpressionBuilder,
-    )
     from puya.parse import SourceLocation
 
 
@@ -34,7 +26,10 @@ logger = log.get_logger(__name__)
 
 
 class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[wtypes.ARC4Struct]):
-    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+    def __init__(self, typ: pytypes.PyType, location: SourceLocation):
+        assert isinstance(typ, pytypes.StructType)
+        # assert pytypes.ARC4StructBaseType in typ.mro TODO?
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4Struct)
         super().__init__(wtype, location)
 
