@@ -121,6 +121,7 @@ WTYPE_TO_TYPE_BUILDER: dict[type[wtypes.WType], ExpressionBuilderFromTypeAndSour
     wtypes.WTuple: tuple_.TupleTypeExpressionBuilder,
     wtypes.WArray: array.ArrayClassExpressionBuilder,
     wtypes.ARC4UFixedNxM: arc4.UFixedNxMClassExpressionBuilder,
+    wtypes.ARC4Struct: arc4.ARC4StructClassExpressionBuilder,
     wtypes.ARC4UIntN: arc4.UIntNClassExpressionBuilder,
     wtypes.ARC4DynamicArray: arc4.DynamicArrayClassExpressionBuilder,
     wtypes.ARC4StaticArray: arc4.StaticArrayClassExpressionBuilder,

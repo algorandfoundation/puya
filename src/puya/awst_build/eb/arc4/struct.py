@@ -34,7 +34,8 @@ logger = log.get_logger(__name__)
 
 
 class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[wtypes.ARC4Struct]):
-    def __init__(self, wtype: wtypes.ARC4Struct, location: SourceLocation):
+    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+        assert isinstance(wtype, wtypes.ARC4Struct)
         super().__init__(wtype, location)
 
     @typing.override
