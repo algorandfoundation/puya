@@ -30,8 +30,8 @@ contract TransactionContract
   abimethod key(txn: algopy.gtxn.KeyRegistrationTransaction): None
   {
     this::_common_checks(txn)
-    assert(gtxns<VotePK>(txn) != global<ZeroAddress>(), comment="vote_key")
-    assert(gtxns<SelectionPK>(txn) != global<ZeroAddress>(), comment="selection_key")
+    assert(reinterpret_cast<bool>(len(gtxns<VotePK>(txn))), comment="vote_key")
+    assert(reinterpret_cast<bool>(len(gtxns<SelectionPK>(txn))), comment="selection_key")
     assert(reinterpret_cast<bool>(gtxns<VoteKeyDilution>(txn)), comment="vote_key_dilution")
     assert(reinterpret_cast<bool>(gtxns<VoteFirst>(txn)), comment="vote_first")
     assert(reinterpret_cast<bool>(gtxns<VoteLast>(txn)), comment="vote_last")
@@ -71,7 +71,7 @@ contract TransactionContract
     this::_common_checks(txn)
     assert(reinterpret_cast<bool>(gtxns<FreezeAsset>(txn)), comment="freeze_asset")
     assert(gtxns<FreezeAssetAccount>(txn) != global<ZeroAddress>(), comment="freeze_account")
-    assert(reinterpret_cast<bool>(gtxns<FreezeAssetFrozen>(txn)), comment="frozen")
+    assert(gtxns<FreezeAssetFrozen>(txn), comment="frozen")
   }
   
   abimethod application_call(txn: algopy.gtxn.ApplicationCallTransaction): None
