@@ -648,7 +648,11 @@ class FunctionASTConverter(
             else:
                 return tb(expr_loc)
             t_wtype = py_typ.typ.wtype
-            return type_registry.WTYPE_TO_TYPE_BUILDER[type(t_wtype)](t_wtype, expr_loc)
+            try:
+                tb2 = type_registry.WTYPE_TO_TYPE_BUILDER[type(t_wtype)]
+            except KeyError:
+                raise CodeError(f"TODO: builder for {t_wtype}", expr_loc) from None
+            return tb2(t_wtype, expr_loc)
         builder_or_literal = self._visit_ref_expr_maybe_aliased(expr, expr_loc)
         return builder_or_literal
 

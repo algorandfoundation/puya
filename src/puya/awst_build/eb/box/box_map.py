@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
@@ -38,36 +39,8 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
 
-class BoxMapClassExpressionBuilder(GenericClassExpressionBuilder, TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        if self.wtype:
-            return self.wtype
-        raise InternalError(
-            "Cannot resolve wtype of generic EB until the index method is called with the "
-            "generic type parameter."
-        )
-
-    def __init__(self, location: SourceLocation) -> None:
-        super().__init__(location)
-        self.wtype: wtypes.WBoxMapProxy | None = None
-
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> TypeClassExpressionBuilder:
-        match indexes:
-            case [
-                TypeClassExpressionBuilder() as key_eb,
-                TypeClassExpressionBuilder() as contents_eb,
-            ]:
-                key_wtype = key_eb.produces()
-                content_wtype = contents_eb.produces()
-                self.wtype = wtypes.WBoxMapProxy.from_key_and_content_type(
-                    key_wtype=key_wtype, content_wtype=content_wtype
-                )
-            case _:
-                raise CodeError("Invalid/unhandled arguments", location)
-        return self
-
+class BoxMapClassGenericExpressionBuilder(GenericClassExpressionBuilder):
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -87,9 +60,45 @@ class BoxMapClassExpressionBuilder(GenericClassExpressionBuilder, TypeClassExpre
         key_wtype = require_type_class_eb(arg_map.pop("key_type")).produces()
         content_wtype = require_type_class_eb(arg_map.pop("_type")).produces()
         wtype = wtypes.WBoxMapProxy.from_key_and_content_type(key_wtype, content_wtype)
-        if not self.wtype:
-            self.wtype = wtype
-        elif self.wtype != wtype:
+        key_prefix = expect_operand_wtype(
+            arg_map.pop("key_prefix", Literal(value=b"", source_location=location)),
+            wtypes.bytes_wtype,
+        )
+
+        if arg_map:
+            raise CodeError("Invalid/unhandled arguments", location)
+
+        return BoxMapProxyExpressionBuilder(
+            expr=BoxProxyExpression(key=key_prefix, wtype=wtype, source_location=location)
+        )
+
+
+class BoxMapClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WBoxMapProxy]):
+    def __init__(self, wtype: wtypes.WType, location: SourceLocation) -> None:
+        assert isinstance(wtype, wtypes.WBoxMapProxy)
+        super().__init__(wtype, location)
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        arg_map = get_arg_mapping(
+            positional_arg_names=(
+                "key_type",
+                "_type",
+            ),
+            args=zip(arg_names, args, strict=True),
+            location=location,
+        )
+        key_wtype = require_type_class_eb(arg_map.pop("key_type")).produces()
+        content_wtype = require_type_class_eb(arg_map.pop("_type")).produces()
+        wtype = self.produces()
+        if wtype != wtypes.WBoxMapProxy.from_key_and_content_type(key_wtype, content_wtype):
             raise CodeError(
                 f"{constants.CLS_BOX_MAP_PROXY} explicit type annotation"
                 f" does not match first argument - suggest to remove the explicit type annotation,"
@@ -106,7 +115,7 @@ class BoxMapClassExpressionBuilder(GenericClassExpressionBuilder, TypeClassExpre
             raise CodeError("Invalid/unhandled arguments", location)
 
         return BoxMapProxyExpressionBuilder(
-            expr=BoxProxyExpression(key=key_prefix, wtype=self.wtype, source_location=location)
+            expr=BoxProxyExpression(key=key_prefix, wtype=wtype, source_location=location)
         )
 
 

@@ -53,9 +53,9 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.LOG: log.LogBuilder,
     constants.EMIT: arc4.EmitBuilder,
     constants.OP_UP_FEE_SOURCE: ensure_budget.OpUpFeeSourceClassBuilder,
-    constants.CLS_BOX_PROXY: box.BoxClassExpressionBuilder,
+    constants.CLS_BOX_PROXY: box.BoxClassGenericExpressionBuilder,
     constants.CLS_BOX_REF_PROXY: box.BoxRefClassExpressionBuilder,
-    constants.CLS_BOX_MAP_PROXY: box.BoxMapClassExpressionBuilder,
+    constants.CLS_BOX_MAP_PROXY: box.BoxMapClassGenericExpressionBuilder,
     constants.CLS_LOCAL_STATE: app_account_state.AppAccountStateClassExpressionBuilder,
     constants.CLS_GLOBAL_STATE: app_state.AppStateClassExpressionBuilder,
     constants.CLS_ARC4_ADDRESS: arc4.AddressClassExpressionBuilder,
@@ -125,6 +125,8 @@ WTYPE_TO_TYPE_BUILDER: dict[type[wtypes.WType], ExpressionBuilderFromTypeAndSour
     wtypes.ARC4DynamicArray: arc4.DynamicArrayClassExpressionBuilder,
     wtypes.ARC4StaticArray: arc4.StaticArrayClassExpressionBuilder,
     wtypes.ARC4Tuple: arc4.ARC4TupleClassExpressionBuilder,
+    wtypes.WBoxProxy: box.BoxClassExpressionBuilder,
+    wtypes.WBoxMapProxy: box.BoxMapClassExpressionBuilder,
 }
 WTYPE_TO_BUILDER: dict[
     wtypes.WType | type[wtypes.WType], ExpressionBuilderFromExpressionFactory
