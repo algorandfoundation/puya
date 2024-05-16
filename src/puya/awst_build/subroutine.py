@@ -350,7 +350,7 @@ class FunctionASTConverter(
 
         return [
             AssignmentStatement(
-                value=rvalue.build_assignment_source(),
+                value=rvalue.rvalue(),
                 target=self.resolve_lvalue(lvalue),
                 source_location=stmt_loc,
             )
@@ -1265,7 +1265,7 @@ class FunctionASTConverter(
         # TODO: test if self. assignment?
         with self._leave_bool_context():
             source = require_expression_builder(expr.value.accept(self))
-        value = source.build_assignment_source()
+        value = source.rvalue()
         target = self.resolve_lvalue(expr.target)
         result = AssignmentExpression(source_location=expr_loc, value=value, target=target)
         # TODO: take PyType from source ExpressionBuilder
@@ -1369,7 +1369,7 @@ def temporary_assignment_if_required(
     if isinstance(operand, Expression):
         expr = operand
     else:
-        expr = operand.build_assignment_source()
+        expr = operand.rvalue()
     # TODO: optimise the below checks so we don't create unnecessary temporaries,
     #       ie when Expression has no side effects
     if not isinstance(expr, VarExpression | CompileTimeConstantExpression):

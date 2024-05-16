@@ -82,10 +82,6 @@ class ExpressionBuilder(abc.ABC):
     def rvalue(self) -> Expression:
         """Produce an expression for use as an intermediary"""
 
-    def build_assignment_source(self) -> Expression:
-        """Produce an expression for the source of an assignment"""
-        return self.rvalue()
-
     @abc.abstractmethod
     def lvalue(self) -> Lvalue:
         """Produce an expression for the target of an assignment"""
