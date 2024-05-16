@@ -93,15 +93,6 @@ class BigUInt:
     def __rxor__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return self ^ other
 
-    def __index__(self) -> int:
-        """
-        Return the internal integer value of the BigUInt for use in indexing/slice expressions.
-
-        Returns:
-            int: The internal integer value of the BigUInt.
-        """
-        return self.value
-
     def __pos__(self) -> BigUInt:
         """
         Compute the unary positive of the BigUInt.
