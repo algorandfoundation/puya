@@ -73,7 +73,6 @@ from puya.awst_build.eb.intrinsics import (
 )
 from puya.awst_build.eb.struct import StructSubclassExpressionBuilder
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
-from puya.awst_build.eb.tuple import TupleTypeExpressionBuilder
 from puya.awst_build.eb.type_registry import get_type_builder
 from puya.awst_build.eb.unsigned_builtins import (
     ReversedFunctionExpressionBuilder,
@@ -86,7 +85,6 @@ from puya.awst_build.utils import (
     extract_bytes_literal_from_mypy,
     fold_binary_expr,
     fold_unary_expr,
-    get_aliased_instance,
     get_unaliased_fullname,
     iterate_user_bases,
     qualified_class_name,
@@ -639,20 +637,19 @@ class FunctionASTConverter(
         self, expr: mypy.nodes.MemberExpr | mypy.nodes.NameExpr
     ) -> ExpressionBuilder | Literal:
         expr_loc = self._location(expr)
-        # py_typ = self.context.mypy_expr_node_type(expr)
-        # if isinstance(py_typ, pytypes.TypeType):
-        #     return builder_for_type(py_typ.typ, expr_loc)
+        py_typ = self.context.mypy_expr_node_type(expr)
+        if isinstance(py_typ, pytypes.TypeType):
+            from puya.awst_build.eb import type_registry
+
+            try:
+                tb = type_registry.CLS_NAME_TO_BUILDER[py_typ.typ.name]
+            except KeyError:
+                pass
+            else:
+                return tb(expr_loc)
+            t_wtype = py_typ.typ.wtype
+            return type_registry.WTYPE_TO_TYPE_BUILDER[type(t_wtype)](t_wtype, expr_loc)
         builder_or_literal = self._visit_ref_expr_maybe_aliased(expr, expr_loc)
-        # as an extra step, in case the resolved item was a type through a TypeAlias,
-        # we need to apply the specified arguments to the type
-        if aliased_type := get_aliased_instance(expr):
-            if not isinstance(builder_or_literal, ExpressionBuilder):
-                raise InternalError(
-                    "Encountered an aliased instance that generated a Literal",
-                    expr_loc,
-                )
-            alias_type_args = [self._visit_type_arg(a, expr_loc) for a in aliased_type.args]
-            return _maybe_index(builder_or_literal, alias_type_args, expr_loc)
         return builder_or_literal
 
     def _visit_ref_expr_maybe_aliased(
@@ -855,35 +852,6 @@ class FunctionASTConverter(
 
     def visit_name_expr(self, expr: mypy.nodes.NameExpr) -> ExpressionBuilder | Literal:
         return self._visit_ref_expr(expr)
-
-    def _visit_type_arg(
-        self, mypy_type: mypy.types.Type, location: SourceLocation
-    ) -> ExpressionBuilder | Literal:
-        match mypy_type:
-            case mypy.types.Instance() as instance:
-                fullname = instance.type.fullname
-                if fullname.startswith("builtins."):
-                    return self._visit_ref_expr_of_builtins(fullname, location)
-                if fullname.startswith(constants.ALGOPY_PREFIX):
-                    return get_type_builder(fullname, location)
-                raise InternalError("Cannot handle instance of this type: " + fullname)
-            case mypy.types.LiteralType(value=literal_value):
-                if isinstance(literal_value, float):
-                    raise CodeError("Float literals are not supported", location)
-                return Literal(value=literal_value, source_location=location)
-            case mypy.types.TypeAliasType() as ta:
-                typ = mypy.types.get_proper_type(ta)
-                target = self._visit_type_arg(typ, location)
-                if isinstance(target, ExpressionBuilder) and isinstance(typ, mypy.types.Instance):
-                    args = [self._visit_type_arg(arg, location) for arg in typ.args]
-                    return _maybe_index(target, args, location)
-                return target
-            case mypy.types.TupleType(items=items):
-                tuple_eb = TupleTypeExpressionBuilder(location)
-                return tuple_eb.index_multiple(
-                    [self._visit_type_arg(item, location) for item in items], location
-                )
-        raise InternalError("Unsupported mypy_type argument")
 
     def visit_member_expr(self, expr: mypy.nodes.MemberExpr) -> ExpressionBuilder | Literal:
         if isinstance(expr.expr, mypy.nodes.RefExpr) and isinstance(
@@ -1378,18 +1346,3 @@ def temporary_assignment_if_required(
         return var_expression(operand)
     else:
         return operand
-
-
-def _maybe_index(
-    eb: ExpressionBuilder, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-) -> ExpressionBuilder | Literal:
-    if indexes:
-        if len(indexes) == 1:
-            return eb.index(indexes[0], location)
-        else:
-            return eb.index_multiple(indexes, location)
-    return eb
-
-
-# def builder_for_type(typ: pytypes.PyType, loc: SourceLocation) -> ExpressionBuilder:
-#     raise NotImplementedError

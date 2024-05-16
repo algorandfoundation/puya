@@ -58,9 +58,10 @@ logger = log.get_logger(__name__)
 
 
 class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.bytes_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.bytes_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -80,6 +81,7 @@ class BytesClassExpressionBuilder(TypeClassExpressionBuilder):
                 value = BytesConstant(value=b"", source_location=location)
         return BytesExpressionBuilder(value)
 
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         """Handle self.name"""
         match name:

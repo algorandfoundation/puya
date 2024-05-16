@@ -34,9 +34,10 @@ logger = log.get_logger(__name__)
 
 
 class BoolClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.bool_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.bool_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

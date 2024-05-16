@@ -31,6 +31,7 @@ if typing.TYPE_CHECKING:
 
 
 class EnsureBudgetBuilder(IntermediateExpressionBuilder):
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -89,9 +90,21 @@ class EnsureBudgetBuilder(IntermediateExpressionBuilder):
 
 
 class OpUpFeeSourceClassBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.uint64_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.uint64_wtype, location)
 
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder:
+        raise CodeError("Cannot instantiate enumeration type", location)
+
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         match name:
             case "GroupCredit":

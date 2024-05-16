@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
@@ -20,37 +21,44 @@ from puya.awst_build.utils import (
     expect_operand_wtype,
     require_expression_builder,
 )
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 from puya.parse import SourceLocation
 
 
-class ArrayGenericClassExpressionBuilder(
-    GenericClassExpressionBuilder, TypeClassExpressionBuilder
-):
-    def __init__(self, location: SourceLocation):
-        super().__init__(location=location)
-        self._storage: wtypes.WType | None = None
-
-    def produces(self) -> wtypes.WType:
-        if self._storage is None:
-            raise CodeError("A type parameter is required at this location", self.source_location)
-        return wtypes.WArray(self._storage, self.source_location)
-
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+class ArrayGenericClassExpressionBuilder(GenericClassExpressionBuilder):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
     ) -> ExpressionBuilder:
-        if self._storage is not None:
-            raise InternalError("Multiple indexing of Array?", location)
-        match indexes:
-            case [TypeClassExpressionBuilder() as typ_class_eb]:
-                self.source_location += location
-                self._storage = typ_class_eb.produces()
-                return self
-        raise CodeError(
-            "Invalid indexing, only a single type arg is supported",
-            location,
+        if not args:
+            raise CodeError("Empy arrays require a type annotation to be instantiated", location)
+        non_literal_args = [
+            require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
+            for a in args
+        ]
+        expected_type = non_literal_args[0].wtype
+        for a in non_literal_args:
+            expect_operand_wtype(a, expected_type)
+        array_wtype = wtypes.WArray(expected_type, location)
+        array_expr = NewArray(
+            values=tuple(non_literal_args),
+            wtype=array_wtype,
+            source_location=location,
         )
+        return ArrayExpressionBuilder(array_expr)
 
+
+class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WArray]):
+    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+        assert isinstance(wtype, wtypes.WArray)
+        super().__init__(wtype, location)
+
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -63,17 +71,14 @@ class ArrayGenericClassExpressionBuilder(
             require_expression_builder(a, msg="Array arguments must be non literals").rvalue()
             for a in args
         ]
-        if self._storage is not None:
-            expected_type = self._storage
-        elif non_literal_args:
-            expected_type = non_literal_args[0].wtype
-        else:
-            raise CodeError("Empy arrays require a type annotation to be instantiated", location)
+        array_wtype = self.produces()
+        expected_type = array_wtype.element_type
         for a in non_literal_args:
             expect_operand_wtype(a, expected_type)
-        array_wtype = wtypes.WArray(expected_type, location)
         array_expr = NewArray(
-            source_location=location, values=tuple(non_literal_args), wtype=array_wtype
+            values=tuple(non_literal_args),
+            wtype=array_wtype,
+            source_location=location,
         )
         return ArrayExpressionBuilder(array_expr)
 
@@ -107,6 +112,7 @@ class ArrayAppenderExpressionBuilder(IntermediateExpressionBuilder):
         super().__init__(array.source_location)
         self.array = array
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

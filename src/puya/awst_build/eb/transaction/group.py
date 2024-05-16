@@ -124,14 +124,14 @@ def check_transaction_type(
     )
 
 
-class GroupTransactionClassExpressionBuilder(TypeClassExpressionBuilder, abc.ABC):
+class GroupTransactionClassExpressionBuilder(
+    TypeClassExpressionBuilder[wtypes.WGroupTransaction], abc.ABC
+):
     def __init__(self, location: SourceLocation, wtype: wtypes.WGroupTransaction):
-        super().__init__(location)
+        super().__init__(wtype, location)
         self.wtype = wtype
 
-    def produces(self) -> wtypes.WType:
-        return self.wtype
-
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

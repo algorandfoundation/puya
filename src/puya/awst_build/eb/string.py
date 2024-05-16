@@ -51,9 +51,10 @@ logger = log.get_logger(__name__)
 
 
 class StringClassExpressionBuilder(BytesBackedClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.string_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.string_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

@@ -44,9 +44,10 @@ logger = log.get_logger(__name__)
 
 
 class BigUIntClassExpressionBuilder(BytesBackedClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.biguint_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.biguint_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

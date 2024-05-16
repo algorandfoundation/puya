@@ -85,14 +85,12 @@ class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
         return InnerTransactionArrayExpressionBuilder(self.expr, field, location)
 
 
-class InnerTransactionClassExpressionBuilder(TypeClassExpressionBuilder):
+class InnerTransactionClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WInnerTransaction]):
     def __init__(self, location: SourceLocation, wtype: wtypes.WInnerTransaction):
-        super().__init__(location)
+        super().__init__(wtype, location)
         self.wtype = wtype
 
-    def produces(self) -> wtypes.WType:
-        return self.wtype
-
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

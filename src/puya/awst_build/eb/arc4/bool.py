@@ -28,9 +28,10 @@ logger = log.get_logger(__name__)
 
 
 class ARC4BoolClassExpressionBuilder(ARC4ClassExpressionBuilder):
-    def produces(self) -> wtypes.ARC4Type:
-        return wtypes.arc4_bool_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.arc4_bool_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

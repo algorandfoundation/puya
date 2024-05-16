@@ -1,7 +1,9 @@
 import abc
+import typing
 from collections.abc import Sequence
 
 import mypy.nodes
+import typing_extensions
 
 from puya.awst import wtypes
 from puya.awst.nodes import BytesConstant, BytesEncoding, Expression, Literal, ReinterpretCast
@@ -21,6 +23,7 @@ class FromBytesBuilder(IntermediateExpressionBuilder):
         super().__init__(location)
         self.result_wtype = result_wtype
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -43,7 +46,13 @@ class FromBytesBuilder(IntermediateExpressionBuilder):
         )
 
 
-class BytesBackedClassExpressionBuilder(TypeClassExpressionBuilder, abc.ABC):
+_TWType_co = typing_extensions.TypeVar(
+    "_TWType_co", bound=wtypes.WType, default=wtypes.WType, covariant=True
+)
+
+
+class BytesBackedClassExpressionBuilder(TypeClassExpressionBuilder[_TWType_co], abc.ABC):
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         wtype = self.produces()
         match name:

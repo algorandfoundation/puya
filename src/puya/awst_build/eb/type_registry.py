@@ -38,11 +38,14 @@ __all__ = [
 ]
 
 ExpressionBuilderFromSourceFactory = Callable[[SourceLocation], ExpressionBuilder]
+ExpressionBuilderFromTypeAndSourceFactory = Callable[
+    [wtypes.WType, SourceLocation], ExpressionBuilder
+]
 ExpressionBuilderFromExpressionFactory = Callable[[Expression], ExpressionBuilder]
 CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     "builtins.None": void.VoidTypeExpressionBuilder,
     "builtins.bool": bool_.BoolClassExpressionBuilder,
-    "builtins.tuple": tuple_.TupleTypeExpressionBuilder,
+    "builtins.tuple": tuple_.GenericTupleTypeExpressionBuilder,
     constants.URANGE: unsigned_builtins.UnsignedRangeBuilder,
     constants.UENUMERATE: unsigned_builtins.UnsignedEnumerateBuilder,
     constants.ARC4_SIGNATURE: intrinsics.Arc4SignatureBuilder,
@@ -56,16 +59,12 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
     constants.CLS_LOCAL_STATE: app_account_state.AppAccountStateClassExpressionBuilder,
     constants.CLS_GLOBAL_STATE: app_state.AppStateClassExpressionBuilder,
     constants.CLS_ARC4_ADDRESS: arc4.AddressClassExpressionBuilder,
-    constants.CLS_ARC4_BIG_UFIXEDNXM: arc4.BigUFixedNxMClassExpressionBuilder,
-    constants.CLS_ARC4_BIG_UINTN: arc4.BigUIntNClassExpressionBuilder,
     constants.CLS_ARC4_BOOL: arc4.ARC4BoolClassExpressionBuilder,
     constants.CLS_ARC4_BYTE: arc4.ByteClassExpressionBuilder,
-    constants.CLS_ARC4_DYNAMIC_ARRAY: arc4.DynamicArrayClassExpressionBuilder,
-    constants.CLS_ARC4_STATIC_ARRAY: arc4.StaticArrayClassExpressionBuilder,
+    constants.CLS_ARC4_DYNAMIC_ARRAY: arc4.DynamicArrayGenericClassExpressionBuilder,
+    constants.CLS_ARC4_STATIC_ARRAY: arc4.StaticArrayGenericClassExpressionBuilder,
     constants.CLS_ARC4_STRING: arc4.StringClassExpressionBuilder,
-    constants.CLS_ARC4_TUPLE: arc4.ARC4TupleClassExpressionBuilder,
-    constants.CLS_ARC4_UFIXEDNXM: arc4.UFixedNxMClassExpressionBuilder,
-    constants.CLS_ARC4_UINTN: arc4.UIntNClassExpressionBuilder,
+    constants.CLS_ARC4_TUPLE: arc4.ARC4TupleGenericClassExpressionBuilder,
     constants.CLS_ARC4_ABI_CALL: arc4.ABICallGenericClassExpressionBuilder,
     constants.CLS_ARC4_DYNAMIC_BYTES: puya.awst_build.eb.arc4.DynamicBytesClassExpressionBuilder,
     constants.CLS_ACCOUNT: account.AccountClassExpressionBuilder,
@@ -117,6 +116,15 @@ CLS_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
         )
         for enum_name, enum_data in constants.NAMED_INT_CONST_ENUM_DATA.items()
     },
+}
+WTYPE_TO_TYPE_BUILDER: dict[type[wtypes.WType], ExpressionBuilderFromTypeAndSourceFactory] = {
+    wtypes.WTuple: tuple_.TupleTypeExpressionBuilder,
+    wtypes.WArray: array.ArrayClassExpressionBuilder,
+    wtypes.ARC4UFixedNxM: arc4.UFixedNxMClassExpressionBuilder,
+    wtypes.ARC4UIntN: arc4.UIntNClassExpressionBuilder,
+    wtypes.ARC4DynamicArray: arc4.DynamicArrayClassExpressionBuilder,
+    wtypes.ARC4StaticArray: arc4.StaticArrayClassExpressionBuilder,
+    wtypes.ARC4Tuple: arc4.ARC4TupleClassExpressionBuilder,
 }
 WTYPE_TO_BUILDER: dict[
     wtypes.WType | type[wtypes.WType], ExpressionBuilderFromExpressionFactory

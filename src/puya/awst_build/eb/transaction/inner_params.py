@@ -83,14 +83,13 @@ def _maybe_transform_program_field_expr(
     return field, expr
 
 
-class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
+class InnerTxnParamsClassExpressionBuilder(
+    TypeClassExpressionBuilder[wtypes.WInnerTransactionFields]
+):
     def __init__(self, source_location: SourceLocation, wtype: wtypes.WInnerTransactionFields):
-        super().__init__(source_location)
-        self.wtype = wtype
+        super().__init__(wtype, source_location)
 
-    def produces(self) -> wtypes.WInnerTransactionFields:
-        return self.wtype
-
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -105,7 +104,7 @@ class InnerTxnParamsClassExpressionBuilder(TypeClassExpressionBuilder):
                 value=0,
             )
         }
-        transaction_type = self.wtype.transaction_type
+        transaction_type = self.produces().transaction_type
         if transaction_type:
             transaction_fields[TxnFields.type] = UInt64Constant(
                 source_location=self.source_location,

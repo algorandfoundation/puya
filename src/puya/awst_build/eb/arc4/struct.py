@@ -33,18 +33,11 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return self.wtype
+class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[wtypes.ARC4Struct]):
+    def __init__(self, wtype: wtypes.ARC4Struct, location: SourceLocation):
+        super().__init__(wtype, location)
 
-    def __init__(
-        self,
-        wtype: wtypes.ARC4Struct,
-        location: SourceLocation,
-    ):
-        super().__init__(location)
-        self.wtype = wtype
-
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -53,7 +46,8 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        ordered_field_names = self.wtype.names
+        wtype = self.produces()
+        ordered_field_names = wtype.names
         field_mapping = get_arg_mapping(
             positional_arg_names=ordered_field_names,
             args=zip(arg_names, args, strict=True),
@@ -61,7 +55,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
         )
 
         values = dict[str, Expression]()
-        for field_name, field_type in self.wtype.fields.items():
+        for field_name, field_type in wtype.fields.items():
             field_value = field_mapping.pop(field_name, None)
             if field_value is None:
                 raise CodeError(f"Missing required argument {field_name}", location)
@@ -73,7 +67,7 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder):
             raise CodeError(f"Unexpected keyword arguments: {' '.join(field_mapping)}", location)
 
         return ARC4StructExpressionBuilder(
-            NewStruct(wtype=self.wtype, values=values, source_location=location)
+            NewStruct(wtype=wtype, values=values, source_location=location)
         )
 
 

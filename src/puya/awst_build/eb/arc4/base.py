@@ -3,6 +3,8 @@ from __future__ import annotations
 import abc
 import typing
 
+import typing_extensions
+
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
@@ -42,7 +44,12 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
-class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder, abc.ABC):
+_TARC4Type = typing_extensions.TypeVar(
+    "_TARC4Type", bound=wtypes.ARC4Type, default=wtypes.ARC4Type
+)
+
+
+class ARC4ClassExpressionBuilder(BytesBackedClassExpressionBuilder[_TARC4Type], abc.ABC):
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
         match name:
             case "from_log":

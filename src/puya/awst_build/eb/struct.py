@@ -17,13 +17,6 @@ from puya.parse import SourceLocation
 
 
 class StructSubclassExpressionBuilder(TypeClassExpressionBuilder):
-    def __init__(self, wtype: wtypes.WStructType, location: SourceLocation):
-        super().__init__(location=location)
-        self.wtype = wtype
-
-    def produces(self) -> wtypes.WType:
-        return self.wtype
-
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],

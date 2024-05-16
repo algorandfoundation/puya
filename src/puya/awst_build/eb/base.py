@@ -4,6 +4,9 @@ import abc
 import enum
 import typing
 
+import typing_extensions
+
+from puya.awst import wtypes
 from puya.awst.nodes import (
     BytesConstant,
     ContractReference,
@@ -27,7 +30,6 @@ if typing.TYPE_CHECKING:
     import mypy.nodes
     import mypy.types
 
-    from puya.awst import wtypes
     from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
@@ -317,25 +319,25 @@ class StateProxyDefinitionBuilder(ExpressionBuilder, abc.ABC):
         )
 
 
-class TypeClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
+_TWType_co = typing_extensions.TypeVar(
+    "_TWType_co", bound=wtypes.WType, default=wtypes.WType, covariant=True
+)
+
+
+class TypeClassExpressionBuilder(
+    IntermediateExpressionBuilder, typing.Generic[_TWType_co], abc.ABC
+):
     # TODO: better error messages for rvalue/lvalue/delete
 
-    @abc.abstractmethod
-    def produces(self) -> wtypes.WType: ...
+    def __init__(self, wtype: _TWType_co, location: SourceLocation):
+        super().__init__(location)
+        self._wtype = wtype
 
-
-class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
     @typing.final
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        return self.index_multiple([index], location)
+    def produces(self) -> _TWType_co:
+        return self._wtype
 
-    @abc.abstractmethod
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> ExpressionBuilder: ...
-
+    @typing.override
     @abc.abstractmethod
     def call(
         self,
@@ -346,6 +348,31 @@ class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
         location: SourceLocation,
     ) -> ExpressionBuilder: ...
 
+
+class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
+    # @typing.final
+    # def index(
+    #     self, index: ExpressionBuilder | Literal, location: SourceLocation
+    # ) -> ExpressionBuilder:
+    #     return self.index_multiple([index], location)
+    #
+    # @abc.abstractmethod
+    # def index_multiple(
+    #     self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
+    # ) -> ExpressionBuilder: ...
+
+    @typing.override
+    @abc.abstractmethod
+    def call(
+        self,
+        args: Sequence[ExpressionBuilder | Literal],
+        arg_typs: Sequence[pytypes.PyType],
+        arg_kinds: list[mypy.nodes.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> ExpressionBuilder: ...
+
+    @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
         raise CodeError(
             f"Cannot access member {name} without specifying class type parameters first",

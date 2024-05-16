@@ -20,11 +20,10 @@ from puya.awst_build.eb.arc4.base import (
     ARC4ClassExpressionBuilder,
     ARC4EncodedExpressionBuilder,
     arc4_bool_bytes,
-    get_integer_literal_value,
 )
 from puya.awst_build.eb.base import BuilderComparisonOp, ExpressionBuilder
 from puya.awst_build.eb.bool import BoolExpressionBuilder
-from puya.errors import CodeError, InternalError
+from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -38,19 +37,11 @@ logger = log.get_logger(__name__)
 
 
 class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
+    def __init__(self, wtype: wtypes.ARC4UIntN | wtypes.ARC4UFixedNxM, location: SourceLocation):
+        super().__init__(wtype, location)
+        self._wtype = wtype
 
-    def __init__(self, location: SourceLocation):
-        super().__init__(location)
-        self.wtype: wtypes.ARC4UIntN | wtypes.ARC4UFixedNxM | None = None
-
-    def produces(self) -> wtypes.ARC4Type:
-        if self.wtype is None:
-            raise InternalError(
-                "Cannot resolve wtype of generic EB until the index method is called with the "
-                "generic type parameter."
-            )
-        return self.wtype
-
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
@@ -97,8 +88,7 @@ class NumericARC4ClassExpressionBuilder(ARC4ClassExpressionBuilder, abc.ABC):
 class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
 
     def __init__(self, location: SourceLocation):
-        super().__init__(location)
-        self.wtype = wtypes.arc4_byte_type
+        super().__init__(wtypes.arc4_byte_type, location)
 
     @classmethod
     def zero_literal(cls) -> ConstantValue:
@@ -109,17 +99,10 @@ class ByteClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
         return UIntNExpressionBuilder
 
 
-class _UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
-    def index(
-        self, index: ExpressionBuilder | Literal, location: SourceLocation
-    ) -> ExpressionBuilder:
-        n = get_integer_literal_value(index, "UIntN scale")
-        self.check_bitsize(n, location)
-        self.wtype = wtypes.ARC4UIntN(n, location)
-        return self
-
-    @abc.abstractmethod
-    def check_bitsize(self, n: int, location: SourceLocation) -> None: ...
+class UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
+    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+        assert isinstance(wtype, wtypes.ARC4UIntN)
+        super().__init__(wtype, location)
 
     @classmethod
     def zero_literal(cls) -> ConstantValue:
@@ -130,43 +113,10 @@ class _UIntNClassExpressionBuilder(NumericARC4ClassExpressionBuilder, abc.ABC):
         return UIntNExpressionBuilder
 
 
-class UIntNClassExpressionBuilder(_UIntNClassExpressionBuilder):
-    def check_bitsize(self, n: int, location: SourceLocation) -> None:
-        if n % 8 or not (8 <= n <= 64):
-            raise CodeError(
-                "UIntN scale must be >=8 and <=64 bits, and be a multiple of 8",
-                location,
-            )
-
-
-class BigUIntNClassExpressionBuilder(_UIntNClassExpressionBuilder):
-    def check_bitsize(self, n: int, location: SourceLocation) -> None:
-        if n % 8 or not (64 < n <= 512):
-            raise CodeError(
-                "BigUIntN scale must be >64 and <=512 bits, and be a multiple of 8",
-                location,
-            )
-
-
-class _UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
-    def index_multiple(
-        self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    ) -> ExpressionBuilder:
-        try:
-            scale_expr, precision_expr = indexes
-        except ValueError as ex:
-            raise CodeError(f"Expected two type arguments, got {len(indexes)}", location) from ex
-        bits = get_integer_literal_value(scale_expr, "UFixedNxM scale")
-        precision = get_integer_literal_value(precision_expr, "UFixedNxM precision")
-
-        self.check_bitsize(bits, location)
-        if not (1 <= precision < 160):
-            raise CodeError("UFixedNxM precision must be between 1 and 160.")
-        self.wtype = wtypes.ARC4UFixedNxM(bits=bits, precision=precision, source_location=location)
-        return self
-
-    @abc.abstractmethod
-    def check_bitsize(self, n: int, location: SourceLocation) -> None: ...
+class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
+    def __init__(self, wtype: wtypes.WType, location: SourceLocation):
+        assert isinstance(wtype, wtypes.ARC4UFixedNxM)
+        super().__init__(wtype, location)
 
     @classmethod
     def zero_literal(cls) -> ConstantValue:
@@ -175,24 +125,6 @@ class _UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
     @classmethod
     def _value_builder(cls) -> type[ARC4EncodedExpressionBuilder]:
         return UFixedNxMExpressionBuilder
-
-
-class UFixedNxMClassExpressionBuilder(_UFixedNxMClassExpressionBuilder):
-    def check_bitsize(self, n: int, location: SourceLocation) -> None:
-        if n % 8 or not (8 <= n <= 64):
-            raise CodeError(
-                "UFixedNxM scale must be >=8 and <=64 bits, and be a multiple of 8",
-                location,
-            )
-
-
-class BigUFixedNxMClassExpressionBuilder(_UFixedNxMClassExpressionBuilder):
-    def check_bitsize(self, n: int, location: SourceLocation) -> None:
-        if n % 8 or not (64 < n <= 512):
-            raise CodeError(
-                "BigUFixedNxM scale must be >64 and <=512 bits, and be a multiple of 8",
-                location,
-            )
 
 
 class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):

@@ -11,8 +11,8 @@ from puya.awst.nodes import (
     Expression,
     IntrinsicCall,
     Literal,
-    UInt64Constant,
     ReinterpretCast,
+    UInt64Constant,
 )
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
@@ -37,9 +37,10 @@ logger = log.get_logger(__name__)
 
 
 class AssetClassExpressionBuilder(TypeClassExpressionBuilder):
-    def produces(self) -> wtypes.WType:
-        return wtypes.asset_wtype
+    def __init__(self, location: SourceLocation):
+        super().__init__(wtypes.asset_wtype, location)
 
+    @typing.override
     def call(
         self,
         args: Sequence[ExpressionBuilder | Literal],
