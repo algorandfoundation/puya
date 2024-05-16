@@ -22,7 +22,9 @@ def create_avm_invoker(client: ApplicationClient) -> AVMInvoker:
             },
             **kwargs,
         ).return_value
-        if isinstance(result, list) and all(isinstance(i, int) for i in result):
+        if isinstance(result, list) and all(
+            isinstance(i, int) and i >= 0 and i <= 255 for i in result
+        ):
             result = bytes(result)
         return result
 
