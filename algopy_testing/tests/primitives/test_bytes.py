@@ -1,5 +1,4 @@
 import base64
-from hashlib import sha256
 
 import algokit_utils
 import pytest
@@ -7,6 +6,7 @@ from algopy.constants import MAX_BYTES_SIZE
 from algopy.primitives.bytes import Bytes
 
 from tests.primitives.conftest import AVMInvoker
+from tests.primitives.util import get_sha256_hash, int_to_bytes
 
 
 @pytest.mark.parametrize(
@@ -195,10 +195,6 @@ def test_bytes_bitwise_ne(get_avm_result: AVMInvoker, a: bytes, b: bytes) -> Non
     assert avm_result == (a != Bytes(b))
 
 
-def get_sha256_hash(v: Bytes) -> Bytes:
-    return Bytes(sha256(v.value).digest())
-
-
 # NON AVM functionality
 # these don't have an AVM equivalent, but are very useful when executing in a python context
 
@@ -230,13 +226,13 @@ def test_bytes_len(value: bytes) -> None:
 @pytest.mark.parametrize("value", [b"hello, world", b"", b"0110", b"0" * MAX_BYTES_SIZE])
 def test_bytes_iter(value: bytes) -> None:
     for x1, x2 in zip(iter(Bytes(value)), iter(value), strict=True):
-        assert x1 == _int_to_bytes(x2)
+        assert x1 == int_to_bytes(x2)
 
 
 @pytest.mark.parametrize("value", [b"hello, world", b"", b"0110", b"0" * MAX_BYTES_SIZE])
 def test_bytes_reversed(value: bytes) -> None:
     for x1, x2 in zip(reversed(Bytes(value)), reversed(value), strict=True):
-        assert x1 == _int_to_bytes(x2)
+        assert x1 == int_to_bytes(x2)
 
 
 @pytest.mark.parametrize(
@@ -254,8 +250,4 @@ def test_bytes_index(index: int | slice) -> None:
     if isinstance(index, slice):
         assert Bytes(value)[index] == value[index]
     else:
-        assert Bytes(value)[index] == _int_to_bytes(value[index])
-
-
-def _int_to_bytes(x: int) -> bytes:
-    return x.to_bytes((x.bit_length() + 7) // 8, "big")
+        assert Bytes(value)[index] == int_to_bytes(value[index])
