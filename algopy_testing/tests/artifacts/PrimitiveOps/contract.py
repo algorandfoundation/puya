@@ -151,12 +151,12 @@ class PrimitiveOpsContract(ARC4Contract):
         result = a_biguint + b_biguint
         return result.bytes
 
-    # @arc4.abimethod()
-    # def verify_biguint_sub(self, a: Bytes, b: Bytes) -> Bytes:
-    #     a_biguint = BigUInt.from_bytes(a)
-    #     b_biguint = BigUInt.from_bytes(b)
-    #     result = a_biguint - b_biguint
-    #     return result.bytes
+    @arc4.abimethod()
+    def verify_biguint_sub(self, a: Bytes, b: Bytes) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        b_biguint = BigUInt.from_bytes(b)
+        result = a_biguint - b_biguint
+        return result.bytes
 
     @arc4.abimethod()
     def verify_biguint_mul(self, a: Bytes, b: Bytes) -> Bytes:
@@ -165,19 +165,19 @@ class PrimitiveOpsContract(ARC4Contract):
         result = a_biguint * b_biguint
         return result.bytes
 
-    # @arc4.abimethod()
-    # def verify_biguint_div(self, a: Bytes, b: Bytes) -> Bytes:
-    #     a_biguint = BigUInt.from_bytes(a)
-    #     b_biguint = BigUInt.from_bytes(b)
-    #     result = a_biguint // b_biguint
-    #     return result.bytes
+    @arc4.abimethod()
+    def verify_biguint_div(self, a: Bytes, b: Bytes) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        b_biguint = BigUInt.from_bytes(b)
+        result = a_biguint // b_biguint
+        return result.bytes
 
-    # @arc4.abimethod()
-    # def verify_biguint_mod(self, a: Bytes, b: Bytes) -> Bytes:
-    #     a_biguint = BigUInt.from_bytes(a)
-    #     b_biguint = BigUInt.from_bytes(b)
-    #     result = a_biguint % b_biguint
-    #     return result.bytes
+    @arc4.abimethod()
+    def verify_biguint_mod(self, a: Bytes, b: Bytes) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        b_biguint = BigUInt.from_bytes(b)
+        result = a_biguint % b_biguint
+        return result.bytes
 
     @arc4.abimethod()
     def verify_biguint_and(self, a: Bytes, b: Bytes) -> Bytes:
