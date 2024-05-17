@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import functools
+from typing import TYPE_CHECKING
 
 from algopy.constants import MAX_UINT64
+
+if TYPE_CHECKING:
+    from algopy.primitives.biguint import BigUInt
 
 # TypeError, ValueError are used for operations that are compile time errors
 # ArithmeticError and subclasses are used for operations that would fail during AVM execution
@@ -46,7 +50,7 @@ class UInt64:
     def __bool__(self) -> bool:
         return self.value != 0
 
-    def __add__(self, other: int | UInt64) -> UInt64:
+    def __add__(self, other: int | UInt64 | BigUInt) -> UInt64:
         maybe_int = _as_maybe_uint64(other)
         # returning NotImplemented here will allow BigUInt (and others) to upcast
         # a BigUint + UInt64 operation
@@ -59,7 +63,7 @@ class UInt64:
     def __radd__(self, other: int) -> UInt64:
         return self + other
 
-    def __sub__(self, other: int | UInt64) -> UInt64:
+    def __sub__(self, other: int | UInt64 | BigUInt) -> UInt64:
         maybe_int = _as_maybe_uint64(other)
         if maybe_int is None:
             return NotImplemented
@@ -68,7 +72,7 @@ class UInt64:
     def __rsub__(self, other: int) -> UInt64:
         return _as_uint64(other) - self
 
-    def __mul__(self, other: int | UInt64) -> UInt64:
+    def __mul__(self, other: int | UInt64 | BigUInt) -> UInt64:
         maybe_int = _as_maybe_uint64(other)
         if maybe_int is None:
             return NotImplemented
@@ -77,7 +81,7 @@ class UInt64:
     def __rmul__(self, other: int) -> UInt64:
         return self * other
 
-    def __floordiv__(self, denominator: int | UInt64) -> UInt64:
+    def __floordiv__(self, denominator: int | UInt64 | BigUInt) -> UInt64:
         maybe_int = _as_maybe_uint64(denominator)
         if maybe_int is None:
             return NotImplemented
@@ -86,7 +90,7 @@ class UInt64:
     def __rfloordiv__(self, numerator: int) -> UInt64:
         return _as_uint64(numerator) // self
 
-    def __mod__(self, denominator: int | UInt64) -> UInt64:
+    def __mod__(self, denominator: int | UInt64 | BigUInt) -> UInt64:
         maybe_int = _as_maybe_uint64(denominator)
         if maybe_int is None:
             return NotImplemented
