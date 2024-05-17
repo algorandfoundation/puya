@@ -176,7 +176,7 @@ def test_ed25519verify(
 ) -> None:
     assert crypto_ops_client.approval
     with new_context() as ctx:
-        ctx.program_hash = crypto_ops_client.approval.raw_binary
+        ctx.program_bytes = crypto_ops_client.approval.raw_binary
         # Prepare message and signing parameters
         message = b"Test message for ed25519 verification"
         sp = algod_client.suggested_params()
@@ -208,21 +208,13 @@ def test_ecdsa_verify_k1(
     algod_client: AlgodClient,
     get_crypto_ops_avm_result: AVMInvoker,
 ) -> None:
-    message_hash = (
-        b"\xf8\t\xfd\n\xa0\xbb\x0f \xb3T\xc6\xb2\xf8n\xa7Q\x95zN&*Tk\xd7\x16\xf3Oi\xb9Qj\xe1"
+    message_hash = bytes.fromhex(
+        "f809fd0aa0bb0f20b354c6b2f86ea751957a4e262a546bd716f34f69b9516ae1"
     )
-    sig_r = (
-        b"\xf7\xf9\x13uN\\\x93?8%\xd3\xae\xf2.\x8b\xf7\\\xfe5\xa1\x8b\xed\xe1>\x15\xa6\xe4\xad"
-        b"\xcf\xe8\x16\xd2"
-    )
-    sig_s = (
-        b"\x0bU\x99\x15\x9a\xa8Y\xd7\x96w\xf32\x80\x84\x8a\xe4\xc0\x9c a\xe8\xb5\x88\x1a\xf8"
-        b"P\x7f\x81\x12\x96gT"
-    )
-    pubkey_x = b"\xa7\x10$Mbtz\xa8\xdb\x02-\xddpar@\xad\xaf\x88\x1bC\x9e_i\x998\x00\xe6\x14!@v"
-    pubkey_y = (
-        b"H\xd0\xd37pO\xe2\xc6u\x90\x9d,\x93\xf7\x99^\x19\x91V\xf3\x02\xf6<t\xa8\xb9h'\xb2\x8dw{"
-    )
+    sig_r = bytes.fromhex("f7f913754e5c933f3825d3aef22e8bf75cfe35a18bede13e15a6e4adcfe816d2")
+    sig_s = bytes.fromhex("0b5599159aa859d79677f33280848ae4c09c2061e8b5881af8507f8112966754")
+    pubkey_x = bytes.fromhex("a710244d62747aa8db022ddd70617240adaf881b439e5f69993800e614214076")
+    pubkey_y = bytes.fromhex("48d0d337704fe2c675909d2c93f7995e199156f302f63c74a8b96827b28d777b")
 
     sp = algod_client.suggested_params()
     sp.fee = 5000
@@ -244,25 +236,13 @@ def test_ecdsa_verify_r1(
     algod_client: AlgodClient,
     get_crypto_ops_avm_result: AVMInvoker,
 ) -> None:
-    message_hash = (
-        b"\xf8\t\xfd\n\xa0\xbb\x0f \xb3T\xc6\xb2\xf8n\xa7Q\x95zN&*Tk\xd7\x16\xf3Oi\xb9Qj\xe1"
+    message_hash = bytes.fromhex(
+        "f809fd0aa0bb0f20b354c6b2f86ea751957a4e262a546bd716f34f69b9516ae1"
     )
-    sig_r = (
-        b"\x18\xd9l|\xdaK\xc1M\x06'u4h\x1d\xed\x8a\x94\x82\x8e\xb71\xd8\xb8B\xe0\xda\x81\x05@"
-        b"\x8c\x83\xcf"
-    )
-    sig_s = (
-        b"}3\xc6\x1a\xcf9\xcb\xb7\xa1\xd5\x1cq&\xf1q\x81\x16\x17\x9a\xde\xbd1a\x8cF\x04\xa1\xf0"
-        b";\\'J"
-    )
-    pubkey_x = (
-        b"\xf8\x14\x0e;+\x92\xf7\xcb\xdc\x81\x96\xbck\xaa\x9c\xe8l\xf1\\\x18\xe8\xad\x01E\xd5"
-        b"\x08$\xe6\xfa\x89\x02d"
-    )
-    pubkey_y = (
-        b"\xbdC{u\xd6\xf1\xdbg\x15Z\x95\xa0\xdaKA\xf2\xb6\xb3\xdc]B\xf7\xdbV#\x84I\xe4"
-        b"\x04\xa6\xc0\xa3"
-    )
+    sig_r = bytes.fromhex("18d96c7cda4bc14d06277534681ded8a94828eb731d8b842e0da8105408c83cf")
+    sig_s = bytes.fromhex("7d33c61acf39cbb7a1d51c7126f1718116179adebd31618c4604a1f03b5c274a")
+    pubkey_x = bytes.fromhex("f8140e3b2b92f7cbdc8196bc6baa9ce86cf15c18e8ad0145d50824e6fa890264")
+    pubkey_y = bytes.fromhex("bd437b75d6f1db67155a95a0da4b41f2b6b3dc5d42f7db56238449e404a6c0a3")
 
     sp = algod_client.suggested_params()
     sp.fee = 5000

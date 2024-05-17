@@ -65,7 +65,10 @@ def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bo
             "function must be run within an active context"
             " using `with algopy_testing.context.new_context():`"
         ) from e
-    decoded_address = algosdk.encoding.decode_address(algosdk.logic.address(ctx.program_hash))
+    if ctx.program_bytes is None:
+        raise RuntimeError("`program_bytes` must be set in the context")
+
+    decoded_address = algosdk.encoding.decode_address(algosdk.logic.address(ctx.program_bytes))
     address_bytes = as_bytes(decoded_address)
     a = algosdk.constants.logic_data_prefix + address_bytes + a
     return ed25519verify_bare(a, b, c)
