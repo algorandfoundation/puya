@@ -48,31 +48,31 @@ class BigUInt:
 
     # the reflected dunder methods (__radd__, __rsub___, etc.) should only be called when the
     # BigUInt is on the right hand side and UInt64 or int on the left
-    def __radd__(self, other: int) -> BigUInt:
+    def __radd__(self, other: int | UInt64) -> BigUInt:
         return self + other
 
     def __sub__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return _checked_result(self.value - _as_int512(other), "-")
 
-    def __rsub__(self, other: int) -> BigUInt:
+    def __rsub__(self, other: int | UInt64) -> BigUInt:
         return _as_biguint(other) - self
 
     def __mul__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return _checked_result(self.value * _as_int512(other), "*")
 
-    def __rmul__(self, other: int) -> BigUInt:
+    def __rmul__(self, other: int | UInt64) -> BigUInt:
         return self * other
 
     def __floordiv__(self, denominator: BigUInt | UInt64 | int) -> BigUInt:
         return _checked_result(self.value // _as_int512(denominator), "//")
 
-    def __rfloordiv__(self, numerator: int) -> BigUInt:
+    def __rfloordiv__(self, numerator: int | UInt64) -> BigUInt:
         return _as_biguint(numerator) // self
 
     def __mod__(self, denominator: BigUInt | UInt64 | int) -> BigUInt:
         return _checked_result(self.value % _as_int512(denominator), "%")
 
-    def __rmod__(self, numerator: int) -> BigUInt:
+    def __rmod__(self, numerator: int | UInt64) -> BigUInt:
         return _as_biguint(numerator) % self
 
     def __and__(self, other: BigUInt | UInt64 | int) -> BigUInt:
