@@ -118,6 +118,15 @@ class FunctionTraverser(
         if isinstance(expr.end_index, awst_nodes.Expression):
             expr.end_index.accept(self)
 
+    def visit_intersection_slice_expression(
+        self, expr: awst_nodes.IntersectionSliceExpression
+    ) -> None:
+        expr.base.accept(self)
+        if isinstance(expr.begin_index, awst_nodes.Expression):
+            expr.begin_index.accept(self)
+        if isinstance(expr.end_index, awst_nodes.Expression):
+            expr.end_index.accept(self)
+
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> None:
         expr.base.accept(self)
         expr.index.accept(self)

@@ -11,7 +11,7 @@ def perform_constant_stack_shuffling(block: models.TealBlock) -> bool:
     for op in block.ops:
         if _is_constant_load(op):
             loads.append(op)
-        elif loads and op.op_code.startswith("dup"):
+        elif loads and op.op_code in ("dup", "dupn"):
             (n,) = op.immediates or (1,)
             assert isinstance(n, int)
             loads.extend([attrs.evolve(loads[-1], source_location=op.source_location)] * n)

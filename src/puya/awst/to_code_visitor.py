@@ -429,6 +429,20 @@ class ToCodeVisitor(
 
         return f"{expr.base.accept(self)}[{start}:{stop}]"
 
+    def visit_intersection_slice_expression(self, expr: nodes.IntersectionSliceExpression) -> str:
+        start = (
+            expr.begin_index.accept(self)
+            if isinstance(expr.begin_index, nodes.Expression)
+            else expr.begin_index if expr.begin_index is not None else ""
+        )
+        stop = (
+            expr.end_index.accept(self)
+            if isinstance(expr.end_index, nodes.Expression)
+            else expr.end_index if expr.end_index is not None else ""
+        )
+
+        return f"{expr.base.accept(self)}[{start}:{stop}]"
+
     def visit_block(self, statement: nodes.Block) -> list[str]:
         return [line for statement in statement.body for line in statement.accept(self)]
 

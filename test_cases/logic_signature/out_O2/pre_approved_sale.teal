@@ -2,6 +2,16 @@
 
 test_cases.logic_signature.signature.pre_approved_sale:
     int 0
+    gtxns TypeEnum
+    int pay
+    ==
+    assert // transaction type is pay
+    int 1
+    gtxns TypeEnum
+    int axfer
+    ==
+    assert // transaction type is axfer
+    int 0
     callsub assert_correct_payment
     int 1
     callsub assert_correct_asset
@@ -19,74 +29,64 @@ test_cases.logic_signature.signature.pre_approved_sale:
     return
 
 
-// test_cases.logic_signature.signature.assert_correct_payment(txn_offset: uint64) -> void:
+// test_cases.logic_signature.signature.assert_correct_payment(txn: uint64) -> void:
 assert_correct_payment:
     proto 1 0
-    frame_dig -1
-    gtxns TypeEnum
-    int pay
-    ==
-    bz assert_correct_payment_bool_false@4
     frame_dig -1
     gtxns Receiver
     byte TMPL_SELLER
     ==
-    bz assert_correct_payment_bool_false@4
+    bz assert_correct_payment_bool_false@3
     frame_dig -1
     gtxns Amount
     int TMPL_PRICE
     ==
-    bz assert_correct_payment_bool_false@4
+    bz assert_correct_payment_bool_false@3
     int 1
-    b assert_correct_payment_bool_merge@5
+    b assert_correct_payment_bool_merge@4
 
-assert_correct_payment_bool_false@4:
+assert_correct_payment_bool_false@3:
     int 0
 
-assert_correct_payment_bool_merge@5:
+assert_correct_payment_bool_merge@4:
     assert
     retsub
 
 
-// test_cases.logic_signature.signature.assert_correct_asset(txn_offset: uint64) -> void:
+// test_cases.logic_signature.signature.assert_correct_asset(txn: uint64) -> void:
 assert_correct_asset:
     proto 1 0
-    frame_dig -1
-    gtxns TypeEnum
-    int axfer
-    ==
-    bz assert_correct_asset_bool_false@7
     frame_dig -1
     gtxns AssetAmount
     int 1
     ==
-    bz assert_correct_asset_bool_false@7
+    bz assert_correct_asset_bool_false@6
     frame_dig -1
     gtxns Sender
     byte TMPL_SELLER
     ==
-    bz assert_correct_asset_bool_false@7
+    bz assert_correct_asset_bool_false@6
     frame_dig -1
     gtxns XferAsset
     int TMPL_ASSET_ID
     ==
-    bz assert_correct_asset_bool_false@7
+    bz assert_correct_asset_bool_false@6
     frame_dig -1
     gtxns AssetCloseTo
     global ZeroAddress
     ==
-    bz assert_correct_asset_bool_false@7
+    bz assert_correct_asset_bool_false@6
     frame_dig -1
     gtxns RekeyTo
     global ZeroAddress
     ==
-    bz assert_correct_asset_bool_false@7
+    bz assert_correct_asset_bool_false@6
     int 1
-    b assert_correct_asset_bool_merge@8
+    b assert_correct_asset_bool_merge@7
 
-assert_correct_asset_bool_false@7:
+assert_correct_asset_bool_false@6:
     int 0
 
-assert_correct_asset_bool_merge@8:
+assert_correct_asset_bool_merge@7:
     assert
     retsub

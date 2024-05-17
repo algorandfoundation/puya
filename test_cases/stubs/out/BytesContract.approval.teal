@@ -35,15 +35,14 @@ check_slicing_with_uint64:
     // stubs/bytes.py:81
     // assert abc[one:] == b"bc"
     dig 1
-    <
-    swap
-    dup
+    >=
     // stubs/bytes.py:79
     // one = UInt64(1)
     int 1
     // stubs/bytes.py:81
     // assert abc[one:] == b"bc"
-    uncover 3
+    dig 2
+    uncover 2
     select
     frame_dig -1
     dig 1
@@ -81,21 +80,21 @@ check_slicing_with_uint64:
     // stubs/bytes.py:84
     // assert one_to_seven()[one:-1] == b"23456"
     dig 1
-    <
-    swap
-    dup
+    >=
     // stubs/bytes.py:79
     // one = UInt64(1)
     int 1
     // stubs/bytes.py:84
     // assert one_to_seven()[one:-1] == b"23456"
-    uncover 3
+    dig 2
+    uncover 2
     select
     dup
     cover 2
     -
-    dup2
-    >
+    dup
+    dig 2
+    <
     dig 2
     swap
     select
@@ -105,9 +104,12 @@ check_slicing_with_uint64:
     assert
     // stubs/bytes.py:85
     // assert abc[UInt64(0) : ten] == b"abc"
-    dup
+    int 0
+    dig 1
+    >=
     int 0
     dig 2
+    uncover 2
     select
     swap
     // stubs/bytes.py:80
@@ -116,18 +118,13 @@ check_slicing_with_uint64:
     // stubs/bytes.py:85
     // assert abc[UInt64(0) : ten] == b"abc"
     dig 1
-    <
+    >=
     // stubs/bytes.py:80
     // ten = UInt64(10)
     int 10
     // stubs/bytes.py:85
     // assert abc[UInt64(0) : ten] == b"abc"
-    swap
-    select
-    dup2
-    >
-    dig 2
-    swap
+    cover 2
     select
     frame_dig -1
     cover 2
@@ -166,24 +163,22 @@ check_end_before_start_slicing:
     len
     int 10
     dig 1
-    <
-    swap
-    dup
+    >=
     int 10
-    uncover 3
-    select
-    swap
-    int 1
-    dig 1
-    <
-    swap
-    dup
-    int 1
-    uncover 3
-    select
     dig 2
+    uncover 2
+    select
+    swap
+    int 1
     dig 1
-    >
+    >=
+    int 1
+    dig 2
+    uncover 2
+    select
+    dup
+    dig 3
+    <
     dig 3
     swap
     select
@@ -202,15 +197,15 @@ check_end_before_start_slicing:
     swap
     int 12
     dig 1
-    <
-    swap
-    dup
+    >=
     int 12
-    uncover 3
+    dig 2
+    uncover 2
     select
     -
-    dup2
-    >
+    dup
+    dig 2
+    <
     dig 2
     swap
     select

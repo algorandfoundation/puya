@@ -226,3 +226,21 @@ def assert_value(
 def mkblocks(loc: SourceLocation, *comments: str | None) -> Iterator[BasicBlock]:
     for c in comments:
         yield BasicBlock(comment=c, source_location=loc)
+
+
+def extract_const_int(expr: awst_nodes.Expression | int | None) -> int | None:
+    """
+    Check expr is an IntegerConstant, int literal, or None, and return constant value (or None)
+    """
+    match expr:
+        case None:
+            return None
+        case awst_nodes.IntegerConstant(value=value):
+            return value
+        case int(value):
+            return value
+        case _:
+            raise InternalError(
+                f"Expected either constant or None for index, got {type(expr).__name__}",
+                expr.source_location,
+            )
