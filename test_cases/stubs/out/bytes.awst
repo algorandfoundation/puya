@@ -17,14 +17,14 @@ contract BytesContract
     assert(c == 'cd')
     abc: algopy.Bytes = 'abc'
     assert(abc[0u] == 'a')
-    assert(SINGLE_EVAL(id=0, source=abc)[select(len(SINGLE_EVAL(id=0, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=0, source=abc))):] == 'bc')
-    assert(SINGLE_EVAL(id=1, source=abc)[select(len(SINGLE_EVAL(id=1, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=1, source=abc))):select(select(len(SINGLE_EVAL(id=1, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=1, source=abc))), select(len(SINGLE_EVAL(id=1, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=1, source=abc))), select(len(SINGLE_EVAL(id=1, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=1, source=abc))) > select(len(SINGLE_EVAL(id=1, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=1, source=abc))))] == '')
-    assert(SINGLE_EVAL(id=2, source=abc)[:select(len(SINGLE_EVAL(id=2, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=2, source=abc)))] == 'a')
-    assert(SINGLE_EVAL(id=3, source=abc)[:len(SINGLE_EVAL(id=3, source=abc)) - select(len(SINGLE_EVAL(id=3, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=3, source=abc)))] == 'ab')
-    assert(SINGLE_EVAL(id=4, source=abc)[len(SINGLE_EVAL(id=4, source=abc)) - select(len(SINGLE_EVAL(id=4, source=abc)), 2u, 2u < len(SINGLE_EVAL(id=4, source=abc))):] == 'bc')
-    assert(SINGLE_EVAL(id=5, source=abc)[len(SINGLE_EVAL(id=5, source=abc)) - select(len(SINGLE_EVAL(id=5, source=abc)), 2u, 2u < len(SINGLE_EVAL(id=5, source=abc))):select(len(SINGLE_EVAL(id=5, source=abc)) - select(len(SINGLE_EVAL(id=5, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=5, source=abc))), len(SINGLE_EVAL(id=5, source=abc)) - select(len(SINGLE_EVAL(id=5, source=abc)), 2u, 2u < len(SINGLE_EVAL(id=5, source=abc))), len(SINGLE_EVAL(id=5, source=abc)) - select(len(SINGLE_EVAL(id=5, source=abc)), 2u, 2u < len(SINGLE_EVAL(id=5, source=abc))) > len(SINGLE_EVAL(id=5, source=abc)) - select(len(SINGLE_EVAL(id=5, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=5, source=abc))))] == 'b')
-    assert(SINGLE_EVAL(id=6, source='1234567')[select(len(SINGLE_EVAL(id=6, source='1234567')), 1u, 1u < len(SINGLE_EVAL(id=6, source='1234567'))):select(len(SINGLE_EVAL(id=6, source='1234567')) - select(len(SINGLE_EVAL(id=6, source='1234567')), 1u, 1u < len(SINGLE_EVAL(id=6, source='1234567'))), select(len(SINGLE_EVAL(id=6, source='1234567')), 1u, 1u < len(SINGLE_EVAL(id=6, source='1234567'))), select(len(SINGLE_EVAL(id=6, source='1234567')), 1u, 1u < len(SINGLE_EVAL(id=6, source='1234567'))) > len(SINGLE_EVAL(id=6, source='1234567')) - select(len(SINGLE_EVAL(id=6, source='1234567')), 1u, 1u < len(SINGLE_EVAL(id=6, source='1234567'))))] == '23456')
-    assert(SINGLE_EVAL(id=7, source=abc)[len(SINGLE_EVAL(id=7, source=abc)) - select(len(SINGLE_EVAL(id=7, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=7, source=abc))):select(select(len(SINGLE_EVAL(id=7, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=7, source=abc))), len(SINGLE_EVAL(id=7, source=abc)) - select(len(SINGLE_EVAL(id=7, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=7, source=abc))), len(SINGLE_EVAL(id=7, source=abc)) - select(len(SINGLE_EVAL(id=7, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=7, source=abc))) > select(len(SINGLE_EVAL(id=7, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=7, source=abc))))] == 'abc')
+    assert(abc[1:] == 'bc')
+    assert(abc[1:1] == '')
+    assert(abc[:1] == 'a')
+    assert(abc[:-1] == 'ab')
+    assert(abc[-2:] == 'bc')
+    assert(abc[-2:-1] == 'b')
+    assert('1234567'[1:-1] == '23456')
+    assert(abc[-10:10] == 'abc')
     true: algopy.Bytes = '1'
     false: algopy.Bytes = ''
     x: bool = (!(reinterpret_cast<bool>(len(true)))) ? (true) : (true) == true
@@ -63,20 +63,20 @@ subroutine check_slicing_with_uint64(abc: algopy.Bytes): None
 {
   one: algopy.UInt64 = 1u
   ten: algopy.UInt64 = 10u
-  assert(SINGLE_EVAL(id=8, source=abc)[select(len(SINGLE_EVAL(id=8, source=abc)), SINGLE_EVAL(id=9, source=one), SINGLE_EVAL(id=9, source=one) < len(SINGLE_EVAL(id=8, source=abc))):] == 'bc')
-  assert(SINGLE_EVAL(id=10, source=abc)[select(len(SINGLE_EVAL(id=10, source=abc)), SINGLE_EVAL(id=11, source=one), SINGLE_EVAL(id=11, source=one) < len(SINGLE_EVAL(id=10, source=abc))):select(select(len(SINGLE_EVAL(id=10, source=abc)), SINGLE_EVAL(id=12, source=one), SINGLE_EVAL(id=12, source=one) < len(SINGLE_EVAL(id=10, source=abc))), select(len(SINGLE_EVAL(id=10, source=abc)), SINGLE_EVAL(id=11, source=one), SINGLE_EVAL(id=11, source=one) < len(SINGLE_EVAL(id=10, source=abc))), select(len(SINGLE_EVAL(id=10, source=abc)), SINGLE_EVAL(id=11, source=one), SINGLE_EVAL(id=11, source=one) < len(SINGLE_EVAL(id=10, source=abc))) > select(len(SINGLE_EVAL(id=10, source=abc)), SINGLE_EVAL(id=12, source=one), SINGLE_EVAL(id=12, source=one) < len(SINGLE_EVAL(id=10, source=abc))))] == '')
-  assert(SINGLE_EVAL(id=13, source=abc)[:select(len(SINGLE_EVAL(id=13, source=abc)), SINGLE_EVAL(id=14, source=one), SINGLE_EVAL(id=14, source=one) < len(SINGLE_EVAL(id=13, source=abc)))] == 'a')
-  assert(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven())[select(len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven())), SINGLE_EVAL(id=16, source=one), SINGLE_EVAL(id=16, source=one) < len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven()))):select(len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven())) - select(len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven())), 1u, 1u < len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven()))), select(len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven())), SINGLE_EVAL(id=16, source=one), SINGLE_EVAL(id=16, source=one) < len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven()))), select(len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven())), SINGLE_EVAL(id=16, source=one), SINGLE_EVAL(id=16, source=one) < len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven()))) > len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven())) - select(len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven())), 1u, 1u < len(SINGLE_EVAL(id=15, source=test_cases.stubs.bytes::one_to_seven()))))] == '23456')
-  assert(SINGLE_EVAL(id=17, source=abc)[select(len(SINGLE_EVAL(id=17, source=abc)), SINGLE_EVAL(id=18, source=0u), SINGLE_EVAL(id=18, source=0u) < len(SINGLE_EVAL(id=17, source=abc))):select(select(len(SINGLE_EVAL(id=17, source=abc)), SINGLE_EVAL(id=19, source=ten), SINGLE_EVAL(id=19, source=ten) < len(SINGLE_EVAL(id=17, source=abc))), select(len(SINGLE_EVAL(id=17, source=abc)), SINGLE_EVAL(id=18, source=0u), SINGLE_EVAL(id=18, source=0u) < len(SINGLE_EVAL(id=17, source=abc))), select(len(SINGLE_EVAL(id=17, source=abc)), SINGLE_EVAL(id=18, source=0u), SINGLE_EVAL(id=18, source=0u) < len(SINGLE_EVAL(id=17, source=abc))) > select(len(SINGLE_EVAL(id=17, source=abc)), SINGLE_EVAL(id=19, source=ten), SINGLE_EVAL(id=19, source=ten) < len(SINGLE_EVAL(id=17, source=abc))))] == 'abc')
+  assert(abc[one:] == 'bc')
+  assert(abc[one:one] == '')
+  assert(abc[:one] == 'a')
+  assert(test_cases.stubs.bytes::one_to_seven()[one:-1] == '23456')
+  assert(abc[0u:ten] == 'abc')
 }
 
 subroutine check_end_before_start_slicing(abc: algopy.Bytes): None
 {
-  assert(SINGLE_EVAL(id=20, source=abc)[select(len(SINGLE_EVAL(id=20, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=20, source=abc))):select(select(len(SINGLE_EVAL(id=20, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=20, source=abc))), select(len(SINGLE_EVAL(id=20, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=20, source=abc))), select(len(SINGLE_EVAL(id=20, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=20, source=abc))) > select(len(SINGLE_EVAL(id=20, source=abc)), 1u, 1u < len(SINGLE_EVAL(id=20, source=abc))))] == '')
-  assert(SINGLE_EVAL(id=21, source=abc)[len(SINGLE_EVAL(id=21, source=abc)) - select(len(SINGLE_EVAL(id=21, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=21, source=abc))):select(len(SINGLE_EVAL(id=21, source=abc)) - select(len(SINGLE_EVAL(id=21, source=abc)), 12u, 12u < len(SINGLE_EVAL(id=21, source=abc))), len(SINGLE_EVAL(id=21, source=abc)) - select(len(SINGLE_EVAL(id=21, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=21, source=abc))), len(SINGLE_EVAL(id=21, source=abc)) - select(len(SINGLE_EVAL(id=21, source=abc)), 10u, 10u < len(SINGLE_EVAL(id=21, source=abc))) > len(SINGLE_EVAL(id=21, source=abc)) - select(len(SINGLE_EVAL(id=21, source=abc)), 12u, 12u < len(SINGLE_EVAL(id=21, source=abc))))] == '')
+  assert(abc[10:1] == '')
+  assert(abc[-10:-12] == '')
   one: algopy.UInt64 = 1u
   ten: algopy.UInt64 = 10u
-  assert(SINGLE_EVAL(id=22, source=abc)[select(len(SINGLE_EVAL(id=22, source=abc)), SINGLE_EVAL(id=23, source=ten), SINGLE_EVAL(id=23, source=ten) < len(SINGLE_EVAL(id=22, source=abc))):select(select(len(SINGLE_EVAL(id=22, source=abc)), SINGLE_EVAL(id=24, source=one), SINGLE_EVAL(id=24, source=one) < len(SINGLE_EVAL(id=22, source=abc))), select(len(SINGLE_EVAL(id=22, source=abc)), SINGLE_EVAL(id=23, source=ten), SINGLE_EVAL(id=23, source=ten) < len(SINGLE_EVAL(id=22, source=abc))), select(len(SINGLE_EVAL(id=22, source=abc)), SINGLE_EVAL(id=23, source=ten), SINGLE_EVAL(id=23, source=ten) < len(SINGLE_EVAL(id=22, source=abc))) > select(len(SINGLE_EVAL(id=22, source=abc)), SINGLE_EVAL(id=24, source=one), SINGLE_EVAL(id=24, source=one) < len(SINGLE_EVAL(id=22, source=abc))))] == '')
+  assert(abc[ten:one] == '')
 }
 
 subroutine one_to_seven(): algopy.Bytes

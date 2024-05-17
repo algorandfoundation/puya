@@ -6,17 +6,6 @@ import algopy
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
 
-AllowedOnCompletes: typing.TypeAlias = Sequence[
-    typing.Literal[
-        "NoOp",
-        "OptIn",
-        "CloseOut",
-        # ClearState has its own program, so is not considered as part of ARC4 routing
-        "UpdateApplication",
-        "DeleteApplication",
-    ]
-    | algopy.OnCompleteAction
-]
 """Allowed completion types for ABI methods: 
 NoOp, OptIn, CloseOut, UpdateApplication and DeleteApplication"""
 
@@ -30,29 +19,58 @@ def abimethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
 @typing.overload
 def abimethod(
     *,
-    allow_actions: AllowedOnCompletes | None = None,
+    name: str = ...,
     create: typing.Literal["allow", "require", "disallow"] = "disallow",
-    name: str | None = None,
+    allow_actions: Sequence[
+        algopy.OnCompleteAction
+        | typing.Literal[
+            "NoOp",
+            "OptIn",
+            "CloseOut",
+            # ClearState has its own program, so is not considered as part of ARC4 routing
+            "UpdateApplication",
+            "DeleteApplication",
+        ]
+    ] = ("NoOp",),
     readonly: bool = False,
-    default_args: Mapping[str, str | _TABIDefaultArgSource] | None = None,
-) -> Callable[
-    [Callable[_P, _R]],
-    Callable[_P, _R],
-]:
-    """Decorator that indicates a method is an ARC4 ABI method"""
+    default_args: Mapping[str, str | _TABIDefaultArgSource] = ...,
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
+    """Decorator that indicates a method is an ARC4 ABI method.
+
+    :arg name: Name component of the ABI method selector. Defaults to using the function name.
+    :arg create: Controls the validation of the Application ID. "require" means it must be zero,
+                 "disallow" requires it must be non-zero, and "allow" disables the validation.
+    :arg allow_actions: A sequence of allowed On-Completion Actions to validate against.
+    :arg readonly: If True, then this method can be used via dry-run / simulate.
+    :arg default_args: Default argument sources for clients to use.
+    """
 
 @typing.overload
 def baremethod(fn: Callable[_P, _R], /) -> Callable[_P, _R]: ...
 @typing.overload
 def baremethod(
     *,
-    allow_actions: AllowedOnCompletes | None = None,
     create: typing.Literal["allow", "require", "disallow"] = "disallow",
-) -> Callable[
-    [Callable[_P, _R]],
-    Callable[_P, _R],
-]:
-    """Decorator that indicates a method is an ARC4 bare method"""
+    allow_actions: Sequence[
+        algopy.OnCompleteAction
+        | typing.Literal[
+            "NoOp",
+            "OptIn",
+            "CloseOut",
+            # ClearState has its own program, so is not considered as part of ARC4 routing
+            "UpdateApplication",
+            "DeleteApplication",
+        ]
+    ] = ...,
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
+    """Decorator that indicates a method is an ARC4 bare method.
+
+    There can be only one bare method on a contract for each given On-Completion Action.
+
+    :arg create: Controls the validation of the Application ID. "require" means it must be zero,
+                 "disallow" requires it must be non-zero, and "allow" disables the validation.
+    :arg allow_actions: Which On-Completion Action(s) to handle.
+    """
 
 def arc4_signature(signature: str, /) -> algopy.Bytes:
     """Returns the ARC4 encoded method selector for the specified signature"""

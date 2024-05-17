@@ -158,7 +158,8 @@ contract examples.amm.contract.ConstantProductAMM:
             block@0: // L49
                 let (pool_token_value%0#0: uint64, pool_token_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
                 (assert pool_token_exists%0#0) // check pool_token exists
-                let tmp%0#0: bool = (! pool_token_value%0#0)
+                let reinterpret_bool%0#0: bool = pool_token_value%0#0
+                let tmp%0#0: bool = (! reinterpret_bool%0#0)
                 (assert tmp%0#0) // application has already been bootstrapped
                 examples.amm.contract.ConstantProductAMM._check_is_governor()
                 let tmp%1#0: uint64 = (global GroupSize)
@@ -305,7 +306,8 @@ contract examples.amm.contract.ConstantProductAMM:
             block@0: // L251
                 let (pool_token_value%0#0: uint64, pool_token_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
                 (assert pool_token_exists%0#0) // check pool_token exists
-                (assert pool_token_value%0#0) // bootstrap method needs to be called first
+                let reinterpret_bool%0#0: bool = pool_token_value%0#0
+                (assert reinterpret_bool%0#0) // bootstrap method needs to be called first
                 return 
         
         subroutine examples.amm.contract.ConstantProductAMM._current_pool_balance() -> uint64:

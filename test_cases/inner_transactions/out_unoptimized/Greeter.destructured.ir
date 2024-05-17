@@ -52,7 +52,8 @@ contract test_cases.inner_transactions.c2c.Greeter:
             block@0: // L10
                 let (hello_app_value%0#0: uint64, hello_app_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
                 (assert hello_app_exists%0#0) // check hello_app exists
-                let tmp%0#0: bool = (! hello_app_value%0#0)
+                let reinterpret_bool%0#0: bool = hello_app_value%0#0
+                let tmp%0#0: bool = (! reinterpret_bool%0#0)
                 (assert tmp%0#0) // already bootstrapped
                 itxn_begin
                 ((itxn_field ClearStateProgramPages) 0x0a8101)
