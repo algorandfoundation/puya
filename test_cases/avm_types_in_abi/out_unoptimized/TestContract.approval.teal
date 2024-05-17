@@ -4,7 +4,7 @@ test_cases.avm_types_in_abi.contract.TestContract.approval_program:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     txna ApplicationArgs 0
-    method "create(bool,uint64,byte[],(bool,uint64,byte[]))(bool,uint64,byte[])"
+    method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
     method "tuple_of_arc4((uint8,address))(uint8,address)"
     uncover 2
     match main_create_route@1 main_tuple_of_arc4_route@2
@@ -30,6 +30,9 @@ main_create_route@1:
     txna ApplicationArgs 3
     extract 2 0
     txna ApplicationArgs 4
+    txna ApplicationArgs 5
+    extract 2 0
+    txna ApplicationArgs 6
     dup
     int 0
     getbit
@@ -51,52 +54,112 @@ main_create_route@1:
     extract_uint16
     int 2
     +
+    dig 2
+    uncover 2
+    uncover 2
+    extract3
+    swap
+    dup
+    int 11
+    int 64
+    extract3
+    swap
+    dup
+    int 75
+    extract_uint16
+    dig 1
+    dig 1
+    extract_uint16
+    int 2
+    +
     uncover 2
     uncover 2
     uncover 2
     extract3
-    uncover 2
+    uncover 4
     swap
+    uncover 4
+    cover 2
+    uncover 4
+    cover 3
     cover 2
     int 0
     getbit
-    cover 2
+    cover 3
     btoi
+    cover 2
+    swap
+    extract 2 0
     swap
     extract 2 0
     // avm_types_in_abi/contract.py:5
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-    uncover 5
-    uncover 5
-    uncover 5
-    uncover 5
-    uncover 5
-    uncover 5
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 8
+    uncover 8
+    uncover 8
+    uncover 9
+    uncover 9
     callsub create
+    cover 4
+    cover 3
     cover 2
     swap
     byte 0x00
     int 0
     uncover 2
     setbit
-    cover 2
+    cover 4
     itob
-    cover 2
+    cover 4
     dup
     len
     itob
     substring 6 8
     swap
     concat
-    swap
-    byte 0x
-    swap
-    concat
-    uncover 2
-    concat
-    int 11
+    cover 2
+    dup
+    len
+    int 64
+    <=
+    assert // overflow
+    int 64
+    bzero
+    b|
+    dig 1
+    len
     itob
     extract 6 2
+    uncover 2
+    concat
+    swap
+    byte 0x
+    uncover 4
+    concat
+    uncover 4
+    concat
+    int 77
+    itob
+    extract 6 2
+    concat
+    dig 3
+    len
+    int 77
+    swap
+    +
+    swap
+    uncover 2
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    uncover 2
     concat
     swap
     concat
@@ -108,7 +171,7 @@ main_create_route@1:
     return
 
 main_tuple_of_arc4_route@2:
-    // avm_types_in_abi/contract.py:17
+    // avm_types_in_abi/contract.py:19
     // @arc4.abimethod
     txn OnCompletion
     int NoOp
@@ -127,7 +190,7 @@ main_tuple_of_arc4_route@2:
     int 1
     int 32
     extract3
-    // avm_types_in_abi/contract.py:17
+    // avm_types_in_abi/contract.py:19
     // @arc4.abimethod
     callsub tuple_of_arc4
     swap
@@ -149,84 +212,102 @@ main_switch_case_default@3:
     err // reject transaction
 
 
-// test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes) -> uint64, uint64, bytes:
+// test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, biguint_param: bytes, string_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: bytes, tuple_param.4: bytes) -> uint64, uint64, bytes, bytes, bytes:
 create:
-    // avm_types_in_abi/contract.py:5-12
+    // avm_types_in_abi/contract.py:5-14
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     // def create(
     //     self,
     //     bool_param: bool,
     //     uint64_param: UInt64,
     //     bytes_param: Bytes,
-    //     tuple_param: tuple[bool, UInt64, Bytes],
-    // ) -> tuple[bool, UInt64, Bytes]:
-    proto 6 3
-    // avm_types_in_abi/contract.py:13
-    // result = (bool_param, uint64_param, bytes_param)
-    frame_dig -6
+    //     biguint_param: BigUInt,
+    //     string_param: String,
+    //     tuple_param: tuple[bool, UInt64, Bytes, BigUInt, String],
+    // ) -> tuple[bool, UInt64, Bytes, BigUInt, String]:
+    proto 10 5
+    // avm_types_in_abi/contract.py:15
+    // result = (bool_param, uint64_param, bytes_param, biguint_param, string_param)
+    frame_dig -10
     dup
     swap
-    frame_dig -5
+    frame_dig -9
     swap
-    frame_dig -4
+    frame_dig -8
     swap
-    // avm_types_in_abi/contract.py:14
+    frame_dig -7
+    swap
+    frame_dig -6
+    swap
+    // avm_types_in_abi/contract.py:16
     // assert result == tuple_param
+    frame_dig -5
+    ==
+    bz create_bool_false@6
+    frame_dig 1
+    frame_dig -4
+    ==
+    bz create_bool_false@6
+    frame_dig 2
     frame_dig -3
     ==
-    bz create_bool_false@4
-    frame_dig 1
+    bz create_bool_false@6
+    frame_dig 3
     frame_dig -2
-    ==
-    bz create_bool_false@4
-    frame_dig 2
+    b==
+    bz create_bool_false@6
+    frame_dig 4
     frame_dig -1
     ==
-    bz create_bool_false@4
+    bz create_bool_false@6
     int 1
-    b create_bool_merge@5
+    b create_bool_merge@7
 
-create_bool_false@4:
+create_bool_false@6:
     int 0
 
-create_bool_merge@5:
-    // avm_types_in_abi/contract.py:14
+create_bool_merge@7:
+    // avm_types_in_abi/contract.py:16
     // assert result == tuple_param
     assert
-    // avm_types_in_abi/contract.py:15
+    // avm_types_in_abi/contract.py:17
     // return result
     frame_dig 0
     frame_dig 1
     frame_dig 2
-    uncover 5
-    uncover 5
-    uncover 5
+    frame_dig 3
+    frame_dig 4
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
     retsub
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes, args.1: bytes) -> bytes, bytes:
 tuple_of_arc4:
-    // avm_types_in_abi/contract.py:17-20
+    // avm_types_in_abi/contract.py:19-22
     // @arc4.abimethod
     // def tuple_of_arc4(
     //     self, args: tuple[arc4.UInt8, arc4.Address]
     // ) -> tuple[arc4.UInt8, arc4.Address]:
     proto 2 2
-    // avm_types_in_abi/contract.py:21
+    // avm_types_in_abi/contract.py:23
     // assert args[0].bytes.length == 1
     frame_dig -2
     len
     int 1
     ==
     assert
-    // avm_types_in_abi/contract.py:22
+    // avm_types_in_abi/contract.py:24
     // assert args[1].bytes.length == 32
     frame_dig -1
     len
     int 32
     ==
     assert
-    // avm_types_in_abi/contract.py:23
+    // avm_types_in_abi/contract.py:25
     // return args
     frame_dig -2
     frame_dig -1

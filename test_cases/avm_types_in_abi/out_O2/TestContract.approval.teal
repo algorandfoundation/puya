@@ -1,7 +1,7 @@
 #pragma version 10
 
 test_cases.avm_types_in_abi.contract.TestContract.approval_program:
-    method "create(bool,uint64,byte[],(bool,uint64,byte[]))(bool,uint64,byte[])"
+    method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
     method "tuple_of_arc4((uint8,address))(uint8,address)"
     txna ApplicationArgs 0
     match main_create_route@1 main_tuple_of_arc4_route@2
@@ -22,6 +22,9 @@ main_create_route@1:
     txna ApplicationArgs 3
     extract 2 0
     txna ApplicationArgs 4
+    txna ApplicationArgs 5
+    extract 2 0
+    txna ApplicationArgs 6
     dup
     int 0
     getbit
@@ -40,34 +43,93 @@ main_create_route@1:
     extract_uint16
     int 2
     +
+    dig 2
+    cover 2
     extract3
     swap
+    dup
+    extract 11 64
+    cover 2
+    dup
+    int 75
+    extract_uint16
+    dup2
+    extract_uint16
+    int 2
+    +
+    extract3
+    uncover 3
     int 0
     getbit
     swap
-    uncover 2
+    uncover 4
     btoi
     swap
+    uncover 3
     extract 2 0
+    swap
+    extract 2 0
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 8
+    uncover 8
+    uncover 8
+    uncover 9
+    uncover 9
     callsub create
+    cover 4
+    cover 3
     cover 2
     swap
     byte 0x00
     int 0
     uncover 2
     setbit
-    cover 2
+    cover 4
     itob
-    swap
+    cover 3
     dup
     len
     itob
     substring 6 8
     swap
     concat
-    cover 2
+    swap
+    dup
+    len
+    int 64
+    <=
+    assert // overflow
+    int 64
+    bzero
+    b|
+    dig 2
+    len
+    itob
+    extract 6 2
+    uncover 3
     concat
-    byte 0x000b
+    swap
+    uncover 4
+    uncover 4
+    concat
+    byte 0x004d
+    concat
+    dig 3
+    len
+    int 77
+    +
+    swap
+    uncover 2
+    concat
+    swap
+    itob
+    extract 6 2
+    concat
+    uncover 2
     concat
     swap
     concat
@@ -99,32 +161,42 @@ main_tuple_of_arc4_route@2:
     return
 
 
-// test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes) -> uint64, uint64, bytes:
+// test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: uint64, uint64_param: uint64, bytes_param: bytes, biguint_param: bytes, string_param: bytes, tuple_param.0: uint64, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: bytes, tuple_param.4: bytes) -> uint64, uint64, bytes, bytes, bytes:
 create:
-    proto 6 3
-    frame_dig -6
+    proto 10 5
+    frame_dig -10
+    frame_dig -5
+    ==
+    bz create_bool_false@6
+    frame_dig -9
+    frame_dig -4
+    ==
+    bz create_bool_false@6
+    frame_dig -8
     frame_dig -3
     ==
-    bz create_bool_false@4
-    frame_dig -5
+    bz create_bool_false@6
+    frame_dig -7
     frame_dig -2
-    ==
-    bz create_bool_false@4
-    frame_dig -4
+    b==
+    bz create_bool_false@6
+    frame_dig -6
     frame_dig -1
     ==
-    bz create_bool_false@4
+    bz create_bool_false@6
     int 1
-    b create_bool_merge@5
+    b create_bool_merge@7
 
-create_bool_false@4:
+create_bool_false@6:
     int 0
 
-create_bool_merge@5:
+create_bool_merge@7:
     assert
+    frame_dig -10
+    frame_dig -9
+    frame_dig -8
+    frame_dig -7
     frame_dig -6
-    frame_dig -5
-    frame_dig -4
     retsub
 
 
