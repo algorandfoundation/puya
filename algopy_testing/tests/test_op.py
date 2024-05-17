@@ -11,7 +11,7 @@ import pytest
 from algokit_utils import ApplicationClient, get_localnet_default_account
 from algokit_utils.config import config
 from algopy import Bytes, UInt64, op
-from algopy_testing.contexts import state_context
+from algopy_testing.context import new_context
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.indexer import IndexerClient
 from Cryptodome.Hash import keccak
@@ -175,7 +175,8 @@ def test_ed25519verify(
     get_crypto_ops_avm_result: AVMInvoker,
 ) -> None:
     assert crypto_ops_client.approval
-    with state_context({"program_hash": crypto_ops_client.approval.raw_binary}):
+    with new_context() as ctx:
+        ctx.program_hash = crypto_ops_client.approval.raw_binary
         # Prepare message and signing parameters
         message = b"Test message for ed25519 verification"
         sp = algod_client.suggested_params()
@@ -196,9 +197,11 @@ def test_ed25519verify(
 
         assert avm_result == result, "The AVM result should match the expected result"
 
+
+def test_ed25519verify_no_context() -> None:
     # Ensure the function raises an error outside the state context
-    with pytest.raises(RuntimeError, match="function must be run within a 'state_context'"):
-        op.ed25519verify(message, signature, public_key)
+    with pytest.raises(RuntimeError, match="function must be run within an active context"):
+        op.ed25519verify(b"", b"", b"")
 
 
 def test_ecdsa_verify_k1(
