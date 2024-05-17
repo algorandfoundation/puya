@@ -1,11 +1,11 @@
 import hashlib
-from contextvars import copy_context
 from enum import Enum
 
 import algosdk
 import coincurve
 import nacl.exceptions
 import nacl.signing
+from algopy_testing.context import get_active_context
 from Cryptodome.Hash import keccak
 from ecdsa import (  # type: ignore  # noqa: PGH003
     BadSignatureError,
@@ -58,24 +58,17 @@ def ed25519verify_bare(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) 
 
 
 def ed25519verify(a: Bytes | bytes, b: Bytes | bytes, c: Bytes | bytes, /) -> bool:
-    def raise_runtime_error(e: Exception | None = None) -> None:
-        raise RuntimeError(
-            "This function must be run within a 'state_context' with 'program_hash' "
-            "context variable value set."
-        ) from e
-
     try:
-        ctx = list(copy_context().items())
-        if not len(ctx):
-            raise_runtime_error(None)
-        program_hash = next(v for k, v in ctx if k.name == "program_hash")
-        decoded_address = algosdk.encoding.decode_address(algosdk.logic.address(program_hash))
-        address_bytes = as_bytes(decoded_address)
-        a = algosdk.constants.logic_data_prefix + address_bytes + a
-        return ed25519verify_bare(a, b, c)
-    except Exception as e:
-        raise_runtime_error(e)
-        return False
+        ctx = get_active_context()
+    except LookupError as e:
+        raise RuntimeError(
+            "function must be run within an active context"
+            " using `with algopy_testing.context.new_context():`"
+        ) from e
+    decoded_address = algosdk.encoding.decode_address(algosdk.logic.address(ctx.program_hash))
+    address_bytes = as_bytes(decoded_address)
+    a = algosdk.constants.logic_data_prefix + address_bytes + a
+    return ed25519verify_bare(a, b, c)
 
 
 def ecdsa_verify(  # noqa: PLR0913
