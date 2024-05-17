@@ -24,9 +24,7 @@ class ECDSA(Enum):
 
 
 def sha256(a: Bytes | bytes, /) -> Bytes:
-    input_value = as_bytes(
-        a,
-    )
+    input_value = as_bytes(a)
     return Bytes(hashlib.sha256(input_value).digest())
 
 
@@ -123,15 +121,9 @@ def ecdsa_pk_recover(
     if v is not ECDSA.Secp256k1:
         raise ValueError(f"Unsupported ECDSA curve: {v}")
 
-    data_bytes = as_bytes(
-        a,
-    )
-    r_bytes = as_bytes(
-        c,
-    )
-    s_bytes = as_bytes(
-        d,
-    )
+    data_bytes = as_bytes(a)
+    r_bytes = as_bytes(c)
+    s_bytes = as_bytes(d)
     recovery_id = int(b)
 
     if len(r_bytes) != 32 or len(s_bytes) != 32:
@@ -156,9 +148,7 @@ def ecdsa_pk_decompress(v: ECDSA, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
     if v not in [ECDSA.Secp256k1, ECDSA.Secp256r1]:
         raise ValueError(f"Unsupported ECDSA curve: {v}")
 
-    compressed_pubkey = as_bytes(
-        a,
-    )
+    compressed_pubkey = as_bytes(a)
 
     try:
         public_key = coincurve.PublicKey(compressed_pubkey)
