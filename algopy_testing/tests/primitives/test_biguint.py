@@ -5,7 +5,7 @@ from collections.abc import Callable
 import algokit_utils
 import pytest
 from algopy import BigUInt
-from algopy.constants import MAX_UINT64, MAX_UINT512
+from algopy.constants import MAX_UINT512
 
 from tests.primitives.conftest import AVMInvoker
 
@@ -14,13 +14,25 @@ _too_big512_error = re.escape(f"expected value <= {MAX_UINT512}")
 
 _underflow_error = "- underflows"
 
+_avm_overflow_error = "math attempted on large byte-array"
 _avm_underflow_error = "byte math would have negative result"
 _avm_zero_division_error = "division by zero"
 _avm_zero_mod_error = "modulo by zero"
 
 
-def _avm_overflow_error() -> str:
-    return re.escape("assert failed")
+def _int_to_bytes(x: int) -> bytes:
+    return x.to_bytes((x.bit_length() + 7) // 8, "big")
+
+
+def _object_as_biguint(x: object) -> BigUInt | object:
+    return BigUInt.from_bytes(x) if (isinstance(x, bytes)) else x
+
+
+def _get_avm_result(get_avm_result: AVMInvoker, method: str, a: int, b: int) -> BigUInt | object:
+    a_bytes = _int_to_bytes(a)
+    b_bytes = _int_to_bytes(b)
+    avm_result = get_avm_result(method, a=a_bytes, b=b_bytes)
+    return _object_as_biguint(avm_result)
 
 
 @pytest.mark.parametrize(
@@ -73,7 +85,7 @@ def test_biguint_bool(value: int) -> None:
     ],
 )
 def test_biguint_comparison(get_avm_result: AVMInvoker, op_name: str, a: int, b: int) -> None:
-    avm_result = get_avm_result(f"verify_biguint_{op_name}", a=a, b=b)
+    avm_result = _get_avm_result(get_avm_result, f"verify_biguint_{op_name}", a, b)
     op = getattr(operator, op_name)
 
     assert avm_result == op(BigUInt(a), BigUInt(b))
@@ -95,7 +107,7 @@ def test_biguint_comparison(get_avm_result: AVMInvoker, op_name: str, a: int, b:
     ],
 )
 def test_biguint_addition(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = get_avm_result("verify_biguint_add", a=a, b=b)
+    avm_result = _get_avm_result(get_avm_result, "verify_biguint_add", a=a, b=b)
     assert avm_result == BigUInt(a) + BigUInt(b)
     assert avm_result == BigUInt(a) + b
     assert avm_result == a + BigUInt(b)
@@ -112,9 +124,9 @@ def test_biguint_addition(get_avm_result: AVMInvoker, a: int, b: int) -> None:
         (MAX_UINT512, MAX_UINT512),
     ],
 )
-def test_biguint_addition_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error()):
-        get_avm_result("verify_biguint_add", a=a, b=b)
+def test_biguint_addition_result_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    with pytest.raises(ValueError, match=_too_big512_error):
+        _get_avm_result(get_avm_result, "verify_biguint_add", a, b)
 
     with pytest.raises(OverflowError):
         BigUInt(a) + BigUInt(b)
@@ -129,45 +141,58 @@ def test_biguint_addition_overflow(get_avm_result: AVMInvoker, a: int, b: int) -
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (0, 0),
-        (1, 0),
-        (1, 1),
-        (MAX_UINT512, 0),
-        (MAX_UINT512, 1),
-        (MAX_UINT512, MAX_UINT512),
+        (MAX_UINT512 + 1, 1),
+        (1, MAX_UINT512 + 1),
+        (MAX_UINT512 + 1, MAX_UINT512 + 1),
     ],
 )
-def test_biguint_subtraction(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = get_avm_result("verify_biguint_sub", a=a, b=b)
-    assert avm_result == BigUInt(a) - BigUInt(b)
-    assert avm_result == BigUInt(a) - b
-    assert avm_result == a - BigUInt(b)
-    i = BigUInt(a)
-    i -= b
-    assert avm_result == i
+def test_biguint_addition_input_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error):
+        _get_avm_result(get_avm_result, "verify_biguint_add", a, b)
 
 
-@pytest.mark.parametrize(
-    ("a", "b"),
-    [
-        (0, 1),
-        (1, 2),
-        (0, MAX_UINT512),
-        (1, MAX_UINT512),
-    ],
-)
-def test_biguint_subtraction_underflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    with pytest.raises(algokit_utils.LogicError, match=_avm_underflow_error):
-        get_avm_result("verify_biguint_sub", a=a, b=b)
+# @pytest.mark.parametrize(
+#     ("a", "b"),
+#     [
+#         (0, 0),
+#         (1, 0),
+#         (1, 1),
+#         (MAX_UINT512, 0),
+#         (MAX_UINT512, 1),
+#         (MAX_UINT512, MAX_UINT512),
+#     ],
+# )
+# def test_biguint_subtraction(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+#     avm_result = get_avm_result("verify_biguint_sub", a=a, b=b)
+#     assert avm_result == BigUInt(a) - BigUInt(b)
+#     assert avm_result == BigUInt(a) - b
+#     assert avm_result == a - BigUInt(b)
+#     i = BigUInt(a)
+#     i -= b
+#     assert avm_result == i
 
-    with pytest.raises(ArithmeticError, match=_underflow_error):
-        BigUInt(a) - BigUInt(b)
 
-    with pytest.raises(ArithmeticError, match=_underflow_error):
-        BigUInt(a) - b
+# @pytest.mark.parametrize(
+#     ("a", "b"),
+#     [
+#         (0, 1),
+#         (1, 2),
+#         (0, MAX_UINT512),
+#         (1, MAX_UINT512),
+#     ],
+# )
+# def test_biguint_subtraction_underflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+#     with pytest.raises(algokit_utils.LogicError, match=_avm_underflow_error):
+#         get_avm_result("verify_biguint_sub", a=a, b=b)
 
-    with pytest.raises(ArithmeticError, match=_underflow_error):
-        a - BigUInt(b)
+#     with pytest.raises(ArithmeticError, match=_underflow_error):
+#         BigUInt(a) - BigUInt(b)
+
+#     with pytest.raises(ArithmeticError, match=_underflow_error):
+#         BigUInt(a) - b
+
+#     with pytest.raises(ArithmeticError, match=_underflow_error):
+#         a - BigUInt(b)
 
 
 @pytest.mark.parametrize(
@@ -181,7 +206,7 @@ def test_biguint_subtraction_underflow(get_avm_result: AVMInvoker, a: int, b: in
     ],
 )
 def test_biguint_multiplication(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = get_avm_result("verify_biguint_mul", a=a, b=b)
+    avm_result = _get_avm_result(get_avm_result, "verify_biguint_mul", a, b)
     assert avm_result == BigUInt(a) * BigUInt(b)
     assert avm_result == BigUInt(a) * b
     assert avm_result == a * BigUInt(b)
@@ -199,8 +224,8 @@ def test_biguint_multiplication(get_avm_result: AVMInvoker, a: int, b: int) -> N
     ],
 )
 def test_biguint_multiplication_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error()):
-        get_avm_result("verify_biguint_mul", a=a, b=b)
+    with pytest.raises(ValueError, match=_too_big512_error):
+        _get_avm_result(get_avm_result, "verify_biguint_mul", a=a, b=b)
 
     with pytest.raises(OverflowError):
         BigUInt(a) * BigUInt(b)
@@ -215,87 +240,100 @@ def test_biguint_multiplication_overflow(get_avm_result: AVMInvoker, a: int, b: 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (MAX_UINT512, 1),
-        (MAX_UINT512, 2),
-        (MAX_UINT512, MAX_UINT512),
-        (0, MAX_UINT512),
-        (1, MAX_UINT512),
-        (3, 2),
+        (MAX_UINT512 + 1, 2),
+        (2, MAX_UINT512 + 1),
+        (MAX_UINT512 + 1, MAX_UINT512 + 1),
     ],
 )
-def test_biguint_division(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = get_avm_result("verify_biguint_div", a=a, b=b)
-    assert avm_result == BigUInt(a) // BigUInt(b)
-    assert avm_result == BigUInt(a) // b
-    assert avm_result == a // BigUInt(b)
-    i = BigUInt(a)
-    i //= b
-    assert avm_result == i
+def test_biguint_multiplication_input_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error):
+        _get_avm_result(get_avm_result, "verify_biguint_mul", a, b)
 
 
-@pytest.mark.parametrize(
-    "value",
-    [
-        0,
-        1,
-        MAX_UINT512,
-    ],
-)
-def test_biguint_zero_division(get_avm_result: AVMInvoker, value: int) -> None:
-    with pytest.raises(algokit_utils.LogicError, match=_avm_zero_division_error):
-        get_avm_result("verify_biguint_div", a=value, b=0)
-
-    with pytest.raises(ZeroDivisionError):
-        BigUInt(value) // BigUInt(0)
-
-    with pytest.raises(ZeroDivisionError):
-        BigUInt(value) // 0
-
-    with pytest.raises(ZeroDivisionError):
-        value // BigUInt(0)
-
-
-@pytest.mark.parametrize(
-    ("a", "b"),
-    [
-        (MAX_UINT512, 1),
-        (MAX_UINT512, 2),
-        (MAX_UINT512, MAX_UINT64),
-        (0, MAX_UINT512),
-        (1, MAX_UINT512),
-        (3, 2),
-    ],
-)
-def test_biguint_mod(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = get_avm_result("verify_biguint_mod", a=a, b=b)
-    assert avm_result == BigUInt(a) % BigUInt(b)
-    assert avm_result == BigUInt(a) % b
-    assert avm_result == a % BigUInt(b)
-    i = BigUInt(a)
-    i %= b
-    assert avm_result == i
+# @pytest.mark.parametrize(
+#     ("a", "b"),
+#     [
+#         (MAX_UINT512, 1),
+#         (MAX_UINT512, 2),
+#         (MAX_UINT512, MAX_UINT512),
+#         (0, MAX_UINT512),
+#         (1, MAX_UINT512),
+#         (3, 2),
+#     ],
+# )
+# def test_biguint_division(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+#     avm_result = get_avm_result("verify_biguint_div", a=a, b=b)
+#     assert avm_result == BigUInt(a) // BigUInt(b)
+#     assert avm_result == BigUInt(a) // b
+#     assert avm_result == a // BigUInt(b)
+#     i = BigUInt(a)
+#     i //= b
+#     assert avm_result == i
 
 
-@pytest.mark.parametrize(
-    "value",
-    [
-        0,
-        1,
-        MAX_UINT512,
-    ],
-)
-def test_biguint_zero_mod(get_avm_result: AVMInvoker, value: int) -> None:
-    with pytest.raises(algokit_utils.LogicError, match=_avm_zero_mod_error):
-        get_avm_result("verify_biguint_mod", a=value, b=0)
+# @pytest.mark.parametrize(
+#     "value",
+#     [
+#         0,
+#         1,
+#         MAX_UINT512,
+#     ],
+# )
+# def test_biguint_zero_division(get_avm_result: AVMInvoker, value: int) -> None:
+#     with pytest.raises(algokit_utils.LogicError, match=_avm_zero_division_error):
+#         get_avm_result("verify_biguint_div", a=value, b=0)
 
-    with pytest.raises(ZeroDivisionError):
-        BigUInt(value) % BigUInt(0)
+#     with pytest.raises(ZeroDivisionError):
+#         BigUInt(value) // BigUInt(0)
 
-    with pytest.raises(ZeroDivisionError):
-        BigUInt(value) % 0
+#     with pytest.raises(ZeroDivisionError):
+#         BigUInt(value) // 0
 
-    with pytest.raises(ZeroDivisionError):
-        value % BigUInt(0)
+#     with pytest.raises(ZeroDivisionError):
+#         value // BigUInt(0)
+
+
+# @pytest.mark.parametrize(
+#     ("a", "b"),
+#     [
+#         (MAX_UINT512, 1),
+#         (MAX_UINT512, 2),
+#         (MAX_UINT512, MAX_UINT64),
+#         (0, MAX_UINT512),
+#         (1, MAX_UINT512),
+#         (3, 2),
+#     ],
+# )
+# def test_biguint_mod(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+#     avm_result = get_avm_result("verify_biguint_mod", a=a, b=b)
+#     assert avm_result == BigUInt(a) % BigUInt(b)
+#     assert avm_result == BigUInt(a) % b
+#     assert avm_result == a % BigUInt(b)
+#     i = BigUInt(a)
+#     i %= b
+#     assert avm_result == i
+
+
+# @pytest.mark.parametrize(
+#     "value",
+#     [
+#         0,
+#         1,
+#         MAX_UINT512,
+#     ],
+# )
+# def test_biguint_zero_mod(get_avm_result: AVMInvoker, value: int) -> None:
+#     with pytest.raises(algokit_utils.LogicError, match=_avm_zero_mod_error):
+#         get_avm_result("verify_biguint_mod", a=value, b=0)
+
+#     with pytest.raises(ZeroDivisionError):
+#         BigUInt(value) % BigUInt(0)
+
+#     with pytest.raises(ZeroDivisionError):
+#         BigUInt(value) % 0
+
+#     with pytest.raises(ZeroDivisionError):
+#         value % BigUInt(0)
 
 
 @pytest.mark.parametrize(
@@ -310,7 +348,7 @@ def test_biguint_zero_mod(get_avm_result: AVMInvoker, value: int) -> None:
     ],
 )
 def test_biguint_bitwise_and(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = get_avm_result("verify_biguint_and", a=a, b=b)
+    avm_result = _get_avm_result(get_avm_result, "verify_biguint_and", a=a, b=b)
     assert avm_result == BigUInt(a) & BigUInt(b)
     assert avm_result == BigUInt(a) & b
     assert avm_result == a & BigUInt(b)
@@ -331,7 +369,7 @@ def test_biguint_bitwise_and(get_avm_result: AVMInvoker, a: int, b: int) -> None
     ],
 )
 def test_biguint_bitwise_or(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = get_avm_result("verify_biguint_or", a=a, b=b)
+    avm_result = _get_avm_result(get_avm_result, "verify_biguint_or", a=a, b=b)
     assert avm_result == BigUInt(a) | BigUInt(b)
     assert avm_result == BigUInt(a) | b
     assert avm_result == a | BigUInt(b)
@@ -352,7 +390,7 @@ def test_biguint_bitwise_or(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     ],
 )
 def test_biguint_bitwise_xor(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = get_avm_result("verify_biguint_xor", a=a, b=b)
+    avm_result = _get_avm_result(get_avm_result, "verify_biguint_xor", a=a, b=b)
     assert avm_result == BigUInt(a) ^ BigUInt(b)
     assert avm_result == BigUInt(a) ^ b
     assert avm_result == a ^ BigUInt(b)

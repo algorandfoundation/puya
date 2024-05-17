@@ -18,7 +18,7 @@ def as_int(value: object, *, max: int) -> int:  # noqa: A002
             pass
         case BigUInt(value=int_value):
             pass
-        # TODO: add BigUInt and arc4 numerics
+        # TODO: add arc4 numerics
         case _:
             raise TypeError(f"value must be a numeric type, not {type(value).__name__!r}")
     if int_value < 0:
