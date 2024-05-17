@@ -152,10 +152,22 @@ class PrimitiveOpsContract(ARC4Contract):
         return result.bytes
 
     @arc4.abimethod()
+    def verify_biguint_add_uint64(self, a: Bytes, b: UInt64) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint + b
+        return result.bytes
+
+    @arc4.abimethod()
     def verify_biguint_sub(self, a: Bytes, b: Bytes) -> Bytes:
         a_biguint = BigUInt.from_bytes(a)
         b_biguint = BigUInt.from_bytes(b)
         result = a_biguint - b_biguint
+        return result.bytes
+
+    @arc4.abimethod()
+    def verify_biguint_sub_uint64(self, a: Bytes, b: UInt64) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint - b
         return result.bytes
 
     @arc4.abimethod()
@@ -166,10 +178,22 @@ class PrimitiveOpsContract(ARC4Contract):
         return result.bytes
 
     @arc4.abimethod()
+    def verify_biguint_mul_uint64(self, a: Bytes, b: UInt64) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint * b
+        return result.bytes
+
+    @arc4.abimethod()
     def verify_biguint_div(self, a: Bytes, b: Bytes) -> Bytes:
         a_biguint = BigUInt.from_bytes(a)
         b_biguint = BigUInt.from_bytes(b)
         result = a_biguint // b_biguint
+        return result.bytes
+
+    @arc4.abimethod()
+    def verify_biguint_div_uint64(self, a: Bytes, b: UInt64) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint // b
         return result.bytes
 
     @arc4.abimethod()
@@ -180,10 +204,22 @@ class PrimitiveOpsContract(ARC4Contract):
         return result.bytes
 
     @arc4.abimethod()
+    def verify_biguint_mod_uint64(self, a: Bytes, b: UInt64) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint % b
+        return result.bytes
+
+    @arc4.abimethod()
     def verify_biguint_and(self, a: Bytes, b: Bytes) -> Bytes:
         a_biguint = BigUInt.from_bytes(a)
         b_biguint = BigUInt.from_bytes(b)
         result = a_biguint & b_biguint
+        return result.bytes
+
+    @arc4.abimethod()
+    def verify_biguint_and_uint64(self, a: Bytes, b: UInt64) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint & b
         return result.bytes
 
     @arc4.abimethod()
@@ -194,10 +230,22 @@ class PrimitiveOpsContract(ARC4Contract):
         return result.bytes
 
     @arc4.abimethod()
+    def verify_biguint_or_uint64(self, a: Bytes, b: UInt64) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint | b
+        return result.bytes
+
+    @arc4.abimethod()
     def verify_biguint_xor(self, a: Bytes, b: Bytes) -> Bytes:
         a_biguint = BigUInt.from_bytes(a)
         b_biguint = BigUInt.from_bytes(b)
         result = a_biguint ^ b_biguint
+        return result.bytes
+
+    @arc4.abimethod()
+    def verify_biguint_xor_uint64(self, a: Bytes, b: UInt64) -> Bytes:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint ^ b
         return result.bytes
 
     @arc4.abimethod()
@@ -208,10 +256,22 @@ class PrimitiveOpsContract(ARC4Contract):
         return result
 
     @arc4.abimethod()
+    def verify_biguint_eq_uint64(self, a: Bytes, b: UInt64) -> bool:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint == b
+        return result
+
+    @arc4.abimethod()
     def verify_biguint_ne(self, a: Bytes, b: Bytes) -> bool:
         a_biguint = BigUInt.from_bytes(a)
         b_biguint = BigUInt.from_bytes(b)
         result = a_biguint != b_biguint
+        return result
+
+    @arc4.abimethod()
+    def verify_biguint_ne_uint64(self, a: Bytes, b: UInt64) -> bool:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint != b
         return result
 
     @arc4.abimethod()
@@ -222,10 +282,22 @@ class PrimitiveOpsContract(ARC4Contract):
         return result
 
     @arc4.abimethod()
+    def verify_biguint_lt_uint64(self, a: Bytes, b: UInt64) -> bool:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint < b
+        return result
+
+    @arc4.abimethod()
     def verify_biguint_le(self, a: Bytes, b: Bytes) -> bool:
         a_biguint = BigUInt.from_bytes(a)
         b_biguint = BigUInt.from_bytes(b)
         result = a_biguint <= b_biguint
+        return result
+
+    @arc4.abimethod()
+    def verify_biguint_le_uint64(self, a: Bytes, b: UInt64) -> bool:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint <= b
         return result
 
     @arc4.abimethod()
@@ -236,8 +308,20 @@ class PrimitiveOpsContract(ARC4Contract):
         return result
 
     @arc4.abimethod()
+    def verify_biguint_gt_uint64(self, a: Bytes, b: UInt64) -> bool:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint > b
+        return result
+
+    @arc4.abimethod()
     def verify_biguint_ge(self, a: Bytes, b: Bytes) -> bool:
         a_biguint = BigUInt.from_bytes(a)
         b_biguint = BigUInt.from_bytes(b)
         result = a_biguint >= b_biguint
+        return result
+
+    @arc4.abimethod()
+    def verify_biguint_ge_uint64(self, a: Bytes, b: UInt64) -> bool:
+        a_biguint = BigUInt.from_bytes(a)
+        result = a_biguint >= b
         return result
