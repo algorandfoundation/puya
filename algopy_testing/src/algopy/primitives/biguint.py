@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 import functools
-from typing import TYPE_CHECKING
 
-from algopy.constants import MAX_UINT512
+from algopy.constants import MAX_UINT512, UNIT64_BYTES_LENGTH
 from algopy.primitives.bytes import Bytes
-
-if TYPE_CHECKING:
-    from algopy.primitives.uint64 import UInt64
+from algopy.primitives.uint64 import UInt64
 
 # TypeError, ValueError are used for operations that are compile time errors
 # ArithmeticError and subclasses are used for operations that would fail during AVM execution
@@ -22,8 +19,11 @@ class BigUInt:
     __value: bytes  # underlying 'bytes' value representing the BigUInt
 
     def __init__(self, value: UInt64 | int = 0) -> None:
-        int_value = _as_int(value, None)
-        self.__value = _int_to_bytes(int_value)
+        self.__value = (
+            _int_to_bytes(value.value, UNIT64_BYTES_LENGTH)
+            if isinstance(value, UInt64)
+            else _int_to_bytes(value)
+        )
 
     def __repr__(self) -> str:
         return f"{self.value}u"
@@ -77,19 +77,25 @@ class BigUInt:
         return _as_biguint(numerator) % self
 
     def __and__(self, other: BigUInt | UInt64 | int) -> BigUInt:
-        return BigUInt(_as_int512(self) & _as_int512(other))
+        assert _as_int512(self) >= 0
+        assert _as_int512(other) >= 0
+        return BigUInt.from_bytes(self.bytes & _as_biguint(other).bytes)
 
     def __rand__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return self & other
 
     def __or__(self, other: BigUInt | UInt64 | int) -> BigUInt:
-        return BigUInt(_as_int512(self) | _as_int512(other))
+        assert _as_int512(self) >= 0
+        assert _as_int512(other) >= 0
+        return BigUInt.from_bytes(self.bytes | _as_biguint(other).bytes)
 
     def __ror__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return self | other
 
     def __xor__(self, other: BigUInt | UInt64 | int) -> BigUInt:
-        return BigUInt(_as_int512(self) ^ _as_int512(other))
+        assert _as_int512(self) >= 0
+        assert _as_int512(other) >= 0
+        return BigUInt.from_bytes(self.bytes ^ _as_biguint(other).bytes)
 
     def __rxor__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return self ^ other
@@ -106,7 +112,9 @@ class BigUInt:
     @classmethod
     def from_bytes(cls, value: Bytes | bytes) -> BigUInt:
         """Construct an instance from the underlying bytes (no validation)"""
-        return cls(int.from_bytes(value.value if (isinstance(value, Bytes)) else value))
+        result = cls()
+        result.__value = value.value if (isinstance(value, Bytes)) else value  # noqa: SLF001
+        return result
 
     @property
     def bytes(self) -> Bytes:
@@ -142,8 +150,14 @@ def _as_int(value: object, max_int: int | None) -> int:
 
 
 def _as_biguint(value: object) -> BigUInt:
-    return BigUInt(_as_int(value, None))
+    return BigUInt(value if (isinstance(value, UInt64)) else _as_int(value, None))
 
 
-def _int_to_bytes(x: int) -> bytes:
-    return x.to_bytes((x.bit_length() + 7) // 8, "big")
+def _int_to_bytes(x: int, pad_to: int | None = None) -> bytes:
+    x = _as_int(x, None)
+    result = x.to_bytes((x.bit_length() + 7) // 8, "big")
+    result = (
+        b"\x00" * (pad_to - len(result)) if pad_to is not None and len(result) < pad_to else b""
+    ) + result
+
+    return result
