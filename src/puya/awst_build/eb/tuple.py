@@ -39,22 +39,6 @@ logger = log.get_logger(__name__)
 
 
 class GenericTupleTypeExpressionBuilder(GenericClassExpressionBuilder):
-    # def index_multiple(
-    #     self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    # ) -> TypeClassExpressionBuilder:
-    #     tuple_item_types = list[wtypes.WType]()
-    #     for index in indexes:
-    #         match index:
-    #             case TypeClassExpressionBuilder() as type_class:
-    #                 wtype = type_class.produces()
-    #                 if wtype is wtypes.void_wtype:
-    #                     raise CodeError("Tuples cannot contain None values", location)
-    #                 tuple_item_types.append(wtype)
-    #             case _:
-    #                 raise CodeError("Expected a type", index.source_location)
-    #     self.wtype = wtypes.WTuple(tuple_item_types, location)
-    #     return self
-
     @typing.override
     def call(
         self,

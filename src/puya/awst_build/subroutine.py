@@ -672,20 +672,6 @@ class FunctionASTConverter(
                     return ContractTypeExpressionBuilder(self.context, typ.defn.info, expr_loc)
                 if typ.has_base(constants.CLS_ARC4_CLIENT):  # provides type info only
                     return ARC4ClientClassExpressionBuilder(self.context, expr_loc, typ.defn.info)
-                # if typ.has_base(constants.STRUCT_BASE) or typ.has_base(constants.CLS_ARC4_STRUCT):
-                #     pytyp = self.context.lookup_pytype(fullname)
-                #     if pytyp is None:
-                #         raise CodeError(f"Unknown struct subclass {fullname}", expr_loc)
-                #     # TODO: use PyType directly
-                #     wtype = pytyp.wtype
-                #     if isinstance(wtype, wtypes.WStructType):
-                #         return StructSubclassExpressionBuilder(pytyp, expr_loc)
-                #     elif isinstance(wtype, wtypes.ARC4Struct):
-                #         return ARC4StructClassExpressionBuilder(pytyp, expr_loc)
-                #     else:
-                #         raise InternalError(
-                #             f"Unhandled struct sub-type: {type(wtype).__name__}", expr_loc
-                #         )
             case mypy.nodes.NameExpr(node=mypy.nodes.Var(is_self=True) as self_var):
                 if self.contract_method_info is None:
                     raise InternalError(
@@ -797,8 +783,6 @@ class FunctionASTConverter(
                 return Literal(source_location=location, value=False)
             case "None":
                 raise CodeError("None is not supported as a value, only a return type", location)
-            # case "bool":
-            #     return BoolClassExpressionBuilder(location=location)
             case "len":
                 raise CodeError(
                     "len() is not supported -"
@@ -811,8 +795,6 @@ class FunctionASTConverter(
                 raise CodeError(
                     "enumerate() is not supported - use algopy.uenumerate() instead", location
                 )
-            # case "reversed":
-            #     return ReversedFunctionExpressionBuilder(location=location)
             case _:
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
 

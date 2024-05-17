@@ -350,17 +350,6 @@ class TypeClassExpressionBuilder(
 
 
 class GenericClassExpressionBuilder(IntermediateExpressionBuilder, abc.ABC):
-    # @typing.final
-    # def index(
-    #     self, index: ExpressionBuilder | Literal, location: SourceLocation
-    # ) -> ExpressionBuilder:
-    #     return self.index_multiple([index], location)
-    #
-    # @abc.abstractmethod
-    # def index_multiple(
-    #     self, indexes: Sequence[ExpressionBuilder | Literal], location: SourceLocation
-    # ) -> ExpressionBuilder: ...
-
     @typing.override
     @abc.abstractmethod
     def call(
