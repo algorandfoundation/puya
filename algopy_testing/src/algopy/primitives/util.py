@@ -3,7 +3,7 @@ from __future__ import annotations
 from algopy import BigUInt, Bytes, UInt64
 
 
-def as_int(value: object, *, max: int) -> int:  # noqa: A002
+def as_int(value: object, *, max: int | None) -> int:  # noqa: A002
     """
     Returns the underlying int value for any numeric type up to UInt512
 
@@ -23,7 +23,7 @@ def as_int(value: object, *, max: int) -> int:  # noqa: A002
             raise TypeError(f"value must be a numeric type, not {type(value).__name__!r}")
     if int_value < 0:
         raise ValueError(f"expected positive value, got {int_value}")
-    if int_value > max:
+    if max is not None and int_value > max:
         raise ValueError(f"expected value <= {max}, got: {int_value}")
     return int_value
 

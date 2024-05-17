@@ -19,10 +19,11 @@ class BigUInt:
     A python implementation of an TEAL bigint type represented by AVM []byte type
     """
 
-    value: int  # underlying 'int' value representing the BigUInt
+    __value: bytes  # underlying 'bytes' value representing the BigUInt
 
     def __init__(self, value: UInt64 | int = 0) -> None:
-        self.value = _as_int512(value)
+        int_value = _as_int(value, None)
+        self.__value = _int_to_bytes(int_value)
 
     def __repr__(self) -> str:
         return f"{self.value}u"
@@ -35,16 +36,16 @@ class BigUInt:
     # however will raise a TypeError if compared to something that is not a numeric value
     # as this would be a compile error when compiled to TEAL
     def __eq__(self, other: object) -> bool:
-        return self.value == _as_int512(other)
+        return _as_int512(self) == _as_int512(other)
 
     def __lt__(self, other: BigUInt | UInt64 | int) -> bool:
-        return self.value < _as_int512(other)
+        return _as_int512(self) < _as_int512(other)
 
     def __bool__(self) -> bool:
-        return self.value != 0
+        return bool(_as_int512(self))
 
     def __add__(self, other: BigUInt | UInt64 | int) -> BigUInt:
-        return _checked_result(self.value + _as_int512(other), "+")
+        return _checked_result(_as_int512(self) + _as_int512(other), "+")
 
     # the reflected dunder methods (__radd__, __rsub___, etc.) should only be called when the
     # BigUInt is on the right hand side and UInt64 or int on the left
@@ -52,43 +53,43 @@ class BigUInt:
         return self + other
 
     def __sub__(self, other: BigUInt | UInt64 | int) -> BigUInt:
-        return _checked_result(self.value - _as_int512(other), "-")
+        return _checked_result(_as_int512(self) - _as_int512(other), "-")
 
     def __rsub__(self, other: int | UInt64) -> BigUInt:
         return _as_biguint(other) - self
 
     def __mul__(self, other: BigUInt | UInt64 | int) -> BigUInt:
-        return _checked_result(self.value * _as_int512(other), "*")
+        return _checked_result(_as_int512(self) * _as_int512(other), "*")
 
     def __rmul__(self, other: int | UInt64) -> BigUInt:
         return self * other
 
     def __floordiv__(self, denominator: BigUInt | UInt64 | int) -> BigUInt:
-        return _checked_result(self.value // _as_int512(denominator), "//")
+        return _checked_result(_as_int512(self) // _as_int512(denominator), "//")
 
     def __rfloordiv__(self, numerator: int | UInt64) -> BigUInt:
         return _as_biguint(numerator) // self
 
     def __mod__(self, denominator: BigUInt | UInt64 | int) -> BigUInt:
-        return _checked_result(self.value % _as_int512(denominator), "%")
+        return _checked_result(_as_int512(self) % _as_int512(denominator), "%")
 
     def __rmod__(self, numerator: int | UInt64) -> BigUInt:
         return _as_biguint(numerator) % self
 
     def __and__(self, other: BigUInt | UInt64 | int) -> BigUInt:
-        return BigUInt(self.value & _as_int512(other))
+        return BigUInt(_as_int512(self) & _as_int512(other))
 
     def __rand__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return self & other
 
     def __or__(self, other: BigUInt | UInt64 | int) -> BigUInt:
-        return BigUInt(self.value | _as_int512(other))
+        return BigUInt(_as_int512(self) | _as_int512(other))
 
     def __ror__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return self | other
 
     def __xor__(self, other: BigUInt | UInt64 | int) -> BigUInt:
-        return BigUInt(self.value ^ _as_int512(other))
+        return BigUInt(_as_int512(self) ^ _as_int512(other))
 
     def __rxor__(self, other: BigUInt | UInt64 | int) -> BigUInt:
         return self ^ other
@@ -100,7 +101,7 @@ class BigUInt:
         Returns:
             BigUInt: The result of the unary positive operation.
         """
-        return BigUInt(+self.value)
+        return BigUInt(+_as_int512(self))
 
     @classmethod
     def from_bytes(cls, value: Bytes | bytes) -> BigUInt:
@@ -110,7 +111,12 @@ class BigUInt:
     @property
     def bytes(self) -> Bytes:
         """Get the underlying Bytes"""
-        return Bytes(self.value.to_bytes((self.value.bit_length() + 7) // 8, "big"))
+        return Bytes(self.__value)
+
+    @property
+    def value(self) -> int:
+        """Get the underlying int"""
+        return _as_int(int.from_bytes(self.__value), None)
 
 
 def _checked_result(result: int, op: str) -> BigUInt:
@@ -126,10 +132,18 @@ def _checked_result(result: int, op: str) -> BigUInt:
 
 
 def _as_int512(value: object) -> int:
+    return _as_int(value, MAX_UINT512)
+
+
+def _as_int(value: object, max_int: int | None) -> int:
     from algopy.primitives.util import as_int
 
-    return as_int(value, max=MAX_UINT512)
+    return as_int(value, max=max_int)
 
 
 def _as_biguint(value: object) -> BigUInt:
-    return BigUInt(_as_int512(value))
+    return BigUInt(_as_int(value, None))
+
+
+def _int_to_bytes(x: int) -> bytes:
+    return x.to_bytes((x.bit_length() + 7) // 8, "big")
