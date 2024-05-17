@@ -8,8 +8,8 @@ contract test_cases.inner_transactions.contract.MyContract:
                 test_cases.inner_transactions.contract.MyContract.__init__()
                 goto block@2
             block@2: // entrypoint_L23
-                let tmp%0#0: uint64 = (txn NumAppArgs)
-                goto tmp%0#0 ? block@3 : block@10
+                let reinterpret_bool%0#0: bool = (txn NumAppArgs)
+                goto reinterpret_bool%0#0 ? block@3 : block@10
             block@3: // if_body_L27
                 let awst_tmp%0#0: bytes = (txna ApplicationArgs 0)
                 switch awst_tmp%0#0 {"test1" => block@4, "test2" => block@5, "test3" => block@6, "test4" => block@7, * => return 1u}
@@ -115,8 +115,8 @@ contract test_cases.inner_transactions.contract.MyContract:
         
         subroutine test_cases.inner_transactions.contract.MyContract.test2() -> void:
             block@0: // L88
-                let tmp%0#0: uint64 = (txn NumAppArgs)
-                goto tmp%0#0 ? block@1 : block@2
+                let reinterpret_bool%0#0: bool = (txn NumAppArgs)
+                goto reinterpret_bool%0#0 ? block@1 : block@2
             block@1: // if_body_L90
                 let create_app_params%%param_ApplicationArgs_idx_0#0: bytes = "1"
                 let create_app_params%%param_ApplicationArgs_idx_1#0: bytes = "2"
@@ -156,15 +156,15 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field Fee) 0u)
                 itxn_submit
                 let create_app_txn.Note#0: bytes = (itxn Note)
-                let tmp%1#0: bytes = (itxna ApplicationArgs 0)
-                let tmp%2#0: bool = (== tmp%1#0 "1")
-                (assert tmp%2#0) // correct args used 1
-                let tmp%3#0: bytes = (itxna ApplicationArgs 1)
-                let tmp%4#0: bool = (== tmp%3#0 "2")
-                (assert tmp%4#0) // correct args used 2
-                let tmp%5#0: uint64 = (txn NumAppArgs)
-                let tmp%6#0: bool = (> tmp%5#0 1u)
-                goto tmp%6#0 ? block@9 : block@11
+                let tmp%0#0: bytes = (itxna ApplicationArgs 0)
+                let tmp%1#0: bool = (== tmp%0#0 "1")
+                (assert tmp%1#0) // correct args used 1
+                let tmp%2#0: bytes = (itxna ApplicationArgs 1)
+                let tmp%3#0: bool = (== tmp%2#0 "2")
+                (assert tmp%3#0) // correct args used 2
+                let tmp%4#0: uint64 = (txn NumAppArgs)
+                let tmp%5#0: bool = (> tmp%4#0 1u)
+                goto tmp%5#0 ? block@9 : block@11
             block@9: // if_body_L110
                 itxn_begin
                 ((itxn_field ApplicationArgs) "42")
@@ -174,11 +174,11 @@ contract test_cases.inner_transactions.contract.MyContract:
                 ((itxn_field TypeEnum) appl)
                 ((itxn_field Fee) 0u)
                 itxn_submit
-                let tmp%7#0: bytes = (itxna ApplicationArgs 0)
-                let tmp%8#0: bool = (== tmp%7#0 "42")
-                (assert tmp%8#0) // correct args used 2
-                let tmp%9#0: bool = (== create_app_txn.Note#0 "with args param set")
-                (assert tmp%9#0)
+                let tmp%6#0: bytes = (itxna ApplicationArgs 0)
+                let tmp%7#0: bool = (== tmp%6#0 "42")
+                (assert tmp%7#0) // correct args used 2
+                let tmp%8#0: bool = (== create_app_txn.Note#0 "with args param set")
+                (assert tmp%8#0)
                 goto block@11
             block@11: // after_if_else_L110
                 return 
@@ -374,24 +374,24 @@ contract test_cases.inner_transactions.contract.MyContract:
                 (assert tmp%2#0) // approval_pages == 2
                 let tmp%3#0: bytes = (itxna ApprovalProgramPages 0)
                 let tmp%4#0: bytes = (concat 0x098101 approval_2#0)
-                let tmp%5#0: uint64 = (len approval_2#0)
-                let tmp%8#0: bool = (< 3u tmp%5#0)
-                let tmp%9#0: uint64 = (select tmp%5#0 3u tmp%8#0)
-                let tmp%10#0: uint64 = (- tmp%5#0 tmp%9#0)
-                let tmp%11#0: bytes = (substring3 approval_2#0 0u tmp%10#0)
-                let tmp%12#0: bytes = (concat tmp%4#0 tmp%11#0)
-                let tmp%13#0: bool = (== tmp%3#0 tmp%12#0)
-                (assert tmp%13#0) // expected approval page 0
-                let tmp%14#0: bytes = (itxna ApprovalProgramPages 1)
-                let tmp%21#0: bytes = (substring3 approval_2#0 tmp%10#0 tmp%5#0)
-                let tmp%22#0: bytes = (concat tmp%21#0 approval_2#0)
-                let tmp%23#0: bool = (== tmp%14#0 tmp%22#0)
-                (assert tmp%23#0) // expected approval page 1
-                let tmp%24#0: bool = (== app_1.NumClearStateProgramPages#0 1u)
-                (assert tmp%24#0) // clear_state_pages == 1
-                let tmp%25#0: bytes = (itxna ClearStateProgramPages 0)
-                let tmp%26#0: bool = (== tmp%25#0 0x098101)
-                (assert tmp%26#0) // expected clear_state_pages
+                let length%0#0: uint64 = (len approval_2#0)
+                let is_out_of_bounds%0#0: bool = (>= 3u length%0#0)
+                let bounded_offset%0#0: uint64 = (select 3u length%0#0 is_out_of_bounds%0#0)
+                let bounded_index%0#0: uint64 = (- length%0#0 bounded_offset%0#0)
+                let tmp%5#0: bytes = (substring3 approval_2#0 0u bounded_index%0#0)
+                let tmp%6#0: bytes = (concat tmp%4#0 tmp%5#0)
+                let tmp%7#0: bool = (== tmp%3#0 tmp%6#0)
+                (assert tmp%7#0) // expected approval page 0
+                let tmp%8#0: bytes = (itxna ApprovalProgramPages 1)
+                let tmp%9#0: bytes = (substring3 approval_2#0 bounded_index%0#0 length%0#0)
+                let tmp%10#0: bytes = (concat tmp%9#0 approval_2#0)
+                let tmp%11#0: bool = (== tmp%8#0 tmp%10#0)
+                (assert tmp%11#0) // expected approval page 1
+                let tmp%12#0: bool = (== app_1.NumClearStateProgramPages#0 1u)
+                (assert tmp%12#0) // clear_state_pages == 1
+                let tmp%13#0: bytes = (itxna ClearStateProgramPages 0)
+                let tmp%14#0: bool = (== tmp%13#0 0x098101)
+                (assert tmp%14#0) // expected clear_state_pages
                 return 
         
         subroutine test_cases.inner_transactions.contract.MyContract.__init__() -> void:

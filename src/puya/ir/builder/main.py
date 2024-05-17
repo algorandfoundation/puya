@@ -12,8 +12,19 @@ from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, flow_control, state
-from puya.ir.builder._utils import assert_value, assign, mkblocks
+from puya.ir.builder._utils import (
+    assert_value,
+    assign,
+    assign_targets,
+    extract_const_int,
+    mkblocks,
+    mktemp,
+)
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
+from puya.ir.builder.bytes import (
+    visit_bytes_intersection_slice_expression,
+    visit_bytes_slice_expression,
+)
 from puya.ir.builder.callsub import visit_subroutine_call_expression
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
@@ -410,6 +421,22 @@ class FunctionIRBuilder(
                 expr.source_location,
             )
 
+    def visit_intersection_slice_expression(
+        self, expr: awst_nodes.IntersectionSliceExpression
+    ) -> TExpression:
+        if isinstance(expr.wtype, wtypes.WTuple):
+            values = list(self.visit_and_materialise(expr.base))
+            start_i = extract_const_int(expr.begin_index)
+            end_i = extract_const_int(expr.end_index)
+            return ValueTuple(source_location=expr.source_location, values=values[start_i:end_i])
+        elif expr.base.wtype == wtypes.bytes_wtype:
+            return visit_bytes_intersection_slice_expression(self.context, expr)
+        else:
+            raise InternalError(
+                f"IntersectionSlice operation IR lowering not implemented for {expr.wtype.name}",
+                expr.source_location,
+            )
+
     def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> TExpression:
         """Slices an enumerable type."""
         if isinstance(expr.wtype, wtypes.WTuple):
@@ -418,45 +445,7 @@ class FunctionIRBuilder(
             end_i = extract_const_int(expr.end_index)
             return ValueTuple(source_location=expr.source_location, values=values[start_i:end_i])
         elif expr.base.wtype == wtypes.bytes_wtype:
-            base = self.visit_and_materialise_single(expr.base)
-            if expr.begin_index is None and expr.end_index is None:
-                return base
-
-            if expr.begin_index is not None:
-                start_value = self.visit_and_materialise_single(expr.begin_index)
-            else:
-                start_value = UInt64Constant(value=0, source_location=expr.source_location)
-
-            if expr.end_index is not None:
-                stop_value = self.visit_and_materialise_single(expr.end_index)
-                return Intrinsic(
-                    op=AVMOp.substring3,
-                    args=[base, start_value, stop_value],
-                    source_location=expr.source_location,
-                )
-            elif isinstance(start_value, UInt64Constant):
-                # we can use extract without computing the length when the start index is
-                # a constant value and the end index is None (ie end of array)
-                return Intrinsic(
-                    op=AVMOp.extract,
-                    immediates=[start_value.value, 0],
-                    args=[base],
-                    source_location=expr.source_location,
-                )
-            else:
-                (base_length,) = assign(
-                    self.context,
-                    source_location=expr.source_location,
-                    source=Intrinsic(
-                        op=AVMOp.len_, args=[base], source_location=expr.source_location
-                    ),
-                    temp_description="base_length",
-                )
-                return Intrinsic(
-                    op=AVMOp.substring3,
-                    args=[base, start_value, base_length],
-                    source_location=expr.source_location,
-                )
+            return visit_bytes_slice_expression(self.context, expr)
         else:
             raise InternalError(
                 f"Slice operation IR lowering not implemented for {expr.wtype.name}",
@@ -710,8 +699,14 @@ class FunctionIRBuilder(
 
     def visit_reinterpret_cast(self, expr: awst_nodes.ReinterpretCast) -> TExpression:
         # should be a no-op for us, but we validate the cast here too
-        inner_avm_type = wtype_to_ir_type(expr.expr).avm_type
-        outer_avm_type = wtype_to_ir_type(expr).avm_type
+        source = self.visit_expr(expr.expr)
+        (inner_ir_type,) = source.types
+        outer_ir_type = wtype_to_ir_type(expr)
+        # don't need to do anything further if ir types are the same
+        if inner_ir_type == outer_ir_type:
+            return source
+        inner_avm_type = inner_ir_type.avm_type
+        outer_avm_type = outer_ir_type.avm_type
         if inner_avm_type != outer_avm_type:
             raise InternalError(
                 f"Tried to reinterpret {expr.expr.wtype} as {expr.wtype},"
@@ -719,7 +714,19 @@ class FunctionIRBuilder(
                 f" {inner_avm_type} and {outer_avm_type}, respectively",
                 expr.source_location,
             )
-        return expr.expr.accept(self)
+        target = mktemp(
+            self.context,
+            outer_ir_type,
+            source_location=expr.source_location,
+            description=f"reinterpret_{outer_ir_type.name}",
+        )
+        assign_targets(
+            self.context,
+            source=source,
+            targets=[target],
+            assignment_location=expr.source_location,
+        )
+        return target
 
     def visit_block(self, block: awst_nodes.Block) -> TStatement:
         for stmt in block.body:
@@ -1054,20 +1061,6 @@ def get_comparison_op_for_wtype(
     raise InternalError(
         f"Unsupported operation of {numeric_comparison_equivalent} on type of {wtype}"
     )
-
-
-def extract_const_int(expr: awst_nodes.Expression | None) -> int | None:
-    """Check expr is an IntegerConstant or None, and return constant value (or None)"""
-    match expr:
-        case None:
-            return None
-        case awst_nodes.IntegerConstant(value=value):
-            return value
-        case _:
-            raise InternalError(
-                f"Expected either constant or None for index, got {type(expr).__name__}",
-                expr.source_location,
-            )
 
 
 def insert_on_create_call(context: IRFunctionBuildContext, to: Subroutine) -> None:

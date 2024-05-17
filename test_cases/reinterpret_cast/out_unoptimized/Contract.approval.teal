@@ -1,0 +1,115 @@
+#pragma version 10
+
+test_cases.reinterpret_cast.contract.Contract.approval_program:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    txna ApplicationArgs 0
+    method "bytes_to_bool()bool"
+    method "test_bytes_to_biguint()void"
+    uncover 2
+    match main_bytes_to_bool_route@2 main_test_bytes_to_biguint_route@3
+    b main_switch_case_default@4
+
+main_bytes_to_bool_route@2:
+    // reinterpret_cast/contract.py:6
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub bytes_to_bool
+    byte 0x00
+    int 0
+    uncover 2
+    setbit
+    byte 0x151f7c75
+    swap
+    concat
+    log
+    int 1
+    return
+
+main_test_bytes_to_biguint_route@3:
+    // reinterpret_cast/contract.py:10
+    // @arc4.abimethod()
+    txn OnCompletion
+    int NoOp
+    ==
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    callsub test_bytes_to_biguint
+    int 1
+    return
+
+main_switch_case_default@4:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    err // reject transaction
+
+main_bare_routing@6:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    txn OnCompletion
+    int 0
+    swap
+    match main_create@7
+    b main_reject_bare_on_completion@8
+
+main_create@7:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    txn ApplicationID
+    !
+    assert // is creating
+    int 1
+    return
+
+main_reject_bare_on_completion@8:
+    // reinterpret_cast/contract.py:4
+    // class Contract(ARC4Contract):
+    err // reject transaction
+
+
+// test_cases.reinterpret_cast.contract.Contract.bytes_to_bool() -> uint64:
+bytes_to_bool:
+    // reinterpret_cast/contract.py:6-7
+    // @arc4.abimethod()
+    // def bytes_to_bool(self) -> bool:
+    proto 0 1
+    // reinterpret_cast/contract.py:8
+    // return bool(Bytes())
+    byte ""
+    len
+    retsub
+
+
+// test_cases.reinterpret_cast.contract.Contract.test_bytes_to_biguint() -> void:
+test_bytes_to_biguint:
+    // reinterpret_cast/contract.py:10-11
+    // @arc4.abimethod()
+    // def test_bytes_to_biguint(self) -> None:
+    proto 0 0
+    // reinterpret_cast/contract.py:12
+    // assert bytes_to_biguint()
+    callsub bytes_to_biguint
+    byte 0x
+    b!=
+    assert
+    retsub
+
+
+// test_cases.reinterpret_cast.contract.bytes_to_biguint() -> bytes:
+bytes_to_biguint:
+    // reinterpret_cast/contract.py:15-16
+    // @subroutine
+    // def bytes_to_biguint() -> BigUInt:
+    proto 0 1
+    // reinterpret_cast/contract.py:17
+    // return BigUInt.from_bytes(Bytes())
+    byte ""
+    retsub

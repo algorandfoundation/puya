@@ -139,8 +139,8 @@ contract MyContract
     app_1: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(app_p_1)
     assert(app_1.ExtraProgramPages == 3u, comment="extra_pages == 3")
     assert(app_1.NumApprovalProgramPages == 2u, comment="approval_pages == 2")
-    assert(app_1.ApprovalProgramPages[0u] == approval_1 + approval_2 + SINGLE_EVAL(id=1, source=approval_2)[:len(SINGLE_EVAL(id=1, source=approval_2)) - select(len(SINGLE_EVAL(id=1, source=approval_2)), 3u, 3u < len(SINGLE_EVAL(id=1, source=approval_2)))], comment="expected approval page 0")
-    assert(app_1.ApprovalProgramPages[1u] == SINGLE_EVAL(id=2, source=approval_2)[len(SINGLE_EVAL(id=2, source=approval_2)) - select(len(SINGLE_EVAL(id=2, source=approval_2)), 3u, 3u < len(SINGLE_EVAL(id=2, source=approval_2))):] + approval_2, comment="expected approval page 1")
+    assert(app_1.ApprovalProgramPages[0u] == approval_1 + approval_2 + approval_2[:-3], comment="expected approval page 0")
+    assert(app_1.ApprovalProgramPages[1u] == approval_2[-3:] + approval_2, comment="expected approval page 1")
     assert(app_1.NumClearStateProgramPages == 1u, comment="clear_state_pages == 1")
     assert(app_1.ClearStateProgramPages[0u] == hex<"098101">, comment="expected clear_state_pages")
   }

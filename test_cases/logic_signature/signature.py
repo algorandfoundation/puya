@@ -1,5 +1,5 @@
-from algopy import Bytes, TemplateVar, TransactionType, UInt64, logicsig, subroutine
-from algopy.op import Global, GTxn
+from algopy import Account, Asset, TemplateVar, UInt64, gtxn, logicsig, subroutine
+from algopy.op import Global
 
 
 @logicsig
@@ -10,9 +10,11 @@ def pre_approved_sale() -> bool:
 
     The checks here are not meant to be exhaustive
     """
-    assert_correct_payment(txn_offset=UInt64(0))
-    assert_correct_asset(txn_offset=UInt64(1))
-    assert GTxn.sender(UInt64(0)) == GTxn.asset_receiver(UInt64(1))
+    pay_txn = gtxn.PaymentTransaction(0)
+    asset_txn = gtxn.AssetTransferTransaction(1)
+    assert_correct_payment(pay_txn)
+    assert_correct_asset(asset_txn)
+    assert pay_txn.sender == asset_txn.asset_receiver
     assert Global.group_size == 2
     return True
 
@@ -23,21 +25,18 @@ def some_sig() -> bool:
 
 
 @subroutine
-def assert_correct_payment(txn_offset: UInt64) -> None:
-    assert (
-        GTxn.type_enum(txn_offset) == TransactionType.Payment
-        and GTxn.receiver(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
-        and GTxn.amount(txn_offset) == TemplateVar[UInt64]("PRICE")
+def assert_correct_payment(txn: gtxn.PaymentTransaction) -> None:
+    assert txn.receiver == TemplateVar[Account]("SELLER") and (
+        txn.amount == TemplateVar[UInt64]("PRICE")
     )
 
 
 @subroutine
-def assert_correct_asset(txn_offset: UInt64) -> None:
+def assert_correct_asset(txn: gtxn.AssetTransferTransaction) -> None:
     assert (
-        GTxn.type_enum(txn_offset) == TransactionType.AssetTransfer
-        and GTxn.asset_amount(txn_offset) == 1
-        and GTxn.sender(txn_offset).bytes == TemplateVar[Bytes]("SELLER")
-        and GTxn.xfer_asset(txn_offset).id == TemplateVar[UInt64]("ASSET_ID")
-        and GTxn.asset_close_to(txn_offset) == Global.zero_address
-        and GTxn.rekey_to(txn_offset) == Global.zero_address
+        txn.asset_amount == 1
+        and txn.sender == TemplateVar[Account]("SELLER")
+        and txn.xfer_asset == TemplateVar[Asset]("ASSET_ID")
+        and txn.asset_close_to == Global.zero_address
+        and txn.rekey_to == Global.zero_address
     )

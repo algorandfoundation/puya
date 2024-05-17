@@ -12,39 +12,39 @@ from algopy import (
     String,
 )
 from algopy._transaction import (
-    ApplicationProtocol,
-    AssetConfigProtocol,
-    AssetFreezeProtocol,
-    AssetTransferProtocol,
-    KeyRegistrationProtocol,
-    PaymentProtocol,
-    TransactionBaseProtocol,
+    _ApplicationProtocol,
+    _AssetConfigProtocol,
+    _AssetFreezeProtocol,
+    _AssetTransferProtocol,
+    _KeyRegistrationProtocol,
+    _PaymentProtocol,
+    _TransactionBaseProtocol,
 )
 
-class PaymentInnerTransaction(PaymentProtocol, TransactionBaseProtocol, typing.Protocol):
+class PaymentInnerTransaction(_PaymentProtocol, _TransactionBaseProtocol, typing.Protocol):
     """Payment inner transaction"""
 
 class KeyRegistrationInnerTransaction(
-    KeyRegistrationProtocol, TransactionBaseProtocol, typing.Protocol
+    _KeyRegistrationProtocol, _TransactionBaseProtocol, typing.Protocol
 ):
     """Key Registration inner transaction"""
 
-class AssetConfigInnerTransaction(AssetConfigProtocol, TransactionBaseProtocol, typing.Protocol):
+class AssetConfigInnerTransaction(_AssetConfigProtocol, _TransactionBaseProtocol, typing.Protocol):
     """Asset Config inner transaction"""
 
     @property
     def created_asset(self) -> Asset: ...
 
 class AssetTransferInnerTransaction(
-    AssetTransferProtocol, TransactionBaseProtocol, typing.Protocol
+    _AssetTransferProtocol, _TransactionBaseProtocol, typing.Protocol
 ):
     """Asset Transfer inner transaction"""
 
-class AssetFreezeInnerTransaction(AssetFreezeProtocol, TransactionBaseProtocol, typing.Protocol):
+class AssetFreezeInnerTransaction(_AssetFreezeProtocol, _TransactionBaseProtocol, typing.Protocol):
     """Asset Freeze inner transaction"""
 
 class ApplicationCallInnerTransaction(
-    ApplicationProtocol, TransactionBaseProtocol, typing.Protocol
+    _ApplicationProtocol, _TransactionBaseProtocol, typing.Protocol
 ):
     """Application Call inner transaction"""
 
@@ -66,7 +66,7 @@ class InnerTransactionResult(
     AssetTransferInnerTransaction,
     AssetFreezeInnerTransaction,
     ApplicationCallInnerTransaction,
-    TransactionBaseProtocol,
+    _TransactionBaseProtocol,
 ):
     """An inner transaction of any type"""
 
