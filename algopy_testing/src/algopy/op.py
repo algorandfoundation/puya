@@ -87,11 +87,8 @@ def ecdsa_verify(  # noqa: PLR0913
     e: Bytes | bytes,
     /,
 ) -> bool:
-    data_bytes, sig_r_bytes, sig_s_bytes, pubkey_x_bytes, pubkey_y_bytes = (
-        as_bytes(
-            x,
-        )
-        for x in [a, b, c, d, e]
+    data_bytes, sig_r_bytes, sig_s_bytes, pubkey_x_bytes, pubkey_y_bytes = map(
+        as_bytes, [a, b, c, d, e]
     )
 
     curve_map = {
