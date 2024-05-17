@@ -6,7 +6,7 @@ from contextvars import ContextVar
 
 @dataclasses.dataclass
 class TestingContext:
-    program_hash: bytes = b""
+    program_bytes: bytes | None = None
 
 
 _var = ContextVar[TestingContext]("_var")
