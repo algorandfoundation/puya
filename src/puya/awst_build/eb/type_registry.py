@@ -34,6 +34,8 @@ from puya.parse import SourceLocation
 
 __all__ = [
     "var_expression",
+    "builder_for_instance",
+    "builder_for_type",
 ]
 
 ExpressionBuilderFromSourceFactory = Callable[[SourceLocation], ExpressionBuilder]
@@ -51,7 +53,7 @@ FUNC_NAME_TO_BUILDER: dict[str, ExpressionBuilderFromSourceFactory] = {
         template_variables.GenericTemplateVariableExpressionBuilder
     ),
 }
-PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType | None, ExpressionBuilderFromSourceFactory] = {
+PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromSourceFactory] = {
     pytypes.NoneType: void.VoidTypeExpressionBuilder,
     pytypes.BoolType: bool_.BoolClassExpressionBuilder,
     pytypes.GenericTupleType: tuple_.GenericTupleTypeExpressionBuilder,
@@ -133,9 +135,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayClassExpressionBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayClassExpressionBuilder,
 }
-PYTYPE_BASE_TO_TYPE_BUILDER: dict[
-    pytypes.PyType | None, ExpressionBuilderFromPyTypeAndSourceFactory
-] = {
+PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromPyTypeAndSourceFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructClassExpressionBuilder,
     pytypes.StructBaseType: struct.StructSubclassExpressionBuilder,
 }
@@ -175,6 +175,79 @@ WTYPE_TO_BUILDER: dict[
 }
 
 
+PYTYPE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionFactory] = {
+    pytypes.ARC4BoolType: arc4.ARC4BoolExpressionBuilder,
+    pytypes.ARC4StringType: arc4.StringExpressionBuilder,
+    pytypes.ARC4DynamicBytesType: arc4.DynamicBytesExpressionBuilder,
+    pytypes.ARC4AddressType: arc4.AddressExpressionBuilder,
+    pytypes.AccountType: account.AccountExpressionBuilder,
+    pytypes.ApplicationType: application.ApplicationExpressionBuilder,
+    pytypes.AssetType: asset.AssetExpressionBuilder,
+    pytypes.BigUIntType: biguint.BigUIntExpressionBuilder,
+    pytypes.BoolType: bool_.BoolExpressionBuilder,
+    pytypes.BytesType: bytes_.BytesExpressionBuilder,
+    pytypes.StringType: string.StringExpressionBuilder,
+    pytypes.UInt64Type: uint64.UInt64ExpressionBuilder,
+    pytypes.NoneType: void.VoidExpressionBuilder,
+    pytypes.BoxRefType: box.BoxRefProxyExpressionBuilder,
+    # bound
+    **{
+        gtxn_pytyp: functools.partial(
+            transaction.GroupTransactionExpressionBuilder, typ=gtxn_pytyp
+        )
+        for gtxn_pytyp in (
+            pytypes.GroupTransactionBaseType,
+            *pytypes.GroupTransactionTypes.values(),
+        )
+    },
+    **{
+        itxn_fieldset_pytyp: functools.partial(
+            transaction.InnerTxnParamsExpressionBuilder, typ=itxn_fieldset_pytyp
+        )
+        for itxn_fieldset_pytyp in pytypes.InnerTransactionFieldsetTypes.values()
+    },
+    **{
+        itxn_result_pytyp: functools.partial(
+            transaction.InnerTransactionExpressionBuilder, typ=itxn_result_pytyp
+        )
+        for itxn_result_pytyp in pytypes.InnerTransactionResultTypes.values()
+    },
+}
+ExpressionBuilderFromExpressionAndPyTypeFactory = Callable[
+    [Expression, pytypes.PyType], ExpressionBuilder
+]
+PYTYPE_GENERIC_TO_BUILDER: dict[
+    pytypes.PyType | None, ExpressionBuilderFromExpressionAndPyTypeFactory
+] = {
+    pytypes.GenericTupleType: tuple_.TupleExpressionBuilder,
+    pytypes.GenericBoxType: box.BoxProxyExpressionBuilder,
+    pytypes.GenericBoxMapType: box.BoxMapProxyExpressionBuilder,
+    pytypes.GenericArrayType: array.ArrayExpressionBuilder,
+    pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayExpressionBuilder,
+    pytypes.GenericARC4StaticArrayType: arc4.StaticArrayExpressionBuilder,
+    pytypes.GenericARC4TupleType: arc4.ARC4TupleExpressionBuilder,
+    pytypes.GenericARC4UFixedNxMType: arc4.UFixedNxMExpressionBuilder,
+    pytypes.GenericARC4BigUFixedNxMType: arc4.UFixedNxMExpressionBuilder,
+    pytypes.GenericARC4UIntNType: arc4.UIntNExpressionBuilder,
+    pytypes.GenericARC4BigUIntNType: arc4.UIntNExpressionBuilder,
+}
+PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionAndPyTypeFactory] = {
+    pytypes.ARC4StructBaseType: arc4.ARC4StructExpressionBuilder,
+    pytypes.StructBaseType: struct.StructExpressionBuilder,
+}
+
+
+def builder_for_instance(pytyp: pytypes.PyType, expr: Expression) -> ExpressionBuilder:
+    if eb := PYTYPE_TO_BUILDER.get(pytyp):
+        return eb(expr)
+    if eb_param_generic := PYTYPE_GENERIC_TO_BUILDER.get(pytyp.generic):
+        return eb_param_generic(expr, pytyp)
+    for base in pytyp.mro:
+        if eb_base := PYTYPE_BASE_TO_BUILDER.get(base):
+            return eb_base(expr, pytyp)
+    raise InternalError(f"No builder for instance: {pytyp}", expr.source_location)
+
+
 def var_expression(expr: Expression) -> ExpressionBuilder:
     try:
         builder = WTYPE_TO_BUILDER[expr.wtype]
@@ -186,3 +259,14 @@ def var_expression(expr: Expression) -> ExpressionBuilder:
                 f"Unable to map wtype {expr.wtype!r} to expression builder", expr.source_location
             ) from None
     return builder(expr)
+
+
+def builder_for_type(pytyp: pytypes.PyType, expr_loc: SourceLocation) -> ExpressionBuilder:
+    if tb := PYTYPE_TO_TYPE_BUILDER.get(pytyp):
+        return tb(expr_loc)
+    if tb_param_generic := PYTYPE_GENERIC_TO_TYPE_BUILDER.get(pytyp.generic):
+        return tb_param_generic(pytyp, expr_loc)
+    for base in pytyp.mro:
+        if tb_base := PYTYPE_BASE_TO_TYPE_BUILDER.get(base):
+            return tb_base(pytyp, expr_loc)
+    raise InternalError(f"No builder for type: {pytyp}", expr_loc)

@@ -39,7 +39,8 @@ if typing.TYPE_CHECKING:
 
 
 class GroupTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         self.wtype = expect_wtype(expr, wtypes.WGroupTransaction)
         super().__init__(expr)
 

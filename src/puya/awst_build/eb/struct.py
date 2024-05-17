@@ -36,7 +36,8 @@ class StructSubclassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WStructT
 
 
 class StructExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.WStructType)
         self.wtype: wtypes.WStructType = expr.wtype
         super().__init__(expr)

@@ -214,7 +214,8 @@ class SetInnerTxnParamsExpressionBuilder(IntermediateExpressionBuilder):
 class InnerTxnParamsExpressionBuilder(ValueExpressionBuilder):
     wtype: wtypes.WInnerTransactionFields
 
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         self.wtype = expect_wtype(expr, wtypes.WInnerTransactionFields)
         super().__init__(expr)
 

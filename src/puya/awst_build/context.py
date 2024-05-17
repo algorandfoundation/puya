@@ -218,7 +218,7 @@ class ASTConversionModuleContext(ASTConversionContext):
                     raise InternalError(
                         f"mypy tuple type as instance had unrecognised args: {args}", loc
                     ) from None
-                return pytypes.VariadicTupleType(items=recurse(arg))
+                return pytypes.VariadicTupleType(items=recurse(arg))  # TODO: only in function args
             case mypy.types.Instance(args=args) as inst:
                 fullname = inst.type.fullname
                 result = self._pytypes.get(fullname)

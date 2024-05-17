@@ -87,7 +87,8 @@ class ArrayClassExpressionBuilder(TypeClassExpressionBuilder[wtypes.WArray]):
 
 
 class ArrayExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.WArray)
         self.wtype: wtypes.WArray = expr.wtype
         super().__init__(expr)

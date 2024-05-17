@@ -315,7 +315,8 @@ class ARC4ArrayExpressionBuilder(ValueExpressionBuilder, ABC):
 
 
 class DynamicArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4DynamicArray)
         self.wtype: wtypes.ARC4DynamicArray = expr.wtype
         super().__init__(expr)
@@ -521,7 +522,8 @@ def match_array_concat_arg(
 
 
 class StaticArrayExpressionBuilder(ARC4ArrayExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4StaticArray)
         self.wtype: wtypes.ARC4StaticArray = expr.wtype
         super().__init__(expr)

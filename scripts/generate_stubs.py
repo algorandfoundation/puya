@@ -6,7 +6,7 @@ import keyword
 import subprocess
 import textwrap
 import typing
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
 
 import attrs
@@ -78,43 +78,46 @@ ALGORAND_OP_URL = "https://developer.algorand.org/docs/get-details/dapps/avm/tea
 
 
 class OpCodeGroup(typing.Protocol):
-    def includes_op(self, op: str) -> bool: ...
+    def handled_ops(self) -> Iterator[str]: ...
 
 
 @attrs.define(kw_only=True)
-class RenamedOpCode:
+class RenamedOpCode(OpCodeGroup):
     name: str
     stack_aliases: dict[str, list[str]] = attrs.field(factory=dict)
     """ops that are aliases for other ops that take stack values instead of immediates"""
     op: str
 
-    def includes_op(self, op: str) -> bool:
-        return self.op == op or op in self.stack_aliases
+    def handled_ops(self) -> Iterator[str]:
+        yield self.op
+        yield from self.stack_aliases.keys()
 
 
 @attrs.define(kw_only=True)
-class MergedOpCodes:
+class MergedOpCodes(OpCodeGroup):
     name: str
     doc: str
     ops: dict[str, dict[str, list[str]]]
 
-    def includes_op(self, op: str) -> bool:
-        return op in self.ops or any(op in alias_dict for alias_dict in self.ops.values())
+    def handled_ops(self) -> Iterator[str]:
+        for op, aliases in self.ops.items():
+            yield op
+            yield from aliases.keys()
 
 
 @attrs.define(kw_only=True)
-class GroupedOpCodes:
+class GroupedOpCodes(OpCodeGroup):
     name: str
     """ops that are aliases for other ops that take stack values instead of immediates"""
     doc: str
     ops: dict[str, str] = attrs.field(factory=dict)
     """ops to include in group, mapped to their new name"""
 
-    def includes_op(self, op: str) -> bool:
-        return op in self.ops
+    def handled_ops(self) -> Iterator[str]:
+        yield from self.ops.keys()
 
 
-OPCODE_GROUPS: list[OpCodeGroup] = [
+GROUPED_OP_CODES = [
     GroupedOpCodes(
         name="AppGlobal",
         doc="Get or modify Global app state",
@@ -167,6 +170,18 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
             "ec_subgroup_check": "subgroup_check",
         },
     ),
+    GroupedOpCodes(
+        name="ITxnCreate",
+        doc="Create inner transactions",
+        ops={
+            "itxn_begin": "begin",
+            "itxn_next": "next",
+            "itxn_submit": "submit",
+            "itxn_field": "set",
+        },
+    ),
+]
+MERGED_OP_CODES = [
     MergedOpCodes(
         name="Txn",
         doc="Get values for the current executing transaction",
@@ -190,16 +205,6 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
                 "gtxna": ["F", "T", "I"],  # no stack args
                 "gtxnas": ["F", "T", "A"],  # array index on stack
             },
-        },
-    ),
-    GroupedOpCodes(
-        name="ITxnCreate",
-        doc="Create inner transactions",
-        ops={
-            "itxn_begin": "begin",
-            "itxn_next": "next",
-            "itxn_submit": "submit",
-            "itxn_field": "set",
         },
     ),
     MergedOpCodes(
@@ -227,6 +232,8 @@ OPCODE_GROUPS: list[OpCodeGroup] = [
         doc="Get Global values",
         ops={"global": {}},
     ),
+]
+RENAMED_OP_CODES = [
     RenamedOpCode(
         name="arg",
         op="args",
@@ -348,21 +355,19 @@ class FunctionDef:
     def has_any_arg(self) -> bool:
         return any(r.type == StackType.any for r in self.args)
 
-    @property
-    def has_any_return(self) -> bool:
-        return any(r.type == StackType.any for r in self.returns)
+    @returns.validator
+    def _no_any_return(self, _attribute: object, returns: list[TypedName]) -> None:
+        if any(r.type == StackType.any for r in returns):
+            # functions with any returns should have already been transformed
+            raise ValueError(f"Unexpected function {self.name} with any return")
 
 
 @attrs.define
 class ClassDef:
     name: str
     doc: str
-    methods: list[FunctionDef]
+    methods: list[FunctionDef] = attrs.field()
     ops: list[str]
-
-    @property
-    def has_any_methods(self) -> bool:
-        return any(m.has_any_return for m in self.methods)
 
 
 def main() -> None:
@@ -371,44 +376,51 @@ def main() -> None:
     lang_spec_json = json.loads(spec_path.read_text(encoding="utf-8"))
     lang_spec = LanguageSpec.from_json(lang_spec_json)
 
+    non_simple_ops = {
+        *EXCLUDED_OPCODES,
+        *dir(builtins),
+        *keyword.kwlist,  # TODO: maybe consider softkwlist too?
+    }
     function_defs = list[FunctionDef]()
     class_defs = list[ClassDef]()
     enums_to_build = dict[str, bool]()
+
+    for merged in MERGED_OP_CODES:
+        non_simple_ops.update(merged.handled_ops())
+        class_defs.append(build_merged_ops(lang_spec, merged))
+    for grouped in GROUPED_OP_CODES:
+        non_simple_ops.update(grouped.handled_ops())
+        class_defs.append(build_grouped_ops(lang_spec, grouped, enums_to_build))
+    for aliased in RENAMED_OP_CODES:
+        function_defs.extend(build_aliased_ops(lang_spec, aliased))
+        non_simple_ops.update(aliased.handled_ops())
+
     for op in lang_spec.ops.values():
-        if is_simple_op(op):
-            overriding_immediate = get_overriding_immediate(op)
-            if overriding_immediate:
-                class_defs.append(
-                    build_class_from_overriding_immediate(
-                        lang_spec,
-                        op,
-                        class_name=get_python_enum_class(op.name),
-                        class_doc=" ".join(op.doc),
-                        immediate=overriding_immediate,
-                        aliases=[],
-                    )
-                )
-            else:
-                for immediate in op.immediate_args:
-                    if immediate.immediate_type == ImmediateKind.arg_enum and (
-                        immediate.modifies_stack_input is None
-                        and immediate.modifies_stack_output is None
-                    ):
-                        assert immediate.arg_enum is not None
-                        enums_to_build[immediate.arg_enum] = True
-                function_defs.extend(build_operation_methods(op, op.name, []))
-        else:
+        if op.name in non_simple_ops or not op.name.isidentifier():
             logger.info(f"Ignoring: {op.name}")
-    for group in OPCODE_GROUPS:
-        match group:
-            case MergedOpCodes() as merged:
-                class_defs.append(build_merged_ops(lang_spec, merged))
-            case GroupedOpCodes() as grouped:
-                class_defs.append(build_grouped_ops(lang_spec, grouped, enums_to_build))
-            case RenamedOpCode() as aliased:
-                function_defs.extend(build_aliased_ops(lang_spec, aliased))
-            case _:
-                raise TypeError("Unexpected op code group")
+            continue
+        overriding_immediate = get_overriding_immediate(op)
+        if overriding_immediate:
+            class_defs.append(
+                build_class_from_overriding_immediate(
+                    lang_spec,
+                    op,
+                    class_name=get_python_enum_class(op.name),
+                    class_doc=" ".join(op.doc),
+                    immediate=overriding_immediate,
+                    aliases=[],
+                )
+            )
+        else:
+            for immediate in op.immediate_args:
+                if immediate.immediate_type == ImmediateKind.arg_enum and (
+                    immediate.modifies_stack_input is None
+                    and immediate.modifies_stack_output is None
+                ):
+                    assert immediate.arg_enum is not None
+                    enums_to_build[immediate.arg_enum] = True
+            function_defs.extend(build_operation_methods(op, op.name, []))
+
     function_defs.sort(key=lambda x: x.name)
     class_defs.sort(key=lambda x: x.name)
 
@@ -427,18 +439,6 @@ def sub_types(type_name: StackType, *, covariant: bool) -> Sequence[pytypes.PyTy
     else:
         last_index = None if covariant else 1
         return typs[:last_index]
-
-
-def is_simple_op(op: Op) -> bool:
-    if (
-        op.name in EXCLUDED_OPCODES
-        or any(g.includes_op(op.name) for g in OPCODE_GROUPS)  # handled separately
-        or not op.name.isidentifier()
-        or keyword.iskeyword(op.name)  # TODO: maybe consider issoftkeyword too?
-        or op.name in dir(builtins)
-    ):
-        return False
-    return True
 
 
 def immediate_kind_to_type(kind: ImmediateKind) -> type[int | str]:
@@ -474,22 +474,13 @@ def get_python_type(
             return typ
 
 
-def build_method_stub(
-    function: FunctionDef,
-    prefix: str = "",
-    *,
-    add_cls_arg: bool = False,
-    any_input_as: str | None = None,
-    any_output_as: str | None = None,
-) -> Iterable[str]:
+def build_method_stub(function: FunctionDef, prefix: str = "") -> Iterable[str]:
     signature = list[str]()
     doc = function.doc[:]
     signature.append(f"def {function.name}(")
     args = list[str]()
-    if add_cls_arg:
-        args.append("cls")
     for arg in function.args:
-        python_type = get_python_type(arg.type, covariant=True, any_as=any_input_as)
+        python_type = get_python_type(arg.type, covariant=True, any_as=None)
         args.append(f"{arg.name}: {python_type}")
         if arg.doc:
             doc.append(f":param {python_type} {arg.name}: {arg.doc}")
@@ -498,8 +489,7 @@ def build_method_stub(
     signature.append(", ".join(args))
 
     return_types = [
-        get_python_type(ret.type, covariant=False, any_as=any_output_as)
-        for ret in function.returns
+        get_python_type(ret.type, covariant=False, any_as=None) for ret in function.returns
     ]
     return_docs = [r.doc for r in function.returns if r.doc is not None]
     match return_types:
@@ -533,7 +523,6 @@ def build_method_stub(
 
 
 def build_stub_class(klass: ClassDef) -> Iterable[str]:
-    method_decorator: str
     ops = [f"{_get_algorand_doc(op)}" for op in klass.ops]
     docstring = "\n".join(
         [
@@ -543,37 +532,16 @@ def build_stub_class(klass: ClassDef) -> Iterable[str]:
             INDENT + '"""',
         ]
     )
-    if klass.has_any_methods:
-        method_decorator = "@classmethod"
-        yield f"class _{klass.name}(Generic[_T, _TLiteral]):"
-    else:
-        method_decorator = "@staticmethod"
-        yield f"class {klass.name}:"
-        yield docstring
+    method_preamble = f"{INDENT}@staticmethod"
+    yield f"class {klass.name}:"
+    yield docstring
     for method in klass.methods:
         if method.is_property:
             yield from build_class_var_stub(method, INDENT)
         else:
-            yield INDENT + method_decorator
-            yield from build_method_stub(
-                method,
-                prefix=INDENT,
-                add_cls_arg=klass.has_any_methods,
-                any_input_as="_T | _TLiteral" if klass.has_any_methods else None,
-                any_output_as="_T" if klass.has_any_methods else None,
-            )
+            yield method_preamble
+            yield from build_method_stub(method, prefix=INDENT)
         yield ""
-    if klass.has_any_methods:
-        yield (
-            f"class {klass.name}Bytes(_{klass.name}[{_get_imported_name(pytypes.BytesType)},"
-            f" {BYTES_LITERAL}]):"
-        )
-        yield INDENT + docstring
-        yield (
-            f"class {klass.name}UInt64(_{klass.name}[{_get_imported_name(pytypes.UInt64Type)},"
-            f" {UINT64_LITERAL}]):"
-        )
-        yield INDENT + docstring
 
 
 def build_class_var_stub(function: FunctionDef, indent: str) -> Iterable[str]:
@@ -788,6 +756,7 @@ def build_operation_method(
     const_immediate_value: tuple[Immediate, ArgEnum] | None = None,
 ) -> FunctionDef:
     args = list(get_op_args(op, replace_any_with))
+    function_returns = list(get_op_returns(op, replace_any_with))
 
     # python stub args can be different to mapping args, due to immediate args
     # that are inferred based on the method/property used
@@ -804,7 +773,7 @@ def build_operation_method(
         doc=doc,
         is_property=_op_is_stub_property(op.name, op_function_name),
         args=function_args,
-        returns=list(get_op_returns(op, replace_any_with)),
+        returns=function_returns,
         op_mappings=[
             build_function_op_mapping(
                 op,
@@ -833,12 +802,7 @@ def build_operation_methods(
 ) -> Iterable[FunctionDef]:
     logger.info(f"Mapping {op.name} to {op_function_name}")
 
-    def has_stack_any(stack: list[StackValue]) -> bool:
-        return any(s.stack_type == StackType.any for s in stack)
-
-    has_any_output = has_stack_any(op.stack_outputs)
-    # has_any_input = has_stack_any(op.stack_inputs)
-    if has_any_output:  # and not has_any_input:
+    if StackType.any in (s.stack_type for s in op.stack_outputs):
         logger.info(f"Found any output for {op.name}")
         yield build_operation_method(
             op,
@@ -1063,13 +1027,7 @@ def output_stub(
         stub.extend(build_enum(lang_spec, arg_enum))
 
     for function in function_ops:
-        if function.has_any_return and function.has_any_arg:
-            stub.extend(build_method_stub(function, any_input_as="_T", any_output_as="_T"))
-        elif function.has_any_return:
-            # functions with any returns should have already been transformed
-            raise ValueError(f"Unexpected function {function.name} with any return")
-        else:
-            stub.extend(build_method_stub(function))
+        stub.extend(build_method_stub(function))
 
     for class_op in class_ops:
         stub.extend(build_stub_class(class_op))

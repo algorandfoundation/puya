@@ -111,7 +111,8 @@ class BoxProxyExpressionBuilder(ValueExpressionBuilder):
     wtype: wtypes.WBoxProxy
     python_name = constants.CLS_BOX_PROXY
 
-    def __init__(self, expr: Expression) -> None:
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         if not isinstance(expr.wtype, wtypes.WBoxProxy):
             raise InternalError(
                 "BoxProxyExpressionBuilder can only be created with expressions of "

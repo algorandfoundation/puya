@@ -76,7 +76,8 @@ class ARC4TupleClassExpressionBuilder(ARC4ClassExpressionBuilder[wtypes.ARC4Tupl
 
 
 class ARC4TupleExpressionBuilder(ARC4EncodedExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4Tuple)
         self.wtype: wtypes.ARC4Tuple = expr.wtype
         super().__init__(expr)

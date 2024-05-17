@@ -69,7 +69,8 @@ class InnerTransactionArrayExpressionBuilder(IntermediateExpressionBuilder):
 
 
 class InnerTransactionExpressionBuilder(BaseTransactionExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         self.wtype = expect_wtype(expr, wtypes.WInnerTransaction)
         super().__init__(expr)
 

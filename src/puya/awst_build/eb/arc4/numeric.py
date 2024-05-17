@@ -132,7 +132,8 @@ class UFixedNxMClassExpressionBuilder(NumericARC4ClassExpressionBuilder):
 
 
 class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4UIntN)
         self.wtype: wtypes.ARC4UIntN = expr.wtype
         super().__init__(expr)
@@ -179,7 +180,8 @@ class UIntNExpressionBuilder(ARC4EncodedExpressionBuilder):
 
 
 class UFixedNxMExpressionBuilder(ARC4EncodedExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4UFixedNxM)
         self.wtype: wtypes.ARC4UFixedNxM = expr.wtype
         super().__init__(expr)

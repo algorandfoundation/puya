@@ -68,7 +68,8 @@ class ARC4StructClassExpressionBuilder(BytesBackedClassExpressionBuilder[wtypes.
 
 
 class ARC4StructExpressionBuilder(ValueExpressionBuilder):
-    def __init__(self, expr: Expression):
+    def __init__(self, expr: Expression, typ: pytypes.PyType | None = None):  # TODO
+        self.pytyp = typ
         assert isinstance(expr.wtype, wtypes.ARC4Struct)
         self.wtype: wtypes.ARC4Struct = expr.wtype
         super().__init__(expr)

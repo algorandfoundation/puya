@@ -72,6 +72,7 @@ from puya.awst_build.eb.intrinsics import (
     IntrinsicNamespaceClassExpressionBuilder,
 )
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
+from puya.awst_build.eb.type_registry import builder_for_type
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
@@ -661,11 +662,10 @@ class FunctionASTConverter(
         fullname = get_unaliased_fullname(expr)
         if fullname.startswith("builtins."):
             return self._visit_ref_expr_of_builtins(fullname, expr_loc)
-        if fullname.startswith(constants.ALGOPY_PREFIX):
-            if fullname.startswith(constants.ALGOPY_OP_PREFIX):
-                return self._visit_ref_expr_of_algopy_op(fullname, expr_loc, expr.node)
-            if func_builder := type_registry.FUNC_NAME_TO_BUILDER.get(fullname):
-                return func_builder(expr_loc)
+        if fullname.startswith(constants.ALGOPY_OP_PREFIX):
+            return self._visit_ref_expr_of_algopy_op(fullname, expr_loc)
+        if func_builder := type_registry.FUNC_NAME_TO_BUILDER.get(fullname):
+            return func_builder(expr_loc)
         match expr:
             case mypy.nodes.RefExpr(node=mypy.nodes.TypeInfo() as typ):
                 if typ.has_base(constants.CONTRACT_BASE):
@@ -798,36 +798,19 @@ class FunctionASTConverter(
             case _:
                 raise CodeError(f"Unsupported builtin: {rest_of_name}", location)
 
-    def _visit_ref_expr_of_algopy_op(
-        self, fullname: str, location: SourceLocation, node: mypy.nodes.SymbolNode | None
-    ) -> ExpressionBuilder:
-        from puya.awst_build.intrinsic_data import (
-            ENUM_CLASSES,
-            FUNC_TO_AST_MAPPER,
-            NAMESPACE_CLASSES,
-        )
+    @staticmethod
+    def _visit_ref_expr_of_algopy_op(fullname: str, location: SourceLocation) -> ExpressionBuilder:
+        from puya.awst_build import intrinsic_data
 
-        if isinstance(node, mypy.nodes.TypeAlias):
-            t = mypy.types.get_proper_type(node.target)
-            if isinstance(t, mypy.types.Instance):
-                node = t.type
-        match node:
-            case mypy.nodes.TypeInfo(defn=mypy.nodes.ClassDef(name=class_name)) as type_info:
-                if (enum_data := ENUM_CLASSES.get(class_name)) is not None:
-                    return IntrinsicEnumClassExpressionBuilder(
-                        enum_data, type_info, location=location
-                    )
-                elif (cls_data := NAMESPACE_CLASSES.get(class_name)) is not None:
-                    return IntrinsicNamespaceClassExpressionBuilder(
-                        cls_data, type_info, location=location
-                    )
-            case mypy.nodes.FuncDef(name=func_name) as func_def:
-                mappings = FUNC_TO_AST_MAPPER.get(func_name)
-                if mappings is not None:
-                    return IntrinsicFunctionExpressionBuilder(
-                        func_def, mappings, location=location
-                    )
-        raise InternalError(f"Unhandled algopy name: {fullname}", location)
+        name = fullname.removeprefix(constants.ALGOPY_OP_PREFIX)
+
+        if (enum_data := intrinsic_data.ENUM_CLASSES.get(name)) is not None:
+            return IntrinsicEnumClassExpressionBuilder(fullname, enum_data, location)
+        if (cls_data := intrinsic_data.NAMESPACE_CLASSES.get(name)) is not None:
+            return IntrinsicNamespaceClassExpressionBuilder(fullname, cls_data, location)
+        if (mappings := intrinsic_data.FUNC_TO_AST_MAPPER.get(name)) is not None:
+            return IntrinsicFunctionExpressionBuilder(fullname, mappings, location)
+        raise InternalError(f"No intrinsic data found for {fullname}", location)
 
     def visit_name_expr(self, expr: mypy.nodes.NameExpr) -> ExpressionBuilder | Literal:
         return self._visit_ref_expr(expr)
@@ -1322,16 +1305,3 @@ def temporary_assignment_if_required(
         return var_expression(operand)
     else:
         return operand
-
-
-def builder_for_type(inner_typ: pytypes.PyType, expr_loc: SourceLocation) -> ExpressionBuilder:
-    from puya.awst_build.eb import type_registry
-
-    if tb := type_registry.PYTYPE_TO_TYPE_BUILDER.get(inner_typ):
-        return tb(expr_loc)
-    if tb_param_generic := type_registry.PYTYPE_GENERIC_TO_TYPE_BUILDER.get(inner_typ.generic):
-        return tb_param_generic(inner_typ, expr_loc)
-    for base in inner_typ.mro:
-        if tb_base := type_registry.PYTYPE_BASE_TO_TYPE_BUILDER.get(base):
-            return tb_base(inner_typ, expr_loc)
-    raise InternalError(f"No builder for type: {inner_typ}", expr_loc)
