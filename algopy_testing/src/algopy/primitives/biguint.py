@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 @functools.total_ordering
 class BigUInt:
     """
-    A python implementation of an AVM 64-bit unsigned integer
+    A python implementation of an TEAL bigint type represented by AVM []byte type
     """
 
     value: int  # underlying 'int' value representing the BigUInt
