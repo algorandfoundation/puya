@@ -6,7 +6,7 @@ import coincurve
 import nacl.exceptions
 import nacl.signing
 from algopy_testing.context import get_active_context
-from Cryptodome.Hash import keccak
+from Cryptodome.Hash import SHA512, keccak
 from ecdsa import (  # type: ignore  # noqa: PGH003
     BadSignatureError,
     NIST256p,
@@ -41,7 +41,7 @@ def keccak256(a: Bytes | bytes, /) -> Bytes:
 
 def sha512_256(a: Bytes | bytes, /) -> Bytes:
     input_value = as_bytes(a)
-    hash_object = hashlib.new("sha512_256", input_value)
+    hash_object = SHA512.new(input_value, truncate="256")
     return Bytes(hash_object.digest())
 
 
