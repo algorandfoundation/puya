@@ -19,6 +19,17 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.12",
 ]
+dependencies = [
+    # ==========================================================================
+    # Below is used for implementing algopy crypto ops matching AVM.
+    # Versions pinned for compatibility with py-algorand-sdk pre reqs
+    # https://github.com/algorand/py-algorand-sdk/blob/master/setup.py
+    # ==========================================================================
+    "pycryptodomex>=3.6.0,<4",
+    "pynacl>=1.4.0,<2",
+    "ecdsa>=0.17.0",
+    "coincurve>=19.0.1"
+]
 
 [project.urls]
 Documentation = "https://github.com/algorandfoundation/puya/tree/main/algopy_testing#README.md"
@@ -52,15 +63,7 @@ dependencies = [
     "prettytable>=3.9.0",
     "hatchling", # used for hatch_build.py
     "hypothesis>=6.100.1",
-    # ==========================================================================
-    # Below is used for implementing algopy crypto ops matching AVM. 
-    # Versions pinned for compatibility with py-algorand-sdk pre reqs
-    # https://github.com/algorand/py-algorand-sdk/blob/master/setup.py
-    # ==========================================================================
-    "pycryptodomex>=3.6.0,<4",
-    "pynacl>=1.4.0,<2",
-    "ecdsa>=0.17.0",
-    "coincurve>=19.0.1"
+    "mypy==1.10",
 ]
 
 [tool.hatch.envs.default.env-vars]
@@ -71,11 +74,11 @@ refresh_test_artifacts = "python scripts/refresh_test_artifacts.py"
 check_stubs_cov = "python scripts/check_stubs_cov.py"
 pre_commit = [
     "hatch run lint:fix",
-    "hatch run typing:check",
+    "hatch run mypy .",
 ]
 check = [
     "hatch run lint:check",
-    "hatch run typing:check",
+    "hatch run mypy .",
 ]
 tests = "pytest --cov --cov-report xml"
 
@@ -97,18 +100,6 @@ check = [
 fix = [
   "black .",
   "ruff check --fix",
-]
-
-[tool.hatch.envs.typing]
-path = ".venv.typing"
-skip-install = true
-extra-dependencies = [
-    "mypy==1.10",
-]
-
-[tool.hatch.envs.typing.scripts]
-check = [
-  "mypy .",
 ]
 
 # cicd environment
