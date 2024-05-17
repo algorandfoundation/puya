@@ -47,7 +47,7 @@ class BigUInt:
         return _checked_result(self.value + _as_int512(other), "+")
 
     # the reflected dunder methods (__radd__, __rsub___, etc.) should only be called when the
-    # BigUInt is on the right hand side and an int on the left
+    # BigUInt is on the right hand side and UInt64 or int on the left
     def __radd__(self, other: int) -> BigUInt:
         return self + other
 
