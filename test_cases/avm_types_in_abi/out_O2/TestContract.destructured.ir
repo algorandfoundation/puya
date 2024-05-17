@@ -3,7 +3,7 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
         subroutine test_cases.avm_types_in_abi.contract.TestContract.approval_program() -> bool:
             block@0: // L4
                 let tmp%0#0: bytes = (txna ApplicationArgs 0)
-                switch tmp%0#0 {method "create(bool,uint64,byte[],(bool,uint64,byte[]))(bool,uint64,byte[])" => block@1, method "tuple_of_arc4((uint8,address))(uint8,address)" => block@2, * => fail // reject transaction}
+                switch tmp%0#0 {method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)" => block@1, method "tuple_of_arc4((uint8,address))(uint8,address)" => block@2, * => fail // reject transaction}
             block@1: // create_route_L5
                 let tmp%1#0: uint64 = (txn OnCompletion)
                 let tmp%2#0: bool = (! tmp%1#0)
@@ -18,66 +18,97 @@ contract test_cases.avm_types_in_abi.contract.TestContract:
                 let tmp%9#0: bytes = (txna ApplicationArgs 3)
                 let tmp%10#0: bytes = ((extract 2 0) tmp%9#0)
                 let tmp%11#0: bytes = (txna ApplicationArgs 4)
-                let is_true%0#0: uint64 = (getbit tmp%11#0 0u)
+                let tmp%12#0: bytes = (txna ApplicationArgs 5)
+                let tmp%13#0: bytes = ((extract 2 0) tmp%12#0)
+                let tmp%14#0: bytes = (txna ApplicationArgs 6)
+                let is_true%0#0: uint64 = (getbit tmp%14#0 0u)
                 let item0%0#0: bytes = (setbit 0x00 0u is_true%0#0)
-                let item1%0#0: bytes = ((extract 1 8) tmp%11#0)
-                let item_index%0#0: uint64 = (extract_uint16 tmp%11#0 9u)
-                let item_length%0#0: uint64 = (extract_uint16 tmp%11#0 item_index%0#0)
+                let item1%0#0: bytes = ((extract 1 8) tmp%14#0)
+                let item_index%0#0: uint64 = (extract_uint16 tmp%14#0 9u)
+                let item_length%0#0: uint64 = (extract_uint16 tmp%14#0 item_index%0#0)
                 let item_length_plus_2%0#0: uint64 = (+ item_length%0#0 2u)
-                let item2%0#0: bytes = (extract3 tmp%11#0 item_index%0#0 item_length_plus_2%0#0)
-                let tmp%12#0: uint64 = (getbit item0%0#0 0u)
-                let tmp%13#0: uint64 = (btoi item1%0#0)
-                let tmp%14#0: bytes = ((extract 2 0) item2%0#0)
-                let (awst_tmp%3#0: bool, awst_tmp%4#0: uint64, awst_tmp%5#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%6#0, tmp%8#0, tmp%10#0, tmp%12#0, tmp%13#0, tmp%14#0)
-                let tmp%15#0: bytes = (setbit 0x00 0u awst_tmp%3#0)
-                let val_as_bytes%0#0: bytes = (itob awst_tmp%4#0)
-                let tmp%16#0: uint64 = (len awst_tmp%5#0)
-                let tmp%17#0: bytes = (itob tmp%16#0)
-                let tmp%18#0: bytes = ((substring 6 8) tmp%17#0)
-                let tmp%19#0: bytes = (concat tmp%18#0 awst_tmp%5#0)
-                let encoded_tuple_buffer%0#2: bytes = (concat tmp%15#0 val_as_bytes%0#0)
-                let encoded_tuple_buffer%0#2: bytes = (concat encoded_tuple_buffer%0#2 0x000b)
-                let encoded_tuple_buffer%0#2: bytes = (concat encoded_tuple_buffer%0#2 tmp%19#0)
-                let tmp%20#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%0#2)
-                (log tmp%20#0)
+                let item2%0#0: bytes = (extract3 tmp%14#0 item_index%0#0 item_length_plus_2%0#0)
+                let item3%0#0: bytes = ((extract 11 64) tmp%14#0)
+                let item_index%1#0: uint64 = (extract_uint16 tmp%14#0 75u)
+                let item_length%1#0: uint64 = (extract_uint16 tmp%14#0 item_index%1#0)
+                let item_length_plus_2%1#0: uint64 = (+ item_length%1#0 2u)
+                let item4%0#0: bytes = (extract3 tmp%14#0 item_index%1#0 item_length_plus_2%1#0)
+                let tmp%15#0: uint64 = (getbit item0%0#0 0u)
+                let tmp%16#0: uint64 = (btoi item1%0#0)
+                let tmp%17#0: bytes = ((extract 2 0) item2%0#0)
+                let tmp%18#0: bytes = ((extract 2 0) item4%0#0)
+                let (awst_tmp%5#0: bool, awst_tmp%6#0: uint64, awst_tmp%7#0: bytes, awst_tmp%8#0: biguint, awst_tmp%9#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%6#0, tmp%8#0, tmp%10#0, tmp%11#0, tmp%13#0, tmp%15#0, tmp%16#0, tmp%17#0, item3%0#0, tmp%18#0)
+                let tmp%19#0: bytes = (setbit 0x00 0u awst_tmp%5#0)
+                let val_as_bytes%0#0: bytes = (itob awst_tmp%6#0)
+                let tmp%20#0: uint64 = (len awst_tmp%7#0)
+                let tmp%21#0: bytes = (itob tmp%20#0)
+                let tmp%22#0: bytes = ((substring 6 8) tmp%21#0)
+                let tmp%23#0: bytes = (concat tmp%22#0 awst_tmp%7#0)
+                let len_%0#0: uint64 = (len awst_tmp%8#0)
+                let no_overflow%0#0: bool = (<= len_%0#0 64u)
+                (assert no_overflow%0#0) // overflow
+                let b_zeros%0#0: bytes = (bzero 64u)
+                let tmp%24#0: bytes = (b| awst_tmp%8#0 b_zeros%0#0)
+                let length%0#0: uint64 = (len awst_tmp%9#0)
+                let value_as_bytes%0#0: bytes = (itob length%0#0)
+                let value_as_uint16%0#0: bytes = ((extract 6 2) value_as_bytes%0#0)
+                let tmp%25#0: bytes = (concat value_as_uint16%0#0 awst_tmp%9#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat tmp%19#0 val_as_bytes%0#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat encoded_tuple_buffer%0#2 0x004d)
+                let data_length%0#0: uint64 = (len tmp%23#0)
+                let current_tail_offset%0#1: uint64 = (+ 77u data_length%0#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat encoded_tuple_buffer%0#2 tmp%24#0)
+                let value_as_bytes%2#0: bytes = (itob current_tail_offset%0#1)
+                let value_as_uint16%2#0: bytes = ((extract 6 2) value_as_bytes%2#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat encoded_tuple_buffer%0#2 value_as_uint16%2#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat encoded_tuple_buffer%0#2 tmp%23#0)
+                let encoded_tuple_buffer%0#2: bytes = (concat encoded_tuple_buffer%0#2 tmp%25#0)
+                let tmp%26#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%0#2)
+                (log tmp%26#0)
                 return 1u
-            block@2: // tuple_of_arc4_route_L17
-                let tmp%21#0: uint64 = (txn OnCompletion)
-                let tmp%22#0: bool = (! tmp%21#0)
-                (assert tmp%22#0) // OnCompletion is NoOp
-                let tmp%23#0: bool = (txn ApplicationID)
-                (assert tmp%23#0) // is not creating
-                let tmp%24#0: bytes = (txna ApplicationArgs 1)
-                let item0%1#0: bytes = ((extract 0 1) tmp%24#0)
-                let item1%1#0: bytes = ((extract 1 32) tmp%24#0)
-                let (awst_tmp%7#0: bytes, awst_tmp%8#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%1#0)
-                let encoded_tuple_buffer%1#2: bytes = (concat awst_tmp%7#0 awst_tmp%8#0)
-                let tmp%25#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%1#2)
-                (log tmp%25#0)
+            block@2: // tuple_of_arc4_route_L19
+                let tmp%27#0: uint64 = (txn OnCompletion)
+                let tmp%28#0: bool = (! tmp%27#0)
+                (assert tmp%28#0) // OnCompletion is NoOp
+                let tmp%29#0: bool = (txn ApplicationID)
+                (assert tmp%29#0) // is not creating
+                let tmp%30#0: bytes = (txna ApplicationArgs 1)
+                let item0%1#0: bytes = ((extract 0 1) tmp%30#0)
+                let item1%1#0: bytes = ((extract 1 32) tmp%30#0)
+                let (awst_tmp%11#0: bytes, awst_tmp%12#0: bytes) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%1#0)
+                let encoded_tuple_buffer%1#2: bytes = (concat awst_tmp%11#0 awst_tmp%12#0)
+                let tmp%31#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%1#2)
+                (log tmp%31#0)
                 return 1u
         
-        subroutine test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: bool, uint64_param: uint64, bytes_param: bytes, tuple_param.0: bool, tuple_param.1: uint64, tuple_param.2: bytes) -> <bool, uint64, bytes>:
+        subroutine test_cases.avm_types_in_abi.contract.TestContract.create(bool_param: bool, uint64_param: uint64, bytes_param: bytes, biguint_param: biguint, string_param: bytes, tuple_param.0: bool, tuple_param.1: uint64, tuple_param.2: bytes, tuple_param.3: biguint, tuple_param.4: bytes) -> <bool, uint64, bytes, biguint, bytes>:
             block@0: // L5
                 let tmp%0#0: bool = (== bool_param#0 tuple_param.0#0)
-                goto tmp%0#0 ? block@1 : block@4
-            block@1: // and_contd_L14
+                goto tmp%0#0 ? block@1 : block@6
+            block@1: // and_contd_L16
                 let tmp%1#0: bool = (== uint64_param#0 tuple_param.1#0)
-                goto tmp%1#0 ? block@2 : block@4
-            block@2: // and_contd_L14
+                goto tmp%1#0 ? block@2 : block@6
+            block@2: // and_contd_L16
                 let tmp%2#0: bool = (== bytes_param#0 tuple_param.2#0)
-                goto tmp%2#0 ? block@3 : block@4
-            block@3: // bool_true_L14
+                goto tmp%2#0 ? block@3 : block@6
+            block@3: // and_contd_L16
+                let tmp%3#0: bool = (b== biguint_param#0 tuple_param.3#0)
+                goto tmp%3#0 ? block@4 : block@6
+            block@4: // and_contd_L16
+                let tmp%4#0: bool = (== string_param#0 tuple_param.4#0)
+                goto tmp%4#0 ? block@5 : block@6
+            block@5: // bool_true_L16
                 let and_result%0#0: bool = 1u
-                goto block@5
-            block@4: // bool_false_L14
+                goto block@7
+            block@6: // bool_false_L16
                 let and_result%0#0: bool = 0u
-                goto block@5
-            block@5: // bool_merge_L14
+                goto block@7
+            block@7: // bool_merge_L16
                 (assert and_result%0#0)
-                return bool_param#0 uint64_param#0 bytes_param#0
+                return bool_param#0 uint64_param#0 bytes_param#0 biguint_param#0 string_param#0
         
         subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(args.0: bytes, args.1: bytes) -> <bytes, bytes>:
-            block@0: // L17
+            block@0: // L19
                 let tmp%0#0: uint64 = (len args.0#0)
                 let tmp%1#0: bool = (== tmp%0#0 1u)
                 (assert tmp%1#0)
