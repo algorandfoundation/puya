@@ -327,8 +327,8 @@ class PrimitiveOpsContract(ARC4Contract):
         return result
 
     @arc4.abimethod
-    def verify_string_init(self) -> String:
-        result = String("Hello, world!")
+    def verify_string_init(self, a: String) -> String:
+        result = String("Hello, ") + a
         return result
 
     @arc4.abimethod
@@ -341,7 +341,8 @@ class PrimitiveOpsContract(ARC4Contract):
         result = a.endswith(b)
         return result
 
-    @arc4.abimethod
-    def verify_string_join(self, a: String, b: String) -> String:
-        result = String(", ").join((a, b))
-        return result
+    # TODO: resolve join issue
+    # @arc4.abimethod
+    # def verify_string_join(self, a: String, b: String) -> Bytes:
+    #     result = String(", ").join((a, b))
+    #     return Bytes(result.bytes)

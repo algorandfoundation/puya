@@ -61,7 +61,7 @@ def as_bytes(value: object, *, max_size: int = MAX_BYTES_SIZE) -> bytes:
     return bytes_value
 
 
-def as_string(value: object, max_size: int = MAX_STRING_SIZE) -> str:
+def as_string(value: object, *, max_size: int = MAX_STRING_SIZE) -> str:
     from algopy import String
 
     match value:
@@ -73,4 +73,5 @@ def as_string(value: object, max_size: int = MAX_STRING_SIZE) -> str:
             raise TypeError(f"value must be a string or String type, not {type(value).__name__!r}")
     if len(string_value) > MAX_STRING_SIZE:
         raise ValueError(f"expected value length <= {max_size}, got: {len(string_value)}")
+
     return string_value
