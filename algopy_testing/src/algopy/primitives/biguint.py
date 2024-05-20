@@ -124,7 +124,7 @@ class BigUInt:
     @property
     def value(self) -> int:
         """Get the underlying int"""
-        return _as_int(int.from_bytes(self.__value), None)
+        return int.from_bytes(self.__value)
 
 
 def _checked_result(result: int, op: str) -> BigUInt:
