@@ -212,6 +212,11 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionFactory] 
         )
         for itxn_result_pytyp in pytypes.InnerTransactionResultTypes.values()
     },
+    # HMMMMMM
+    **{
+        int_enum_typ: uint64.UInt64ExpressionBuilder
+        for int_enum_typ in (pytypes.TransactionType, pytypes.OnCompleteActionType)
+    },
 }
 ExpressionBuilderFromExpressionAndPyTypeFactory = Callable[
     [Expression, pytypes.PyType], ExpressionBuilder

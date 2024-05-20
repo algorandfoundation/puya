@@ -72,7 +72,7 @@ from puya.awst_build.eb.intrinsics import (
     IntrinsicNamespaceClassExpressionBuilder,
 )
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
-from puya.awst_build.eb.type_registry import builder_for_type
+from puya.awst_build.eb.type_registry import builder_for_instance, builder_for_type
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
@@ -339,8 +339,7 @@ class FunctionASTConverter(
             if is_self_member(lvalue):
                 return self._handle_proxy_assignment(lvalue, rvalue, rvalue_pytyp, stmt_loc)
         elif len(stmt.lvalues) > 1:
-            # TODO: PyType from rvalue, since it's guaranteed to be EB
-            rvalue = temporary_assignment_if_required(rvalue)
+            rvalue = temporary_assignment_if_required2(rvalue_pytyp, rvalue)
 
         return [
             AssignmentStatement(
@@ -753,11 +752,10 @@ class FunctionASTConverter(
                     key=var_name,
                     default=lambda _: self.context.mypy_expr_node_type(name_expr),
                 )
-                # TODO: map via PyType instead
                 var_expr = VarExpression(
                     name=var_name, wtype=local_type.wtype, source_location=expr_loc
                 )
-                return var_expression(var_expr)
+                return builder_for_instance(local_type, var_expr)
         scope = {
             mypy.nodes.LDEF: "local",
             mypy.nodes.MDEF: "member",
@@ -923,10 +921,9 @@ class FunctionASTConverter(
                 result_pytypes = union_ex.types
             else:
                 result_pytypes = [result_pytype]
-            bool_expr = self._visit_bool_op_expr(
+            return self._visit_bool_op_expr(
                 bool_op, result_pytypes, lhs=lhs, rhs=rhs, location=node_loc
             )
-            return var_expression(bool_expr)
 
         try:
             op = BuilderBinaryOp(node.op)
@@ -949,7 +946,7 @@ class FunctionASTConverter(
         lhs: ExpressionBuilder | Literal,
         rhs: ExpressionBuilder | Literal,
         location: SourceLocation,
-    ) -> Expression:
+    ) -> ExpressionBuilder:
         # when in a boolean evaluation context, we can side step issues of type unions
         # and what not, and just assume everything is boolean.
         # note that this won't solve all potential use cases, and indeed some of them are
@@ -991,23 +988,25 @@ class FunctionASTConverter(
             rhs_expr = expect_operand_wtype(rhs, target_wtype)
 
         if target_pytyp is pytypes.BoolType:
-            return BooleanBinaryOperation(
+            expr_result: Expression = BooleanBinaryOperation(
                 source_location=location, left=lhs_expr, op=op, right=rhs_expr
             )
-        lhs_builder = temporary_assignment_if_required(lhs_expr)
-        # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
-        # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
-        # TODO: this is a bit convoluted in terms of ExpressionBuilder <-> Expression
-        condition = lhs_builder.bool_eval(
-            location, negate=op is BinaryBooleanOperator.and_
-        ).rvalue()
-        return ConditionalExpression(
-            source_location=location,
-            condition=condition,
-            true_expr=lhs_builder.rvalue(),
-            false_expr=rhs_expr,
-            wtype=target_pytyp.wtype,
-        )
+        else:
+            lhs_builder = temporary_assignment_if_required2(target_pytyp, lhs_expr)
+            # (lhs:uint64 and rhs:uint64) => lhs_tmp_var if not bool(lhs_tmp_var := lhs) else rhs
+            # (lhs:uint64 or rhs:uint64) => lhs_tmp_var if bool(lhs_tmp_var := lhs) else rhs
+            # TODO: this is a bit convoluted in terms of ExpressionBuilder <-> Expression
+            condition = lhs_builder.bool_eval(
+                location, negate=op is BinaryBooleanOperator.and_
+            ).rvalue()
+            expr_result = ConditionalExpression(
+                source_location=location,
+                condition=condition,
+                true_expr=lhs_builder.rvalue(),
+                false_expr=rhs_expr,
+                wtype=target_pytyp.wtype,
+            )
+        return builder_for_instance(target_pytyp, expr_result)
 
     def visit_index_expr(self, expr: mypy.nodes.IndexExpr) -> ExpressionBuilder | Literal:
         expr_location = self._location(expr)
@@ -1055,15 +1054,14 @@ class FunctionASTConverter(
 
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> ExpressionBuilder:
         condition = self._eval_condition(expr.cond)
-        true_expr = require_expression_builder(expr.if_expr.accept(self)).rvalue()
-        false_expr = require_expression_builder(expr.else_expr.accept(self)).rvalue()
-        # TODO: use PyType, and that type can be used to get result EB
-        expr_wtype = self.context.mypy_expr_node_type(expr).wtype
-        if expr_wtype != true_expr.wtype:
+        true_expr = require_expression_builder(expr.if_expr.accept(self)).rvalue()  # TODO: pytypes
+        false_expr = require_expression_builder(expr.else_expr.accept(self)).rvalue()  # TODO: ^
+        expr_pytype = self.context.mypy_expr_node_type(expr)
+        if expr_pytype.wtype != true_expr.wtype:
             self._error(
                 "Incompatible result type for 'true' expression", true_expr.source_location
             )
-        if expr_wtype != false_expr.wtype:
+        if expr_pytype.wtype != false_expr.wtype:
             self._error(
                 "Incompatible result type for 'else' expression branch", false_expr.source_location
             )
@@ -1073,9 +1071,9 @@ class FunctionASTConverter(
             condition=condition,
             true_expr=true_expr,
             false_expr=false_expr,
-            wtype=true_expr.wtype,
+            wtype=expr_pytype.wtype,
         )
-        return var_expression(cond_expr)
+        return builder_for_instance(expr_pytype, cond_expr)
 
     def visit_comparison_expr(self, expr: mypy.nodes.ComparisonExpr) -> ExpressionBuilder:
         from puya.awst_build.eb.bool import BoolExpressionBuilder
@@ -1303,5 +1301,43 @@ def temporary_assignment_if_required(
         return var_expression(SingleEvaluation(expr))
     if isinstance(operand, Expression):
         return var_expression(operand)
+    else:
+        return operand
+
+
+@typing.overload
+def temporary_assignment_if_required2(typ: pytypes.PyType, operand: Literal) -> Literal: ...
+
+
+@typing.overload
+def temporary_assignment_if_required2(
+    typ: pytypes.PyType, operand: Expression
+) -> ExpressionBuilder: ...
+
+
+@typing.overload
+def temporary_assignment_if_required2(
+    typ: pytypes.PyType,
+    operand: ExpressionBuilder,
+) -> ExpressionBuilder: ...
+
+
+def temporary_assignment_if_required2(
+    typ: pytypes.PyType,
+    operand: ExpressionBuilder | Expression | Literal,
+) -> ExpressionBuilder | Literal:
+    if isinstance(operand, Literal):
+        return operand
+
+    if isinstance(operand, Expression):
+        expr = operand
+    else:
+        expr = operand.rvalue()
+    # TODO: optimise the below checks so we don't create unnecessary temporaries,
+    #       ie when Expression has no side effects
+    if not isinstance(expr, VarExpression | CompileTimeConstantExpression):
+        return builder_for_instance(typ, SingleEvaluation(expr))
+    if isinstance(operand, Expression):
+        return builder_for_instance(typ, operand)
     else:
         return operand
