@@ -151,6 +151,8 @@ def wtype_to_arc4(wtype: wtypes.WType, loc: SourceLocation | None = None) -> str
             | wtypes.string_wtype
         ):
             return wtype.name
+        case wtypes.biguint_wtype:
+            return "uint512"
         case wtypes.bytes_wtype:
             return "byte[]"
         case wtypes.ARC4Type(alias=alias) if alias is not None:

@@ -13,8 +13,10 @@ class TestContract(algopy.arc4.ARC4Client, typing.Protocol):
         bool_param: algopy.arc4.Bool,
         uint64_param: algopy.arc4.UInt64,
         bytes_param: algopy.arc4.DynamicBytes,
-        tuple_param: algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.UInt64, algopy.arc4.DynamicBytes],
-    ) -> algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.UInt64, algopy.arc4.DynamicBytes]: ...
+        biguint_param: algopy.arc4.UInt512,
+        string_param: algopy.arc4.String,
+        tuple_param: algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.UInt64, algopy.arc4.DynamicBytes, algopy.arc4.UInt512, algopy.arc4.String],
+    ) -> algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.UInt64, algopy.arc4.DynamicBytes, algopy.arc4.UInt512, algopy.arc4.String]: ...
 
     @algopy.arc4.abimethod
     def tuple_of_arc4(

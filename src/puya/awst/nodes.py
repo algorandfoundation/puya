@@ -553,6 +553,7 @@ class TxnField:
         return cls(
             wtype=wtypes.bool_wtype,
             immediate=immediate,
+            additional_input_wtypes=(wtypes.uint64_wtype,),
         )
 
     @classmethod
@@ -620,8 +621,8 @@ TXN_FIELDS = [
     TxnField.account("Receiver"),
     TxnField.uint64("Amount"),
     TxnField.account("CloseRemainderTo"),
-    TxnField.account("VotePK"),
-    TxnField.account("SelectionPK"),
+    TxnField.bytes_("VotePK"),
+    TxnField.bytes_("SelectionPK"),
     TxnField.uint64("VoteFirst"),
     TxnField.uint64("VoteLast"),
     TxnField.uint64("VoteKeyDilution"),
@@ -656,7 +657,7 @@ TXN_FIELDS = [
     TxnField.account("ConfigAssetClawback"),
     TxnField.asset("FreezeAsset"),
     TxnField.account("FreezeAssetAccount"),
-    TxnField.asset("FreezeAssetFrozen"),
+    TxnField.bool_("FreezeAssetFrozen"),
     # v3
     TxnField.uint64("NumAssets", is_inner_param=False),
     TxnField.uint64("NumApplications", is_inner_param=False),
