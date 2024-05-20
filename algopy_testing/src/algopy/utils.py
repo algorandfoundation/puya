@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT64, MAX_UINT512
+from algopy_testing.constants import MAX_BYTES_SIZE, MAX_STRING_SIZE, MAX_UINT64, MAX_UINT512
 
 
 def as_int(value: object, *, max: int | None) -> int:  # noqa: A002
@@ -59,3 +59,18 @@ def as_bytes(value: object, *, max_size: int = MAX_BYTES_SIZE) -> bytes:
     if len(bytes_value) > max_size:
         raise ValueError(f"expected value length <= {max_size}, got: {len(bytes_value)}")
     return bytes_value
+
+
+def as_string(value: object, max_size: int = MAX_STRING_SIZE) -> str:
+    from algopy import String
+
+    match value:
+        case str(string_value):
+            pass
+        case String(value=string_value):
+            pass
+        case _:
+            raise TypeError(f"value must be a string or String type, not {type(value).__name__!r}")
+    if len(string_value) > MAX_STRING_SIZE:
+        raise ValueError(f"expected value length <= {max_size}, got: {len(string_value)}")
+    return string_value
