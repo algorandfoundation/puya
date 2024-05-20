@@ -5,57 +5,32 @@ contract Logger
     return arc4_encode('echo: ', algopy.arc4.String) + value
   }
   
-  abimethod echo_native_string(value: algopy.String): algopy.String
-  {
-    return 'echo: ' + value
-  }
-  
-  abimethod echo_native_bytes(value: algopy.Bytes): algopy.Bytes
-  {
-    return 'echo: ' + value
-  }
-  
-  abimethod echo_native_uint64(value: algopy.UInt64): algopy.UInt64
-  {
-    return value + 1u
-  }
-  
-  abimethod echo_native_biguint(value: algopy.BigUInt): algopy.BigUInt
-  {
-    return value b+ 1n
-  }
-  
-  abimethod echo_native_tuple(s: algopy.String, b: algopy.Bytes, u: algopy.UInt64, bu: algopy.BigUInt): tuple[algopy.String, algopy.Bytes, algopy.UInt64, algopy.BigUInt]
-  {
-    return ('echo: ' + s, 'echo: ' + b, u + 1u, bu b+ 1n)
-  }
-  
-  abimethod log_uint64(value: algopy.arc4.UInt64): None
+  abimethod[name_override=log] log_uint64(value: algopy.arc4.UInt64): None
   {
     log(value)
   }
   
-  abimethod log_uint512(value: algopy.arc4.UInt512): None
+  abimethod[name_override=log] log_uint512(value: algopy.arc4.UInt512): None
   {
     log(value)
   }
   
-  abimethod log_string(value: algopy.arc4.String): None
+  abimethod[name_override=log] log_string(value: algopy.arc4.String): None
   {
     log(arc4_decode(value, algopy.String))
   }
   
-  abimethod log_bool(value: algopy.arc4.Bool): None
+  abimethod[name_override=log] log_bool(value: algopy.arc4.Bool): None
   {
     log((arc4_decode(value, bool)) ? ('True') : ('False'))
   }
   
-  abimethod log_bytes(value: algopy.arc4.DynamicBytes): None
+  abimethod[name_override=log] log_bytes(value: algopy.arc4.DynamicBytes): None
   {
     log(arc4_decode(value, algopy.Bytes))
   }
   
-  abimethod log_asset_account_app(asset: algopy.Asset, account: algopy.Account, app: algopy.Application): None
+  abimethod[name_override=log] log_asset_account_app(asset: algopy.Asset, account: algopy.Account, app: algopy.Application): None
   {
     log(concat(concat(concat(concat(checked_maybe(asset_params_get<AssetName>(asset)), ''), reinterpret_cast<algopy.Bytes>(account)), ''), checked_maybe(app_params_get<AppAddress>(app))))
   }

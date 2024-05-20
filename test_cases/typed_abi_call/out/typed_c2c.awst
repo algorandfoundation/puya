@@ -29,15 +29,15 @@ contract Greeter
   
   abimethod test_arg_conversion(app: algopy.Application): None
   {
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_string(string)void"), arc4_encode('converted1', algopy.arc4.String)), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('converted1', algopy.arc4.String)), ApplicationID=app))
     assert(txn.LastLog == 'converted1')
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_uint64(uint64)void"), 2arc4u64), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(uint64)void"), 2arc4u64), ApplicationID=app))
     assert(txn.LastLog == itob(2u))
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_uint512(uint512)void"), 3arc4n512), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(uint512)void"), 3arc4n512), ApplicationID=app))
     assert(txn.LastLog == bzero(56u) + itob(3u))
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_bytes(byte[])void"), arc4_encode(hex<"34">, algopy.arc4.DynamicBytes)), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(byte[])void"), arc4_encode(hex<"34">, algopy.arc4.DynamicBytes)), ApplicationID=app))
     assert(txn.LastLog == '4')
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_bool(bool)void"), arc4_encode(true, algopy.arc4.Bool)), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(bool)void"), arc4_encode(true, algopy.arc4.Bool)), ApplicationID=app))
     assert(txn.LastLog == 'True')
   }
   
@@ -49,19 +49,19 @@ contract Greeter
   
   abimethod test_void(app: algopy.Application): None
   {
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_string(string)void"), arc4_encode('World1', algopy.arc4.String)), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('World1', algopy.arc4.String)), ApplicationID=app))
     assert(txn.LastLog == 'World1')
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_string(string)void"), arc4_encode('World2', algopy.arc4.String)), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('World2', algopy.arc4.String)), ApplicationID=app))
     assert(txn.LastLog == 'World2')
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_string(string)void"), arc4_encode('World3', algopy.arc4.String)), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('World3', algopy.arc4.String)), ApplicationID=app))
     assert(txn.LastLog == 'World3')
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_string(string)void"), arc4_encode('World4', algopy.arc4.String)), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(string)void"), arc4_encode('World4', algopy.arc4.String)), ApplicationID=app))
     assert(txn.LastLog == 'World4')
   }
   
   abimethod test_ref_types(app: algopy.Application, asset: algopy.Asset): None
   {
-    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_asset_account_app(asset,account,application)void"), hex<"00">, hex<"01">, hex<"01">), Accounts=(global<CurrentApplicationAddress>()), Applications=(app), Assets=(asset), ApplicationID=app))
+    txn: algopy.itxn.ApplicationCallInnerTransaction = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log(asset,account,application)void"), hex<"00">, hex<"01">, hex<"01">), Accounts=(global<CurrentApplicationAddress>()), Applications=(app), Assets=(asset), ApplicationID=app))
     assert(txn.LastLog == checked_maybe(asset_params_get<AssetName>(asset)) + reinterpret_cast<algopy.Bytes>(global<CurrentApplicationAddress>()) + reinterpret_cast<algopy.Bytes>(checked_maybe(app_params_get<AppAddress>(app))))
   }
   
