@@ -27,7 +27,7 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import constants, pytypes
-from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
+from puya.awst_build.arc4_utils import get_arc4_method_data
 from puya.awst_build.eb.arc4._utils import (
     ARC4Signature,
     arc4_tuple_from_items,
@@ -242,9 +242,11 @@ def _get_arc4_signature(
         abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
         if abimethod_dec is not None:
             func_def = func_or_dec.func
-            arc4_method_config = get_arc4_method_config(context, abimethod_dec, func_def)
-            *arg_types, return_type = get_func_types(context, func_def, location).values()
-            return ARC4Signature(arc4_method_config.name, arg_types, return_type)
+            arc4_method_data = get_arc4_method_data(context, abimethod_dec, func_def)
+            name = arc4_method_data.config.name
+            return ARC4Signature(
+                name, arc4_method_data.argument_types, arc4_method_data.return_type
+            )
     raise CodeError(f"{func_or_dec.fullname!r} is not a valid ARC4 method", location)
 
 
