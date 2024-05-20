@@ -9,9 +9,10 @@ if TYPE_CHECKING:
 
 from itertools import zip_longest
 
-from algopy_testing.constants import MAX_BYTES_SIZE, MAX_UINT64
+from algopy_testing.constants import MAX_BYTES_SIZE
 
 from algopy.primitives.uint64 import UInt64
+from algopy.utils import as_bytes, as_int64
 
 # TypeError, ValueError are used for operations that are compile time errors
 # ArithmeticError and subclasses are used for operations that would fail during AVM execution
@@ -25,7 +26,7 @@ class Bytes:
     value: bytes  # underlying bytes value representing the []byte
 
     def __init__(self, value: bytes = b"") -> None:
-        self.value = _as_bytes(value)
+        self.value = as_bytes(value)
 
     def __repr__(self) -> str:
         return repr(self.value)
@@ -42,7 +43,7 @@ class Bytes:
         if isinstance(other, Bytes):
             return _checked_result(self.value + other.value, "+")
         else:
-            result = self.value + _as_bytes(other)
+            result = self.value + as_bytes(other)
             return _checked_result(result, "+")
 
     def __radd__(self, other: bytes) -> Bytes:
@@ -69,12 +70,12 @@ class Bytes:
         if isinstance(index, slice):
             return Bytes(self.value[index])
         else:
-            int_index = _as_int(index)
+            int_index = as_int64(index)
             # my_bytes[0:1] => b'j' whereas my_bytes[0] => 106
             return Bytes(self.value[slice(int_index, int_index + 1)])
 
     def __eq__(self, other: object) -> bool:
-        return self.value == _as_bytes(other)
+        return self.value == as_bytes(other)
 
     def __and__(self, other: bytes | Bytes) -> Bytes:
         return self._operate_bitwise(other, "and_")
@@ -105,7 +106,7 @@ class Bytes:
 
     def _operate_bitwise(self, other: bytes | Bytes, operator_name: str) -> Bytes:
         op = getattr(operator, operator_name)
-        maybe_bytes = _as_bytes(other)
+        maybe_bytes = as_bytes(other)
         # pad the shorter of self.value and other bytes with leading zero
         # by reversing them as zip_longest fills at the end
         return Bytes(
@@ -171,15 +172,3 @@ def _checked_result(result: bytes, op: str) -> Bytes:
     if len(result) > MAX_BYTES_SIZE:
         raise OverflowError(f"{op} overflows")
     return Bytes(result)
-
-
-def _as_bytes(value: object) -> bytes:
-    from algopy.utils import as_bytes
-
-    return as_bytes(value, max_size=MAX_BYTES_SIZE)
-
-
-def _as_int(value: object) -> int:
-    from algopy.utils import as_int
-
-    return as_int(value, max=MAX_UINT64)

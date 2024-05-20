@@ -5,9 +5,9 @@ from collections.abc import Callable
 import algokit_utils
 import pytest
 from algopy import BigUInt, UInt64
-from algopy.constants import MAX_UINT64, MAX_UINT512, UINT512_BYTES_LENGTH
+from algopy_testing.constants import MAX_UINT64, MAX_UINT512, UINT512_BYTES_LENGTH
 
-from tests.primitives.conftest import AVMInvoker
+from tests.common import AVMInvoker
 from tests.primitives.util import int_to_bytes
 
 _negative_value_error = "expected positive value"

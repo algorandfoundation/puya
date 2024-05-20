@@ -4,6 +4,8 @@ import functools
 
 from algopy_testing.constants import MAX_UINT64
 
+from algopy.utils import as_int64
+
 # TypeError, ValueError are used for operations that are compile time errors
 # ArithmeticError and subclasses are used for operations that would fail during AVM execution
 
@@ -17,7 +19,7 @@ class UInt64:
     value: int  # underlying 'int' value representing the UInt64
 
     def __init__(self, value: int = 0) -> None:
-        self.value = _as_int64(value)
+        self.value = as_int64(value)
 
     def __repr__(self) -> str:
         return f"{self.value}u"
@@ -137,7 +139,7 @@ class UInt64:
         return self ^ other
 
     def __lshift__(self, other: int | UInt64) -> UInt64:
-        shift = _as_int64(other)
+        shift = as_int64(other)
         if shift > 63:
             raise ArithmeticError("expected shift <= 63")
         return UInt64((self.value << shift) & MAX_UINT64)
@@ -146,7 +148,7 @@ class UInt64:
         return _as_uint64(other) << self
 
     def __rshift__(self, other: int | UInt64) -> UInt64:
-        shift = _as_int64(other)
+        shift = as_int64(other)
         if shift > 63:
             raise ArithmeticError("expected shift <= 63")
         return UInt64((self.value >> shift) & MAX_UINT64)
@@ -186,7 +188,7 @@ def _as_maybe_uint64(value: object) -> int | None:
     """Returns int value if `value` is an int or UInt64, otherwise None"""
     match value:
         case int(int_value):
-            return _as_int64(int_value)
+            return as_int64(int_value)
         case UInt64(value=int_value):
             return int_value
         case _:
@@ -205,11 +207,5 @@ def _checked_result(result: int, op: str) -> UInt64:
     return UInt64(result)
 
 
-def _as_int64(value: object) -> int:
-    from algopy.utils import as_int
-
-    return as_int(value, max=MAX_UINT64)
-
-
 def _as_uint64(value: object) -> UInt64:
-    return UInt64(_as_int64(value))
+    return UInt64(as_int64(value))
