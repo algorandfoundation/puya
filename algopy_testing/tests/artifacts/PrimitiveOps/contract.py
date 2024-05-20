@@ -343,6 +343,6 @@ class PrimitiveOpsContract(ARC4Contract):
 
     # TODO: resolve join issue
     # @arc4.abimethod
-    # def verify_string_join(self, a: String, b: String) -> Bytes:
+    # def verify_string_join(self, a: String, b: String) -> String:
     #     result = String(", ").join((a, b))
-    #     return Bytes(result.bytes)
+    #     return result

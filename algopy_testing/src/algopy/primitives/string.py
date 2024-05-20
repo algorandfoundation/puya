@@ -34,6 +34,12 @@ class String:
     def __len__(self) -> int:
         raise NotImplementedError("Length operation is not supported for UTF-8 strings.")
 
+    def __add__(self, other: String | str) -> String:
+        return String(self.value + as_string(other))
+
+    def __radd__(self, other: String | str) -> String:
+        return String(as_string(other) + self.value)
+
     def starts_with(self, prefix: String | str) -> bool:
         return self.value.startswith(as_string(prefix))
 
@@ -47,6 +53,3 @@ class String:
     @property
     def bytes(self) -> bytes:
         return self.value.encode("utf-8")
-
-    def __add__(self, other: String | str) -> String:
-        return String(self.value + as_string(other))
