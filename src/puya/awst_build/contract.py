@@ -12,7 +12,7 @@ from puya.awst.nodes import (
     ContractReference,
 )
 from puya.awst_build import constants, pytypes
-from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
+from puya.awst_build.arc4_utils import get_arc4_method_data
 from puya.awst_build.base_mypy_visitor import BaseMyPyStatementVisitor
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.contract_data import AppStorageDeclaration, ContractClassOptions
@@ -212,19 +212,19 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
                     self._error(
                         f"cannot be both a subroutine and {arc4_decorator_name}", subroutine_dec
                     )
-                *arg_pytypes, ret_pytype = get_func_types(
-                    self.context, func_def, location=self._location(func_def)
-                ).values()
-                ret_wtype = ret_pytype.wtype
-                arg_wtypes = [a.wtype for a in arg_pytypes]
-                arc4_method_config = get_arc4_method_config(self.context, arc4_decorator, func_def)
-                if arc4_method_config.is_bare:
-                    if arg_wtypes or (ret_wtype is not wtypes.void_wtype):
+                arc4_method_data = get_arc4_method_data(self.context, arc4_decorator, func_def)
+                arc4_method_config = arc4_method_data.config
+                arg_pytypes = arc4_method_data.argument_types
+                ret_pytype = arc4_method_data.return_type
+                if arc4_method_data.config.is_bare:
+                    if arg_pytypes or (ret_pytype != pytypes.NoneType):
                         self._error(
                             "bare methods should have no arguments or return values",
                             arc4_decorator_loc,
                         )
                 else:
+                    ret_wtype = ret_pytype.wtype
+                    arg_wtypes = [a.wtype for a in arg_pytypes]
                     for arg_wtype in arg_wtypes:
                         if not (
                             wtypes.is_arc4_argument_type(arg_wtype)
