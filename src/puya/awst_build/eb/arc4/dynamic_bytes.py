@@ -47,7 +47,7 @@ class DynamicBytesClassExpressionBuilder(
 
         non_literal_args = tuple(_coerce_to_byte(a).rvalue() for a in args)
         wtype = self.produces()
-        return DynamicArrayExpressionBuilder(
+        return DynamicBytesExpressionBuilder(
             NewArray(values=non_literal_args, wtype=wtype, source_location=location)
         )
 
