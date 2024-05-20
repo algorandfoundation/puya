@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import functools
 
-from algopy.constants import MAX_UINT512, UNIT64_BYTES_LENGTH
+from algopy.constants import MAX_BYTES_SIZE, MAX_UINT512, UNIT64_BYTES_LENGTH
 from algopy.primitives.bytes import Bytes
 from algopy.primitives.uint64 import UInt64
 
@@ -113,7 +113,7 @@ class BigUInt:
     def from_bytes(cls, value: Bytes | bytes) -> BigUInt:
         """Construct an instance from the underlying bytes (no validation)"""
         result = cls()
-        result.__value = value.value if (isinstance(value, Bytes)) else value  # noqa: SLF001
+        result.__value = _as_bytes(value)  # noqa: SLF001
         return result
 
     @property
@@ -145,6 +145,12 @@ def _as_int(value: object, max_int: int | None) -> int:
     from algopy.primitives.util import as_int
 
     return as_int(value, max=max_int)
+
+
+def _as_bytes(value: object) -> bytes:
+    from algopy.primitives.util import as_bytes
+
+    return as_bytes(value, max_size=MAX_BYTES_SIZE)
 
 
 def _as_biguint(value: object) -> BigUInt:
