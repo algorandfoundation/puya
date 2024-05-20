@@ -131,11 +131,9 @@ def _checked_result(result: int, op: str) -> BigUInt:
     """Ensures `result` is a valid BigUInt value
 
     Raises:
-        ArithmeticError: If `result` of `op` is out of bounds"""
+        ArithmeticError: If `result` of `op` is negative"""
     if result < 0:
         raise ArithmeticError(f"{op} underflows")
-    if result > MAX_UINT512:
-        raise OverflowError(f"{op} overflows")
     return BigUInt(result)
 
 
