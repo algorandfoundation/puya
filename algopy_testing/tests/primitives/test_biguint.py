@@ -5,7 +5,7 @@ from collections.abc import Callable
 import algokit_utils
 import pytest
 from algopy import BigUInt, UInt64
-from algopy.constants import MAX_UINT64, MAX_UINT512
+from algopy.constants import MAX_UINT64, MAX_UINT512, UINT512_BYTES_LENGTH
 
 from tests.primitives.conftest import AVMInvoker
 from tests.primitives.util import int_to_bytes
@@ -19,22 +19,6 @@ _avm_overflow_error = "math attempted on large byte-array"
 _avm_underflow_error = "byte math would have negative result"
 _avm_zero_division_error = "division by zero"
 _avm_zero_mod_error = "modulo by zero"
-
-
-def _object_as_biguint(x: object) -> BigUInt | None:
-    return BigUInt.from_bytes(x) if (isinstance(x, bytes)) else None
-
-
-def _get_avm_result(
-    get_avm_result: AVMInvoker, method: str, a: int, b: int | UInt64
-) -> tuple[BigUInt | None, object]:
-    a_bytes = int_to_bytes(a)
-    if isinstance(b, UInt64):
-        avm_result = get_avm_result(method, a=a_bytes, b=b.value)
-    else:
-        b_bytes = int_to_bytes(b)
-        avm_result = get_avm_result(method, a=a_bytes, b=b_bytes)
-    return (_object_as_biguint(avm_result), avm_result)
 
 
 @pytest.mark.parametrize(
@@ -87,12 +71,54 @@ def test_biguint_bool(value: int) -> None:
     ],
 )
 def test_biguint_comparison(get_avm_result: AVMInvoker, op_name: str, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, f"verify_biguint_{op_name}", a, b)[1]
+    avm_result = get_avm_result(f"verify_biguint_{op_name}", a=int_to_bytes(a), b=int_to_bytes(b))
     op = getattr(operator, op_name)
 
     assert avm_result == op(BigUInt(a), BigUInt(b))
     assert avm_result == op(BigUInt(a), b)
     assert avm_result == op(a, BigUInt(b))
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (0, 0),
+        (0, 1),
+        (0, MAX_UINT512),
+        (1, 0),
+        (1, 1),
+        (1, MAX_UINT512),
+        (MAX_UINT512, MAX_UINT512),
+    ],
+)
+@pytest.mark.parametrize(
+    "op_name",
+    [
+        "eq",
+        "ne",
+        "lt",
+        "le",
+        "gt",
+        "ge",
+    ],
+)
+@pytest.mark.parametrize(
+    "pad",
+    [
+        "a",
+        "b",
+        "ab",
+    ],
+)
+def test_biguint_comparison_from_bytes(
+    get_avm_result: AVMInvoker, op_name: str, a: int, b: int, pad: str
+) -> None:
+    a_bytes = a.to_bytes(UINT512_BYTES_LENGTH, "big") if "a" in pad else int_to_bytes(a)
+    b_bytes = b.to_bytes(UINT512_BYTES_LENGTH, "big") if "b" in pad else int_to_bytes(b)
+    avm_result = get_avm_result(f"verify_biguint_{op_name}", a=a_bytes, b=b_bytes)
+    op = getattr(operator, op_name)
+
+    assert avm_result == op(BigUInt.from_bytes(a_bytes), BigUInt.from_bytes(b_bytes))
 
 
 @pytest.mark.parametrize(
@@ -120,7 +146,7 @@ def test_biguint_comparison_input_overflow(
     get_avm_result: AVMInvoker, op_name: str, a: int, b: int
 ) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error):
-        _get_avm_result(get_avm_result, f"verify_biguint_{op_name}", a, b)
+        get_avm_result(f"verify_biguint_{op_name}", a=int_to_bytes(a), b=int_to_bytes(b))
 
     op = getattr(operator, op_name)
     with pytest.raises(ValueError, match=_too_big512_error):
@@ -136,14 +162,14 @@ def test_biguint_comparison_input_overflow(
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (0, UInt64(0)),
-        (0, UInt64(1)),
-        (0, UInt64(MAX_UINT64)),
-        (1, UInt64(0)),
-        (1, UInt64(1)),
-        (1, UInt64(MAX_UINT64)),
-        (MAX_UINT512, UInt64(MAX_UINT64)),
-        (MAX_UINT64, UInt64(MAX_UINT64)),
+        (0, 0),
+        (0, 1),
+        (0, MAX_UINT64),
+        (1, 0),
+        (1, 1),
+        (1, MAX_UINT64),
+        (MAX_UINT512, MAX_UINT64),
+        (MAX_UINT64, MAX_UINT64),
     ],
 )
 @pytest.mark.parametrize(
@@ -158,11 +184,11 @@ def test_biguint_comparison_input_overflow(
     ],
 )
 def test_biguint_comparison_uint64(
-    get_avm_result: AVMInvoker, op_name: str, a: int, b: UInt64
+    get_avm_result: AVMInvoker, op_name: str, a: int, b: int
 ) -> None:
-    avm_result = _get_avm_result(get_avm_result, f"verify_biguint_{op_name}_uint64", a, b)[1]
+    avm_result = get_avm_result(f"verify_biguint_{op_name}_uint64", a=int_to_bytes(a), b=b)
     op = getattr(operator, op_name)
-    assert avm_result == op(BigUInt(a), b)
+    assert avm_result == op(BigUInt(a), UInt64(b))
     if a <= MAX_UINT64:
         assert avm_result == op(UInt64(a), BigUInt(b))
 
@@ -181,35 +207,36 @@ def test_biguint_comparison_uint64(
     ],
 )
 def test_biguint_addition(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_add", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) + BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) + b)
-    assert_biguint_and_backing_bytes(avm_result, a + BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_add", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) + BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) + b).bytes
+    assert avm_result == (a + BigUInt(b)).bytes
     i = BigUInt(a)
     i += b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (0, UInt64(0)),
-        (0, UInt64(MAX_UINT64)),
-        (MAX_UINT512, UInt64(0)),
-        (1, UInt64(0)),
-        (0, UInt64(1)),
-        (1, UInt64(1)),
-        (10, UInt64(MAX_UINT64)),
-        (MAX_UINT512 - MAX_UINT64, UInt64(MAX_UINT64)),
+        (0, 0),
+        (0, MAX_UINT64),
+        (MAX_UINT512, 0),
+        (1, 0),
+        (0, 1),
+        (1, 1),
+        (10, MAX_UINT64),
+        (MAX_UINT512 - MAX_UINT64, MAX_UINT64),
     ],
 )
-def test_biguint_addition_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_add_uint64", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) + b)
-    assert_biguint_and_backing_bytes(avm_result, b + BigUInt(a))
+def test_biguint_addition_uint64(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    avm_result = get_avm_result("verify_biguint_add_uint64", a=int_to_bytes(a), b=b)
+    assert avm_result == (BigUInt(a) + UInt64(b)).bytes
+    assert avm_result == (UInt64(b) + BigUInt(a)).bytes
+
     i = BigUInt(a)
-    i += b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    i += UInt64(b)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
@@ -221,13 +248,13 @@ def test_biguint_addition_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) 
     ],
 )
 def test_biguint_addition_result_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_add", a, b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) + BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) + b)
-    assert_biguint_and_backing_bytes(avm_result, a + BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_add", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) + BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) + b).bytes
+    assert avm_result == (a + BigUInt(b)).bytes
     i = BigUInt(a)
     i += b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
@@ -240,7 +267,7 @@ def test_biguint_addition_result_overflow(get_avm_result: AVMInvoker, a: int, b:
 )
 def test_biguint_addition_input_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error):
-        _get_avm_result(get_avm_result, "verify_biguint_add", a, b)
+        get_avm_result("verify_biguint_add", a=int_to_bytes(a), b=int_to_bytes(b))
 
     with pytest.raises(ValueError, match=_too_big512_error):
         BigUInt(a) + BigUInt(b)
@@ -264,34 +291,34 @@ def test_biguint_addition_input_overflow(get_avm_result: AVMInvoker, a: int, b: 
     ],
 )
 def test_biguint_subtraction(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_sub", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) - BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) - b)
-    assert_biguint_and_backing_bytes(avm_result, a - BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_sub", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) - BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) - b).bytes
+    assert avm_result == (a - BigUInt(b)).bytes
     i = BigUInt(a)
     i -= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (0, UInt64(0)),
-        (1, UInt64(0)),
-        (1, UInt64(1)),
-        (MAX_UINT512, UInt64(0)),
-        (MAX_UINT512, UInt64(1)),
-        (MAX_UINT512, UInt64(MAX_UINT64)),
+        (0, 0),
+        (1, 0),
+        (1, 1),
+        (MAX_UINT512, 0),
+        (MAX_UINT512, 1),
+        (MAX_UINT512, MAX_UINT64),
     ],
 )
-def test_biguint_subtraction_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_sub_uint64", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) - b)
+def test_biguint_subtraction_uint64(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    avm_result = get_avm_result("verify_biguint_sub_uint64", a=int_to_bytes(a), b=b)
+    assert avm_result == (BigUInt(a) - UInt64(b)).bytes
     if a <= MAX_UINT64:
-        assert_biguint_and_backing_bytes(avm_result, UInt64(a) - BigUInt(b))
+        assert avm_result == (UInt64(a) - BigUInt(b)).bytes
     i = BigUInt(a)
-    i -= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    i -= UInt64(b)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
@@ -305,7 +332,7 @@ def test_biguint_subtraction_uint64(get_avm_result: AVMInvoker, a: int, b: UInt6
 )
 def test_biguint_subtraction_result_underflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_underflow_error):
-        _get_avm_result(get_avm_result, "verify_biguint_sub", a, b)
+        get_avm_result("verify_biguint_sub", a=int_to_bytes(a), b=int_to_bytes(b))
 
     with pytest.raises(ArithmeticError, match=_underflow_error):
         BigUInt(a) - BigUInt(b)
@@ -327,7 +354,7 @@ def test_biguint_subtraction_result_underflow(get_avm_result: AVMInvoker, a: int
 )
 def test_biguint_subtraction_input_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error):
-        _get_avm_result(get_avm_result, "verify_biguint_sub", a, b)
+        get_avm_result("verify_biguint_sub", a=int_to_bytes(a), b=int_to_bytes(b))
 
     with pytest.raises(ValueError, match=_too_big512_error):
         BigUInt(a) - BigUInt(b)
@@ -350,32 +377,32 @@ def test_biguint_subtraction_input_overflow(get_avm_result: AVMInvoker, a: int, 
     ],
 )
 def test_biguint_multiplication(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_mul", a, b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) * BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) * b)
-    assert_biguint_and_backing_bytes(avm_result, a * BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_mul", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) * BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) * b).bytes
+    assert avm_result == (a * BigUInt(b)).bytes
     i = BigUInt(a)
     i *= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (0, UInt64(0)),
-        (0, UInt64(1)),
-        (0, UInt64(MAX_UINT64)),
-        (1, UInt64(MAX_UINT64)),
-        (2, UInt64(MAX_UINT64)),
+        (0, 0),
+        (0, 1),
+        (0, MAX_UINT64),
+        (1, MAX_UINT64),
+        (2, MAX_UINT64),
     ],
 )
-def test_biguint_multiplication_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_mul_uint64", a, b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) * b)
-    assert_biguint_and_backing_bytes(avm_result, b * BigUInt(a))
+def test_biguint_multiplication_uint64(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    avm_result = get_avm_result("verify_biguint_mul_uint64", a=int_to_bytes(a), b=b)
+    assert avm_result == (BigUInt(a) * UInt64(b)).bytes
+    assert avm_result == (UInt64(b) * BigUInt(a)).bytes
     i = BigUInt(a)
-    i *= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    i *= UInt64(b)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
@@ -387,13 +414,13 @@ def test_biguint_multiplication_uint64(get_avm_result: AVMInvoker, a: int, b: UI
     ],
 )
 def test_biguint_multiplication_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_mul", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) * BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) * b)
-    assert_biguint_and_backing_bytes(avm_result, a * BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_mul", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) * BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) * b).bytes
+    assert avm_result == (a * BigUInt(b)).bytes
     i = BigUInt(a)
     i *= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
@@ -406,7 +433,7 @@ def test_biguint_multiplication_overflow(get_avm_result: AVMInvoker, a: int, b: 
 )
 def test_biguint_multiplication_input_overflow(get_avm_result: AVMInvoker, a: int, b: int) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_overflow_error):
-        _get_avm_result(get_avm_result, "verify_biguint_mul", a, b)
+        get_avm_result("verify_biguint_mul", a=int_to_bytes(a), b=int_to_bytes(b))
 
     with pytest.raises(ValueError, match=_too_big512_error):
         BigUInt(a) * BigUInt(b)
@@ -430,34 +457,34 @@ def test_biguint_multiplication_input_overflow(get_avm_result: AVMInvoker, a: in
     ],
 )
 def test_biguint_division(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_div", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) // BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) // b)
-    assert_biguint_and_backing_bytes(avm_result, a // BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_div", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) // BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) // b).bytes
+    assert avm_result == (a // BigUInt(b)).bytes
     i = BigUInt(a)
     i //= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (MAX_UINT512, UInt64(1)),
-        (MAX_UINT512, UInt64(2)),
-        (MAX_UINT512, UInt64(MAX_UINT64)),
-        (0, UInt64(MAX_UINT64)),
-        (1, UInt64(MAX_UINT64)),
-        (3, UInt64(2)),
+        (MAX_UINT512, 1),
+        (MAX_UINT512, 2),
+        (MAX_UINT512, MAX_UINT64),
+        (0, MAX_UINT64),
+        (1, MAX_UINT64),
+        (3, 2),
     ],
 )
-def test_biguint_division_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_div_uint64", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) // b)
+def test_biguint_division_uint64(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    avm_result = get_avm_result("verify_biguint_div_uint64", a=int_to_bytes(a), b=b)
+    assert avm_result == (BigUInt(a) // UInt64(b)).bytes
     if a <= MAX_UINT64:
-        assert_biguint_and_backing_bytes(avm_result, UInt64(a) // BigUInt(b))
+        assert avm_result == (UInt64(a) // BigUInt(b)).bytes
     i = BigUInt(a)
-    i //= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    i //= UInt64(b)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
@@ -470,7 +497,7 @@ def test_biguint_division_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) 
 )
 def test_biguint_zero_division(get_avm_result: AVMInvoker, value: int) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_zero_division_error):
-        _get_avm_result(get_avm_result, "verify_biguint_div", a=value, b=0)
+        get_avm_result("verify_biguint_div", a=int_to_bytes(value), b=int_to_bytes(0))
 
     with pytest.raises(ZeroDivisionError):
         BigUInt(value) // BigUInt(0)
@@ -494,34 +521,34 @@ def test_biguint_zero_division(get_avm_result: AVMInvoker, value: int) -> None:
     ],
 )
 def test_biguint_mod(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_mod", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) % BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) % b)
-    assert_biguint_and_backing_bytes(avm_result, a % BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_mod", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) % BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) % b).bytes
+    assert avm_result == (a % BigUInt(b)).bytes
     i = BigUInt(a)
     i %= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (MAX_UINT512, UInt64(1)),
-        (MAX_UINT512, UInt64(2)),
-        (MAX_UINT512, UInt64(MAX_UINT64)),
-        (0, UInt64(MAX_UINT64)),
-        (1, UInt64(MAX_UINT64)),
-        (3, UInt64(2)),
+        (MAX_UINT512, 1),
+        (MAX_UINT512, 2),
+        (MAX_UINT512, MAX_UINT64),
+        (0, MAX_UINT64),
+        (1, MAX_UINT64),
+        (3, 2),
     ],
 )
-def test_biguint_mod_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_mod_uint64", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) % b)
+def test_biguint_mod_uint64(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    avm_result = get_avm_result("verify_biguint_mod_uint64", a=int_to_bytes(a), b=b)
+    assert avm_result == (BigUInt(a) % UInt64(b)).bytes
     if a <= MAX_UINT64:
-        assert_biguint_and_backing_bytes(avm_result, UInt64(a) % BigUInt(b))
+        assert avm_result == (UInt64(a) % BigUInt(b)).bytes
     i = BigUInt(a)
-    i %= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    i %= UInt64(b)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
@@ -534,7 +561,7 @@ def test_biguint_mod_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) -> No
 )
 def test_biguint_zero_mod(get_avm_result: AVMInvoker, value: int) -> None:
     with pytest.raises(algokit_utils.LogicError, match=_avm_zero_mod_error):
-        _get_avm_result(get_avm_result, "verify_biguint_mod", a=value, b=0)
+        get_avm_result("verify_biguint_mod", a=int_to_bytes(value), b=int_to_bytes(0))
 
     with pytest.raises(ZeroDivisionError):
         BigUInt(value) % BigUInt(0)
@@ -558,33 +585,33 @@ def test_biguint_zero_mod(get_avm_result: AVMInvoker, value: int) -> None:
     ],
 )
 def test_biguint_bitwise_and(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_and", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) & BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) & b)
-    assert_biguint_and_backing_bytes(avm_result, a & BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_and", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) & BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) & b).bytes
+    assert avm_result == (a & BigUInt(b)).bytes
     i = BigUInt(a)
     i &= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (0, UInt64(0)),
-        (MAX_UINT512, UInt64(MAX_UINT64)),
-        (MAX_UINT512, UInt64(0)),
-        (42, UInt64(MAX_UINT64)),
-        (MAX_UINT512, UInt64(42)),
+        (0, 0),
+        (MAX_UINT512, MAX_UINT64),
+        (MAX_UINT512, 0),
+        (42, MAX_UINT64),
+        (MAX_UINT512, 42),
     ],
 )
-def test_biguint_bitwise_and_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_and_uint64", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) & b)
+def test_biguint_bitwise_and_uint64(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    avm_result = get_avm_result("verify_biguint_and_uint64", a=int_to_bytes(a), b=b)
+    assert avm_result == (BigUInt(a) & UInt64(b)).bytes
     if a <= MAX_UINT64:
-        assert_biguint_and_backing_bytes(avm_result, UInt64(a) & BigUInt(b))
+        assert avm_result == (UInt64(a) & BigUInt(b)).bytes
     i = BigUInt(a)
-    i &= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    i &= UInt64(b)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
@@ -599,33 +626,33 @@ def test_biguint_bitwise_and_uint64(get_avm_result: AVMInvoker, a: int, b: UInt6
     ],
 )
 def test_biguint_bitwise_or(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_or", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) | BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) | b)
-    assert_biguint_and_backing_bytes(avm_result, a | BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_or", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) | BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) | b).bytes
+    assert avm_result == (a | BigUInt(b)).bytes
     i = BigUInt(a)
     i |= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (0, UInt64(0)),
-        (MAX_UINT512, UInt64(MAX_UINT64)),
-        (0, UInt64(MAX_UINT64)),
-        (MAX_UINT512, UInt64(0)),
-        (42, UInt64(MAX_UINT64)),
-        (MAX_UINT512, UInt64(42)),
+        (0, 0),
+        (MAX_UINT512, MAX_UINT64),
+        (0, MAX_UINT64),
+        (MAX_UINT512, 0),
+        (42, MAX_UINT64),
+        (MAX_UINT512, 42),
     ],
 )
-def test_biguint_bitwise_or_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_or_uint64", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) | b)
-    assert_biguint_and_backing_bytes(avm_result, b | BigUInt(a))
+def test_biguint_bitwise_or_uint64(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    avm_result = get_avm_result("verify_biguint_or_uint64", a=int_to_bytes(a), b=b)
+    assert avm_result == (BigUInt(a) | UInt64(b)).bytes
+    assert avm_result == (UInt64(b) | BigUInt(a)).bytes
     i = BigUInt(a)
-    i |= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    i |= UInt64(b)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
@@ -640,53 +667,53 @@ def test_biguint_bitwise_or_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64
     ],
 )
 def test_biguint_bitwise_xor(get_avm_result: AVMInvoker, a: int, b: int) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_xor", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) ^ BigUInt(b))
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) ^ b)
-    assert_biguint_and_backing_bytes(avm_result, a ^ BigUInt(b))
+    avm_result = get_avm_result("verify_biguint_xor", a=int_to_bytes(a), b=int_to_bytes(b))
+    assert avm_result == (BigUInt(a) ^ BigUInt(b)).bytes
+    assert avm_result == (BigUInt(a) ^ b).bytes
+    assert avm_result == (a ^ BigUInt(b)).bytes
     i = BigUInt(a)
     i ^= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (0, UInt64(0)),
-        (MAX_UINT512, UInt64(MAX_UINT64)),
-        (0, UInt64(MAX_UINT64)),
-        (MAX_UINT512, UInt64(0)),
-        (42, UInt64(MAX_UINT64)),
-        (MAX_UINT512, UInt64(42)),
+        (0, 0),
+        (MAX_UINT512, MAX_UINT64),
+        (0, MAX_UINT64),
+        (MAX_UINT512, 0),
+        (42, MAX_UINT64),
+        (MAX_UINT512, 42),
     ],
 )
-def test_biguint_bitwise_xor_uint64(get_avm_result: AVMInvoker, a: int, b: UInt64) -> None:
-    avm_result = _get_avm_result(get_avm_result, "verify_biguint_xor_uint64", a=a, b=b)
-    assert_biguint_and_backing_bytes(avm_result, BigUInt(a) ^ b)
-    assert_biguint_and_backing_bytes(avm_result, b ^ BigUInt(a))
+def test_biguint_bitwise_xor_uint64(get_avm_result: AVMInvoker, a: int, b: int) -> None:
+    avm_result = get_avm_result("verify_biguint_xor_uint64", a=int_to_bytes(a), b=b)
+    assert avm_result == (BigUInt(a) ^ UInt64(b)).bytes
+    assert avm_result == (UInt64(b) ^ BigUInt(a)).bytes
     i = BigUInt(a)
-    i ^= b
-    assert_biguint_and_backing_bytes(avm_result, i)
+    i ^= UInt64(b)
+    assert avm_result == i.bytes
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (int_to_bytes(0), int_to_bytes(1)),
-        (int_to_bytes(MAX_UINT512), int_to_bytes(MAX_UINT64)),
-        (int_to_bytes(0), int_to_bytes(MAX_UINT64)),
-        (int_to_bytes(MAX_UINT512), int_to_bytes(0)),
-        (int_to_bytes(42), int_to_bytes(MAX_UINT64)),
-        (int_to_bytes(MAX_UINT512), int_to_bytes(42)),
+        (0, 1),
+        (MAX_UINT512, MAX_UINT64),
+        (0, MAX_UINT64),
+        (MAX_UINT512, 0),
+        (42, MAX_UINT64),
+        (MAX_UINT512, 42),
     ],
 )
 @pytest.mark.parametrize("op_name", ["add", "mul"])
-def test_bytes_prefix(get_avm_result: AVMInvoker, a: bytes, b: bytes, op_name: str) -> None:
-    a = b"\x00" * (64 - len(a)) + a
-    b = b"\x00" * (64 - len(b)) + b
-    avm_result = get_avm_result(f"verify_biguint_{op_name}", a=a, b=b)
+def test_bytes_prefix(get_avm_result: AVMInvoker, a: int, b: int, op_name: str) -> None:
+    a_bytes = int.to_bytes(a, UINT512_BYTES_LENGTH)
+    b_bytes = int.to_bytes(b, UINT512_BYTES_LENGTH)
+    avm_result = get_avm_result(f"verify_biguint_{op_name}", a=a_bytes, b=b_bytes)
     op = getattr(operator, op_name)
-    assert avm_result == op(BigUInt.from_bytes(a), BigUInt.from_bytes(b)).bytes
+    assert avm_result == op(BigUInt.from_bytes(a_bytes), BigUInt.from_bytes(b_bytes)).bytes
 
 
 # operations that are equivalent to compile time errors
@@ -781,13 +808,3 @@ def test_biguint_str() -> None:
 
     assert str(BigUInt(value)) == str(value)
     assert repr(BigUInt(value)) == f"{value}u"
-
-
-def assert_biguint_and_backing_bytes(
-    avm_result: tuple[BigUInt | None, object], op_result: BigUInt
-) -> None:
-    # assert BigUInt equality only if it is less than or equal to max value
-    # if input to the `eq` operator is lager than max, an error is raised
-    if int.from_bytes(op_result.bytes.value) <= MAX_UINT512:
-        assert avm_result[0] == op_result
-    assert avm_result[1] == op_result.bytes
