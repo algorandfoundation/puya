@@ -27,12 +27,12 @@ from puya.awst.nodes import (
     UInt64Constant,
 )
 from puya.awst_build import constants, pytypes
+from puya.awst_build.arc4_utils import get_arc4_method_config, get_func_types
 from puya.awst_build.eb.arc4._utils import (
     ARC4Signature,
     arc4_tuple_from_items,
     expect_arc4_operand_wtype,
     get_arc4_args_and_signature,
-    get_arc4_signature,
 )
 from puya.awst_build.eb.arc4.base import ARC4FromLogBuilder
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
@@ -40,6 +40,7 @@ from puya.awst_build.eb.subroutine import BaseClassSubroutineInvokerExpressionBu
 from puya.awst_build.eb.transaction.fields import get_field_python_name
 from puya.awst_build.eb.transaction.inner_params import get_field_expr
 from puya.awst_build.eb.var_factory import var_expression
+from puya.awst_build.utils import get_decorators_by_fullname, resolve_method_from_type_info
 from puya.errors import CodeError, InternalError
 
 if typing.TYPE_CHECKING:
@@ -97,21 +98,22 @@ class ARC4ClientClassExpressionBuilder(IntermediateExpressionBuilder):
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        return ARC4ClientMethodExpressionBuilder(self.context, self.type_info, name, location)
+        func_or_dec = resolve_method_from_type_info(self.type_info, name, location)
+        if func_or_dec is None:
+            raise CodeError(f"Unknown member {name!r} of {self.type_info.fullname!r}", location)
+        return ARC4ClientMethodExpressionBuilder(self.context, func_or_dec, location)
 
 
 class ARC4ClientMethodExpressionBuilder(IntermediateExpressionBuilder):
     def __init__(
         self,
-        context: ASTConversionModuleContext,
-        type_info: mypy.nodes.TypeInfo,
-        name: str,
+        context: ASTConversionModuleContext,  # TODO: yeet me
+        node: mypy.nodes.FuncBase | mypy.nodes.Decorator,
         location: SourceLocation,
     ):
         super().__init__(location)
         self.context = context
-        self.type_info = type_info
-        self.name = name
+        self.node = node
 
     @typing.override
     def call(
@@ -197,10 +199,10 @@ def _abi_call(
                     f"does not match provided method selector: '{method_str}'",
                     method.source_location,
                 )
-        case (
-            ARC4ClientMethodExpressionBuilder() | BaseClassSubroutineInvokerExpressionBuilder()
-        ) as eb:  # TODO: can probably use func type from arg_typs now
-            signature = get_arc4_signature(eb.context, eb.type_info, eb.name, location)
+        case ARC4ClientMethodExpressionBuilder(
+            context=context, node=node
+        ) | BaseClassSubroutineInvokerExpressionBuilder(context=context, node=node):
+            signature = _get_arc4_signature(context, node, location)
             abi_return_type = signature.return_type
             num_args = len(abi_call_expr.abi_args)
             num_types = len(signature.arg_types)
@@ -228,6 +230,22 @@ def _abi_call(
             return_inner_txn_only=not _is_typed(abi_return_type),
         )
     )
+
+
+def _get_arc4_signature(
+    context: ASTConversionModuleContext,
+    func_or_dec: mypy.nodes.FuncBase | mypy.nodes.Decorator,
+    location: SourceLocation,
+) -> ARC4Signature:
+    if isinstance(func_or_dec, mypy.nodes.Decorator):
+        decorators = get_decorators_by_fullname(context, func_or_dec)
+        abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
+        if abimethod_dec is not None:
+            func_def = func_or_dec.func
+            arc4_method_config = get_arc4_method_config(context, abimethod_dec, func_def)
+            *arg_types, return_type = get_func_types(context, func_def, location).values()
+            return ARC4Signature(arc4_method_config.name, arg_types, return_type)
+    raise CodeError(f"{func_or_dec.fullname!r} is not a valid ARC4 method", location)
 
 
 def _is_typed(typ: pytypes.PyType | None) -> typing.TypeGuard[pytypes.PyType]:

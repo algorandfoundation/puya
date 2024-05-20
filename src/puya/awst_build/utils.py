@@ -394,3 +394,36 @@ def eval_slice_component(
             source_location=location,
         )
     )
+
+
+def resolve_method_from_type_info(
+    type_info: mypy.nodes.TypeInfo, name: str, location: SourceLocation
+) -> mypy.nodes.FuncBase | mypy.nodes.Decorator | None:
+    """Get a function member from TypeInfo, or return None.
+
+    Differs from TypeInfo.get_method() if there are conflicting definitions of name,
+    one being a method and another being an attribute.
+    This is important for semantic compatibility.
+
+    If the found member is not a function, an exception is raised.
+    Also raises if the SymbolTableNode is unresolved (it shouldn't be once we can see it).
+    """
+    member = type_info.get(name)
+    if member is None:
+        return None
+    match member.node:
+        case None:
+            raise InternalError(
+                "mypy cross reference remains unresolved:"
+                f" member {name!r} of {type_info.fullname!r}",
+                location,
+            )
+        # matching types taken from mypy.nodes.TypeInfo.get_method
+        case mypy.nodes.FuncBase() | mypy.nodes.Decorator() as func_or_dec:
+            return func_or_dec
+        case other_node:
+            logger.debug(
+                f"Non-function member: type={type(other_node).__name__!r}, value={other_node}",
+                location=location,
+            )
+            raise CodeError(f"unsupported reference to non-function member {name!r}", location)

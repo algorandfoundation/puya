@@ -5,6 +5,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     AppStateExpression,
+    BaseClassSubroutineTarget,
     BoxProxyField,
     InstanceSubroutineTarget,
 )
@@ -24,7 +25,7 @@ from puya.awst_build.eb.subroutine import (
     SubroutineInvokerExpressionBuilder,
 )
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import qualified_class_name
+from puya.awst_build.utils import qualified_class_name, resolve_method_from_type_info
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 
@@ -41,10 +42,15 @@ class ContractTypeExpressionBuilder(IntermediateExpressionBuilder):
         super().__init__(location)
         self.context = context
         self._type_info = type_info
+        self._cref = qualified_class_name(type_info)
 
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder:
+        func_or_dec = resolve_method_from_type_info(self._type_info, name, location)
+        if func_or_dec is None:
+            raise CodeError(f"Unknown member {name!r} of {self._type_info.fullname!r}", location)
+        target = BaseClassSubroutineTarget(self._cref, name)
         return BaseClassSubroutineInvokerExpressionBuilder(
-            context=self.context, type_info=self._type_info, name=name, location=location
+            context=self.context, target=target, node=func_or_dec, location=location
         )
 
 
@@ -64,26 +70,19 @@ class ContractSelfExpressionBuilder(IntermediateExpressionBuilder):
         if state_decl is not None:
             return _builder_for_storage_access(state_decl, location)
 
-        sym_node = self._type_info.get(name)
-        if sym_node is None or sym_node.node is None:
-            raise CodeError(f"Unknown member: {name}", location)
-        match sym_node.node:
-            # matching types taken from mypy.nodes.TypeInfo.get_method
-            case mypy.nodes.FuncBase() | mypy.nodes.Decorator() as func_or_dec:
-                func_type = func_or_dec.type
-                if not isinstance(func_type, mypy.types.CallableType):
-                    raise CodeError(f"Couldn't resolve signature of {name!r}", location)
+        func_or_dec = resolve_method_from_type_info(self._type_info, name, location)
+        if func_or_dec is None:
+            raise CodeError(f"Unknown member {name!r} of {self._type_info.fullname!r}", location)
+        func_type = func_or_dec.type
+        if not isinstance(func_type, mypy.types.CallableType):
+            raise CodeError(f"Couldn't resolve signature of {name!r}", location)
 
-                return SubroutineInvokerExpressionBuilder(
-                    context=self.context,
-                    target=InstanceSubroutineTarget(name=name),
-                    location=location,
-                    func_type=func_type,
-                )
-            case _:
-                raise CodeError(
-                    f"Non-storage member {name!r} has unsupported function type", location
-                )
+        return SubroutineInvokerExpressionBuilder(
+            context=self.context,
+            target=InstanceSubroutineTarget(name=name),
+            location=location,
+            func_type=func_type,
+        )
 
 
 def _builder_for_storage_access(

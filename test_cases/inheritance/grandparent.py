@@ -1,7 +1,7 @@
 import algopy
 
 
-class GrandParentContract(algopy.Contract):
+class GreatGrandParentContract(algopy.Contract):
     def approval_program(self) -> bool:
         return self.method()
 
@@ -12,3 +12,7 @@ class GrandParentContract(algopy.Contract):
     def method(self) -> bool:
         algopy.log("GrandParentContract.method called")
         return True
+
+
+class GrandParentContract(GreatGrandParentContract):
+    pass
