@@ -1,5 +1,7 @@
 import typing
+from collections.abc import Sequence
 
+import attrs
 import mypy.nodes
 import mypy.types
 import mypy.visitor
@@ -32,15 +34,32 @@ def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]
     return True
 
 
-def get_arc4_method_config(
+@attrs.frozen
+class ARC4MethodData:
+    config: ARC4MethodConfig
+    _signature: dict[str, pytypes.PyType]
+
+    @property
+    def return_type(self) -> pytypes.PyType:
+        return self._signature["output"]
+
+    @property
+    def argument_types(self) -> Sequence[pytypes.PyType]:
+        names, types = zip(*self._signature.items(), strict=True)
+        assert names[-1] == "output"
+        return types[:-1]
+
+
+def get_arc4_method_data(
     context: ASTConversionModuleContext,
     decorator: mypy.nodes.Expression,
     func_def: mypy.nodes.FuncDef,
-) -> ARC4MethodConfig:
+) -> ARC4MethodData:
     dec_loc = context.node_location(decorator, func_def.info)
+    func_types = _get_func_types(context, func_def, dec_loc)
     match decorator:
         case mypy.nodes.RefExpr(fullname=fullname):
-            return ARC4MethodConfig(
+            config = ARC4MethodConfig(
                 name=func_def.name,
                 source_location=dec_loc,
                 is_bare=fullname == constants.BAREMETHOD_DECORATOR,
@@ -82,14 +101,12 @@ def get_arc4_method_config(
             structs = immutabledict[str, ARC32StructDef](
                 {
                     n: _wtype_to_struct_def(pt)
-                    for n, pt in get_func_types(
-                        context, func_def, context.node_location(func_def, func_def.info)
-                    ).items()
+                    for n, pt in func_types.items()
                     if _is_arc4_struct(pt)
                 }
             )
 
-            return ARC4MethodConfig(
+            config = ARC4MethodConfig(
                 source_location=dec_loc,
                 name=name,
                 allowed_completion_types=[
@@ -104,6 +121,7 @@ def get_arc4_method_config(
             )
         case _:
             raise InternalError("Unexpected ARC4 decorator", dec_loc)
+    return ARC4MethodData(config=config, signature=func_types)
 
 
 class _AbiHints(typing.TypedDict, total=False):
@@ -341,7 +359,7 @@ def arc4_decode(
             )
 
 
-def get_func_types(
+def _get_func_types(
     context: ASTConversionModuleContext, func_def: mypy.nodes.FuncDef, location: SourceLocation
 ) -> dict[str, pytypes.PyType]:
     if not (func_def.arguments and func_def.arguments[0].variable.is_self):
