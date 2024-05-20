@@ -23,6 +23,10 @@ class ECDSA(Enum):
     Secp256r1 = 1
 
 
+class VrfVerify(Enum):
+    VrfAlgorand = 0
+
+
 def sha256(a: Bytes | bytes, /) -> Bytes:
     input_value = as_bytes(a)
     return Bytes(hashlib.sha256(input_value).digest())
@@ -152,3 +156,15 @@ def ecdsa_pk_decompress(v: ECDSA, a: Bytes | bytes, /) -> tuple[Bytes, Bytes]:
         return Bytes(pubkey_x.to_bytes(32, byteorder="big")), Bytes(
             pubkey_y.to_bytes(32, byteorder="big")
         )
+
+
+def vrf_verify(
+    s: VrfVerify,  # noqa: ARG001
+    a: Bytes | bytes,  # noqa: ARG001
+    b: Bytes | bytes,  # noqa: ARG001
+    c: Bytes | bytes,  # noqa: ARG001
+    /,
+) -> tuple[Bytes, bool]:
+    raise NotImplementedError(
+        "'op.vrf_verify' is not implemented. Mock using preferred testing tools."
+    )

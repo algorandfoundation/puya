@@ -16,6 +16,7 @@ from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.indexer import IndexerClient
 from Cryptodome.Hash import keccak
 from ecdsa import SECP256k1, SigningKey, curves
+from pytest_mock import MockerFixture
 
 from tests.common import AVMInvoker, create_avm_invoker
 
@@ -314,3 +315,34 @@ def test_verify_ecdsa_decompress_k1(
 
     assert result_x == pk.point()[0].to_bytes(32, byteorder="big"), "X coordinate mismatch"
     assert result_y == pk.point()[1].to_bytes(32, byteorder="big"), "Y coordinate mismatch"
+
+
+def test_verify_vrf_verify(
+    algod_client: AlgodClient, get_crypto_ops_avm_result: AVMInvoker, mocker: MockerFixture
+) -> None:
+    """
+    'verify_vrf' is not implemented, the test aims to confirm that its possible to mock while
+    comparing against the real vrf_verify execution.
+    """
+
+    a: bytes = bytes.fromhex("528b9e23d93d0e020a119d7ba213f6beb1c1f3495a217166ecd20f5a70e7c2d7")
+    b: bytes = bytes.fromhex(
+        "372a3afb42f55449c94aaa5f274f26543e77e8d8af4babee1a6fbc1c0391aa9e6e0b8d8d7f4ed045d5b517fea8ad3566025ae90d2f29f632e38384b4c4f5b9eb741c6e446b0f540c1b3761d814438b04"
+    )
+    c = bytes.fromhex("3a2740da7a0788ebb12a52154acbcca1813c128ca0b249e93f8eb6563fee418d")
+
+    def run_real_vrf_verify() -> tuple[Bytes, bool]:
+        sp = algod_client.suggested_params()
+        sp.fee = 6000
+        result = get_crypto_ops_avm_result("verify_vrf_verify", a=a, b=b, c=c, suggested_params=sp)
+        return (Bytes(bytes(result[0])), bool(result[1]))  # type: ignore  # noqa: PGH003
+
+    def run_mocked_vrf_verify() -> tuple[Bytes, bool]:
+        return op.vrf_verify(op.VrfVerify.VrfAlgorand, a, b, c)
+
+    avm_result = run_real_vrf_verify()
+    mocker.patch("algopy.op.vrf_verify", return_value=[avm_result[0], True])
+    mocked_result = run_mocked_vrf_verify()
+
+    assert avm_result[0] == mocked_result[0]
+    assert avm_result[1] == mocked_result[1]

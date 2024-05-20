@@ -80,3 +80,9 @@ class CryptoOpsContract(ARC4Contract):
     def verify_ecdsa_decompress_r1(self, a: Bytes) -> tuple[Bytes, Bytes]:
         ensure_budget(700, OpUpFeeSource.GroupCredit)
         return op.ecdsa_pk_decompress(op.ECDSA.Secp256r1, a)
+
+    @arc4.abimethod()
+    def verify_vrf_verify(self, a: Bytes, b: Bytes, c: Bytes) -> tuple[Bytes, bool]:
+        ensure_budget(5700, OpUpFeeSource.GroupCredit)
+        result = op.vrf_verify(op.VrfVerify.VrfAlgorand, a, b, c)
+        return result
