@@ -16,7 +16,7 @@ from puya.awst_build import pytypes
 from puya.awst_build.context import ASTConversionModuleContext
 from puya.awst_build.eb.base import ExpressionBuilder, IntermediateExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import qualified_class_name, require_expression_builder
+from puya.awst_build.utils import require_expression_builder
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 
@@ -78,22 +78,14 @@ class BaseClassSubroutineInvokerExpressionBuilder(SubroutineInvokerExpressionBui
     def __init__(
         self,
         context: ASTConversionModuleContext,
-        type_info: mypy.nodes.TypeInfo,
-        name: str,
+        target: BaseClassSubroutineTarget,
         location: SourceLocation,
+        node: mypy.nodes.FuncBase | mypy.nodes.Decorator,
     ):
-        self.name = name
-        self.type_info = type_info
-        cref = qualified_class_name(type_info)
-
-        func_or_dec = type_info.get_method(name)
-        if func_or_dec is None:
-            raise CodeError(f"Unknown member: {name}", location)
-        func_type = func_or_dec.type
+        self.node = node
+        func_type = node.type
         if not isinstance(func_type, mypy.types.CallableType):
-            raise CodeError(f"Couldn't resolve signature of {name!r}", location)
-
-        target = BaseClassSubroutineTarget(cref, name)
+            raise CodeError(f"Couldn't resolve signature of {node.fullname!r}", location)
         super().__init__(context, target, location, func_type)
 
     def call(

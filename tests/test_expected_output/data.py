@@ -319,23 +319,6 @@ def get_python_file_name(name: str) -> str:
     return python_name
 
 
-def exempted(path: Path, case: TestCase, record: Log) -> bool:
-    output_type = record.level
-    if output_type is None:
-        return True
-    if record.location is None:
-        return True
-    if record.location.file != str(path):
-        return True
-    case_file = next(f for f in case.files if f.src_path == path)
-    line_output = case_file.expected_output.get(record.location.line, [])
-    received = TestCaseOutput(level=output_type, output=record.message)
-    exempted = received in line_output
-    if exempted:
-        return exempted
-    return False
-
-
 def map_error_tuple_to_dict(errors: set[tuple[int, TestCaseOutput]]) -> OutputMapping:
     result: OutputMapping = OutputMapping()
     for line, error in errors:
@@ -372,7 +355,7 @@ def process_test_case(
                 ),
             )
             for record in path_records
-            if record.line is not None
+            if record.line is not None and record.level in LEVEL_TO_PREFIX
         }
         file_missing_output = expected_output - seen_output
         file_unexpected_output = seen_output - expected_output
