@@ -27,12 +27,7 @@ from puya.awst_build.eb.box.box import BoxValueExpressionBuilder
 from puya.awst_build.eb.tuple import TupleExpressionBuilder
 from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
-from puya.awst_build.utils import (
-    expect_operand_wtype,
-    get_arg_mapping,
-    require_expression_builder,
-    require_type_class_eb,
-)
+from puya.awst_build.utils import expect_operand_wtype, get_arg_mapping, require_expression_builder
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 

@@ -98,9 +98,13 @@ def _builder_for_storage_access(
         case pytypes.BoxRefType:
             return BoxRefProxyExpressionBuilder(storage_decl.key, storage_decl.member_name)
         case pytypes.PyType(generic=pytypes.GenericBoxType):
-            return BoxProxyExpressionBuilder(storage_decl, location)
+            return BoxProxyExpressionBuilder(
+                storage_decl.key, storage_decl.typ, storage_decl.member_name
+            )
         case pytypes.PyType(generic=pytypes.GenericBoxMapType):
-            return BoxMapProxyExpressionBuilder(storage_decl, location)
+            return BoxMapProxyExpressionBuilder(
+                storage_decl.key, storage_decl.typ, storage_decl.member_name
+            )
         case _:
             return var_expression(
                 AppStateExpression(
