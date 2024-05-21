@@ -22,6 +22,9 @@ if typing.TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 
+# TODO: handle (somewhere) not allowing things like Box and BoxMap in tuples, arrays, etc
+
+
 @attrs.frozen(kw_only=True, str=False)
 class PyType(abc.ABC):
     name: str
