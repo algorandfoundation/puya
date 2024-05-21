@@ -1,12 +1,46 @@
 import typing
 
-from algopy import Account, Application, ARC4Contract, Asset, Bytes, Txn, arc4, log
+from algopy import (
+    Account,
+    Application,
+    ARC4Contract,
+    Asset,
+    BigUInt,
+    Bytes,
+    String,
+    Txn,
+    UInt64,
+    arc4,
+    log,
+)
 
 
 class Logger(ARC4Contract):
     @arc4.abimethod
     def echo(self, value: arc4.String) -> arc4.String:
         return "echo: " + value
+
+    @arc4.abimethod
+    def echo_native_string(self, value: String) -> String:
+        return "echo: " + value
+
+    @arc4.abimethod
+    def echo_native_bytes(self, value: Bytes) -> Bytes:
+        return b"echo: " + value
+
+    @arc4.abimethod
+    def echo_native_uint64(self, value: UInt64) -> UInt64:
+        return value + 1
+
+    @arc4.abimethod
+    def echo_native_biguint(self, value: BigUInt) -> BigUInt:
+        return value + 1
+
+    @arc4.abimethod
+    def echo_native_tuple(
+        self, s: String, b: Bytes, u: UInt64, bu: BigUInt
+    ) -> tuple[String, Bytes, UInt64, BigUInt]:
+        return "echo: " + s, b"echo: " + b, u + 1, bu + 1
 
     @arc4.abimethod
     def log_uint64(self, value: arc4.UInt64) -> None:

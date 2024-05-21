@@ -2,15 +2,20 @@
 
 test_cases.typed_abi_call.typed_c2c.Greeter.approval_program:
     txn NumAppArgs
-    bz main_bare_routing@10
+    bz main_bare_routing@15
     method "test_method_selector_kinds(application)void"
     method "test_method_overload(application)void"
     method "test_arg_conversion(application)void"
     method "test_15plus_args(application)void"
     method "test_void(application)void"
     method "test_ref_types(application,asset)void"
+    method "test_native_string(application)void"
+    method "test_native_bytes(application)void"
+    method "test_native_uint64(application)void"
+    method "test_native_biguint(application)void"
+    method "test_native_tuple(application)void"
     txna ApplicationArgs 0
-    match main_test_method_selector_kinds_route@2 main_test_method_overload_route@3 main_test_arg_conversion_route@4 main_test_15plus_args_route@5 main_test_void_route@6 main_test_ref_types_route@7
+    match main_test_method_selector_kinds_route@2 main_test_method_overload_route@3 main_test_arg_conversion_route@4 main_test_15plus_args_route@5 main_test_void_route@6 main_test_ref_types_route@7 main_test_native_string_route@8 main_test_native_bytes_route@9 main_test_native_uint64_route@10 main_test_native_biguint_route@11 main_test_native_tuple_route@12
     err // reject transaction
 
 main_test_method_selector_kinds_route@2:
@@ -94,7 +99,72 @@ main_test_ref_types_route@7:
     int 1
     return
 
-main_bare_routing@10:
+main_test_native_string_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_native_string
+    int 1
+    return
+
+main_test_native_bytes_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_native_bytes
+    int 1
+    return
+
+main_test_native_uint64_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_native_uint64
+    int 1
+    return
+
+main_test_native_biguint_route@11:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_native_biguint
+    int 1
+    return
+
+main_test_native_tuple_route@12:
+    txn OnCompletion
+    !
+    assert // OnCompletion is NoOp
+    txn ApplicationID
+    assert // is not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Applications
+    callsub test_native_tuple
+    int 1
+    return
+
+main_bare_routing@15:
     txn OnCompletion
     !
     assert // reject transaction
@@ -591,6 +661,453 @@ test_ref_types:
     app_params_get AppAddress
     assert // application exists
     concat
+    ==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: uint64) -> void:
+test_native_string:
+    proto 1 0
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_string(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x01s"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    dup
+    byte "echo: s"
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_string(string)string"
+    itxn_field ApplicationArgs
+    byte 0x000173
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    dig 1
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_string(string)string"
+    itxn_field ApplicationArgs
+    byte "\x00\x01s"
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    ==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(app: uint64) -> void:
+test_native_bytes:
+    proto 1 0
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_bytes(byte[])byte[]"
+    itxn_field ApplicationArgs
+    byte 0x000162
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    dup
+    byte "echo: b"
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_bytes(byte[])byte[]"
+    itxn_field ApplicationArgs
+    byte 0x000162
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    dig 1
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_bytes(byte[])byte[]"
+    itxn_field ApplicationArgs
+    byte 0x000162
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    extract 2 0
+    ==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(app: uint64) -> void:
+test_native_uint64:
+    proto 1 0
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_uint64(uint64)uint64"
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    btoi
+    dup
+    int 2
+    ==
+    assert
+    itxn_begin
+    int 1
+    itob
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_uint64(uint64)uint64"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    btoi
+    dig 1
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_uint64(uint64)uint64"
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    btoi
+    ==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(app: uint64) -> void:
+test_native_biguint:
+    proto 1 0
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_biguint(uint512)uint512"
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    byte 0x03
+    b==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_biguint(uint512)uint512"
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dig 1
+    b==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_biguint(uint512)uint512"
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    b==
+    assert
+    retsub
+
+
+// test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: uint64) -> void:
+test_native_tuple:
+    proto 1 0
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    byte "\x00\x02s1"
+    itxn_field ApplicationArgs
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dup
+    int 0
+    extract_uint16
+    dup2
+    extract_uint16
+    int 2
+    +
+    dig 2
+    cover 2
+    extract3
+    swap
+    dup
+    int 2
+    extract_uint16
+    dup2
+    extract_uint16
+    int 2
+    +
+    dig 2
+    cover 2
+    extract3
+    swap
+    dup
+    extract 4 8
+    cover 2
+    dup
+    extract 12 64
+    cover 3
+    uncover 4
+    extract 2 0
+    byte "echo: s1"
+    ==
+    assert
+    swap
+    extract 2 0
+    byte "echo: b1"
+    ==
+    assert
+    swap
+    btoi
+    int 2
+    ==
+    assert
+    swap
+    byte 0x03
+    b==
+    assert
+    itxn_begin
+    int 1
+    itob
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    byte 0x00027331
+    itxn_field ApplicationArgs
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
+    dig 1
+    ==
+    assert
+    itxn_begin
+    frame_dig -1
+    itxn_field ApplicationID
+    method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
+    itxn_field ApplicationArgs
+    byte "\x00\x02s1"
+    itxn_field ApplicationArgs
+    byte 0x00026231
+    itxn_field ApplicationArgs
+    byte 0x0000000000000001
+    itxn_field ApplicationArgs
+    byte 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
+    itxn_field ApplicationArgs
+    int appl
+    itxn_field TypeEnum
+    int 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    byte 0x151f7c75
+    ==
+    assert // ARC4 prefix is valid
     ==
     assert
     retsub
