@@ -164,7 +164,7 @@ class AppStateExpressionBuilder(ValueExpressionBuilder):
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> ExpressionBuilder | Literal:
-        field = self._build_field(self.source_location)
+        field = self._build_field(location)
         match name:
             case "value":
                 return AppStateValueExpressionBuilder(field)
