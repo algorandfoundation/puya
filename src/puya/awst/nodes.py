@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import abc
 import enum
 import itertools
 import typing as t
@@ -946,19 +945,18 @@ class IntersectionSliceExpression(Expression):
 
 
 @attrs.frozen
-class StorageExpression(Expression, abc.ABC):
+class AppStateExpression(Expression):
     key: Expression = attrs.field(validator=wtype_is_bytes)
     field_name: str | None
 
-
-@attrs.frozen
-class AppStateExpression(StorageExpression):
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_app_state_expression(self)
 
 
 @attrs.frozen
-class AppAccountStateExpression(StorageExpression):
+class AppAccountStateExpression(Expression):
+    key: Expression = attrs.field(validator=wtype_is_bytes)
+    field_name: str | None
     account: Expression = attrs.field(
         validator=[expression_has_wtype(wtypes.account_wtype, wtypes.uint64_wtype)]
     )
@@ -968,23 +966,20 @@ class AppAccountStateExpression(StorageExpression):
 
 
 @attrs.frozen
-class BoxValueExpression(StorageExpression):
+class BoxValueExpression(Expression):
+    key: Expression = attrs.field(validator=wtype_is_bytes)
+    field_name: str | None
+
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_value_expression(self)
 
 
+StorageExpression = AppStateExpression | AppAccountStateExpression | BoxValueExpression
+
 # Expression types that are valid on the left hand side of assignment *statements*
 # Note that some of these can be recursive/nested, eg:
 # obj.field[index].another_field = 123
-Lvalue = (
-    VarExpression
-    | FieldExpression
-    | IndexExpression
-    | TupleExpression
-    | AppStateExpression
-    | AppAccountStateExpression
-    | BoxValueExpression
-)
+Lvalue = VarExpression | FieldExpression | IndexExpression | TupleExpression | StorageExpression
 
 
 @attrs.frozen(init=False, eq=False, hash=False)  # use identity equality

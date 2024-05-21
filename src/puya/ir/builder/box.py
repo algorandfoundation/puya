@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 
 from puya.arc4_util import get_arc4_fixed_bit_size
+from puya.avm_type import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -18,35 +19,11 @@ from puya.parse import SourceLocation
 
 
 def _get_box_key(context: IRFunctionBuildContext, box: awst_nodes.Expression) -> ops.Value:
-    if not isinstance(box, awst_nodes.BoxKeyExpression | awst_nodes.BoxValueExpression):
+    if not isinstance(box, awst_nodes.BoxValueExpression):
         raise InternalError(
             "param box must be an expression of type BoxKeyExpression or BoxValueExpression"
         )
-    base_key = context.visitor.visit_and_materialise_single(box.proxy)
-    if box.item_key:
-        item_key = context.visitor.visit_and_materialise_single(box.item_key)
-        (compound_key,) = assign(
-            context=context,
-            temp_description=["compound_key"],
-            source_location=box.source_location,
-            source=ops.Intrinsic(
-                op=AVMOp.concat, args=[base_key, item_key], source_location=box.source_location
-            ),
-        )
-        return compound_key
-    return base_key
-
-
-def _get_box_content_wtype(box: awst_nodes.Expression) -> wtypes.WType:
-    match box:
-        case awst_nodes.BoxValueExpression(proxy=proxy):
-            return _get_box_content_wtype(proxy)
-        case awst_nodes.BoxKeyExpression(proxy=proxy):
-            return _get_box_content_wtype(proxy)
-        case awst_nodes.Expression(wtype=wtypes.WBoxProxy(content_wtype=content_wtype)):
-            return content_wtype
-        case _:
-            return wtypes.bytes_wtype
+    return context.visitor.visit_and_materialise_single(box.key)
 
 
 def _get_box(
@@ -65,7 +42,7 @@ def _get_box(
             source_location=source_location,
         ),
     )
-    if wtypes.is_uint64_on_stack(_get_box_content_wtype(box)):
+    if box_value.atype == AVMType.uint64:
         (box_value,) = assign_intrinsic_op(
             op=AVMOp.btoi,
             target="box_value_uint64",
@@ -219,22 +196,3 @@ def _is_fixed_byte_size(wtype: wtypes.WType) -> bool:
     if isinstance(wtype, wtypes.ARC4Type):
         return get_arc4_fixed_bit_size(wtype) is not None
     return False
-
-
-def visit_field_box(
-    context: IRFunctionBuildContext, field_box: awst_nodes.BoxProxyField
-) -> ops.Value:
-    state_def = context.resolve_state(field_box.field_name, field_box.source_location)
-    return context.visitor.visit_bytes_constant(state_def.key)
-
-
-def visit_box_proxy_expression(
-    context: IRFunctionBuildContext, box_proxy: awst_nodes.BoxProxyExpression
-) -> ops.Value:
-    return context.visitor.visit_and_materialise_single(box_proxy.key)
-
-
-def visit_box_key_expression(
-    context: IRFunctionBuildContext, box_key: awst_nodes.BoxKeyExpression
-) -> ops.Value:
-    return _get_box_key(context, box_key)

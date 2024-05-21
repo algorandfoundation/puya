@@ -61,9 +61,8 @@ def visit_state_delete(context: IRFunctionBuildContext, statement: awst_nodes.St
 
 
 def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) -> ValueProvider:
-    match expr.field:
-        case awst_nodes.BoxKeyExpression():
-            return box.visit_box_state_get(context, expr)
+    if isinstance(expr.field, awst_nodes.BoxValueExpression):
+        return box.visit_box_state_get(context, expr)
     default = context.visitor.visit_and_materialise_single(expr.default)
     get_ex = _build_state_get_ex(context, expr.field, expr.source_location)
     maybe_value, exists = context.visitor.materialise_value_provider(
