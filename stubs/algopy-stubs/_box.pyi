@@ -1,6 +1,6 @@
 import typing
 
-from algopy import Bytes, UInt64
+from algopy import Bytes, UInt64, String
 
 _TContent = typing.TypeVar("_TContent")
 _TKey = typing.TypeVar("_TKey")
@@ -12,8 +12,10 @@ class Box(typing.Generic[_TContent]):
     it.
     """
 
-    # TODO: support String | str for key, ensure default key works
-    def __init__(self, type_: type[_TContent], /, *, key: Bytes | bytes = ...) -> None: ...
+    # TODO: ensure default key works, ensure str/String work
+    def __init__(
+        self, type_: type[_TContent], /, *, key: bytes | str | Bytes | String = ...
+    ) -> None: ...
     def __bool__(self) -> bool:
         """
         Returns True if the box exists, regardless of the truthiness of the contents
@@ -59,8 +61,8 @@ class BoxRef:
     value.
     """
 
-    # TODO: support String | str for key, ensure default key works
-    def __init__(self, /, *, key: Bytes | bytes = ...) -> None: ...
+    # TODO: ensure default key works, ensure str/String work
+    def __init__(self, /, *, key: bytes | str | Bytes | String = ...) -> None: ...
     def __bool__(self) -> bool:
         """Returns True if the box has a value set, regardless of the truthiness of that value"""
 
@@ -151,9 +153,14 @@ class BoxMap(typing.Generic[_TKey, _TContent]):
     `boxes` property of the Transaction.
     """
 
-    # TODO: support String | str for key_prefix, ensure default key_prefix works
+    # TODO: ensure default key_prefix works, ensure str/String work
     def __init__(
-        self, key_type: type[_TKey], type_: type[_TContent], /, *, key_prefix: Bytes | bytes = ...
+        self,
+        key_type: type[_TKey],
+        type_: type[_TContent],
+        /,
+        *,
+        key_prefix: bytes | str | Bytes | String = ...,
     ) -> None: ...
     def __getitem__(self, key: _TKey) -> _TContent:
         """

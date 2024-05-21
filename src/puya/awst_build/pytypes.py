@@ -654,7 +654,7 @@ GenericARC4StaticArrayType: typing.Final = _GenericType(
 
 
 def _storage_parameterise(
-    self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
+    self: _GenericType[StorageProxyType], args: _TypeArgs, source_location: SourceLocation | None
 ) -> StorageProxyType:
     try:
         (arg,) = args
@@ -671,32 +671,10 @@ def _storage_parameterise(
     )
 
 
-def _make_storage_parameterise_todo_remove_me(
-    key_type: Callable[[wtypes.WType], wtypes.WType]
-) -> _Parameterise:
-    def parameterise(
-        self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
-    ) -> StorageProxyType:
-        try:
-            (arg,) = args
-        except ValueError:
-            raise CodeError(
-                f"Expected a single type parameter, got {len(args)} parameters", source_location
-            ) from None
-
-        name = f"{self.name}[{arg.name}]"
-        return StorageProxyType(
-            generic=self,
-            name=name,
-            content=arg,
-            wtype=key_type(arg.wtype),
-        )
-
-    return parameterise
-
-
 def _parameterise_storage_map(
-    self: _GenericType, args: _TypeArgs, source_location: SourceLocation | None
+    self: _GenericType[StorageMapProxyType],
+    args: _TypeArgs,
+    source_location: SourceLocation | None,
 ) -> StorageMapProxyType:
     try:
         key, content = args

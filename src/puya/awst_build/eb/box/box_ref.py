@@ -14,6 +14,7 @@ from puya.awst.nodes import (
     StateExists,
 )
 from puya.awst_build import pytypes
+from puya.awst_build.eb._storage import extract_key_override
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
@@ -46,16 +47,16 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> ExpressionBuilder:
-        arg_map = get_arg_mapping(
+        arg_mapping = get_arg_mapping(
             positional_arg_names=(),
             args=zip(arg_names, args, strict=True),
             location=location,
         )
-        key = expect_operand_wtype(arg_map.pop("key"), wtypes.bytes_wtype)
-
-        if arg_map:
+        key_arg = arg_mapping.pop("key", None)
+        if arg_mapping:
             raise CodeError("Invalid/unhandled arguments", location)
 
+        key_override = extract_key_override(key_arg, location, is_prefix=False)
         return BoxRefProxyExpressionBuilder(
             expr=BoxValueExpression(key=key, wtype=self.produces(), source_location=location)
         )

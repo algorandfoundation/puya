@@ -94,7 +94,9 @@ def _builder_for_storage_access(
         case pytypes.PyType(generic=pytypes.GenericBoxMapType):
             return BoxMapProxyExpressionBuilder(storage_decl, location)
         case pytypes.PyType(generic=pytypes.GenericLocalStateType):
-            return AppAccountStateExpressionBuilder(storage_decl, location)
+            return AppAccountStateExpressionBuilder(
+                storage_decl.key, storage_decl.typ, storage_decl.member_name
+            )
         case pytypes.PyType(generic=pytypes.GenericGlobalStateType):
             return AppStateExpressionBuilder(storage_decl, location)
         case _:

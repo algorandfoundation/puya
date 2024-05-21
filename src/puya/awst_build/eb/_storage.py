@@ -30,12 +30,10 @@ class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorRe
     def __init__(
         self,
         location: SourceLocation,
-        key_override: Expression | None,
         description: str | None,
         initial_value: Expression | None = None,
     ):
         super().__init__(location)
-        self.key_override = key_override
         self.description = description
         self._initial_value = initial_value
 
@@ -52,16 +50,16 @@ class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorRe
         typ: pytypes.PyType,
         location: SourceLocation,
     ) -> AppStorageDeclaration:
-        if not isinstance(self.key_override, BytesConstant):
-            raise CodeError(
-                f"assigning {typ} to a member variable"
-                f" requires a constant value for key{'_prefix' if self.is_prefix else ''}",
-                location,
-            )
+        # if not isinstance(self.key_override, BytesConstant):
+        #     raise CodeError(
+        #         f"assigning {typ} to a member variable"
+        #         f" requires a constant value for key{'_prefix' if self.is_prefix else ''}",
+        #         location,
+        #     )
         return AppStorageDeclaration(
             description=self.description,
             member_name=member_name,
-            key_override=self.key_override,
+            key_override=None,
             source_location=location,
             typ=typ,
             defined_in=defined_in,
