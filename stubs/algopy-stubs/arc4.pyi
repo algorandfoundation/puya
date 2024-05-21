@@ -6,12 +6,7 @@ import algopy
 _P = typing.ParamSpec("_P")
 _R = typing.TypeVar("_R")
 
-"""Allowed completion types for ABI methods: 
-NoOp, OptIn, CloseOut, UpdateApplication and DeleteApplication"""
-
-# TODO: better typing for ABI methods that can be used as an argument source
-# TODO: support declaring state at the class level so it can be used as a default arg source
-_TABIDefaultArgSource: typing.TypeAlias = object
+_ReadOnlyNoArgsMethod: typing.TypeAlias = Callable[..., typing.Any]  # type: ignore[misc]
 
 # if we use type aliasing here for Callable[_P, _R], mypy thinks it involves Any...
 @typing.overload
@@ -33,7 +28,7 @@ def abimethod(
         ]
     ] = ("NoOp",),
     readonly: bool = False,
-    default_args: Mapping[str, str | _TABIDefaultArgSource] = ...,
+    default_args: Mapping[str, str | _ReadOnlyNoArgsMethod] = ...,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Decorator that indicates a method is an ARC4 ABI method.
 

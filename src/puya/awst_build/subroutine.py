@@ -43,6 +43,7 @@ from puya.awst.nodes import (
     SubroutineArgument,
     Switch,
     TupleExpression,
+    UInt64Constant,
     VarExpression,
     WhileLoop,
 )
@@ -73,6 +74,7 @@ from puya.awst_build.eb.intrinsics import (
 )
 from puya.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puya.awst_build.eb.type_registry import builder_for_instance, builder_for_type
+from puya.awst_build.eb.uint64 import UInt64ExpressionBuilder
 from puya.awst_build.eb.var_factory import var_expression
 from puya.awst_build.exceptions import TypeUnionError
 from puya.awst_build.utils import (
@@ -815,15 +817,30 @@ class FunctionASTConverter(
         return self._visit_ref_expr(expr)
 
     def visit_member_expr(self, expr: mypy.nodes.MemberExpr) -> ExpressionBuilder | Literal:
-        if isinstance(expr.expr, mypy.nodes.RefExpr) and isinstance(
-            expr.expr.node, mypy.nodes.MypyFile
-        ):
-            # special case for module attribute access
-            return self._visit_ref_expr(expr)
+        expr_loc = self._location(expr)
+        if isinstance(expr.expr, mypy.nodes.RefExpr):
+            if isinstance(expr.expr.node, mypy.nodes.MypyFile):
+                # special case for module attribute access
+                return self._visit_ref_expr(expr)
+            unaliased_base_fullname = get_unaliased_fullname(expr.expr)
+            if enum_cls_data := constants.NAMED_INT_CONST_ENUM_DATA.get(unaliased_base_fullname):
+                try:
+                    int_enum = enum_cls_data[expr.name]
+                except KeyError as ex:
+                    raise CodeError(
+                        "Unable to resolve constant value for"
+                        f" {unaliased_base_fullname}.{expr.name}",
+                        expr_loc,
+                    ) from ex
+                return UInt64ExpressionBuilder(
+                    UInt64Constant(
+                        value=int_enum.value, source_location=expr_loc, teal_alias=int_enum.name
+                    )
+                )
 
         base = expr.expr.accept(self)
         base_builder = require_expression_builder(base)
-        return base_builder.member_access(name=expr.name, location=self._location(expr))
+        return base_builder.member_access(name=expr.name, location=expr_loc)
 
     def visit_call_expr(self, call: mypy.nodes.CallExpr) -> ExpressionBuilder | Literal:
         if call.analyzed is not None:
