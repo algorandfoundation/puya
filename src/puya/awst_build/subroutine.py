@@ -823,6 +823,7 @@ class FunctionASTConverter(
                 # special case for module attribute access
                 return self._visit_ref_expr(expr)
             unaliased_base_fullname = get_unaliased_fullname(expr.expr)
+            # TODO: allow UInt64Constant values in context.constants, and then put these there
             if enum_cls_data := constants.NAMED_INT_CONST_ENUM_DATA.get(unaliased_base_fullname):
                 try:
                     int_enum = enum_cls_data[expr.name]

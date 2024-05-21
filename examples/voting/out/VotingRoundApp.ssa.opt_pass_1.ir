@@ -103,10 +103,10 @@ contract examples.voting.voting.VotingRoundApp:
         
         subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: bytes) -> bytes:
             block@0: // L217
-                let tmp%0#0: uint64 = (extract_uint16 option_counts#0 0u)
-                (assert tmp%0#0) // option_counts should be non-empty
-                let tmp%2#0: bool = (<= tmp%0#0 112u)
-                (assert tmp%2#0) // Can't have more than 112 questions
+                let reinterpret_bool%0#0: bool = (extract_uint16 option_counts#0 0u)
+                (assert reinterpret_bool%0#0) // option_counts should be non-empty
+                let tmp%1#0: bool = (<= reinterpret_bool%0#0 112u)
+                (assert tmp%1#0) // Can't have more than 112 questions
                 let total_options#0: uint64 = 0u
                 let array_value%0#0: bytes = ((extract 2 0) option_counts#0)
                 let item_index_internal%0#0: uint64 = 0u
@@ -114,17 +114,17 @@ contract examples.voting.voting.VotingRoundApp:
             block@1: // for_header_L223
                 let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
                 let total_options#1: uint64 = φ(total_options#0 <- block@0, total_options#2 <- block@2)
-                let continue_looping%0#0: bool = (< item_index_internal%0#1 tmp%0#0)
+                let continue_looping%0#0: bool = (< item_index_internal%0#1 reinterpret_bool%0#0)
                 goto continue_looping%0#0 ? block@2 : block@4
             block@2: // for_body_L223
                 let item#0: bytes = (extract3 array_value%0#0 item_index_internal%0#1 1u)
-                let tmp%3#0: uint64 = (btoi item#0)
-                let total_options#2: uint64 = (+ total_options#1 tmp%3#0)
+                let tmp%2#0: uint64 = (btoi item#0)
+                let total_options#2: uint64 = (+ total_options#1 tmp%2#0)
                 let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
                 goto block@1
             block@4: // after_for_L223
-                let tmp%4#0: bool = (<= total_options#1 128u)
-                (assert tmp%4#0) // Can't have more than 128 vote options
+                let tmp%3#0: bool = (<= total_options#1 128u)
+                (assert tmp%3#0) // Can't have more than 128 vote options
                 (app_global_put "option_counts" option_counts#0)
                 (app_global_put "total_options" total_options#1)
                 return option_counts#0
