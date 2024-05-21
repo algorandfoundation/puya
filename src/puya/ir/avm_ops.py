@@ -170,7 +170,7 @@ class AVMOp(enum.StrEnum):
         op_code="b+",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bytes]
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
             ),
             supported_modes=RunMode.any,
         ),
@@ -4031,7 +4031,7 @@ class AVMOp(enum.StrEnum):
         op_code="b*",
         variants=Variant(
             signature=OpSignature(
-                args=[StackType.bigint, StackType.bigint], returns=[StackType.bytes]
+                args=[StackType.bigint, StackType.bigint], returns=[StackType.bigint]
             ),
             supported_modes=RunMode.any,
         ),
