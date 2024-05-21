@@ -18,8 +18,11 @@ from puya.awst.nodes import (
     Statement,
 )
 from puya.awst_build import constants, pytypes
-from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override, \
-    extract_description
+from puya.awst_build.eb._storage import (
+    StorageProxyDefinitionBuilder,
+    extract_description,
+    extract_key_override,
+)
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     GenericClassExpressionBuilder,

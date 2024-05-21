@@ -14,11 +14,15 @@ from puya.awst.nodes import (
     StateExists,
     StateGet,
     StateGetEx,
-    Statement, )
+    Statement,
+)
 from puya.awst_build import constants, pytypes
 from puya.awst_build.contract_data import AppStorageDeclaration
-from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override, \
-    extract_description
+from puya.awst_build.eb._storage import (
+    StorageProxyDefinitionBuilder,
+    extract_description,
+    extract_key_override,
+)
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     GenericClassExpressionBuilder,

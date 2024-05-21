@@ -3,19 +3,22 @@ from __future__ import annotations
 import typing
 
 from puya.awst import wtypes
+from puya.awst.nodes import (
+    BytesConstant,
+    BytesEncoding,
+    BytesRaw,
+    ContractReference,
+    Expression,
+    Literal,
+    Lvalue,
+    Statement,
+)
 from puya.awst_build.contract_data import AppStorageDeclaration
 from puya.awst_build.eb.base import ExpressionBuilder, StorageProxyConstructorResult
 from puya.errors import CodeError
 
 if typing.TYPE_CHECKING:
-    from puya.awst.nodes import (
-        BytesConstant,
-        ContractReference,
-        Expression,
-        Literal,
-        Lvalue,
-        Statement, BytesEncoding, BytesRaw,
-)
+
     from puya.awst_build import pytypes
     from puya.parse import SourceLocation
 
@@ -53,7 +56,7 @@ class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorRe
             raise CodeError(
                 f"assigning {typ} to a member variable"
                 f" requires a constant value for key{'_prefix' if self.is_prefix else ''}",
-                location
+                location,
             )
         return AppStorageDeclaration(
             description=self.description,
@@ -108,7 +111,9 @@ class StorageProxyDefinitionBuilder(ExpressionBuilder, StorageProxyConstructorRe
         )
 
 
-def extract_key_override(key_arg: ExpressionBuilder | Literal | None, location: SourceLocation, *, is_prefix: bool) -> Expression | None:
+def extract_key_override(
+    key_arg: ExpressionBuilder | Literal | None, location: SourceLocation, *, is_prefix: bool
+) -> Expression | None:
     key_override: Expression | None
     match key_arg:
         case None:
@@ -130,7 +135,7 @@ def extract_key_override(key_arg: ExpressionBuilder | Literal | None, location: 
         case _:
             raise CodeError(
                 f"invalid type for key{'_prefix' if is_prefix else ''}  argument",
-                key_arg.source_location
+                key_arg.source_location,
             )
     return key_override
 
