@@ -52,8 +52,8 @@ class VotingRoundApp(ARC4Contract):
         # The minimum number of voters who have voted
         self.voter_count = UInt64(0)
         self.close_time = GlobalState(UInt64)
-        self.tally_box = BoxRef(key=b"V")
-        self.votes_by_account = BoxMap(Account, VoteIndexArray)
+        self.tally_box = BoxRef(key="V")
+        self.votes_by_account = BoxMap(Account, VoteIndexArray, key_prefix="")
 
     @arc4.abimethod(create="require")
     def create(

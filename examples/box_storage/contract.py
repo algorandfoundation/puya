@@ -10,7 +10,7 @@ class BoxContract(arc4.ARC4Contract):
         self.box_a = Box(UInt64)
         self.box_b = Box(Bytes, key="b")
         self.box_c = Box(arc4.String, key=b"BOX_C")
-        self.box_map = BoxMap(UInt64, String)
+        self.box_map = BoxMap(UInt64, String, key_prefix="")
 
     @arc4.abimethod
     def set_boxes(self, a: UInt64, b: Bytes, c: arc4.String) -> None:
