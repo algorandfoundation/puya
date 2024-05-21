@@ -29,7 +29,7 @@ class urange(Reversible[UInt64]):  # noqa: N801
 
 _T = typing.TypeVar("_T")
 
-class uenumerate(Reversible[tuple[UInt64, _T]]):
+class uenumerate(Reversible[tuple[UInt64, _T]]):  # noqa: N801
     """Yields pairs containing a count (from zero) and a value yielded by the iterable argument.
 
     enumerate is useful for obtaining an indexed list:

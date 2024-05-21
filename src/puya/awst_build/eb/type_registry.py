@@ -17,7 +17,6 @@ from puya.awst_build.eb import (
     ensure_budget,
     intrinsics,
     log,
-    named_int_constants,
     string,
     struct,
     template_variables,
@@ -106,14 +105,6 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromSourceFactory]
             transaction.InnerTransactionClassExpressionBuilder, wtype=itxn_result_pytyp.wtype
         )
         for itxn_result_pytyp in pytypes.InnerTransactionResultTypes.values()
-    },
-    **{
-        int_enum_typ: functools.partial(
-            named_int_constants.NamedIntegerConstsTypeBuilder,
-            enum_name=int_enum_typ.name,
-            data=constants.NAMED_INT_CONST_ENUM_DATA[int_enum_typ.name],  # TODO: hmmm
-        )
-        for int_enum_typ in (pytypes.TransactionType, pytypes.OnCompleteActionType)
     },
 }
 PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
@@ -211,11 +202,6 @@ PYTYPE_TO_BUILDER: dict[pytypes.PyType, ExpressionBuilderFromExpressionFactory] 
             transaction.InnerTransactionExpressionBuilder, typ=itxn_result_pytyp
         )
         for itxn_result_pytyp in pytypes.InnerTransactionResultTypes.values()
-    },
-    # HMMMMMM
-    **{
-        int_enum_typ: uint64.UInt64ExpressionBuilder
-        for int_enum_typ in (pytypes.TransactionType, pytypes.OnCompleteActionType)
     },
 }
 ExpressionBuilderFromExpressionAndPyTypeFactory = Callable[
