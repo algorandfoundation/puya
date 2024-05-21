@@ -7,6 +7,8 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     BoxLength,
     BoxValueExpression,
+    BytesConstant,
+    ContractReference,
     Expression,
     IntrinsicCall,
     Literal,
@@ -14,10 +16,12 @@ from puya.awst.nodes import (
     StateExists,
 )
 from puya.awst_build import pytypes
-from puya.awst_build.eb._storage import extract_key_override
+from puya.awst_build.contract_data import AppStorageDeclaration
+from puya.awst_build.eb._storage import StorageProxyDefinitionBuilder, extract_key_override
 from puya.awst_build.eb.base import (
     ExpressionBuilder,
     IntermediateExpressionBuilder,
+    StorageProxyConstructorResult,
     TypeClassExpressionBuilder,
     ValueExpressionBuilder,
 )
@@ -57,13 +61,22 @@ class BoxRefClassExpressionBuilder(TypeClassExpressionBuilder):
             raise CodeError("Invalid/unhandled arguments", location)
 
         key_override = extract_key_override(key_arg, location, is_prefix=False)
-        return BoxRefProxyExpressionBuilder(
-            expr=BoxValueExpression(key=key, wtype=self.produces(), source_location=location)
-        )
+        if key_override is None:
+            return BoxRefProxyDefinitionBuilder(location=location, description=None)
+        return _BoxRefProxyExpressionBuilderFromConstructor(expr=key_override)
+
+
+class BoxRefProxyDefinitionBuilder(StorageProxyDefinitionBuilder):
+    python_name = pytypes.BoxRefType.name
+    is_prefix = False
 
 
 class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
     wtype = wtypes.bytes_wtype
+
+    def __init__(self, expr: Expression, member_name: str | None = None):
+        super().__init__(expr)
+        self._member_name = member_name
 
     def _box_key_expr(self, location: SourceLocation) -> BoxValueExpression:
         return BoxValueExpression(
@@ -137,6 +150,38 @@ class BoxRefProxyExpressionBuilder(ValueExpressionBuilder):
                 )
             case _:
                 return super().member_access(name, location)
+
+
+class _BoxRefProxyExpressionBuilderFromConstructor(
+    BoxRefProxyExpressionBuilder, StorageProxyConstructorResult
+):
+    @typing.override
+    @property
+    def initial_value(self) -> Expression | None:
+        return None
+
+    @typing.override
+    def build_definition(
+        self,
+        member_name: str,
+        defined_in: ContractReference,
+        typ: pytypes.PyType,
+        location: SourceLocation,
+    ) -> AppStorageDeclaration:
+        key_override = self.expr
+        if not isinstance(key_override, BytesConstant):
+            raise CodeError(
+                f"assigning {typ} to a member variable requires a constant value for key",
+                location,
+            )
+        return AppStorageDeclaration(
+            description=None,
+            member_name=member_name,
+            key_override=key_override,
+            source_location=location,
+            typ=typ,
+            defined_in=defined_in,
+        )
 
 
 class BoxRefIntrinsicMethodExpressionBuilder(IntermediateExpressionBuilder):
