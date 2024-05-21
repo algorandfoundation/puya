@@ -378,15 +378,9 @@ BytesBackedType: typing.Final[PyType] = _SimpleType(
     wtype=wtypes.bytes_wtype,
 )
 
-OnCompleteActionType: typing.Final[PyType] = _SimpleType(
-    name=constants.ENUM_CLS_ON_COMPLETE_ACTION,
-    wtype=wtypes.uint64_wtype,
-)
-TransactionType: typing.Final[PyType] = _SimpleType(
-    name=constants.ENUM_CLS_TRANSACTION_TYPE,
-    wtype=wtypes.uint64_wtype,
-)
-OpUpFeeSourceType: typing.Final[PyType] = _SimpleType(
+_register_builtin(UInt64Type, alias=constants.ENUM_CLS_ON_COMPLETE_ACTION)
+_register_builtin(UInt64Type, alias=constants.ENUM_CLS_TRANSACTION_TYPE)
+OpUpFeeSourceType: typing.Final[PyType] = _SimpleType(  # TODO: replace with alias as above
     name=constants.OP_UP_FEE_SOURCE,
     wtype=wtypes.uint64_wtype,
 )

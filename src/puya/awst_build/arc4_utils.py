@@ -15,7 +15,7 @@ from puya.awst import (
 )
 from puya.awst_build import constants, intrinsic_factory, pytypes
 from puya.awst_build.context import ASTConversionModuleContext
-from puya.awst_build.utils import extract_bytes_literal_from_mypy
+from puya.awst_build.utils import extract_bytes_literal_from_mypy, get_unaliased_fullname
 from puya.errors import CodeError, InternalError
 from puya.models import ARC4MethodConfig, ARC32StructDef, OnCompletionAction
 from puya.parse import SourceLocation
@@ -69,7 +69,7 @@ def get_arc4_method_data(
             arg_names=arg_names,
             callee=mypy.nodes.RefExpr(fullname=fullname),
         ):
-            visitor = _DecoratorArgEvaluator()
+            visitor = _ARC4DecoratorArgEvaluator(context)
             abi_hints = typing.cast(
                 _AbiHints,
                 {n: a.accept(visitor) for n, a in zip(filter(None, arg_names), args, strict=True)},
@@ -132,7 +132,10 @@ class _AbiHints(typing.TypedDict, total=False):
     default_args: dict[str, str]
 
 
-class _DecoratorArgEvaluator(mypy.visitor.NodeVisitor[typing.Any]):
+class _ARC4DecoratorArgEvaluator(mypy.visitor.NodeVisitor[object]):
+    def __init__(self, context: ASTConversionModuleContext):
+        self.context = context
+
     def __getattribute__(self, name: str) -> object:
         attr = super().__getattribute__(name)
         if name.startswith("visit_") and not attr.__module__.startswith("puya."):
@@ -140,74 +143,77 @@ class _DecoratorArgEvaluator(mypy.visitor.NodeVisitor[typing.Any]):
         return attr
 
     def _not_supported(self, o: mypy.nodes.Context) -> typing.Never:
-        raise CodeError(f"Cannot evaluate expression {o}")
+        raise CodeError("Unsupported expression in ARC4 decorator", self.context.node_location(o))
 
+    @typing.override
     def visit_int_expr(self, o: mypy.nodes.IntExpr) -> int:
         return o.value
 
+    @typing.override
     def visit_str_expr(self, o: mypy.nodes.StrExpr) -> str:
         return o.value
 
+    @typing.override
     def visit_bytes_expr(self, o: mypy.nodes.BytesExpr) -> bytes:
         return extract_bytes_literal_from_mypy(o)
 
-    def visit_float_expr(self, o: mypy.nodes.FloatExpr) -> float:
-        return o.value
-
-    def visit_complex_expr(self, o: mypy.nodes.ComplexExpr) -> object:
-        return o.value
-
-    def visit_ellipsis(self, _: mypy.nodes.EllipsisExpr) -> object:
-        return Ellipsis
-
+    @typing.override
     def visit_name_expr(self, o: mypy.nodes.NameExpr) -> object:
-        if o.name == "True":
+        if o.fullname == "builtins.True":
             return True
-        elif o.name == "False":
+        elif o.fullname == "builtins.False":
             return False
-        elif o.name == "None":
+        elif o.fullname == "builtins.None":
             return None
+        elif isinstance(o.node, mypy.nodes.Decorator):
+            return o.name  # assume abimethod
         else:
-            return o.name
+            return self._resolve_constant_reference(o)
 
+    @typing.override
     def visit_member_expr(self, o: mypy.nodes.MemberExpr) -> object:
-        return o.name
+        expr_loc = self.context.node_location(o)
+        if isinstance(o.expr, mypy.nodes.RefExpr):
+            unaliased_base_fullname = get_unaliased_fullname(o.expr)
+            if unaliased_base_fullname == constants.ENUM_CLS_ON_COMPLETE_ACTION:
+                if (
+                    o.name
+                    in constants.NAMED_INT_CONST_ENUM_DATA[constants.ENUM_CLS_ON_COMPLETE_ACTION]
+                ):
+                    return o.name
+                raise CodeError(
+                    f"Unable to resolve constant value for {unaliased_base_fullname}.{o.name}",
+                    expr_loc,
+                )
+        return self._resolve_constant_reference(o)
 
-    def visit_cast_expr(self, o: mypy.nodes.CastExpr) -> object:
-        return o.expr.accept(self)
+    def _resolve_constant_reference(self, expr: mypy.nodes.RefExpr) -> object:
 
-    def visit_assert_type_expr(self, o: mypy.nodes.AssertTypeExpr) -> object:
-        return o.expr.accept(self)
+        try:
+            return self.context.constants[expr.fullname]
+        except KeyError:
+            raise CodeError(
+                f"Unresolved module constant: {expr.fullname}", self.context.node_location(expr)
+            ) from None
 
+    @typing.override
     def visit_unary_expr(self, o: mypy.nodes.UnaryExpr) -> object:
-        operand: object = o.expr.accept(self)
-        if o.op == "-":
-            if isinstance(operand, int | float | complex):
-                return -operand
-        elif o.op == "+":
-            if isinstance(operand, int | float | complex):
-                return +operand
-        elif o.op == "~":
-            if isinstance(operand, int):
-                return ~operand
-        elif o.op == "not" and isinstance(operand, bool | int | float | str | bytes):
+        operand = o.expr.accept(self)
+        if o.op == "not":
             return not operand
         self._not_supported(o)
 
-    def visit_assignment_expr(self, o: mypy.nodes.AssignmentExpr) -> object:
-        return o.value.accept(self)
-
+    @typing.override
     def visit_list_expr(self, o: mypy.nodes.ListExpr) -> list[object]:
         return [item.accept(self) for item in o.items]
 
-    def visit_dict_expr(self, o: mypy.nodes.DictExpr) -> dict[object, object]:
-        return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
-
+    @typing.override
     def visit_tuple_expr(self, o: mypy.nodes.TupleExpr) -> tuple[object, ...]:
         return tuple(item.accept(self) for item in o.items)
 
-    def visit_set_expr(self, o: mypy.nodes.SetExpr) -> set[object]:
-        return {item.accept(self) for item in o.items}
+    @typing.override
+    def visit_dict_expr(self, o: mypy.nodes.DictExpr) -> dict[object, object]:
+        return {key.accept(self) if key else None: value.accept(self) for key, value in o.items}
 
 
 def _wtype_to_struct_def(typ: pytypes.StructType) -> ARC32StructDef:
