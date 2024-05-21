@@ -292,8 +292,9 @@ def _box_value_expr(
     content_type: wtypes.WType,
 ) -> BoxValueExpression:
     prefix = expect_operand_wtype(key_prefix, wtypes.bytes_wtype)
-    key_eb = require_expression_builder(key)
-    key_data = BytesRaw(expr=key_eb.rvalue(), source_location=location)
+    key_data = require_expression_builder(key).rvalue()
+    if key_data.wtype != wtypes.bytes_wtype:
+        key_data = BytesRaw(expr=key_data, source_location=location)
     full_key = intrinsic_factory.concat(prefix, key_data, location)
     return BoxValueExpression(
         key=full_key,

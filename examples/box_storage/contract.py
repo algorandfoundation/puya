@@ -7,8 +7,8 @@ StaticInts: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[4]]
 
 class BoxContract(arc4.ARC4Contract):
     def __init__(self) -> None:
-        self.box_a = Box(UInt64, key=b"BOX_A")
-        self.box_b = Box(Bytes, key=b"b")
+        self.box_a = Box(UInt64)
+        self.box_b = Box(Bytes, key="b")
         self.box_c = Box(arc4.String, key=b"BOX_C")
         self.box_map = BoxMap(UInt64, String)
 
@@ -49,7 +49,7 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def box_blob(self) -> None:
-        box_blob = BoxRef(key=b"blob")
+        box_blob = BoxRef(key="blob")
         sender_bytes = Txn.sender.bytes
         app_address = Global.current_application_address.bytes
         assert box_blob.create(size=8000)
