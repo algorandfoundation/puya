@@ -117,11 +117,9 @@ def expect_arc4_operand_wtype(
     if isinstance(literal_or_expr, ExpressionBuilder):
         literal_or_expr = literal_or_expr.rvalue()
 
-    if wtypes.has_arc4_equivalent_type(target_wtype):
-        target_wtype = wtypes.avm_to_arc4_equivalent_type(target_wtype)
-        literal_or_expr = arc4_encode(
-            literal_or_expr, target_wtype, literal_or_expr.source_location
-        )
+    if wtypes.has_arc4_equivalent_type(literal_or_expr.wtype):
+        new_wtype = wtypes.avm_to_arc4_equivalent_type(literal_or_expr.wtype)
+        literal_or_expr = arc4_encode(literal_or_expr, new_wtype, literal_or_expr.source_location)
 
     if literal_or_expr.wtype != target_wtype:
         raise CodeError(

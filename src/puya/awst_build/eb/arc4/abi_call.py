@@ -12,6 +12,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
     TXN_FIELDS_BY_IMMEDIATE,
+    ARC4Decode,
     BytesConstant,
     BytesEncoding,
     CreateInnerTransaction,
@@ -202,8 +203,10 @@ def _abi_call(
         case ARC4ClientMethodExpressionBuilder(
             context=context, node=node
         ) | BaseClassSubroutineInvokerExpressionBuilder(context=context, node=node):
-            signature = _get_arc4_signature(context, node, location)
-            abi_return_type = signature.return_type
+            # in this case the arc4 signature and declared return type are inferred
+            signature, abi_return_type = _get_arc4_signature_and_return_pytype(
+                context, node, location
+            )
             num_args = len(abi_call_expr.abi_args)
             num_types = len(signature.arg_types)
             if num_types != num_args:
@@ -225,29 +228,43 @@ def _abi_call(
         _create_abi_call_expr(
             signature,
             arc4_args,
+            abi_return_type,
             abi_call_expr.transaction_kwargs,
             location,
-            return_inner_txn_only=not _is_typed(abi_return_type),
         )
     )
 
 
-def _get_arc4_signature(
+def _get_arc4_signature_and_return_pytype(
     context: ASTConversionModuleContext,
     func_or_dec: mypy.nodes.FuncBase | mypy.nodes.Decorator,
     location: SourceLocation,
-) -> ARC4Signature:
+) -> tuple[ARC4Signature, pytypes.PyType]:
     if isinstance(func_or_dec, mypy.nodes.Decorator):
         decorators = get_decorators_by_fullname(context, func_or_dec)
         abimethod_dec = decorators.get(constants.ABIMETHOD_DECORATOR)
         if abimethod_dec is not None:
             func_def = func_or_dec.func
             arc4_method_data = get_arc4_method_data(context, abimethod_dec, func_def)
+            arc4_return_type = _pytype_to_arc4_pytype(arc4_method_data.return_type)
+            arc4_arg_types = list(map(_pytype_to_arc4_pytype, arc4_method_data.argument_types))
             name = arc4_method_data.config.name
-            return ARC4Signature(
-                name, arc4_method_data.argument_types, arc4_method_data.return_type
+            return (
+                ARC4Signature(name, arc4_arg_types, arc4_return_type),
+                arc4_method_data.return_type,
             )
     raise CodeError(f"{func_or_dec.fullname!r} is not a valid ARC4 method", location)
+
+
+def _pytype_to_arc4_pytype(pytype: pytypes.PyType) -> pytypes.PyType:
+    if wtypes.has_arc4_equivalent_type(pytype.wtype):
+        # TODO: fix this
+        from puya import arc4_util
+
+        arc4_wtype = wtypes.avm_to_arc4_equivalent_type(pytype.wtype)
+        arc4_name = arc4_util.wtype_to_arc4(arc4_wtype)
+        pytype = arc4_util.arc4_to_pytype(arc4_name)
+    return pytype
 
 
 def _is_typed(typ: pytypes.PyType | None) -> typing.TypeGuard[pytypes.PyType]:
@@ -257,10 +274,9 @@ def _is_typed(typ: pytypes.PyType | None) -> typing.TypeGuard[pytypes.PyType]:
 def _create_abi_call_expr(
     signature: ARC4Signature,
     abi_args: Sequence[Expression],
+    declared_result_pytype: pytypes.PyType | None,
     transaction_kwargs: dict[str, ExpressionBuilder | Literal],
     location: SourceLocation,
-    *,
-    return_inner_txn_only: bool,
 ) -> Expression:
     if signature.return_type is None:
         raise InternalError("Expected ARC4Signature.return_type to be defined", location)
@@ -351,7 +367,7 @@ def _create_abi_call_expr(
         wtype=wtypes.WInnerTransaction.from_type(constants.TransactionType.appl),
     )
 
-    if return_inner_txn_only:
+    if not _is_typed(declared_result_pytype):
         return itxn
     itxn_tmp = SingleEvaluation(itxn)
     last_log = InnerTransactionField(
@@ -360,9 +376,28 @@ def _create_abi_call_expr(
         field=TxnFields.last_log,
         wtype=TxnFields.last_log.wtype,
     )
+    abi_result = ARC4FromLogBuilder.abi_expr_from_log(
+        signature.return_type.wtype, last_log, location
+    )
+    # the declared result wtype may be different to the arc4 signature return wtype
+    # due to automatic conversion of ARC4 -> native types
+    if declared_result_pytype != signature.return_type:
+        if (
+            wtypes.has_arc4_equivalent_type(declared_result_pytype.wtype)
+            and wtypes.avm_to_arc4_equivalent_type(declared_result_pytype.wtype)
+            == signature.return_type.wtype
+        ):
+            abi_result = ARC4Decode(
+                value=abi_result,
+                wtype=declared_result_pytype.wtype,
+                source_location=location,
+            )
+        else:
+            raise InternalError("Return type does not match signature type", location)
+
     return TupleExpression.from_items(
         (
-            ARC4FromLogBuilder.abi_expr_from_log(signature.return_type.wtype, last_log, location),
+            abi_result,
             itxn_tmp,
         ),
         location,
